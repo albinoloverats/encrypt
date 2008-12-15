@@ -1,0 +1,62 @@
+Algorithm Details
+  Name       : Anubis Block Cipher
+  Authors    : Paulo S.L.M. Barreto and Vincent Rijmen
+  Copyright  : Copyright (c) 2001, P Barreto and V Rijmen
+  Licence    : Public Domain
+  Year       : 2001
+  Block size : 128 bits
+
+Key Details
+  Name       : Ripe Message Digest 160
+  Authors    : Hans Dobbertin, Antoon Bosselaers and Bart Preneel
+               (Code by Antoon Bosselaers)
+  Copyright  : Copyright (c) 1996, Katholieke Universiteit Leuven
+  Licence    : Public Domain
+  Year       : 1996
+  Key size   : 160 bits
+
+Plugin Details
+  Authors    : Ashley Anderson
+  Copyright  : Copyright (c) 2007-2008, Ashley Anderson
+  Licence    : GPL
+  Version    : 1.4
+
+Additional Details
+  ANUBIS is a block cipher designed by Vincent Rijmen and Paulo
+  S.L.M. Barreto that operates on data blocks of length 128 bits,
+  and uses keys of length 128 to 320 bits in steps of 32 bits. It
+  has been submitted as a candidate algorithm for the NESSIE
+  cryptographic primitive evaluation effort.  This is version 2 of
+  the algorithm:  This software implements the "tweaked" version of
+  Anubis.  Only the S-box and (consequently) the rounds constants
+  have been changed.
+  RIPEMD-160 (RACE Integrity Primitives Evaluation Message Digest)
+  is a 160-bit message digest algorithm (and cryptographic hash
+  function) developed in Europe by Hans Dobbertin, Antoon
+  Bosselaers and Bart Preneel, and first published in 1996.  It is
+  an improved version of RIPEMD, which in turn was based upon the
+  design principles used in MD4, and is similar in performance to
+  the more popular SHA-1.  RIPEMD-160 was designed in the open
+  academic community, in contrast to, e.g., the NSA-designed family
+  of algorithms, SHA.
+
+Build Details
+  Anubis can be built and installed either from the source archive
+  downloaded, or from within the encrypt source tree. Both methods
+  have their ups and their downs: from its own directory, it is
+  only possible to install Anubis itself, so if you're yet to
+  install encrypt this isn't the way for you. Otherwise you need to
+  copy (at least) the source files from anubis/lib/ to encrypt/lib/
+  This will allow you to build and install Anubis along side
+  encrypt. Depending on how you choose to do this, you may, or may
+  not, need to remove the () from the following commands:
+
+    make all --or-- make gui-all --or-- make anubis
+    make install(-anubis)
+    make clean(-anubis)
+    make uninstall(-anubis)
+
+  On MS Windows:
+    Either build from source using Dev-C++ or install using the
+    installer.
+

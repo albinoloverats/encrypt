@@ -1,0 +1,46 @@
+encrypt - version TBA                                   August 7th, 2008
+
+The next version will likely consist of a cleaner code base, as
+well as any bug fixes that are required. The code is SVN should be
+mostly up-to-date and compile on any GNU/Linux with recent versions
+of common libraries.
+
+There is also the aim of getting the installers for all of the
+plugins working on Windows systems.
+
+The encrypt Development Team
+
+
+Build/Installation notes:
+
+  On GNU Systems:
+    Simplly:
+        % make all
+        $ make install-all
+
+    To build specific parts (modules or the GUI) use:
+        % make gui
+        % make %s
+
+    You should be able to 'cut-and-paste' the different build
+    options to compile and install exactly what you need (and
+    nothing else):
+        % make gui helloworld
+
+    Eventually you may need the following:
+        % make clean
+        % make distclean
+        $ make uninstall
+
+  On MS Systems:
+    It's all done for you (Using Dev-C++) - if you wish to compile
+    from source yourself, this shouldn't be too much of a problem
+    suing Dev-C++ (just ask if you need help). The NSIS scipt will
+    then allow you to build the installer (or you can just copy the
+    binaries to wherever and go from there).
+
+Note:  You will need to have installed the GTK Run Time Libraries:
+for the GUI, both *NIX and Windows, which you can get from your
+distro's package manager, or if you're on Windows:
+http://gimp-win.sourceforge.net/stable.html
+

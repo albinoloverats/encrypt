@@ -1,0 +1,8 @@
+; dlltool --base-file C:\DOCUME~1\ASHLEY~1\LOCALS~1\Temp/cca00116.base --output-exp anubis.exp --dllname anubis.dll --output-def libanubis.def --no-export-all-symbols --add-stdcall-alias --exclude-symbol=DllMainCRTStartup@12 --def C:\DOCUME~1\ASHLEY~1\LOCALS~1\Temp/cca00116.def --output-lib libanubis.a
+EXPORTS
+	dec_main @ 1
+	enc_main @ 2
+	gen_file @ 3
+	gen_text @ 4
+	key_read @ 5
+	about @ 6

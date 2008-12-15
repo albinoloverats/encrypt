@@ -1,0 +1,35 @@
+/* THIS FILE WILL BE OVERWRITTEN BY DEV-C++ */
+/* DO NOT EDIT! */
+
+#include <windows.h> // include for version info constants
+
+
+//
+// TO CHANGE VERSION INFORMATION, EDIT PROJECT OPTIONS...
+//
+1 VERSIONINFO
+FILEVERSION 1,4,0,0
+PRODUCTVERSION 1,4,0,0
+FILETYPE VFT_DLL
+{
+  BLOCK "StringFileInfo"
+	 {
+		 BLOCK "080904E4"
+		 {
+			 VALUE "CompanyName", ""
+			 VALUE "FileVersion", "1.4"
+			 VALUE "FileDescription", "Anubis Block Cipher with RIPEMD-160 hashing algorithm"
+			 VALUE "InternalName", "anubis"
+			 VALUE "LegalCopyright", "Copyright (c) 2007-2008, Ashley Anderson"
+			 VALUE "LegalTrademarks", ""
+			 VALUE "OriginalFilename", "anubis.dll"
+			 VALUE "ProductName", "Anubis+Ripe160"
+			 VALUE "ProductVersion", "1.4"
+		 }
+	 }
+  BLOCK "VarFileInfo"
+	 {
+		 VALUE "Translation", 0x0809, 1252
+	 }
+}
+
