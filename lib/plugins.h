@@ -52,8 +52,8 @@ extern void *gen_text(void *, long unsigned);
 extern void *key_read(int);
 
 #ifdef _WIN32
-typedef UINT32 u_int32_t;
-typedef UINT64 u_int64_t;
+typedef UINT32 uint32_t;
+typedef UINT64 uint64_t;
 #if BUILDING_DLL
 #define extern __declspec (dllexport)
 #else

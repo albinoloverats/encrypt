@@ -65,7 +65,7 @@ extern int enc_main(int in, int out, void *key)
     /*
      * build the key
      */
-    u_int32_t *subkeys = serpent_subkeys(key);
+    uint32_t *subkeys = serpent_subkeys(key);
     /*
      * write the header and file size
      */
@@ -101,7 +101,7 @@ extern int dec_main(int in, int out, void *key)
     /*
      * build the key
      */
-    u_int32_t *subkeys = serpent_subkeys(key);
+    uint32_t *subkeys = serpent_subkeys(key);
     /*
      * check the header (ignore version) and get the size of the file
      */
@@ -123,7 +123,7 @@ extern int dec_main(int in, int out, void *key)
     /*
      * main loop
      */
-    for (u_int32_t i = 0; i < (s / CHUNK_SERPENT); i++)
+    for (uint32_t i = 0; i < (s / CHUNK_SERPENT); i++)
     {
         if (read(in, ciphertext, CHUNK_SERPENT) != CHUNK_SERPENT)
             return errno;
@@ -156,13 +156,13 @@ extern void *gen_file(int file)
         return NULL;
     read(file, data, size);
     data[size] = '\0';
-    return gen_text(data, (u_int32_t) size);
+    return gen_text(data, (uint32_t) size);
 }
 
 extern void *gen_text(void *data, unsigned long size)
 {
-    u_int64_t *key = calloc(3, sizeof (u_int64_t));
-    tiger((u_int64_t *)data, size, key);
+    uint64_t *key = calloc(3, sizeof (uint64_t));
+    tiger((uint64_t *)data, size, key);
 //    for (int i = 0; i < CHUNK_TIGER; i++)
 //    {
 //        key[i] = check_endian(key[i]);
@@ -190,9 +190,9 @@ extern void *key_read(int file)
     return key;
 }
 
-u_int64_t check_endian (u_int64_t val)
+uint64_t check_endian (uint64_t val)
 {
-    u_int64_t ret = 0;
+    uint64_t ret = 0;
     #ifdef BIG_ENDIAN
     ret |= (val & (0xFFLL  << 56)) >> 56;
     ret |= (val & (0xFFLL  << 48)) >> 40;
@@ -208,9 +208,9 @@ u_int64_t check_endian (u_int64_t val)
     return ret;
 }
 
-void block_encrypt(unsigned char *plaintext, unsigned char *ciphertext, unsigned char *IV, u_int32_t *subkeys)
+void block_encrypt(unsigned char *plaintext, unsigned char *ciphertext, unsigned char *IV, uint32_t *subkeys)
 {
-    u_int32_t t[4], pt[4], ct[4];
+    uint32_t t[4], pt[4], ct[4];
     memcpy(pt, plaintext, CHUNK_SERPENT);
     memcpy(t, IV, CHUNK_SERPENT);
     for (int i = 0; i < 4; i++)
@@ -220,9 +220,9 @@ void block_encrypt(unsigned char *plaintext, unsigned char *ciphertext, unsigned
     memcpy(IV, ciphertext, CHUNK_SERPENT);
 }
 
-void block_decrypt(unsigned char *ciphertext, unsigned char *plaintext, unsigned char *IV, u_int32_t *subkeys)
+void block_decrypt(unsigned char *ciphertext, unsigned char *plaintext, unsigned char *IV, uint32_t *subkeys)
 {
-    u_int32_t t[4], pt[4], ct[4];
+    uint32_t t[4], pt[4], ct[4];
     memcpy(ct, ciphertext, CHUNK_SERPENT);
     serpent_decrypt(ct, pt, subkeys);
     memcpy(t, IV, CHUNK_SERPENT);
@@ -232,11 +232,11 @@ void block_decrypt(unsigned char *ciphertext, unsigned char *plaintext, unsigned
     memcpy(plaintext, pt, CHUNK_SERPENT);
 }
 
-u_int32_t *serpent_subkeys(u_int32_t *material)
+uint32_t *serpent_subkeys(uint32_t *material)
 {
-//    u_int32_t *subkeys = calloc(33, sizeof (u_int32_t));
-    u_int32_t subkeys[33][4];
-    u_int32_t w[132] = { 0 }, k[132] = { 0 };
+//    uint32_t *subkeys = calloc(33, sizeof (uint32_t));
+    uint32_t subkeys[33][4];
+    uint32_t w[132] = { 0 }, k[132] = { 0 };
     int i;
 
     for (i = 0; i < SIZE_TIGER / SIZE_DWORD; i++)
@@ -301,11 +301,11 @@ u_int32_t *serpent_subkeys(u_int32_t *material)
     return ret;
 }
 
-void serpent_encrypt(u_int32_t plaintext[4], u_int32_t ciphertext[4], u_int32_t *k)
+void serpent_encrypt(uint32_t plaintext[4], uint32_t ciphertext[4], uint32_t *k)
 {
-    u_int32_t subkeys[33][4];
-    register u_int32_t x0, x1, x2, x3;
-    register u_int32_t y0, y1, y2, y3;
+    uint32_t subkeys[33][4];
+    register uint32_t x0, x1, x2, x3;
+    register uint32_t y0, y1, y2, y3;
 
     for (int i = 0; i <= 32; i++)
         for (int j = 0; j < 4; j++)
@@ -422,11 +422,11 @@ void serpent_encrypt(u_int32_t plaintext[4], u_int32_t ciphertext[4], u_int32_t 
     ciphertext[3] = x3;
 }
 
-void serpent_decrypt(u_int32_t ciphertext[4], u_int32_t plaintext[4], u_int32_t *k)
+void serpent_decrypt(uint32_t ciphertext[4], uint32_t plaintext[4], uint32_t *k)
 {
-    u_int32_t subkeys[33][4];
-    register u_int32_t x0, x1, x2, x3;
-    register u_int32_t y0, y1, y2, y3;
+    uint32_t subkeys[33][4];
+    register uint32_t x0, x1, x2, x3;
+    register uint32_t y0, y1, y2, y3;
 
     for (int i = 0; i <= 32; i++)
         for (int j = 0; j < 4; j++)

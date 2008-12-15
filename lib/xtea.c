@@ -51,14 +51,14 @@
 
 #define BYTE    8
 #define CYCLES  64
-#define DATA    2 * sizeof (u_int32_t)
+#define DATA    2 * sizeof (uint32_t)
 #define DELTA   0x9E3779B9
 #define KEY     128
 #define BLOCK   64
 
 #define HEADER "XTEA\2553.0\255"
 
-void hex2bin(u_int32_t *, char *);
+void hex2bin(uint32_t *, char *);
 
 extern struct about_info about(void) {
     struct about_info xtea;
@@ -84,8 +84,8 @@ extern struct about_info about(void) {
 }
 
 extern int enc_main(int in, int out, void *key) {
-    u_int32_t *data = NULL, *k = NULL;
-    u_int32_t v0 = 0, v1 = 0, sum = 0;
+    uint32_t *data = NULL, *k = NULL;
+    uint32_t v0 = 0, v1 = 0, sum = 0;
     ssize_t len = 0, size = 0;
     errno = 0;
     if ((data = calloc(1, DATA)) == NULL)
@@ -101,7 +101,7 @@ extern int enc_main(int in, int out, void *key) {
     memcpy(data, &size, sizeof (ssize_t));
     v0 = data[0];
     v1 = data[1];
-    for (u_int32_t i = 0; i < CYCLES; i++) {
+    for (uint32_t i = 0; i < CYCLES; i++) {
         v0  += (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + k[sum & 3]);
         sum += DELTA;
         v1  += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + k[(sum >> 11) & 3]);
@@ -118,7 +118,7 @@ extern int enc_main(int in, int out, void *key) {
             v0 = data[0];
             v1 = data[1];
             sum = 0;
-            for (u_int32_t i = 0; i < CYCLES; i++) {
+            for (uint32_t i = 0; i < CYCLES; i++) {
                 v0  += (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + k[sum & 3]);
                 sum += DELTA;
                 v1  += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + k[(sum >> 11) & 3]);
@@ -139,8 +139,8 @@ extern int enc_main(int in, int out, void *key) {
 }
 
 extern int dec_main(int in, int out, void *key) {
-    u_int32_t *data = NULL, *k = NULL;
-    u_int32_t v0 = 0, v1 = 0, sum = 0;
+    uint32_t *data = NULL, *k = NULL;
+    uint32_t v0 = 0, v1 = 0, sum = 0;
     ssize_t len = 0, size = 0;
     errno = 0;
     if ((data = calloc(1, DATA)) == NULL)
@@ -155,7 +155,7 @@ extern int dec_main(int in, int out, void *key) {
     len = read(in, &data, DATA);
     v0 = data[0], v1 = data[1];
     sum = DELTA * CYCLES;
-    for (u_int32_t i = 0; i < CYCLES; i++) {
+    for (uint32_t i = 0; i < CYCLES; i++) {
         v1  -= (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + k[(sum >> 11) & 3]);
         sum -= DELTA;
         v0  -= (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + k[sum & 3]);
@@ -173,7 +173,7 @@ extern int dec_main(int in, int out, void *key) {
         if (len == DATA) {
             v0 = data[0], v1 = data[1];
             sum = DELTA * CYCLES;
-            for (u_int32_t i = 0; i < CYCLES; i++) {
+            for (uint32_t i = 0; i < CYCLES; i++) {
                 v1  -= (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + k[(sum >> 11) & 3]);
                 sum -= DELTA;
                 v0  -= (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + k[sum & 3]);
@@ -190,7 +190,7 @@ extern int dec_main(int in, int out, void *key) {
         return errno;
     v0 = data[0], v1 = data[1];
     sum = DELTA * CYCLES;
-    for (u_int32_t i = 0; i < CYCLES; i++) {
+    for (uint32_t i = 0; i < CYCLES; i++) {
         v1  -= (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + k[(sum >> 11) & 3]);
         sum -= DELTA;
         v0  -= (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + k[sum & 3]);
@@ -215,7 +215,7 @@ extern void *gen_file(int file) {
     if ((data = malloc(size)) == NULL)
         return NULL;
     read(file, data, size);
-    return gen_text(data, (u_int32_t)size);
+    return gen_text(data, (uint32_t)size);
 }
 
 extern void *gen_text(void *data, long unsigned size) {
@@ -248,7 +248,7 @@ extern void *key_read(int file) {
     return key;
 }
 
-void hex2bin(u_int32_t *k, char *c) {
+void hex2bin(uint32_t *k, char *c) {
     k[0] = ((c[ 0] & 0xFF) << 24) | ((c[ 1] & 0xFF) << 16) | ((c[ 2] & 0xFF) << 8) | (c[ 3] & 0xFF);
     k[1] = ((c[ 4] & 0xFF) << 24) | ((c[ 5] & 0xFF) << 16) | ((c[ 6] & 0xFF) << 8) | (c[ 7] & 0xFF);
     k[2] = ((c[ 8] & 0xFF) << 24) | ((c[ 9] & 0xFF) << 16) | ((c[10] & 0xFF) << 8) | (c[11] & 0xFF);
