@@ -244,7 +244,7 @@ int main(int argc, char **argv)
         /* 
          * we made it - if we reach here then everything is okay and we're now ready to start :)
          */
-        errno = (uint32_t)fp(file_in, file_out, key_data);
+        errno = (uint64_t)fp(file_in, file_out, key_data);
         /* 
          * if there's an error tell the user - however it's unlikely we'll know exactly what the error is
          */
@@ -472,7 +472,7 @@ int64_t list_modules(void)
         for (int64_t i = 0; i < n; ++i)
             if (strstr(eps[i]->d_name, ".so"))
   #ifdef linux
-                fprintf(stdout, "  %*s\n", strlen(eps[i]->d_name) - 3, eps[i]->d_name);
+                fprintf(stdout, "  %*s\n", (uint32_t)(strlen(eps[i]->d_name) - 3), eps[i]->d_name);
   #else  /*   linux */
             {
                 char *n = calloc(strlen(eps[i]->d_name), sizeof( char ));

@@ -34,7 +34,7 @@
 #include "serpent.h"
 #include "tiger.h"
 
-extern info_t *plugin_about(void)
+extern info_t *plugin_info(void)
 {
     info_t *s = calloc(1, sizeof( info_t ));
     if (!s)
@@ -62,13 +62,13 @@ extern info_t *plugin_about(void)
 extern int64_t plugin_encrypt(uint64_t file_in, uint64_t file_out, uint8_t *key)
 {
     errno = EXIT_SUCCESS;
-    uint8_t *IV = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
-    uint8_t *plaintext = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
-    uint8_t *ciphertext = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
+    uint8_t *IV = alloca(CHUNK_SERPENT);
+    uint8_t *plaintext = alloca(CHUNK_SERPENT);
+    uint8_t *ciphertext = alloca(CHUNK_SERPENT);
     /*
      * build the key
      */
-    uint32_t *subkeys = serpent_subkeys(key);
+    uint32_t *subkeys = serpent_subkeys((uint32_t *)key);
     /*
      * write the header and file size
      */
@@ -89,27 +89,24 @@ extern int64_t plugin_encrypt(uint64_t file_in, uint64_t file_out, uint8_t *key)
     /*
      * clean up
      */
-//    free(subkeys);
-    free(IV);
-    free(plaintext);
-    free(ciphertext);
+    free(subkeys);
     return errno;
 }
 
 extern int64_t plugin_decrypt(uint64_t file_in, uint64_t file_out, uint8_t *key)
 {
     errno = EXIT_SUCCESS;
-    uint8_t *IV = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
-    uint8_t *plaintext = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
-    uint8_t *ciphertext = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
+    uint8_t *IV = alloca(CHUNK_SERPENT);
+    uint8_t *plaintext = alloca(CHUNK_SERPENT);
+    uint8_t *ciphertext = alloca(CHUNK_SERPENT);
     /*
      * build the key
      */
-    uint32_t *subkeys = serpent_subkeys(key);
+    uint32_t *subkeys = serpent_subkeys((uint32_t *)key);
     /*
      * check the header (ignore version) and get the size of the file
      */
-    char *tmp = calloc(strlen(HEADER), sizeof( uint8_t ));
+    char *tmp = alloca(strlen(HEADER));
     read(file_in, tmp, strlen(HEADER));
     if (strncmp(tmp, HEADER, strcspn(HEADER, "/")))
         /*
@@ -140,76 +137,16 @@ extern int64_t plugin_decrypt(uint64_t file_in, uint64_t file_out, uint8_t *key)
         return errno;
     block_decrypt(ciphertext, plaintext, IV, subkeys);
     write(file_out, plaintext, ((s * SIZE_BYTE) % SIZE_SERPENT) / SIZE_BYTE);
-    /*
-     * clean up
-     */
-    free(IV);
-    free(plaintext);
-    free(ciphertext);
+    free(subkeys);
     return errno;
 }
 
-//extern void *gen_file(int file)
-//{
-//    char *data = NULL;
-//    size_t size = (off_t) lseek(file, 0, SEEK_END);
-//    lseek(file, 0, SEEK_SET);
-//    if ((data = malloc(size + 1)) == NULL)
-//        return NULL;
-//    read(file, data, size);
-//    data[size] = '\0';
-//    return gen_text(data, (uint32_t) size);
-//}
-
 extern uint8_t *plugin_key(uint8_t *d, size_t s)
-//extern void *gen_text(void *data, unsigned long size)
 {
     uint64_t *key = calloc(3, sizeof (uint64_t));
     tiger((uint64_t *)d, s, key);
-//    for (int i = 0; i < CHUNK_TIGER; i++)
-//    {
-//        key[i] = check_endian(key[i]);
-//        printf("%016lx ", key[i]);
-//    }
-//    printf("\n");
     return (uint8_t *)key;
 }
-
-//extern void *key_read(int file)
-//{
-//    char data[2];
-//    unsigned char *key;
-//    size_t size = (off_t) lseek(file, 0, SEEK_END);
-//    if (size < SIZE_TIGER / SIZE_BYTE)
-//        return NULL;
-//    lseek(file, 0, SEEK_SET);
-//    if ((key = malloc(SIZE_TIGER / SIZE_BYTE)) == NULL)
-//        return NULL;
-//    for (int i = 0; i < SIZE_TIGER / SIZE_BYTE; i++)
-//    {
-//        read(file, &data, 2 * sizeof (char));
-//        key[i] = strtol(data, NULL, 16);
-//    }
-//    return key;
-//}
-//
-//static uint64_t check_endian (uint64_t val)
-//{
-//    uint64_t ret = 0;
-//    #ifdef BIG_ENDIAN
-//    ret |= (val & (0xFFLL  << 56)) >> 56;
-//    ret |= (val & (0xFFLL  << 48)) >> 40;
-//    ret |= (val & (0xFFLL  << 40)) >> 24;
-//    ret |= (val & (0xFFLL  << 32)) >>  8;
-//    ret |= (val & (0xFFLL  << 24)) <<  8;
-//    ret |= (val & (0xFFLL  << 16)) << 24;
-//    ret |= (val & (0xFFLL  <<  8)) << 40;
-//    ret |= (val &  0xFFLL        ) << 56;
-//    #else
-//    ret = val;
-//    #endif
-//    return ret;
-//}
 
 static void block_encrypt(unsigned char *plaintext, unsigned char *ciphertext, unsigned char *IV, uint32_t *subkeys)
 {
@@ -237,7 +174,6 @@ static void block_decrypt(unsigned char *ciphertext, unsigned char *plaintext, u
 
 static uint32_t *serpent_subkeys(uint32_t *material)
 {
-//    uint32_t *subkeys = calloc(33, sizeof (uint32_t));
     uint32_t subkeys[33][4];
     uint32_t w[132] = { 0 }, k[132] = { 0 };
     int i;
@@ -293,14 +229,10 @@ static uint32_t *serpent_subkeys(uint32_t *material)
     RND03(w[128], w[129], w[130], w[131], k[128], k[129], k[130], k[131]);
 
     for (int i = 0; i <= 32; i++)
-    {
         for (int j = 0; j < 4; j++)
             subkeys[i][j] = k[4 * i + j];
-//        printf("%08x %08x %08x %08x\n", subkeys[i][0], subkeys[i][1], subkeys[i][2], subkeys[i][3]);
-    }
-
-    void *ret = calloc(1, sizeof (subkeys));
-    memcpy(ret, subkeys, sizeof (subkeys));
+    void *ret = calloc(1, sizeof( subkeys ));
+    memcpy(ret, subkeys, sizeof( subkeys ));
     return ret;
 }
 
