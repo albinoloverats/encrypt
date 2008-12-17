@@ -19,9 +19,9 @@
  */
 
 #ifndef _CALLBACKS_H_
-#define _CALLBACKS_H_
+  #define _CALLBACKS_H_
 
-#include <gtk/gtk.h>
+  #include <gtk/gtk.h>
 
 void on_button_about_clicked(GtkWidget *);
 void on_button_do_clicked(GtkWidget *);

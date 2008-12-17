@@ -19,7 +19,8 @@
  */
 
 #ifndef _INTERFACE_H_
-#define _INTERFACE_H_
+  #define _INTERFACE_H_
+
 GtkWidget *create_window_main(void);
 GtkWidget *create_window_about(void);
 GtkWidget *create_window_wait(void);

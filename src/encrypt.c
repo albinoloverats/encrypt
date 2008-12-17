@@ -311,7 +311,7 @@ int64_t algorithm_info(char *n)
 //    if (!(fp = (void *)GetProcAddress(p, "plugin_info")))
 #endif /*   _WIN32 */
     {
-        fprintf(stderr, "%s: could not find plugin information\n%s\n", NAME, dlerror());
+        fprintf(stderr, "%s: could not find plugin information\n", NAME);
         return EXIT_FAILURE;
     }
     /* 

@@ -19,15 +19,15 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+  #include <config.h>
+#endif /* HAVE_CONFIG_H */
 
 #ifndef _WIN32
-#include <dlfcn.h>
-#include <sys/wait.h>
-#else
-#include <windows.h>
-#endif
+  #include <dlfcn.h>
+  #include <sys/wait.h>
+#else  /* ! _WIN32 */
+  #include <windows.h>
+#endif /*   _WIN32 */
 
 #include <time.h>
 #include <errno.h>
@@ -50,6 +50,7 @@
 #include "interface.h"
 #include "support.h"
 
+#define PLUGIN_DETAILS_MASK "\nAlgorithm Details\n    Name\t\t: %s\n    Author\t\t: %s\n    Copyright\t: %s\n    Licence\t: %s\n    Year\t\t: %s\n    Block size\t: %s\n\nKey Details\n    Name\t\t: %s\n    Authors\t: %s\n    Copyright\t: %s\n    Licence\t: %s\n    Year\t\t: %s\n    Key size\t: %s\n\nPlugin Details\n    Authors\t: %s\n    Copyright\t: %s\n    Licence\t: %s\n    Version\t: %s\n\nAdditional Details\n    %s\n"
 
 void on_button_about_clicked(GtkWidget *widget)
 {
@@ -61,65 +62,66 @@ void on_button_about_clicked(GtkWidget *widget)
     window_about = create_window_about();
     gtk_widget_show(window_about);
     /* 
-     * find out which algorithm the user wants to know about; if no algorithm
-     * is selected then just return all happy :)
+     * find out which algorithm the user wants to know about; if no algorithm is selected then just return all happy :)
      */
     GtkComboBoxEntry *alg = (GtkComboBoxEntry *)lookup_widget(GTK_WIDGET(widget), "comboboxentry_algorithm");
-    if (strcmp(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)), "") == 0)
+    if (!strcmp(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)), ""))
         return;
     /* 
      * set everything up so we can get some info about the given algorithm
      */
-    char *plugin = NULL, *details = NULL;
-    struct about_info about, (*about_plugin) (void);
+    char *plugin  = NULL;
+    char *details = NULL;
+
+    info_t *about = NULL;
+    info_t *(*fp)(void);
 
     errno = 0;
 #ifndef _WIN32
     char *errstr = NULL;
-    void *module;
+    void *mod;
 
-    if (strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)), '/') == NULL)
+    if (!strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)), '/'))
         asprintf(&plugin, "/usr/lib/encrypt/lib/%s.so", gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
-#else
-    HANDLE module;
-
-    if (strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)), '\\') == NULL)
-    {
-        plugin = calloc(strlen(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg))) + 24, sizeof (char));
-        sprintf(plugin, "/Program Files/encrypt/lib/%s", gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
-    }
-#endif
+#else  /* ! _WIN32 */
+//    HANDLE module;
+//
+//    if (!strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)), '\\'))
+//    {
+//        plugin = calloc(strlen(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg))) + 24, sizeof( char ));
+//        sprintf(plugin, "/Program Files/encrypt/lib/%s", gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
+//    }
+#endif /*   _WIN32 */
     else
         plugin = strdup(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
     /* 
      * find the plugin, open it, etc...
      */
 #ifndef _WIN32
-    if ((module = dlopen(plugin, RTLD_LAZY)) == NULL)
+    if (!(mod = dlopen(plugin, RTLD_LAZY)))
     {
-        errstr = dlerror();
-        asprintf(&details, "\n%s: could not open plugin %s\n%s\n", NAME, plugin, errstr);
-        fprintf(stderr, "%s: could not open plugin %s\n%s\n", NAME, plugin, errstr);
-#else
-    if ((module = LoadLibrary(plugin)) == NULL)
-    {
-        details = calloc(strlen(NAME) + strlen(": could not open plugin \n") + strlen(plugin) + 2, sizeof (char));
-        sprintf(details, "\n%s: could not open plugin %s\n", NAME, plugin);
-        fprintf(stderr, "\n%s: could not open plugin %s\n", NAME, plugin);
-#endif
+        asprintf(&details, "\n%s: could not open plugin %s\n", NAME, plugin);
+        fprintf(stderr, "%s", details + 1);
+#else  /* ! _WIN32 */
+//    if (!(module = LoadLibrary(plugin)))
+//    {
+//        details = calloc(strlen(NAME) + strlen(": could not open plugin \n") + strlen(plugin) + 2, sizeof (char));
+//        sprintf(details, "\n%s: could not open plugin %s\n", NAME, plugin);
+//        fprintf(stderr, "\n%s: could not open plugin %s\n", NAME, plugin);
+#endif /*   _WIN32 */
         goto cleanup;
     }
 #ifndef _WIN32
-    if ((about_plugin = (struct about_info(*)(void))dlsym(module, "about")) == NULL) {
-        errstr = dlerror();
-        asprintf(&details, "\n%s: could not find plugin information in %s\n%s\n", NAME, plugin, errstr);
-        fprintf(stderr, "%s: could not find plugin information in %s\n%s\n", NAME, plugin, errstr);
-#else
-    if ((about_plugin = (void *)GetProcAddress(module, "about")) == NULL)
+    if (!(fp = (info_t (*)(void))dlsym(module, "plugin_info")))
     {
-        details = calloc(strlen(NAME) + strlen(": could not find plugin information in \n") + strlen(plugin) + 2, sizeof (char));
-        sprintf(details, "\n%s: could not find plugin information in %s\n", NAME, plugin);
-        fprintf(stderr, "\n%s: could not find plugin information in %s\n", NAME, plugin);
+        asprintf(&details, "\n%s: could not find plugin information\n", NAME);
+        fprintf(stderr, "%s", details + 1);
+#else
+//    if ((about_plugin = (void *)GetProcAddress(module, "about")) == NULL)
+//    {
+//        details = calloc(strlen(NAME) + strlen(": could not find plugin information in \n") + strlen(plugin) + 2, sizeof (char));
+//        sprintf(details, "\n%s: could not find plugin information in %s\n", NAME, plugin);
+//        fprintf(stderr, "\n%s: could not find plugin information in %s\n", NAME, plugin);
 #endif
         goto cleanup;
     }
@@ -127,26 +129,30 @@ void on_button_about_clicked(GtkWidget *widget)
     /* 
      * now get the info
      */
-    about = about_plugin();
+    about = fp();
 #ifndef _WIN32
-    asprintf(&details, "\nAlgorithm Details\n    Name\t\t: %s\n    Author\t\t: %s\n    Copyright\t: %s\n    Licence\t: %s\n    Year\t\t: %s\n    Block size\t: %s\n\nKey Details\n    Name\t\t: %s\n    Authors\t: %s\n    Copyright\t: %s\n    Licence\t: %s\n    Year\t\t: %s\n    Key size\t: %s\n\nPlugin Details\n    Authors\t: %s\n    Copyright\t: %s\n    Licence\t: %s\n    Version\t: %s\n\nAdditional Details\n    %s\n", about.a_name, about.a_authors, about.a_copyright, about.a_licence, about.a_year, about.a_block, about.k_name, about.k_authors, about.k_copyright, about.k_licence, about.k_year, about.k_size, about.m_authors, about.m_copyright, about.m_licence, about.m_version, about.o_comment);
-#else
-    /* 
-     * woot for Windows
-     */
-    details = calloc(362 + strlen(about.a_name) + strlen(about.a_authors) + strlen(about.a_copyright) + strlen(about.a_licence) + strlen(about.a_year) + strlen(about.a_block) + strlen(about.k_name) + strlen(about.k_authors) + strlen(about.k_copyright) + strlen(about.k_licence) + strlen(about.k_year) + strlen(about.k_size) + strlen(about.m_authors) + strlen(about.m_copyright) + strlen(about.m_licence) + strlen(about.m_version) + strlen(about.o_comment), sizeof (char)); sprintf(details, "\nAlgorithm Details\n    Name\t\t: %s\n    Author\t\t: %s\n    Copyright\t: %s\n    Licence\t: %s\n    Year\t\t: %s\n    Block size\t: %s\n\nKey Details\n    Name\t\t: %s\n    Authors\t: %s\n    Copyright\t: %s\n    Licence\t: %s\n    Year\t\t: %s\n    Key size\t: %s\n\nPlugin Details\n    Authors\t: %s\n    Copyright\t: %s\n    Licence\t: %s\n    Version\t: %s\n\nAdditional Details\n    %s\n", about.a_name, about.a_authors, about.a_copyright, about.a_licence, about.a_year, about.a_block, about.k_name, about.k_authors, about.k_copyright, about.k_licence, about.k_year, about.k_size, about.m_authors, about.m_copyright, about.m_licence, about.m_version, about.o_comment);
-#endif
+    asprintf(&details, PLUGIN_DETAILS_MASK,
+            about->algorithm_name,  about->algorithm_authors,  about->algorithm_copyright,  about->algorithm_licence,  about->algorithm_year,  about->algorithm_block,
+            about->key_name,        about->key_authors,        about->key_copyright,        about->key_licence,        about->key_year,        about->key_size,
+            about->module_authors,  about->module_copyright,   about->module_licence,       about->module_version,     about->module_comment);
+#else  /* ! _WIN32 */
+//    /* 
+//     * woot for Windows
+//     */
+//    details = calloc(strlen(PLUGIN_DETAILS_MASK) + strlen(about.a_name) + strlen(about.a_authors) + strlen(about.a_copyright) + strlen(about.a_licence) + strlen(about.a_year) + strlen(about.a_block) + strlen(about.k_name) + strlen(about.k_authors) + strlen(about.k_copyright) + strlen(about.k_licence) + strlen(about.k_year) + strlen(about.k_size) + strlen(about.m_authors) + strlen(about.m_copyright) + strlen(about.m_licence) + strlen(about.m_version) + strlen(about.o_comment), sizeof( char ));
+//    sprintf(details, PLUGIN_DETAILS_MASK, about.a_name, about.a_authors, about.a_copyright, about.a_licence, about.a_year, about.a_block, about.k_name, about.k_authors, about.k_copyright, about.k_licence, about.k_year, about.k_size, about.m_authors, about.m_copyright, about.m_licence, about.m_version, about.o_comment);
+#endif /*   _WIN32 */
+
+cleanup:
     /* 
      * finally close the module, set the additional text and return
      */
-  cleanup:
 #ifdef _DLFCN_H
-    if (module != NULL)
-        dlclose(module);
+    if (module)
+        dlclose(mod);
 #endif
     textview_about = lookup_widget(window_about, "textview_about");
-
-    gtk_text_buffer_insert_at_cursor(gtk_text_view_get_buffer(GTK_TEXT_VIEW (textview_about)), details, -1);
+    gtk_text_buffer_insert_at_cursor(gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_about)), details, -1);
 }
 
 
