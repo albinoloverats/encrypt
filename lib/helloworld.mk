@@ -6,7 +6,7 @@ LIB_CLEAN     += clean-helloworld
 LIB_UNINSTALL += uninstall-helloworld
 
 helloworld:
-	 @gcc -o helloworld.so -std=gnu99 -Os -fPIC -Wall -Wextra -shared -Wl,-soname,helloworld.so lib/helloworld.c
+	 @gcc -o helloworld.so -std=gnu99 -g -O0 -fPIC -Wall -Wextra -shared -Wl,-soname,helloworld.so lib/helloworld.c
 	-@echo "compiled \`lib/helloworld.c' --> \`helloworld.so'"
 
 install-helloworld:

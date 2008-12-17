@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <inttypes.h>
 #include <sys/types.h>
 
 #ifdef _WIN32
@@ -30,38 +31,40 @@
 #endif
 
 #include "plugins.h"
-#include "tiger.h"
 #include "serpent.h"
+#include "tiger.h"
 
-extern struct about_info about(void)
+extern info_t *plugin_about(void)
 {
-    struct about_info serpent;
-    serpent.a_name = strdup(A_NAME);
-    serpent.a_authors = strdup(A_AUTHORS);
-    serpent.a_copyright = strdup(A_COPYRIGHT);
-    serpent.a_licence = strdup(A_LICENCE);
-    serpent.a_year = strdup(A_YEAR);
-    serpent.a_block = strdup(A_BLOCK);
-    serpent.k_name = strdup(K_NAME);
-    serpent.k_authors = strdup(K_AUTHORS);
-    serpent.k_copyright = strdup(K_COPYRIGHT);
-    serpent.k_licence = strdup(K_LICENCE);
-    serpent.k_year = strdup(K_YEAR);
-    serpent.k_size = strdup(K_SIZE);
-    serpent.m_authors = strdup(M_AUTHORS);
-    serpent.m_copyright = strdup(M_COPYRIGHT);
-    serpent.m_licence = strdup(M_LICENCE);
-    serpent.m_version = strdup(M_VERSION);
-    serpent.o_comment = strdup(O_COMMENT);
-    return serpent;
+    info_t *s = calloc(1, sizeof( info_t ));
+    if (!s)
+        return NULL;
+    s->algorithm_name      = strdup(A_NAME);
+    s->algorithm_authors   = strdup(A_AUTHORS);
+    s->algorithm_copyright = strdup(A_COPYRIGHT);
+    s->algorithm_licence   = strdup(A_LICENCE);
+    s->algorithm_year      = strdup(A_YEAR);
+    s->algorithm_block     = strdup(A_BLOCK);
+    s->key_name            = strdup(K_NAME);
+    s->key_authors         = strdup(K_AUTHORS);
+    s->key_copyright       = strdup(K_COPYRIGHT);
+    s->key_licence         = strdup(K_LICENCE);
+    s->key_year            = strdup(K_YEAR);
+    s->key_size            = strdup(K_SIZE);
+    s->module_authors      = strdup(M_AUTHORS);
+    s->module_copyright    = strdup(M_COPYRIGHT);
+    s->module_licence      = strdup(M_LICENCE);
+    s->module_version      = strdup(M_VERSION);
+    s->module_comment      = strdup(M_COMMENT);
+    return s;
 }
 
-extern int enc_main(int in, int out, void *key)
+extern int64_t plugin_encrypt(uint64_t file_in, uint64_t file_out, uint8_t *key)
 {
     errno = EXIT_SUCCESS;
-    unsigned char *IV = calloc(CHUNK_SERPENT, sizeof (char));
-    unsigned char *plaintext = calloc(CHUNK_SERPENT, sizeof (char));
-    unsigned char *ciphertext = calloc(CHUNK_SERPENT, sizeof (char));
+    uint8_t *IV = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
+    uint8_t *plaintext = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
+    uint8_t *ciphertext = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
     /*
      * build the key
      */
@@ -69,35 +72,36 @@ extern int enc_main(int in, int out, void *key)
     /*
      * write the header and file size
      */
-    write(out, HEADER, strlen(HEADER));
-    int s = lseek(in, 0, SEEK_END);
-    memcpy(plaintext, &s, sizeof (int));
+    write(file_out, HEADER, strlen(HEADER));
+    uint64_t s = lseek(file_in, 0, SEEK_END);
+    memcpy(plaintext, &s, sizeof( uint64_t ));
     block_encrypt(plaintext, ciphertext, IV, subkeys);
-    write(out, ciphertext, CHUNK_SERPENT);
-    lseek(in, 0, SEEK_SET);
+    write(file_out, ciphertext, CHUNK_SERPENT);
+    lseek(file_in, 0, SEEK_SET);
     /*
      * main loop
      */
-    while (read(in, plaintext, CHUNK_SERPENT))
+    while (read(file_in, plaintext, CHUNK_SERPENT))
     {
         block_encrypt(plaintext, ciphertext, IV, subkeys);
-        write(out, ciphertext, CHUNK_SERPENT);
+        write(file_out, ciphertext, CHUNK_SERPENT);
     }
     /*
      * clean up
      */
+//    free(subkeys);
     free(IV);
     free(plaintext);
     free(ciphertext);
     return errno;
 }
 
-extern int dec_main(int in, int out, void *key)
+extern int64_t plugin_decrypt(uint64_t file_in, uint64_t file_out, uint8_t *key)
 {
     errno = EXIT_SUCCESS;
-    unsigned char *IV = calloc(CHUNK_SERPENT, sizeof (char));
-    unsigned char *plaintext = calloc(CHUNK_SERPENT, sizeof (char));
-    unsigned char *ciphertext = calloc(CHUNK_SERPENT, sizeof (char));
+    uint8_t *IV = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
+    uint8_t *plaintext = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
+    uint8_t *ciphertext = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
     /*
      * build the key
      */
@@ -105,39 +109,37 @@ extern int dec_main(int in, int out, void *key)
     /*
      * check the header (ignore version) and get the size of the file
      */
-    char *tmp = calloc(strlen(HEADER), sizeof (char));
-    read(in, tmp, strlen(HEADER));
+    char *tmp = calloc(strlen(HEADER), sizeof( uint8_t ));
+    read(file_in, tmp, strlen(HEADER));
     if (strncmp(tmp, HEADER, strcspn(HEADER, "/")))
-    {
         /*
          * header does not match
          */
         return EFTYPE;
-    }
     free(tmp);
-    lseek(in, strlen(HEADER), SEEK_SET);
-    read(in, ciphertext, CHUNK_SERPENT);
+    lseek(file_in, strlen(HEADER), SEEK_SET);
+    read(file_in, ciphertext, CHUNK_SERPENT);
     block_decrypt(ciphertext, plaintext, IV, subkeys);
-    size_t s = 0;
-    memcpy(&s, plaintext, sizeof (size_t));
+    uint64_t s = 0;
+    memcpy(&s, plaintext, sizeof( uint64_t ));
     /*
      * main loop
      */
     for (uint32_t i = 0; i < (s / CHUNK_SERPENT); i++)
     {
-        if (read(in, ciphertext, CHUNK_SERPENT) != CHUNK_SERPENT)
+        if (read(file_in, ciphertext, CHUNK_SERPENT) != CHUNK_SERPENT)
             return errno;
         block_decrypt(ciphertext, plaintext, IV, subkeys);
-        write(out, plaintext, CHUNK_SERPENT);
+        write(file_out, plaintext, CHUNK_SERPENT);
     }
     /*
      * deal with the final block (may contain padding which
      * will need to be ignored)
      */
-    if (read(in, ciphertext, CHUNK_SERPENT) != CHUNK_SERPENT)
+    if (read(file_in, ciphertext, CHUNK_SERPENT) != CHUNK_SERPENT)
         return errno;
     block_decrypt(ciphertext, plaintext, IV, subkeys);
-    write(out, plaintext, ((s * SIZE_BYTE) % SIZE_SERPENT) / SIZE_BYTE);
+    write(file_out, plaintext, ((s * SIZE_BYTE) % SIZE_SERPENT) / SIZE_BYTE);
     /*
      * clean up
      */
@@ -147,68 +149,69 @@ extern int dec_main(int in, int out, void *key)
     return errno;
 }
 
-extern void *gen_file(int file)
-{
-    char *data = NULL;
-    size_t size = (off_t) lseek(file, 0, SEEK_END);
-    lseek(file, 0, SEEK_SET);
-    if ((data = malloc(size + 1)) == NULL)
-        return NULL;
-    read(file, data, size);
-    data[size] = '\0';
-    return gen_text(data, (uint32_t) size);
-}
+//extern void *gen_file(int file)
+//{
+//    char *data = NULL;
+//    size_t size = (off_t) lseek(file, 0, SEEK_END);
+//    lseek(file, 0, SEEK_SET);
+//    if ((data = malloc(size + 1)) == NULL)
+//        return NULL;
+//    read(file, data, size);
+//    data[size] = '\0';
+//    return gen_text(data, (uint32_t) size);
+//}
 
-extern void *gen_text(void *data, unsigned long size)
+extern uint8_t *plugin_key(uint8_t *d, size_t s)
+//extern void *gen_text(void *data, unsigned long size)
 {
     uint64_t *key = calloc(3, sizeof (uint64_t));
-    tiger((uint64_t *)data, size, key);
+    tiger((uint64_t *)d, s, key);
 //    for (int i = 0; i < CHUNK_TIGER; i++)
 //    {
 //        key[i] = check_endian(key[i]);
 //        printf("%016lx ", key[i]);
 //    }
 //    printf("\n");
-    return key;
+    return (uint8_t *)key;
 }
 
-extern void *key_read(int file)
-{
-    char data[2];
-    unsigned char *key;
-    size_t size = (off_t) lseek(file, 0, SEEK_END);
-    if (size < SIZE_TIGER / SIZE_BYTE)
-        return NULL;
-    lseek(file, 0, SEEK_SET);
-    if ((key = malloc(SIZE_TIGER / SIZE_BYTE)) == NULL)
-        return NULL;
-    for (int i = 0; i < SIZE_TIGER / SIZE_BYTE; i++)
-    {
-        read(file, &data, 2 * sizeof (char));
-        key[i] = strtol(data, NULL, 16);
-    }
-    return key;
-}
+//extern void *key_read(int file)
+//{
+//    char data[2];
+//    unsigned char *key;
+//    size_t size = (off_t) lseek(file, 0, SEEK_END);
+//    if (size < SIZE_TIGER / SIZE_BYTE)
+//        return NULL;
+//    lseek(file, 0, SEEK_SET);
+//    if ((key = malloc(SIZE_TIGER / SIZE_BYTE)) == NULL)
+//        return NULL;
+//    for (int i = 0; i < SIZE_TIGER / SIZE_BYTE; i++)
+//    {
+//        read(file, &data, 2 * sizeof (char));
+//        key[i] = strtol(data, NULL, 16);
+//    }
+//    return key;
+//}
+//
+//static uint64_t check_endian (uint64_t val)
+//{
+//    uint64_t ret = 0;
+//    #ifdef BIG_ENDIAN
+//    ret |= (val & (0xFFLL  << 56)) >> 56;
+//    ret |= (val & (0xFFLL  << 48)) >> 40;
+//    ret |= (val & (0xFFLL  << 40)) >> 24;
+//    ret |= (val & (0xFFLL  << 32)) >>  8;
+//    ret |= (val & (0xFFLL  << 24)) <<  8;
+//    ret |= (val & (0xFFLL  << 16)) << 24;
+//    ret |= (val & (0xFFLL  <<  8)) << 40;
+//    ret |= (val &  0xFFLL        ) << 56;
+//    #else
+//    ret = val;
+//    #endif
+//    return ret;
+//}
 
-uint64_t check_endian (uint64_t val)
-{
-    uint64_t ret = 0;
-    #ifdef BIG_ENDIAN
-    ret |= (val & (0xFFLL  << 56)) >> 56;
-    ret |= (val & (0xFFLL  << 48)) >> 40;
-    ret |= (val & (0xFFLL  << 40)) >> 24;
-    ret |= (val & (0xFFLL  << 32)) >>  8;
-    ret |= (val & (0xFFLL  << 24)) <<  8;
-    ret |= (val & (0xFFLL  << 16)) << 24;
-    ret |= (val & (0xFFLL  <<  8)) << 40;
-    ret |= (val &  0xFFLL        ) << 56;
-    #else
-    ret = val;
-    #endif
-    return ret;
-}
-
-void block_encrypt(unsigned char *plaintext, unsigned char *ciphertext, unsigned char *IV, uint32_t *subkeys)
+static void block_encrypt(unsigned char *plaintext, unsigned char *ciphertext, unsigned char *IV, uint32_t *subkeys)
 {
     uint32_t t[4], pt[4], ct[4];
     memcpy(pt, plaintext, CHUNK_SERPENT);
@@ -220,7 +223,7 @@ void block_encrypt(unsigned char *plaintext, unsigned char *ciphertext, unsigned
     memcpy(IV, ciphertext, CHUNK_SERPENT);
 }
 
-void block_decrypt(unsigned char *ciphertext, unsigned char *plaintext, unsigned char *IV, uint32_t *subkeys)
+static void block_decrypt(unsigned char *ciphertext, unsigned char *plaintext, unsigned char *IV, uint32_t *subkeys)
 {
     uint32_t t[4], pt[4], ct[4];
     memcpy(ct, ciphertext, CHUNK_SERPENT);
@@ -232,7 +235,7 @@ void block_decrypt(unsigned char *ciphertext, unsigned char *plaintext, unsigned
     memcpy(plaintext, pt, CHUNK_SERPENT);
 }
 
-uint32_t *serpent_subkeys(uint32_t *material)
+static uint32_t *serpent_subkeys(uint32_t *material)
 {
 //    uint32_t *subkeys = calloc(33, sizeof (uint32_t));
     uint32_t subkeys[33][4];
@@ -301,7 +304,7 @@ uint32_t *serpent_subkeys(uint32_t *material)
     return ret;
 }
 
-void serpent_encrypt(uint32_t plaintext[4], uint32_t ciphertext[4], uint32_t *k)
+static void serpent_encrypt(uint32_t plaintext[4], uint32_t ciphertext[4], uint32_t *k)
 {
     uint32_t subkeys[33][4];
     register uint32_t x0, x1, x2, x3;
@@ -422,7 +425,7 @@ void serpent_encrypt(uint32_t plaintext[4], uint32_t ciphertext[4], uint32_t *k)
     ciphertext[3] = x3;
 }
 
-void serpent_decrypt(uint32_t ciphertext[4], uint32_t plaintext[4], uint32_t *k)
+static void serpent_decrypt(uint32_t ciphertext[4], uint32_t plaintext[4], uint32_t *k)
 {
     uint32_t subkeys[33][4];
     register uint32_t x0, x1, x2, x3;

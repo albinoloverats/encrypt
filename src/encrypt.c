@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS,) encryption utility
- * Copyright (c) 2005-2007, albinoloverats ~ Software Development
+ * Copyright (c) 2005-2008, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,14 +19,14 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+  #include <config.h>
+#endif /* HAVE_CONFIG_H */
 
 #ifndef _WIN32 /* if we're compiling a 'proper' os (ie not windows) ... */
-#include <dlfcn.h>
-#else
-#include <windows.h>
-#endif
+  #include <dlfcn.h>
+#else  /* ! _WIN32 */
+  #include <windows.h>
+#endif /*   _WIN32 */
 
 #include <time.h>
 #include <errno.h>
@@ -34,10 +34,13 @@
 #include <stdio.h>
 #include <dirent.h>
 #include <getopt.h>
+#include <stdarg.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdbool.h>
+#include <inttypes.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -45,55 +48,66 @@
 #include "plugins.h"
 
 #ifdef _BUILD_GUI_
-#include <gtk/gtk.h>
-#include "interface.h"
-#include "support.h"
-#endif
+  #include <gtk/gtk.h>
+  #include "interface.h"
+  #include "support.h"
+#endif /* _BUILD_GUI_ */
 
 /*
- * if we're building the GUI then these get defined here as globals, else
- * they're local to main only (below)
+ * if we're building the GUI then these get defined here as globals, else they're local to main only (below)
  */
 #ifdef _BUILD_GUI_
 char *in_filename = NULL, *out_filename = NULL, *key_filename = NULL, *pass_filename = NULL, *password = NULL, *plugin = NULL, *function = NULL;
-#endif
+#endif /* _BUILD_GUI */
 
 int main(int argc, char **argv)
 {
-    char *errstr = NULL;
+    char *filename_in  = NULL;
+    char *filename_out = NULL;
 
-#ifndef _WIN32
-    void *module = NULL;
-#else
-    HANDLE module;
-#endif
-    void *key_block = NULL, *(*key_read)(int), *(*gen_file)(int), *(*gen_text)(void *, long unsigned);
+    char    *key_plain = NULL;
+    uint8_t *key_data  = NULL;
+    uint8_t  key_type  = NOTSET;
 
-#ifndef _BUILD_GUI_
-    char *in_filename = NULL, *out_filename = NULL, *key_filename = NULL, *pass_filename = NULL, *password = NULL, *plugin = NULL, *function = NULL;
-#endif
-    char unsigned enc = FALSE, pass = FALSE, key = FALSE;
-    int opt = 0, in_file = 0, out_file = 1, key_file = -1, pass_file = -1, *(*exec_plugin)(int, int, void *);
+    int64_t file_in  = STDIN_FILENO;
+    int64_t file_out = STDOUT_FILENO;
+    void    *file_mod = NULL;
 
-    errno = 0;
+    uint8_t function = NOTSET;
+    int64_t *(*fp)(uint64_t, uint64_t, uint8_t *);
+
+    errno = EXIT_SUCCESS;
+
+//    char *errstr = NULL;
+//
+//#ifndef _WIN32
+//    void *module = NULL;
+//#else
+//    HANDLE module;
+//#endif
+//    void *key_block = NULL, *(*key_read)(int), *(*gen_file)(int), *(*gen_text)(void *, long unsigned);
+//
+//#ifndef _BUILD_GUI_
+//    char *in_filename = NULL, *out_filename = NULL, *key_filename = NULL, *pass_filename = NULL, *password = NULL, *plugin = NULL, *function = NULL;
+//#endif
+//    char unsigned enc = false, pass = false, key = false;
+//    int opt = 0, in_file = 0, out_file = 1, key_file = -1, pass_file = -1, *(*exec_plugin)(int, int, void *);
+//
 #ifndef _BUILD_GUI_
     /* 
      * start as we mean to go on...
      */
     if (argc < 2)
-    {
-        show_usage();
-        return EXIT_FAILURE;
-    }
-#endif
+        return show_usage();
+#endif /* _BUILD_GUI */
     /* 
-     * get all of the command line options and arguments - note that if the
-     * plugin string contains / then we treat it as a path to the plugin,
-     * instead of allowing the system to find it
+     * get all of the command line options and arguments - note that if the plugin string contains / then we treat it
+     * as a path to the plugin, instead of allowing the system to find it
      */
-    while (TRUE)
+    while (true)
     {
-        static struct option long_options[] = {
+        static struct option long_options[] =
+        {
             {"in"      , required_argument, 0, 'i'},
             {"out"     , required_argument, 0, 'o'},
             {"keyfile" , required_argument, 0, 'k'},
@@ -109,89 +123,55 @@ int main(int argc, char **argv)
             {"version" ,       no_argument, 0, 'v'},
             {0, 0, 0, 0}
         };
-        int optex = 0;
-
-        opt = getopt_long(argc, argv, "i:o:k:f:p:e:d:g:a:mhlv", long_options, &optex);
-        if (opt == -1)
+        int32_t optex = 0;
+        int32_t opt = getopt_long(argc, argv, "i:o:k:f:p:e:d:g:a:mhlv", long_options, &optex);
+        if (opt < 0)
             break;
         switch (opt)
         {
             case 'i':
-                in_filename = strdup(optarg);
+                filename_in = strdup(optarg);
                 break;
             case 'o':
-                out_filename = strdup(optarg);
+                filename_out = strdup(optarg);
                 break;
             case 'k':
-                key_filename = strdup(optarg);
-                key = TRUE;
-                pass = FALSE;
+                key_plain = strdup(optarg);
+                key_type  = KEYFILE;
                 break;
             case 'f':
-                pass_filename = strdup(optarg);
-                key = FALSE;
-                pass = FALSE;
+                key_plain = strdup(optarg);
+                key_type  = PASSFILE;
                 break;
             case 'p':
-                password = strdup(optarg);
-                key = FALSE;
-                pass = TRUE;
+                key_plain = strdup(optarg);
+                key_type  = PASSWORD;
                 break;
             case 'e':
-#ifndef _WIN32
-                if (strchr(optarg, '/') == NULL)
-                    asprintf(&plugin, "%s.so", optarg);
-#else
-                if (strchr(optarg, '\\') == NULL)
-                {
-                    plugin = calloc(strlen(optarg) + 5, sizeof (char));
-                    sprintf(plugin, "%s.dll", optarg);
-                }
-#endif
-                else
-                    plugin = strdup(optarg);
-                function = strdup("enc_main");
-                enc = TRUE;
+                file_mod = open_mod(optarg);
+                function = ENCRYPT;
                 break;
             case 'd':
-#ifndef _WIN32
-                if (strchr(optarg, '/') == NULL)
-                    asprintf(&plugin, "%s.so", optarg);
-#else
-                if (strchr(optarg, '\\') == NULL)
-                {
-                    plugin = calloc(strlen(optarg) + 5, sizeof (char));
-                    sprintf(plugin, "%s.dll", optarg);
-                }
-#endif
-                else
-                    plugin = strdup(optarg);
-                function = strdup("dec_main");
-                enc = FALSE;
+                file_mod = open_mod(optarg);
+                function = DECRYPT;
                 break;
             case 'a':
                 return algorithm_info(optarg);
             case 'g':
-                return generate_key(optarg, key_filename);
+                return key_generate(optarg, key_plain);
             case 'h':
-                show_help();
-                return EXIT_SUCCESS;
+                return show_help();
             case 'l':
-                show_licence();
-                return EXIT_SUCCESS;
+                return show_licence();
             case 'm':
-                list_modules();
-                return EXIT_SUCCESS;
+                return list_modules();
             case 'v':
-                show_version();
-                return EXIT_SUCCESS;
+                return show_version();
             case '?':
-                return EXIT_FAILURE;
             default:
-                return EXIT_FAILURE;
+                die("%s: unknown option %c\n", NAME, opt);
                 /* 
-                 * it's worth noting that unknown options cause encrypt to
-                 * bail
+                 * it's worth noting that unknown options cause encrypt to bail
                  */
         }
     }
@@ -201,398 +181,282 @@ int main(int argc, char **argv)
      * we've been told to build it) and if we can; also, if enough options are
      * passed we might as well do something with them...
      */
-    if (!gtk_init_check(&argc, &argv))
-    {
-        fprintf(stderr, "%s: could not initialize GTK interface\n", NAME);
-        show_usage();
-        return EXIT_FAILURE;
-    }
-    if ((((in_filename == NULL) && (out_filename == NULL)) || (plugin == NULL) || ((key_filename == NULL) && (pass_filename == NULL) && (password == NULL))))
-    {
-        GtkWidget *window_main;
-
-#ifdef ENABLE_NLS
-        bindtextdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
-        bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
-        textdomain(GETTEXT_PACKAGE);
-#endif
-        gtk_set_locale();
-        add_pixmap_directory("./pixmap");
-#ifndef _WIN32
-        add_pixmap_directory("/usr/lib/encrypt/pixmap");
-#else
-        add_pixmap_directory("/Program Files/encrypt/pixmap");
-#endif
-        window_main = create_window_main();
-        gtk_widget_show(window_main);
-        gtk_main();
-        return EXIT_SUCCESS;
-    }
-    else
-    {
-#endif
+//    if (!gtk_init_check(&argc, &argv))
+//    {
+//        fprintf(stderr, "%s: could not initialize GTK interface\n", NAME);
+//        show_usage();
+//        return EXIT_FAILURE;
+//    }
+//    if ((((in_filename == NULL) && (out_filename == NULL)) || (plugin == NULL) || ((key_filename == NULL) && (pass_filename == NULL) && (password == NULL))))
+//    {
+//        GtkWidget *window_main;
+//
+  #ifdef ENABLE_NLS
+//        bindtextdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
+//        bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+//        textdomain(GETTEXT_PACKAGE);
+  #endif /* ENABLE_NLS */
+//        gtk_set_locale();
+//        add_pixmap_directory("./pixmap");
+  #ifndef _WIN32
+//        add_pixmap_directory("/usr/lib/encrypt/pixmap");
+  #else  /* ! _WIN32 */
+//        add_pixmap_directory("/Program Files/encrypt/pixmap");
+  #endif /*   _WIN32 */
+//        window_main = create_window_main();
+//        gtk_widget_show(window_main);
+//        gtk_main();
+//        return EXIT_SUCCESS;
+//    }
+//    else
+//    {
+#endif /* _BUILD_GUI_ */
         /* 
-         * done that, now check everything is okay - note that we need to
-         * check this in case the gui could not be dran
+         * open the files iff we have a name for them, otherwise stick with the defaults (stdin/stdout) defined above
          */
-        if (plugin == NULL)
+        if (filename_in)
         {
-            fprintf(stderr, "%s: missing options -- e  or -- d\n", NAME);
-            return EXIT_FAILURE;
+            if ((file_in = open(filename_in, O_RDONLY | O_BINARY | F_RDLCK)) < 0)
+                die("%s: could not access input file %s\n", NAME, filename_in);
+            free(filename_in);
         }
-        if ((key_filename == NULL) && (pass_filename == NULL) && (password == NULL))
+        if (filename_out)
         {
-            fprintf(stderr, "%s: missing options -- k  or -- f or -- p\n", NAME);
-            return EXIT_FAILURE;
+            if ((file_out = open(filename_out, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY | F_WRLCK, S_IRUSR | S_IWUSR)) < 0)
+                die("%s: could not access/create output file %s\n", NAME, filename_out);
+            free(filename_out);
         }
         /* 
-         * open the files iff we have a name for them, otherwise stick with
-         * the defaults (stdin/stdout) defined above
+         * generate a binary key using the chosen method
          */
-        if (in_filename != NULL)
-        {
-            if ((in_file = open(in_filename, O_RDONLY | O_BINARY | F_RDLCK)) < 0)
-            {
-#ifndef _WIN32
-                asprintf(&errstr, "%s: could not access input file %s ", NAME, in_filename);
-#else
-                errstr = calloc(strlen(NAME) + strlen(": could not access input file ") + strlen(in_filename) + 2, sizeof (char));
-                sprintf(errstr, "%s: could not access input file %s ", NAME, in_filename);
-#endif
-                perror(errstr);
-                return errno;
-            }
-            free(in_filename);
-        }
-        if (out_filename != NULL)
-        {
-            if ((out_file = open(out_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY | F_WRLCK, S_IRUSR | S_IWUSR)) < 0)
-            {
-#ifndef _WIN32
-                asprintf(&errstr, "%s: could not access/create output file %s  ", NAME, out_filename);
-#else
-                errstr = calloc(strlen(NAME) + strlen(": could not access/create output file ") + strlen(out_filename) + 2, sizeof (char));
-                sprintf(errstr, "%s: could not access/create output file %s ", NAME, out_filename);
-#endif
-                perror(errstr);
-                return errno;
-            }
-            free(out_filename);
-        }
+        key_data = key_calculate(file_mod, key_plain, key_type);
+        free(key_plain);
         /* 
-         * if we're using a key directly then do that, else if we're not using
-         * a password - that is, we're generating a key from a file instead -
-         * do that (passwords come later)
-         */
-        if ((key) && (!pass))
-        {
-            if ((key_file = open(key_filename, O_RDONLY | O_BINARY | F_RDLCK)) < 0)
-            {
-#ifndef _WIN32
-                asprintf(&errstr, "%s: could not access fey file %s ", NAME, key_filename);
-#else
-                errstr = calloc(strlen(NAME) + strlen(": could not access key file ") + strlen(key_filename) + 2, sizeof (char));
-                sprintf(errstr, "%s: could not access key file %s ", NAME, key_filename);
-#endif
-                perror(errstr);
-                return errno;
-            }
-            free(key_filename);
-        }
-        else if ((!key) && (!pass))
-        {
-            if ((pass_file = open(pass_filename, O_RDONLY | O_BINARY | F_RDLCK)) < 0)
-            {
-#ifndef _WIN32
-                asprintf(&errstr, "%s: could not access passphrase file %s ", NAME, pass_filename);
-#else
-                errstr = calloc(strlen(NAME) + strlen(": could not access passphrase file ") + strlen(pass_filename) + 2, sizeof (char));
-                sprintf(errstr, "%s: could not access passphrase file %s ", NAME, pass_filename);
-#endif
-                perror(errstr);
-                return errno;
-            }
-            free(pass_filename);
-        }
-        /* 
-         * find and load the encryption module if we can, otherwise fail and
-         * alert the user
+         * search for the function we want - if we were able to load the module then it should be there, otherwise it's
+         * likely that the user forgot to give us a name for the module above
          */
 #ifndef _WIN32
-        if ((module = dlopen(plugin, RTLD_LAZY)) == NULL)
-        {
-#else
-        if ((module = LoadLibrary(plugin)) == NULL)
-        {
-#endif
-            fprintf(stderr, "%s: could not open plugin %s\n%s\n", NAME, plugin, dlerror());
-            return EXIT_FAILURE;
-        }
+        if (!(fp = (int64_t *(*)(uint64_t, uint64_t, uint8_t *))dlsym(file_mod, function == ENCRYPT ? "plugin_encrypt" : "plugin_decrypt")))
+#else  /* ! _WIN32 */
+        if (!(fp = (int64_t *)GetProcAddress(file_mod, function == ENCRYPT ? "plugin_encrypt" : "plugin_decrypt")))
+#endif /*   _WIN32 */
+            die("%s: could not import module function for %sryption\n", NAME, function == ENCRYPT ? "enc" : "dec");
         /* 
-         * search for the function we want - if we were able to load the
-         * module then it should be there
+         * we made it - if we reach here then everything is okay and we're now ready to start :)
          */
-#ifndef _WIN32
-        if ((exec_plugin = (int *(*)(int, int, void *))dlsym(module, function)) == NULL)
-        {
-#else
-        if ((exec_plugin = (void *)GetProcAddress(module, function)) == NULL)
-        {
-#endif
-            fprintf(stderr, "%s: could not import module function for %sryption\n%s\n", NAME, enc ? "enc" : "dec", dlerror());
-            return EXIT_FAILURE;
-        }
-        free(function);
+        errno = (uint32_t)fp(file_in, file_out, key_data);
         /* 
-         * now it's time to generate the key from the data provided - let's
-         * allow the plugin to do what it wants, returning a pointer to the
-         * key it will use NOTE: the middle of the three if's does not
-         * generate a key, it reads a previously generated key from a file
-         */
-        if ((!key) && (pass))
-        {
-#ifndef _WIN32
-            if ((gen_text = (void *(*)(void *, long unsigned))dlsym(module, "gen_text")) == NULL)
-            {
-#else
-            if ((gen_text = (void *)GetProcAddress(module, "gen_text")) == NULL)
-            {
-#endif
-                fprintf(stderr, "%s: could not import key from text generating function\n%s\n", NAME, dlerror());
-                return EXIT_FAILURE;
-            }
-            if ((key_block = gen_text(password, strlen(password))) == NULL)
-            {
-#ifndef _WIN32
-                asprintf(&errstr, "%s: could not create key from password ", NAME);
-#else
-                errstr = calloc(strlen(NAME) + strlen(": could not create key from password ") + 2, sizeof (char));
-                sprintf(errstr, "%s: could not create key from password ", NAME);
-#endif
-                perror(errstr);
-                return errno;
-            }
-        }
-        else if ((key) && (!pass))
-        {
-#ifndef _WIN32
-            if ((key_read = (void *(*)(int))dlsym(module, "key_read")) == NULL)
-            {
-#else
-            if ((key_read = (void *)GetProcAddress(module, "key_read")) == NULL)
-            {
-#endif
-                fprintf(stderr, "%s: cound not import key file reading function\n%s\n", NAME, dlerror());
-                return EXIT_FAILURE;
-            }
-            if ((key_block = key_read(key_file)) == NULL)
-            {
-#ifndef _WIN32
-                asprintf(&errstr, "%s: could not read key from file", NAME);
-#else
-                errstr = calloc(strlen(NAME) + strlen(": could not read key from file ") + 2, sizeof (char));
-                sprintf(errstr, "%s: could not read key from file ", NAME);
-#endif
-                perror(errstr);
-                return errno;
-            }
-            close(key_file);
-        }
-        else if ((!key) && (!pass))
-        {
-#ifndef _WIN32
-            if ((gen_file = (void *(*)(int))dlsym(module, "gen_file")) == NULL)
-            {
-#else
-            if ((gen_file = (void *)GetProcAddress(module, "gen_file")) == NULL)
-            {
-#endif
-                fprintf(stderr, "%s: could not import key from file generating function\n%s\n", NAME, dlerror());
-                return EXIT_FAILURE;
-            }
-            if ((key_block = gen_file(pass_file)) == NULL)
-            {
-#ifndef _WIN32
-                asprintf(&errstr, "%s: could not create key from file", NAME);
-#else
-                errstr = calloc(strlen(NAME) + strlen(": could not create key from file ") + 2, sizeof (char));
-                sprintf(errstr, "%s: could not create key from file ", NAME);
-#endif
-                perror(errstr);
-                return errno;
-            }
-            close(pass_file);
-        }
-        /* 
-         * we made it - if we reach here then everything is okay and we're now
-         * ready to start :)
-         */
-        errno = (long)exec_plugin(in_file, out_file, key_block);
-        /* 
-         * if there's an error tell the user - however it's unlikely we'll
-         * know exactly what the error is
+         * if there's an error tell the user - however it's unlikely we'll know exactly what the error is
          */
         if (errno != EXIT_SUCCESS)
-        {
-#ifndef _WIN32
-            asprintf(&errstr, "%s: an unexpected error occured ", NAME);
-#else
-            errstr = calloc(strlen(NAME) + strlen(": an unexpected error occured ") + 2, sizeof (char));
-            sprintf(errstr, "%s: an unexpected error occured ", NAME);
-#endif
-            perror(errstr);
-        }
+            die("%s: an unexpected error has occured\n", NAME);
         /* 
-         * close all open files obviously if in_file / out_file are stdin /
-         * stdout it makes no sense to close them
+         * close all open files obviously if in_file / out_file are stdin / stdout it makes no sense to close them
          */
-        free(key_block);
-        free(plugin);
+        free(key_data);
 #ifdef _DLFCN_H
-        dlclose(module);
-#endif
-        if (in_file > 2)
-            close(in_file);
-        if (out_file > 2)
-            close(out_file);
+        dlclose(file_mod);
+#endif /* _DLFCN_H */
+        if (file_in != STDIN_FILENO)
+            close(file_in);
+        if (file_out != STDOUT_FILENO)
+            close(file_out);
         return EXIT_SUCCESS;
 #ifdef _BUILD_GUI_
-    }
-#endif
+//    }
+#endif /* _BUILD_GUI_ */
 }
 
-int algorithm_info(char *algorithm)
+void *open_mod(char *n)
 {
+#ifndef _WIN32
+    void *p = NULL;
+#else  /* ! _WIN32 */
+//    HANDLE p;
+#endif /*   _WIN32 */
+    if (!n)
+         die("%s: module name cannot be (null)\n", NAME);
+#ifndef _WIN32
+    if (!strchr(n, '/'))
+        asprintf(&n, "%s.so", n);
+    if (!(p = dlopen(n, RTLD_LAZY)))
+#else  /* ! _WIN32 */
+//    if (!strchr(n, '\\'))
+//    {
+//        n = realloc(n, strlen(algorithm) + 5);
+//        sprintf(n, "%s.dll", n);
+//    }
+//    if (!(module = LoadLibrary(n)))
+#endif /*   _WIN32 */
+        die("%s: could not open plugin %s\n", NAME, n);
+    return p;
+}
+
+int64_t algorithm_info(char *n)
+{
+    if (!n)
+        die("%s: missing module name\n", NAME);
+    void *p = open_mod(n);
+    if (!p)
+        die("%s: invalid pointer to module\n", NAME);
     /* 
      * set everything up so we can get some info about the given algorithm
      */
-    char *plugin = NULL;
-    struct about_info about, (*about_plugin)(void); 
+    info_t *about, *(*fp)(void); 
     errno = 0;
-#ifndef _WIN32
-    void *module;
 
-    if (strchr(algorithm, '/') == NULL)
-        asprintf(&plugin, "%s.so", algorithm);
-#else
-    HANDLE module;
-
-    if (strchr(algorithm, '\\') == NULL)
-    {
-        plugin = calloc(strlen(algorithm) + 5, sizeof (char));
-        sprintf(plugin, "%s.dll", algorithm);
-    }
-#endif
-    else
-        plugin = strdup(algorithm);
-    /* 
-     * find the plugin, open it, etc...
-     */
 #ifndef _WIN32
-    if ((module = dlopen(plugin, RTLD_LAZY)) == NULL)
+    if (!(fp = (info_t *(*)(void))dlsym(p, "plugin_info")))
+#else   /* ! _WIN32 */
+//    if (!(fp = (void *)GetProcAddress(p, "plugin_info")))
+#endif /*   _WIN32 */
     {
-#else
-    if ((module = LoadLibrary(plugin)) == NULL)
-    {
-#endif
-#ifdef _DLFCN_H
-        fprintf(stderr, "%s: could not open plugin %s\n%s\n", NAME, plugin, dlerror());
-#endif
-        return EXIT_FAILURE;
-    }
-    free(plugin);
-#ifndef _WIN32
-    if ((about_plugin = (struct about_info(*)(void))dlsym(module, "about")) == NULL)
-    {
-#else
-    if ((about_plugin = (void *)GetProcAddress(module, "about")) == NULL)
-    {
-#endif
         fprintf(stderr, "%s: could not find plugin information\n%s\n", NAME, dlerror());
         return EXIT_FAILURE;
     }
     /* 
      * now get the info
      */
-    about = about_plugin();
+    about = fp();
     fprintf(stdout, "Algorithm Details\n");
-    fprintf(stdout, "  Name       : %s\n", about.a_name);
-    fprintf(stdout, "  Authors    : %s\n", about.a_authors);
-    fprintf(stdout, "  Copyright  : %s\n", about.a_copyright);
-    fprintf(stdout, "  Licence    : %s\n", about.a_licence);
-    fprintf(stdout, "  Year       : %s\n", about.a_year);
-    fprintf(stdout, "  Block size : %s\n", about.a_block);
+    fprintf(stdout, "  Name       : %s\n", about->algorithm_name);
+    fprintf(stdout, "  Authors    : %s\n", about->algorithm_authors);
+    fprintf(stdout, "  Copyright  : %s\n", about->algorithm_copyright);
+    fprintf(stdout, "  Licence    : %s\n", about->algorithm_licence);
+    fprintf(stdout, "  Year       : %s\n", about->algorithm_year);
+    fprintf(stdout, "  Block size : %s\n", about->algorithm_block);
     fprintf(stdout, "\nKey Details\n");
-    fprintf(stdout, "  Name       : %s\n", about.k_name);
-    fprintf(stdout, "  Authors    : %s\n", about.k_authors);
-    fprintf(stdout, "  Copyright  : %s\n", about.k_copyright);
-    fprintf(stdout, "  Licence    : %s\n", about.k_licence);
-    fprintf(stdout, "  Year       : %s\n", about.k_year);
-    fprintf(stdout, "  Key size   : %s\n", about.k_size);
+    fprintf(stdout, "  Name       : %s\n", about->key_name);
+    fprintf(stdout, "  Authors    : %s\n", about->key_authors);
+    fprintf(stdout, "  Copyright  : %s\n", about->key_copyright);
+    fprintf(stdout, "  Licence    : %s\n", about->key_licence);
+    fprintf(stdout, "  Year       : %s\n", about->key_year);
+    fprintf(stdout, "  Key size   : %s\n", about->key_size);
     fprintf(stdout, "\nPlugin Details\n");
-    fprintf(stdout, "  Authors    : %s\n", about.m_authors);
-    fprintf(stdout, "  Copyright  : %s\n", about.m_copyright);
-    fprintf(stdout, "  Licence    : %s\n", about.m_licence);
-    fprintf(stdout, "  Version    : %s\n", about.m_version);
+    fprintf(stdout, "  Authors    : %s\n", about->module_authors);
+    fprintf(stdout, "  Copyright  : %s\n", about->module_copyright);
+    fprintf(stdout, "  Licence    : %s\n", about->module_licence);
+    fprintf(stdout, "  Version    : %s\n", about->module_version);
     fprintf(stdout, "\nAdditional Details\n");
-    fprintf(stdout, "  %s\n", about.o_comment);
-    /* 
-     * finally close the module and return
+    fprintf(stdout, "  %s\n", about->module_comment);
+
+    /*
+     * go on a free'ing spree...
      */
+    free(about->algorithm_name);
+    free(about->algorithm_authors);
+    free(about->algorithm_copyright);
+    free(about->algorithm_licence);
+    free(about->algorithm_year);
+    free(about->algorithm_block);
+
+    free(about->key_name);
+    free(about->key_authors);
+    free(about->key_copyright);
+    free(about->key_licence);
+    free(about->key_year);
+    free(about->key_size);
+
+    free(about->module_authors);
+    free(about->module_copyright);
+    free(about->module_licence);
+    free(about->module_version);
+    free(about->module_comment);
+
+    free(about);
 #ifdef _DLFCN_H
-    dlclose(module);
-#endif
+        dlclose(p);
+#endif /* _DLFCN_H */
     return errno;
 }
 
-int generate_key(char *s, char *file)
+int64_t key_generate(char *s, char *f)
 {
     /* 
-     * generate a key (for later use) of a given size - it's up to each
-     * algorithm plugin to decide how to use a given key file (all keys are in
-     * hex)
+     * generate a key (for later use) of a given size - it's up to each algorithm plugin to decide how to use a given
+     * key file (all keys are in hex)
      */
-    FILE *out = stdout;
-    int size = strtol(s, NULL, 10) / 8, part = 0;
-    char *errstr = NULL;
-
-#ifndef _WIN32
+    uint64_t l = strtol(s, NULL, 10) / 8;
+    FILE *k = stdout;
+    errno = EXIT_SUCCESS;
     srand48(time(0));
-#else
-    srand(time(0));
-#endif
     /* 
      * either print the hex key to stdout, or to a file if we can
      */
-    if (file != NULL)
-    {
-        if ((out = fopen(file, "w")) == NULL)
-        {
-#ifndef _WIN32
-            asprintf(&errstr, "%s: could not access/create key file %s ", NAME, file);
-#else
-            errstr = calloc(strlen(NAME) + strlen(": could not access/create key file ") + strlen(file) + 2, sizeof (char));
-            sprintf(errstr, "%s: could not access/create key file %s ", NAME, file);
-#endif
-            perror(errstr);
-            return errno;
-        }
-        free(file);
-    }
-    for (int loop = 0; loop < size; loop++)
-    {
-#ifndef _WIN32
-        part = lrand48() % 256;
-#else
-        part = rand() % 256;
-#endif
-        fprintf(out, "%02X", part);
-    }
+    if (f)
+        if (!(k = fopen(f, "w")))
+            die("%s: could not access/create key file %s\n", NAME, f);
+    for (uint64_t i = 0; i < l; i++)
+        fprintf(k, "%02X", (uint8_t)(lrand48() % 256));
+    if (k == stdout)
+        printf("\n");
+    fclose(k);
     return errno;
 }
 
-void list_modules(void)
+uint8_t *key_calculate(void *p, char *s, uint8_t k)
 {
+    if (!p)
+        die("%s: invalid pointer to module\n", NAME);
+    if (!s)
+        die("%s: missing data for key generation\n", NAME);
+    uint8_t *c = NULL;
+    uint8_t *d = NULL;
+    uint64_t l = 0;
+    switch (k)
+    {
+        case KEYFILE:
+            {
+                int64_t  f = 0;
+                if ((f = open(s, O_RDONLY)) < 0)
+                    die("%s: could not access key file %s\n", NAME, s);
+                l = lseek(f, 0, SEEK_END);
+                lseek(f, 0, SEEK_SET);
+                d = calloc(l, sizeof( uint8_t ));
+                if (!d)
+                    return NULL;
+                for (uint64_t i = 0; i < l / 2; i++)
+                {
+                    char c[3] = { 0x00 };
+                    read(f, &c, 2 * sizeof( uint8_t ));
+                    d[i] = strtol(c, NULL, 0x0F);
+                }
+                close(f);
+                return d;
+            }
+            break; // why?
+        case PASSFILE:
+            {
+                int64_t f = 0;
+                if ((f = open(s, O_RDONLY)) < 0)
+                    die("%s: could not access passphrase file %s\n", NAME, s);
+                l = lseek(f, 0, SEEK_END);
+                lseek(f, 0, SEEK_SET);
+                c = calloc(l, sizeof( uint8_t ));
+                read(f, c, l);
+                close(f);
+            }
+            break;
+        case PASSWORD:
+            {
+                c = (uint8_t *)strdup(s);
+                l = strlen(s);
+            }
+            break;
+        default:
+            die("%s: invalid key type\n", NAME);
+    }
+    uint8_t *(*fp)(uint8_t *, size_t);
+    if (!(fp = (uint8_t *(*)(uint8_t *, size_t))dlsym(p, "plugin_key")))
+        die("%s: could not find plugin function %s\n", NAME, "plugin_key");
+    d = fp(c, l);
+    free(c);
+    return d;
+}
+
+int64_t list_modules(void)
+{
+    errno = EXIT_SUCCESS;
     /*
      * list all modules which are installed in /usr/lib/encrypt
      */
@@ -602,36 +466,45 @@ void list_modules(void)
      * linux version is much nicer than the windows (this is becoming common)
      */
     struct dirent **eps;
-    int n = scandir("/usr/lib/encrypt/lib", &eps, NULL, alphasort);
+    int64_t n = scandir("/usr/lib/encrypt/lib", &eps, NULL, alphasort);
     if (n >= 0)
     {
-        for (int cnt = 0; cnt < n; ++cnt)
-            if (strstr(eps[cnt]->d_name, ".so") != NULL)
-#ifdef linux
-                fprintf(stdout, "  %s\n", strndup(eps[cnt]->d_name, strlen(eps[cnt]->d_name) - 3));
-#else
+        for (int64_t i = 0; i < n; ++i)
+            if (strstr(eps[i]->d_name, ".so"))
+  #ifdef linux
+                fprintf(stdout, "  %*s\n", strlen(eps[i]->d_name) - 3, eps[i]->d_name);
+  #else  /*   linux */
             {
-                char *tfn = calloc(strlen(eps[cnt]->d_name), sizeof (char));
-                memcpy(tfn, eps[cnt]->d_name, strlen(eps[cnt]->d_name) - 3);
-                fprintf(stdout, "  %s\n", tfn);
+                char *n = calloc(strlen(eps[i]->d_name), sizeof( char ));
+                memcpy(n, eps[i]->d_name, strlen(eps[i]->d_name) - 3);
+                fprintf(stdout, "  %s\n", n);
             }
-#endif
-#else
-    DIR *dp;
-    dp = opendir("/Program Files/encrypt/lib");
-    if (dp != NULL)
+  #endif /* ! linux */
+    free(*eps);
+#else  /* ! _WIN32 */
+    DIR *dp = opendir("/Program Files/encrypt/lib");
+    if (dp)
     {
         struct dirent *ep;
         while ((ep = readdir(dp)))
             if (strstr(ep->d_name, ".dll"))
                 fprintf(stdout, "  %s\n", ep->d_name);
         (void)closedir(dp);
-#endif
+#endif /*   _WIN32 */
     }
-
+    return errno;
 }
 
-void show_help(void)
+void die(const char *s, ...)
+{
+    va_list ap;
+    va_start(ap, s);
+    vfprintf(stderr, s, ap);
+    va_end(ap);
+    exit(errno);
+}
+
+int64_t show_help(void)
 {
     /* 
      * boo
@@ -657,9 +530,10 @@ void show_help(void)
     fprintf(stderr, "generate a random key and echo it to stdout unless -g is preceded by -k; the\n");
     fprintf(stderr, "key can be used later with the -k option. However -a -m -h -l -v may be used\n");
     fprintf(stderr, "on their own or not at all.\n");
+    return EXIT_SUCCESS;
 }
 
-void show_licence(void)
+int64_t show_licence(void)
 {
     /* 
      * simple GNU GPL blurb
@@ -674,22 +548,24 @@ void show_licence(void)
     fprintf(stderr, "GNU General Public License for more details.\n\n");
     fprintf(stderr, "You should have received a copy of the GNU General Public License\n");
     fprintf(stderr, "along with this program.  If not, see <http://www.gnu.org/licenses/>.\n");
+    return EXIT_SUCCESS;
 }
 
-void show_usage(void)
+int64_t show_usage(void)
 {
     /* 
      * c'mon! how hard is this!
      */
     fprintf(stderr, "Usage:\n");
     fprintf(stderr, "  %s [OPTION] [ARGUMENT] ...\n", NAME);
+    return EXIT_SUCCESS;
 }
 
-void show_version(void)
+int64_t show_version(void)
 {
     /* 
-     * i suppose this really should just print a simple numerical value, but
-     * what the heck...
+     * i suppose this really should just print a simple numerical value, but what the heck...
      */
     fprintf(stderr, "%s version %s\n", NAME, VERSION);
+    return EXIT_SUCCESS;
 }

@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS,) encryption utility
- * Copyright (c) 2005-2007, albinoloverats ~ Software Development
+ * Copyright (c) 2005-2008, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,44 +19,44 @@
  */
 
 #ifndef _ENCRYPT_H_
-#define _ENCRYPT_H_
+  #define _ENCRYPT_H_
 
-#ifndef TRUE
-#define TRUE 1
-#endif
-#ifndef FALSE
-#define FALSE 0
-#endif
+  #define AUTHOR "albinoloverats ~ Software Development"
+  #define LICENCE "GPL"
+  #define NAME "encrypt"
 
-#define AUTHOR "albinoloverats ~ Software Development"
-#define LICENCE "GPL"
-#define NAME "encrypt"
-/*
- * version number now comes from SVN revision
- */
-#ifndef VERSION
-#define VERSION "TBA"
-#endif
+  //#ifndef VERSION
+  //#define VERSION "TBA"
+  //#endif
 
-int main(int, char **);
-int algorithm_info(char *);
-int generate_key(char *, char *);
-void list_modules(void);
-int option_error(char *);
-void show_help(void);
-void show_licence(void);
-void show_usage(void);
-void show_version(void);
+  #define NOTSET 0
 
-#ifdef _WIN32
-#define dlerror() ""
-#define _BUILD_GUI_ 1
-#define F_RDLCK 0
-#define F_WRLCK 0
-#endif
+  enum key { KEYFILE = 1, PASSFILE, PASSWORD };
+  enum func { ENCRYPT = 1, DECRYPT };
 
-#ifndef _WIN32
-#define O_BINARY 0
-#endif
+  int main(int, char **);
+  void die(const char *, ...);
+
+  void *open_mod(char *);
+  int64_t algorithm_info(char *);
+  int64_t list_modules(void);
+
+  int64_t  key_generate(char *, char *);
+  uint8_t *key_calculate(void *, char *, uint8_t);
+
+  int64_t show_help(void);
+  int64_t show_licence(void);
+  int64_t show_usage(void);
+  int64_t show_version(void);
+
+  #ifdef _WIN32
+    #define srand48 srand
+    #define lrand48 rand
+    #define _BUILD_GUI_ 1
+    #define F_RDLCK 0
+    #define F_WRLCK 0
+  #else  /*   _WIN32 */
+    #define O_BINARY 0
+  #endif /* ! _WIN32 */
 
 #endif /* _ENCRYPT_H_ */

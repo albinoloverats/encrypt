@@ -6,15 +6,16 @@ LIB_CLEAN     =
 LIB_UNINSTALL = 
 
 VERSION := -D'VERSION="$(shell svnversion -n .)"'
+OPTIONS := -o encrypt -std=gnu99 -Wall -Wextra -g -O0 -pipe -ldl -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64
 
 encrypt:
 # build the main executible
-	 @gcc -o encrypt -std=gnu99 -Wall -Wextra -Os -pipe -ldl -D_GNU_SOURCE $(VERSION) src/encrypt.c
+	 @gcc $(OPTIONS) $(VERSION) src/encrypt.c
 	-@echo "compiled \`src/encrypt.c' --> \`encrypt'"
 
 gui:
 # build the gui package
-	 @gcc -o encrypt -std=gnu99 -Wall -Wextra -Os -pipe -ldl -D_GNU_SOURCE -D_BUILD_GUI_ $(VERSION) src/encrypt.c src/callbacks.c src/interface.c src/support.c `pkg-config --cflags --libs gtk+-2.0`
+	 @gcc $(OPTIONS) $(VERSION) -D_BUILD_GUI_ src/encrypt.c src/callbacks.c src/interface.c src/support.c `pkg-config --cflags --libs gtk+-2.0`
 	-@echo "compiled \`src/encrypt.c src/callbacks.c src/interface.c src/cupport.c --> encrypt'"
 
 -include lib/*.mk

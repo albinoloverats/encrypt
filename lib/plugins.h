@@ -1,6 +1,6 @@
 /*
  *	encrypt ~ a simple, modular, (multi-OS,) encryption utility
- *	Copyright (c) 2005-2007, albinoloverats ~ Software Development
+ *	Copyright (c) 2005-2008, albinoloverats ~ Software Development
  *	email: encrypt@albinoloverats.net
  *
  *	This program is free software: you can redistribute it and/or modify
@@ -19,45 +19,47 @@
  */
 
 #ifndef _PLUGINS_H_
-#define _PLUGINS_H_
+  #define _PLUGINS_H_
 
-typedef struct about_info {
-    /* 
-     * simple data structure for information about the plugin
-     */
-    char *a_name;
-    char *a_authors;
-    char *a_copyright;
-    char *a_licence;
-    char *a_year;
-    char *a_block;
-    char *k_name;
-    char *k_authors;
-    char *k_copyright;
-    char *k_licence;
-    char *k_year;
-    char *k_size;
-    char *m_authors;
-    char *m_copyright;
-    char *m_licence;
-    char *m_version;
-    char *o_comment;
-} about_info;
+  /* 
+   * simple data structure for information about the plugin
+   */
+  typedef struct info_t
+  {
+      char *algorithm_name;
+      char *algorithm_authors;
+      char *algorithm_copyright;
+      char *algorithm_licence;
+      char *algorithm_year;
+      char *algorithm_block;
+      char *key_name;
+      char *key_authors;
+      char *key_copyright;
+      char *key_licence;
+      char *key_year;
+      char *key_size;
+      char *module_authors;
+      char *module_copyright;
+      char *module_licence;
+      char *module_version;
+      char *module_comment;
+  } info_t;
 
-extern struct about_info info(void);
-extern int enc_main(int, int, void *);
-extern int dec_main(int, int, void *);
-extern void *gen_file(int);
-extern void *gen_text(void *, long unsigned);
-extern void *key_read(int);
+  extern info_t  *plugin_info(void);
+  extern int64_t plugin_encrypt(uint64_t, uint64_t, uint8_t *);
+  extern int64_t plugin_decrypt(uint64_t, uint64_t, uint8_t *);
+  extern uint8_t *plugin_key(uint8_t *, size_t);
 
-#ifdef _WIN32
-typedef UINT32 uint32_t;
-typedef UINT64 uint64_t;
-#if BUILDING_DLL
-#define extern __declspec (dllexport)
-#else
-#define extern __declspec (dllimport)
-#endif
-#endif
+  //extern void *gen_file(int);
+  //extern void *gen_text(void *, long unsigned);
+  //extern void *key_read(int);
+
+  #ifdef _WIN32
+    #if BUILDING_DLL
+      #define extern __declspec (dllexport)
+    #else  /*   BUILDING_DLL */
+      #define extern __declspec (dllimport)
+    #endif /* ! BUILDING_DLL */
+  #endif /* _WIN32 */
+
 #endif /* _PLUGINS_H_ */

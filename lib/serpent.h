@@ -38,9 +38,8 @@
 #define M_AUTHORS   "Ashley Anderson"
 #define M_COPYRIGHT "Copyright (c) 2004-2008, Ashley Anderson"
 #define M_LICENCE   "GPL"
-#define M_VERSION   "0.3"
-
-#define O_COMMENT "\
+#define M_VERSION   "1.1"
+#define M_COMMENT "\
 Serpent is a symmetric key block cipher which was a finalist in the\n\
 Advanced Encryption Standard (AES) contest, where it came second to\n\
 Rijndael. It was widely viewed as taking a more conservative approach\n\
@@ -55,7 +54,7 @@ comments in the code still say otherwise. You are welcome to use\n\
 Serpent for any application. If you do use it, we would appreciate it\n\
 if you would let us know!"
 
-#define HEADER "SERPENT+TIGER/0.3\255"
+#define HEADER "SERPENT+TIGER/1.1\255"
 
 #define SIZE_BYTE 8
 #define SIZE_DWORD 32
@@ -70,13 +69,13 @@ if you would let us know!"
 #define EFTYPE 42
 #endif
 
-uint64_t check_endian (uint64_t);
+//static uint64_t check_endian (uint64_t);
 
-void block_encrypt(unsigned char *, unsigned char *, unsigned char *, uint32_t *);
-void block_decrypt(unsigned char *, unsigned char *, unsigned char *, uint32_t *);
-uint32_t *serpent_subkeys(uint32_t *);
-void serpent_encrypt(uint32_t[4], uint32_t[4], uint32_t *);
-void serpent_decrypt(uint32_t[4], uint32_t[4], uint32_t *);
+static void block_encrypt(unsigned char *, unsigned char *, unsigned char *, uint32_t *);
+static void block_decrypt(unsigned char *, unsigned char *, unsigned char *, uint32_t *);
+static uint32_t *serpent_subkeys(uint32_t *);
+static void serpent_encrypt(uint32_t[4], uint32_t[4], uint32_t *);
+static void serpent_decrypt(uint32_t[4], uint32_t[4], uint32_t *);
 
 /* S0:   3  8 15  1 10  6  5 11 14 13  4  2  7  0  9 12 */
 
