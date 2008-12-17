@@ -48,8 +48,8 @@
 
 /* adapt these, if necessary, 
    for your operating system and compiler */
-typedef unsigned char byte;
-typedef unsigned long dword;
+typedef uint8_t  byte;
+typedef uint32_t dword;
 
 
 /********************************************************************/

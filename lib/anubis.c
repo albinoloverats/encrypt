@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <inttypes.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -31,30 +32,30 @@
 #include "plugins.h"
 #include "rmd160.h"
 
-extern struct about_info about(void)
+extern info_t *plugin_info(void)
 {
-    struct about_info anubis;
-    anubis.a_name = strdup(A_NAME);
-    anubis.a_authors = strdup(A_AUTHORS);
-    anubis.a_copyright = strdup(A_COPYRIGHT);
-    anubis.a_licence = strdup(A_LICENCE);
-    anubis.a_year = strdup(A_YEAR);
-    anubis.a_block = strdup(A_BLOCK);
-    anubis.k_name = strdup(K_NAME);
-    anubis.k_authors = strdup(K_AUTHORS);
-    anubis.k_copyright = strdup(K_COPYRIGHT);
-    anubis.k_licence = strdup(K_LICENCE);
-    anubis.k_year = strdup(K_YEAR);
-    anubis.k_size = strdup(K_SIZE);
-    anubis.m_authors = strdup(M_AUTHORS);
-    anubis.m_copyright = strdup(M_COPYRIGHT);
-    anubis.m_licence = strdup(M_LICENCE);
-    anubis.m_version = strdup(M_VERSION);
-    anubis.o_comment = strdup(O_COMMENT);
+    info_t *anubis = calloc(1, sizeof( info_t ));
+    anubis->algorithm_name      = strdup(A_NAME);
+    anubis->algorithm_authors   = strdup(A_AUTHORS);
+    anubis->algorithm_copyright = strdup(A_COPYRIGHT);
+    anubis->algorithm_licence   = strdup(A_LICENCE);
+    anubis->algorithm_year      = strdup(A_YEAR);
+    anubis->algorithm_block     = strdup(A_BLOCK);
+    anubis->key_name            = strdup(K_NAME);
+    anubis->key_authors         = strdup(K_AUTHORS);
+    anubis->key_copyright       = strdup(K_COPYRIGHT);
+    anubis->key_licence         = strdup(K_LICENCE);
+    anubis->key_year            = strdup(K_YEAR);
+    anubis->key_size            = strdup(K_SIZE);
+    anubis->module_authors      = strdup(M_AUTHORS);
+    anubis->module_copyright    = strdup(M_COPYRIGHT);
+    anubis->module_licence      = strdup(M_LICENCE);
+    anubis->module_version      = strdup(M_VERSION);
+    anubis->module_comment      = strdup(O_COMMENT);
     return anubis;
 }
 
-extern int enc_main(int in, int out, void *key)
+extern int64_t plugin_encrypt(uint64_t in, uint64_t out, uint8_t *key)
 {
     errno = 0;
     ssize_t len = 0, size = (off_t) lseek(in, 0, SEEK_END);
@@ -76,7 +77,7 @@ extern int enc_main(int in, int out, void *key)
     return EXIT_SUCCESS;
 }
 
-extern int dec_main(int in, int out, void *key)
+extern int64_t plugin_decrypt(uint64_t in, uint64_t out, uint8_t *key)
 {
     errno = 0;
     ssize_t len = 0, size = 0;
@@ -108,60 +109,35 @@ extern int dec_main(int in, int out, void *key)
     return EXIT_SUCCESS;
 }
 
-extern void *gen_file(int file)
+extern uint8_t *plugin_key(uint8_t *d, size_t l)
+//extern void *gen_text(void *msg, long unsigned length)
 {
-    char *data = NULL;
-    size_t size = (off_t) lseek(file, 0, SEEK_END);
-    lseek(file, 0, SEEK_SET);
-    if ((data = malloc(size + 1)) == NULL)
+    uint8_t *m = calloc(l, sizeof( char ));
+    if (!m)
         return NULL;
-    read(file, data, size);
-    data[size] = '\0';
-    return gen_text(data, (long unsigned) size);
-}
-
-extern void *gen_text(void *msg, long unsigned length)
-{
-    byte *message;
-    message = calloc(length, sizeof (char));
-    memmove(message, msg, length);
-    dword MDbuf[RMDsize / 32], X[16], nbytes;
-    static byte hashcode[RMDsize / 8];
+    memmove(m, d, l);
+    uint32_t MDbuf[RMDsize / 32] = { 0x00000000 };
+    uint32_t X[16] = { 0x00000000 };
+    uint32_t b = 0;
+    static uint8_t hashcode[RMDsize / 8] = { 0x00 };
     MDinit(MDbuf);
-    for (nbytes = length; nbytes > 63; nbytes -= 64)
+    for (b = l; b > 63; b -= 64)
     {
-        for (int i = 0; i < 16; i++)
+        for (uint8_t i = 0; i < 16; i++)
         {
-            X[i] = BYTES_TO_DWORD(message);
-            message += 4;
+            X[i] = BYTES_TO_DWORD(m);
+            m += 4;
         }
         MDcompress(MDbuf, X);
     }
-    MDfinish(MDbuf, message, length, 0);
-    for (int i = 0; i < RMDsize / 8; i += 4)
+    MDfinish(MDbuf, m, l, 0);
+    for (uint64_t i = 0; i < RMDsize / 8; i += 4)
     {
         hashcode[i] = MDbuf[i >> 2];
         hashcode[i + 1] = (MDbuf[i >> 2] >> 8);
         hashcode[i + 2] = (MDbuf[i >> 2] >> 16);
         hashcode[i + 3] = (MDbuf[i >> 2] >> 24);
     }
-    message = realloc(message, RMDsize / 8);
-    return memmove(message, hashcode, RMDsize / 8);
-}
-
-extern void *key_read(int file)
-{
-    char data[2];
-    static byte *key;
-    size_t size = (off_t) lseek(file, 0, SEEK_END);
-    if (size < RMDsize / 8)
-        return NULL;
-    lseek(file, 0, SEEK_SET);
-    if ((key = malloc(RMDsize / 8)) == NULL)
-        return NULL;
-    for (int i = 0; i < RMDsize / 8; i++) {
-        read(file, &data, 2 * sizeof (char));
-        key[i] = strtol(data, NULL, 16);
-    }
-    return key;
+    m = realloc(m, RMDsize / 8);
+    return memmove(m, hashcode, RMDsize / 8);
 }

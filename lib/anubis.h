@@ -18,7 +18,7 @@
  *
  */
 
-#define HEADER "ANUBIS+RIPE160/1.4\255"
+#define HEADER "ANUBIS+RIPE160/2.1\255"
 #define RMDsize 160
 
 #define A_NAME "Anubis Block Cipher"
@@ -38,7 +38,7 @@
 #define M_AUTHORS "Ashley Anderson"
 #define M_COPYRIGHT "Copyright (c) 2007-2008, Ashley Anderson"
 #define M_LICENCE "GPL"
-#define M_VERSION "1.4"
+#define M_VERSION "2.1"
 
 #define O_COMMENT "\
 ANUBIS is a block cipher designed by Vincent Rijmen and Paulo S.L.M.\n\
@@ -123,27 +123,19 @@ to, e.g., the NSA-designed family of algorithms, SHA."
  * i.e., to specify the size of the result of each expression.
  */
 
-typedef signed char s8;
-typedef unsigned char u8;
+typedef int8_t s8;
+typedef uint8_t u8;
+
+typedef int16_t s16;
+typedef uint16_t u16;
+
+typedef int32_t s32;
+typedef uint32_t u32;
 
 #if UINT_MAX >= 4294967295UL
-
-typedef signed short s16;
-typedef signed int s32;
-typedef unsigned short u16;
-typedef unsigned int u32;
-
-#define ONE32   0xffffffffU
-
+  #define ONE32   0xffffffffU
 #else
-
-typedef signed int s16;
-typedef signed long s32;
-typedef unsigned int u16;
-typedef unsigned long u32;
-
-#define ONE32   0xffffffffUL
-
+  #define ONE32   0xffffffffUL
 #endif
 
 #define ONE8    0xffU

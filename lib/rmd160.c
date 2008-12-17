@@ -43,6 +43,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 #include "rmd160.h"
 
 /********************************************************************/
