@@ -27,6 +27,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdbool.h>
+#include <inttypes.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -97,7 +99,7 @@ GtkWidget *create_window_main(void)
     gtk_widget_set_size_request(window_main, 384, 384);
     gtk_window_set_title(GTK_WINDOW(window_main), _("encrypt"));
     gtk_window_set_default_size(GTK_WINDOW(window_main), 384, 384);
-    gtk_window_set_resizable(GTK_WINDOW(window_main), FALSE);
+    gtk_window_set_resizable(GTK_WINDOW(window_main), false);
     gtk_window_set_gravity(GTK_WINDOW(window_main), GDK_GRAVITY_CENTER);
 
     fixed_layout = gtk_fixed_new();
@@ -139,7 +141,7 @@ GtkWidget *create_window_main(void)
     gtk_widget_show(filechooserbutton_key_file);
     gtk_fixed_put(GTK_FIXED(fixed_layout), filechooserbutton_key_file, 192, 72);
     gtk_widget_set_size_request(filechooserbutton_key_file, 160, 32);
-    g_object_set(filechooserbutton_key_file, "show-hidden", TRUE, NULL);
+    g_object_set(filechooserbutton_key_file, "show-hidden", true, NULL);
 
     filechooserbutton_out_dir = gtk_file_chooser_button_new(_("Select Destination Folder"), GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
 #ifndef _WIN32
@@ -182,7 +184,7 @@ GtkWidget *create_window_main(void)
     gtk_widget_show(entry_password);
     gtk_fixed_put(GTK_FIXED(fixed_layout), entry_password, 192, 112);
     gtk_widget_set_size_request(entry_password, 160, 24);
-    gtk_entry_set_visibility(GTK_ENTRY(entry_password), FALSE);
+    gtk_entry_set_visibility(GTK_ENTRY(entry_password), false);
     if (password)
         gtk_entry_set_text(GTK_ENTRY(entry_password), password);
 
@@ -222,7 +224,7 @@ GtkWidget *create_window_main(void)
 
     if (n >= 0)
     {
-        for (uint64_t i = 0; i < n; ++i)
+        for (int64_t i = 0; i < n; ++i)
             if (strstr(eps[i]->d_name, ".so") != NULL)
                 gtk_combo_box_append_text(GTK_COMBO_BOX(comboboxentry_algorithm), _(strndup(eps[i]->d_name, strlen(eps[i]->d_name) - 3)));
         if (plugin)
@@ -259,51 +261,51 @@ GtkWidget *create_window_main(void)
     gtk_widget_show(alignment1);
     gtk_container_add(GTK_CONTAINER(button_do), alignment1);
 
-    hbox1 = gtk_hbox_new(FALSE, 2);
+    hbox1 = gtk_hbox_new(false, 2);
     gtk_widget_show(hbox1);
     gtk_container_add(GTK_CONTAINER(alignment1), hbox1);
 
     image1 = gtk_image_new_from_stock("gtk-execute", GTK_ICON_SIZE_BUTTON);
     gtk_widget_show(image1);
-    gtk_box_pack_start(GTK_BOX(hbox1), image1, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox1), image1, false, false, 0);
 
     label1 = gtk_label_new_with_mnemonic("_Execute");
     gtk_widget_show(label1);
-    gtk_box_pack_start(GTK_BOX(hbox1), label1, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox1), label1, false, false, 0);
 
     button_quit = gtk_button_new();
     alignment2 = gtk_alignment_new(0.5, 0.5, 0, 0);
     gtk_widget_show(alignment2);
     gtk_container_add(GTK_CONTAINER(button_quit), alignment2);
 
-    hbox2 = gtk_hbox_new(FALSE, 2);
+    hbox2 = gtk_hbox_new(false, 2);
     gtk_widget_show(hbox2);
     gtk_container_add(GTK_CONTAINER(alignment2), hbox2);
 
     image2 = gtk_image_new_from_stock("gtk-quit", GTK_ICON_SIZE_BUTTON);
     gtk_widget_show(image2);
-    gtk_box_pack_start(GTK_BOX(hbox2), image2, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox2), image2, false, false, 0);
 
     label2 = gtk_label_new_with_mnemonic("_Quit");
     gtk_widget_show(label2);
-    gtk_box_pack_start(GTK_BOX(hbox2), label2, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox2), label2, false, false, 0);
 
     button_about = gtk_button_new();
     alignment3 = gtk_alignment_new(0.5, 0.5, 0, 0);
     gtk_widget_show(alignment3);
     gtk_container_add(GTK_CONTAINER(button_about), alignment3);
 
-    hbox3 = gtk_hbox_new(FALSE, 2);
+    hbox3 = gtk_hbox_new(false, 2);
     gtk_widget_show(hbox3);
     gtk_container_add(GTK_CONTAINER(alignment3), hbox3);
 
     image3 = gtk_image_new_from_stock("gtk-about", GTK_ICON_SIZE_BUTTON);
     gtk_widget_show(image3);
-    gtk_box_pack_start(GTK_BOX(hbox3), image3, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox3), image3, false, false, 0);
 
     label3 = gtk_label_new_with_mnemonic("_About");
     gtk_widget_show(label3);
-    gtk_box_pack_start(GTK_BOX(hbox3), label3, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox3), label3, false, false, 0);
 #endif /*   _WIN32 */
 
     gtk_widget_show(button_about);
@@ -336,17 +338,17 @@ GtkWidget *create_window_main(void)
     gtk_widget_show(alignment_gen);
     gtk_container_add(GTK_CONTAINER(button_generate), alignment_gen);
 
-    hbox_gen = gtk_hbox_new(FALSE, 2);
+    hbox_gen = gtk_hbox_new(false, 2);
     gtk_widget_show(hbox_gen);
     gtk_container_add(GTK_CONTAINER(alignment_gen), hbox_gen);
 
     image_gen = gtk_image_new_from_stock("gtk-dialog-authentication", GTK_ICON_SIZE_BUTTON);
     gtk_widget_show(image_gen);
-    gtk_box_pack_start(GTK_BOX(hbox_gen), image_gen, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox_gen), image_gen, false, false, 0);
 
     label_gen = gtk_label_new_with_mnemonic(_("_Key"));
     gtk_widget_show(label_gen);
-    gtk_box_pack_start(GTK_BOX(hbox_gen), label_gen, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox_gen), label_gen, false, false, 0);
 
     g_signal_connect((gpointer) window_main, "destroy", G_CALLBACK(gtk_main_quit), NULL);
     g_signal_connect((gpointer) button_about, "clicked", G_CALLBACK(on_button_about_clicked), NULL);
@@ -418,12 +420,12 @@ GtkWidget *create_window_about(void)
     gtk_widget_set_size_request(window_about, 416, 320);
     gtk_window_set_title(GTK_WINDOW(window_about), _("About encrypt"));
     gtk_window_set_position(GTK_WINDOW(window_about), GTK_WIN_POS_CENTER_ON_PARENT);
-    gtk_window_set_modal(GTK_WINDOW(window_about), TRUE);
-    gtk_window_set_resizable(GTK_WINDOW(window_about), FALSE);
-    gtk_window_set_destroy_with_parent(GTK_WINDOW(window_about), TRUE);
+    gtk_window_set_modal(GTK_WINDOW(window_about), true);
+    gtk_window_set_resizable(GTK_WINDOW(window_about), false);
+    gtk_window_set_destroy_with_parent(GTK_WINDOW(window_about), true);
     gtk_window_set_icon_name(GTK_WINDOW(window_about), "gtk-about");
-    gtk_window_set_skip_taskbar_hint(GTK_WINDOW(window_about), TRUE);
-    gtk_window_set_skip_pager_hint(GTK_WINDOW(window_about), TRUE);
+    gtk_window_set_skip_taskbar_hint(GTK_WINDOW(window_about), true);
+    gtk_window_set_skip_pager_hint(GTK_WINDOW(window_about), true);
     gtk_window_set_gravity(GTK_WINDOW(window_about), GDK_GRAVITY_CENTER);
 
     fixed_about = gtk_fixed_new();
@@ -441,10 +443,10 @@ GtkWidget *create_window_about(void)
     gtk_widget_show(textview_about);
     gtk_container_add(GTK_CONTAINER(scrolledwindow_about), textview_about);
     gtk_widget_set_size_request(textview_about, 288, 160);
-    gtk_text_view_set_editable(GTK_TEXT_VIEW(textview_about), FALSE);
-    gtk_text_view_set_accepts_tab(GTK_TEXT_VIEW(textview_about), FALSE);
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(textview_about), false);
+    gtk_text_view_set_accepts_tab(GTK_TEXT_VIEW(textview_about), false);
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview_about), GTK_WRAP_NONE);
-    gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(textview_about), FALSE);
+    gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(textview_about), false);
     char *about_text;
 
 #ifndef _WIN32
@@ -463,17 +465,17 @@ GtkWidget *create_window_about(void)
     gtk_widget_show(alignment4);
     gtk_container_add(GTK_CONTAINER(button_about_close), alignment4);
 
-    hbox4 = gtk_hbox_new(FALSE, 2);
+    hbox4 = gtk_hbox_new(false, 2);
     gtk_widget_show(hbox4);
     gtk_container_add(GTK_CONTAINER(alignment4), hbox4);
 
     image4 = gtk_image_new_from_stock("gtk-close", GTK_ICON_SIZE_BUTTON);
     gtk_widget_show(image4);
-    gtk_box_pack_start(GTK_BOX(hbox4), image4, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox4), image4, false, false, 0);
 
     label4 = gtk_label_new_with_mnemonic("_Close");
     gtk_widget_show(label4);
-    gtk_box_pack_start(GTK_BOX(hbox4), label4, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox4), label4, false, false, 0);
 #endif /*   _WIN32 */
 
     gtk_widget_show(button_about_close);
@@ -537,10 +539,10 @@ GtkWidget *create_window_wait(void)
     gtk_widget_set_size_request(window_wait, 240, 160);
     gtk_window_set_title(GTK_WINDOW(window_wait), _("Please wait..."));
     gtk_window_set_position(GTK_WINDOW(window_wait), GTK_WIN_POS_CENTER_ON_PARENT);
-    gtk_window_set_modal(GTK_WINDOW(window_wait), TRUE);
+    gtk_window_set_modal(GTK_WINDOW(window_wait), true);
     gtk_window_set_default_size(GTK_WINDOW(window_wait), 240, 160);
-    gtk_window_set_resizable(GTK_WINDOW(window_wait), FALSE);
-    gtk_window_set_destroy_with_parent(GTK_WINDOW(window_wait), TRUE);
+    gtk_window_set_resizable(GTK_WINDOW(window_wait), false);
+    gtk_window_set_destroy_with_parent(GTK_WINDOW(window_wait), true);
     gtk_window_set_icon_name(GTK_WINDOW(window_wait), "gtk-dialog-error");
 
     fixed_wait = gtk_fixed_new();
@@ -555,23 +557,23 @@ GtkWidget *create_window_wait(void)
     gtk_widget_show(alignment5);
     gtk_container_add(GTK_CONTAINER(button_wait_close), alignment5);
 
-    hbox5 = gtk_hbox_new(FALSE, 2);
+    hbox5 = gtk_hbox_new(false, 2);
     gtk_widget_show(hbox5);
     gtk_container_add(GTK_CONTAINER(alignment5), hbox5);
 
     image5 = gtk_image_new_from_stock("gtk-close", GTK_ICON_SIZE_BUTTON);
     gtk_widget_show(image5);
-    gtk_box_pack_start(GTK_BOX(hbox5), image5, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox5), image5, false, false, 0);
 
     label5 = gtk_label_new_with_mnemonic("_Close");
     gtk_widget_show(label5);
-    gtk_box_pack_start(GTK_BOX(hbox5), label5, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox5), label5, false, false, 0);
 #endif /*   _WIN32 */
 
     gtk_widget_show(button_wait_close);
     gtk_fixed_put(GTK_FIXED(fixed_wait), button_wait_close, 72, 112);
     gtk_widget_set_size_request(button_wait_close, 96, 32);
-    gtk_widget_set_sensitive(button_wait_close, FALSE);
+    gtk_widget_set_sensitive(button_wait_close, false);
     gtk_widget_add_accelerator(button_wait_close, "clicked", accel_group, GDK_C, (GdkModifierType)GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(button_wait_close, "clicked", accel_group, GDK_C, (GdkModifierType)GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(button_wait_close, "clicked", accel_group, GDK_Return, (GdkModifierType)0, GTK_ACCEL_VISIBLE);
@@ -587,7 +589,7 @@ GtkWidget *create_window_wait(void)
     gtk_fixed_put(GTK_FIXED(fixed_wait), label_wait, 20, 64);
     gtk_widget_set_size_request(label_wait, 200, 48);
     gtk_label_set_justify(GTK_LABEL(label_wait), GTK_JUSTIFY_CENTER);
-    gtk_label_set_line_wrap(GTK_LABEL(label_wait), TRUE);
+    gtk_label_set_line_wrap(GTK_LABEL(label_wait), true);
 
     g_signal_connect((gpointer)window_wait, "destroy", G_CALLBACK(on_button_wait_close_clicked), NULL);
     g_signal_connect((gpointer)button_wait_close, "clicked", G_CALLBACK(on_button_wait_close_clicked), NULL);
@@ -639,9 +641,9 @@ GtkWidget *create_window_generate(void)
     gtk_widget_set_size_request(window_generate, 240, 208);
     gtk_window_set_title(GTK_WINDOW(window_generate), _("Generate Key"));
     gtk_window_set_position(GTK_WINDOW(window_generate), GTK_WIN_POS_CENTER_ON_PARENT);
-    gtk_window_set_modal(GTK_WINDOW(window_generate), TRUE);
-    gtk_window_set_resizable(GTK_WINDOW(window_generate), FALSE);
-    gtk_window_set_destroy_with_parent(GTK_WINDOW(window_generate), TRUE);
+    gtk_window_set_modal(GTK_WINDOW(window_generate), true);
+    gtk_window_set_resizable(GTK_WINDOW(window_generate), false);
+    gtk_window_set_destroy_with_parent(GTK_WINDOW(window_generate), true);
     gtk_window_set_icon_name(GTK_WINDOW(window_generate), "gtk-dialog-authentication");
     gtk_window_set_gravity(GTK_WINDOW(window_generate), GDK_GRAVITY_CENTER);
 
@@ -654,13 +656,13 @@ GtkWidget *create_window_generate(void)
     gtk_widget_show(spinbutton_size);
     gtk_fixed_put(GTK_FIXED(fixed_gen), spinbutton_size, 160, 16);
     gtk_widget_set_size_request(spinbutton_size, 60, 24);
-    gtk_spin_button_set_numeric(GTK_SPIN_BUTTON(spinbutton_size), TRUE);
+    gtk_spin_button_set_numeric(GTK_SPIN_BUTTON(spinbutton_size), true);
 
     entry_display_size = gtk_entry_new();
     gtk_widget_show(entry_display_size);
     gtk_fixed_put(GTK_FIXED(fixed_gen), entry_display_size, 16, 56);
     gtk_widget_set_size_request(entry_display_size, 208, 24);
-    gtk_editable_set_editable(GTK_EDITABLE(entry_display_size), FALSE);
+    gtk_editable_set_editable(GTK_EDITABLE(entry_display_size), false);
 
     entry_gen_save_name = gtk_entry_new();
     gtk_widget_show(entry_gen_save_name);
@@ -679,34 +681,34 @@ GtkWidget *create_window_generate(void)
     gtk_widget_show(alignment2);
     gtk_container_add(GTK_CONTAINER(button_gen_go), alignment2);
 
-    hbox2 = gtk_hbox_new(FALSE, 2);
+    hbox2 = gtk_hbox_new(false, 2);
     gtk_widget_show(hbox2);
     gtk_container_add(GTK_CONTAINER(alignment2), hbox2);
 
     image2 = gtk_image_new_from_stock("gtk-redo", GTK_ICON_SIZE_BUTTON);
     gtk_widget_show(image2);
-    gtk_box_pack_start(GTK_BOX(hbox2), image2, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox2), image2, false, false, 0);
 
     label3 = gtk_label_new_with_mnemonic(_("_Generate"));
     gtk_widget_show(label3);
-    gtk_box_pack_start(GTK_BOX(hbox2), label3, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox2), label3, false, false, 0);
 
     button_gen_close = gtk_button_new();
     alignment5 = gtk_alignment_new(0.5, 0.5, 0, 0);
     gtk_widget_show(alignment5);
     gtk_container_add(GTK_CONTAINER(button_gen_close), alignment5);
 
-    hbox5 = gtk_hbox_new(FALSE, 2);
+    hbox5 = gtk_hbox_new(false, 2);
     gtk_widget_show(hbox5);
     gtk_container_add(GTK_CONTAINER(alignment5), hbox5);
 
     image5 = gtk_image_new_from_stock("gtk-close", GTK_ICON_SIZE_BUTTON);
     gtk_widget_show(image5);
-    gtk_box_pack_start(GTK_BOX(hbox5), image5, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox5), image5, false, false, 0);
 
     label5 = gtk_label_new_with_mnemonic("_Close");
     gtk_widget_show(label5);
-    gtk_box_pack_start(GTK_BOX(hbox5), label5, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox5), label5, false, false, 0);
 
     gtk_widget_show(button_gen_close);
     gtk_fixed_put(GTK_FIXED(fixed_gen), button_gen_close, 128, 160);

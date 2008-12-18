@@ -6,7 +6,7 @@ LIB_CLEAN     += clean-serpent
 LIB_UNINSTALL += uninstall-serpent
 
 serpent:
-	 @gcc -o serpent.so -std=gnu99 -Os -fPIC -Wall -Wextra -pipe -D_GNU_SOURCE -shared -Wl,-soname,serpent.so lib/serpent.c lib/tiger.c lib/serpent_sboxes.c
+	 @gcc -o serpent.so -std=c99 -Os -fPIC -Wall -Wextra -pipe -D_GNU_SOURCE -shared -Wl,-soname,serpent.so lib/serpent.c lib/tiger.c lib/serpent_sboxes.c
 	-@echo "compiled \`lib/serpent.c' --> \`serpent.so'"
 
 install-serpent:

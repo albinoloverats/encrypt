@@ -65,34 +65,20 @@ int main(int argc, char **argv)
     char *filename_in  = NULL;
     char *filename_out = NULL;
 
+    int64_t  file_in  = STDIN_FILENO;
+    int64_t  file_out = STDOUT_FILENO;
+    void    *file_mod = NULL;
+
     char    *key_plain = NULL;
     uint8_t *key_data  = NULL;
     uint8_t  key_type  = NOTSET;
 
-    int64_t file_in  = STDIN_FILENO;
-    int64_t file_out = STDOUT_FILENO;
-    void    *file_mod = NULL;
-
     uint8_t function = NOTSET;
-    int64_t *(*fp)(uint64_t, uint64_t, uint8_t *);
+
+    int64_t (*fp)(int64_t, int64_t, uint8_t *);
 
     errno = EXIT_SUCCESS;
 
-//    char *errstr = NULL;
-//
-//#ifndef _WIN32
-//    void *module = NULL;
-//#else
-//    HANDLE module;
-//#endif
-//    void *key_block = NULL, *(*key_read)(int), *(*gen_file)(int), *(*gen_text)(void *, long unsigned);
-//
-//#ifndef _BUILD_GUI_
-//    char *in_filename = NULL, *out_filename = NULL, *key_filename = NULL, *pass_filename = NULL, *password = NULL, *plugin = NULL, *function = NULL;
-//#endif
-//    char unsigned enc = false, pass = false, key = false;
-//    int opt = 0, in_file = 0, out_file = 1, key_file = -1, pass_file = -1, *(*exec_plugin)(int, int, void *);
-//
 #ifndef _BUILD_GUI_
     /* 
      * start as we mean to go on...
@@ -181,35 +167,39 @@ int main(int argc, char **argv)
      * we've been told to build it) and if we can; also, if enough options are
      * passed we might as well do something with them...
      */
-//    if (!gtk_init_check(&argc, &argv))
-//    {
-//        fprintf(stderr, "%s: could not initialize GTK interface\n", NAME);
-//        show_usage();
-//        return EXIT_FAILURE;
-//    }
-//    if ((((in_filename == NULL) && (out_filename == NULL)) || (plugin == NULL) || ((key_filename == NULL) && (pass_filename == NULL) && (password == NULL))))
-//    {
-//        GtkWidget *window_main;
-//
+    if (!gtk_init_check(&argc, &argv))
+    {
+        fprintf(stderr, "%s: could not initialize GTK interface\n", NAME);
+        show_usage();
+        return EXIT_FAILURE;
+    }
+    
+    if ((!filename_in && !filename_out) || (!function) || (!key_type))
+    {
+        GtkWidget *window_main;
+
   #ifdef ENABLE_NLS
-//        bindtextdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
-//        bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
-//        textdomain(GETTEXT_PACKAGE);
+        bindtextdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
+        bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+        textdomain(GETTEXT_PACKAGE);
   #endif /* ENABLE_NLS */
-//        gtk_set_locale();
-//        add_pixmap_directory("./pixmap");
+        gtk_set_locale();
+        add_pixmap_directory("./pixmap");
   #ifndef _WIN32
-//        add_pixmap_directory("/usr/lib/encrypt/pixmap");
+        add_pixmap_directory("/usr/lib/encrypt/pixmap");
   #else  /* ! _WIN32 */
-//        add_pixmap_directory("/Program Files/encrypt/pixmap");
+        add_pixmap_directory("/Program Files/encrypt/pixmap");
   #endif /*   _WIN32 */
-//        window_main = create_window_main();
-//        gtk_widget_show(window_main);
-//        gtk_main();
-//        return EXIT_SUCCESS;
-//    }
-//    else
-//    {
+        window_main = create_window_main();
+        gtk_widget_show(window_main);
+        gtk_main();
+
+        free(filename_in);
+        free(filename_out);
+        return EXIT_SUCCESS;
+    }
+    else
+    {
 #endif /* _BUILD_GUI_ */
         /* 
          * open the files iff we have a name for them, otherwise stick with the defaults (stdin/stdout) defined above
@@ -236,19 +226,19 @@ int main(int argc, char **argv)
          * likely that the user forgot to give us a name for the module above
          */
 #ifndef _WIN32
-        if (!(fp = (int64_t *(*)(uint64_t, uint64_t, uint8_t *))dlsym(file_mod, function == ENCRYPT ? "plugin_encrypt" : "plugin_decrypt")))
+        if (!(fp = (int64_t (*)(int64_t, int64_t, uint8_t *))dlsym(file_mod, function == ENCRYPT ? "plugin_encrypt" : "plugin_decrypt")))
 #else  /* ! _WIN32 */
-        if (!(fp = (int64_t *)GetProcAddress(file_mod, function == ENCRYPT ? "plugin_encrypt" : "plugin_decrypt")))
+//        if (!(fp = (int64_t *)GetProcAddress(file_mod, function == ENCRYPT ? "plugin_encrypt" : "plugin_decrypt")))
 #endif /*   _WIN32 */
             die("%s: could not import module function for %sryption\n", NAME, function == ENCRYPT ? "enc" : "dec");
         /* 
          * we made it - if we reach here then everything is okay and we're now ready to start :)
          */
-        errno = (uint64_t)fp(file_in, file_out, key_data);
+        int64_t s = fp(file_in, file_out, key_data);
         /* 
          * if there's an error tell the user - however it's unlikely we'll know exactly what the error is
          */
-        if (errno != EXIT_SUCCESS)
+        if (s != EXIT_SUCCESS)
             die("%s: an unexpected error has occured\n", NAME);
         /* 
          * close all open files obviously if in_file / out_file are stdin / stdout it makes no sense to close them
@@ -263,7 +253,7 @@ int main(int argc, char **argv)
             close(file_out);
         return EXIT_SUCCESS;
 #ifdef _BUILD_GUI_
-//    }
+    }
 #endif /* _BUILD_GUI_ */
 }
 
@@ -499,9 +489,13 @@ void die(const char *s, ...)
 {
     va_list ap;
     va_start(ap, s);
+#ifndef _BUILD_GUI_
     vfprintf(stderr, s, ap);
+#endif /* _BUILD_GUI_ */
     va_end(ap);
+#ifndef _BUILD_GUI_
     exit(errno);
+#endif /* _BUILD_GUI_ */
 }
 
 int64_t show_help(void)

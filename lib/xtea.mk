@@ -6,7 +6,7 @@ LIB_CLEAN     += clean-xtea
 LIB_UNINSTALL += uninstall-xtea
 
 xtea:
-	 @gcc -o xtea.so -std=gnu99 -Os -fPIC -Wall -Wextra -shared -Wl,-soname,xtea.so lib/xtea.c lib/md5.c
+	 @gcc -o xtea.so -std=c99 -Os -fPIC -Wall -Wextra -shared -Wl,-soname,xtea.so lib/xtea.c lib/md5.c
 	-@echo "compiled \`lib/xtea.c' --> \`xtea.so'"
 
 install-xtea:

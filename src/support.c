@@ -22,11 +22,13 @@
   #include <config.h>
 #endif /* HAVE_CONFIG_H */
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdbool.h>
+#include <inttypes.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include <gtk/gtk.h>
 

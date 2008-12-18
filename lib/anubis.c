@@ -55,7 +55,7 @@ extern info_t *plugin_info(void)
     return anubis;
 }
 
-extern int64_t plugin_encrypt(uint64_t in, uint64_t out, uint8_t *key)
+extern int64_t plugin_encrypt(int64_t in, int64_t out, uint8_t *key)
 {
     errno = 0;
     ssize_t len = 0, size = (off_t) lseek(in, 0, SEEK_END);
@@ -77,7 +77,7 @@ extern int64_t plugin_encrypt(uint64_t in, uint64_t out, uint8_t *key)
     return EXIT_SUCCESS;
 }
 
-extern int64_t plugin_decrypt(uint64_t in, uint64_t out, uint8_t *key)
+extern int64_t plugin_decrypt(int64_t in, int64_t out, uint8_t *key)
 {
     errno = 0;
     ssize_t len = 0, size = 0;

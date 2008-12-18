@@ -23,6 +23,17 @@
 
   #include <gtk/gtk.h>
 
+typedef struct args_t
+{
+    int64_t (*fp)(int64_t, int64_t, uint8_t *);
+    int64_t file_in;
+    int64_t file_out;
+    uint8_t *key_data;
+}
+args_t;
+
+void *thread_main(void *);
+
 void on_button_about_clicked(GtkWidget *);
 void on_button_do_clicked(GtkWidget *);
 void on_button_about_close_clicked(GtkWidget *);

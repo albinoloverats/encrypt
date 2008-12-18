@@ -59,7 +59,7 @@ extern info_t *plugin_info(void)
     return s;
 }
 
-extern int64_t plugin_encrypt(uint64_t file_in, uint64_t file_out, uint8_t *key)
+extern int64_t plugin_encrypt(int64_t file_in, int64_t file_out, uint8_t *key)
 {
     errno = EXIT_SUCCESS;
     uint8_t *IV = alloca(CHUNK_SERPENT);
@@ -93,7 +93,7 @@ extern int64_t plugin_encrypt(uint64_t file_in, uint64_t file_out, uint8_t *key)
     return errno;
 }
 
-extern int64_t plugin_decrypt(uint64_t file_in, uint64_t file_out, uint8_t *key)
+extern int64_t plugin_decrypt(int64_t file_in, int64_t file_out, uint8_t *key)
 {
     errno = EXIT_SUCCESS;
     uint8_t *IV = alloca(CHUNK_SERPENT);

@@ -46,8 +46,8 @@
   } info_t;
 
   extern info_t  *plugin_info(void);
-  extern int64_t plugin_encrypt(uint64_t, uint64_t, uint8_t *);
-  extern int64_t plugin_decrypt(uint64_t, uint64_t, uint8_t *);
+  extern int64_t plugin_encrypt(int64_t, int64_t, uint8_t *);
+  extern int64_t plugin_decrypt(int64_t, int64_t, uint8_t *);
   extern uint8_t *plugin_key(uint8_t *, size_t);
 
   //extern void *gen_file(int);
