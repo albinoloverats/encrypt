@@ -101,8 +101,8 @@ void on_button_about_clicked(GtkWidget *widget)
 #ifndef _WIN32
     if (!(file_mod = dlopen(filename_mod, RTLD_LAZY)))
     {
-        asprintf(&details, "\nError: could not open plugin %s\n", filename_mod);
-        free(filename_mod);
+        asprintf(&details, "\n%s: could not open plugin %s\n", NAME, filename_mod);
+        fprintf(stderr, "%s", details + 1);
 #else  /* ! _WIN32 */
 //    if (!(module = LoadLibrary(plugin)))
 //    {
@@ -110,19 +110,15 @@ void on_button_about_clicked(GtkWidget *widget)
 //        sprintf(details, "\n%s: could not open plugin %s\n", NAME, plugin);
 //        fprintf(stderr, "\n%s: could not open plugin %s\n", NAME, plugin);
 #endif /*   _WIN32 */
-        textview_about = lookup_widget(window_about, "textview_about");
-        gtk_text_buffer_insert_at_cursor(gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_about)), details, -1);
-        return;
+        goto cleanup;
     }
     free(filename_mod);
 
 #ifndef _WIN32
     if (!(fp = (info_t *(*)(void))dlsym(file_mod, "plugin_info")))
     {
-        asprintf(&details, "\nError: could not find plugin information\n");
-  #ifdef _DLFCN_H
-        dlclose(file_mod);
-  #endif /* _DLFCN_H */
+        asprintf(&details, "\n%s: could not find plugin information\n", NAME);
+        fprintf(stderr, "%s", details + 1);
 #else
 //    if ((about_plugin = (void *)GetProcAddress(module, "about")) == NULL)
 //    {
@@ -130,9 +126,7 @@ void on_button_about_clicked(GtkWidget *widget)
 //        sprintf(details, "\n%s: could not find plugin information in %s\n", NAME, plugin);
 //        fprintf(stderr, "\n%s: could not find plugin information in %s\n", NAME, plugin);
 #endif
-        textview_about = lookup_widget(window_about, "textview_about");
-        gtk_text_buffer_insert_at_cursor(gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_about)), details, -1);
-        return;
+        goto cleanup;
     }
     /* 
      * now get the info
@@ -151,35 +145,14 @@ void on_button_about_clicked(GtkWidget *widget)
 //    sprintf(details, PLUGIN_DETAILS_MASK, about.a_name, about.a_authors, about.a_copyright, about.a_licence, about.a_year, about.a_block, about.k_name, about.k_authors, about.k_copyright, about.k_licence, about.k_year, about.k_size, about.m_authors, about.m_copyright, about.m_licence, about.m_version, about.o_comment);
 #endif /*   _WIN32 */
 
-    /*
-     * go on a free'ing spree...
+cleanup:
+    /* 
+     * finally close the module, set the additional text and return
      */
-    free(about->algorithm_name);
-    free(about->algorithm_authors);
-    free(about->algorithm_copyright);
-    free(about->algorithm_licence);
-    free(about->algorithm_year);
-    free(about->algorithm_block);
-
-    free(about->key_name);
-    free(about->key_authors);
-    free(about->key_copyright);
-    free(about->key_licence);
-    free(about->key_year);
-    free(about->key_size);
-
-    free(about->module_authors);
-    free(about->module_copyright);
-    free(about->module_licence);
-    free(about->module_version);
-    free(about->module_comment);
-
-    free(about);
-
 #ifdef _DLFCN_H
-    dlclose(file_mod);
+    if (file_mod)
+        dlclose(file_mod);
 #endif
-
     textview_about = lookup_widget(window_about, "textview_about");
     gtk_text_buffer_insert_at_cursor(gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_about)), details, -1);
 }
@@ -296,6 +269,7 @@ void on_button_do_clicked(GtkWidget *widget)
     /* 
      * does the user wish to encrypt or decrypt
      */
+
     GtkComboBox *enc = (GtkComboBox *)lookup_widget(GTK_WIDGET(widget), "combobox_process");
     if (!gtk_combo_box_get_active(enc))
         function = ENCRYPT;
