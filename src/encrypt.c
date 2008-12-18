@@ -560,6 +560,6 @@ int64_t show_version(void)
     /* 
      * i suppose this really should just print a simple numerical value, but what the heck...
      */
-    fprintf(stderr, "%s version %s\n", NAME, VERSION);
+    fprintf(stderr, "%s commit date: %s\n%*s build date : %s %s\n", NAME, VERSION, (int)strlen(NAME), "", __DATE__, __TIME__);
     return EXIT_SUCCESS;
 }

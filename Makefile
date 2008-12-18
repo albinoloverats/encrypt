@@ -5,7 +5,6 @@ LIB_INSTALL   =
 LIB_CLEAN     = 
 LIB_UNINSTALL = 
 
-VERSION := -D'VERSION="$(shell svnversion -n .)"'
 OPTIONS := -o encrypt -std=c99 -Wall -Wextra -g -O0 -pipe -ldl -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64
 GUIOPTS := `pkg-config --cflags --libs gtk+-2.0` -lpthread -D_BUILD_GUI_
 
