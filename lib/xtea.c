@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <inttypes.h>
 #include <sys/types.h>
 
 #ifdef _WIN32
@@ -45,45 +46,47 @@
 #define K_SIZE "128 bits"
 #define M_AUTHORS "Ashley Anderson"
 #define M_COPYRIGHT "Copyright (c) 2007-2008, Ashley Anderson"
-#define M_VERSION "3.0"
+#define M_VERSION "4.0"
 #define M_LICENCE "GPL"
-#define O_COMMENT "The XTEA algorithm was originally designed to correct a\n  weaknesses in TEA.  This implementation uses a free MD5\n  library, which is based on RFC1321, and as such is RSA-\n  free. From: http://sourceforge.net/projects/libmd5-rfc/"
+#define M_COMMENT "The XTEA algorithm was originally designed to correct a\n  weaknesses in TEA.  This implementation uses a free MD5\n  library, which is based on RFC1321, and as such is RSA-\n  free. From: http://sourceforge.net/projects/libmd5-rfc/"
 
 #define BYTE    8
 #define CYCLES  64
-#define DATA    2 * sizeof (uint32_t)
+#define DATA    2 * sizeof( uint32_t )
 #define DELTA   0x9E3779B9
 #define KEY     128
 #define BLOCK   64
 
-#define HEADER "XTEA\2553.0\255"
+#define HEADER "XTEA\2554.0\255"
 
-void hex2bin(uint32_t *, char *);
+static void hex2bin(uint32_t *, uint8_t *);
 
-extern struct about_info about(void) {
-    struct about_info xtea;
+extern info_t *plugin_info(void)
+{
+    info_t *xtea = calloc(1, sizeof( info_t ));
 
-    xtea.a_name = strdup(A_NAME);
-    xtea.a_authors = strdup(A_AUTHORS);
-    xtea.a_copyright = strdup(A_COPYRIGHT);
-    xtea.a_licence = strdup(A_LICNECE);
-    xtea.a_year = strdup(A_YEAR);
-    xtea.a_block = strdup(A_BLOCK);
-    xtea.k_name = strdup(K_NAME);
-    xtea.k_authors = strdup(K_AUTHORS);
-    xtea.k_copyright = strdup(K_COPYRIGHT);
-    xtea.k_licence = strdup(K_LICENCE);
-    xtea.k_year = strdup(K_YEAR);
-    xtea.k_size = strdup(K_SIZE);
-    xtea.m_authors = strdup(M_AUTHORS);
-    xtea.m_copyright = strdup(M_COPYRIGHT);
-    xtea.m_version = strdup(M_VERSION);
-    xtea.m_licence = strdup(M_LICENCE);
-    xtea.o_comment = strdup(O_COMMENT);
+    xtea->algorithm_name = strdup(A_NAME);
+    xtea->algorithm_authors = strdup(A_AUTHORS);
+    xtea->algorithm_copyright = strdup(A_COPYRIGHT);
+    xtea->algorithm_licence = strdup(A_LICNECE);
+    xtea->algorithm_year = strdup(A_YEAR);
+    xtea->algorithm_block = strdup(A_BLOCK);
+    xtea->key_name = strdup(K_NAME);
+    xtea->key_authors = strdup(K_AUTHORS);
+    xtea->key_copyright = strdup(K_COPYRIGHT);
+    xtea->key_licence = strdup(K_LICENCE);
+    xtea->key_year = strdup(K_YEAR);
+    xtea->key_size = strdup(K_SIZE);
+    xtea->module_authors = strdup(M_AUTHORS);
+    xtea->module_copyright = strdup(M_COPYRIGHT);
+    xtea->module_version = strdup(M_VERSION);
+    xtea->module_licence = strdup(M_LICENCE);
+    xtea->module_comment = strdup(M_COMMENT);
     return xtea;
 }
 
-extern int enc_main(int in, int out, void *key) {
+extern int64_t plugin_encrypt(int64_t in, int64_t out, uint8_t *key)
+{
     uint32_t *data = NULL, *k = NULL;
     uint32_t v0 = 0, v1 = 0, sum = 0;
     ssize_t len = 0, size = 0;
@@ -98,10 +101,11 @@ extern int enc_main(int in, int out, void *key) {
      */
     size = lseek(in, 0, SEEK_END);
     write(out, HEADER, strlen(HEADER));
-    memcpy(data, &size, sizeof (ssize_t));
+    memcpy(data, &size, sizeof( ssize_t ));
     v0 = data[0];
     v1 = data[1];
-    for (uint32_t i = 0; i < CYCLES; i++) {
+    for (uint32_t i = 0; i < CYCLES; i++)
+    {
         v0  += (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + k[sum & 3]);
         sum += DELTA;
         v1  += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + k[(sum >> 11) & 3]);
@@ -113,12 +117,15 @@ extern int enc_main(int in, int out, void *key) {
      * main loop
      */
     size = lseek(in, 0, SEEK_SET);
-    while ((len = read(in, data, DATA)) > 0) {
-        if (len == DATA) {
+    while ((len = read(in, data, DATA)) > 0)
+    {
+        if (len == DATA)
+        {
             v0 = data[0];
             v1 = data[1];
             sum = 0;
-            for (uint32_t i = 0; i < CYCLES; i++) {
+            for (uint32_t i = 0; i < CYCLES; i++)
+            {
                 v0  += (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + k[sum & 3]);
                 sum += DELTA;
                 v1  += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + k[(sum >> 11) & 3]);
@@ -138,7 +145,8 @@ extern int enc_main(int in, int out, void *key) {
     return EXIT_SUCCESS;
 }
 
-extern int dec_main(int in, int out, void *key) {
+extern int64_t plugin_decrypt(int64_t in, int64_t out, uint8_t *key)
+{
     uint32_t *data = NULL, *k = NULL;
     uint32_t v0 = 0, v1 = 0, sum = 0;
     ssize_t len = 0, size = 0;
@@ -155,25 +163,28 @@ extern int dec_main(int in, int out, void *key) {
     len = read(in, &data, DATA);
     v0 = data[0], v1 = data[1];
     sum = DELTA * CYCLES;
-    for (uint32_t i = 0; i < CYCLES; i++) {
+    for (uint32_t i = 0; i < CYCLES; i++)
+    {
         v1  -= (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + k[(sum >> 11) & 3]);
         sum -= DELTA;
         v0  -= (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + k[sum & 3]);
     }
     data[0] = v0;
     data[1] = v1;
-    memcpy(&size, data, sizeof (size_t));
+    memcpy(&size, data, sizeof( size_t ));
     /*
      * main loop
      */
-    for (int i = 0; i < size / (BLOCK / BYTE); i++) {
+    for (int i = 0; i < size / (BLOCK / BYTE); i++)
+    {
         if ((len = read(in, data, DATA)) != DATA)
             return errno;
-    //while ((len = read(in, data, DATA)) > 0) {
-        if (len == DATA) {
+        if (len == DATA)
+        {
             v0 = data[0], v1 = data[1];
             sum = DELTA * CYCLES;
-            for (uint32_t i = 0; i < CYCLES; i++) {
+            for (uint32_t i = 0; i < CYCLES; i++)
+            {
                 v1  -= (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + k[(sum >> 11) & 3]);
                 sum -= DELTA;
                 v0  -= (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + k[sum & 3]);
@@ -190,7 +201,8 @@ extern int dec_main(int in, int out, void *key) {
         return errno;
     v0 = data[0], v1 = data[1];
     sum = DELTA * CYCLES;
-    for (uint32_t i = 0; i < CYCLES; i++) {
+    for (uint32_t i = 0; i < CYCLES; i++)
+    {
         v1  -= (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + k[(sum >> 11) & 3]);
         sum -= DELTA;
         v0  -= (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + k[sum & 3]);
@@ -208,17 +220,8 @@ extern int dec_main(int in, int out, void *key) {
     return EXIT_SUCCESS;
 }
 
-extern void *gen_file(int file) {
-    char *data = NULL;
-    size_t size = (off_t)lseek(file, 0, SEEK_END);
-    lseek(file, 0, SEEK_SET);
-    if ((data = malloc(size)) == NULL)
-        return NULL;
-    read(file, data, size);
-    return gen_text(data, (uint32_t)size);
-}
-
-extern void *gen_text(void *data, long unsigned size) {
+extern uint8_t *plugin_key(uint8_t *data, size_t size)
+{
     md5_state_t state;
     md5_byte_t *digest;
     if ((digest = malloc(KEY / 8)) == NULL)
@@ -229,26 +232,8 @@ extern void *gen_text(void *data, long unsigned size) {
     return digest;
 }
 
-extern void *key_read(int file) {
-    char data[2];
-    md5_byte_t *key;
-    size_t size = (off_t)lseek(file, 0, SEEK_END);
-
-    if (size < KEY / 8)
-        return NULL;
-    lseek(file, 0, SEEK_SET);
-    if ((key = malloc(KEY / 8)) == NULL)
-        return NULL;
-    int i;
-
-    for (i = 0; i < KEY / 8; i++) {
-        read(file, &data, 2 * sizeof (char));
-        key[i] = strtol(data, NULL, 16);
-    }
-    return key;
-}
-
-void hex2bin(uint32_t *k, char *c) {
+static void hex2bin(uint32_t *k, uint8_t *c)
+{
     k[0] = ((c[ 0] & 0xFF) << 24) | ((c[ 1] & 0xFF) << 16) | ((c[ 2] & 0xFF) << 8) | (c[ 3] & 0xFF);
     k[1] = ((c[ 4] & 0xFF) << 24) | ((c[ 5] & 0xFF) << 16) | ((c[ 6] & 0xFF) << 8) | (c[ 7] & 0xFF);
     k[2] = ((c[ 8] & 0xFF) << 24) | ((c[ 9] & 0xFF) << 16) | ((c[10] & 0xFF) << 8) | (c[11] & 0xFF);
