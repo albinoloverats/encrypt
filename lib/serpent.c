@@ -62,9 +62,9 @@ extern info_t *plugin_info(void)
 extern int64_t plugin_encrypt(int64_t file_in, int64_t file_out, uint8_t *key)
 {
     errno = EXIT_SUCCESS;
-    uint8_t *IV = alloca(CHUNK_SERPENT);
-    uint8_t *plaintext = alloca(CHUNK_SERPENT);
-    uint8_t *ciphertext = alloca(CHUNK_SERPENT);
+    uint8_t *IV = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
+    uint8_t *plaintext = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
+    uint8_t *ciphertext = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
     /*
      * build the key
      */
@@ -90,15 +90,18 @@ extern int64_t plugin_encrypt(int64_t file_in, int64_t file_out, uint8_t *key)
      * clean up
      */
     free(subkeys);
+    free(IV);
+    free(plaintext);
+    free(ciphertext);
     return errno;
 }
 
 extern int64_t plugin_decrypt(int64_t file_in, int64_t file_out, uint8_t *key)
 {
     errno = EXIT_SUCCESS;
-    uint8_t *IV = alloca(CHUNK_SERPENT);
-    uint8_t *plaintext = alloca(CHUNK_SERPENT);
-    uint8_t *ciphertext = alloca(CHUNK_SERPENT);
+    uint8_t *IV = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
+    uint8_t *plaintext = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
+    uint8_t *ciphertext = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
     /*
      * build the key
      */
@@ -106,7 +109,7 @@ extern int64_t plugin_decrypt(int64_t file_in, int64_t file_out, uint8_t *key)
     /*
      * check the header (ignore version) and get the size of the file
      */
-    char *tmp = alloca(strlen(HEADER));
+    char *tmp = calloc(strlen(HEADER), sizeof( char ));
     read(file_in, tmp, strlen(HEADER));
     if (strncmp(tmp, HEADER, strcspn(HEADER, "/")))
         /*
@@ -138,6 +141,9 @@ extern int64_t plugin_decrypt(int64_t file_in, int64_t file_out, uint8_t *key)
     block_decrypt(ciphertext, plaintext, IV, subkeys);
     write(file_out, plaintext, ((s * SIZE_BYTE) % SIZE_SERPENT) / SIZE_BYTE);
     free(subkeys);
+    free(IV);
+    free(plaintext);
+    free(ciphertext);
     return errno;
 }
 

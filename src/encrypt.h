@@ -25,7 +25,7 @@
   #define LICENCE "GPL"
   #define NAME "encrypt"
 
-  #define VERSION "++VERSION++"
+  #define VERSION "2008-12-18 22:24:35"
 
   #define NOTSET 0
 
@@ -50,7 +50,6 @@
   #ifdef _WIN32
     #define srand48 srand
     #define lrand48 rand
-    #define _BUILD_GUI_ 1
     #define F_RDLCK 0
     #define F_WRLCK 0
   #else  /*   _WIN32 */

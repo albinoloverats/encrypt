@@ -27,7 +27,7 @@ CustomMakefile=
 IncludeVersionInfo=1
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=0000000000000000010000
+CompilerSettings=0010000000000000010000
 
 [Unit1]
 FileName=serpent.c

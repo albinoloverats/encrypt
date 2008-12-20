@@ -56,9 +56,11 @@
 /*
  * if we're building the GUI then these get defined here as globals, else they're local to main only (below)
  */
-#ifdef _BUILD_GUI_
-char *in_filename = NULL, *out_filename = NULL, *key_filename = NULL, *pass_filename = NULL, *password = NULL, *plugin = NULL, *function = NULL;
-#endif /* _BUILD_GUI */
+//#ifdef _BUILD_GUI_
+//    char *filename_in  = NULL;
+//    char *filename_out = NULL;
+//    char    *key_plain = NULL;
+//#endif /* _BUILD_GUI */
 
 int main(int argc, char **argv)
 {
@@ -67,7 +69,11 @@ int main(int argc, char **argv)
 
     int64_t  file_in  = STDIN_FILENO;
     int64_t  file_out = STDOUT_FILENO;
+#ifndef _WIN32
     void    *file_mod = NULL;
+#else  /* ! _WIN32 */
+    HANDLE   file_mod = NULL;
+#endif /*   _WIN32 */
 
     char    *key_plain = NULL;
     uint8_t *key_data  = NULL;
@@ -228,7 +234,7 @@ int main(int argc, char **argv)
 #ifndef _WIN32
         if (!(fp = (int64_t (*)(int64_t, int64_t, uint8_t *))dlsym(file_mod, function == ENCRYPT ? "plugin_encrypt" : "plugin_decrypt")))
 #else  /* ! _WIN32 */
-//        if (!(fp = (int64_t *)GetProcAddress(file_mod, function == ENCRYPT ? "plugin_encrypt" : "plugin_decrypt")))
+        if (!(fp = (void *)GetProcAddress(file_mod, function == ENCRYPT ? "plugin_encrypt" : "plugin_decrypt")))
 #endif /*   _WIN32 */
             die("%s: could not import module function for %sryption\n", NAME, function == ENCRYPT ? "enc" : "dec");
         /* 
@@ -262,7 +268,7 @@ void *open_mod(char *n)
 #ifndef _WIN32
     void *p = NULL;
 #else  /* ! _WIN32 */
-//    HANDLE p;
+    HANDLE p = NULL;
 #endif /*   _WIN32 */
     if (!n)
          die("%s: module name cannot be (null)\n", NAME);
@@ -271,12 +277,12 @@ void *open_mod(char *n)
         asprintf(&n, "%s.so", n);
     if (!(p = dlopen(n, RTLD_LAZY)))
 #else  /* ! _WIN32 */
-//    if (!strchr(n, '\\'))
-//    {
-//        n = realloc(n, strlen(algorithm) + 5);
-//        sprintf(n, "%s.dll", n);
-//    }
-//    if (!(module = LoadLibrary(n)))
+    if (!strchr(n, '\\'))
+    {
+        n = realloc(n, strlen(n) + 5);
+        sprintf(n, "%s.dll", n);
+    }
+    if (!(p = LoadLibrary(n)))
 #endif /*   _WIN32 */
         die("%s: could not open plugin %s\n", NAME, n);
     return p;
@@ -298,7 +304,7 @@ int64_t algorithm_info(char *n)
 #ifndef _WIN32
     if (!(fp = (info_t *(*)(void))dlsym(p, "plugin_info")))
 #else   /* ! _WIN32 */
-//    if (!(fp = (void *)GetProcAddress(p, "plugin_info")))
+    if (!(fp = (void *)GetProcAddress(p, "plugin_info")))
 #endif /*   _WIN32 */
     {
         fprintf(stderr, "%s: could not find plugin information\n", NAME);
@@ -437,7 +443,12 @@ uint8_t *key_calculate(void *p, char *s, uint8_t k)
             die("%s: invalid key type\n", NAME);
     }
     uint8_t *(*fp)(uint8_t *, size_t);
+    
+#ifndef _WIN32
     if (!(fp = (uint8_t *(*)(uint8_t *, size_t))dlsym(p, "plugin_key")))
+#else   /* ! _WIN32 */
+    if (!(fp = (void *)GetProcAddress(p, "plugin_key")))
+#endif /*   _WIN32 */
         die("%s: could not find plugin function %s\n", NAME, "plugin_key");
     d = fp(c, l);
     free(c);

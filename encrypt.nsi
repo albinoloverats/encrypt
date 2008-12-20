@@ -33,6 +33,9 @@ Section "main" SEC01
   SetOutPath "$INSTDIR\lib"
   File "lib\xtea.dll"
   File "lib\anubis.dll"
+  File "lib\serpent.dll"
+  SetOutPath "$INSTDIR\src"
+  File "..\encrypt.tar.bz2"
   CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\encrypt.lnk" "$INSTDIR\encrypt.exe"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Licence.lnk" "$INSTDIR\doc\Licence.txt"
@@ -69,8 +72,10 @@ Section Uninstall
   Delete "$INSTDIR\uninst.exe"
   Delete "$INSTDIR\lib\xtea.dll"
   Delete "$INSTDIR\lib\anubis.dll"
+  Delete "$INSTDIR\lib\serpent.dll"
   Delete "$INSTDIR\doc\ReadMe.txt"
   Delete "$INSTDIR\doc\Licence.txt"
+  Delete "$INSTDIR\src\encrypt.tar.bz2"
   Delete "$INSTDIR\encrypt.exe"
 
   Delete "$SMPROGRAMS\encrypt\Uninstall.lnk"
@@ -79,9 +84,12 @@ Section Uninstall
   Delete "$SMPROGRAMS\encrypt\encrypt.lnk"
 
   RMDir "$SMPROGRAMS\encrypt"
+  RMDir "$INSTDIR\lib"
+  RMDir "$INSTDIR\doc"
+  RMDir "$INSTDIR\src"
   RMDir "$INSTDIR"
 
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
   DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
-  SetAutoClose true
+  SetAutoClose false
 SectionEnd

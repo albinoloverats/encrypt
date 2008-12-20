@@ -81,35 +81,25 @@ void on_button_about_clicked(GtkWidget *widget)
 
     errno = 0;
 #ifndef _WIN32
-    void *file_mod;
+    void *file_mod = NULL;
     if (!strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)), '/'))
         asprintf(&filename_mod, "/usr/lib/encrypt/lib/%s.so", gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
 #else  /* ! _WIN32 */
-//    HANDLE module;
-//
-//    if (!strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)), '\\'))
-//    {
-//        plugin = calloc(strlen(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg))) + 24, sizeof( char ));
-//        sprintf(plugin, "/Program Files/encrypt/lib/%s", gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
-//    }
+    HANDLE file_mod = NULL;
+    if (!strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)), '\\'))
+    {
+        filename_mod = calloc(strlen("/Program Files/encrypt/lib/") + strlen(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg))) + 1, sizeof( char ));
+        sprintf(filename_mod, "/Program Files/encrypt/lib/%s", gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
+    }
 #endif /*   _WIN32 */
     else
         filename_mod = strdup(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
     /* 
      * find the plugin, open it, etc...
      */
-#ifndef _WIN32
-    if (!(file_mod = dlopen(filename_mod, RTLD_LAZY)))
+    if (!(file_mod = open_mod(filename_mod)))
     {
-        asprintf(&details, "\nError: could not open plugin %s\n", filename_mod);
         free(filename_mod);
-#else  /* ! _WIN32 */
-//    if (!(module = LoadLibrary(plugin)))
-//    {
-//        details = calloc(strlen(NAME) + strlen(": could not open plugin \n") + strlen(plugin) + 2, sizeof (char));
-//        sprintf(details, "\n%s: could not open plugin %s\n", NAME, plugin);
-//        fprintf(stderr, "\n%s: could not open plugin %s\n", NAME, plugin);
-#endif /*   _WIN32 */
         textview_about = lookup_widget(window_about, "textview_about");
         gtk_text_buffer_insert_at_cursor(gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_about)), details, -1);
         return;
@@ -118,18 +108,14 @@ void on_button_about_clicked(GtkWidget *widget)
 
 #ifndef _WIN32
     if (!(fp = (info_t *(*)(void))dlsym(file_mod, "plugin_info")))
-    {
-        asprintf(&details, "\nError: could not find plugin information\n");
   #ifdef _DLFCN_H
         dlclose(file_mod);
   #endif /* _DLFCN_H */
 #else
-//    if ((about_plugin = (void *)GetProcAddress(module, "about")) == NULL)
-//    {
-//        details = calloc(strlen(NAME) + strlen(": could not find plugin information in \n") + strlen(plugin) + 2, sizeof (char));
-//        sprintf(details, "\n%s: could not find plugin information in %s\n", NAME, plugin);
-//        fprintf(stderr, "\n%s: could not find plugin information in %s\n", NAME, plugin);
+    if (!(fp = (void *)GetProcAddress(file_mod, "plugin_info")))
 #endif
+    {
+        details = strdup("\nError: could not find plugin information\n");
         textview_about = lookup_widget(window_about, "textview_about");
         gtk_text_buffer_insert_at_cursor(gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_about)), details, -1);
         return;
@@ -144,11 +130,17 @@ void on_button_about_clicked(GtkWidget *widget)
             about->key_name,        about->key_authors,        about->key_copyright,        about->key_licence,        about->key_year,        about->key_size,
             about->module_authors,  about->module_copyright,   about->module_licence,       about->module_version,     about->module_comment);
 #else  /* ! _WIN32 */
-//    /* 
-//     * woot for Windows
-//     */
-//    details = calloc(strlen(PLUGIN_DETAILS_MASK) + strlen(about.a_name) + strlen(about.a_authors) + strlen(about.a_copyright) + strlen(about.a_licence) + strlen(about.a_year) + strlen(about.a_block) + strlen(about.k_name) + strlen(about.k_authors) + strlen(about.k_copyright) + strlen(about.k_licence) + strlen(about.k_year) + strlen(about.k_size) + strlen(about.m_authors) + strlen(about.m_copyright) + strlen(about.m_licence) + strlen(about.m_version) + strlen(about.o_comment), sizeof( char ));
-//    sprintf(details, PLUGIN_DETAILS_MASK, about.a_name, about.a_authors, about.a_copyright, about.a_licence, about.a_year, about.a_block, about.k_name, about.k_authors, about.k_copyright, about.k_licence, about.k_year, about.k_size, about.m_authors, about.m_copyright, about.m_licence, about.m_version, about.o_comment);
+    /* 
+     * woot for Windows
+     */
+    details = calloc(strlen(PLUGIN_DETAILS_MASK) +
+            strlen(about->algorithm_name) + strlen(about->algorithm_authors) + strlen(about->algorithm_copyright) + strlen(about->algorithm_licence) + strlen(about->algorithm_year) + strlen(about->algorithm_block) +
+            strlen(about->key_name) +       strlen(about->key_authors) +       strlen(about->key_copyright) +       strlen(about->key_licence) +       strlen(about->key_year) +       strlen(about->key_size) +
+            strlen(about->module_authors) + strlen(about->module_copyright) +  strlen(about->module_licence) +      strlen(about->module_version) +    strlen(about->module_comment), sizeof( char ));
+    sprintf(details, PLUGIN_DETAILS_MASK,
+            about->algorithm_name,  about->algorithm_authors,  about->algorithm_copyright,  about->algorithm_licence,  about->algorithm_year,  about->algorithm_block,
+            about->key_name,        about->key_authors,        about->key_copyright,        about->key_licence,        about->key_year,        about->key_size,
+            about->module_authors,  about->module_copyright,   about->module_licence,       about->module_version,     about->module_comment);
 #endif /*   _WIN32 */
 
     /*
@@ -193,7 +185,11 @@ void on_button_do_clicked(GtkWidget *widget)
 
     int64_t  file_in  = -1;
     int64_t  file_out = -1;
+#ifndef _WIN32
     void    *file_mod = NULL;
+#else  /* ! _WIN32 */
+    HANDLE   file_mod = NULL;
+#endif /*   _WIN32 */
 
     char    *key_plain = NULL;
     uint8_t *key_data  = NULL;
@@ -204,18 +200,7 @@ void on_button_do_clicked(GtkWidget *widget)
     int64_t (*fp)(int64_t, int64_t, uint8_t *);
 
     errno = EXIT_SUCCESS;
-//    char *in_filename = NULL, *out_filename = NULL, *key_filename = NULL, *pass_filename = NULL, *errstr = NULL, *password = NULL, *plugin = NULL, *function = NULL;
-//
-//#ifndef _WIN32
-//    void *module = NULL;
-//#else
-//    HANDLE module;
-//#endif
-//    void *key_block = NULL, *(*key_read)(int), *(*gen_file)(int), *(*gen_text)(void *, long unsigned);
-//    char unsigned pass = false, key = false;
-//    int in_file = 0, out_file = 1, key_file = -1, pass_file = -1, *(*exec_plugin)(int, int, void *);
-//
-//    errno = 0;
+
     /* 
      * bring up the popup whilst everything happens
      */
@@ -256,8 +241,8 @@ void on_button_do_clicked(GtkWidget *widget)
 #ifndef _WIN32
     asprintf(&filename_out, "%s/%s", (char *)gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dirchooser_out)), (char *)gtk_entry_get_text(GTK_ENTRY(fileentry_out)));
 #else  /* ! _WIN32 */
-//    filename_out = calloc(strlen((char *)gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dirchooser_out))) + strlen((char *)gtk_entry_get_text(GTK_ENTRY(fileentry_out)) + 2), sizeof( char ));
-//    sprintf(filename_out, "%s/%s", (char *)gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dirchooser_out)), (char *)gtk_entry_get_text(GTK_ENTRY(fileentry_out)));
+    filename_out = calloc(strlen((char *)gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dirchooser_out))) + strlen((char *)gtk_entry_get_text(GTK_ENTRY(fileentry_out)) + 2), sizeof( char ));
+    sprintf(filename_out, "%s/%s", (char *)gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dirchooser_out)), (char *)gtk_entry_get_text(GTK_ENTRY(fileentry_out)));
 #endif /*   _WIN32 */
 
     /* 
@@ -319,11 +304,11 @@ void on_button_do_clicked(GtkWidget *widget)
     if (!strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(filecombo_mod)), '/'))
         asprintf(&filename_mod, "/usr/lib/encrypt/lib/%s.so", gtk_combo_box_get_active_text(GTK_COMBO_BOX(filecombo_mod)));
 #else  /* ! _WIN32 */
-//    if (!strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)), '\\'))
-//    {
-//        filename_mod = calloc(strlen("/Program Files/encrypt/lib/") + strlen(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg))) + 2, sizeof( char ));
-//        sprintf(filename_mod, "/Program Files/encrypt/lib/%s", gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
-//    }
+    if (!strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(filecombo_mod)), '\\'))
+    {
+        filename_mod = calloc(strlen("/Program Files/encrypt/lib/") + strlen(gtk_combo_box_get_active_text(GTK_COMBO_BOX(filecombo_mod))) + 2, sizeof( char ));
+        sprintf(filename_mod, "/Program Files/encrypt/lib/%s", gtk_combo_box_get_active_text(GTK_COMBO_BOX(filecombo_mod)));
+    }
 #endif /*   _WIN32 */
     else
         filename_mod = strdup(gtk_combo_box_get_active_text(GTK_COMBO_BOX(filecombo_mod)));
@@ -399,7 +384,7 @@ void on_button_do_clicked(GtkWidget *widget)
 #ifndef _WIN32
     if (!(fp = (int64_t (*)(int64_t, int64_t, uint8_t *))dlsym(file_mod, function == ENCRYPT ? "plugin_encrypt" : "plugin_decrypt")))
 #else
-//    if ((exec_plugin = (void *)GetProcAddress(module, function)) == NULL)
+    if (!(fp = (int64_t)GetProcAddress(file_mod, function == ENCRYPT ? "plugin_encrypt" : "plugin_decrypt")))
 #endif
     {
 #ifdef _DLFCN_H
@@ -476,7 +461,7 @@ void on_button_gen_go_clicked(GtkWidget *widget)
 {
     GtkSpinButton *keysize = (GtkSpinButton *)lookup_widget(GTK_WIDGET(widget), "spinbutton_size");
     uint64_t l = (gtk_spin_button_get_value_as_int(keysize)) / 8;
-    char *h = alloca(l * 2);
+    char *h = calloc(l * 2, sizeof( char ));
     srand48(time(0));
     for (uint64_t i = 0; i < l; i++)
 #ifndef _WIN32
@@ -486,6 +471,7 @@ void on_button_gen_go_clicked(GtkWidget *widget)
 #endif
     GtkEntry *display_size = (GtkEntry *)lookup_widget(GTK_WIDGET(widget), "entry_display_size");
     gtk_entry_set_text(display_size, h);
+    free(h);
     return;
 }
 

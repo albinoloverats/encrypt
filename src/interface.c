@@ -50,7 +50,9 @@
 #define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name) g_object_set_data (G_OBJECT (component), name, widget)
 #define ABOUT_BOX_TEXT "encrypt version %s\n  encrypt is a small application which has been designed, from the\n  beginning, to be as simple to use as can be and have the smallest file\n  size (download time) possible. The idea is small and simple, yet the\n  encryption aims to be a strong as possible - as well as giving the\n  user the choice about how their data is secured.\n\nWebsite\n  https://albinoloverats.net/encrypt\n\nDevelopers\n  Ashley Anderson <amanderson@albinoloverats.net>\n\nCopyright\n  Copyright (c) 2004-2008, albinoloverats ~ Software Development\n\nLicence\n  This program is free software: you can redistribute it and/or modify\n  it under the terms of the GNU General Public License as published by\n  the Free Software Foundation, either version 3 of the License, or\n  (at your option) any later version.\n\n  This program is distributed in the hope that it will be useful,\n  but WITHOUT ANY WARRANTY; without even the implied warranty of\n  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\n  GNU General Public License for more details.\n\n  You should have received a copy of the GNU General Public License\n  along with this program. If not, see <http://www.gnu.org/licenses/>.\n"
 
-extern char *in_filename, *out_filename, *key_filename, *pass_filename, *password, *plugin, *function;
+//extern char *filename_in  = NULL;
+//extern char *filename_out = NULL;
+//extern char    *key_plain = NULL;
 
 GtkWidget *create_window_main(void)
 {
@@ -111,47 +113,33 @@ GtkWidget *create_window_main(void)
      * gtk_file_chooser_set_filename allow paths from the current directory?!
      */
     filechooserbutton_in_file = gtk_file_chooser_button_new(_("Select a File"), GTK_FILE_CHOOSER_ACTION_OPEN);
-#ifndef _WIN32
-    if (in_filename)
-    {
-        if ((strcmp(in_filename, basename(in_filename)) == 0) || (in_filename[0] == '.'))
-            asprintf(&in_filename, "%s/%s", get_current_dir_name(), in_filename);
-        gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(filechooserbutton_in_file), _(strdup(in_filename)));
-    }
-#endif /* ! _WIN32 */
+//#ifndef _WIN32
+//    if (filename_in)
+//    {
+//        if ((!strcmp(filename_in, basename(filename_in))) || (filename_in[0] == '.'))
+//            asprintf(&filename_in, "%s/%s", get_current_dir_name(), filename_in);
+//        gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(filechooserbutton_in_file), _(strdup(filename_in)));
+//    }
+//#endif /* ! _WIN32 */
     gtk_widget_show(filechooserbutton_in_file);
     gtk_fixed_put(GTK_FIXED(fixed_layout), filechooserbutton_in_file, 192, 32);
     gtk_widget_set_size_request(filechooserbutton_in_file, 160, 32);
 
     filechooserbutton_key_file = gtk_file_chooser_button_new(_("Select a Key / Passphrase File"), GTK_FILE_CHOOSER_ACTION_OPEN);
-#ifndef _WIN32
-    if (pass_filename)
-    {
-        if ((!strcmp(pass_filename, basename(pass_filename))) || (pass_filename[0] == '.'))
-            asprintf(&pass_filename, "%s/%s", get_current_dir_name(), pass_filename);
-        gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(filechooserbutton_key_file), _(strdup(pass_filename)));
-    }
-    if (key_filename)
-    {
-        if ((!strcmp(key_filename, basename(key_filename))) || (key_filename[0] == '.'))
-            asprintf(&key_filename, "%s/%s", get_current_dir_name(), key_filename);
-        gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(filechooserbutton_key_file), _(strdup(key_filename)));
-    }
-#endif /* ! _WIN32 */
     gtk_widget_show(filechooserbutton_key_file);
     gtk_fixed_put(GTK_FIXED(fixed_layout), filechooserbutton_key_file, 192, 72);
     gtk_widget_set_size_request(filechooserbutton_key_file, 160, 32);
     g_object_set(filechooserbutton_key_file, "show-hidden", true, NULL);
 
     filechooserbutton_out_dir = gtk_file_chooser_button_new(_("Select Destination Folder"), GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
-#ifndef _WIN32
-    if (out_filename)
-    {
-        if ((!strcmp(out_filename, basename(out_filename))) || (out_filename[0] == '.'))
-            asprintf(&out_filename, "%s/%s", get_current_dir_name(), out_filename);
-        gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(filechooserbutton_out_dir), _(dirname(strdup(out_filename))));
-    }
-#endif /* ! _WIN32 */
+//#ifndef _WIN32
+//    if (filename_out)
+//    {
+//        if ((!strcmp(filename_out, basename(filename_out))) || (filename_out[0] == '.'))
+//            asprintf(&filename_out, "%s/%s", get_current_dir_name(), filename_out);
+//        gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(filechooserbutton_out_dir), _(dirname(filename_out)));
+//    }
+//#endif /* ! _WIN32 */
     gtk_widget_show(filechooserbutton_out_dir);
     gtk_fixed_put(GTK_FIXED(fixed_layout), filechooserbutton_out_dir, 192, 176);
     gtk_widget_set_size_request(filechooserbutton_out_dir, 160, 32);
@@ -185,8 +173,6 @@ GtkWidget *create_window_main(void)
     gtk_fixed_put(GTK_FIXED(fixed_layout), entry_password, 192, 112);
     gtk_widget_set_size_request(entry_password, 160, 24);
     gtk_entry_set_visibility(GTK_ENTRY(entry_password), false);
-    if (password)
-        gtk_entry_set_text(GTK_ENTRY(entry_password), password);
 
     combobox_process = gtk_combo_box_new_text();
     gtk_widget_show(combobox_process);
@@ -194,10 +180,7 @@ GtkWidget *create_window_main(void)
     gtk_widget_set_size_request(combobox_process, 152, 24);
     gtk_combo_box_append_text(GTK_COMBO_BOX(combobox_process), _("Encrypt"));
     gtk_combo_box_append_text(GTK_COMBO_BOX(combobox_process), _("Decrypt"));
-    if (function && (!strstr(function, "enc")))
-        gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_process), 1);
-    else
-        gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_process), 0);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_process), 0);
 
     combobox_keyfile = gtk_combo_box_new_text();
     gtk_widget_show(combobox_keyfile);
@@ -205,10 +188,7 @@ GtkWidget *create_window_main(void)
     gtk_widget_set_size_request(combobox_keyfile, 152, 24);
     gtk_combo_box_append_text(GTK_COMBO_BOX(combobox_keyfile), _("Key"));
     gtk_combo_box_append_text(GTK_COMBO_BOX(combobox_keyfile), _("Passphrase"));
-    if (pass_filename)
-        gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_keyfile), 1);
-    else
-        gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_keyfile), 0);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_keyfile), 0);
 
     comboboxentry_algorithm = gtk_combo_box_entry_new_text();
     gtk_widget_show(comboboxentry_algorithm);
@@ -227,8 +207,8 @@ GtkWidget *create_window_main(void)
         for (int64_t i = 0; i < n; ++i)
             if (strstr(eps[i]->d_name, ".so") != NULL)
                 gtk_combo_box_append_text(GTK_COMBO_BOX(comboboxentry_algorithm), _(strndup(eps[i]->d_name, strlen(eps[i]->d_name) - 3)));
-        if (plugin)
-            gtk_combo_box_insert_text(GTK_COMBO_BOX(comboboxentry_algorithm), 0, strndup(plugin, strlen(plugin) - 3));
+//        if (plugin)
+//            gtk_combo_box_insert_text(GTK_COMBO_BOX(comboboxentry_algorithm), 0, strndup(plugin, strlen(plugin) - 3));
 #else  /* ! _WIN32 */
     DIR *dp = opendir("/Program Files/encrypt/lib");
     if (dp)
@@ -246,10 +226,10 @@ GtkWidget *create_window_main(void)
     gtk_widget_show(entry_out_file);
     gtk_fixed_put(GTK_FIXED(fixed_layout), entry_out_file, 192, 216);
     gtk_widget_set_size_request(entry_out_file, 160, 24);
-#ifndef _WIN32
-    if (out_filename)
-        gtk_entry_set_text(GTK_ENTRY(entry_out_file), _(basename(out_filename)));
-#endif /* ! _WIN32 */
+//#ifndef _WIN32
+//    if (filename_out)
+//        gtk_entry_set_text(GTK_ENTRY(entry_out_file), _(basename(filename_out)));
+//#endif /* ! _WIN32 */
 
 #ifndef _WIN32
     button_do = gtk_button_new_from_stock("gtk-execute");
