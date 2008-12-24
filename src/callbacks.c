@@ -86,7 +86,7 @@ void on_button_about_clicked(GtkWidget *widget)
         asprintf(&filename_mod, "/usr/lib/encrypt/lib/%s.so", gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
 #else  /* ! _WIN32 */
     HANDLE file_mod = NULL;
-    if (!strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)), '\\'))
+    if ((!strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)), '\\')) && (!strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)), '/')))
     {
         filename_mod = calloc(strlen("/Program Files/encrypt/lib/") + strlen(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg))) + 1, sizeof( char ));
         sprintf(filename_mod, "/Program Files/encrypt/lib/%s", gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
@@ -97,15 +97,19 @@ void on_button_about_clicked(GtkWidget *widget)
     /* 
      * find the plugin, open it, etc...
      */
+fprintf(stderr, "Use DLL file %s\n", filename_mod);
     if (!(file_mod = open_mod(filename_mod)))
     {
+fprintf(stderr, "oh shit\n");
         free(filename_mod);
+fprintf(stderr, "freed");
         textview_about = lookup_widget(window_about, "textview_about");
-        gtk_text_buffer_insert_at_cursor(gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_about)), details, -1);
+        gtk_text_buffer_insert_at_cursor(gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_about)), _("\nError: could not find plugin\n"), -1);
         return;
     }
+fprintf(stderr, "free...\n");
     free(filename_mod);
-
+fprintf(stderr, "now open DLL...\n");
 #ifndef _WIN32
     if (!(fp = (info_t *(*)(void))dlsym(file_mod, "plugin_info")))
   #ifdef _DLFCN_H
@@ -115,11 +119,11 @@ void on_button_about_clicked(GtkWidget *widget)
     if (!(fp = (void *)GetProcAddress(file_mod, "plugin_info")))
 #endif
     {
-        details = strdup("\nError: could not find plugin information\n");
         textview_about = lookup_widget(window_about, "textview_about");
-        gtk_text_buffer_insert_at_cursor(gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_about)), details, -1);
+        gtk_text_buffer_insert_at_cursor(gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_about)), _("\nError: could not find plugin information\n"), -1);
         return;
     }
+fprintf(stderr, "0x%p\n", fp);
     /* 
      * now get the info
      */
@@ -133,15 +137,20 @@ void on_button_about_clicked(GtkWidget *widget)
     /* 
      * woot for Windows
      */
+fprintf(stderr, "calloc...");
     details = calloc(strlen(PLUGIN_DETAILS_MASK) +
             strlen(about->algorithm_name) + strlen(about->algorithm_authors) + strlen(about->algorithm_copyright) + strlen(about->algorithm_licence) + strlen(about->algorithm_year) + strlen(about->algorithm_block) +
             strlen(about->key_name) +       strlen(about->key_authors) +       strlen(about->key_copyright) +       strlen(about->key_licence) +       strlen(about->key_year) +       strlen(about->key_size) +
             strlen(about->module_authors) + strlen(about->module_copyright) +  strlen(about->module_licence) +      strlen(about->module_version) +    strlen(about->module_comment), sizeof( char ));
+fprintf(stderr, " 0x%p\n", details);
     sprintf(details, PLUGIN_DETAILS_MASK,
             about->algorithm_name,  about->algorithm_authors,  about->algorithm_copyright,  about->algorithm_licence,  about->algorithm_year,  about->algorithm_block,
             about->key_name,        about->key_authors,        about->key_copyright,        about->key_licence,        about->key_year,        about->key_size,
             about->module_authors,  about->module_copyright,   about->module_licence,       about->module_version,     about->module_comment);
 #endif /*   _WIN32 */
+
+    textview_about = lookup_widget(window_about, "textview_about");
+    gtk_text_buffer_insert_at_cursor(gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_about)), details, -1);
 
     /*
      * go on a free'ing spree...
@@ -171,9 +180,6 @@ void on_button_about_clicked(GtkWidget *widget)
 #ifdef _DLFCN_H
     dlclose(file_mod);
 #endif
-
-    textview_about = lookup_widget(window_about, "textview_about");
-    gtk_text_buffer_insert_at_cursor(gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_about)), details, -1);
 }
 
 

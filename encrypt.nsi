@@ -1,5 +1,5 @@
 !define PRODUCT_NAME "encrypt"
-!define PRODUCT_VERSION "TBA"
+!define PRODUCT_VERSION "2008-12-20"
 !define PRODUCT_PUBLISHER "albinoloverats ~ Software Development"
 !define PRODUCT_WEB_SITE "https://albinoloverats.net/encrypt"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\encrypt.exe"
@@ -34,6 +34,9 @@ Section "main" SEC01
   File "lib\xtea.dll"
   File "lib\anubis.dll"
   File "lib\serpent.dll"
+  SetOutPath "$INSTDIR\pixmap"
+  File "pixmap\encrypt.xpm"
+  File "pixmap\albinoloverats.xpm"
   SetOutPath "$INSTDIR\src"
   File "..\encrypt.tar.bz2"
   CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
@@ -75,6 +78,8 @@ Section Uninstall
   Delete "$INSTDIR\lib\serpent.dll"
   Delete "$INSTDIR\doc\ReadMe.txt"
   Delete "$INSTDIR\doc\Licence.txt"
+  Delete "$INSTDIR\pixmap\encrypt.xpm"
+  Delete "$INSTDIR\pixmap\albinoloverats.xpm"
   Delete "$INSTDIR\src\encrypt.tar.bz2"
   Delete "$INSTDIR\encrypt.exe"
 
@@ -86,6 +91,7 @@ Section Uninstall
   RMDir "$SMPROGRAMS\encrypt"
   RMDir "$INSTDIR\lib"
   RMDir "$INSTDIR\doc"
+  RMDIR "$INSTDIR\pixmap"
   RMDir "$INSTDIR\src"
   RMDir "$INSTDIR"
 

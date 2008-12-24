@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <dirent.h>
 #include <getopt.h>
+#include <signal.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -84,6 +85,12 @@ int main(int argc, char **argv)
     int64_t (*fp)(int64_t, int64_t, uint8_t *);
 
     errno = EXIT_SUCCESS;
+
+    if (signal(SIGINT, sigint) == SIG_ERR)
+    {
+        fprintf(stderr, "%s: could not set SIGINT handler\n", NAME);
+        return errno;
+    }
 
 #ifndef _BUILD_GUI_
     /* 
@@ -277,7 +284,7 @@ void *open_mod(char *n)
         asprintf(&n, "%s.so", n);
     if (!(p = dlopen(n, RTLD_LAZY)))
 #else  /* ! _WIN32 */
-    if (!strchr(n, '\\'))
+    if (!strchr(n, '\\') && !strchr(n, '/'))
     {
         n = realloc(n, strlen(n) + 5);
         sprintf(n, "%s.dll", n);
@@ -306,10 +313,7 @@ int64_t algorithm_info(char *n)
 #else   /* ! _WIN32 */
     if (!(fp = (void *)GetProcAddress(p, "plugin_info")))
 #endif /*   _WIN32 */
-    {
-        fprintf(stderr, "%s: could not find plugin information\n", NAME);
-        return EXIT_FAILURE;
-    }
+        die("%s: could not find plugin information\n", NAME);
     /* 
      * now get the info
      */
@@ -507,6 +511,12 @@ void die(const char *s, ...)
 #ifndef _BUILD_GUI_
     exit(errno);
 #endif /* _BUILD_GUI_ */
+}
+
+void sigint(int s)
+{
+    signal(s, sigint);
+    fprintf(stderr, "%s: ignoring signal SIGINT\n", NAME);
 }
 
 int64_t show_help(void)

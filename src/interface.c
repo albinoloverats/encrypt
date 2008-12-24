@@ -48,7 +48,7 @@
 
 #define GLADE_HOOKUP_OBJECT(component,widget,name) g_object_set_data_full (G_OBJECT (component), name, gtk_widget_ref (widget), (GDestroyNotify) gtk_widget_unref)
 #define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name) g_object_set_data (G_OBJECT (component), name, widget)
-#define ABOUT_BOX_TEXT "encrypt version %s\n  encrypt is a small application which has been designed, from the\n  beginning, to be as simple to use as can be and have the smallest file\n  size (download time) possible. The idea is small and simple, yet the\n  encryption aims to be a strong as possible - as well as giving the\n  user the choice about how their data is secured.\n\nWebsite\n  https://albinoloverats.net/encrypt\n\nDevelopers\n  Ashley Anderson <amanderson@albinoloverats.net>\n\nCopyright\n  Copyright (c) 2004-2008, albinoloverats ~ Software Development\n\nLicence\n  This program is free software: you can redistribute it and/or modify\n  it under the terms of the GNU General Public License as published by\n  the Free Software Foundation, either version 3 of the License, or\n  (at your option) any later version.\n\n  This program is distributed in the hope that it will be useful,\n  but WITHOUT ANY WARRANTY; without even the implied warranty of\n  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\n  GNU General Public License for more details.\n\n  You should have received a copy of the GNU General Public License\n  along with this program. If not, see <http://www.gnu.org/licenses/>.\n"
+#define ABOUT_BOX_TEXT "encrypt\n  commit date: %s\n  build date : %s %s\n\n  encrypt is a small application which has been designed, from the\n  beginning, to be as simple to use as can be and have the smallest file\n  size (download time) possible. The idea is small and simple, yet the\n  encryption aims to be a strong as possible - as well as giving the\n  user the choice about how their data is secured.\n\nWebsite\n  https://albinoloverats.net/encrypt\n\nDevelopers\n  Ashley Anderson <amanderson@albinoloverats.net>\n\nCopyright\n  Copyright (c) 2004-2008, albinoloverats ~ Software Development\n\nLicence\n  This program is free software: you can redistribute it and/or modify\n  it under the terms of the GNU General Public License as published by\n  the Free Software Foundation, either version 3 of the License, or\n  (at your option) any later version.\n\n  This program is distributed in the hope that it will be useful,\n  but WITHOUT ANY WARRANTY; without even the implied warranty of\n  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\n  GNU General Public License for more details.\n\n  You should have received a copy of the GNU General Public License\n  along with this program. If not, see <http://www.gnu.org/licenses/>.\n"
 
 //extern char *filename_in  = NULL;
 //extern char *filename_out = NULL;
@@ -430,10 +430,10 @@ GtkWidget *create_window_about(void)
     char *about_text;
 
 #ifndef _WIN32
-    asprintf(&about_text, ABOUT_BOX_TEXT, VERSION);
+    asprintf(&about_text, ABOUT_BOX_TEXT, VERSION, __DATE__, __TIME__);
 #else  /* ! _WIN32 */
-    about_text = calloc(strlen(ABOUT_BOX_TEXT) + strlen(VERSION), sizeof( char ));
-    sprintf(about_text, ABOUT_BOX_TEXT, VERSION);
+    about_text = calloc(strlen(ABOUT_BOX_TEXT) + strlen(VERSION) + strlen(__DATE__) + strlen(__TIME__), sizeof( char ));
+    sprintf(about_text, ABOUT_BOX_TEXT, VERSION, __DATE__, __TIME__);
 #endif /*   _WIN32 */
     gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_about)), about_text, -1);
 

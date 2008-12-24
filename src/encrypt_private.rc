@@ -4,7 +4,7 @@
 #include <windows.h> // include for version info constants
 
 
-A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "src/encrypt.ico"
+A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "pixmap\\encrypt.ico"
 
 //
 // TO CHANGE VERSION INFORMATION, EDIT PROJECT OPTIONS...

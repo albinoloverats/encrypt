@@ -25,7 +25,7 @@
   #define LICENCE "GPL"
   #define NAME "encrypt"
 
-  #define VERSION "++VERSION++"
+  #define VERSION "2008-12-18 22:24:35"
 
   #define NOTSET 0
 
@@ -34,6 +34,7 @@
 
   int main(int, char **);
   void die(const char *, ...);
+  void sigint(int);
 
   void *open_mod(char *);
   int64_t algorithm_info(char *);

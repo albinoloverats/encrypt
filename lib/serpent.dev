@@ -70,21 +70,21 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [VersionInfo]
-Major=0
-Minor=3
+Major=1
+Minor=1
 Release=0
 Build=0
-LanguageID=2057
+LanguageID=11273
 CharsetID=1252
 CompanyName=
-FileVersion=0.3
+FileVersion=1.1
 FileDescription=Serpent with Tiger plugin for encrypt
 InternalName=serpent
 LegalCopyright=Copyright (c) 2008, Ashley Anderson
 LegalTrademarks=
 OriginalFilename=serpent.dll
 ProductName=Serpent with Tiger
-ProductVersion=0.3
+ProductVersion=1.1
 AutoIncBuildNr=0
 
 [Unit4]
