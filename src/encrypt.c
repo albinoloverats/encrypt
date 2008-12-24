@@ -516,7 +516,7 @@ void die(const char *s, ...)
 void sigint(int s)
 {
     signal(s, sigint);
-    fprintf(stderr, "%s: ignoring signal SIGINT\n", NAME);
+    fprintf(stderr, "\r%s: ignoring signal SIGINT\n", NAME);
 }
 
 int64_t show_help(void)
