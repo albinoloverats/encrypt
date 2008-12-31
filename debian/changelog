@@ -1,0 +1,6 @@
+encrypt (200901-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Ashley Anderson <amanderson@albinoloverats.net>  Mon, 29 Dec 2008 07:29:13 +0000
+

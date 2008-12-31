@@ -1,0 +1,15 @@
+Source: encrypt
+Section: unknown
+Priority: optional
+Maintainer: Ashley Anderson <amanderson@albinoloverats.net>
+Build-Depends: debhelper (>= 5)
+Standards-Version: 3.7.2
+
+Package: encrypt
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libgtk2.0
+Description: A simple, X-platform, plugin-based encryption application
+ encrypt is a simple encryption application which is suitable for any 
+ modern OS. It uses the GTK to provide a graphical user interface, yet
+ is equally usable from the command line. Plugins allow additional 
+ algorithms to be chosen by the user at runtime.
