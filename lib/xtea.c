@@ -1,6 +1,6 @@
 /*
  *	xtea is a plugin for encrypt
- *	Copyright (c) 2007-2008, Ashley Anderson
+ *	Copyright (c) 2007-2009, Ashley Anderson
  *	email: amanderson@albinoloverats.net
  *
  *	This program is free software: you can redistribute it and/or modify

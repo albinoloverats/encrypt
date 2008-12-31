@@ -20,7 +20,7 @@ FILETYPE VFT_DLL
 			 VALUE "FileVersion", "1.4"
 			 VALUE "FileDescription", "Anubis Block Cipher with RIPEMD-160 hashing algorithm"
 			 VALUE "InternalName", "anubis"
-			 VALUE "LegalCopyright", "Copyright (c) 2007-2008, Ashley Anderson"
+			 VALUE "LegalCopyright", "Copyright (c) 2007-2009, Ashley Anderson"
 			 VALUE "LegalTrademarks", ""
 			 VALUE "OriginalFilename", "anubis.dll"
 			 VALUE "ProductName", "Anubis+Ripe160"

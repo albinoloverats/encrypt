@@ -20,7 +20,7 @@ FILETYPE VFT_DLL
 			 VALUE "FileVersion", "2.0"
 			 VALUE "FileDescription", "Use this as a template for building plugins; giving everybody a variety of algorithms to use :)"
 			 VALUE "InternalName", "example"
-			 VALUE "LegalCopyright", "Copyright (c) 2007, albinoloverats.net"
+			 VALUE "LegalCopyright", "Copyright (c) 2007-2009, albinoloverats ~ Software Development"
 			 VALUE "LegalTrademarks", ""
 			 VALUE "OriginalFilename", "helloworld.dll"
 			 VALUE "ProductName", "Hello World Example"

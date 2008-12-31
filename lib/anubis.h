@@ -1,6 +1,6 @@
 /*
  *	This anubis module is an algorithm plugin for encrypt
- *	Copyright (c) 2005-2008, Ashley Anderson
+ *	Copyright (c) 2005-2009, Ashley Anderson
  *	email: amanderson@albinoloverats.net
  *
  *	This program is free software: you can redistribute it and/or modify
@@ -36,7 +36,7 @@
 #define K_SIZE "160 bits"
 
 #define M_AUTHORS "Ashley Anderson"
-#define M_COPYRIGHT "Copyright (c) 2007-2008, Ashley Anderson"
+#define M_COPYRIGHT "Copyright (c) 2007-2009, Ashley Anderson"
 #define M_LICENCE "GPL"
 #define M_VERSION "2.1"
 

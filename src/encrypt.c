@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS,) encryption utility
- * Copyright (c) 2005-2008, albinoloverats ~ Software Development
+ * Copyright (c) 2005-2009, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -536,7 +536,7 @@ int64_t show_help(void)
     fprintf(stderr, "  -d, --decrypt  ALGORITHM   Algorithm to use for decryption\n");
     fprintf(stderr, "  -a, --about    ALGORITHM   Information about a particular algorithm\n");
     fprintf(stderr, "  -g, --generate SIZE        Generate a key of specified size (in bits)\n");
-    fprintf(stderr, "  -m, --modules              List all installed modules\n");
+    fprintf(stderr, "  -m, --modules              List all available algorithms\n");
     fprintf(stderr, "  -h, --help                 This help list\n");
     fprintf(stderr, "  -l, --licence              An overview of the GNU GPL\n");
     fprintf(stderr, "  -v, --version              Show version number and quit\n\n");
@@ -578,9 +578,6 @@ int64_t show_usage(void)
 
 int64_t show_version(void)
 {
-    /* 
-     * i suppose this really should just print a simple numerical value, but what the heck...
-     */
     fprintf(stderr, "%s commit date: %s\n%*s build date : %s %s\n", NAME, VERSION, (int)strlen(NAME), "", __DATE__, __TIME__);
     return EXIT_SUCCESS;
 }

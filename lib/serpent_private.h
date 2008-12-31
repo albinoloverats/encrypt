@@ -14,7 +14,7 @@
 #define FILE_VERSION	"1.1"
 #define FILE_DESCRIPTION	"Serpent with Tiger plugin for encrypt"
 #define INTERNAL_NAME	"serpent"
-#define LEGAL_COPYRIGHT	"Copyright (c) 2008, Ashley Anderson"
+#define LEGAL_COPYRIGHT	"Copyright (c) 2008-2009, Ashley Anderson"
 #define LEGAL_TRADEMARKS	""
 #define ORIGINAL_FILENAME	"serpent.dll"
 #define PRODUCT_NAME	"Serpent with Tiger"

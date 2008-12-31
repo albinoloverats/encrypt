@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS,) encryption utility
- * Copyright (c) 2005-2008, albinoloverats ~ Software Development
+ * Copyright (c) 2005-2009, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@
   #define LICENCE "GPL"
   #define NAME "encrypt"
 
-  #define VERSION "2008-12-18 22:24:35"
+  #define VERSION "++VERSION++"
 
   #define NOTSET 0
 

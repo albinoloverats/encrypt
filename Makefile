@@ -36,6 +36,10 @@ install:
 	 @install -c -m 644 -D -T doc/encrypt.1a.gz ${PREFIX}/usr/lib/encrypt/doc/encrypt.1a.gz
 	 @ln -fs ${PREFIX}/usr/lib/encrypt/doc/encrypt.1a.gz ${PREFIX}/usr/man/man1/
 	-@echo "installed \`doc/encrypt.1a.gz' --> \`${PREFIX}/usr/man/man1/encrypt.1a.gz'"
+# finally the desktop file
+	 @install -c -m 644 -D -T encrypt.desktop ${PREFIX}/usr/lib/encrypt/encrypt.desktop
+	 @ln -fs ${PREFIX}/usr/lib/encrypt/encrypt.desktop ${PREFIX}/usr/share/applications/
+	-@echo "installed \`encrypt.desktop' --> \`${PREFIX}/usr/share/applications/encrypt.desktop'"
 install-all: install | $(LIB_INSTALL)
 
 clean:
@@ -43,6 +47,7 @@ clean:
 distclean: clean | $(LIB_CLEAN)
 
 uninstall: $(LIB_UNINSTALL)
+	 @rm -fv  ${PREFIX}/usr/share/applications/encrypt.desktop
 	 @rm -fv  ${PREFIX}/usr/man/man1/encrypt.1a.gz
 	 @rm -fv  ${PREFIX}/usr/lib/encrypt/pixmap/encrypt.xpm
 	 @rm -frv ${PREFIX}/usr/lib/encrypt/pixmap

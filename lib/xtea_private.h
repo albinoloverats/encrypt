@@ -14,7 +14,7 @@
 #define FILE_VERSION	"3.0"
 #define FILE_DESCRIPTION	"Designed to correct weaknesses in TEA, it uses the RSA Data Security, Inc. MD5 Message Digest Algorithm to generate the key"
 #define INTERNAL_NAME	"xtea"
-#define LEGAL_COPYRIGHT	"Copyright (c) 2007-2008, Ashley Anderson"
+#define LEGAL_COPYRIGHT	"Copyright (c) 2007-2009, Ashley Anderson"
 #define LEGAL_TRADEMARKS	""
 #define ORIGINAL_FILENAME	"xtea.dll"
 #define PRODUCT_NAME	"XTEA Algorithm"
