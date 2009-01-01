@@ -1,4 +1,4 @@
-; dlltool --base-file C:\DOCUME~1\ASHLEY~1\LOCALS~1\Temp/cca01592.base --output-exp xtea.exp --dllname xtea.dll --output-def libxtea.def --no-export-all-symbols --add-stdcall-alias --exclude-symbol=DllMainCRTStartup@12 --def C:\DOCUME~1\ASHLEY~1\LOCALS~1\Temp/cca01592.def --output-lib libxtea.a
+; dlltool --base-file C:\DOCUME~1\ASHLEY~1\LOCALS~1\Temp/cca03244.base --output-exp xtea.exp --dllname xtea.dll --output-def libxtea.def --no-export-all-symbols --add-stdcall-alias --exclude-symbol=DllMainCRTStartup@12 --def C:\DOCUME~1\ASHLEY~1\LOCALS~1\Temp/cca03244.def --output-lib libxtea.a
 EXPORTS
 	plugin_encrypt @ 1
 	plugin_info @ 2

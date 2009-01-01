@@ -1,4 +1,4 @@
-; dlltool --base-file C:\DOCUME~1\ASHLEY~1\LOCALS~1\Temp/cca04056.base --output-exp anubis.exp --dllname anubis.dll --output-def libanubis.def --no-export-all-symbols --add-stdcall-alias --exclude-symbol=DllMainCRTStartup@12 --def C:\DOCUME~1\ASHLEY~1\LOCALS~1\Temp/cca04056.def --output-lib libanubis.a
+; dlltool --base-file C:\DOCUME~1\ASHLEY~1\LOCALS~1\Temp/cca02336.base --output-exp anubis.exp --dllname anubis.dll --output-def libanubis.def --no-export-all-symbols --add-stdcall-alias --exclude-symbol=DllMainCRTStartup@12 --def C:\DOCUME~1\ASHLEY~1\LOCALS~1\Temp/cca02336.def --output-lib libanubis.a
 EXPORTS
 	plugin_encrypt @ 1
 	plugin_info @ 2

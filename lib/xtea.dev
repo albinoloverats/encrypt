@@ -40,21 +40,21 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [VersionInfo]
-Major=3
-Minor=0
+Major=4
+Minor=1
 Release=0
 Build=0
 LanguageID=2057
 CharsetID=1252
-CompanyName=
-FileVersion=3.0
+CompanyName=albinoloverats ~ Software Development
+FileVersion=4.1
 FileDescription=Designed to correct weaknesses in TEA, it uses the RSA Data Security, Inc. MD5 Message Digest Algorithm to generate the key
 InternalName=xtea
-LegalCopyright=Copyright (c) 2007-2008, Ashley Anderson
+LegalCopyright=Copyright (c) 2007-2009, Ashley Anderson
 LegalTrademarks=
 OriginalFilename=xtea.dll
 ProductName=XTEA Algorithm
-ProductVersion=3.0
+ProductVersion=200901
 AutoIncBuildNr=0
 
 [Unit1]

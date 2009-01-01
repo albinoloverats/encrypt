@@ -1,8 +1,6 @@
-; dlltool --base-file C:\DOCUME~1\ashley\LOCALS~1\Temp/cca00172.base --output-exp helloworld.exp --dllname helloworld.dll --output-def libhelloworld.def --no-export-all-symbols --add-stdcall-alias --exclude-symbol=DllMainCRTStartup@12 --def C:\DOCUME~1\ashley\LOCALS~1\Temp/cca00172.def --output-lib libhelloworld.a
+; dlltool --base-file C:\DOCUME~1\ASHLEY~1\LOCALS~1\Temp/cca02648.base --output-exp helloworld.exp --dllname helloworld.dll --output-def libhelloworld.def --no-export-all-symbols --add-stdcall-alias --exclude-symbol=DllMainCRTStartup@12 --def C:\DOCUME~1\ASHLEY~1\LOCALS~1\Temp/cca02648.def --output-lib libhelloworld.a
 EXPORTS
-	dec_main @ 1
-	enc_main @ 2
-	gen_file @ 3
-	gen_text @ 4
-	key_read @ 5
-	about @ 6
+	plugin_encrypt @ 1
+	plugin_info @ 2
+	plugin_key @ 3
+	plugin_decrypt @ 4

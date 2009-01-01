@@ -45,8 +45,8 @@
 #define K_YEAR "1992"
 #define K_SIZE "128 bits"
 #define M_AUTHORS "Ashley Anderson"
-#define M_COPYRIGHT "Copyright (c) 2007-2008, Ashley Anderson"
-#define M_VERSION "4.0"
+#define M_COPYRIGHT "Copyright (c) 2007-2009, Ashley Anderson"
+#define M_VERSION "4.1"
 #define M_LICENCE "GPL"
 #define M_COMMENT "The XTEA algorithm was originally designed to correct a\n  weaknesses in TEA.  This implementation uses a free MD5\n  library, which is based on RFC1321, and as such is RSA-\n  free. From: http://sourceforge.net/projects/libmd5-rfc/"
 
@@ -57,7 +57,7 @@
 #define KEY     128
 #define BLOCK   64
 
-#define HEADER "XTEA\2554.0\255"
+#define HEADER "XTEA\2554.1\255"
 
 static void hex2bin(uint32_t *, uint8_t *);
 

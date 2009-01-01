@@ -14,9 +14,9 @@ FILETYPE VFT_DLL
 {
   BLOCK "StringFileInfo"
 	 {
-		 BLOCK "2C0904E4"
+		 BLOCK "080904E4"
 		 {
-			 VALUE "CompanyName", ""
+			 VALUE "CompanyName", "albinoloverats ~ Software Development"
 			 VALUE "FileVersion", "1.1"
 			 VALUE "FileDescription", "Serpent with Tiger plugin for encrypt"
 			 VALUE "InternalName", "serpent"
@@ -24,12 +24,12 @@ FILETYPE VFT_DLL
 			 VALUE "LegalTrademarks", ""
 			 VALUE "OriginalFilename", "serpent.dll"
 			 VALUE "ProductName", "Serpent with Tiger"
-			 VALUE "ProductVersion", "1.1"
+			 VALUE "ProductVersion", "200901"
 		 }
 	 }
   BLOCK "VarFileInfo"
 	 {
-		 VALUE "Translation", 0x2C09, 1252
+		 VALUE "Translation", 0x0809, 1252
 	 }
 }
 

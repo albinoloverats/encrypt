@@ -1,5 +1,5 @@
 !define PRODUCT_NAME "encrypt"
-!define PRODUCT_VERSION "2008-12-20"
+!define PRODUCT_VERSION "200901"
 !define PRODUCT_PUBLISHER "albinoloverats ~ Software Development"
 !define PRODUCT_WEB_SITE "https://albinoloverats.net/encrypt"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\encrypt.exe"

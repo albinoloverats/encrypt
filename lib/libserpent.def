@@ -1,4 +1,4 @@
-; dlltool --base-file C:\DOCUME~1\ASHLEY~1\LOCALS~1\Temp/cca03764.base --output-exp serpent.exp --dllname serpent.dll --output-def libserpent.def --no-export-all-symbols --add-stdcall-alias --exclude-symbol=DllMainCRTStartup@12 --def C:\DOCUME~1\ASHLEY~1\LOCALS~1\Temp/cca03764.def --output-lib libserpent.a
+; dlltool --base-file C:\DOCUME~1\ASHLEY~1\LOCALS~1\Temp/cca02960.base --output-exp serpent.exp --dllname serpent.dll --output-def libserpent.def --no-export-all-symbols --add-stdcall-alias --exclude-symbol=DllMainCRTStartup@12 --def C:\DOCUME~1\ASHLEY~1\LOCALS~1\Temp/cca02960.def --output-lib libserpent.a
 EXPORTS
 	plugin_encrypt @ 1
 	plugin_info @ 2

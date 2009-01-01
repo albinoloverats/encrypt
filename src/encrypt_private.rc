@@ -4,14 +4,14 @@
 #include <windows.h> // include for version info constants
 
 
-A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "pixmap\\encrypt.ico"
+A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "encrypt.ico"
 
 //
 // TO CHANGE VERSION INFORMATION, EDIT PROJECT OPTIONS...
 //
 1 VERSIONINFO
-FILEVERSION 0,10,0,0
-PRODUCTVERSION 0,10,0,0
+FILEVERSION 2009,1,0,0
+PRODUCTVERSION 2009,1,0,0
 FILETYPE VFT_APP
 {
   BLOCK "StringFileInfo"
@@ -19,14 +19,14 @@ FILETYPE VFT_APP
 		 BLOCK "080904E4"
 		 {
 			 VALUE "CompanyName", "albinoloverats ~ Software Development"
-			 VALUE "FileVersion", "0.10"
+			 VALUE "FileVersion", "200901"
 			 VALUE "FileDescription", "encrypt is a simple, cross platform utility for securing your personal files"
 			 VALUE "InternalName", "encrypt"
 			 VALUE "LegalCopyright", "Copyright (c) 2004-2009, albinoloverats ~ Software Development"
 			 VALUE "LegalTrademarks", ""
 			 VALUE "OriginalFilename", "encrypt.exe"
 			 VALUE "ProductName", "encrypt"
-			 VALUE "ProductVersion", "0.10"
+			 VALUE "ProductVersion", "200901"
 		 }
 	 }
   BLOCK "VarFileInfo"
