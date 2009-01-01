@@ -1,5 +1,5 @@
 This package was debianized by Ashley Anderson <amanderson@albinoloverats.net> on
-Mon, 29 Dec 2008 07:29:13 +0000.
+Thu,  1 Jan 2009 15:08:40 +0000
 
 It was downloaded from https://albinoloverats.net/encrypt
 
@@ -24,7 +24,7 @@ License:
 On Debian systems, the complete text of the GNU General
 Public License can be found in `/usr/share/common-licenses/GPL'.
 
-The Debian packaging is (C) 2008, Ashley Anderson <amanderson@albinoloverats.net> and
+The Debian packaging is (C) 2009, Ashley Anderson <amanderson@albinoloverats.net> and
 is licensed under the GPL, see above.
 
 
