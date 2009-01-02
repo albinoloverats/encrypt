@@ -25,7 +25,7 @@
   #define LICENCE "GPL"
   #define NAME "encrypt"
 
-  #define VERSION "2008-12-31 10:24:58"
+  #define VERSION "++VERSION++"
 
   #define NOTSET 0
 
