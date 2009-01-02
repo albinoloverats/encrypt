@@ -10,13 +10,13 @@ xtea:
 	-@echo "compiled \`lib/xtea.c' --> \`xtea.so'"
 
 install-xtea:
-	 @install -c -m 755 -s -D -T xtea.so ${PREFIX}/usr/lib/encrypt/lib/xtea.so
-	 @ln -fs ${PREFIX}/usr/lib/encrypt/lib/xtea.so ${PREFIX}/usr/lib/
-	-@echo "installed \`xtea.so' --> \`${PREFIX}/usr/lib/encrypt/lib/xtea.so'"
+	 @install -c -m 755 -s -D -T xtea.so $(PREFIX)/usr/lib/encrypt/lib/xtea.so
+	 @ln -fs /usr/lib/encrypt/lib/xtea.so $(PREFIX)/usr/lib/
+	-@echo "installed \`xtea.so' --> \`$(PREFIX)/usr/lib/encrypt/lib/xtea.so'"
 
 clean-xtea:
 	-@rm -fv xtea.so
 
 uninstall-xtea:
-	-@rm -fv ${PREFIX}/usr/lib/xtea.so ${PREFIX}/usr/lib/encrypt/lib/xtea.so
+	-@rm -fv $(PREFIX)/usr/lib/xtea.so $(PREFIX)/usr/lib/encrypt/lib/xtea.so
 

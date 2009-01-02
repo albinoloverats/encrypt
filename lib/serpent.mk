@@ -10,13 +10,13 @@ serpent:
 	-@echo "compiled \`lib/serpent.c' --> \`serpent.so'"
 
 install-serpent:
-	 @install -c -m 755 -s -D -T serpent.so ${PREFIX}/usr/lib/encrypt/lib/serpent.so
-	 @ln -fs ${PREFIX}/usr/lib/encrypt/lib/serpent.so ${PREFIX}/usr/lib/
-	-@echo "installed \`serpent.so' --> \`${PREFIX}/usr/lib/encrypt/lib/serpent.so'"
+	 @install -c -m 755 -s -D -T serpent.so $(PREFIX)/usr/lib/encrypt/lib/serpent.so
+	 @ln -fs /usr/lib/encrypt/lib/serpent.so $(PREFIX)/usr/lib/
+	-@echo "installed \`serpent.so' --> \`$(PREFIX)/usr/lib/encrypt/lib/serpent.so'"
 
 clean-serpent:
 	-@rm -fv serpent.so
 
 uninstall-serpent:
-	-@rm -fv ${PREFIX}/usr/lib/serpent.so ${PREFIX}/usr/lib/encrypt/lib/serpent.so
+	-@rm -fv $(PREFIX)/usr/lib/serpent.so $(PREFIX)/usr/lib/encrypt/lib/serpent.so
 

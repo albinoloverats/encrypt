@@ -10,13 +10,13 @@ anubis:
 	-@echo "compiled \`lib/anubis.c' --> \`anubis.so'"
 
 install-anubis:
-	 @install -c -m 755 -s -D -T anubis.so ${PREFIX}/usr/lib/encrypt/lib/anubis.so
-	 @ln -fs ${PREFIX}/usr/lib/encrypt/lib/anubis.so ${PREFIX}/usr/lib/
-	-@echo "installed \`anubis.so' --> \`${PREFIX}/usr/lib/encrypt/lib/anubis.so'"
+	 @install -c -m 755 -s -D -T anubis.so $(PREFIX)/usr/lib/encrypt/lib/anubis.so
+	 @ln -fs /usr/lib/encrypt/lib/anubis.so $(PREFIX)/usr/lib/
+	-@echo "installed \`anubis.so' --> \`$(PREFIX)/usr/lib/encrypt/lib/anubis.so'"
 
 clean-anubis:
 	-@rm -fv anubis.so
 
 uninstall-anubis:
-	-@rm -fv /usr/lib/anubis.so ${PREFIX}/usr/lib/encrypt/lib/anubis.so
+	-@rm -fv /usr/lib/anubis.so $(PREFIX)/usr/lib/encrypt/lib/anubis.so
 

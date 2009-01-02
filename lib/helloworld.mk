@@ -10,13 +10,13 @@ helloworld:
 	-@echo "compiled \`lib/helloworld.c' --> \`helloworld.so'"
 
 install-helloworld:
-	 @install -c -m 755 -s -D -T helloworld.so ${PREFIX}/usr/lib/encrypt/lib/helloworld.so
-	 @ln -fs ${PREFIX}/usr/lib/encrypt/lib/helloworld.so ${PREFIX}/usr/lib/
-	-@echo "installed \`helloworld.so' --> \`${PREFIX}/usr/lib/encrypt/lib/helloworld.so'"
+	 @install -c -m 755 -s -D -T helloworld.so $(PREFIX)/usr/lib/encrypt/lib/helloworld.so
+	 @ln -fs /usr/lib/encrypt/lib/helloworld.so $(PREFIX)/usr/lib/
+	-@echo "installed \`helloworld.so' --> \`$(PREFIX)/usr/lib/encrypt/lib/helloworld.so'"
 
 clean-helloworld:
 	-@rm -fv helloworld.so
 
 uninstall-helloworld:
-	-@rm -fv ${PREFIX}/usr/lib/helloworld.so ${PREFIX}/usr/lib/encrypt/lib/helloworld.so
+	-@rm -fv $(PREFIX)/usr/lib/helloworld.so $(PREFIX)/usr/lib/encrypt/lib/helloworld.so
 

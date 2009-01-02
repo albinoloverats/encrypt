@@ -24,22 +24,22 @@ gui-all: gui | $(LIB_MAKE)
 
 install:
 # install the main executible, then softlink to it from /usr/bin
-	 @install -c -m 755 -s -D -T encrypt ${PREFIX}/usr/lib/encrypt/encrypt
-	 @ln -fs ${PREFIX}/usr/lib/encrypt/encrypt ${PREFIX}/usr/bin/
-	-@echo "installed \`encrypt' --> \`${PREFIX}/usr/bin/encrypt'"
+	 @install -c -m 755 -s -D -T encrypt $(PREFIX)/usr/lib/encrypt/encrypt
+	 @ln -fs /usr/lib/encrypt/encrypt $(PREFIX)/usr/bin/
+	-@echo "installed \`encrypt' --> \`$(PREFIX)/usr/bin/encrypt'"
 # install the icon/pixmap
-	 @install -c -m 644 -D -T pixmap/encrypt.xpm ${PREFIX}/usr/lib/encrypt/pixmap/encrypt.xpm
-	-@echo "installed \`encrypt.xpm' --> \`${PREFIX}/usr/lib/encrypt/pixmap/encrypt.xpm'" 
-	 @install -c -m 644 -D -T pixmap/albinoloverats.xpm ${PREFIX}/usr/lib/encrypt/pixmap/albinoloverats.xpm
-	-@echo "installed \`albinoloverats.xpm' --> \`${PREFIX}/usr/lib/encrypt/pixmap/albinoloverats.xpm'" 
+	 @install -c -m 644 -D -T pixmap/encrypt.xpm $(PREFIX)/usr/lib/encrypt/pixmap/encrypt.xpm
+	-@echo "installed \`encrypt.xpm' --> \`$(PREFIX)/usr/lib/encrypt/pixmap/encrypt.xpm'" 
+	 @install -c -m 644 -D -T pixmap/albinoloverats.xpm $(PREFIX)/usr/lib/encrypt/pixmap/albinoloverats.xpm
+	-@echo "installed \`albinoloverats.xpm' --> \`$(PREFIX)/usr/lib/encrypt/pixmap/albinoloverats.xpm'" 
 # ditto, but this time for the man page
-	 @install -c -m 644 -D -T doc/encrypt.1a.gz ${PREFIX}/usr/lib/encrypt/doc/encrypt.1a.gz
-	 @ln -fs ${PREFIX}/usr/lib/encrypt/doc/encrypt.1a.gz ${PREFIX}/usr/man/man1/
-	-@echo "installed \`doc/encrypt.1a.gz' --> \`${PREFIX}/usr/man/man1/encrypt.1a.gz'"
+	 @install -c -m 644 -D -T doc/encrypt.1a.gz $(PREFIX)/usr/lib/encrypt/doc/encrypt.1a.gz
+	 @ln -fs /usr/lib/encrypt/doc/encrypt.1a.gz $(PREFIX)/usr/man/man1/
+	-@echo "installed \`doc/encrypt.1a.gz' --> \`$(PREFIX)/usr/man/man1/encrypt.1a.gz'"
 # finally the desktop file
-	 @install -c -m 644 -D -T encrypt.desktop ${PREFIX}/usr/lib/encrypt/encrypt.desktop
-	 @ln -fs ${PREFIX}/usr/lib/encrypt/encrypt.desktop ${PREFIX}/usr/share/applications/
-	-@echo "installed \`encrypt.desktop' --> \`${PREFIX}/usr/share/applications/encrypt.desktop'"
+	 @install -c -m 644 -D -T encrypt.desktop $(PREFIX)/usr/lib/encrypt/encrypt.desktop
+	 @ln -fs /usr/lib/encrypt/encrypt.desktop $(PREFIX)/usr/share/applications/
+	-@echo "installed \`encrypt.desktop' --> \`$(PREFIX)/usr/share/applications/encrypt.desktop'"
 install-all: install | $(LIB_INSTALL)
 
 clean:
@@ -47,10 +47,10 @@ clean:
 distclean: clean | $(LIB_CLEAN)
 
 uninstall: $(LIB_UNINSTALL)
-	 @rm -fv  ${PREFIX}/usr/share/applications/encrypt.desktop
-	 @rm -fv  ${PREFIX}/usr/man/man1/encrypt.1a.gz
-	 @rm -fv  ${PREFIX}/usr/lib/encrypt/pixmap/encrypt.xpm
-	 @rm -frv ${PREFIX}/usr/lib/encrypt/pixmap
-	 @rm -fv  ${PREFIX}/usr/bin/encrypt
-	 @rm -frv ${PREFIX}/usr/lib/encrypt
+	 @rm -fv  $(PREFIX)/usr/share/applications/encrypt.desktop
+	 @rm -fv  $(PREFIX)/usr/man/man1/encrypt.1a.gz
+	 @rm -fv  $(PREFIX)/usr/lib/encrypt/pixmap/encrypt.xpm
+	 @rm -frv $(PREFIX)/usr/lib/encrypt/pixmap
+	 @rm -fv  $(PREFIX)/usr/bin/encrypt
+	 @rm -frv $(PREFIX)/usr/lib/encrypt
 
