@@ -76,8 +76,7 @@ void on_button_about_clicked(GtkWidget *widget)
     char *filename_mod  = NULL;
     char *details = NULL;
 
-    info_t *about = NULL;
-    info_t *(*fp)(void);
+    info_t *about, *(*fp)(void); 
 
     errno = 0;
 #ifndef _WIN32
@@ -86,7 +85,6 @@ void on_button_about_clicked(GtkWidget *widget)
     HANDLE file_mod = NULL;
 #endif /*   _WIN32 */
     filename_mod = strdup(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
-fprintf(stderr, "%s\n", filename_mod);
     /* 
      * find the plugin, open it, etc...
      */
@@ -101,13 +99,14 @@ fprintf(stderr, "%s\n", filename_mod);
     free(filename_mod);
 #ifndef _WIN32
     if (!(fp = (info_t *(*)(void))dlsym(file_mod, "plugin_info")))
+    {
   #ifdef _DLFCN_H
         dlclose(file_mod);
   #endif /* _DLFCN_H */
 #else   /* ! _WIN32 */
     if (!(fp = (void *)GetProcAddress(file_mod, "plugin_info")))
-#endif /*   _WIN32 */
     {
+#endif /*   _WIN32 */
         textview_about = lookup_widget(window_about, "textview_about");
         gtk_text_buffer_insert_at_cursor(gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_about)), _("\nError: could not find plugin information\n"), -1);
         die("%s: failed to read plugin\n", NAME);
