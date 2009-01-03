@@ -83,8 +83,14 @@ void on_button_about_clicked(GtkWidget *widget)
     void *file_mod = NULL;
 #else  /* ! _WIN32 */
     HANDLE file_mod = NULL;
+    if (!strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)), '\\') && !strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg), '/')))
+    {
+        filename_mod = calloc(strlen(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg))), sizeof( char ));
+        sprintf(filename_mod, "/Program Files/encrypt/lib/%s", gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
+    }
+    else
 #endif /*   _WIN32 */
-    filename_mod = strdup(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
+      filename_mod = strdup(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
     /* 
      * find the plugin, open it, etc...
      */
@@ -292,7 +298,15 @@ void on_button_do_clicked(GtkWidget *widget)
         gtk_widget_set_sensitive(button_wait_close, true);
         return;
     }
-    filename_mod = strdup(gtk_combo_box_get_active_text(GTK_COMBO_BOX(filecombo_mod)));
+#ifdef _WIN32
+    if (!strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)), '\\') && !strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg), '/')))
+    {
+        filename_mod = calloc(strlen(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg))), sizeof( char ));
+        sprintf(filename_mod, "/Program Files/encrypt/lib/%s", gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
+    }
+    else
+#endif /* _WIN32 */
+      filename_mod = strdup(gtk_combo_box_get_active_text(GTK_COMBO_BOX(filecombo_mod)));
     /*
      * open the plugin
      */
