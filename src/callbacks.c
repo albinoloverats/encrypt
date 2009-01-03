@@ -82,48 +82,37 @@ void on_button_about_clicked(GtkWidget *widget)
     errno = 0;
 #ifndef _WIN32
     void *file_mod = NULL;
-    if (!strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)), '/'))
-        asprintf(&filename_mod, "/usr/lib/encrypt/lib/%s.so", gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
 #else  /* ! _WIN32 */
     HANDLE file_mod = NULL;
-    if ((!strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)), '\\')) && (!strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)), '/')))
-    {
-        filename_mod = calloc(strlen("/Program Files/encrypt/lib/") + strlen(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg))) + 1, sizeof( char ));
-        sprintf(filename_mod, "/Program Files/encrypt/lib/%s", gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
-    }
 #endif /*   _WIN32 */
-    else
-        filename_mod = strdup(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
+    filename_mod = strdup(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
+fprintf(stderr, "%s\n", filename_mod);
     /* 
      * find the plugin, open it, etc...
      */
-fprintf(stderr, "Use DLL file %s\n", filename_mod);
     if (!(file_mod = open_mod(filename_mod)))
     {
-fprintf(stderr, "oh shit\n");
         free(filename_mod);
-fprintf(stderr, "freed");
         textview_about = lookup_widget(window_about, "textview_about");
         gtk_text_buffer_insert_at_cursor(gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_about)), _("\nError: could not find plugin\n"), -1);
+        die("%s: failed to open plugin\n", NAME);
         return;
     }
-fprintf(stderr, "free...\n");
     free(filename_mod);
-fprintf(stderr, "now open DLL...\n");
 #ifndef _WIN32
     if (!(fp = (info_t *(*)(void))dlsym(file_mod, "plugin_info")))
   #ifdef _DLFCN_H
         dlclose(file_mod);
   #endif /* _DLFCN_H */
-#else
+#else   /* ! _WIN32 */
     if (!(fp = (void *)GetProcAddress(file_mod, "plugin_info")))
-#endif
+#endif /*   _WIN32 */
     {
         textview_about = lookup_widget(window_about, "textview_about");
         gtk_text_buffer_insert_at_cursor(gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_about)), _("\nError: could not find plugin information\n"), -1);
+        die("%s: failed to read plugin\n", NAME);
         return;
     }
-fprintf(stderr, "0x%p\n", fp);
     /* 
      * now get the info
      */
@@ -137,12 +126,10 @@ fprintf(stderr, "0x%p\n", fp);
     /* 
      * woot for Windows
      */
-fprintf(stderr, "calloc...");
     details = calloc(strlen(PLUGIN_DETAILS_MASK) +
             strlen(about->algorithm_name) + strlen(about->algorithm_authors) + strlen(about->algorithm_copyright) + strlen(about->algorithm_licence) + strlen(about->algorithm_year) + strlen(about->algorithm_block) +
             strlen(about->key_name) +       strlen(about->key_authors) +       strlen(about->key_copyright) +       strlen(about->key_licence) +       strlen(about->key_year) +       strlen(about->key_size) +
             strlen(about->module_authors) + strlen(about->module_copyright) +  strlen(about->module_licence) +      strlen(about->module_version) +    strlen(about->module_comment), sizeof( char ));
-fprintf(stderr, " 0x%p\n", details);
     sprintf(details, PLUGIN_DETAILS_MASK,
             about->algorithm_name,  about->algorithm_authors,  about->algorithm_copyright,  about->algorithm_licence,  about->algorithm_year,  about->algorithm_block,
             about->key_name,        about->key_authors,        about->key_copyright,        about->key_licence,        about->key_year,        about->key_size,
@@ -306,18 +293,7 @@ void on_button_do_clicked(GtkWidget *widget)
         gtk_widget_set_sensitive(button_wait_close, true);
         return;
     }
-#ifndef _WIN32
-    if (!strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(filecombo_mod)), '/'))
-        asprintf(&filename_mod, "/usr/lib/encrypt/lib/%s.so", gtk_combo_box_get_active_text(GTK_COMBO_BOX(filecombo_mod)));
-#else  /* ! _WIN32 */
-    if (!strchr(gtk_combo_box_get_active_text(GTK_COMBO_BOX(filecombo_mod)), '\\'))
-    {
-        filename_mod = calloc(strlen("/Program Files/encrypt/lib/") + strlen(gtk_combo_box_get_active_text(GTK_COMBO_BOX(filecombo_mod))) + 2, sizeof( char ));
-        sprintf(filename_mod, "/Program Files/encrypt/lib/%s", gtk_combo_box_get_active_text(GTK_COMBO_BOX(filecombo_mod)));
-    }
-#endif /*   _WIN32 */
-    else
-        filename_mod = strdup(gtk_combo_box_get_active_text(GTK_COMBO_BOX(filecombo_mod)));
+    filename_mod = strdup(gtk_combo_box_get_active_text(GTK_COMBO_BOX(filecombo_mod)));
     /*
      * open the plugin
      */

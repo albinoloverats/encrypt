@@ -277,11 +277,13 @@ void *open_mod(char *n)
 #else  /* ! _WIN32 */
     HANDLE p = NULL;
 #endif /*   _WIN32 */
+fprintf(stderr, "%s\n", n);
     if (!n)
          die("%s: module name cannot be (null)\n", NAME);
 #ifndef _WIN32
     if (!strchr(n, '/'))
         asprintf(&n, "%s.so", n);
+fprintf(stderr, "%s\n", n);
     if (!(p = dlopen(n, RTLD_LAZY)))
 #else  /* ! _WIN32 */
     if (!strchr(n, '\\') && !strchr(n, '/'))
@@ -504,13 +506,11 @@ void die(const char *s, ...)
 {
     va_list ap;
     va_start(ap, s);
-#ifndef _BUILD_GUI_
     vfprintf(stderr, s, ap);
-#endif /* _BUILD_GUI_ */
     va_end(ap);
 #ifndef _BUILD_GUI_
     exit(errno);
-#endif /* _BUILD_GUI_ */
+#endif /* ! _BUILD_GUI_ */
 }
 
 void sigint(int s)
