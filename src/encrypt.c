@@ -576,6 +576,6 @@ int64_t show_usage(void)
 
 int64_t show_version(void)
 {
-    fprintf(stderr, "%s commit date: %s\n%*s build date : %s %s\n", NAME, VERSION, (int)strlen(NAME), "", __DATE__, __TIME__);
+    fprintf(stderr, "%s version : %s\n%*s built on: %s %s\n", NAME, VERSION, (int)strlen(NAME), "", __DATE__, __TIME__);
     return EXIT_SUCCESS;
 }
