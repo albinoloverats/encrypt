@@ -394,7 +394,7 @@ void on_button_do_clicked(GtkWidget *widget)
     }
 
     /* 
-     * we fork a child process to do the actual encrypting so that the parent can draw the message box to keep the user
+     * we create a child thread to do the actual encrypting so that the parent can draw the message box to keep the user
      * happy - this also means the window says updated and doesn't become blanked by other windows moving over it
      *
      * it's not a problem that we haven't forked before here because at all previous points where we alter one of the

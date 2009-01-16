@@ -205,8 +205,19 @@ GtkWidget *create_window_main(void)
     if (n >= 0)
     {
         for (int64_t i = 0; i < n; ++i)
-            if (strstr(eps[i]->d_name, ".so") != NULL)
+            if (strstr(eps[i]->d_name, ".so"))
+#ifdef linux
                 gtk_combo_box_append_text(GTK_COMBO_BOX(comboboxentry_algorithm), _(strndup(eps[i]->d_name, strlen(eps[i]->d_name) - 3)));
+#else  /*   linux */
+            {
+                char *s = strdup(eps[i]->d_name);
+                char *t = calloc(strlen(eps[i]->d_name), sizeof( char ));
+                memcpy(t, s, strlen(eps[i]->d_name) - 3);
+                free(s);
+                gtk_combo_box_append_text(GTK_COMBO_BOX(comboboxentry_algorithm), _(t));
+                free(t);
+            }
+#endif /* ! linux */
 //        if (plugin)
 //            gtk_combo_box_insert_text(GTK_COMBO_BOX(comboboxentry_algorithm), 0, strndup(plugin, strlen(plugin) - 3));
 #else  /* ! _WIN32 */
@@ -216,7 +227,15 @@ GtkWidget *create_window_main(void)
         struct dirent *ep;
         while ((ep = readdir(dp)))
             if (strstr(ep->d_name, ".dll"))
-                gtk_combo_box_append_text(GTK_COMBO_BOX(comboboxentry_algorithm), _(ep->d_name));
+            {
+                char *s = strdup(ep->d_name);
+                char *t = calloc(strlen(ep->d_name), sizeof( char ));
+                memcpy(t, s, strlen(ep->d_name) - 4);
+                free(s);
+                gtk_combo_box_append_text(GTK_COMBO_BOX(comboboxentry_algorithm), _(t));
+                free(t);
+            }
+
         (void) closedir(dp);
 #endif /*   _WIN32 */
     }
