@@ -1,14 +1,15 @@
-encrypt - 200901                                       January 1st, 2009
+encrypt - 200901                                  January 1st, 2009
 
-Finally, a new release! Mostly minor changes to the code to remove some
-memory leaks and miscellaneous small bugs. On top of that, the entied 
-module structure has been rewritten, so it now makes more sense (there
-are 1 or 2 changes in the main body of encrypt to accomodate for this).
+Finally, a new release! Mostly minor changes to the code to remove
+some memory leaks and miscellaneous small bugs. On top of that, the
+entied module structure has been rewritten, so it now makes more
+sense (there are 1 or 2 changes in the main body of encrypt to
+accomodate for this).
 
-This is also the first release which sees binary packages not only for
-MS Windows, but also for Debian and Fedora. The code has also been moved
-accross to machines running FreeeBSD and OpenSolaris; so far so good,
-but the GUI will take a little more work.
+This is also the first release which sees binary packages not only
+for MS Windows, but also for Debian and Fedora. The code has also
+been moved accross to machines running FreeeBSD and OpenSolaris; so
+far so good, but the GUI will take a little more work.
 
 The encrypt Development Team
 
@@ -17,22 +18,23 @@ Build/Installation notes:
 
   On GNU/*Nix Systems:
     Simplly:
-        $ make all
-        # make install-all
+      $ make all
+      # make install-all
 
     To build specific parts (modules or the GUI) use:
-        $ make gui
-        $ make %s
+      $ make gui
+      $ make %s
 
     You should be able to 'cut-and-paste' the different build
     options to compile and install exactly what you need (and
     nothing else):
-        $ make gui helloworld
+      $ make gui helloworld
 
-    Eventually you may need the following:
-        $ make clean
-        $ make distclean
-        # make uninstall
+    Eventually you may need the following (distclean will clean
+    modules too):
+      $ make clean
+      $ make distclean
+      # make uninstall
 
   On MS Systems:
     It's all done for you (Using Dev-C++) - if you wish to compile
@@ -41,8 +43,7 @@ Build/Installation notes:
     then allow you to build the installer (or you can just copy the
     binaries to wherever and go from there).
 
-Note:  You will need to have installed both the GTK development and
-runtime libraries to use the GUI. They should be easily available in
-you distro's package manager, or if you're on MS Windows:
-http://gimp-win.sourceforge.net/stable.html
-
+Note: You will need to have installed both the GTK development and
+runtime libraries to use the GUI. They should be easily available
+in you distro's package manager, or if you're on MS Windows:
+http://gtk-win.sourceforge.net/home/index.php/en/Home

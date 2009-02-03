@@ -21,6 +21,11 @@
 #ifndef _PLUGINS_H_
   #define _PLUGINS_H_
 
+  #ifdef __cplusplus
+  extern "C"
+  {
+  #endif
+
   /* 
    * simple data structure for information about the plugin
    */
@@ -61,5 +66,9 @@
       #define extern __declspec (dllimport)
     #endif /* ! BUILDING_DLL */
   #endif /* _WIN32 */
+
+  #ifdef __cplusplus
+  }
+  #endif
 
 #endif /* _PLUGINS_H_ */

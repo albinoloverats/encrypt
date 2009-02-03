@@ -54,6 +54,8 @@
   #include "support.h"
 #endif /* _BUILD_GUI_ */
 
+static bool sigd = false;
+
 /*
  * if we're building the GUI then these get defined here as globals, else they're local to main only (below)
  */
@@ -86,11 +88,8 @@ int main(int argc, char **argv)
 
     errno = EXIT_SUCCESS;
 
-    if (signal(SIGINT, sigint) == SIG_ERR)
-    {
-        fprintf(stderr, "%s: could not set SIGINT handler\n", NAME);
-        return errno;
-    }
+    if ((signal(SIGTERM, sigint) == SIG_ERR) || (signal(SIGINT,  sigint) == SIG_ERR) || (signal(SIGQUIT, sigint) == SIG_ERR))
+        die("%s: could not set SIGINT handler\n", NAME);
 
 #ifndef _BUILD_GUI_
     /* 
@@ -506,15 +505,32 @@ void die(const char *s, ...)
     va_start(ap, s);
     vfprintf(stderr, s, ap);
     va_end(ap);
-#ifndef _BUILD_GUI_
     exit(errno);
-#endif /* ! _BUILD_GUI_ */
 }
 
 void sigint(int s)
 {
-    signal(s, sigint);
-    fprintf(stderr, "\r%s: ignoring signal SIGINT\n", NAME);
+    if (sigd)
+    {
+        errno = EXIT_FAILURE;
+        die("\r%s: forced quit accepted\n", NAME);
+    }
+    char *ss = NULL;
+    switch (s)
+    {
+        case SIGTERM:
+            ss = strdup("SIGTERM");
+            break;
+        case SIGINT:
+            ss = strdup("SIGINT");
+            break;
+        case SIGQUIT:
+            ss = strdup("SIGQUIT");
+            break;
+    }
+    fprintf(stderr, "\r%s: caught and ignoring signal %s\n", NAME, ss);
+    fprintf(stderr, "\r%s: try again once more to force quit\n", NAME);
+    sigd = true;
 }
 
 int64_t show_help(void)

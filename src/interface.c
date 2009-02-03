@@ -98,9 +98,9 @@ GtkWidget *create_window_main(void)
     accel_group = gtk_accel_group_new();
 
     window_main = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_widget_set_size_request(window_main, 384, 384);
+    gtk_widget_set_size_request(window_main, 384, 392);
     gtk_window_set_title(GTK_WINDOW(window_main), _("encrypt"));
-    gtk_window_set_default_size(GTK_WINDOW(window_main), 384, 384);
+    gtk_window_set_default_size(GTK_WINDOW(window_main), 384, 392);
     gtk_window_set_resizable(GTK_WINDOW(window_main), false);
     gtk_window_set_gravity(GTK_WINDOW(window_main), GDK_GRAVITY_CENTER);
 
@@ -141,13 +141,13 @@ GtkWidget *create_window_main(void)
 //    }
 //#endif /* ! _WIN32 */
     gtk_widget_show(filechooserbutton_out_dir);
-    gtk_fixed_put(GTK_FIXED(fixed_layout), filechooserbutton_out_dir, 192, 176);
+    gtk_fixed_put(GTK_FIXED(fixed_layout), filechooserbutton_out_dir, 192, 184);
     gtk_widget_set_size_request(filechooserbutton_out_dir, 160, 32);
 
     label_algorithm = gtk_label_new(_("Algorithm"));
     gtk_widget_show(label_algorithm);
     gtk_fixed_put(GTK_FIXED(fixed_layout), label_algorithm, 32, 144);
-    gtk_widget_set_size_request(label_algorithm, 160, 24);
+    gtk_widget_set_size_request(label_algorithm, 160, 32);
     gtk_misc_set_alignment(GTK_MISC(label_algorithm), 0, 0.5);
 
     label_password = gtk_label_new(_("Password"));
@@ -158,13 +158,13 @@ GtkWidget *create_window_main(void)
 
     label_out_dir = gtk_label_new(_("Destination Directory"));
     gtk_widget_show(label_out_dir);
-    gtk_fixed_put(GTK_FIXED(fixed_layout), label_out_dir, 32, 176);
+    gtk_fixed_put(GTK_FIXED(fixed_layout), label_out_dir, 32, 184);
     gtk_widget_set_size_request(label_out_dir, 160, 32);
     gtk_misc_set_alignment(GTK_MISC(label_out_dir), 0, 0.5);
 
     label_out_file = gtk_label_new(_("Destination File Name"));
     gtk_widget_show(label_out_file);
-    gtk_fixed_put(GTK_FIXED(fixed_layout), label_out_file, 32, 216);
+    gtk_fixed_put(GTK_FIXED(fixed_layout), label_out_file, 32, 224);
     gtk_widget_set_size_request(label_out_file, 160, 24);
     gtk_misc_set_alignment(GTK_MISC(label_out_file), 0, 0.5);
 
@@ -176,16 +176,16 @@ GtkWidget *create_window_main(void)
 
     combobox_process = gtk_combo_box_new_text();
     gtk_widget_show(combobox_process);
-    gtk_fixed_put(GTK_FIXED(fixed_layout), combobox_process, 32, 36);
-    gtk_widget_set_size_request(combobox_process, 152, 24);
+    gtk_fixed_put(GTK_FIXED(fixed_layout), combobox_process, 32, 32);
+    gtk_widget_set_size_request(combobox_process, 152, 32);
     gtk_combo_box_append_text(GTK_COMBO_BOX(combobox_process), _("Encrypt"));
     gtk_combo_box_append_text(GTK_COMBO_BOX(combobox_process), _("Decrypt"));
     gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_process), 0);
 
     combobox_keyfile = gtk_combo_box_new_text();
     gtk_widget_show(combobox_keyfile);
-    gtk_fixed_put(GTK_FIXED(fixed_layout), combobox_keyfile, 32, 76);
-    gtk_widget_set_size_request(combobox_keyfile, 152, 24);
+    gtk_fixed_put(GTK_FIXED(fixed_layout), combobox_keyfile, 32, 72);
+    gtk_widget_set_size_request(combobox_keyfile, 152, 32);
     gtk_combo_box_append_text(GTK_COMBO_BOX(combobox_keyfile), _("Key"));
     gtk_combo_box_append_text(GTK_COMBO_BOX(combobox_keyfile), _("Passphrase"));
     gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_keyfile), 0);
@@ -193,7 +193,7 @@ GtkWidget *create_window_main(void)
     comboboxentry_algorithm = gtk_combo_box_entry_new_text();
     gtk_widget_show(comboboxentry_algorithm);
     gtk_fixed_put(GTK_FIXED(fixed_layout), comboboxentry_algorithm, 192, 144);
-    gtk_widget_set_size_request(comboboxentry_algorithm, 160, 24);
+    gtk_widget_set_size_request(comboboxentry_algorithm, 160, 32);
 
 #ifndef _WIN32
     /* 
@@ -243,7 +243,7 @@ GtkWidget *create_window_main(void)
 
     entry_out_file = gtk_entry_new();
     gtk_widget_show(entry_out_file);
-    gtk_fixed_put(GTK_FIXED(fixed_layout), entry_out_file, 192, 216);
+    gtk_fixed_put(GTK_FIXED(fixed_layout), entry_out_file, 192, 224);
     gtk_widget_set_size_request(entry_out_file, 160, 24);
 //#ifndef _WIN32
 //    if (filename_out)
@@ -308,27 +308,27 @@ GtkWidget *create_window_main(void)
 #endif /*   _WIN32 */
 
     gtk_widget_show(button_about);
-    gtk_fixed_put(GTK_FIXED(fixed_layout), button_about, 56, 320);
+    gtk_fixed_put(GTK_FIXED(fixed_layout), button_about, 56, 328);
     gtk_widget_set_size_request(button_about, 96, 32);
     gtk_widget_add_accelerator(button_about, "clicked", accel_group, GDK_A, (GdkModifierType)GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(button_about, "clicked", accel_group, GDK_A, (GdkModifierType)GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
     gtk_widget_show(button_do);
-    gtk_fixed_put(GTK_FIXED(fixed_layout), button_do, 224, 248);
+    gtk_fixed_put(GTK_FIXED(fixed_layout), button_do, 224, 256);
     gtk_widget_set_size_request(button_do, 96, 64);
     gtk_widget_add_accelerator(button_do, "clicked", accel_group, GDK_E, (GdkModifierType)GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(button_do, "clicked", accel_group, GDK_E, (GdkModifierType)GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(button_do, "clicked", accel_group, GDK_Return, (GdkModifierType)0, GTK_ACCEL_VISIBLE);
 
     gtk_widget_show(button_quit);
-    gtk_fixed_put(GTK_FIXED(fixed_layout), button_quit, 224, 320);
+    gtk_fixed_put(GTK_FIXED(fixed_layout), button_quit, 224, 328);
     gtk_widget_set_size_request(button_quit, 96, 32);
     gtk_widget_add_accelerator(button_quit, "clicked", accel_group, GDK_Q, (GdkModifierType)GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(button_quit, "clicked", accel_group, GDK_Q, (GdkModifierType)GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
 
     button_generate = gtk_button_new();
     gtk_widget_show(button_generate);
-    gtk_fixed_put(GTK_FIXED(fixed_layout), button_generate, 56, 280);
+    gtk_fixed_put(GTK_FIXED(fixed_layout), button_generate, 56, 288);
     gtk_widget_set_size_request(button_generate, 96, 32);
     gtk_widget_add_accelerator(button_generate, "clicked", accel_group, GDK_K, (GdkModifierType)GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(button_generate, "clicked", accel_group, GDK_K, (GdkModifierType)GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
