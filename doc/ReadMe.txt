@@ -1,9 +1,9 @@
-encrypt - 200901                                       January 1st, 2009
+encrypt - 200901+                                    February 13th, 2009
 
 Finally, a new release! Mostly minor changes to the code to remove some
-memory leaks and miscellaneous small bugs. On top of that, the entied 
+memory leaks and miscellaneous small bugs. On top of that, the entire
 module structure has been rewritten, so it now makes more sense (there
-are 1 or 2 changes in the main body of encrypt to accomodate for this).
+are 1 or 2 changes in the main body of encrypt to accommodate for this).
 
 This is also the first release which sees binary packages not only for
 MS Windows, but also for Debian and Fedora. The code has also been moved
@@ -15,34 +15,34 @@ The encrypt Development Team
 
 Build/Installation notes:
 
-  On GNU/*Nix Systems:
-    Simplly:
-        $ make all
-        # make install-all
+  On GNU/*Nix Systems (where %o is your operating system specific
+  Makefile):
+    Simply:
+      $ make -f Makefile.%o all
+      # make -f Makefile.%o install-all
 
     To build specific parts (modules or the GUI) use:
-        $ make gui
-        $ make %s
+      $ make -f Makefile.%o gui
+      $ make -f Makefile.%o %s
 
-    You should be able to 'cut-and-paste' the different build
-    options to compile and install exactly what you need (and
-    nothing else):
-        $ make gui helloworld
+    You should be able to 'cut-and-paste' the different build options to
+    compile and install exactly what you need (and nothing else):
+      $ make -f Makefile.%o gui helloworld
 
-    Eventually you may need the following:
-        $ make clean
-        $ make distclean
-        # make uninstall
+    Eventually you may need the following (distclean will clean modules
+    too):
+      $ make -f Makefile.%o clean
+      $ make -f Makefile.%o distclean
+      # make -f Makefile.%o uninstall
 
   On MS Systems:
-    It's all done for you (Using Dev-C++) - if you wish to compile
-    from source yourself, this shouldn't be too much of a problem
-    suing Dev-C++ (just ask if you need help). The NSIS scipt will
-    then allow you to build the installer (or you can just copy the
-    binaries to wherever and go from there).
+    It's all done for you (Using Dev-C++) - if you wish to compile from
+    source yourself, this shouldn't be too much of a problem suing
+    Dev-C++ (just ask if you need help). The NSIS script will then allow
+    you to build the installer (or you can just copy the binaries to
+    wherever and go from there).
 
-Note:  You will need to have installed both the GTK development and
-runtime libraries to use the GUI. They should be easily available in
-you distro's package manager, or if you're on MS Windows:
-http://gimp-win.sourceforge.net/stable.html
-
+Note: You will need to have installed both the GTK development and
+runtime libraries to use the GUI. They should be easily available in you
+distro's package manager, or if you're on MS Windows:
+http://gtk-win.sourceforge.net/home/index.php/en/Home

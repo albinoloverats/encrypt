@@ -25,7 +25,7 @@
   #define LICENCE "GPL"
   #define NAME "encrypt"
 
-  #define VERSION "200901"
+  #define VERSION "200901+"
 
   #define NOTSET 0
 
@@ -53,6 +53,7 @@
     #define lrand48 rand
     #define F_RDLCK 0
     #define F_WRLCK 0
+    #define SIGQUIT SIGBREAK
   #else  /*   _WIN32 */
     #define O_BINARY 0
   #endif /* ! _WIN32 */

@@ -614,7 +614,6 @@ GtkWidget *create_window_generate(void)
 {
     GtkWidget *window_generate;
     GtkWidget *fixed_gen;
-    GtkObject *spinbutton_size_adj;
     GtkWidget *spinbutton_size;
     GtkWidget *entry_display_size;
     GtkWidget *entry_gen_save_name;
@@ -650,8 +649,7 @@ GtkWidget *create_window_generate(void)
     gtk_widget_show(fixed_gen);
     gtk_container_add(GTK_CONTAINER(window_generate), fixed_gen);
 
-    spinbutton_size_adj = gtk_adjustment_new(128, 8, 1024, 8, 8, 8);
-    spinbutton_size = gtk_spin_button_new(GTK_ADJUSTMENT(spinbutton_size_adj), 1, 0);
+    spinbutton_size = gtk_spin_button_new_with_range(128, 4096, 8);
     gtk_widget_show(spinbutton_size);
     gtk_fixed_put(GTK_FIXED(fixed_gen), spinbutton_size, 160, 16);
     gtk_widget_set_size_request(spinbutton_size, 60, 24);
