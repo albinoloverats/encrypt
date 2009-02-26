@@ -1,22 +1,23 @@
-.PHONY: encrypt version gui all gui-all install install-all clean distclean uninstall
+.PHONY: encrypt gui all gui-all install install-all clean distclean uninstall
 
 LIB_MAKE      = 
 LIB_INSTALL   = 
 LIB_CLEAN     = 
 LIB_UNINSTALL = 
 
-OPTIONS := -o encrypt -std=c99 -Wall -Wextra -g -O0 -pipe -ldl -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64
+OPTIONS := -o encrypt -std=c99 -Wall -Wextra -O2 -pipe -ldl -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -I ./
 GUIOPTS := `pkg-config --cflags --libs gtk+-2.0` -lpthread -D_BUILD_GUI_
+COMMON  := common/common.c src/encrypt.c
 
 encrypt:
 # build the main executible
-	 @gcc $(OPTIONS) $(VERSION) src/encrypt.c
-	-@echo "compiled \`src/encrypt.c' --> \`encrypt'"
+	 @gcc $(OPTIONS) $(COMMON)
+	-@echo "compiled \`src/encrypt.c common/common.c' --> \`encrypt'"
 
 gui:
 # build the gui package
-	 @gcc $(OPTIONS) $(VERSION) $(GUIOPTS) src/encrypt.c src/callbacks.c src/interface.c src/support.c
-	-@echo "compiled \`src/encrypt.c src/callbacks.c src/interface.c src/support.c --> encrypt'"
+	 @gcc $(OPTIONS) $(COMMON) $(GUIOPTS) src/callbacks.c src/interface.c src/support.c
+	-@echo "compiled \`src/encrypt.c common/common.c src/callbacks.c src/interface.c src/support.c --> encrypt'"
 
 -include lib/*.mk
 all: encrypt | $(LIB_MAKE)
@@ -53,4 +54,5 @@ uninstall: $(LIB_UNINSTALL)
 	 @rm -frv $(PREFIX)/usr/lib/encrypt/pixmap
 	 @rm -fv  $(PREFIX)/usr/bin/encrypt
 	 @rm -frv $(PREFIX)/usr/lib/encrypt
+
 

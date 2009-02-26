@@ -18,40 +18,25 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-  #include <config.h>
-#endif /* HAVE_CONFIG_H */
-
-#ifndef _WIN32
-  #include <dlfcn.h>
-  #include <sys/wait.h>
-#else  /* ! _WIN32 */
-  #include <windows.h>
-#endif /*   _WIN32 */
-
 #include <time.h>
-#include <errno.h>
 #include <fcntl.h>
-#include <stdio.h>
 #include <getopt.h>
 #include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include <pthread.h>
-#include <stdbool.h>
-#include <inttypes.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
 #include <gtk/gtk.h>
 
-#include "encrypt.h"
-#include "plugins.h"
+#include "common/common.h"
 
-#include "callbacks.h"
-#include "interface.h"
-#include "support.h"
+#include "src/encrypt.h"
+#include "lib/plugins.h"
+
+#include "src/callbacks.h"
+#include "src/interface.h"
+#include "src/support.h"
 
 #define PLUGIN_DETAILS_MASK "\nAlgorithm Details\n    Name\t\t: %s\n    Author\t\t: %s\n    Copyright\t: %s\n    Licence\t: %s\n    Year\t\t: %s\n    Block size\t: %s\n\nKey Details\n    Name\t\t: %s\n    Authors\t: %s\n    Copyright\t: %s\n    Licence\t: %s\n    Year\t\t: %s\n    Key size\t: %s\n\nPlugin Details\n    Authors\t: %s\n    Copyright\t: %s\n    Licence\t: %s\n    Version\t: %s\n\nAdditional Details\n    %s\n"
 

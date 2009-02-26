@@ -18,21 +18,15 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-  #include <config.h>
-#endif /* HAVE_CONFIG_H */
-
-#include <stdio.h>
-#include <string.h>
 #include <unistd.h>
-#include <stdbool.h>
-#include <inttypes.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
 #include <gtk/gtk.h>
 
-#include "support.h"
+#include "common/common.h"
+
+#include "src/support.h"
 
 GtkWidget *lookup_widget(GtkWidget *widget, const gchar *widget_name)
 {

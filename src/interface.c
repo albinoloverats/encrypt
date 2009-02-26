@@ -18,33 +18,20 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-  #include <config.h>
-#endif /* HAVE_CONFIG_H */
-
-#include <stdio.h>
 #include <dirent.h>
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
-#include <stdbool.h>
-#include <inttypes.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-
-#ifndef _WIN32
-  #include <libgen.h>
-#else  /* ! _WIN32 */
-  #include <windows.h>
-#endif /*   _WIN32 */
 
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
-#include "encrypt.h"
-#include "callbacks.h"
-#include "interface.h"
-#include "support.h"
+#include "common/common.h"
+
+#include "src/encrypt.h"
+#include "src/callbacks.h"
+#include "src/interface.h"
+#include "src/support.h"
 
 #define GLADE_HOOKUP_OBJECT(component,widget,name) g_object_set_data_full (G_OBJECT (component), name, gtk_widget_ref (widget), (GDestroyNotify) gtk_widget_unref)
 #define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name) g_object_set_data (G_OBJECT (component), name, widget)

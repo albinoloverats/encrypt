@@ -18,43 +18,25 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-  #include <config.h>
-#endif /* HAVE_CONFIG_H */
-
-#ifndef _WIN32 /* if we're compiling a 'proper' os (ie not windows) ... */
-  #include <dlfcn.h>
-#else  /* ! _WIN32 */
-  #include <windows.h>
-#endif /*   _WIN32 */
-
 #include <time.h>
-#include <errno.h>
 #include <fcntl.h>
-#include <stdio.h>
 #include <dirent.h>
 #include <getopt.h>
-#include <signal.h>
-#include <stdarg.h>
 #include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
-#include <stdbool.h>
-#include <inttypes.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "encrypt.h"
-#include "plugins.h"
+#include "common/common.h"
+
+#include "src/encrypt.h"
+#include "lib/plugins.h"
 
 #ifdef _BUILD_GUI_
   #include <gtk/gtk.h>
-  #include "interface.h"
-  #include "support.h"
+  #include "src/interface.h"
+  #include "src/support.h"
 #endif /* _BUILD_GUI_ */
-
-static bool sigd = false;
 
 /*
  * if we're building the GUI then these get defined here as globals, else they're local to main only (below)
@@ -86,10 +68,7 @@ int main(int argc, char **argv)
 
     int64_t (*fp)(int64_t, int64_t, uint8_t *);
 
-    errno = EXIT_SUCCESS;
-
-    if ((signal(SIGTERM, sigint) == SIG_ERR) || (signal(SIGINT,  sigint) == SIG_ERR) || (signal(SIGQUIT, sigint) == SIG_ERR))
-        die("%s: could not set SIGINT handler\n", NAME);
+    init(NAME, VERSION);
 
 #ifndef _BUILD_GUI_
     /* 
@@ -167,7 +146,7 @@ int main(int argc, char **argv)
                 return show_version();
             case '?':
             default:
-                die("%s: unknown option %c\n", NAME, opt);
+                die("unknown option %c\n", opt);
                 /* 
                  * it's worth noting that unknown options cause encrypt to bail
                  */
@@ -181,7 +160,7 @@ int main(int argc, char **argv)
      */
     if (!gtk_init_check(&argc, &argv))
     {
-        fprintf(stderr, "%s: could not initialize GTK interface\n", NAME);
+        msg("could not initialize GTK interface");
         show_usage();
         return EXIT_FAILURE;
     }
@@ -219,13 +198,13 @@ int main(int argc, char **argv)
         if (filename_in)
         {
             if ((file_in = open(filename_in, O_RDONLY | O_BINARY | F_RDLCK)) < 0)
-                die("%s: could not access input file %s\n", NAME, filename_in);
+                die("could not access input file %s", filename_in);
             free(filename_in);
         }
         if (filename_out)
         {
             if ((file_out = open(filename_out, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY | F_WRLCK, S_IRUSR | S_IWUSR)) < 0)
-                die("%s: could not access/create output file %s\n", NAME, filename_out);
+                die("could not access/create output file %s", filename_out);
             free(filename_out);
         }
         /* 
@@ -242,7 +221,7 @@ int main(int argc, char **argv)
 #else  /* ! _WIN32 */
         if (!(fp = (void *)GetProcAddress(file_mod, function == ENCRYPT ? "plugin_encrypt" : "plugin_decrypt")))
 #endif /*   _WIN32 */
-            die("%s: could not import module function for %sryption\n", NAME, function == ENCRYPT ? "enc" : "dec");
+            die("could not import module function for %sryption", function == ENCRYPT ? "enc" : "dec");
         /* 
          * we made it - if we reach here then everything is okay and we're now ready to start :)
          */
@@ -251,7 +230,7 @@ int main(int argc, char **argv)
          * if there's an error tell the user - however it's unlikely we'll know exactly what the error is
          */
         if (s != EXIT_SUCCESS)
-            die("%s: an unexpected error has occured\n", NAME);
+            msg("an unexpected error has occured");
         /* 
          * close all open files obviously if in_file / out_file are stdin / stdout it makes no sense to close them
          */
@@ -277,7 +256,7 @@ void *open_mod(char *n)
     HANDLE p = NULL;
 #endif /*   _WIN32 */
     if (!n)
-         die("%s: module name cannot be (null)\n", NAME);
+         die("module name cannot be (null)");
 #ifndef _WIN32
     if (!strchr(n, '/'))
         asprintf(&n, "%s.so", n);
@@ -290,17 +269,17 @@ void *open_mod(char *n)
     }
     if (!(p = LoadLibrary(n)))
 #endif /*   _WIN32 */
-        die("%s: could not open plugin %s\n", NAME, n);
+        die("could not open plugin %s", n);
     return p;
 }
 
 int64_t algorithm_info(char *n)
 {
     if (!n)
-        die("%s: missing module name\n", NAME);
+        die("missing module name");
     void *p = open_mod(n);
     if (!p)
-        die("%s: invalid pointer to module\n", NAME);
+        die("invalid pointer to module");
     /* 
      * set everything up so we can get some info about the given algorithm
      */
@@ -312,7 +291,7 @@ int64_t algorithm_info(char *n)
 #else   /* ! _WIN32 */
     if (!(fp = (void *)GetProcAddress(p, "plugin_info")))
 #endif /*   _WIN32 */
-        die("%s: could not find plugin information\n", NAME);
+        die("could not find plugin information");
     /* 
      * now get the info
      */
@@ -384,7 +363,7 @@ int64_t key_generate(char *s, char *f)
      */
     if (f)
         if (!(k = fopen(f, "w")))
-            die("%s: could not access/create key file %s\n", NAME, f);
+            die("could not access/create key file %s", f);
     for (uint64_t i = 0; i < l; i++)
         fprintf(k, "%02X", (uint8_t)(lrand48() % 256));
     if (k == stdout)
@@ -396,9 +375,9 @@ int64_t key_generate(char *s, char *f)
 uint8_t *key_calculate(void *p, char *s, uint8_t k)
 {
     if (!p)
-        die("%s: invalid pointer to module\n", NAME);
+        die("invalid pointer to module");
     if (!s)
-        die("%s: missing data for key generation\n", NAME);
+        die("missing data for key generation");
     uint8_t *c = NULL;
     uint8_t *d = NULL;
     uint64_t l = 0;
@@ -408,7 +387,7 @@ uint8_t *key_calculate(void *p, char *s, uint8_t k)
             {
                 int64_t  f = 0;
                 if ((f = open(s, O_RDONLY)) < 0)
-                    die("%s: could not access key file %s\n", NAME, s);
+                    die("could not access key file %s", s);
                 l = lseek(f, 0, SEEK_END);
                 lseek(f, 0, SEEK_SET);
                 d = calloc(l, sizeof( uint8_t ));
@@ -428,7 +407,7 @@ uint8_t *key_calculate(void *p, char *s, uint8_t k)
             {
                 int64_t f = 0;
                 if ((f = open(s, O_RDONLY)) < 0)
-                    die("%s: could not access passphrase file %s\n", NAME, s);
+                    die("could not access passphrase file %s", s);
                 l = lseek(f, 0, SEEK_END);
                 lseek(f, 0, SEEK_SET);
                 c = calloc(l, sizeof( uint8_t ));
@@ -443,7 +422,7 @@ uint8_t *key_calculate(void *p, char *s, uint8_t k)
             }
             break;
         default:
-            die("%s: invalid key type\n", NAME);
+            die("invalid key type");
     }
     uint8_t *(*fp)(uint8_t *, size_t);
     
@@ -452,7 +431,7 @@ uint8_t *key_calculate(void *p, char *s, uint8_t k)
 #else   /* ! _WIN32 */
     if (!(fp = (void *)GetProcAddress(p, "plugin_key")))
 #endif /*   _WIN32 */
-        die("%s: could not find plugin function %s\n", NAME, "plugin_key");
+        die("could not find plugin function %s", "plugin_key");
     d = fp(c, l);
     free(c);
     return d;
@@ -499,40 +478,6 @@ int64_t list_modules(void)
     return errno;
 }
 
-void die(const char *s, ...)
-{
-    va_list ap;
-    va_start(ap, s);
-    vfprintf(stderr, s, ap);
-    va_end(ap);
-    exit(errno);
-}
-
-void sigint(int s)
-{
-    if (sigd)
-    {
-        errno = EXIT_FAILURE;
-        die("\r%s: forced quit accepted\n", NAME);
-    }
-    char *ss = NULL;
-    switch (s)
-    {
-        case SIGTERM:
-            ss = strdup("SIGTERM");
-            break;
-        case SIGINT:
-            ss = strdup("SIGINT");
-            break;
-        case SIGQUIT:
-            ss = strdup("SIGQUIT");
-            break;
-    }
-    fprintf(stderr, "\r%s: caught and ignoring signal %s\n", NAME, ss);
-    fprintf(stderr, "\r%s: try again once more to force quit\n", NAME);
-    sigd = true;
-}
-
 int64_t show_help(void)
 {
     /* 
@@ -559,39 +504,5 @@ int64_t show_help(void)
     fprintf(stderr, "generate a random key and echo it to stdout unless -g is preceded by -k; the\n");
     fprintf(stderr, "key can be used later with the -k option. However -a -m -h -l -v may be used\n");
     fprintf(stderr, "on their own or not at all.\n");
-    return EXIT_SUCCESS;
-}
-
-int64_t show_licence(void)
-{
-    /* 
-     * simple GNU GPL blurb
-     */
-    fprintf(stderr, "This program is free software: you can redistribute it and/or modify\n");
-    fprintf(stderr, "it under the terms of the GNU General Public License as published by\n");
-    fprintf(stderr, "the Free Software Foundation, either version 3 of the License, or\n");
-    fprintf(stderr, "(at your option) any later version.\n\n");
-    fprintf(stderr, "This program is distributed in the hope that it will be useful,\n");
-    fprintf(stderr, "but WITHOUT ANY WARRANTY; without even the implied warranty of\n");
-    fprintf(stderr, "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n");
-    fprintf(stderr, "GNU General Public License for more details.\n\n");
-    fprintf(stderr, "You should have received a copy of the GNU General Public License\n");
-    fprintf(stderr, "along with this program.  If not, see <http://www.gnu.org/licenses/>.\n");
-    return EXIT_SUCCESS;
-}
-
-int64_t show_usage(void)
-{
-    /* 
-     * c'mon! how hard is this!
-     */
-    fprintf(stderr, "Usage:\n");
-    fprintf(stderr, "  %s [OPTION] [ARGUMENT] ...\n", NAME);
-    return EXIT_SUCCESS;
-}
-
-int64_t show_version(void)
-{
-    fprintf(stderr, "%s version : %s\n%*s built on: %s %s\n", NAME, VERSION, (int)strlen(NAME), "", __DATE__, __TIME__);
     return EXIT_SUCCESS;
 }

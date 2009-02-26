@@ -24,7 +24,7 @@
   #ifdef __cplusplus
   extern "C"
   {
-  #endif
+  #endif /* __cplusplus */
 
   /* 
    * simple data structure for information about the plugin
@@ -69,6 +69,6 @@
 
   #ifdef __cplusplus
   }
-  #endif
+  #endif /* __cplusplus */
 
 #endif /* _PLUGINS_H_ */

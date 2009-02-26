@@ -21,20 +21,11 @@
 #ifndef _ENCRYPT_H_
   #define _ENCRYPT_H_
 
-  #define AUTHOR "albinoloverats ~ Software Development"
-  #define LICENCE "GPL"
   #define NAME "encrypt"
-
   #define VERSION "200901+"
-
-  #define NOTSET 0
 
   enum key { KEYFILE = 1, PASSFILE, PASSWORD };
   enum func { ENCRYPT = 1, DECRYPT };
-
-  int main(int, char **);
-  void die(const char *, ...);
-  void sigint(int);
 
   void *open_mod(char *);
   int64_t algorithm_info(char *);
@@ -44,18 +35,5 @@
   uint8_t *key_calculate(void *, char *, uint8_t);
 
   int64_t show_help(void);
-  int64_t show_licence(void);
-  int64_t show_usage(void);
-  int64_t show_version(void);
-
-  #ifdef _WIN32
-    #define srand48 srand
-    #define lrand48 rand
-    #define F_RDLCK 0
-    #define F_WRLCK 0
-    #define SIGQUIT SIGBREAK
-  #else  /*   _WIN32 */
-    #define O_BINARY 0
-  #endif /* ! _WIN32 */
 
 #endif /* _ENCRYPT_H_ */
