@@ -22,7 +22,7 @@
   #define _ENCRYPT_H_
 
   #define NAME "encrypt"
-  #define VERSION "200901+"
+  #define VERSION "200903-"
 
   enum key { KEYFILE = 1, PASSFILE, PASSWORD };
   enum func { ENCRYPT = 1, DECRYPT };

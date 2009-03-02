@@ -146,7 +146,7 @@ int main(int argc, char **argv)
                 return show_version();
             case '?':
             default:
-                die("unknown option %c\n", opt);
+                die("unknown option %c", opt);
                 /* 
                  * it's worth noting that unknown options cause encrypt to bail
                  */
@@ -159,11 +159,7 @@ int main(int argc, char **argv)
      * passed we might as well do something with them...
      */
     if (!gtk_init_check(&argc, &argv))
-    {
-        msg("could not initialize GTK interface");
-        show_usage();
-        return EXIT_FAILURE;
-    }
+        die("could not initialize GTK interface");
     
     if ((!filename_in && !filename_out) || (!function) || (!key_type))
     {

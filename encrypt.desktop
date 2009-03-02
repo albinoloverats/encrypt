@@ -6,5 +6,5 @@ Comment=Simple, X-platform encryption utility
 Exec=/usr/lib/encrypt/encrypt
 Terminal=False
 Type=Application
-Catagory=GTK
+Catagory=GTK;Utility
 StartupNotify=false

@@ -1,6 +1,6 @@
 # Contributor: Ashley Anderson <amanderson@albinoloverats.net>
 pkgname=encrypt
-pkgver=200901
+pkgver=200903
 pkgrel=1
 pkgdesc="A simple, X-platform, plugin-based encryption application encrypt is a simple encryption application which is suitable for any modern OS. It uses the GTK to provide a graphical user interface, yet is equally usable from the command line. Plugins allow additional algorithms to be chosen by the user at runtime."
 arch=(i686 x86_64)

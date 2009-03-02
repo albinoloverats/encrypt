@@ -48,6 +48,7 @@
     #define lrand48 rand
     #define F_RDLCK 0
     #define F_WRLCK 0
+    #define O_FSYNC 0
     #define SIGQUIT SIGBREAK
   #endif /*   _WIN32 */
 
