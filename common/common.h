@@ -26,6 +26,8 @@
   {
   #endif /* __cplusplus */
 
+  #define NOTSET 0
+
   #include <errno.h>
   #include <stdio.h>
   #include <signal.h>
@@ -41,26 +43,26 @@
 
   #ifndef _WIN32
     #include <dlfcn.h>
-    #define O_BINARY 0
+    #define O_BINARY NOTSET
   #else  /* ! _WIN32 */
     #include <windows.h>
     #define srand48 srand
     #define lrand48 rand
-    #define F_RDLCK 0
-    #define F_WRLCK 0
-    #define O_FSYNC 0
+    #define F_RDLCK NOTSET
+    #define F_WRLCK NOTSET
+    #define O_FSYNC NOTSET
     #define SIGQUIT SIGBREAK
   #endif /*   _WIN32 */
-
-  #define NOTSET 0
 
   int main(int, char **);
   void init(const char *, const char *);
 
+  int64_t show_help(void); /* defined here, but should be declared in app */
   int64_t show_licence(void);
   int64_t show_usage(void);
   int64_t show_version(void);
 
+  void hex(uint8_t *, uint64_t);
   void msg(const char *, ...);
   void die(const char *, ...);
 

@@ -34,6 +34,4 @@
   int64_t  key_generate(char *, char *);
   uint8_t *key_calculate(void *, char *, uint8_t);
 
-  int64_t show_help(void);
-
 #endif /* _ENCRYPT_H_ */

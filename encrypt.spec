@@ -1,6 +1,6 @@
 Summary: A simple, X-platform, plugin-based encryption application
 Name: encrypt
-Version: 200901
+Version: 200903
 Release: 1
 Source: https://albinoloverats.net/downloads/%{name}.tar.bz2
 URL: https://albinoloverats.net/%{name}

@@ -63,6 +63,23 @@ int64_t show_version(void)
     return EXIT_SUCCESS;
 }
 
+void hex(uint8_t *s, uint64_t l)
+{
+    char b[72] = { 0x00 };
+    uint8_t c = 1;
+    for (uint64_t i = 0; i < l; i++, c++)
+    {
+        if (c > 24)
+        {
+            c = 1;
+            msg(b);
+            memset(b, 0x00, sizeof( b ));
+        }
+        sprintf(b, "%s%02X%s", b, s[i], (c % 4) ? "" : " ");
+    }
+    msg(b);
+}
+
 void msg(const char *s, ...)
 {
     va_list ap;
@@ -70,6 +87,7 @@ void msg(const char *s, ...)
     fprintf(stderr, "\r%s: ", c_app);
     vfprintf(stderr, s, ap);
     fprintf(stderr, "\n");
+	fflush(stderr);
     va_end(ap);
 }
 
