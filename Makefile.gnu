@@ -54,5 +54,3 @@ uninstall: $(LIB_UNINSTALL)
 	 @rm -frv $(PREFIX)/usr/lib/encrypt/pixmap
 	 @rm -fv  $(PREFIX)/usr/bin/encrypt
 	 @rm -frv $(PREFIX)/usr/lib/encrypt
-
-

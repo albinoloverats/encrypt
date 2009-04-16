@@ -28,6 +28,7 @@
 
   #define NOTSET 0
 
+  #include <ctype.h>
   #include <errno.h>
   #include <stdio.h>
   #include <signal.h>
@@ -62,7 +63,7 @@
   int64_t show_usage(void);
   int64_t show_version(void);
 
-  void hex(uint8_t *, uint64_t);
+  void hex(void *, uint64_t);
   void msg(const char *, ...);
   void die(const char *, ...);
 
@@ -73,3 +74,4 @@
   #endif /* __cplusplus */
 
 #endif /* _COMMON_LIB_H_ */
+

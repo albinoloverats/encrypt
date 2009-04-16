@@ -63,8 +63,9 @@ int64_t show_version(void)
     return EXIT_SUCCESS;
 }
 
-void hex(uint8_t *s, uint64_t l)
+void hex(void *v, uint64_t l)
 {
+    uint8_t *s = v;
     char b[72] = { 0x00 };
     uint8_t c = 1;
     for (uint64_t i = 0; i < l; i++, c++)
@@ -93,7 +94,16 @@ void msg(const char *s, ...)
 
 void die(const char *s, ...)
 {
-    msg(s);
+    if (s)
+        msg(s);
+    if (errno)
+    {
+        char *e = strdup(strerror(errno));
+        for (uint8_t i = 0; i < strlen(e); i++)
+            e[i] = tolower(e[i]);
+        msg("%s", e);
+        free(e);
+    }
     exit(errno);
 }
 
@@ -101,8 +111,8 @@ void sigint(int s)
 {
     if (c_sig)
     {
-        errno = EXIT_FAILURE;
-        die("forced quit accepted");
+        errno = ECANCELED;
+        die(NULL);
     }
     char *ss = NULL;
     switch (s)
@@ -121,3 +131,4 @@ void sigint(int s)
     msg("try again once more to force quit");
     c_sig = true;
 }
+
