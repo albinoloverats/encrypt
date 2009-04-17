@@ -33,10 +33,6 @@
 #include "src/interface.h"
 #include "src/support.h"
 
-#define GLADE_HOOKUP_OBJECT(component,widget,name) g_object_set_data_full (G_OBJECT (component), name, gtk_widget_ref (widget), (GDestroyNotify) gtk_widget_unref)
-#define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name) g_object_set_data (G_OBJECT (component), name, widget)
-#define ABOUT_BOX_TEXT "encrypt\n  version : %s\n  build on: %s %s\n\n  encrypt is a small application which has been designed, from the\n  beginning, to be as simple to use as can be and have the smallest file\n  size (download time) possible. The idea is small and simple, yet the\n  encryption aims to be a strong as possible - as well as giving the\n  user the choice about how their data is secured.\n\nWebsite\n  https://albinoloverats.net/encrypt\n\nDevelopers\n  Ashley Anderson <amanderson@albinoloverats.net>\n\nCopyright\n  Copyright (c) 2004-2008, albinoloverats ~ Software Development\n\nLicence\n  This program is free software: you can redistribute it and/or modify\n  it under the terms of the GNU General Public License as published by\n  the Free Software Foundation, either version 3 of the License, or\n  (at your option) any later version.\n\n  This program is distributed in the hope that it will be useful,\n  but WITHOUT ANY WARRANTY; without even the implied warranty of\n  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\n  GNU General Public License for more details.\n\n  You should have received a copy of the GNU General Public License\n  along with this program. If not, see <http://www.gnu.org/licenses/>.\n"
-
 //extern char *filename_in  = NULL;
 //extern char *filename_out = NULL;
 //extern char    *key_plain = NULL;
@@ -66,7 +62,6 @@ GtkWidget *create_window_main(void)
     GtkWidget *image_gen;
     GtkWidget *label_gen;
 
-#ifdef _WIN32
     GtkWidget *alignment1;
     GtkWidget *hbox1;
     GtkWidget *image1;
@@ -79,14 +74,14 @@ GtkWidget *create_window_main(void)
     GtkWidget *hbox3;
     GtkWidget *image3;
     GtkWidget *label3;
-#endif /* _WIN32 */
+
     GtkAccelGroup *accel_group;
 
     accel_group = gtk_accel_group_new();
 
     window_main = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_widget_set_size_request(window_main, 384, 392);
-    gtk_window_set_title(GTK_WINDOW(window_main), _("encrypt"));
+    gtk_window_set_title(GTK_WINDOW(window_main), NAME);
     gtk_window_set_default_size(GTK_WINDOW(window_main), 384, 392);
     gtk_window_set_resizable(GTK_WINDOW(window_main), false);
     gtk_window_set_gravity(GTK_WINDOW(window_main), GDK_GRAVITY_CENTER);
@@ -105,7 +100,7 @@ GtkWidget *create_window_main(void)
 //    {
 //        if ((!strcmp(filename_in, basename(filename_in))) || (filename_in[0] == '.'))
 //            asprintf(&filename_in, "%s/%s", get_current_dir_name(), filename_in);
-//        gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(filechooserbutton_in_file), _(strdup(filename_in)));
+//        gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(filechooserbutton_in_file), filename_in);
 //    }
 //#endif /* ! _WIN32 */
     gtk_widget_show(filechooserbutton_in_file);
@@ -124,7 +119,7 @@ GtkWidget *create_window_main(void)
 //    {
 //        if ((!strcmp(filename_out, basename(filename_out))) || (filename_out[0] == '.'))
 //            asprintf(&filename_out, "%s/%s", get_current_dir_name(), filename_out);
-//        gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(filechooserbutton_out_dir), _(dirname(filename_out)));
+//        gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(filechooserbutton_out_dir), dirname(filename_out));
 //    }
 //#endif /* ! _WIN32 */
     gtk_widget_show(filechooserbutton_out_dir);
@@ -234,14 +229,9 @@ GtkWidget *create_window_main(void)
     gtk_widget_set_size_request(entry_out_file, 160, 24);
 //#ifndef _WIN32
 //    if (filename_out)
-//        gtk_entry_set_text(GTK_ENTRY(entry_out_file), _(basename(filename_out)));
+//        gtk_entry_set_text(GTK_ENTRY(entry_out_file), basename(filename_out));
 //#endif /* ! _WIN32 */
 
-#ifndef _WIN32
-    button_do = gtk_button_new_from_stock("gtk-execute");
-    button_about = gtk_button_new_from_stock("gtk-about");
-    button_quit = gtk_button_new_from_stock("gtk-quit");
-#else  /* ! _WIN32 */
     button_do = gtk_button_new();
     alignment1 = gtk_alignment_new(0.5, 0.5, 0, 0);
     gtk_widget_show(alignment1);
@@ -255,7 +245,7 @@ GtkWidget *create_window_main(void)
     gtk_widget_show(image1);
     gtk_box_pack_start(GTK_BOX(hbox1), image1, false, false, 0);
 
-    label1 = gtk_label_new_with_mnemonic("_Execute");
+    label1 = gtk_label_new_with_mnemonic(_("_Execute"));
     gtk_widget_show(label1);
     gtk_box_pack_start(GTK_BOX(hbox1), label1, false, false, 0);
 
@@ -272,7 +262,7 @@ GtkWidget *create_window_main(void)
     gtk_widget_show(image2);
     gtk_box_pack_start(GTK_BOX(hbox2), image2, false, false, 0);
 
-    label2 = gtk_label_new_with_mnemonic("_Quit");
+    label2 = gtk_label_new_with_mnemonic(_("_Quit"));
     gtk_widget_show(label2);
     gtk_box_pack_start(GTK_BOX(hbox2), label2, false, false, 0);
 
@@ -289,10 +279,9 @@ GtkWidget *create_window_main(void)
     gtk_widget_show(image3);
     gtk_box_pack_start(GTK_BOX(hbox3), image3, false, false, 0);
 
-    label3 = gtk_label_new_with_mnemonic("_About");
+    label3 = gtk_label_new_with_mnemonic(_("_About"));
     gtk_widget_show(label3);
     gtk_box_pack_start(GTK_BOX(hbox3), label3, false, false, 0);
-#endif /*   _WIN32 */
 
     gtk_widget_show(button_about);
     gtk_fixed_put(GTK_FIXED(fixed_layout), button_about, 56, 328);
@@ -365,7 +354,7 @@ GtkWidget *create_window_main(void)
     GLADE_HOOKUP_OBJECT(window_main, hbox_gen, "hbox_gen");
     GLADE_HOOKUP_OBJECT(window_main, image_gen, "image_gen");
     GLADE_HOOKUP_OBJECT(window_main, label_gen, "label_gen");
-#ifdef _WIN32
+
     GLADE_HOOKUP_OBJECT(window_main, hbox1, "hbox1");
     GLADE_HOOKUP_OBJECT(window_main, image1, "image1");
     GLADE_HOOKUP_OBJECT(window_main, label1, "label1");
@@ -375,7 +364,6 @@ GtkWidget *create_window_main(void)
     GLADE_HOOKUP_OBJECT(window_main, hbox3, "hbox3");
     GLADE_HOOKUP_OBJECT(window_main, image3, "image3");
     GLADE_HOOKUP_OBJECT(window_main, label3, "label3");
-#endif /* _WIN32 */
 
     gtk_window_add_accel_group(GTK_WINDOW(window_main), accel_group);
 
@@ -392,12 +380,11 @@ GtkWidget *create_window_about(void)
     GtkWidget *image_icon_about;
     GtkWidget *image_icon_logo;
 
-#ifdef _WIN32
     GtkWidget *alignment4;
     GtkWidget *hbox4;
     GtkWidget *image4;
     GtkWidget *label4;
-#endif /* _WIN32 */
+
     GtkAccelGroup *accel_group;
 
     accel_group = gtk_accel_group_new();
@@ -433,19 +420,18 @@ GtkWidget *create_window_about(void)
     gtk_text_view_set_accepts_tab(GTK_TEXT_VIEW(textview_about), false);
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview_about), GTK_WRAP_NONE);
     gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(textview_about), false);
-    char *about_text;
+    char *about_text = NULL;
 
 #ifndef _WIN32
-    asprintf(&about_text, ABOUT_BOX_TEXT, VERSION, __DATE__, __TIME__);
+    asprintf(&about_text, _("%s\n  version : %s\n  built on: %s %s\n\n%s\nWebsite\n  %s\n\nContributors\n  %s\n\nCopyright\n  %s\n\nLicence\n%s"), NAME, VERSION, __DATE__, __TIME__, _(TEXT_ABOUT), TEXT_SITE, TEXT_CONTRIB, TEXT_COPY, _(TEXT_LICENCE));
 #else  /* ! _WIN32 */
+#if 0
     about_text = calloc(strlen(ABOUT_BOX_TEXT) + strlen(VERSION) + strlen(__DATE__) + strlen(__TIME__), sizeof( char ));
     sprintf(about_text, ABOUT_BOX_TEXT, VERSION, __DATE__, __TIME__);
+#endif
 #endif /*   _WIN32 */
     gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_about)), about_text, -1);
 
-#ifndef _WIN32
-    button_about_close = gtk_button_new_from_stock("gtk-close");
-#else  /* ! _WIN32 */
     button_about_close = gtk_button_new();
     alignment4 = gtk_alignment_new(0.5, 0.5, 0, 0);
     gtk_widget_show(alignment4);
@@ -459,10 +445,9 @@ GtkWidget *create_window_about(void)
     gtk_widget_show(image4);
     gtk_box_pack_start(GTK_BOX(hbox4), image4, false, false, 0);
 
-    label4 = gtk_label_new_with_mnemonic("_Close");
+    label4 = gtk_label_new_with_mnemonic(_("_Close"));
     gtk_widget_show(label4);
     gtk_box_pack_start(GTK_BOX(hbox4), label4, false, false, 0);
-#endif /*   _WIN32 */
 
     gtk_widget_show(button_about_close);
     gtk_fixed_put(GTK_FIXED(fixed_about), button_about_close, 160, 272);
@@ -492,11 +477,10 @@ GtkWidget *create_window_about(void)
     GLADE_HOOKUP_OBJECT(window_about, button_about_close, "button_about_close");
     GLADE_HOOKUP_OBJECT(window_about, image_icon_about, "image_icon_about");
     GLADE_HOOKUP_OBJECT(window_about, image_icon_logo, "image_icon_logo");
-#ifdef _WIN32
+
     GLADE_HOOKUP_OBJECT(window_about, hbox4, "hbox4");
     GLADE_HOOKUP_OBJECT(window_about, image4, "image4");
     GLADE_HOOKUP_OBJECT(window_about, label4, "label4");
-#endif /* _WIN32 */
 
     gtk_window_add_accel_group(GTK_WINDOW(window_about), accel_group);
 
@@ -511,12 +495,11 @@ GtkWidget *create_window_wait(void)
     GtkWidget *image_wait;
     GtkWidget *label_wait;
 
-#ifdef _WIN32
     GtkWidget *alignment5;
     GtkWidget *hbox5;
     GtkWidget *image5;
     GtkWidget *label5;
-#endif /* _WIN32 */
+
     GtkAccelGroup *accel_group;
 
     accel_group = gtk_accel_group_new();
@@ -535,9 +518,6 @@ GtkWidget *create_window_wait(void)
     gtk_widget_show(fixed_wait);
     gtk_container_add(GTK_CONTAINER(window_wait), fixed_wait);
 
-#ifndef _WIN32
-    button_wait_close = gtk_button_new_from_stock("gtk-close");
-#else  /* ! _WIN32 */
     button_wait_close = gtk_button_new();
     alignment5 = gtk_alignment_new(0.5, 0.5, 0, 0);
     gtk_widget_show(alignment5);
@@ -551,10 +531,9 @@ GtkWidget *create_window_wait(void)
     gtk_widget_show(image5);
     gtk_box_pack_start(GTK_BOX(hbox5), image5, false, false, 0);
 
-    label5 = gtk_label_new_with_mnemonic("_Close");
+    label5 = gtk_label_new_with_mnemonic(_("_Close"));
     gtk_widget_show(label5);
     gtk_box_pack_start(GTK_BOX(hbox5), label5, false, false, 0);
-#endif /*   _WIN32 */
 
     gtk_widget_show(button_wait_close);
     gtk_fixed_put(GTK_FIXED(fixed_wait), button_wait_close, 72, 112);
@@ -570,7 +549,7 @@ GtkWidget *create_window_wait(void)
     gtk_fixed_put(GTK_FIXED(fixed_wait), image_wait, 88, 8);
     gtk_widget_set_size_request(image_wait, 64, 64);
 
-    label_wait = gtk_label_new(_("Please wait while encrypt carries out the specified action"));
+    label_wait = gtk_label_new(_("Please wait..."));
     gtk_widget_show(label_wait);
     gtk_fixed_put(GTK_FIXED(fixed_wait), label_wait, 20, 64);
     gtk_widget_set_size_request(label_wait, 200, 48);
@@ -586,11 +565,10 @@ GtkWidget *create_window_wait(void)
     GLADE_HOOKUP_OBJECT(window_wait, button_wait_close, "button_wait_close");
     GLADE_HOOKUP_OBJECT(window_wait, image_wait, "image_wait");
     GLADE_HOOKUP_OBJECT(window_wait, label_wait, "label_wait");
-#ifdef _WIN32
+
     GLADE_HOOKUP_OBJECT(window_wait, hbox5, "hbox5");
     GLADE_HOOKUP_OBJECT(window_wait, image5, "image5");
     GLADE_HOOKUP_OBJECT(window_wait, label5, "label5");
-#endif /* _WIN32 */
 
     gtk_window_add_accel_group(GTK_WINDOW(window_wait), accel_group);
 
@@ -690,7 +668,7 @@ GtkWidget *create_window_generate(void)
     gtk_widget_show(image5);
     gtk_box_pack_start(GTK_BOX(hbox5), image5, false, false, 0);
 
-    label5 = gtk_label_new_with_mnemonic("_Close");
+    label5 = gtk_label_new_with_mnemonic(_("_Close"));
     gtk_widget_show(label5);
     gtk_box_pack_start(GTK_BOX(hbox5), label5, false, false, 0);
 
@@ -715,7 +693,7 @@ GtkWidget *create_window_generate(void)
     gtk_widget_set_size_request(label_gen_save_as, 48, 24);
     gtk_misc_set_alignment(GTK_MISC(label_gen_save_as), 0, 0.5);
 
-    label_gen_save_in = gtk_label_new(_("Save in"));
+    label_gen_save_in = gtk_label_new(_("Save In"));
     gtk_widget_show(label_gen_save_in);
     gtk_fixed_put(GTK_FIXED(fixed_gen), label_gen_save_in, 16, 88);
     gtk_widget_set_size_request(label_gen_save_in, 48, 32);

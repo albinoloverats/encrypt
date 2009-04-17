@@ -10,6 +10,15 @@ msgstr "versuchen sie es erneut noch einmal in sofort beenden"
 msgid "UNKNOWN"
 msgstr "UNBEKANNT"
 
+msgid "  -h, --help                 This help list\n"
+msgstr "  -h, --help                 Hilfe dieser Liste\n"
+
+msgid "  -l, --licence              An overview of the GNU GPL\n"
+msgstr "  -l, --licence              Überblick über die GNU GPL\n"
+
+msgid "  -v, --version              Show version number and quit\n\n"
+msgstr "  -v, --version              Versionsnummer zeigen\n\n"
+
 msgid "This program is free software: you can redistribute it and/or modify\n"
       "it under the terms of the GNU General Public License as published by\n"
       "the Free Software Foundation, either version 3 of the License, or\n"
@@ -40,3 +49,21 @@ msgstr "  %s [OPTION] [WERT] ...\n"
 
 msgid "%s version : %s\n%*s built on: %s %s\n"
 msgstr "%s version : %s\n%*s auf: %s %s\n"
+
+msgid "Select a File"
+msgstr "wählen Sie eine Datei"
+
+msgid "Please wait..."
+msgstr "Bitte warten..."
+
+msgid "_Save"
+msgstr "_Sichern"
+
+msgid "_Close"
+msgstr "S_chließen"
+
+msgid "_Quit"
+msgstr "Beenden"
+
+msgid "_About"
+msgstr "Über"

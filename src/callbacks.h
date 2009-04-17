@@ -23,6 +23,16 @@
 
   #include <gtk/gtk.h>
 
+  #define PLUGIN_DETAILS_MASK \
+    "\n%s\n" \
+      " %s : %s\n" " %s : %s\n" " %s : %s\n" " %s : %s\n" " %s : %s\n" " %s : %s\n" \
+    "\n%s\n" \
+      " %s : %s\n" " %s : %s\n" " %s : %s\n" " %s : %s\n" " %s : %s\n" " %s : %s\n" \
+    "\n%s\n" \
+      " %s : %s\n" " %s : %s\n" " %s : %s\n" " %s : %s\n" \
+    "\n%s\n" \
+      "%s"
+
 typedef struct args_t
 {
     int64_t (*fp)(int64_t, int64_t, uint8_t *);

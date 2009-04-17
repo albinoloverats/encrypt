@@ -34,38 +34,38 @@ msgstr "nicht finden konnten plugin-informationen"
 msgid "Algorithm Details\n"
 msgstr "Algorithmus Details\n"
 
-msgid "  Name       : %s\n"
-msgstr "  Name       : %s\n"
+msgid "Name"
+msgstr "Name"
 
-msgid "  Authors    : %s\n"
-msgstr "  Autoren    : %s\n"
+msgid "Authors"
+msgstr "Autoren"
 
-msgid "  Copyright  : %s\n"
-msgstr "  Copyright  : %s\n"
+msgid "Copyright"
+msgstr "Copyright"
 
-msgid "  Licence    : %s\n"
-msgstr "  Lizenz     : %s\n"
+msgid "Licence"
+msgstr "Lizenz"
 
-msgid "  Year       : %s\n"
-msgstr "  Jahr       : %s\n"
+msgid "Year"
+msgstr "Jahr"
 
-msgid "  Block size : %s\n"
-msgstr "  Blockgröße : %s\n"
+msgid "Block size"
+msgstr "Blockgröße"
 
-msgid "\nKey Details\n"
-msgstr "\nSchlüssel Details\n"
+msgid "Key Details"
+msgstr "Schlüssel Details"
 
-msgid "  Key size   : %s\n"
-msgstr "  Größe      : %s\n"
+msgid "Key size"
+msgstr "Größe"
 
-msgid "\nPlugin Details\n"
-msgstr "\nPlugin-Details\n"
+msgid "Plugin Details"
+msgstr "Plugin-Details"
 
-msgid "  Version    : %s\n"
-msgstr "  Version    : %s\n"
+msgid "Version"
+msgstr "Version"
 
-msgid "\nAdditional Details\n"
-msgstr "\nWeitere Details\n"
+msgid "Additional Details"
+msgstr "Weitere Details"
 
 msgid "could not access/create key file %s"
 msgstr "kein zugriff / erstellen schlüssel-Datei %s"
@@ -118,15 +118,6 @@ msgstr "  -g, --generate GRÖßE       Schlüssel erzeugen von bestimmten Größ
 msgid "  -m, --modules              List all available algorithms\n"
 msgstr "  -m, --modules              Liste aller verfügbaren Algorithmus\n"
 
-msgid "  -h, --help                 This help list\n"
-msgstr "  -h, --help                 Hilfe dieser Liste\n"
-
-msgid "  -l, --licence              An overview of the GNU GPL\n"
-msgstr "  -l, --licence              Überblick über die GNU GPL\n"
-
-msgid "  -v, --version              Show version number and quit\n\n"
-msgstr "  -v, --version              Versionsnummer zeigen\n\n"
-
 msgid "If -i or -o are omitted then stdin/stdout are used.  Either -e or -d must be\n"
       "present if you intend to do something, as well as -k -f or -p. Using -g will\n"
       "generate a random key and echo it to stdout unless -g is preceded by -k; the\n"
@@ -137,3 +128,101 @@ msgstr "Wenn -i oder -o entfallen dann stdin / stdout werden. Entweder -e oder -
        "-g einen zufälligen Schlüssel und Echo an stdout, es sei denn, -g wird mit\n"
        "-k, die -Taste kann verwendet werden, später mit der -k Option. Allerdings\n"
        "-a -m -h -l -v verwendet werden über ihre eigenen oder gar nicht.\n"
+
+msgid "%s\n  version : %s\n  built on: %s %s\n\n%s\nWebsite\n  %s\n\nContributors\n  %s\n\nCopyright\n  %s\n\nLicence\n%s"
+msgstr "%s\n  version : %s\n  auf: %s %s\n\n%s\nWebsite\n  %s\n\nContributors\n  %s\n\nCopyright\n  %s\n\nLizenz\n%s"
+
+msgid "encrypt is a small application which has been designed, from the\n"       \
+      "beginning, to be as simple to use as can be and have the smallest file\n" \
+      "size (download time) possible. The idea is small and simple, yet the\n"   \
+      "encryption aims to be a strong as possible - as well as giving the\n"     \
+      "user the choice about how their data is secured.\n"
+msgstr "encrypt ist eine kleine Anwendun, die entworfen wurde, von Anfang\n"
+       "an so einfach zu debienen wie kann und die kleinste Dateigröße\n"
+       "(Download-Zeit) möglich. Die Idee ist klein und einfach, aber die\n"
+       "Verschlüsselung soll ein stark wie möglich - wie auch die dem\n"
+       "Benutzer die Wahl, eir ihre Daten gesichert ist.\n"
+
+msgid "Select a Key / Passphrase File"
+msgstr "wählen Sie ein Schlüssel / Passwort Datei"
+
+msgid "Select Destination Folder"
+msgstr "Wählen Sie einen Zielordner"
+
+msgid "Algorithm"
+msgstr "Algorithmus"
+
+msgid "Password"
+msgstr "Passwort"
+
+msgid "Destination Directory"
+msgstr "Zielverzeichnis"
+
+msgid "Destination File Name"
+msgstr "Ziel Dateinamen"
+
+msgid "Encrypt"
+msgstr "Versclüsseln"
+
+msgid "Decrypt"
+msgstr "Entsclüsseln"
+
+msgid "Key"
+msgstr "Sclüssel"
+
+msgid "Passphrase"
+msgstr "Passwort"
+
+msgid "About encrypt"
+msgstr "Über encrypt"
+
+msgid "Generate Key"
+msgstr "Sclüssel erzeugen"
+
+msgid "_Key"
+msgstr "Sclüssel"
+
+msgid "_Generate"
+msgstr "Erzeu_gen"
+
+msgid "Key size (bits)"
+msgstr "Sclüssel Größe"
+
+msgid "Save As"
+msgstr "Speichern unter"
+
+msgid "Save In"
+msgstr "Speichern in"
+
+msgid "Select A Directory"
+msgstr "Wählen Sie ein Verzeichnis"
+
+msgid "_Execute"
+msgstr "Ausführ_en"
+
+msgid "Done"
+msgstr "Getan"
+
+msgid "Missing: file to en/decrypt"
+msgstr "Missing: datei zum ver/entschlüsseln"
+
+msgid "Missing: destination directory"
+msgstr "Missing: zielverzeichnis"
+
+msgid "Missing: output file name"
+msgstr "Missing: ausgabedatei"
+
+msgid "Missing: key file / passphrase file / password"
+msgstr "Missing schlüssel / passwort"
+
+msgid "Missing: algorithm selection"
+msgstr "Missing: :auswahl-algorithmus"
+
+msgid "Error: could not open plugin"
+msgstr "Fehler: konnte nicht geöffent plugin"
+
+msgid "Error: could not access input file"
+msgstr "Fehler: kein zugriff möglich eingabedatei"
+
+msgid "Error: could not access/create output file"
+msgstr "Fehler: kein zugriff möglich / erstellen auggabedatei"

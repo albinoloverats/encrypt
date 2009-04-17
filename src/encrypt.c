@@ -287,26 +287,26 @@ int64_t algorithm_info(char *n)
      * now get the info
      */
     about = fp();
-    fprintf(stdout, _("Algorithm Details\n"));
-    fprintf(stdout, _("  Name       : %s\n"), about->algorithm_name);
-    fprintf(stdout, _("  Authors    : %s\n"), about->algorithm_authors);
-    fprintf(stdout, _("  Copyright  : %s\n"), about->algorithm_copyright);
-    fprintf(stdout, _("  Licence    : %s\n"), about->algorithm_licence);
-    fprintf(stdout, _("  Year       : %s\n"), about->algorithm_year);
-    fprintf(stdout, _("  Block size : %s\n"), about->algorithm_block);
-    fprintf(stdout, _("\nKey Details\n"));
-    fprintf(stdout, _("  Name       : %s\n"), about->key_name);
-    fprintf(stdout, _("  Authors    : %s\n"), about->key_authors);
-    fprintf(stdout, _("  Copyright  : %s\n"), about->key_copyright);
-    fprintf(stdout, _("  Licence    : %s\n"), about->key_licence);
-    fprintf(stdout, _("  Year       : %s\n"), about->key_year);
-    fprintf(stdout, _("  Key size   : %s\n"), about->key_size);
-    fprintf(stdout, _("\nPlugin Details\n"));
-    fprintf(stdout, _("  Authors    : %s\n"), about->module_authors);
-    fprintf(stdout, _("  Copyright  : %s\n"), about->module_copyright);
-    fprintf(stdout, _("  Licence    : %s\n"), about->module_licence);
-    fprintf(stdout, _("  Version    : %s\n"), about->module_version);
-    fprintf(stdout, _("\nAdditional Details\n"));
+    fprintf(stdout, "%s\n", _("Algorithm Details"));
+    fprintf(stdout, "  %12s : %s\n", _("Name"), about->algorithm_name);
+    fprintf(stdout, "  %12s : %s\n", _("Authors"), about->algorithm_authors);
+    fprintf(stdout, "  %12s : %s\n", _("Copyright"), about->algorithm_copyright);
+    fprintf(stdout, "  %12s : %s\n", _("Licence"), about->algorithm_licence);
+    fprintf(stdout, "  %12s : %s\n", _("Year"), about->algorithm_year);
+    fprintf(stdout, "  %12s : %s\n", _("Block size"), about->algorithm_block);
+    fprintf(stdout, "\n%s\n", _("Key Details"));
+    fprintf(stdout, "  %12s : %s\n", _("Name"), about->key_name);
+    fprintf(stdout, "  %12s : %s\n", _("Authors"), about->key_authors);
+    fprintf(stdout, "  %12s : %s\n", _("Copyright"), about->key_copyright);
+    fprintf(stdout, "  %12s : %s\n", _("Licence"), about->key_licence);
+    fprintf(stdout, "  %12s : %s\n", _("Year"), about->key_year);
+    fprintf(stdout, "  %12s : %s\n", _("Key size"), about->key_size);
+    fprintf(stdout, "\n%s\n", _("Plugin Details"));
+    fprintf(stdout, "  %12s : %s\n", _("Authors"), about->module_authors);
+    fprintf(stdout, "  %12s : %s\n", _("Copyright"), about->module_copyright);
+    fprintf(stdout, "  %12s : %s\n", _("Licence"), about->module_licence);
+    fprintf(stdout, "  %12s : %s\n", _("Version"), about->module_version);
+    fprintf(stdout, "\n%s\n", _("Additional Details"));
     fprintf(stdout, "  %s\n", about->module_comment);
 
     /*

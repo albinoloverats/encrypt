@@ -38,8 +38,6 @@
 #include "src/interface.h"
 #include "src/support.h"
 
-#define PLUGIN_DETAILS_MASK "\nAlgorithm Details\n    Name\t\t: %s\n    Author\t\t: %s\n    Copyright\t: %s\n    Licence\t: %s\n    Year\t\t: %s\n    Block size\t: %s\n\nKey Details\n    Name\t\t: %s\n    Authors\t: %s\n    Copyright\t: %s\n    Licence\t: %s\n    Year\t\t: %s\n    Key size\t: %s\n\nPlugin Details\n    Authors\t: %s\n    Copyright\t: %s\n    Licence\t: %s\n    Version\t: %s\n\nAdditional Details\n    %s\n"
-
 void on_button_about_clicked(GtkWidget *widget)
 {
     /* 
@@ -63,7 +61,7 @@ void on_button_about_clicked(GtkWidget *widget)
 
     info_t *about, *(*fp)(void); 
 
-    errno = 0;
+    errno = EXIT_SUCCESS;
 #ifndef _WIN32
     void *file_mod = NULL;
 #else  /* ! _WIN32 */
@@ -84,7 +82,7 @@ void on_button_about_clicked(GtkWidget *widget)
         free(filename_mod);
         textview_about = lookup_widget(window_about, "textview_about");
         gtk_text_buffer_insert_at_cursor(gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_about)), _("\nError: could not find plugin\n"), -1);
-        die("%s: failed to open plugin\n", NAME);
+        msg(_("could not open plugin %s"), filename_mod);
         return;
     }
     free(filename_mod);
@@ -100,7 +98,7 @@ void on_button_about_clicked(GtkWidget *widget)
 #endif /*   _WIN32 */
         textview_about = lookup_widget(window_about, "textview_about");
         gtk_text_buffer_insert_at_cursor(gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_about)), _("\nError: could not find plugin information\n"), -1);
-        die("%s: failed to read plugin\n", NAME);
+        msg(_("could not find plugin information"));
         return;
     }
     /* 
@@ -109,10 +107,14 @@ void on_button_about_clicked(GtkWidget *widget)
     about = fp();
 #ifndef _WIN32
     asprintf(&details, PLUGIN_DETAILS_MASK,
-            about->algorithm_name,  about->algorithm_authors,  about->algorithm_copyright,  about->algorithm_licence,  about->algorithm_year,  about->algorithm_block,
-            about->key_name,        about->key_authors,        about->key_copyright,        about->key_licence,        about->key_year,        about->key_size,
-            about->module_authors,  about->module_copyright,   about->module_licence,       about->module_version,     about->module_comment);
+            _("Algorithm Details"),
+            _("Name"),    about->algorithm_name,  _("Authors"),   about->algorithm_authors,  _("Copyright"), about->algorithm_copyright,  _("Licence"), about->algorithm_licence,  _("Year"), about->algorithm_year,  _("Block size"), about->algorithm_block,
+            _("Key Details"),
+            _("Name"),    about->key_name,        _("Authors"),   about->key_authors,        _("Copyright"), about->key_copyright,        _("Licence"), about->key_licence,        _("Year"), about->key_year,        _("Key size"),   about->key_size,
+            _("Plugin Details"),
+            _("Authors"), about->module_authors,  _("Copyright"), about->module_copyright,   _("Licence"),   about->module_licence,       _("Version"), about->module_version,     _("Additional Details"), about->module_comment);
 #else  /* ! _WIN32 */
+#if 0
     /* 
      * woot for Windows
      */
@@ -124,6 +126,7 @@ void on_button_about_clicked(GtkWidget *widget)
             about->algorithm_name,  about->algorithm_authors,  about->algorithm_copyright,  about->algorithm_licence,  about->algorithm_year,  about->algorithm_block,
             about->key_name,        about->key_authors,        about->key_copyright,        about->key_licence,        about->key_year,        about->key_size,
             about->module_authors,  about->module_copyright,   about->module_licence,       about->module_version,     about->module_comment);
+#endif
 #endif /*   _WIN32 */
 
     textview_about = lookup_widget(window_about, "textview_about");
@@ -199,7 +202,7 @@ void on_button_do_clicked(GtkWidget *widget)
     GtkFileChooser *filechooser_in = (GtkFileChooser *)lookup_widget(GTK_WIDGET(widget), "filechooserbutton_in_file");
     if (!gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(filechooser_in)))
     {
-        gtk_label_set_text((GtkLabel *)label_text, "Missing: file to en/decrypt");
+        gtk_label_set_text((GtkLabel *)label_text, _("Missing: file to en/decrypt"));
         gtk_widget_set_sensitive(button_wait_close, true);
         return;
     }
@@ -210,14 +213,14 @@ void on_button_do_clicked(GtkWidget *widget)
     GtkFileChooser *dirchooser_out = (GtkFileChooser *)lookup_widget(GTK_WIDGET(widget), "filechooserbutton_out_dir");
     if (!gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dirchooser_out)))
     {
-        gtk_label_set_text((GtkLabel *)label_text, "Missing: destination directory");
+        gtk_label_set_text((GtkLabel *)label_text, _("Missing: destination directory"));
         gtk_widget_set_sensitive(button_wait_close, true);
         return;
     }
     GtkEntry *fileentry_out = (GtkEntry *)lookup_widget(GTK_WIDGET(widget), "entry_out_file");
     if (!strcmp(gtk_entry_get_text(GTK_ENTRY(fileentry_out)), ""))
     {
-        gtk_label_set_text((GtkLabel *)label_text, "Missing: output file name");
+        gtk_label_set_text((GtkLabel *)label_text, _("Missing: output file name"));
         gtk_widget_set_sensitive(button_wait_close, true);
         return;
     }
@@ -253,7 +256,7 @@ void on_button_do_clicked(GtkWidget *widget)
         {
             free(filename_in);
             free(filename_out);
-            gtk_label_set_text((GtkLabel *) label_text, "Missing: key file / passphrase file / password");
+            gtk_label_set_text((GtkLabel *) label_text, _("Missing: key file / passphrase file / password"));
             gtk_widget_set_sensitive(button_wait_close, true);
             return;
         }
@@ -279,7 +282,7 @@ void on_button_do_clicked(GtkWidget *widget)
         free(filename_in);
         free(filename_out);
         free(key_plain);
-        gtk_label_set_text((GtkLabel *) label_text, "Missing: algorithm selection");
+        gtk_label_set_text((GtkLabel *) label_text, _("Missing: algorithm selection"));
         gtk_widget_set_sensitive(button_wait_close, true);
         return;
     }
@@ -301,7 +304,7 @@ void on_button_do_clicked(GtkWidget *widget)
         free(filename_out);
         free(key_plain);
         free(filename_mod);
-        gtk_label_set_text((GtkLabel *) label_text, "Error: could not open plugin");
+        gtk_label_set_text((GtkLabel *) label_text, _("Error: could not open plugin"));
         gtk_widget_set_sensitive(button_wait_close, true);
         return;
     }
@@ -320,7 +323,7 @@ void on_button_do_clicked(GtkWidget *widget)
         free(filename_in);
         free(filename_out);
         free(key_plain);
-        gtk_label_set_text((GtkLabel *)label_text, "Error: could not access input file");
+        gtk_label_set_text((GtkLabel *)label_text, _("Error: could not access input file"));
         gtk_widget_set_sensitive(button_wait_close, true);
         return;
     }
@@ -333,7 +336,7 @@ void on_button_do_clicked(GtkWidget *widget)
         close(file_in);
         free(filename_out);
         free(key_plain);
-        gtk_label_set_text((GtkLabel *)label_text, "Error: could not access/create output file");
+        gtk_label_set_text((GtkLabel *)label_text, _("Error: could not access/create output file"));
         gtk_widget_set_sensitive(button_wait_close, true);
         return;
     }
@@ -351,7 +354,7 @@ void on_button_do_clicked(GtkWidget *widget)
         close(file_in);
         close(file_out);
         free(key_plain);
-        gtk_label_set_text((GtkLabel *)label_text, "Error: could not create key");
+        gtk_label_set_text((GtkLabel *)label_text, _("Error: could not create key"));
         gtk_widget_set_sensitive(button_wait_close, true);
         return;
     }
@@ -373,7 +376,7 @@ void on_button_do_clicked(GtkWidget *widget)
         close(file_in);
         close(file_out);
         free(key_data);
-        gtk_label_set_text((GtkLabel *)label_text, "Error: could not import module function");
+        gtk_label_set_text((GtkLabel *)label_text, _("Error: could not import module function"));
         gtk_widget_set_sensitive(button_wait_close, true);
         return;
     }
@@ -414,9 +417,9 @@ void on_button_do_clicked(GtkWidget *widget)
     close(file_in);
     close(file_out);
     if (*((int64_t *)s) == EXIT_SUCCESS)
-        gtk_label_set_text((GtkLabel *)label_text, "Done");
+        gtk_label_set_text((GtkLabel *)label_text, _("Done"));
     else
-        gtk_label_set_text((GtkLabel *)label_text, "Error: an unexpected error occured");
+        gtk_label_set_text((GtkLabel *)label_text, _("Error: an unexpected error occured"));
     gtk_widget_set_sensitive(button_wait_close, true);
 
     return;
@@ -480,13 +483,13 @@ void on_button_gen_close_clicked(GtkWidget *widget)
      * get the name of the directory and then the name of the file to save the key to
      */
     GtkFileChooser *outdir = (GtkFileChooser *)lookup_widget(GTK_WIDGET(widget), "filechooserbutton_gen_save");
-    if (gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(outdir)) == NULL)
+    if (!gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(outdir)))
     {
         gtk_widget_destroy(lookup_widget(GTK_WIDGET(widget), "window_generate"));
         return;
     }
     GtkEntry *outfile = (GtkEntry *) lookup_widget(GTK_WIDGET(widget), "entry_gen_save_name");
-    if (strcmp(gtk_entry_get_text(GTK_ENTRY(outfile)), "") == 0)
+    if (!strcmp(gtk_entry_get_text(GTK_ENTRY(outfile)), ""))
     {
         gtk_widget_destroy(lookup_widget(GTK_WIDGET(widget), "window_generate"));
         return;
@@ -503,7 +506,7 @@ void on_button_gen_close_clicked(GtkWidget *widget)
      * now get the key from the text box
      */
     GtkEntry *k = (GtkEntry *)lookup_widget(GTK_WIDGET(widget), "entry_display_size");
-    if (strcmp(gtk_entry_get_text(GTK_ENTRY(k)), "") == 0)
+    if (!strcmp(gtk_entry_get_text(GTK_ENTRY(k)), ""))
     {
         gtk_widget_destroy(lookup_widget(GTK_WIDGET(widget), "window_generate"));
         return;
@@ -528,13 +531,13 @@ void on_entry_gen_save_name_changed(GtkWidget *widget)
     GtkEntry *outfile = (GtkEntry *) lookup_widget(GTK_WIDGET(widget), "entry_gen_save_name");
     GtkLabel *label5 = (GtkLabel *) lookup_widget(GTK_WIDGET(widget), "label5");
     GtkImage *image5 = (GtkImage *) lookup_widget(GTK_WIDGET(widget), "image5");
-    if (strcmp(gtk_entry_get_text(GTK_ENTRY(outfile)), "") == 0)
+    if (!strcmp(gtk_entry_get_text(GTK_ENTRY(outfile)), ""))
     {
-        gtk_label_set_markup_with_mnemonic(label5, "_Close");
+        gtk_label_set_markup_with_mnemonic(label5, _("_Close"));
         gtk_image_set_from_stock(image5, "gtk-close", GTK_ICON_SIZE_BUTTON);
         return;
     }
-    gtk_label_set_markup_with_mnemonic(label5, "_Save");
+    gtk_label_set_markup_with_mnemonic(label5, _("_Save"));
     gtk_image_set_from_stock(image5, "gtk-save", GTK_ICON_SIZE_BUTTON);
     return;
 }

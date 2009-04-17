@@ -128,8 +128,8 @@ void sigint(int s)
         default:
             ss = strdup(_("UNKNOWN"));
     }
-    msg("caught and ignoring %s signal", ss);
-    msg("try again once more to force quit");
+    msg(_("caught and ignoring %s signal"), ss);
+    msg(_("try again once more to force quit"));
     free(ss);
     c_sig = true;
 }
