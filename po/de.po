@@ -1,0 +1,139 @@
+msgid "unknown option %c"
+msgstr "unbekannte option %c"
+
+msgid "could not initialize GTK interface"
+msgstr "konnte nicht initialisiert GTK-schnittstelle"
+
+msgid "could not access input file %s"
+msgstr "kein zugriff möglich eingabedatei %s"
+
+msgid "could not access/create output file %s"
+msgstr "kein zugriff / erstellen ausgabedatei %s"
+
+msgid "could not import module function %s"
+msgstr "import-modul konnte nicht funktion %s"
+
+msgid "an unexpected error has occured"
+msgstr "ein unerwarteter fehler ist aufgetreten"
+
+msgid "module name cannot be (null)"
+msgstr "modul kann nicht (null)"
+
+msgid "could not open plugin %s"
+msgstr "konnte nicht geöffnet plugin %s"
+
+msgid "missing module name"
+msgstr "modul-namen fehlen"
+
+msgid "invalid pointer to module"
+msgstr "ungültigen zeiger auf modul"
+
+msgid "could not find plugin information"
+msgstr "nicht finden konnten plugin-informationen"
+
+msgid "Algorithm Details\n"
+msgstr "Algorithmus Details\n"
+
+msgid "  Name       : %s\n"
+msgstr "  Name       : %s\n"
+
+msgid "  Authors    : %s\n"
+msgstr "  Autoren    : %s\n"
+
+msgid "  Copyright  : %s\n"
+msgstr "  Copyright  : %s\n"
+
+msgid "  Licence    : %s\n"
+msgstr "  Lizenz     : %s\n"
+
+msgid "  Year       : %s\n"
+msgstr "  Jahr       : %s\n"
+
+msgid "  Block size : %s\n"
+msgstr "  Blockgröße : %s\n"
+
+msgid "\nKey Details\n"
+msgstr "\nSchlüssel Details\n"
+
+msgid "  Key size   : %s\n"
+msgstr "  Größe      : %s\n"
+
+msgid "\nPlugin Details\n"
+msgstr "\nPlugin-Details\n"
+
+msgid "  Version    : %s\n"
+msgstr "  Version    : %s\n"
+
+msgid "\nAdditional Details\n"
+msgstr "\nWeitere Details\n"
+
+msgid "could not access/create key file %s"
+msgstr "kein zugriff / erstellen schlüssel-Datei %s"
+
+msgid "missing data for key generation"
+msgstr "fahlenden daten für schlüssel generation"
+
+msgid "could not access key file %s"
+msgstr "könnte nicht auf schlüssel-datei %s"
+
+msgid "could not access passphrase file %s"
+msgstr "kein zugriff möglich passwort-datei %s"
+
+msgid "invalid key type"
+msgstr "ungültige schlüssel-typ"
+
+msgid "Installed Modules:\n"
+msgstr "Installierte Module:\n"
+
+msgid "\nOptions:\n\n"
+msgstr "\nOptionen:\n\n"
+
+msgid "  -i, --in       FILE        Input file\n"
+msgstr "  -i, --in       DATEI       Eingabedatei\n"
+
+msgid "  -o, --out      FILE        Output file\n"
+msgstr "  -o, --out      DATEI       Ausgabedatei\n"
+
+msgid "  -k, --keyfile  FILE        Key file (must come first if generating a key)\n"
+msgstr "  -k, --keyfile  DATEI       Schlüssel-Datei (zuerst kommen müssen,\n                             wenn die einen Schlüssel)\n"
+
+msgid "  -f, --passfile FILE        File to use as passphrase to generate key\n"
+msgstr "  -f, --passfile DATEI       Datei als Passwort zu verwenden, um Schlüssel\n"
+
+msgid "  -p, --password PASSWORD    Use given password to generate key\n"
+msgstr "  -p, --password PASSWORT    Verwendung bestimmten Passwort zu generieren \n                      Schlüssel\n"
+
+msgid "  -e, --encrypt  ALGORITHM   Algorithm to use for encryption\n"
+msgstr "  -e, --encrypt  ALGORITHMUS Algorithmus für die Verschlüsselung\n"
+
+msgid "  -d, --decrypt  ALGORITHM   Algorithm to use for decryption\n"
+msgstr "  -d, --decrypt  ALGORITHMUS Algorithmus für die Entschlüsselung\n"
+
+msgid "  -a, --about    ALGORITHM   Information about a particular algorithm\n"
+msgstr "  -a, --about    ALGORITHMUS Informationen über enien Algorithmus\n"
+
+msgid "  -g, --generate SIZE        Generate a key of specified size (in bits)\n"
+msgstr "  -g, --generate GRÖßE       Schlüssel erzeugen von bestimmten Größe\n"
+
+msgid "  -m, --modules              List all available algorithms\n"
+msgstr "  -m, --modules              Liste aller verfügbaren Algorithmus\n"
+
+msgid "  -h, --help                 This help list\n"
+msgstr "  -h, --help                 Hilfe dieser Liste\n"
+
+msgid "  -l, --licence              An overview of the GNU GPL\n"
+msgstr "  -l, --licence              Überblick über die GNU GPL\n"
+
+msgid "  -v, --version              Show version number and quit\n\n"
+msgstr "  -v, --version              Versionsnummer zeigen\n\n"
+
+msgid "If -i or -o are omitted then stdin/stdout are used.  Either -e or -d must be\n"
+      "present if you intend to do something, as well as -k -f or -p. Using -g will\n"
+      "generate a random key and echo it to stdout unless -g is preceded by -k; the\n"
+      "key can be used later with the -k option. However -a -m -h -l -v may be used\n"
+      "on their own or not at all.\n"
+msgstr "Wenn -i oder -o entfallen dann stdin / stdout werden. Entweder -e oder -d\n"
+       "muss vorhanden, wenn Sie die Absicht, etwas zu tun, sowie -k -f oder -p. Mit\n"
+       "-g einen zufälligen Schlüssel und Echo an stdout, es sei denn, -g wird mit\n"
+       "-k, die -Taste kann verwendet werden, später mit der -k Option. Allerdings\n"
+       "-a -m -h -l -v verwendet werden über ihre eigenen oder gar nicht.\n"

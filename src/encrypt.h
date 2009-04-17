@@ -22,7 +22,16 @@
   #define _ENCRYPT_H_
 
   #define NAME "encrypt"
-  #define VERSION "200903-"
+  #define VERSION "200905-"
+
+  #define TEXT_HELP \
+    "If -i or -o are omitted then stdin/stdout are used.  Either -e or -d must be\n" \
+    "present if you intend to do something, as well as -k -f or -p. Using -g will\n" \
+    "generate a random key and echo it to stdout unless -g is preceded by -k; the\n" \
+    "key can be used later with the -k option. However -a -m -h -l -v may be used\n" \
+    "on their own or not at all.\n"
+
+
 
   enum key { KEYFILE = 1, PASSFILE, PASSWORD };
   enum func { ENCRYPT = 1, DECRYPT };

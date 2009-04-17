@@ -146,7 +146,7 @@ int main(int argc, char **argv)
                 return show_version();
             case '?':
             default:
-                die("unknown option %c", opt);
+                die(_("unknown option %c"), opt);
                 /* 
                  * it's worth noting that unknown options cause encrypt to bail
                  */
@@ -159,17 +159,12 @@ int main(int argc, char **argv)
      * passed we might as well do something with them...
      */
     if (!gtk_init_check(&argc, &argv))
-        die("could not initialize GTK interface");
+        die(_("could not initialize GTK interface"));
     
     if ((!filename_in && !filename_out) || (!function) || (!key_type))
     {
         GtkWidget *window_main;
 
-  #ifdef ENABLE_NLS
-        bindtextdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
-        bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
-        textdomain(GETTEXT_PACKAGE);
-  #endif /* ENABLE_NLS */
         gtk_set_locale();
         add_pixmap_directory("./pixmap");
   #ifndef _WIN32
@@ -194,13 +189,13 @@ int main(int argc, char **argv)
         if (filename_in)
         {
             if ((file_in = open(filename_in, O_RDONLY | O_BINARY | F_RDLCK)) < 0)
-                die("could not access input file %s", filename_in);
+                die(_("could not access input file %s"), filename_in);
             free(filename_in);
         }
         if (filename_out)
         {
             if ((file_out = open(filename_out, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY | F_WRLCK, S_IRUSR | S_IWUSR)) < 0)
-                die("could not access/create output file %s", filename_out);
+                die(_("could not access/create output file %s"), filename_out);
             free(filename_out);
         }
         /* 
@@ -217,7 +212,7 @@ int main(int argc, char **argv)
 #else  /* ! _WIN32 */
         if (!(fp = (void *)GetProcAddress(file_mod, function == ENCRYPT ? "plugin_encrypt" : "plugin_decrypt")))
 #endif /*   _WIN32 */
-            die("could not import module function for %sryption", function == ENCRYPT ? "enc" : "dec");
+            die(_("could not import module function %s"), function == ENCRYPT ? "encryption" : "decryption");
         /* 
          * we made it - if we reach here then everything is okay and we're now ready to start :)
          */
@@ -226,7 +221,7 @@ int main(int argc, char **argv)
          * if there's an error tell the user - however it's unlikely we'll know exactly what the error is
          */
         if (s != EXIT_SUCCESS)
-            msg("an unexpected error has occured");
+            msg(_("an unexpected error has occured"));
         /* 
          * close all open files obviously if in_file / out_file are stdin / stdout it makes no sense to close them
          */
@@ -252,7 +247,7 @@ void *open_mod(char *n)
     HANDLE p = NULL;
 #endif /*   _WIN32 */
     if (!n)
-         die("module name cannot be (null)");
+         die(_("module name cannot be (null)"));
 #ifndef _WIN32
     if (!strchr(n, '/'))
         asprintf(&n, "%s.so", n);
@@ -265,17 +260,17 @@ void *open_mod(char *n)
     }
     if (!(p = LoadLibrary(n)))
 #endif /*   _WIN32 */
-        die("could not open plugin %s", n);
+        die(_("could not open plugin %s"), n);
     return p;
 }
 
 int64_t algorithm_info(char *n)
 {
     if (!n)
-        die("missing module name");
+        die(_("missing module name"));
     void *p = open_mod(n);
     if (!p)
-        die("invalid pointer to module");
+        die(_("invalid pointer to module"));
     /* 
      * set everything up so we can get some info about the given algorithm
      */
@@ -292,26 +287,26 @@ int64_t algorithm_info(char *n)
      * now get the info
      */
     about = fp();
-    fprintf(stdout, "Algorithm Details\n");
-    fprintf(stdout, "  Name       : %s\n", about->algorithm_name);
-    fprintf(stdout, "  Authors    : %s\n", about->algorithm_authors);
-    fprintf(stdout, "  Copyright  : %s\n", about->algorithm_copyright);
-    fprintf(stdout, "  Licence    : %s\n", about->algorithm_licence);
-    fprintf(stdout, "  Year       : %s\n", about->algorithm_year);
-    fprintf(stdout, "  Block size : %s\n", about->algorithm_block);
-    fprintf(stdout, "\nKey Details\n");
-    fprintf(stdout, "  Name       : %s\n", about->key_name);
-    fprintf(stdout, "  Authors    : %s\n", about->key_authors);
-    fprintf(stdout, "  Copyright  : %s\n", about->key_copyright);
-    fprintf(stdout, "  Licence    : %s\n", about->key_licence);
-    fprintf(stdout, "  Year       : %s\n", about->key_year);
-    fprintf(stdout, "  Key size   : %s\n", about->key_size);
-    fprintf(stdout, "\nPlugin Details\n");
-    fprintf(stdout, "  Authors    : %s\n", about->module_authors);
-    fprintf(stdout, "  Copyright  : %s\n", about->module_copyright);
-    fprintf(stdout, "  Licence    : %s\n", about->module_licence);
-    fprintf(stdout, "  Version    : %s\n", about->module_version);
-    fprintf(stdout, "\nAdditional Details\n");
+    fprintf(stdout, _("Algorithm Details\n"));
+    fprintf(stdout, _("  Name       : %s\n"), about->algorithm_name);
+    fprintf(stdout, _("  Authors    : %s\n"), about->algorithm_authors);
+    fprintf(stdout, _("  Copyright  : %s\n"), about->algorithm_copyright);
+    fprintf(stdout, _("  Licence    : %s\n"), about->algorithm_licence);
+    fprintf(stdout, _("  Year       : %s\n"), about->algorithm_year);
+    fprintf(stdout, _("  Block size : %s\n"), about->algorithm_block);
+    fprintf(stdout, _("\nKey Details\n"));
+    fprintf(stdout, _("  Name       : %s\n"), about->key_name);
+    fprintf(stdout, _("  Authors    : %s\n"), about->key_authors);
+    fprintf(stdout, _("  Copyright  : %s\n"), about->key_copyright);
+    fprintf(stdout, _("  Licence    : %s\n"), about->key_licence);
+    fprintf(stdout, _("  Year       : %s\n"), about->key_year);
+    fprintf(stdout, _("  Key size   : %s\n"), about->key_size);
+    fprintf(stdout, _("\nPlugin Details\n"));
+    fprintf(stdout, _("  Authors    : %s\n"), about->module_authors);
+    fprintf(stdout, _("  Copyright  : %s\n"), about->module_copyright);
+    fprintf(stdout, _("  Licence    : %s\n"), about->module_licence);
+    fprintf(stdout, _("  Version    : %s\n"), about->module_version);
+    fprintf(stdout, _("\nAdditional Details\n"));
     fprintf(stdout, "  %s\n", about->module_comment);
 
     /*
@@ -359,7 +354,7 @@ int64_t key_generate(char *s, char *f)
      */
     if (f)
         if (!(k = fopen(f, "w")))
-            die("could not access/create key file %s", f);
+            die(_("could not access/create key file %s"), f);
     for (uint64_t i = 0; i < l; i++)
         fprintf(k, "%02X", (uint8_t)(lrand48() % 256));
     if (k == stdout)
@@ -371,9 +366,9 @@ int64_t key_generate(char *s, char *f)
 uint8_t *key_calculate(void *p, char *s, uint8_t k)
 {
     if (!p)
-        die("invalid pointer to module");
+        die(_("invalid pointer to module"));
     if (!s)
-        die("missing data for key generation");
+        die(_("missing data for key generation"));
     uint8_t *c = NULL;
     uint8_t *d = NULL;
     uint64_t l = 0;
@@ -383,7 +378,7 @@ uint8_t *key_calculate(void *p, char *s, uint8_t k)
             {
                 int64_t  f = 0;
                 if ((f = open(s, O_RDONLY)) < 0)
-                    die("could not access key file %s", s);
+                    die(_("could not access key file %s"), s);
                 l = lseek(f, 0, SEEK_END);
                 lseek(f, 0, SEEK_SET);
                 d = calloc(l, sizeof( uint8_t ));
@@ -403,7 +398,7 @@ uint8_t *key_calculate(void *p, char *s, uint8_t k)
             {
                 int64_t f = 0;
                 if ((f = open(s, O_RDONLY)) < 0)
-                    die("could not access passphrase file %s", s);
+                    die(_("could not access passphrase file %s"), s);
                 l = lseek(f, 0, SEEK_END);
                 lseek(f, 0, SEEK_SET);
                 c = calloc(l, sizeof( uint8_t ));
@@ -418,7 +413,7 @@ uint8_t *key_calculate(void *p, char *s, uint8_t k)
             }
             break;
         default:
-            die("invalid key type");
+            die(_("invalid key type"));
     }
     uint8_t *(*fp)(uint8_t *, size_t);
     
@@ -427,7 +422,7 @@ uint8_t *key_calculate(void *p, char *s, uint8_t k)
 #else   /* ! _WIN32 */
     if (!(fp = (void *)GetProcAddress(p, "plugin_key")))
 #endif /*   _WIN32 */
-        die("could not find plugin function %s", "plugin_key");
+        die(_("could not import module function %s"), "plugin_key");
     d = fp(c, l);
     free(c);
     return d;
@@ -439,7 +434,7 @@ int64_t list_modules(void)
     /*
      * list all modules which are installed in /usr/lib/encrypt
      */
-    fprintf(stdout, "Installed Modules:\n");
+    fprintf(stdout, _("Installed Modules:\n"));
 #ifndef _WIN32
     /* 
      * linux version is much nicer than the windows (this is becoming common)
@@ -481,24 +476,20 @@ int64_t show_help(void)
      */
     show_version();
     show_usage();
-    fprintf(stderr, "\nOptions:\n\n");
-    fprintf(stderr, "  -i, --in       FILE        Input file\n");
-    fprintf(stderr, "  -o, --out      FILE        Output file\n");
-    fprintf(stderr, "  -k, --keyfile  FILE        Key file (must come first if generating a key)\n");
-    fprintf(stderr, "  -f, --passfile FILE        File to use as passphrase to generate key\n");
-    fprintf(stderr, "  -p, --password PASSWORD    Use given password to generate key\n");
-    fprintf(stderr, "  -e, --encrypt  ALGORITHM   Algorithm to use for encryption\n");
-    fprintf(stderr, "  -d, --decrypt  ALGORITHM   Algorithm to use for decryption\n");
-    fprintf(stderr, "  -a, --about    ALGORITHM   Information about a particular algorithm\n");
-    fprintf(stderr, "  -g, --generate SIZE        Generate a key of specified size (in bits)\n");
-    fprintf(stderr, "  -m, --modules              List all available algorithms\n");
-    fprintf(stderr, "  -h, --help                 This help list\n");
-    fprintf(stderr, "  -l, --licence              An overview of the GNU GPL\n");
-    fprintf(stderr, "  -v, --version              Show version number and quit\n\n");
-    fprintf(stderr, "If -i or -o are omitted then stdin/stdout are used.  Either -e or -d must be\n");
-    fprintf(stderr, "present if you intend to do something, as well as -k -f or -p. Using -g will\n");
-    fprintf(stderr, "generate a random key and echo it to stdout unless -g is preceded by -k; the\n");
-    fprintf(stderr, "key can be used later with the -k option. However -a -m -h -l -v may be used\n");
-    fprintf(stderr, "on their own or not at all.\n");
+    fprintf(stderr, _("\nOptions:\n\n"));
+    fprintf(stderr, _("  -i, --in       FILE        Input file\n"));
+    fprintf(stderr, _("  -o, --out      FILE        Output file\n"));
+    fprintf(stderr, _("  -k, --keyfile  FILE        Key file (must come first if generating a key)\n"));
+    fprintf(stderr, _("  -f, --passfile FILE        File to use as passphrase to generate key\n"));
+    fprintf(stderr, _("  -p, --password PASSWORD    Use given password to generate key\n"));
+    fprintf(stderr, _("  -e, --encrypt  ALGORITHM   Algorithm to use for encryption\n"));
+    fprintf(stderr, _("  -d, --decrypt  ALGORITHM   Algorithm to use for decryption\n"));
+    fprintf(stderr, _("  -a, --about    ALGORITHM   Information about a particular algorithm\n"));
+    fprintf(stderr, _("  -g, --generate SIZE        Generate a key of specified size (in bits)\n"));
+    fprintf(stderr, _("  -m, --modules              List all available algorithms\n"));
+    fprintf(stderr, _("  -h, --help                 This help list\n"));
+    fprintf(stderr, _("  -l, --licence              An overview of the GNU GPL\n"));
+    fprintf(stderr, _("  -v, --version              Show version number and quit\n\n"));
+    fprintf(stderr, _(TEXT_HELP));
     return EXIT_SUCCESS;
 }

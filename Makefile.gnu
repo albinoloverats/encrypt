@@ -20,8 +20,9 @@ gui:
 	-@echo "compiled \`src/encrypt.c common/common.c src/callbacks.c src/interface.c src/support.c --> encrypt'"
 
 -include lib/*.mk
-all: encrypt | $(LIB_MAKE)
-gui-all: gui | $(LIB_MAKE)
+-include po/*.mk
+all: encrypt $(LIB_MAKE) $(PO_MAKE)
+gui-all: gui $(LIB_MAKE) $(PO_MAKE)
 
 install:
 # install the main executible, then softlink to it from /usr/bin
@@ -41,13 +42,13 @@ install:
 	 @install -c -m 644 -D -T encrypt.desktop $(PREFIX)/usr/lib/encrypt/encrypt.desktop
 	 @ln -fs /usr/lib/encrypt/encrypt.desktop $(PREFIX)/usr/share/applications/
 	-@echo "installed \`encrypt.desktop' --> \`$(PREFIX)/usr/share/applications/encrypt.desktop'"
-install-all: install | $(LIB_INSTALL)
+install-all: install $(LIB_INSTALL) $(PO_INSTALL)
 
 clean:
 	-@rm -fv encrypt
-distclean: clean | $(LIB_CLEAN)
+distclean: clean $(LIB_CLEAN) $(PO_CLEAN)
 
-uninstall: $(LIB_UNINSTALL)
+uninstall: $(LIB_UNINSTALL) $(PO_CLEAN)
 	 @rm -fv  $(PREFIX)/usr/share/applications/encrypt.desktop
 	 @rm -fv  $(PREFIX)/usr/man/man1/encrypt.1a.gz
 	 @rm -fv  $(PREFIX)/usr/lib/encrypt/pixmap/encrypt.xpm

@@ -32,34 +32,31 @@ void init(const char *app, const char *ver)
     c_app = strdup(app);
     c_ver = strdup(ver);
     if ((signal(SIGTERM, sigint) == SIG_ERR) || (signal(SIGINT, sigint) == SIG_ERR) || (signal(SIGQUIT, sigint) == SIG_ERR))
-        die("could not set signal handler");
+        die(_("could not set signal handler"));
+    /*
+     * set locale
+     */
+    setlocale(LC_ALL, "");
+    bindtextdomain(c_app, "/usr/share/locale");
+    textdomain(c_app);
 }
 
 int64_t show_licence(void)
 {
-    fprintf(stderr, "This program is free software: you can redistribute it and/or modify\n");
-    fprintf(stderr, "it under the terms of the GNU General Public License as published by\n");
-    fprintf(stderr, "the Free Software Foundation, either version 3 of the License, or\n");
-    fprintf(stderr, "(at your option) any later version.\n\n");
-    fprintf(stderr, "This program is distributed in the hope that it will be useful,\n");
-    fprintf(stderr, "but WITHOUT ANY WARRANTY; without even the implied warranty of\n");
-    fprintf(stderr, "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n");
-    fprintf(stderr, "GNU General Public License for more details.\n\n");
-    fprintf(stderr, "You should have received a copy of the GNU General Public License\n");
-    fprintf(stderr, "along with this program.  If not, see <http://www.gnu.org/licenses/>.\n");
+    fprintf(stderr, _(TEXT_LICENCE));
     return EXIT_SUCCESS;
 }
 
 int64_t show_usage(void)
 {
-    fprintf(stderr, "Usage:\n");
-    fprintf(stderr, "  %s [OPTION] [ARGUMENT] ...\n", c_app);
+    fprintf(stderr, _("Usage:\n"));
+    fprintf(stderr, _("  %s [OPTION] [ARGUMENT] ...\n"), c_app);
     return EXIT_SUCCESS;
 }
 
 int64_t show_version(void)
 {
-    fprintf(stderr, "%s version : %s\n%*s built on: %s %s\n", c_app, c_ver, (int)strlen(c_app), "", __DATE__, __TIME__);
+    fprintf(stderr, _("%s version : %s\n%*s built on: %s %s\n"), c_app, c_ver, (int)strlen(c_app), "", __DATE__, __TIME__);
     return EXIT_SUCCESS;
 }
 
@@ -129,7 +126,7 @@ void sigint(int s)
             ss = strdup("SIGQUIT");
             break;
         default:
-            ss = strdup("UNKNOWN");
+            ss = strdup(_("UNKNOWN"));
     }
     msg("caught and ignoring %s signal", ss);
     msg("try again once more to force quit");
