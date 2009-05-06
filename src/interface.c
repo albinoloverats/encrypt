@@ -426,10 +426,20 @@ GtkWidget *create_window_about(void)
     if (asprintf(&about_text, _("%s\n  version : %s\n  built on: %s %s\n\n%s\nWebsite\n  %s\n\nContributors\n %s\n\nCopyright\n  %s\n\nLicence\n%s"), NAME, VERSION, __DATE__, __TIME__, _(TEXT_ABOUT), TEXT_SITE, TEXT_CONTRIB, TEXT_COPY, _(TEXT_LICENCE)) < 0)
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
 #else  /* ! _WIN32 */
-#if 0
-    about_text = calloc(strlen(ABOUT_BOX_TEXT) + strlen(VERSION) + strlen(__DATE__) + strlen(__TIME__), sizeof( char ));
-    sprintf(about_text, ABOUT_BOX_TEXT, VERSION, __DATE__, __TIME__);
-#endif
+    uint32_t l = strlen(_("%s\n  version : %s\n  built on: %s %s\n\n%s\nWebsite\n %s\n\nContributors\n %s\n\nCopyright\n %s\n\nLicence\n%s"));
+    l += strlen(NAME);
+    l += strlen(VERSION);
+    l += strlen(__DATE__);
+    l += strlen(__TIME__);
+    l += strlen(_(TEXT_ABOUT));
+    l += strlen(TEXT_SITE);
+    l += strlen(TEXT_CONTRIB);
+    l += strlen(TEXT_COPY);
+    l += strlen(_(TEXT_LICENCE));
+    about_text = calloc(l + 1, sizeof( char ));
+    if (!about_text)
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
+    sprintf(about_text, _("%s\n  version : %s\n  built on: %s %s\n\n%s\nWebsite\n  %s\n\nContributors\n %s\n\nCopyright\n  %s\n\nLicence\n%s"), NAME, VERSION, __DATE__, __TIME__, _(TEXT_ABOUT), TEXT_SITE, TEXT_CONTRIB, TEXT_COPY, _(TEXT_LICENCE)) < 0)
 #endif /*   _WIN32 */
     gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_about)), about_text, -1);
 

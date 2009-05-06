@@ -112,26 +112,60 @@ void on_button_about_clicked(GtkWidget *widget)
             _("Key Details"),
             _("Name"),    about->key_name,        _("Authors"),   about->key_authors,        _("Copyright"), about->key_copyright,        _("Licence"), about->key_licence,        _("Year"), about->key_year,        _("Key size"),   about->key_size,
             _("Plugin Details"),
-            _("Authors"), about->module_authors,  _("Copyright"),
-            about->module_copyright,   _("Licence"),
-            about->module_licence,       _("Version"),
-            about->module_version,     _("Additional Details"),
-            about->module_comment) < 0)
+            _("Authors"), about->module_authors,  _("Copyright"), about->module_copyright,   _("Licence"),   about->module_licence,       _("Version"), about->module_version,     _("Additional Details"), about->module_comment) < 0)
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
 #else  /* ! _WIN32 */
-#if 0
     /* 
      * woot for Windows
      */
-    details = calloc(strlen(PLUGIN_DETAILS_MASK) +
-            strlen(about->algorithm_name) + strlen(about->algorithm_authors) + strlen(about->algorithm_copyright) + strlen(about->algorithm_licence) + strlen(about->algorithm_year) + strlen(about->algorithm_block) +
-            strlen(about->key_name) +       strlen(about->key_authors) +       strlen(about->key_copyright) +       strlen(about->key_licence) +       strlen(about->key_year) +       strlen(about->key_size) +
-            strlen(about->module_authors) + strlen(about->module_copyright) +  strlen(about->module_licence) +      strlen(about->module_version) +    strlen(about->module_comment), sizeof( char ));
+    uint32_t l = strlen(PLUGIN_DETAILS_MASK);
+    l += strlen(_("Algorithm Details"));
+    l += strlen(_("Name"));
+    l += strlen(about->algorithm_name);
+    l += strlen(_("Authors"));
+    l += strlen(about->algorithm_authors);
+    l += strlen(_("Copyright"));
+    l += strlen(about->algorithm_copyright);
+    l += strlen(_("Licence"));
+    l += strlen(about->algorithm_licence);
+    l += strlen(_("Year"));
+    l += strlen(about->algorithm_year);
+    l += strlen(_("Block size"));
+    l += strlen(about->algorithm_block,);
+    l += strlen(_("Key Details"));
+    l += strlen(_("Name"));
+    l += strlen(about->key_name);
+    l += strlen(_("Authors"));
+    l += strlen(about->key_authors);
+    l += strlen(_("Copyright"));
+    l += strlen(about->key_copyright);
+    l += strlen(_("Licence"));
+    l += strlen(about->key_licence);
+    l += strlen(_("Year"));
+    l += strlen(about->key_year);
+    l += strlen(_("Key size"));
+    l += strlen(about->key_size,);
+    l += strlen(_("Plugin Details"));
+    l += strlen(_("Authors"));
+    l += strlen(about->module_authors);
+    l += strlen(_("Copyright"));
+    l += strlen(about->module_copyright);
+    l += strlen(_("Licence"));
+    l += strlen(about->module_licence);
+    l += strlen(_("Version"));
+    l += strlen(about->module_version);
+    l += strlen(_("Additional Details"));
+    l += strlen(about->module_comment);
+    details = calloc(l + 1, sizeof( char ));
+    if (!details)
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     sprintf(details, PLUGIN_DETAILS_MASK,
-            about->algorithm_name,  about->algorithm_authors,  about->algorithm_copyright,  about->algorithm_licence,  about->algorithm_year,  about->algorithm_block,
-            about->key_name,        about->key_authors,        about->key_copyright,        about->key_licence,        about->key_year,        about->key_size,
-            about->module_authors,  about->module_copyright,   about->module_licence,       about->module_version,     about->module_comment);
-#endif
+            _("Algorithm Details"),
+            _("Name"),    about->algorithm_name,  _("Authors"),   about->algorithm_authors,  _("Copyright"), about->algorithm_copyright,  _("Licence"), about->algorithm_licence,  _("Year"), about->algorithm_year,  _("Block size"), about->algorithm_block,
+            _("Key Details"),
+            _("Name"),    about->key_name,        _("Authors"),   about->key_authors,        _("Copyright"), about->key_copyright,        _("Licence"), about->key_licence,        _("Year"), about->key_year,        _("Key size"),   about->key_size,
+            _("Plugin Details"),
+            _("Authors"), about->module_authors,  _("Copyright"), about->module_copyright,   _("Licence"),   about->module_licence,       _("Version"), about->module_version,     _("Additional Details"), about->module_comment);
 #endif /*   _WIN32 */
 
     textview_about = lookup_widget(window_about, "textview_about");

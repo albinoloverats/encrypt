@@ -27,17 +27,6 @@
 
   #include <gtk/gtk.h>
 
-#if 0
-    #define textdomain(String) (String)
-    #define gettext(String) (String)
-    #define dgettext(Domain,Message) (Message)
-    #define dcgettext(Domain,Message,Type) (Message)
-    #define bindtextdomain(Domain,Directory) (Domain)
-    #define _(String) (String)
-    #define Q_(String) g_strip_context ((String), (String))
-    #define N_(String) (String)
-#endif
-
 /* 
  * Public Functions.
  */

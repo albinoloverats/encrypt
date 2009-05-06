@@ -10,6 +10,9 @@ msgstr "gegangen und ignoriert %s signal"
 msgid "try again once more to force quit"
 msgstr "versuchen sie es erneut noch einmal in sofort beenden"
 
+msgid "out of memory at %s:%i"
+msgstr "ausreichend RAM bei %s:%i"
+
 msgid "UNKNOWN"
 msgstr "UNBEKANNT"
 

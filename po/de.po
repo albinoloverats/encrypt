@@ -16,9 +16,6 @@ msgstr "ein unerwarteter fehler ist aufgetreten"
 msgid "module name cannot be (null)"
 msgstr "modul kann nicht (null)"
 
-msgid "out of memory at %s:%i"
-msgstr "ausreichend RAM bei %s:%i"
-
 msgid "could not open plugin %s"
 msgstr "konnte nicht geöffnet plugin %s"
 
