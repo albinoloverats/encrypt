@@ -5,10 +5,10 @@ LIB_INSTALL   =
 LIB_CLEAN     = 
 LIB_UNINSTALL = 
 
-PO_MAKE      = 
-PO_INSTALL   = 
-PO_CLEAN     = 
-PO_UNINSTALL = 
+PO_MAKE       = 
+PO_INSTALL    = 
+PO_CLEAN      = 
+PO_UNINSTALL  = 
 
 OPTIONS := -o encrypt -std=c99 -Wall -Wextra -O2 -pipe -ldl -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -I ./
 GUIOPTS := `pkg-config --cflags --libs gtk+-2.0` -lpthread -D_BUILD_GUI_
