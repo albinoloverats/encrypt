@@ -62,9 +62,9 @@ int main(int argc, char **argv)
 
     char    *key_plain = NULL;
     uint8_t *key_data  = NULL;
-    uint8_t  key_type  = NOTSET;
+    ekey_t   key_type  = NOTSET;
 
-    uint8_t function = NOTSET;
+    func_t function = NOTSET;
 
     int64_t (*fp)(int64_t, int64_t, uint8_t *);
 
@@ -250,7 +250,8 @@ void *open_mod(char *n)
          die(_("module name cannot be (null)"));
 #ifndef _WIN32
     if (!strchr(n, '/'))
-        asprintf(&n, "%s.so", n);
+        if (asprintf(&n, "%s.so", n) < 0)
+            die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     if (!(p = dlopen(n, RTLD_LAZY)))
 #else  /* ! _WIN32 */
     if (!strchr(n, '\\') && !strchr(n, '/'))
@@ -363,7 +364,7 @@ int64_t key_generate(char *s, char *f)
     return errno;
 }
 
-uint8_t *key_calculate(void *p, char *s, uint8_t k)
+uint8_t *key_calculate(void *p, char *s, ekey_t k)
 {
     if (!p)
         die(_("invalid pointer to module"));
@@ -371,7 +372,7 @@ uint8_t *key_calculate(void *p, char *s, uint8_t k)
         die(_("missing data for key generation"));
     uint8_t *c = NULL;
     uint8_t *d = NULL;
-    uint64_t l = 0;
+    int64_t  l = 0;
     switch (k)
     {
         case KEYFILE:
@@ -384,10 +385,11 @@ uint8_t *key_calculate(void *p, char *s, uint8_t k)
                 d = calloc(l, sizeof( uint8_t ));
                 if (!d)
                     return NULL;
-                for (uint64_t i = 0; i < l / 2; i++)
+                for (int64_t i = 0; i < l / 2; i++)
                 {
                     char c[3] = { 0x00 };
-                    read(f, &c, 2 * sizeof( uint8_t ));
+                    if (read(f, &c, 2 * sizeof( uint8_t )) != 2 * sizeof( uint8_t ))
+                        msg(_("unexpected end of key file %s"), s);
                     d[i] = strtol(c, NULL, 0x0F);
                 }
                 close(f);
@@ -402,7 +404,8 @@ uint8_t *key_calculate(void *p, char *s, uint8_t k)
                 l = lseek(f, 0, SEEK_END);
                 lseek(f, 0, SEEK_SET);
                 c = calloc(l, sizeof( uint8_t ));
-                read(f, c, l);
+                if (read(f, c, l) != l)
+                    msg(_("unexpected end of passphrase %s"), s);
                 close(f);
             }
             break;

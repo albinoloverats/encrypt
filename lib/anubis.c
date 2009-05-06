@@ -35,6 +35,8 @@
 extern info_t *plugin_info(void)
 {
     info_t *anubis = calloc(1, sizeof( info_t ));
+    if (!anubis)
+        return NULL;
     anubis->algorithm_name      = strdup(A_NAME);
     anubis->algorithm_authors   = strdup(A_AUTHORS);
     anubis->algorithm_copyright = strdup(A_COPYRIGHT);
@@ -57,20 +59,23 @@ extern info_t *plugin_info(void)
 
 extern int64_t plugin_encrypt(int64_t in, int64_t out, uint8_t *key)
 {
-    errno = 0;
-    ssize_t len = 0, size = (off_t) lseek(in, 0, SEEK_END);
+    errno = EXIT_SUCCESS;
+    ssize_t len = 0, size = (off_t)lseek(in, 0, SEEK_END);
     lseek(in, 0, SEEK_SET);
     struct NESSIEstruct subkeys;
     unsigned char plain[BLOCKSIZEB], cipher[BLOCKSIZEB];
     NESSIEkeysetup(key, &subkeys);
-    write(out, HEADER, strlen(HEADER));
-    memcpy(plain, &size, sizeof (ssize_t));
+    if (write(out, HEADER, strlen(HEADER)) != strlen(HEADER))
+        return errno;
+    memcpy(plain, &size, sizeof( ssize_t ));
     NESSIEencrypt(&subkeys, plain, cipher);
-    write(out, cipher, BLOCKSIZEB);
+    if (write(out, cipher, BLOCKSIZEB) != BLOCKSIZEB)
+        return errno;
     while ((len = read(in, plain, BLOCKSIZEB)) > 0)
     {
         NESSIEencrypt(&subkeys, plain, cipher);
-        write(out, cipher, BLOCKSIZEB);
+        if (write(out, cipher, BLOCKSIZEB) != BLOCKSIZEB)
+            return errno;
     }
     if (len != 0)
         return errno;
@@ -79,14 +84,17 @@ extern int64_t plugin_encrypt(int64_t in, int64_t out, uint8_t *key)
 
 extern int64_t plugin_decrypt(int64_t in, int64_t out, uint8_t *key)
 {
-    errno = 0;
+    errno = EXIT_SUCCESS;
     ssize_t len = 0, size = 0;
     struct NESSIEstruct subkeys;
     unsigned char cipher[BLOCKSIZEB], plain[BLOCKSIZEB];
     NESSIEkeysetup(key, &subkeys);
 
-    char *tmp = calloc(strlen(HEADER), sizeof (char));
-    read(in, tmp, strlen(HEADER));
+    char *tmp = calloc(strlen(HEADER), sizeof( char ));
+    if (!tmp)
+        return ENOMEM;
+    if (read(in, tmp, strlen(HEADER)) != strlen(HEADER))
+        return errno;
     if (strncmp(tmp, HEADER, strcspn(HEADER, "/")))
         return EFTYPE;
     free(tmp);
@@ -94,18 +102,20 @@ extern int64_t plugin_decrypt(int64_t in, int64_t out, uint8_t *key)
     lseek(in, strlen(HEADER), SEEK_SET);
     len = read(in, &cipher, BLOCKSIZEB);
     NESSIEdecrypt(&subkeys, cipher, plain);
-    memcpy(&size, plain, sizeof (size_t));
+    memcpy(&size, plain, sizeof( size_t ));
     for (int i = 0; i < size / (BLOCKSIZEB); i++)
     {
         if ((len = read(in, cipher, BLOCKSIZEB)) != BLOCKSIZEB)
             return errno;
         NESSIEdecrypt(&subkeys, cipher, plain);
-        write(out, plain, BLOCKSIZEB);
+        if (write(out, plain, BLOCKSIZEB) != BLOCKSIZEB)
+            return errno;
     }
     if ((len = read(in, cipher, BLOCKSIZEB)) != BLOCKSIZEB)
         return errno;
     NESSIEdecrypt(&subkeys, cipher, plain);
-    write(out, plain, ((size * 8) % (BLOCKSIZE)) / 8);
+    if (write(out, plain, ((size * 8) % (BLOCKSIZE)) / 8) != ((size * 8) % (BLOCKSIZE)))
+        return errno;
     return EXIT_SUCCESS;
 }
 
@@ -139,5 +149,7 @@ extern uint8_t *plugin_key(uint8_t *d, size_t l)
         hashcode[i + 3] = (MDbuf[i >> 2] >> 24);
     }
     m = realloc(m, RMDsize / 8);
+    if (!m)
+        return NULL;
     return memmove(m, hashcode, RMDsize / 8);
 }

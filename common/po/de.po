@@ -1,3 +1,6 @@
+msgid "unknown option %c"
+msgstr "unbekannte option %c"
+
 msgid "could not set signal handler"
 msgstr "konnte nicht gesetzt signal-handler"
 
@@ -9,6 +12,9 @@ msgstr "versuchen sie es erneut noch einmal in sofort beenden"
 
 msgid "UNKNOWN"
 msgstr "UNBEKANNT"
+
+msgid "\nOptions:\n\n"
+msgstr "\nOptionen:\n\n"
 
 msgid "  -h, --help                 This help list\n"
 msgstr "  -h, --help                 Hilfe dieser Liste\n"

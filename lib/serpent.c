@@ -63,20 +63,30 @@ extern int64_t plugin_encrypt(int64_t file_in, int64_t file_out, uint8_t *key)
 {
     errno = EXIT_SUCCESS;
     uint8_t *IV = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
+    if (!IV)
+        return ENOMEM;
     uint8_t *plaintext = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
+    if (!plaintext)
+        return ENOMEM;
     uint8_t *ciphertext = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
+    if (!ciphertext)
+        return ENOMEM;
     /*
      * build the key
      */
     uint32_t *subkeys = serpent_subkeys((uint32_t *)key);
+    if (!subkeys)
+        return ENOMEM;
     /*
      * write the header and file size
      */
-    write(file_out, HEADER, strlen(HEADER));
+    if (write(file_out, HEADER, strlen(HEADER)) != strlen(HEADER))
+        return errno;
     uint64_t s = lseek(file_in, 0, SEEK_END);
     memcpy(plaintext, &s, sizeof( uint64_t ));
     block_encrypt(plaintext, ciphertext, IV, subkeys);
-    write(file_out, ciphertext, CHUNK_SERPENT);
+    if (write(file_out, ciphertext, CHUNK_SERPENT) != CHUNK_SERPENT)
+        return errno;
     lseek(file_in, 0, SEEK_SET);
     /*
      * main loop
@@ -84,7 +94,8 @@ extern int64_t plugin_encrypt(int64_t file_in, int64_t file_out, uint8_t *key)
     while (read(file_in, plaintext, CHUNK_SERPENT))
     {
         block_encrypt(plaintext, ciphertext, IV, subkeys);
-        write(file_out, ciphertext, CHUNK_SERPENT);
+        if (write(file_out, ciphertext, CHUNK_SERPENT) != CHUNK_SERPENT)
+            return errno;
     }
     /*
      * clean up
@@ -100,17 +111,28 @@ extern int64_t plugin_decrypt(int64_t file_in, int64_t file_out, uint8_t *key)
 {
     errno = EXIT_SUCCESS;
     uint8_t *IV = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
+    if (!IV)
+        return ENOMEM;
     uint8_t *plaintext = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
+    if (!plaintext)
+        return ENOMEM;
     uint8_t *ciphertext = calloc(CHUNK_SERPENT, sizeof( uint8_t ));
+    if (!ciphertext)
+        return ENOMEM;
     /*
      * build the key
      */
     uint32_t *subkeys = serpent_subkeys((uint32_t *)key);
+    if (!subkeys)
+        return ENOMEM;
     /*
      * check the header (ignore version) and get the size of the file
      */
     char *tmp = calloc(strlen(HEADER), sizeof( char ));
-    read(file_in, tmp, strlen(HEADER));
+    if (!tmp)
+        return ENOMEM;
+    if (read(file_in, tmp, strlen(HEADER)) != strlen(HEADER))
+        return errno;
     if (strncmp(tmp, HEADER, strcspn(HEADER, "/")))
         /*
          * header does not match
@@ -118,7 +140,8 @@ extern int64_t plugin_decrypt(int64_t file_in, int64_t file_out, uint8_t *key)
         return EFTYPE;
     free(tmp);
     lseek(file_in, strlen(HEADER), SEEK_SET);
-    read(file_in, ciphertext, CHUNK_SERPENT);
+    if (read(file_in, ciphertext, CHUNK_SERPENT) != CHUNK_SERPENT)
+        return errno;
     block_decrypt(ciphertext, plaintext, IV, subkeys);
     uint64_t s = 0;
     memcpy(&s, plaintext, sizeof( uint64_t ));
@@ -130,7 +153,8 @@ extern int64_t plugin_decrypt(int64_t file_in, int64_t file_out, uint8_t *key)
         if (read(file_in, ciphertext, CHUNK_SERPENT) != CHUNK_SERPENT)
             return errno;
         block_decrypt(ciphertext, plaintext, IV, subkeys);
-        write(file_out, plaintext, CHUNK_SERPENT);
+        if (write(file_out, plaintext, CHUNK_SERPENT) != CHUNK_SERPENT)
+            return errno;
     }
     /*
      * deal with the final block (may contain padding which
@@ -139,7 +163,8 @@ extern int64_t plugin_decrypt(int64_t file_in, int64_t file_out, uint8_t *key)
     if (read(file_in, ciphertext, CHUNK_SERPENT) != CHUNK_SERPENT)
         return errno;
     block_decrypt(ciphertext, plaintext, IV, subkeys);
-    write(file_out, plaintext, ((s * SIZE_BYTE) % SIZE_SERPENT) / SIZE_BYTE);
+    if (write(file_out, plaintext, ((s * SIZE_BYTE) % SIZE_SERPENT) / SIZE_BYTE) != (signed)(((s * SIZE_BYTE) % SIZE_SERPENT) / SIZE_BYTE))
+        return errno;
     free(subkeys);
     free(IV);
     free(plaintext);
@@ -150,6 +175,8 @@ extern int64_t plugin_decrypt(int64_t file_in, int64_t file_out, uint8_t *key)
 extern uint8_t *plugin_key(uint8_t *d, size_t s)
 {
     uint64_t *key = calloc(3, sizeof (uint64_t));
+    if (!key)
+        return NULL;
     tiger((uint64_t *)d, s, key);
     return (uint8_t *)key;
 }
@@ -238,6 +265,8 @@ static uint32_t *serpent_subkeys(uint32_t *material)
         for (int j = 0; j < 4; j++)
             subkeys[i][j] = k[4 * i + j];
     void *ret = calloc(1, sizeof( subkeys ));
+    if (!ret)
+        return NULL;
     memcpy(ret, subkeys, sizeof( subkeys ));
     return ret;
 }

@@ -80,12 +80,14 @@ extern int64_t plugin_encrypt(int64_t file_in, int64_t file_out, uint8_t *key)
     /* 
      * the encryption function
      */
+    errno = EXIT_SUCCESS;
     uint8_t data[0xFF];
     ssize_t len = 0;
     key = key; // lib/helloworld.c:78: warning: unused parameter 'key'
 
     while ((len = read(file_in, data, sizeof( data ))) > 0)
-        write(file_out, data, len);
+        if (write(file_out, data, len) != len)
+            return errno;
     if (len != 0)
         return errno;
 

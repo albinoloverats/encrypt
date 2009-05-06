@@ -64,7 +64,8 @@ static void hex2bin(uint32_t *, uint8_t *);
 extern info_t *plugin_info(void)
 {
     info_t *xtea = calloc(1, sizeof( info_t ));
-
+    if (!xtea)
+        return NULL;
     xtea->algorithm_name = strdup(A_NAME);
     xtea->algorithm_authors = strdup(A_AUTHORS);
     xtea->algorithm_copyright = strdup(A_COPYRIGHT);
@@ -90,7 +91,7 @@ extern int64_t plugin_encrypt(int64_t in, int64_t out, uint8_t *key)
     uint32_t *data = NULL, *k = NULL;
     uint32_t v0 = 0, v1 = 0, sum = 0;
     ssize_t len = 0, size = 0;
-    errno = 0;
+    errno = EXIT_SUCCESS;
     if ((data = calloc(1, DATA)) == NULL)
         return errno;
     if ((k = calloc(2, DATA)) == NULL)
@@ -100,7 +101,8 @@ extern int64_t plugin_encrypt(int64_t in, int64_t out, uint8_t *key)
      * write header
      */
     size = lseek(in, 0, SEEK_END);
-    write(out, HEADER, strlen(HEADER));
+    if (write(out, HEADER, strlen(HEADER)) != strlen(HEADER))
+        return errno;
     memcpy(data, &size, sizeof( ssize_t ));
     v0 = data[0];
     v1 = data[1];
@@ -112,7 +114,8 @@ extern int64_t plugin_encrypt(int64_t in, int64_t out, uint8_t *key)
     }
     data[0] = v0;
     data[1] = v1;
-    write(out, data, DATA);
+    if (write(out, data, DATA) != DATA)
+        return errno;
     /*
      * main loop
      */
@@ -133,7 +136,8 @@ extern int64_t plugin_encrypt(int64_t in, int64_t out, uint8_t *key)
             data[0] = v0;
             data[1] = v1;
         }
-        write(out, data, len);
+        if (write(out, data, len) != len)
+            return errno;
     }
     /*
      * done
@@ -150,7 +154,7 @@ extern int64_t plugin_decrypt(int64_t in, int64_t out, uint8_t *key)
     uint32_t *data = NULL, *k = NULL;
     uint32_t v0 = 0, v1 = 0, sum = 0;
     ssize_t len = 0, size = 0;
-    errno = 0;
+    errno = EXIT_SUCCESS;
     if ((data = calloc(1, DATA)) == NULL)
         return errno;
     if ((k = calloc(2, DATA)) == NULL)
@@ -192,7 +196,8 @@ extern int64_t plugin_decrypt(int64_t in, int64_t out, uint8_t *key)
             data[0] = v0;
             data[1] = v1;
         }
-        write(out, data, len);
+        if (write(out, data, len) != len)
+            return errno;
     }
     /*
      * write final block
@@ -209,7 +214,8 @@ extern int64_t plugin_decrypt(int64_t in, int64_t out, uint8_t *key)
     }
     data[0] = v0;
     data[1] = v1;
-    write(out, data, ((size * BYTE) % (BLOCK)) / BYTE);
+    if (write(out, data, ((size * BYTE) % (BLOCK)) / BYTE) != (((size * BYTE) % (BLOCK)) / BYTE))
+        return errno;
     /*
      * done
      */

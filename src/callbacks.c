@@ -106,13 +106,18 @@ void on_button_about_clicked(GtkWidget *widget)
      */
     about = fp();
 #ifndef _WIN32
-    asprintf(&details, PLUGIN_DETAILS_MASK,
+    if (asprintf(&details, PLUGIN_DETAILS_MASK,
             _("Algorithm Details"),
             _("Name"),    about->algorithm_name,  _("Authors"),   about->algorithm_authors,  _("Copyright"), about->algorithm_copyright,  _("Licence"), about->algorithm_licence,  _("Year"), about->algorithm_year,  _("Block size"), about->algorithm_block,
             _("Key Details"),
             _("Name"),    about->key_name,        _("Authors"),   about->key_authors,        _("Copyright"), about->key_copyright,        _("Licence"), about->key_licence,        _("Year"), about->key_year,        _("Key size"),   about->key_size,
             _("Plugin Details"),
-            _("Authors"), about->module_authors,  _("Copyright"), about->module_copyright,   _("Licence"),   about->module_licence,       _("Version"), about->module_version,     _("Additional Details"), about->module_comment);
+            _("Authors"), about->module_authors,  _("Copyright"),
+            about->module_copyright,   _("Licence"),
+            about->module_licence,       _("Version"),
+            about->module_version,     _("Additional Details"),
+            about->module_comment) < 0)
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
 #else  /* ! _WIN32 */
 #if 0
     /* 
@@ -225,7 +230,8 @@ void on_button_do_clicked(GtkWidget *widget)
         return;
     }
 #ifndef _WIN32
-    asprintf(&filename_out, "%s/%s", (char *)gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dirchooser_out)), (char *)gtk_entry_get_text(GTK_ENTRY(fileentry_out)));
+    if (asprintf(&filename_out, "%s/%s", (char *)gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dirchooser_out)), (char *)gtk_entry_get_text(GTK_ENTRY(fileentry_out))) < 0)
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
 #else  /* ! _WIN32 */
     filename_out = calloc(strlen((char *)gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dirchooser_out))) + strlen((char *)gtk_entry_get_text(GTK_ENTRY(fileentry_out)) + 2), sizeof( char ));
     sprintf(filename_out, "%s/%s", (char *)gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dirchooser_out)), (char *)gtk_entry_get_text(GTK_ENTRY(fileentry_out)));
@@ -445,10 +451,13 @@ void on_button_gen_go_clicked(GtkWidget *widget)
     GtkSpinButton *keysize = (GtkSpinButton *)lookup_widget(GTK_WIDGET(widget), "spinbutton_size");
     uint64_t l = (gtk_spin_button_get_value_as_int(keysize)) / 8;
     char *h = calloc(l * 2, sizeof( char ));
+    if (!h)
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     srand48(time(0));
     for (uint64_t i = 0; i < l; i++)
 #ifndef _WIN32
-        asprintf(&h, "%s%02X", h, (uint8_t)(lrand48() % 256));
+        if (asprintf(&h, "%s%02X", h, (uint8_t)(lrand48() % 256)) < 0)
+            die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
 #else
         sprintf(h, "%s%02X", h, (uint8_t)(lrand48() % 256));
 #endif
@@ -497,9 +506,11 @@ void on_button_gen_close_clicked(GtkWidget *widget)
     char *out_filename = NULL;
 
 #ifndef _WIN32
-    asprintf(&out_filename, "%s/%s", (char *)gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(outdir)), (char *)gtk_entry_get_text(GTK_ENTRY(outfile)));
+    if (asprintf(&out_filename, "%s/%s", (char *)gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(outdir)), (char *)gtk_entry_get_text(GTK_ENTRY(outfile))) < 0)
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
 #else
-    out_filename = malloc(strlen((char *)gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(outdir))) + strlen((char *)gtk_entry_get_text(GTK_ENTRY(outfile)) + 2));
+    if (!(out_filename = malloc(strlen((char *)gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(outdir))) + strlen((char *)gtk_entry_get_text(GTK_ENTRY(outfile)) + 2))))
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     sprintf(out_filename, "%s/%s", (char *)gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(outdir)), (char *)gtk_entry_get_text(GTK_ENTRY(outfile)));
 #endif
     /* 
@@ -519,8 +530,9 @@ void on_button_gen_close_clicked(GtkWidget *widget)
         gtk_widget_destroy(lookup_widget(GTK_WIDGET(widget), "window_generate"));
         return;
     }
+    if (write(file, key, strlen(key)) != (signed)strlen(key))
+        msg(_("could not access/create key file %s"), out_filename);
     free(out_filename);
-    write(file, key, strlen(key));
     close(file);
     gtk_widget_destroy(lookup_widget(GTK_WIDGET(widget), "window_generate"));
 }

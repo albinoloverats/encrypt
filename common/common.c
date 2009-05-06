@@ -24,13 +24,13 @@ static bool  c_sig = false;
 static char *c_app = NULL;
 static char *c_ver = NULL;
 
-void init(const char *app, const char *ver)
+extern void init(const char *a, const char *v)
 {
     errno = 0;
     if (c_app)
         return;
-    c_app = strdup(app);
-    c_ver = strdup(ver);
+    c_app = strdup(a);
+    c_ver = strdup(v);
     if ((signal(SIGTERM, sigint) == SIG_ERR) || (signal(SIGINT, sigint) == SIG_ERR) || (signal(SIGQUIT, sigint) == SIG_ERR))
         die(_("could not set signal handler"));
     /*
@@ -41,26 +41,26 @@ void init(const char *app, const char *ver)
     textdomain(c_app);
 }
 
-int64_t show_licence(void)
+extern int64_t show_licence(void)
 {
     fprintf(stderr, _(TEXT_LICENCE));
     return EXIT_SUCCESS;
 }
 
-int64_t show_usage(void)
+extern int64_t show_usage(void)
 {
     fprintf(stderr, _("Usage:\n"));
     fprintf(stderr, _("  %s [OPTION] [ARGUMENT] ...\n"), c_app);
     return EXIT_SUCCESS;
 }
 
-int64_t show_version(void)
+extern int64_t show_version(void)
 {
     fprintf(stderr, _("%s version : %s\n%*s built on: %s %s\n"), c_app, c_ver, (int)strlen(c_app), "", __DATE__, __TIME__);
     return EXIT_SUCCESS;
 }
 
-void hex(void *v, uint64_t l)
+extern void hex(void *v, uint64_t l)
 {
     uint8_t *s = v;
     char b[HEX_LINE_WIDTH] = { 0x00 };
@@ -78,7 +78,7 @@ void hex(void *v, uint64_t l)
     msg(b);
 }
 
-void msg(const char *s, ...)
+extern void msg(const char *s, ...)
 {
     if (!s)
         return;
@@ -91,7 +91,7 @@ void msg(const char *s, ...)
     va_end(ap);
 }
 
-void die(const char *s, ...)
+extern void die(const char *s, ...)
 {
     if (s)
         msg(s);
@@ -106,7 +106,7 @@ void die(const char *s, ...)
     exit(errno);
 }
 
-void sigint(int s)
+extern void sigint(int s)
 {
     if (c_sig)
     {

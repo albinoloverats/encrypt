@@ -18,5 +18,5 @@ clean-de:
 	-@rm -fv de.mo
 
 uninstall-de:
-	-@rm -fv $(PREFIX)/usr/share/locale/de/LC_MESSAGES/de.mo $(PREFIX)/usr/lib/encrypt/po/de.mo
+	-@rm -fv $(PREFIX)/usr/share/locale/de/LC_MESSAGES/encrypt.mo $(PREFIX)/usr/lib/encrypt/po/de.mo
 

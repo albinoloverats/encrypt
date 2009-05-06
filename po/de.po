@@ -1,6 +1,3 @@
-msgid "unknown option %c"
-msgstr "unbekannte option %c"
-
 msgid "could not initialize GTK interface"
 msgstr "konnte nicht initialisiert GTK-schnittstelle"
 
@@ -18,6 +15,9 @@ msgstr "ein unerwarteter fehler ist aufgetreten"
 
 msgid "module name cannot be (null)"
 msgstr "modul kann nicht (null)"
+
+msgid "out of memory at %s:%i"
+msgstr "ausreichend RAM bei %s:%i"
 
 msgid "could not open plugin %s"
 msgstr "konnte nicht geöffnet plugin %s"
@@ -76,17 +76,20 @@ msgstr "fahlenden daten für schlüssel generation"
 msgid "could not access key file %s"
 msgstr "könnte nicht auf schlüssel-datei %s"
 
+msgid "unexpected end of key file %s"
+msgstr "unerwartetes ende der schlüssel-datei %s"
+
 msgid "could not access passphrase file %s"
 msgstr "kein zugriff möglich passwort-datei %s"
+
+msgid "unexpected end of passphrase"
+msgstr "unerwartetes ende der passwort-datei %s"
 
 msgid "invalid key type"
 msgstr "ungültige schlüssel-typ"
 
 msgid "Installed Modules:\n"
 msgstr "Installierte Module:\n"
-
-msgid "\nOptions:\n\n"
-msgstr "\nOptionen:\n\n"
 
 msgid "  -i, --in       FILE        Input file\n"
 msgstr "  -i, --in       DATEI       Eingabedatei\n"

@@ -423,7 +423,8 @@ GtkWidget *create_window_about(void)
     char *about_text = NULL;
 
 #ifndef _WIN32
-    asprintf(&about_text, _("%s\n  version : %s\n  built on: %s %s\n\n%s\nWebsite\n  %s\n\nContributors\n  %s\n\nCopyright\n  %s\n\nLicence\n%s"), NAME, VERSION, __DATE__, __TIME__, _(TEXT_ABOUT), TEXT_SITE, TEXT_CONTRIB, TEXT_COPY, _(TEXT_LICENCE));
+    if (asprintf(&about_text, _("%s\n  version : %s\n  built on: %s %s\n\n%s\nWebsite\n  %s\n\nContributors\n %s\n\nCopyright\n  %s\n\nLicence\n%s"), NAME, VERSION, __DATE__, __TIME__, _(TEXT_ABOUT), TEXT_SITE, TEXT_CONTRIB, TEXT_COPY, _(TEXT_LICENCE)) < 0)
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
 #else  /* ! _WIN32 */
 #if 0
     about_text = calloc(strlen(ABOUT_BOX_TEXT) + strlen(VERSION) + strlen(__DATE__) + strlen(__TIME__), sizeof( char ));

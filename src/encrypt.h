@@ -33,14 +33,14 @@
 
 
 
-  enum key { KEYFILE = 1, PASSFILE, PASSWORD };
-  enum func { ENCRYPT = 1, DECRYPT };
+  typedef enum ekey_t { KEYFILE = 1, PASSFILE, PASSWORD } ekey_t;
+  typedef enum func_t { ENCRYPT = 1, DECRYPT } func_t;
 
   void *open_mod(char *);
   int64_t algorithm_info(char *);
   int64_t list_modules(void);
 
   int64_t  key_generate(char *, char *);
-  uint8_t *key_calculate(void *, char *, uint8_t);
+  uint8_t *key_calculate(void *, char *, ekey_t);
 
 #endif /* _ENCRYPT_H_ */
