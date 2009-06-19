@@ -1,6 +1,7 @@
 /* sboxes.c: Tiger S boxes */
 typedef unsigned long long int word64;
-word64 table[4*256] = {
+word64 table[4*256] =
+{
     0x02AAB17CF7E90C5ELL   /*    0 */,    0xAC424B03E243A8ECLL   /*    1 */,
     0x72CD5BE30DD5FCD3LL   /*    2 */,    0x6D019B93F6F97F3ALL   /*    3 */,
     0xCD9978FFD21F9193LL   /*    4 */,    0x7573A1C9708029E2LL   /*    5 */,
@@ -512,4 +513,5 @@ word64 table[4*256] = {
     0xBF6C70E5F776CBB1LL   /* 1016 */,    0x411218F2EF552BEDLL   /* 1017 */,
     0xCB0C0708705A36A3LL   /* 1018 */,    0xE74D14754F986044LL   /* 1019 */,
     0xCD56D9430EA8280ELL   /* 1020 */,    0xC12591D7535F5065LL   /* 1021 */,
-    0xC83223F1720AEF96LL   /* 1022 */,    0xC3A0396F7363A51FLL   /* 1023 */};
+    0xC83223F1720AEF96LL   /* 1022 */,    0xC3A0396F7363A51FLL   /* 1023 */
+};

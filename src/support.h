@@ -19,25 +19,25 @@
  */
 
 #ifndef _SUPPORT_H_
-  #define _SUPPORT_H_
+#define _SUPPORT_H_
 
-  #ifdef HAVE_CONFIG_H
-    #include <config.h>
-  #endif /* HAVE_CONFIG_H */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* HAVE_CONFIG_H */
 
-  #include <gtk/gtk.h>
+#include <gtk/gtk.h>
 
-/* 
+/*
  * Public Functions.
  */
-/* 
+/*
  * This function returns a widget in a component created by Glade. Call it with the toplevel widget in the component
  * (i.e. a window/dialog), or alternatively any widget in the component, and the name of the widget you want returned.
  */
 GtkWidget *lookup_widget(GtkWidget *widget, const gchar *widget_name);
 void add_pixmap_directory(const gchar *directory); /* Use this function to set the directory containing installed pixmaps. */
 
-/* 
+/*
  * Private Functions.
  */
 GtkWidget *create_pixmap(const gchar *filename); /* This is used to create the pixmaps used in the interface. */

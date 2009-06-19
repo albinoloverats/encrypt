@@ -33,9 +33,9 @@
 #include "lib/plugins.h"
 
 #ifdef _BUILD_GUI_
-  #include <gtk/gtk.h>
-  #include "src/interface.h"
-  #include "src/support.h"
+#include <gtk/gtk.h>
+#include "src/interface.h"
+#include "src/support.h"
 #endif /* _BUILD_GUI_ */
 
 /*
@@ -71,13 +71,13 @@ int main(int argc, char **argv)
     init(NAME, VERSION);
 
 #ifndef _BUILD_GUI_
-    /* 
+    /*
      * start as we mean to go on...
      */
     if (argc < 2)
         return show_usage();
 #endif /* _BUILD_GUI */
-    /* 
+    /*
      * get all of the command line options and arguments - note that if the plugin string contains / then we treat it
      * as a path to the plugin, instead of allowing the system to find it
      */
@@ -147,31 +147,31 @@ int main(int argc, char **argv)
             case '?':
             default:
                 die(_("unknown option %c"), opt);
-                /* 
+                /*
                  * it's worth noting that unknown options cause encrypt to bail
                  */
         }
     }
 #ifdef _BUILD_GUI_
-    /* 
+    /*
      * now we've parsed the command line arguments, try and draw the gui (if
      * we've been told to build it) and if we can; also, if enough options are
      * passed we might as well do something with them...
      */
     if (!gtk_init_check(&argc, &argv))
         die(_("could not initialize GTK interface"));
-    
+
     if ((!filename_in && !filename_out) || (!function) || (!key_type))
     {
         GtkWidget *window_main;
 
         gtk_set_locale();
         add_pixmap_directory("./pixmap");
-  #ifndef _WIN32
+#ifndef _WIN32
         add_pixmap_directory("/usr/lib/encrypt/pixmap");
-  #else  /* ! _WIN32 */
+#else  /* ! _WIN32 */
         add_pixmap_directory("/Program Files/encrypt/pixmap");
-  #endif /*   _WIN32 */
+#endif /*   _WIN32 */
         window_main = create_window_main();
         gtk_widget_show(window_main);
         gtk_main();
@@ -183,7 +183,7 @@ int main(int argc, char **argv)
     else
     {
 #endif /* _BUILD_GUI_ */
-        /* 
+        /*
          * open the files iff we have a name for them, otherwise stick with the defaults (stdin/stdout) defined above
          */
         if (filename_in)
@@ -198,12 +198,12 @@ int main(int argc, char **argv)
                 die(_("could not access/create output file %s"), filename_out);
             free(filename_out);
         }
-        /* 
+        /*
          * generate a binary key using the chosen method
          */
         key_data = key_calculate(file_mod, key_plain, key_type);
         free(key_plain);
-        /* 
+        /*
          * search for the function we want - if we were able to load the module then it should be there, otherwise it's
          * likely that the user forgot to give us a name for the module above
          */
@@ -213,16 +213,16 @@ int main(int argc, char **argv)
         if (!(fp = (void *)GetProcAddress(file_mod, function == ENCRYPT ? "plugin_encrypt" : "plugin_decrypt")))
 #endif /*   _WIN32 */
             die(_("could not import module function %s"), function == ENCRYPT ? "encryption" : "decryption");
-        /* 
+        /*
          * we made it - if we reach here then everything is okay and we're now ready to start :)
          */
         int64_t s = fp(file_in, file_out, key_data);
-        /* 
+        /*
          * if there's an error tell the user - however it's unlikely we'll know exactly what the error is
          */
         if (s != EXIT_SUCCESS)
             msg(_("an unexpected error has occured"));
-        /* 
+        /*
          * close all open files obviously if in_file / out_file are stdin / stdout it makes no sense to close them
          */
         free(key_data);
@@ -247,7 +247,7 @@ void *open_mod(char *n)
     HANDLE p = NULL;
 #endif /*   _WIN32 */
     if (!n)
-         die(_("module name cannot be (null)"));
+        die(_("module name cannot be (null)"));
 #ifndef _WIN32
     if (!strchr(n, '/'))
         if (asprintf(&n, "%s.so", n) < 0)
@@ -272,10 +272,10 @@ int64_t algorithm_info(char *n)
     void *p = open_mod(n);
     if (!p)
         die(_("invalid pointer to module"));
-    /* 
+    /*
      * set everything up so we can get some info about the given algorithm
      */
-    info_t *about, *(*fp)(void); 
+    info_t *about, *(*fp)(void);
     errno = 0;
 
 #ifndef _WIN32
@@ -284,7 +284,7 @@ int64_t algorithm_info(char *n)
     if (!(fp = (void *)GetProcAddress(p, "plugin_info")))
 #endif /*   _WIN32 */
         die("could not find plugin information");
-    /* 
+    /*
      * now get the info
      */
     about = fp();
@@ -335,14 +335,14 @@ int64_t algorithm_info(char *n)
 
     free(about);
 #ifdef _DLFCN_H
-        dlclose(p);
+    dlclose(p);
 #endif /* _DLFCN_H */
     return errno;
 }
 
 int64_t key_generate(char *s, char *f)
 {
-    /* 
+    /*
      * generate a key (for later use) of a given size - it's up to each algorithm plugin to decide how to use a given
      * key file (all keys are in hex)
      */
@@ -350,7 +350,7 @@ int64_t key_generate(char *s, char *f)
     FILE *k = stdout;
     errno = EXIT_SUCCESS;
     srand48(time(0));
-    /* 
+    /*
      * either print the hex key to stdout, or to a file if we can
      */
     if (f)
@@ -376,50 +376,50 @@ uint8_t *key_calculate(void *p, char *s, ekey_t k)
     switch (k)
     {
         case KEYFILE:
+        {
+            int64_t  f = 0;
+            if ((f = open(s, O_RDONLY)) < 0)
+                die(_("could not access key file %s"), s);
+            l = lseek(f, 0, SEEK_END);
+            lseek(f, 0, SEEK_SET);
+            d = calloc(l, sizeof( uint8_t ));
+            if (!d)
+                return NULL;
+            for (int64_t i = 0; i < l / 2; i++)
             {
-                int64_t  f = 0;
-                if ((f = open(s, O_RDONLY)) < 0)
-                    die(_("could not access key file %s"), s);
-                l = lseek(f, 0, SEEK_END);
-                lseek(f, 0, SEEK_SET);
-                d = calloc(l, sizeof( uint8_t ));
-                if (!d)
-                    return NULL;
-                for (int64_t i = 0; i < l / 2; i++)
-                {
-                    char c[3] = { 0x00 };
-                    if (read(f, &c, 2 * sizeof( uint8_t )) != 2 * sizeof( uint8_t ))
-                        msg(_("unexpected end of key file %s"), s);
-                    d[i] = strtol(c, NULL, 0x0F);
-                }
-                close(f);
-                return d;
+                char c[3] = { 0x00 };
+                if (read(f, &c, 2 * sizeof( uint8_t )) != 2 * sizeof( uint8_t ))
+                    msg(_("unexpected end of key file %s"), s);
+                d[i] = strtol(c, NULL, 0x0F);
             }
-            break; // why?
+            close(f);
+            return d;
+        }
+        break; // why?
         case PASSFILE:
-            {
-                int64_t f = 0;
-                if ((f = open(s, O_RDONLY)) < 0)
-                    die(_("could not access passphrase file %s"), s);
-                l = lseek(f, 0, SEEK_END);
-                lseek(f, 0, SEEK_SET);
-                c = calloc(l, sizeof( uint8_t ));
-                if (read(f, c, l) != l)
-                    msg(_("unexpected end of passphrase %s"), s);
-                close(f);
-            }
-            break;
+        {
+            int64_t f = 0;
+            if ((f = open(s, O_RDONLY)) < 0)
+                die(_("could not access passphrase file %s"), s);
+            l = lseek(f, 0, SEEK_END);
+            lseek(f, 0, SEEK_SET);
+            c = calloc(l, sizeof( uint8_t ));
+            if (read(f, c, l) != l)
+                msg(_("unexpected end of passphrase %s"), s);
+            close(f);
+        }
+        break;
         case PASSWORD:
-            {
-                c = (uint8_t *)strdup(s);
-                l = strlen(s);
-            }
-            break;
+        {
+            c = (uint8_t *)strdup(s);
+            l = strlen(s);
+        }
+        break;
         default:
             die(_("invalid key type"));
     }
     uint8_t *(*fp)(uint8_t *, size_t);
-    
+
 #ifndef _WIN32
     if (!(fp = (uint8_t *(*)(uint8_t *, size_t))dlsym(p, "plugin_key")))
 #else   /* ! _WIN32 */
@@ -439,7 +439,7 @@ int64_t list_modules(void)
      */
     fprintf(stdout, _("Installed Modules:\n"));
 #ifndef _WIN32
-    /* 
+    /*
      * linux version is much nicer than the windows (this is becoming common)
      */
     struct dirent **eps;
@@ -448,16 +448,16 @@ int64_t list_modules(void)
     {
         for (int64_t i = 0; i < n; ++i)
             if (strstr(eps[i]->d_name, ".so"))
-  #ifdef linux
+#ifdef linux
                 fprintf(stdout, "  %*s\n", (uint32_t)(strlen(eps[i]->d_name) - 3), eps[i]->d_name);
-  #else  /*   linux */
+#else  /*   linux */
             {
                 char *n = calloc(strlen(eps[i]->d_name), sizeof( char ));
                 memcpy(n, eps[i]->d_name, strlen(eps[i]->d_name) - 3);
                 fprintf(stdout, "  %s\n", n);
             }
-  #endif /* ! linux */
-    free(*eps);
+#endif /* ! linux */
+        free(*eps);
 #else  /* ! _WIN32 */
     DIR *dp = opendir("/Program Files/encrypt/lib");
     if (dp)
@@ -474,7 +474,7 @@ int64_t list_modules(void)
 
 int64_t show_help(void)
 {
-    /* 
+    /*
      * boo
      */
     show_version();

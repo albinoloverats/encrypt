@@ -3,7 +3,7 @@
  *      FILE:     rmd160.h
  *
  *      CONTENTS: Header file for a sample C-implementation of the
- *                RIPEMD-160 hash-function. 
+ *                RIPEMD-160 hash-function.
  *      TARGET:   any computer with an ANSI C compiler
  *
  *      AUTHOR:   Antoon Bosselaers, ESAT-COSIC
@@ -18,7 +18,7 @@
  *  The RIPEMD-160 software is freely available for use under the terms and
  *  conditions described hereunder, which shall be deemed to be accepted by
  *  any user of the software and applicable on any use of the software:
- * 
+ *
  *  1. K.U.Leuven Department of Electrical Engineering-ESAT/COSIC shall for
  *     all purposes be considered the owner of the RIPEMD-160 software and of
  *     all copyright, trade secret, patent or other intellectual property
@@ -32,9 +32,9 @@
  *     circumstances K.U.Leuven R&D will be held liable for any deficiency,
  *     fault or other mishappening with regard to the use or performance of
  *     the software.
- *  3. User agrees to give due credit to K.U.Leuven in scientific publications 
- *     or communications in relation with the use of the RIPEMD-160 software 
- *     as follows: RIPEMD-160 software written by Antoon Bosselaers, 
+ *  3. User agrees to give due credit to K.U.Leuven in scientific publications
+ *     or communications in relation with the use of the RIPEMD-160 software
+ *     as follows: RIPEMD-160 software written by Antoon Bosselaers,
  *     available at http://www.esat.kuleuven.be/~cosicart/ps/AB-9601/.
  *
 \********************************************************************/
@@ -46,7 +46,7 @@
 
 /* typedef 8 and 32 bit types, resp.  */
 
-/* adapt these, if necessary, 
+/* adapt these, if necessary,
    for your operating system and compiler */
 typedef uint8_t  byte;
 typedef uint32_t dword;
@@ -147,7 +147,7 @@ void MDcompress(dword * MDbuf, dword * X);
 void MDfinish(dword * MDbuf, byte * strptr, dword lswlen, dword mswlen);
 
 /*
- *  puts bytes from strptr into X and pad out; appends length 
+ *  puts bytes from strptr into X and pad out; appends length
  *  and finally, compresses the last block(s)
  *  note: length in bits == 8 * (lswlen + 2^32 mswlen).
  *  note: there are (lswlen mod 64) bytes left in strptr.

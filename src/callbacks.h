@@ -19,11 +19,11 @@
  */
 
 #ifndef _CALLBACKS_H_
-  #define _CALLBACKS_H_
+#define _CALLBACKS_H_
 
-  #include <gtk/gtk.h>
+#include <gtk/gtk.h>
 
-  #define PLUGIN_DETAILS_MASK \
+#define PLUGIN_DETAILS_MASK \
     "\n%s\n" \
       " %s : %s\n" " %s : %s\n" " %s : %s\n" " %s : %s\n" " %s : %s\n" " %s : %s\n" \
     "\n%s\n" \

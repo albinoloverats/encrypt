@@ -40,26 +40,26 @@
 
 void on_button_about_clicked(GtkWidget *widget)
 {
-    /* 
+    /*
      * woot woot - this is the about box :p
      */
     GtkWidget *window_about, *textview_about;
 
     window_about = create_window_about();
     gtk_widget_show(window_about);
-    /* 
+    /*
      * find out which algorithm the user wants to know about; if no algorithm is selected then just return all happy :)
      */
     GtkComboBoxEntry *alg = (GtkComboBoxEntry *)lookup_widget(GTK_WIDGET(widget), "comboboxentry_algorithm");
     if (!strcmp(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)), ""))
         return;
-    /* 
+    /*
      * set everything up so we can get some info about the given algorithm
      */
     char *filename_mod  = NULL;
     char *details = NULL;
 
-    info_t *about, *(*fp)(void); 
+    info_t *about, *(*fp)(void);
 
     errno = EXIT_SUCCESS;
 #ifndef _WIN32
@@ -73,8 +73,8 @@ void on_button_about_clicked(GtkWidget *widget)
     }
     else
 #endif /*   _WIN32 */
-      filename_mod = strdup(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
-    /* 
+    filename_mod = strdup(gtk_combo_box_get_active_text(GTK_COMBO_BOX(alg)));
+    /*
      * find the plugin, open it, etc...
      */
     if (!(file_mod = open_mod(filename_mod)))
@@ -89,9 +89,9 @@ void on_button_about_clicked(GtkWidget *widget)
 #ifndef _WIN32
     if (!(fp = (info_t *(*)(void))dlsym(file_mod, "plugin_info")))
     {
-  #ifdef _DLFCN_H
+#ifdef _DLFCN_H
         dlclose(file_mod);
-  #endif /* _DLFCN_H */
+#endif /* _DLFCN_H */
 #else   /* ! _WIN32 */
     if (!(fp = (void *)GetProcAddress(file_mod, "plugin_info")))
     {
@@ -101,21 +101,21 @@ void on_button_about_clicked(GtkWidget *widget)
         msg(_("could not find plugin information"));
         return;
     }
-    /* 
+    /*
      * now get the info
      */
     about = fp();
 #ifndef _WIN32
     if (asprintf(&details, PLUGIN_DETAILS_MASK,
-            _("Algorithm Details"),
-            _("Name"),    about->algorithm_name,  _("Authors"),   about->algorithm_authors,  _("Copyright"), about->algorithm_copyright,  _("Licence"), about->algorithm_licence,  _("Year"), about->algorithm_year,  _("Block size"), about->algorithm_block,
-            _("Key Details"),
-            _("Name"),    about->key_name,        _("Authors"),   about->key_authors,        _("Copyright"), about->key_copyright,        _("Licence"), about->key_licence,        _("Year"), about->key_year,        _("Key size"),   about->key_size,
-            _("Plugin Details"),
-            _("Authors"), about->module_authors,  _("Copyright"), about->module_copyright,   _("Licence"),   about->module_licence,       _("Version"), about->module_version,     _("Additional Details"), about->module_comment) < 0)
+                 _("Algorithm Details"),
+                 _("Name"),    about->algorithm_name,  _("Authors"),   about->algorithm_authors,  _("Copyright"), about->algorithm_copyright,  _("Licence"), about->algorithm_licence,  _("Year"), about->algorithm_year,  _("Block size"), about->algorithm_block,
+                 _("Key Details"),
+                 _("Name"),    about->key_name,        _("Authors"),   about->key_authors,        _("Copyright"), about->key_copyright,        _("Licence"), about->key_licence,        _("Year"), about->key_year,        _("Key size"),   about->key_size,
+                 _("Plugin Details"),
+                 _("Authors"), about->module_authors,  _("Copyright"), about->module_copyright,   _("Licence"),   about->module_licence,       _("Version"), about->module_version,     _("Additional Details"), about->module_comment) < 0)
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
 #else  /* ! _WIN32 */
-    /* 
+    /*
      * woot for Windows
      */
     uint32_t l = strlen(PLUGIN_DETAILS_MASK);
@@ -226,7 +226,7 @@ void on_button_do_clicked(GtkWidget *widget)
 
     errno = EXIT_SUCCESS;
 
-    /* 
+    /*
      * bring up the popup whilst everything happens
      */
     GtkWidget *window_wait;
@@ -235,7 +235,7 @@ void on_button_do_clicked(GtkWidget *widget)
     GtkWidget *button_wait_close = lookup_widget(window_wait, "button_wait_close");
     GtkWidget *label_text = lookup_widget(window_wait, "label_wait");
 
-    /* 
+    /*
      * get the name of the file to do something to
      */
     GtkFileChooser *filechooser_in = (GtkFileChooser *)lookup_widget(GTK_WIDGET(widget), "filechooserbutton_in_file");
@@ -246,7 +246,7 @@ void on_button_do_clicked(GtkWidget *widget)
         return;
     }
     filename_in = strdup((char *)gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(filechooser_in)));
-    /* 
+    /*
      * get the name of the destination directory and then the name of the file
      */
     GtkFileChooser *dirchooser_out = (GtkFileChooser *)lookup_widget(GTK_WIDGET(widget), "filechooserbutton_out_dir");
@@ -271,7 +271,7 @@ void on_button_do_clicked(GtkWidget *widget)
     sprintf(filename_out, "%s/%s", (char *)gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dirchooser_out)), (char *)gtk_entry_get_text(GTK_ENTRY(fileentry_out)));
 #endif /*   _WIN32 */
 
-    /* 
+    /*
      * get the name of the passphrase file (if we can) else try for a password
      */
     GtkFileChooser *filechooser_key = (GtkFileChooser *)lookup_widget(GTK_WIDGET(widget), "filechooserbutton_key_file");
@@ -304,7 +304,7 @@ void on_button_do_clicked(GtkWidget *widget)
         key_type = PASSWORD;
     }
 
-    /* 
+    /*
      * does the user wish to encrypt or decrypt
      */
     GtkComboBox *enc = (GtkComboBox *)lookup_widget(GTK_WIDGET(widget), "combobox_process");
@@ -313,7 +313,7 @@ void on_button_do_clicked(GtkWidget *widget)
     else
         function = DECRYPT;
 
-    /* 
+    /*
      * lastly we find out which algorithm the user wants to use
      */
     GtkComboBoxEntry *filecombo_mod = (GtkComboBoxEntry *)lookup_widget(GTK_WIDGET(widget), "comboboxentry_algorithm");
@@ -334,7 +334,7 @@ void on_button_do_clicked(GtkWidget *widget)
     }
     else
 #endif /* _WIN32 */
-      filename_mod = strdup(gtk_combo_box_get_active_text(GTK_COMBO_BOX(filecombo_mod)));
+        filename_mod = strdup(gtk_combo_box_get_active_text(GTK_COMBO_BOX(filecombo_mod)));
     /*
      * open the plugin
      */
@@ -350,7 +350,7 @@ void on_button_do_clicked(GtkWidget *widget)
     }
     free(filename_mod);
 
-    /* 
+    /*
      * now open all of the files - if we can't then something has happened to
      * them since the user selected them or they don't have permission to
      * read/write them
@@ -381,7 +381,7 @@ void on_button_do_clicked(GtkWidget *widget)
         return;
     }
     free(filename_out);
-    /* 
+    /*
      * if we're using a key directly then do that, else if we're not using a
      * password - that is, we're generating a key from a file instead - do
      * that (passwords come later)
@@ -400,7 +400,7 @@ void on_button_do_clicked(GtkWidget *widget)
     }
     free(key_plain);
 
-    /* 
+    /*
      * search for the function we want - if we were able to load the module
      * then it should be there
      */
@@ -421,7 +421,7 @@ void on_button_do_clicked(GtkWidget *widget)
         return;
     }
 
-    /* 
+    /*
      * we create a child thread to do the actual encrypting so that the parent can draw the message box to keep the user
      * happy - this also means the window says updated and doesn't become blanked by other windows moving over it
      *
@@ -447,7 +447,7 @@ void on_button_do_clicked(GtkWidget *widget)
     void *s;
     pthread_join(thrd, &s);
 
-    /* 
+    /*
      * free remaining data blocks, close all files
      */
     free(key_data);
@@ -522,7 +522,7 @@ void on_button_wait_close_clicked(GtkWidget *widget)
  */
 void on_button_gen_close_clicked(GtkWidget *widget)
 {
-    /* 
+    /*
      * get the name of the directory and then the name of the file to save the key to
      */
     GtkFileChooser *outdir = (GtkFileChooser *)lookup_widget(GTK_WIDGET(widget), "filechooserbutton_gen_save");
@@ -547,7 +547,7 @@ void on_button_gen_close_clicked(GtkWidget *widget)
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     sprintf(out_filename, "%s/%s", (char *)gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(outdir)), (char *)gtk_entry_get_text(GTK_ENTRY(outfile)));
 #endif
-    /* 
+    /*
      * now get the key from the text box
      */
     GtkEntry *k = (GtkEntry *)lookup_widget(GTK_WIDGET(widget), "entry_display_size");

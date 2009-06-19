@@ -382,7 +382,10 @@ static void serpent_encrypt(uint32_t plaintext[4], uint32_t ciphertext[4], uint3
     transform(y0, y1, y2, y3, x0, x1, x2, x3);
     keying(x0, x1, x2, x3, subkeys[31]);
     RND31(x0, x1, x2, x3, y0, y1, y2, y3);
-    x0 = y0; x1 = y1; x2 = y2; x3 = y3;
+    x0 = y0;
+    x1 = y1;
+    x2 = y2;
+    x3 = y3;
     keying(x0, x1, x2, x3, subkeys[32]);
     /* The ciphertext is now in x */
 
@@ -503,7 +506,10 @@ static void serpent_decrypt(uint32_t ciphertext[4], uint32_t plaintext[4], uint3
     keying(y0, y1, y2, y3, subkeys[ 1]);
     inv_transform(y0, y1, y2, y3, x0, x1, x2, x3);
     InvRND00(x0, x1, x2, x3, y0, y1, y2, y3);
-    x0 = y0; x1 = y1; x2 = y2; x3 = y3;
+    x0 = y0;
+    x1 = y1;
+    x2 = y2;
+    x3 = y3;
     keying(x0, x1, x2, x3, subkeys[ 0]);
     /* The plaintext is now in x */
 

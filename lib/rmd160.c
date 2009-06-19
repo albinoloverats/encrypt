@@ -18,7 +18,7 @@
  *  The RIPEMD-160 software is freely available for use under the terms and
  *  conditions described hereunder, which shall be deemed to be accepted by
  *  any user of the software and applicable on any use of the software:
- * 
+ *
  *  1. K.U.Leuven Department of Electrical Engineering-ESAT/COSIC shall for
  *     all purposes be considered the owner of the RIPEMD-160 software and of
  *     all copyright, trade secret, patent or other intellectual property
@@ -32,9 +32,9 @@
  *     circumstances K.U.Leuven R&D will be held liable for any deficiency,
  *     fault or other mishappening with regard to the use or performance of
  *     the software.
- *  3. User agrees to give due credit to K.U.Leuven in scientific publications 
- *     or communications in relation with the use of the RIPEMD-160 software 
- *     as follows: RIPEMD-160 software written by Antoon Bosselaers, 
+ *  3. User agrees to give due credit to K.U.Leuven in scientific publications
+ *     or communications in relation with the use of the RIPEMD-160 software
+ *     as follows: RIPEMD-160 software written by Antoon Bosselaers,
  *     available at http://www.esat.kuleuven.be/~cosicart/ps/AB-9601/.
  *
 \********************************************************************/
@@ -48,7 +48,8 @@
 
 /********************************************************************/
 
-void MDinit(dword * MDbuf) {
+void MDinit(dword * MDbuf)
+{
     MDbuf[0] = 0x67452301UL;
     MDbuf[1] = 0xefcdab89UL;
     MDbuf[2] = 0x98badcfeUL;
@@ -60,17 +61,18 @@ void MDinit(dword * MDbuf) {
 
 /********************************************************************/
 
-void MDcompress(dword * MDbuf, dword * X) {
+void MDcompress(dword * MDbuf, dword * X)
+{
     dword aa = MDbuf[0],
-      bb = MDbuf[1],
-      cc = MDbuf[2],
-      dd = MDbuf[3],
-      ee = MDbuf[4];
+               bb = MDbuf[1],
+                    cc = MDbuf[2],
+                         dd = MDbuf[3],
+                              ee = MDbuf[4];
     dword aaa = MDbuf[0],
-      bbb = MDbuf[1],
-      ccc = MDbuf[2],
-      ddd = MDbuf[3],
-      eee = MDbuf[4];
+                bbb = MDbuf[1],
+                      ccc = MDbuf[2],
+                            ddd = MDbuf[3],
+                                  eee = MDbuf[4];
 
     /* round 1 */
     FF(aa, bb, cc, dd, ee, X[0], 11);
@@ -265,14 +267,16 @@ void MDcompress(dword * MDbuf, dword * X) {
 
 /********************************************************************/
 
-void MDfinish(dword * MDbuf, byte * strptr, dword lswlen, dword mswlen) {
+void MDfinish(dword * MDbuf, byte * strptr, dword lswlen, dword mswlen)
+{
     unsigned int i;             /* counter */
     dword X[16];                /* message words */
 
     memset(X, 0, 16 * sizeof(dword));
 
     /* put bytes from strptr into X */
-    for (i = 0; i < (lswlen & 63); i++) {
+    for (i = 0; i < (lswlen & 63); i++)
+    {
         /* byte i goes into word X[i div 4] at pos.  8*(i mod 4) */
         X[i >> 2] ^= (dword) * strptr++ << (8 * (i & 3));
     }
@@ -280,7 +284,8 @@ void MDfinish(dword * MDbuf, byte * strptr, dword lswlen, dword mswlen) {
     /* append the bit m_n == 1 */
     X[(lswlen >> 2) & 15] ^= (dword) 1 << (8 * (lswlen & 3) + 7);
 
-    if ((lswlen & 63) > 55) {
+    if ((lswlen & 63) > 55)
+    {
         /* length goes to next block */
         MDcompress(MDbuf, X);
         memset(X, 0, 16 * sizeof(dword));

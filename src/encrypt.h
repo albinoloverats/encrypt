@@ -19,12 +19,12 @@
  */
 
 #ifndef _ENCRYPT_H_
-  #define _ENCRYPT_H_
+#define _ENCRYPT_H_
 
-  #define NAME "encrypt"
-  #define VERSION "200905-"
+#define NAME "encrypt"
+#define VERSION "200905-"
 
-  #define TEXT_HELP \
+#define TEXT_HELP \
     "If -i or -o are omitted then stdin/stdout are used.  Either -e or -d must be\n" \
     "present if you intend to do something, as well as -k -f or -p. Using -g will\n" \
     "generate a random key and echo it to stdout unless -g is preceded by -k; the\n" \
@@ -33,14 +33,14 @@
 
 
 
-  typedef enum ekey_t { KEYFILE = 1, PASSFILE, PASSWORD } ekey_t;
-  typedef enum func_t { ENCRYPT = 1, DECRYPT } func_t;
+typedef enum ekey_t { KEYFILE = 1, PASSFILE, PASSWORD } ekey_t;
+typedef enum func_t { ENCRYPT = 1, DECRYPT } func_t;
 
-  void *open_mod(char *);
-  int64_t algorithm_info(char *);
-  int64_t list_modules(void);
+void *open_mod(char *);
+int64_t algorithm_info(char *);
+int64_t list_modules(void);
 
-  int64_t  key_generate(char *, char *);
-  uint8_t *key_calculate(void *, char *, ekey_t);
+int64_t  key_generate(char *, char *);
+uint8_t *key_calculate(void *, char *, ekey_t);
 
 #endif /* _ENCRYPT_H_ */

@@ -1,20 +1,20 @@
 /*
- *	This anubis module is an algorithm plugin for encrypt
- *	Copyright (c) 2005-2009, Ashley Anderson
- *	email: amanderson@albinoloverats.net
+ * This anubis module is an algorithm plugin for encrypt
+ * Copyright (c) 2005-2009, Ashley Anderson
+ * email: amanderson@albinoloverats.net
  *
- *	This program is free software: you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation, either version 3 of the License, or
- *	(at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -73,12 +73,12 @@ to, e.g., the NSA-designed family of algorithms, SHA."
  * <a href="mailto:vincent.rijmen@esat.kuleuven.ac.be">Vincent Rijmen</a>.
  *
  * See
- *		P.S.L.M. Barreto, V. Rijmen,
- *		``The Anubis block cipher,''
- *		NESSIE submission, 2000.
- * 
- * @author	Paulo S.L.M. Barreto
- * @author	Vincent Rijmen.
+ *  P.S.L.M. Barreto, V. Rijmen,
+ *  ``The Anubis block cipher,''
+ *  NESSIE submission, 2000.
+ *
+ * @author Paulo S.L.M. Barreto
+ * @author Vincent Rijmen.
  *
  * @version 2.0 (2001.05.15)
  *
@@ -112,30 +112,30 @@ to, e.g., the NSA-designed family of algorithms, SHA."
 #include <string.h>
 
 /* Definition of minimum-width integer types
- * 
- * u8   -> unsigned integer type, at least 8 bits, equivalent to unsigned char
- * u16  -> unsigned integer type, at least 16 bits
- * u32  -> unsigned integer type, at least 32 bits
  *
- * s8, s16, s32  -> signed counterparts of u8, u16, u32
+ * uint8_t   -> unsigned integer type, at least 8 bits, equivalent to unsigned char
+ * uint16_t  -> unsigned integer type, at least 16 bits
+ * uint32_t  -> unsigned integer type, at least 32 bits
+ *
+ * int8_t, int16_t, int32_t  -> signed counterparts of uint8_t, uint16_t, uint32_t
  *
  * Always use macro's T8(), T16() or T32() to obtain exact-width results,
  * i.e., to specify the size of the result of each expression.
  */
 
-typedef int8_t s8;
-typedef uint8_t u8;
+typedef int8_t int8_t;
+typedef uint8_t uint8_t;
 
-typedef int16_t s16;
-typedef uint16_t u16;
+typedef int16_t int16_t;
+typedef uint16_t uint16_t;
 
-typedef int32_t s32;
-typedef uint32_t u32;
+typedef int32_t int32_t;
+typedef uint32_t uint32_t;
 
 #if UINT_MAX >= 4294967295UL
-  #define ONE32   0xffffffffU
+#define ONE32   0xffffffffU
 #else
-  #define ONE32   0xffffffffUL
+#define ONE32   0xffffffffUL
 #endif
 
 #define ONE8    0xffU
@@ -155,44 +155,44 @@ typedef uint32_t u32;
  */
 
 /*
- * U8TO32_BIG(c) returns the 32-bit value stored in big-endian convention
+ * uint8_tTO32_BIG(c) returns the 32-bit value stored in big-endian convention
  * in the unsigned char array pointed to by c.
  */
-#define U8TO32_BIG(c)  (((u32)T8(*(c)) << 24) | ((u32)T8(*((c) + 1)) << 16) \
-                       ((u32)T8(*((c) + 2)) << 8) | ((u32)T8(*((c) + 3))))
+#define uint8_tTO32_BIG(c)  (((uint32_t)T8(*(c)) << 24) | ((uint32_t)T8(*((c) + 1)) << 16) \
+                       ((uint32_t)T8(*((c) + 2)) << 8) | ((uint32_t)T8(*((c) + 3))))
 
 /*
- * U8TO32_LITTLE(c) returns the 32-bit value stored in little-endian convention
+ * uint8_tTO32_LITTLE(c) returns the 32-bit value stored in little-endian convention
  * in the unsigned char array pointed to by c.
  */
-#define U8TO32_LITTLE(c)  (((u32)T8(*(c))) | ((u32)T8(*((c) + 1)) << 8) \
-                      (u32)T8(*((c) + 2)) << 16) | ((u32)T8(*((c) + 3)) << 24))
+#define uint8_tTO32_LITTLE(c)  (((uint32_t)T8(*(c))) | ((uint32_t)T8(*((c) + 1)) << 8) \
+                      (uint32_t)T8(*((c) + 2)) << 16) | ((uint32_t)T8(*((c) + 3)) << 24))
 
 /*
- * U8TO32_BIG(c, v) stores the 32-bit-value v in big-endian convention
+ * uint8_tTO32_BIG(c, v) stores the 32-bit-value v in big-endian convention
  * into the unsigned char array pointed to by c.
  */
-#define U32TO8_BIG(c, v)    do { \
-		u32 x = (v); \
-		u8 *d = (c); \
-		d[0] = T8(x >> 24); \
-		d[1] = T8(x >> 16); \
-		d[2] = T8(x >> 8); \
-		d[3] = T8(x); \
-	} while (0)
+#define uint32_tTO8_BIG(c, v)    do { \
+  uint32_t x = (v); \
+  uint8_t *d = (c); \
+  d[0] = T8(x >> 24); \
+  d[1] = T8(x >> 16); \
+  d[2] = T8(x >> 8); \
+  d[3] = T8(x); \
+ } while (0)
 
 /*
- * U8TO32_LITTLE(c, v) stores the 32-bit-value v in little-endian convention
+ * uint8_tTO32_LITTLE(c, v) stores the 32-bit-value v in little-endian convention
  * into the unsigned char array pointed to by c.
  */
-#define U32TO8_LITTLE(c, v)    do { \
-		u32 x = (v); \
-		u8 *d = (c); \
-		d[0] = T8(x); \
-		d[1] = T8(x >> 8); \
-		d[2] = T8(x >> 16); \
-		d[3] = T8(x >> 24); \
-	} while (0)
+#define uint32_tTO8_LITTLE(c, v)    do { \
+  uint32_t x = (v); \
+  uint8_t *d = (c); \
+  d[0] = T8(x); \
+  d[1] = T8(x >> 8); \
+  d[2] = T8(x >> 16); \
+  d[3] = T8(x >> 24); \
+ } while (0)
 
 /*
  * ROTL32(v, n) returns the value of the 32-bit unsigned value v after
@@ -206,56 +206,57 @@ typedef uint32_t u32;
  */
 #define ROTL32(v, n)   (T32((v) << (n)) | ((v) >> (32 - (n))))
 
-/* 
- * Anubis-specific definitions: 
+/*
+ * Anubis-specific definitions:
  */
 
-#define MIN_N			 4
-#define MAX_N			10
-#define MIN_ROUNDS		(8 + MIN_N)
-#define MAX_ROUNDS		(8 + MAX_N)
-#define MIN_KEYSIZEB	(4*MIN_N)
-#define MAX_KEYSIZEB	(4*MAX_N)
-#define BLOCKSIZE		128
-#define BLOCKSIZEB		(BLOCKSIZE/8)
+#define MIN_N    4
+#define MAX_N   10
+#define MIN_ROUNDS  (8 + MIN_N)
+#define MAX_ROUNDS  (8 + MAX_N)
+#define MIN_KEYSIZEB (4*MIN_N)
+#define MAX_KEYSIZEB (4*MAX_N)
+#define BLOCKSIZE  128
+#define BLOCKSIZEB  (BLOCKSIZE/8)
 
-/* 
- * The KEYSIZEB macro should be redefined for each allowed key size 
- * in order to use the NESSIE test vector generator program. 
- * Valid sizes (in bytes) are 16, 20, 24, 28, 32, 36, and 40. 
+/*
+ * The KEYSIZEB macro should be redefined for each allowed key size
+ * in order to use the NESSIE test vector generator program.
+ * Valid sizes (in bytes) are 16, 20, 24, 28, 32, 36, and 40.
  */
-#define KEYSIZEB		16
+#define KEYSIZEB  16
 
-typedef struct NESSIEstruct {
+typedef struct NESSIEstruct
+{
     int keyBits;                /* this field must be initialized before the
                                  * NESSIEkeysetup call */
     int R;
-    u32 roundKeyEnc[MAX_ROUNDS + 1][4];
-    u32 roundKeyDec[MAX_ROUNDS + 1][4];
+    uint32_t roundKeyEnc[MAX_ROUNDS + 1][4];
+    uint32_t roundKeyDec[MAX_ROUNDS + 1][4];
 } NESSIEstruct;
 
-/** 
- * Create the Anubis key schedule for a given cipher key. 
- * Both encryption and decryption key schedules are generated. 
- *  
- * @param key			The 32N-bit cipher key. 
- * @param structpointer	Pointer to the structure that will hold the expanded key. 
+/**
+ * Create the Anubis key schedule for a given cipher key.
+ * Both encryption and decryption key schedules are generated.
+ *
+ * @param key   The 32N-bit cipher key.
+ * @param structpointer Pointer to the structure that will hold the expanded key.
  */
 void NESSIEkeysetup(const unsigned char *const key,
-  struct NESSIEstruct *const structpointer);
+                    struct NESSIEstruct *const structpointer);
 
-/** 
- * Encrypt a data block. 
- *  
- * @param	structpointer	the expanded key. 
- * @param	plaintext		the data block to be encrypted. 
- * @param	ciphertext		the encrypted data block. 
+/**
+ * Encrypt a data block.
+ *
+ * @param structpointer the expanded key.
+ * @param plaintext  the data block to be encrypted.
+ * @param ciphertext  the encrypted data block.
  */
 void NESSIEencrypt(const struct NESSIEstruct *const structpointer,
-  const unsigned char *const plaintext, unsigned char *const ciphertext);
+                   const unsigned char *const plaintext, unsigned char *const ciphertext);
 
 void NESSIEdecrypt(const struct NESSIEstruct *const structpointer,
-  const unsigned char *const ciphertext, unsigned char *const plaintext);
+                   const unsigned char *const ciphertext, unsigned char *const plaintext);
 
 
 /*
@@ -265,7 +266,8 @@ void NESSIEdecrypt(const struct NESSIEstruct *const structpointer,
  * employed).
  */
 
-static const u32 T0[256] = {
+static const uint32_t T0[256] =
+{
     0xba69d2bbU, 0x54a84de5U, 0x2f5ebce2U, 0x74e8cd25U,
     0x53a651f7U, 0xd3bb6bd0U, 0xd2b96fd6U, 0x4d9a29b3U,
     0x50a05dfdU, 0xac458acfU, 0x8d070e09U, 0xbf63c6a5U,
@@ -332,7 +334,8 @@ static const u32 T0[256] = {
     0x1f3e7c42U, 0xca890f86U, 0xaa4992dbU, 0x42841591U,
 };
 
-static const u32 T1[256] = {
+static const uint32_t T1[256] =
+{
     0x69babbd2U, 0xa854e54dU, 0x5e2fe2bcU, 0xe87425cdU,
     0xa653f751U, 0xbbd3d06bU, 0xb9d2d66fU, 0x9a4db329U,
     0xa050fd5dU, 0x45accf8aU, 0x078d090eU, 0x63bfa5c6U,
@@ -399,7 +402,8 @@ static const u32 T1[256] = {
     0x3e1f427cU, 0x89ca860fU, 0x49aadb92U, 0x84429115U,
 };
 
-static const u32 T2[256] = {
+static const uint32_t T2[256] =
+{
     0xd2bbba69U, 0x4de554a8U, 0xbce22f5eU, 0xcd2574e8U,
     0x51f753a6U, 0x6bd0d3bbU, 0x6fd6d2b9U, 0x29b34d9aU,
     0x5dfd50a0U, 0x8acfac45U, 0x0e098d07U, 0xc6a5bf63U,
@@ -466,7 +470,8 @@ static const u32 T2[256] = {
     0x7c421f3eU, 0x0f86ca89U, 0x92dbaa49U, 0x15914284U,
 };
 
-static const u32 T3[256] = {
+static const uint32_t T3[256] =
+{
     0xbbd269baU, 0xe54da854U, 0xe2bc5e2fU, 0x25cde874U,
     0xf751a653U, 0xd06bbbd3U, 0xd66fb9d2U, 0xb3299a4dU,
     0xfd5da050U, 0xcf8a45acU, 0x090e078dU, 0xa5c663bfU,
@@ -533,7 +538,8 @@ static const u32 T3[256] = {
     0x427c3e1fU, 0x860f89caU, 0xdb9249aaU, 0x91158442U,
 };
 
-static const u32 T4[256] = {
+static const uint32_t T4[256] =
+{
     0xbabababaU, 0x54545454U, 0x2f2f2f2fU, 0x74747474U,
     0x53535353U, 0xd3d3d3d3U, 0xd2d2d2d2U, 0x4d4d4d4dU,
     0x50505050U, 0xacacacacU, 0x8d8d8d8dU, 0xbfbfbfbfU,
@@ -600,7 +606,8 @@ static const u32 T4[256] = {
     0x1f1f1f1fU, 0xcacacacaU, 0xaaaaaaaaU, 0x42424242U,
 };
 
-static const u32 T5[256] = {
+static const uint32_t T5[256] =
+{
     0x00000000U, 0x01020608U, 0x02040c10U, 0x03060a18U,
     0x04081820U, 0x050a1e28U, 0x060c1430U, 0x070e1238U,
     0x08103040U, 0x09123648U, 0x0a143c50U, 0x0b163a58U,
@@ -670,7 +677,8 @@ static const u32 T5[256] = {
 /**
  * The round constants.
  */
-static const u32 rc[] = {
+static const uint32_t rc[] =
+{
     0xba542f74U, 0x53d3d24dU, 0x50ac8dbfU, 0x70529a4cU,
     0xead597d1U, 0x33515ba6U, 0xde48a899U, 0xdb32b7fcU,
     0xe39e919bU, 0xe2bb416eU, 0xa5cb6b95U, 0xa1f3b102U,
@@ -682,80 +690,84 @@ static const u32 rc[] = {
 /**
  * Create the Anubis key schedule for a given cipher key.
  * Both encryption and decryption key schedules are generated.
- * 
- * @param key			The 32N-bit cipher key.
- * @param structpointer		Pointer to the structure that will hold the expanded key.
+ *
+ * @param key   The 32N-bit cipher key.
+ * @param structpointer  Pointer to the structure that will hold the expanded key.
  */
 void NESSIEkeysetup(const unsigned char *const key,
-  struct NESSIEstruct *const structpointer) {
+                    struct NESSIEstruct *const structpointer)
+{
 
     int N,
-        R,
-        i,
-        pos,
-        r;
-    u32 kappa[MAX_N];
-    u32 inter[MAX_N];
+    R,
+    i,
+    pos,
+    r;
+    uint32_t kappa[MAX_N];
+    uint32_t inter[MAX_N];
 
     structpointer->keyBits = KEYSIZEB * 8;
 
-    /* 
+    /*
      * determine the N length parameter:
      * (N.B. it is assumed that the key length is valid!)
      */
     N = structpointer->keyBits >> 5;
 
-    /* 
+    /*
      * determine number of rounds from key size:
      */
     structpointer->R = R = 8 + N;
 
-    /* 
+    /*
      * map cipher key to initial key state (mu):
      */
-    for (i = 0, pos = 0; i < N; i++, pos += 4) {
+    for (i = 0, pos = 0; i < N; i++, pos += 4)
+    {
         kappa[i] =
-          (key[pos] << 24) ^
-          (key[pos + 1] << 16) ^ (key[pos + 2] << 8) ^ (key[pos + 3]);
+            (key[pos] << 24) ^
+            (key[pos + 1] << 16) ^ (key[pos + 2] << 8) ^ (key[pos + 3]);
     }
 
-    /* 
+    /*
      * generate R + 1 round keys:
      */
-    for (r = 0; r <= R; r++) {
-        u32 K0,
-            K1,
-            K2,
-            K3;
+    for (r = 0; r <= R; r++)
+    {
+        uint32_t K0,
+        K1,
+        K2,
+        K3;
 
-        /* 
+        /*
          * generate r-th round key K^r:
          */
         K0 = T4[(kappa[N - 1] >> 24)];
         K1 = T4[(kappa[N - 1] >> 16) & 0xff];
         K2 = T4[(kappa[N - 1] >> 8) & 0xff];
         K3 = T4[(kappa[N - 1]) & 0xff];
-        for (i = N - 2; i >= 0; i--) {
+        for (i = N - 2; i >= 0; i--)
+        {
             K0 = T4[(kappa[i] >> 24)] ^
-              (T5[(K0 >> 24)] & 0xff000000U) ^
-              (T5[(K0 >> 16) & 0xff] & 0x00ff0000U) ^
-              (T5[(K0 >> 8) & 0xff] & 0x0000ff00U) ^
-              (T5[(K0) & 0xff] & 0x000000ffU);
+                 (T5[(K0 >> 24)] & 0xff000000U) ^
+                 (T5[(K0 >> 16) & 0xff] & 0x00ff0000U) ^
+                 (T5[(K0 >> 8) & 0xff] & 0x0000ff00U) ^
+                 (T5[(K0) & 0xff] & 0x000000ffU);
             K1 = T4[(kappa[i] >> 16) & 0xff] ^
-              (T5[(K1 >> 24)] & 0xff000000U) ^
-              (T5[(K1 >> 16) & 0xff] & 0x00ff0000U) ^
-              (T5[(K1 >> 8) & 0xff] & 0x0000ff00U) ^
-              (T5[(K1) & 0xff] & 0x000000ffU);
+                 (T5[(K1 >> 24)] & 0xff000000U) ^
+                 (T5[(K1 >> 16) & 0xff] & 0x00ff0000U) ^
+                 (T5[(K1 >> 8) & 0xff] & 0x0000ff00U) ^
+                 (T5[(K1) & 0xff] & 0x000000ffU);
             K2 = T4[(kappa[i] >> 8) & 0xff] ^
-              (T5[(K2 >> 24)] & 0xff000000U) ^
-              (T5[(K2 >> 16) & 0xff] & 0x00ff0000U) ^
-              (T5[(K2 >> 8) & 0xff] & 0x0000ff00U) ^
-              (T5[(K2) & 0xff] & 0x000000ffU);
+                 (T5[(K2 >> 24)] & 0xff000000U) ^
+                 (T5[(K2 >> 16) & 0xff] & 0x00ff0000U) ^
+                 (T5[(K2 >> 8) & 0xff] & 0x0000ff00U) ^
+                 (T5[(K2) & 0xff] & 0x000000ffU);
             K3 = T4[(kappa[i]) & 0xff] ^
-              (T5[(K3 >> 24)] & 0xff000000U) ^
-              (T5[(K3 >> 16) & 0xff] & 0x00ff0000U) ^
-              (T5[(K3 >> 8) & 0xff] & 0x0000ff00U) ^
-              (T5[(K3) & 0xff] & 0x000000ffU);
+                 (T5[(K3 >> 24)] & 0xff000000U) ^
+                 (T5[(K3 >> 16) & 0xff] & 0x00ff0000U) ^
+                 (T5[(K3 >> 8) & 0xff] & 0x0000ff00U) ^
+                 (T5[(K3) & 0xff] & 0x000000ffU);
         }
 
         structpointer->roundKeyEnc[r][0] = K0;
@@ -763,13 +775,15 @@ void NESSIEkeysetup(const unsigned char *const key,
         structpointer->roundKeyEnc[r][2] = K2;
         structpointer->roundKeyEnc[r][3] = K3;
 
-        /* 
+        /*
          * compute kappa^{r+1} from kappa^r:
          */
-        if (r == R) {
+        if (r == R)
+        {
             break;
         }
-        for (i = 0; i < N; i++) {
+        for (i = 0; i < N; i++)
+        {
             int j = i;
 
             inter[i] = T0[(kappa[j--] >> 24)];
@@ -784,146 +798,156 @@ void NESSIEkeysetup(const unsigned char *const key,
             inter[i] ^= T3[(kappa[j]) & 0xff];
         }
         kappa[0] = inter[0] ^ rc[r];
-        for (i = 1; i < N; i++) {
+        for (i = 1; i < N; i++)
+        {
             kappa[i] = inter[i];
         }
     }
 
-    /* 
+    /*
      * generate inverse key schedule: K'^0 = K^R, K'^R = K^0, K'^r = theta(K^{R-r}):
      */
-    for (i = 0; i < 4; i++) {
+    for (i = 0; i < 4; i++)
+    {
         structpointer->roundKeyDec[0][i] = structpointer->roundKeyEnc[R][i];
         structpointer->roundKeyDec[R][i] = structpointer->roundKeyEnc[0][i];
     }
-    for (r = 1; r < R; r++) {
-        for (i = 0; i < 4; i++) {
-            u32 v = structpointer->roundKeyEnc[R - r][i];
+    for (r = 1; r < R; r++)
+    {
+        for (i = 0; i < 4; i++)
+        {
+            uint32_t v = structpointer->roundKeyEnc[R - r][i];
 
             structpointer->roundKeyDec[r][i] =
-              T0[T4[(v >> 24)] & 0xff] ^
-              T1[T4[(v >> 16) & 0xff] & 0xff] ^
-              T2[T4[(v >> 8) & 0xff] & 0xff] ^ T3[T4[(v) & 0xff] & 0xff];
+                T0[T4[(v >> 24)] & 0xff] ^
+                T1[T4[(v >> 16) & 0xff] & 0xff] ^
+                T2[T4[(v >> 8) & 0xff] & 0xff] ^ T3[T4[(v) & 0xff] & 0xff];
         }
     }
 }
 
 /**
  * Either encrypt or decrypt a data block, according to the key schedule.
- * 
- * @param	block			the data block to be encrypted/decrypted.
- * @param	roundKey		the key schedule to be used.
- * @param	R			number of rounds.
+ *
+ * @param block   the data block to be encrypted/decrypted.
+ * @param roundKey  the key schedule to be used.
+ * @param R   number of rounds.
  */
-static void anu_crypt(const u8 plaintext[ /* 16 */ ],
-  u8 ciphertext[ /* 16 */ ],
-  const u32 roundKey[MAX_ROUNDS + 1][4], int R) {
+static void anu_crypt(const uint8_t plaintext[ /* 16 */ ],
+                      uint8_t ciphertext[ /* 16 */ ],
+                      const uint32_t roundKey[MAX_ROUNDS + 1][4], int R)
+{
     int i,
-        pos,
-        r;
-    u32 state[4];
-    u32 inter[4];
+    pos,
+    r;
+    uint32_t state[4] = { 0x0 };
+    uint32_t inter[4] = { 0x0 };
 
-    /* 
+    /*
      * map plaintext block to cipher state (mu)
      * and add initial round key (sigma[K^0]):
      */
-    for (i = 0, pos = 0; i < 4; i++, pos += 4) {
+    for (i = 0, pos = 0; i < 4; i++, pos += 4)
+    {
         state[i] =
-          (plaintext[pos] << 24) ^
-          (plaintext[pos + 1] << 16) ^
-          (plaintext[pos + 2] << 8) ^ (plaintext[pos + 3]) ^ roundKey[0][i];
+            (plaintext[pos] << 24) ^
+            (plaintext[pos + 1] << 16) ^
+            (plaintext[pos + 2] << 8) ^ (plaintext[pos + 3]) ^ roundKey[0][i];
     }
 
-    /* 
+    /*
      * R - 1 full rounds:
      */
-    for (r = 1; r < R; r++) {
+    for (r = 1; r < R; r++)
+    {
         inter[0] =
-          T0[(state[0] >> 24)] ^
-          T1[(state[1] >> 24)] ^
-          T2[(state[2] >> 24)] ^ T3[(state[3] >> 24)] ^ roundKey[r][0];
+            T0[(state[0] >> 24)] ^
+            T1[(state[1] >> 24)] ^
+            T2[(state[2] >> 24)] ^ T3[(state[3] >> 24)] ^ roundKey[r][0];
         inter[1] =
-          T0[(state[0] >> 16) & 0xff] ^
-          T1[(state[1] >> 16) & 0xff] ^
-          T2[(state[2] >> 16) & 0xff] ^
-          T3[(state[3] >> 16) & 0xff] ^ roundKey[r][1];
+            T0[(state[0] >> 16) & 0xff] ^
+            T1[(state[1] >> 16) & 0xff] ^
+            T2[(state[2] >> 16) & 0xff] ^
+            T3[(state[3] >> 16) & 0xff] ^ roundKey[r][1];
         inter[2] =
-          T0[(state[0] >> 8) & 0xff] ^
-          T1[(state[1] >> 8) & 0xff] ^
-          T2[(state[2] >> 8) & 0xff] ^
-          T3[(state[3] >> 8) & 0xff] ^ roundKey[r][2];
+            T0[(state[0] >> 8) & 0xff] ^
+            T1[(state[1] >> 8) & 0xff] ^
+            T2[(state[2] >> 8) & 0xff] ^
+            T3[(state[3] >> 8) & 0xff] ^ roundKey[r][2];
         inter[3] =
-          T0[(state[0]) & 0xff] ^
-          T1[(state[1]) & 0xff] ^
-          T2[(state[2]) & 0xff] ^ T3[(state[3]) & 0xff] ^ roundKey[r][3];
+            T0[(state[0]) & 0xff] ^
+            T1[(state[1]) & 0xff] ^
+            T2[(state[2]) & 0xff] ^ T3[(state[3]) & 0xff] ^ roundKey[r][3];
         state[0] = inter[0];
         state[1] = inter[1];
         state[2] = inter[2];
         state[3] = inter[3];
     }
 
-    /* 
+    /*
      * last round:
      */
     inter[0] =
-      (T0[(state[0] >> 24)] & 0xff000000U) ^
-      (T1[(state[1] >> 24)] & 0x00ff0000U) ^
-      (T2[(state[2] >> 24)] & 0x0000ff00U) ^
-      (T3[(state[3] >> 24)] & 0x000000ffU) ^ roundKey[R][0];
+        (T0[(state[0] >> 24)] & 0xff000000U) ^
+        (T1[(state[1] >> 24)] & 0x00ff0000U) ^
+        (T2[(state[2] >> 24)] & 0x0000ff00U) ^
+        (T3[(state[3] >> 24)] & 0x000000ffU) ^ roundKey[R][0];
     inter[1] =
-      (T0[(state[0] >> 16) & 0xff] & 0xff000000U) ^
-      (T1[(state[1] >> 16) & 0xff] & 0x00ff0000U) ^
-      (T2[(state[2] >> 16) & 0xff] & 0x0000ff00U) ^
-      (T3[(state[3] >> 16) & 0xff] & 0x000000ffU) ^ roundKey[R][1];
+        (T0[(state[0] >> 16) & 0xff] & 0xff000000U) ^
+        (T1[(state[1] >> 16) & 0xff] & 0x00ff0000U) ^
+        (T2[(state[2] >> 16) & 0xff] & 0x0000ff00U) ^
+        (T3[(state[3] >> 16) & 0xff] & 0x000000ffU) ^ roundKey[R][1];
     inter[2] =
-      (T0[(state[0] >> 8) & 0xff] & 0xff000000U) ^
-      (T1[(state[1] >> 8) & 0xff] & 0x00ff0000U) ^
-      (T2[(state[2] >> 8) & 0xff] & 0x0000ff00U) ^
-      (T3[(state[3] >> 8) & 0xff] & 0x000000ffU) ^ roundKey[R][2];
+        (T0[(state[0] >> 8) & 0xff] & 0xff000000U) ^
+        (T1[(state[1] >> 8) & 0xff] & 0x00ff0000U) ^
+        (T2[(state[2] >> 8) & 0xff] & 0x0000ff00U) ^
+        (T3[(state[3] >> 8) & 0xff] & 0x000000ffU) ^ roundKey[R][2];
     inter[3] =
-      (T0[(state[0]) & 0xff] & 0xff000000U) ^
-      (T1[(state[1]) & 0xff] & 0x00ff0000U) ^
-      (T2[(state[2]) & 0xff] & 0x0000ff00U) ^
-      (T3[(state[3]) & 0xff] & 0x000000ffU) ^ roundKey[R][3];
+        (T0[(state[0]) & 0xff] & 0xff000000U) ^
+        (T1[(state[1]) & 0xff] & 0x00ff0000U) ^
+        (T2[(state[2]) & 0xff] & 0x0000ff00U) ^
+        (T3[(state[3]) & 0xff] & 0x000000ffU) ^ roundKey[R][3];
 
-    /* 
+    /*
      * map cipher state to ciphertext block (mu^{-1}):
      */
-    for (i = 0, pos = 0; i < 4; i++, pos += 4) {
-        u32 w = inter[i];
+    for (i = 0, pos = 0; i < 4; i++, pos += 4)
+    {
+        uint32_t w = inter[i];
 
-        ciphertext[pos] = (u8) (w >> 24);
-        ciphertext[pos + 1] = (u8) (w >> 16);
-        ciphertext[pos + 2] = (u8) (w >> 8);
-        ciphertext[pos + 3] = (u8) (w);
+        ciphertext[pos] = (uint8_t) (w >> 24);
+        ciphertext[pos + 1] = (uint8_t) (w >> 16);
+        ciphertext[pos + 2] = (uint8_t) (w >> 8);
+        ciphertext[pos + 3] = (uint8_t) (w);
     }
 }
 
 /**
  * Encrypt a data block.
- * 
- * @param	structpointer		the expanded key.
- * @param	plaintext		the data block to be encrypted.
- * @param	ciphertext		the encrypted data block.
+ *
+ * @param structpointer  the expanded key.
+ * @param plaintext  the data block to be encrypted.
+ * @param ciphertext  the encrypted data block.
  */
 void NESSIEencrypt(const struct NESSIEstruct *const structpointer,
-  const unsigned char *const plaintext, unsigned char *const ciphertext) {
+                   const unsigned char *const plaintext, unsigned char *const ciphertext)
+{
     anu_crypt(plaintext, ciphertext, structpointer->roundKeyEnc,
-      structpointer->R);
+              structpointer->R);
 }
 
 /**
  * Decrypt a data block.
- * 
- * @param	structpointer		the expanded key.
- * @param	ciphertext		the data block to be decrypted.
- * @param	plaintext		the decrypted data block.
+ *
+ * @param structpointer  the expanded key.
+ * @param ciphertext  the data block to be decrypted.
+ * @param plaintext  the decrypted data block.
  */
 void NESSIEdecrypt(const struct NESSIEstruct *const structpointer,
-  const unsigned char *const ciphertext, unsigned char *const plaintext) {
+                   const unsigned char *const ciphertext, unsigned char *const plaintext)
+{
     anu_crypt(ciphertext, plaintext, structpointer->roundKeyDec,
-      structpointer->R);
+              structpointer->R);
 }
 
 #endif /* PORTABLE_C__ */

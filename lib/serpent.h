@@ -547,9 +547,9 @@ static void serpent_decrypt(uint32_t[4], uint32_t[4], uint32_t *);
 
 /* PHI: Constant used in the key schedule */
 #ifdef __amd64__
-  #define PHI 0x9e3779b9
+#define PHI 0x9e3779b9
 #else
-  #define PHI 0x9e3779b9L
+#define PHI 0x9e3779b9L
 #endif
 
 #endif /* _SERPENT_H_ */

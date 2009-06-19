@@ -90,7 +90,7 @@ GtkWidget *create_window_main(void)
     gtk_widget_show(fixed_layout);
     gtk_container_add(GTK_CONTAINER(window_main), fixed_layout);
 
-    /* 
+    /*
      * each of these lines of code which get the location of specified files is really bad - why doesn't
      * gtk_file_chooser_set_filename allow paths from the current directory?!
      */
@@ -178,7 +178,7 @@ GtkWidget *create_window_main(void)
     gtk_widget_set_size_request(comboboxentry_algorithm, 160, 32);
 
 #ifndef _WIN32
-    /* 
+    /*
      * this could be the the same as the windows implementation, but this gives the list sorted :)
      */
     struct dirent **eps;
@@ -711,7 +711,7 @@ GtkWidget *create_window_generate(void)
     gtk_misc_set_alignment(GTK_MISC(label_gen_save_in), 0, 0.5);
 
     filechooserbutton_gen_save = gtk_file_chooser_button_new(_("Select A Directory"),
-      GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
+                                 GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
     gtk_widget_show(filechooserbutton_gen_save);
     gtk_fixed_put(GTK_FIXED(fixed_gen), filechooserbutton_gen_save, 64, 88);
     gtk_widget_set_size_request(filechooserbutton_gen_save, 160, 32);
