@@ -1,6 +1,6 @@
 Summary: A simple, X-platform, plugin-based encryption application
 Name: encrypt
-Version: 200903
+Version: 200910
 Release: 1
 Source: https://albinoloverats.net/downloads/%{name}.tar.bz2
 URL: https://albinoloverats.net/%{name}
@@ -19,7 +19,7 @@ algorithms to be chosen by the user at runtime.
 
 %build
 rm -rf %{buildroot}
-mkdir -p %{buildroot}/usr/{bin,lib,man/man1,share/applications}
+mkdir -p %{buildroot}/usr/{bin,lib,man/man1,share/{applications,locale/de/LC_MESSAGES}}
 make gui-all PREFIX=%{buildroot}
 
 %install
@@ -38,3 +38,4 @@ rm -rf %{buildroot}
 /usr/lib/helloworld.so
 /usr/lib/serpent.so
 /usr/lib/xtea.so
+/usr/share/locale/de/LC_MESSAGES/encrypt.mo

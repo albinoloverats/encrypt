@@ -11,7 +11,7 @@ helloworld:
 
 install-helloworld:
 	 @install -c -m 755 -s -D -T helloworld.so $(PREFIX)/usr/lib/encrypt/lib/helloworld.so
-	 @ln -fs /usr/lib/encrypt/lib/helloworld.so $(PREFIX)/usr/lib/
+	 @ln -fs $(PREFIX)/usr/lib/encrypt/lib/helloworld.so $(PREFIX)/usr/lib/
 	-@echo "installed \`helloworld.so' --> \`$(PREFIX)/usr/lib/encrypt/lib/helloworld.so'"
 
 clean-helloworld:

@@ -11,7 +11,7 @@ anubis:
 
 install-anubis:
 	 @install -c -m 755 -s -D -T anubis.so $(PREFIX)/usr/lib/encrypt/lib/anubis.so
-	 @ln -fs /usr/lib/encrypt/lib/anubis.so $(PREFIX)/usr/lib/
+	 @ln -fs $(PREFIX)/usr/lib/encrypt/lib/anubis.so $(PREFIX)/usr/lib/
 	-@echo "installed \`anubis.so' --> \`$(PREFIX)/usr/lib/encrypt/lib/anubis.so'"
 
 clean-anubis:
