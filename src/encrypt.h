@@ -22,7 +22,7 @@
 #define _ENCRYPT_H_
 
 #define NAME "encrypt"
-#define VERSION "200905-"
+#define VERSION "2009010"
 
 #define TEXT_HELP \
     "If -i or -o are omitted then stdin/stdout are used.  Either -e or -d must be\n" \
