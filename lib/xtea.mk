@@ -11,7 +11,7 @@ xtea:
 
 install-xtea:
 	 @install -c -m 755 -s -D -T xtea.so $(PREFIX)/usr/lib/encrypt/lib/xtea.so
-	 @ln -fs $(PREFIX)/usr/lib/encrypt/lib/xtea.so $(PREFIX)/usr/lib/
+	 @ln -fs /usr/lib/encrypt/lib/xtea.so $(PREFIX)/usr/lib/
 	-@echo "installed \`xtea.so' --> \`$(PREFIX)/usr/lib/encrypt/lib/xtea.so'"
 
 clean-xtea:

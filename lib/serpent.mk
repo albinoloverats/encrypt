@@ -11,7 +11,7 @@ serpent:
 
 install-serpent:
 	 @install -c -m 755 -s -D -T serpent.so $(PREFIX)/usr/lib/encrypt/lib/serpent.so
-	 @ln -fs $(PREFIX)/usr/lib/encrypt/lib/serpent.so $(PREFIX)/usr/lib/
+	 @ln -fs /usr/lib/encrypt/lib/serpent.so $(PREFIX)/usr/lib/
 	-@echo "installed \`serpent.so' --> \`$(PREFIX)/usr/lib/encrypt/lib/serpent.so'"
 
 clean-serpent:
