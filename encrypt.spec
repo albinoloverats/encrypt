@@ -18,11 +18,11 @@ algorithms to be chosen by the user at runtime.
 %setup -q
 
 %build
-rm -rf %{buildroot}
-mkdir -p %{buildroot}/usr/{bin,lib,man/man1,share/{applications,locale/de/LC_MESSAGES}}
-make gui-all PREFIX=%{buildroot}
+make gui-all
 
 %install
+rm -rf %{buildroot}
+mkdir -p %{buildroot}/usr/{bin,lib,man/man1,share/applications,share/locale/de/LC_MESSAGES}
 make install-all PREFIX=%{buildroot}
 
 %clean
