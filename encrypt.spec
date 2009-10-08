@@ -18,7 +18,7 @@ algorithms to be chosen by the user at runtime.
 %setup -q
 
 %build
-make gui-all
+make gui-all OS_OPTS=-DFEDORA_PATH_HACK
 
 %install
 rm -rf %{buildroot}

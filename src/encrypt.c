@@ -250,7 +250,11 @@ void *open_mod(char *n)
         die(_("module name cannot be (null)"));
 #ifndef _WIN32
     if (!strchr(n, '/'))
+  #ifndef FEDORA_PATH_HACK
         if (asprintf(&n, "%s.so", n) < 0)
+  #else  /* ! FEDORA_PATH_HACK */
+        if (asprintf(&n, "/usr/lib/encrypt/lib/%s.so", n) < 0)
+  #endif /*   FEDORA_PATH_HACK */
             die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     if (!(p = dlopen(n, RTLD_LAZY)))
 #else  /* ! _WIN32 */
