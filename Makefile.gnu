@@ -12,12 +12,12 @@ PO_UNINSTALL  =
 
 OPTIONS := -o encrypt -std=c99 -Wall -Wextra -O2 -pipe -ldl -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -I ./ ${OS_OPTS}
 GUIOPTS := `pkg-config --cflags --libs gtk+-2.0` -lpthread -D_BUILD_GUI_
-COMMON  := common/common.c src/encrypt.c
+COMMON  := common/common.c common/list.c src/encrypt.c
 
 encrypt:
 # build the main executible
 	 @gcc $(OPTIONS) $(COMMON)
-	-@echo "compiled \`src/encrypt.c common/common.c' --> \`encrypt'"
+	-@echo "compiled \`src/encrypt.c common/common.c common/list.c' --> \`encrypt'"
 
 gui:
 # build the gui package
