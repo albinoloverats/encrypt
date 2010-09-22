@@ -1,6 +1,6 @@
 /*
  * Common code shared between projects
- * Copyright (c) 2009, albinoloverats ~ Software Development
+ * Copyright (c) 2009-2010, albinoloverats ~ Software Development
  * email: webmaster@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,12 +19,12 @@
  */
 
 #ifndef _COMMON_LIB_H_
-#define _COMMON_LIB_H_
+    #define _COMMON_LIB_H_
 
 /*!
  * \file
  * \author  albinoloverats ~ Software Development
- * \date    2009
+ * \date    2009-2010
  * \brief   Common code shared between projects
  */
 
@@ -36,69 +36,83 @@ extern "C"
     /*!
      * \brief  Value used for unset variables and enumerations
      */
-#define NOTSET 0
+    #define NOTSET 0
 
-#include <time.h>
-#include <ctype.h>
-#include <errno.h>
-#include <stdio.h>
-#include <signal.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
-#include <libintl.h>
-#include <stdbool.h>
-#include <inttypes.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+    #include <stdint.h>
+    #include <stdbool.h>
+    #include <unistd.h>
+    #include <stdarg.h>
+    #include <signal.h>
+    #include <time.h>
+    #include <ctype.h>
+    #include <errno.h>
+    #include <libintl.h>
+    #include <sys/time.h>
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif /* HAVE_CONFIG_H */
+    #ifdef HAVE_CONFIG_H
+        #include <config.h>
+    #endif /* HAVE_CONFIG_H */
 
-#ifndef _WIN32
-#include <dlfcn.h>
-    /*!
-     * \brief  O_BINARY is only used on MS systems, we'll need to pretend it exists on Unix systems
-     */
-#define O_BINARY NOTSET
-#else  /* ! _WIN32 */
-#include <windows.h>
-#define srand48 srand
-#define lrand48 rand
-#define F_RDLCK NOTSET
-#define F_WRLCK NOTSET
-#define O_FSYNC NOTSET
-#define SIGQUIT SIGBREAK
-#endif /*   _WIN32 */
+    #ifndef _WIN32
+        #include <dlfcn.h>
+        /*!
+         * \brief  O_BINARY is only used on MS systems, we'll need to pretend it exists on Unix systems
+         */
+        #define O_BINARY NOTSET
+    #else  /* ! _WIN32 */
+        #include <windows.h>
+        #define srand48 srand
+        #define lrand48 rand
+        #define F_RDLCK NOTSET
+        #define F_WRLCK NOTSET
+        #define O_FSYNC NOTSET
+        #define SIGQUIT SIGBREAK
+    #endif /*   _WIN32 */
+
+    #include "list.h"
 
     /*!
      * \brief  Allow us of _() to refer to gettext()
      */
-#define _(s) gettext(s)
+    #define _(s) gettext(s)
 
     /*!
      * \brief  Brief overview of the GNU General Public License
      */
-#define TEXT_LICENCE \
-    "This program is free software: you can redistribute it and/or modify\n"  \
-    "it under the terms of the GNU General Public License as published by\n"  \
-    "the Free Software Foundation, either version 3 of the License, or\n"     \
-    "(at your option) any later version.\n\n"                                 \
-    "This program is distributed in the hope that it will be useful,\n"       \
-    "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"        \
-    "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"         \
-    "GNU General Public License for more details.\n\n"                        \
-    "You should have received a copy of the GNU General Public License\n"     \
-    "along with this program.  If not, see <http://www.gnu.org/licenses/>.\n"
+    #define TEXT_LICENCE \
+        "This program is free software: you can redistribute it and/or modify\n"  \
+        "it under the terms of the GNU General Public License as published by\n"  \
+        "the Free Software Foundation, either version 3 of the License, or\n"     \
+        "(at your option) any later version.\n\n"                                 \
+        "This program is distributed in the hope that it will be useful,\n"       \
+        "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"        \
+        "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"         \
+        "GNU General Public License for more details.\n\n"                        \
+        "You should have received a copy of the GNU General Public License\n"     \
+        "along with this program.  If not, see <http://www.gnu.org/licenses/>.\n"
 
     /*!
      * \brief  Maximum line width for hex() output
      */
-#define HEX_LINE_WIDTH 72
+    #define HEX_LINE_WIDTH 72
 
     /*!
      * \brief  Wrap hex() output after this many bytes (and spaces between words, etc)
      */
-#define HEX_LINE_WRAP  24
+    #define HEX_LINE_WRAP  24
+
+    /*!
+     * \brief  Integer value for 1 million
+     */
+    #define ONE_MILLION 1000000
+
+    /*!
+     * \brief  Size of random seed value in bytes
+     */
+    #define RANDOM_SEED_SIZE 3
 
     /*!
      * \brief  Structure to hold configuration file options
@@ -116,25 +130,32 @@ extern "C"
      * \param[in]  argc  Number of command line options
      * \param[in]  argv  Array of command line options
      */
-#ifndef MAIN_VOID
-    int main(int argc, char **argv);
-#else
-    int main(void);
-#endif
+    #ifndef MAIN_VOID
+        int main(int argc, char **argv);
+    #else
+        int main(void);
+    #endif
 
     /*!
      * \brief            Initialisation of signal handler and locale settings
      * \param[in]  a     The application name to use when displaying messages
      * \param[in]  v     The version of the application
+     * \param[in]  f     A file name to log messages to; if NULL, stderr is used
      */
-    extern void init(const char * const restrict a, const char * const restrict v) __attribute__((nonnull(1, 2)));
+    extern void init(const char * const restrict a, const char * const restrict v, const char * const restrict f) __attribute__((nonnull(1, 2)));
+
+    /*!
+     * \brief            Redirect STDERR
+     * \param[in]  f     A file name to log messages to; if NULL, stderr is used
+     */
+    extern void redirect_log(const char * const restrict f) __attribute__((nonnull(1)));
 
     /*!
      * \brief            Parse configuration file for options
      * \paran[in]  f     Configuration file to parse
-     * \return           Pointer to array of parameters
+     * \return           Pointer to linked list list_t containing conf_t structures
      */
-    extern conf_t **config(const char const * restrict f) __attribute__((nonnull(1)));
+    extern list_t *config(const char const * restrict f) __attribute__((nonnull(1)));
 
     /*!
      * \brief            Show list of command line options
@@ -190,7 +211,16 @@ extern "C"
      * \brief            Wait for the specified number of milliseconds
      * \param[in]  s     Number of milliseconds
      */
-    extern void wait(uint32_t s);
+    extern void wait_timeout(uint32_t s);
+
+#if 0
+	/*!
+	 * \brief            Wrapper function for systems without getline
+	 */
+    #ifndef _GUN_SOURCE
+    	extern ssize_t getline(char **lineptr, size_t *n, FILE *stream);
+    #endif /* ! _GNU_SOURCE */
+#endif
 
 #ifdef __cplusplus
 }

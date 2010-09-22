@@ -1,6 +1,6 @@
 /*
  * Common code shared between projects
- * Copyright (c) 2009, albinoloverats ~ Software Development
+ * Copyright (c) 2009-2010, albinoloverats ~ Software Development
  * email: webmaster@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,13 +18,14 @@
  *
  */
 
-#include "common/common.h"
+#include "common.h"
 
 static bool  c_sig = false;
 static char *c_app = NULL;
 static char *c_ver = NULL;
+static FILE *LOG_FILE = NULL;
 
-extern void init(const char * const restrict a, const char * const restrict v)
+extern void init(const char * const restrict a, const char * const restrict v, const char * const restrict f)
 {
     errno = 0;
     if (c_app)
@@ -41,9 +42,25 @@ extern void init(const char * const restrict a, const char * const restrict v)
     bindtextdomain(c_app, "/usr/share/locale");
     textdomain(c_app);
 #endif
+    if (f)
+        redirect_log(f);
+    else
+        LOG_FILE = stderr;
+    return;
 }
 
-extern conf_t **config(const char * const restrict f)
+extern void redirect_log(const char * const restrict f)
+{
+    /*
+     * log to a file if we can, else revert to stderr
+     */
+    if (f)
+        LOG_FILE = fopen(f, "a");
+    if (!LOG_FILE)
+        LOG_FILE = stderr;
+}
+
+extern list_t *config(const char * const restrict f)
 {
     FILE *file = fopen(f, "r");
     if (!file)
@@ -51,43 +68,24 @@ extern conf_t **config(const char * const restrict f)
         msg(_("could not open configuration file %s"), f);
         return NULL;
     }
-    conf_t **x  = malloc(sizeof(conf_t *));
-    x[0] = NULL;
-    size_t i = 0;
 
+    list_t *list = list_create();
     char  *line = NULL;
     size_t size = 0;
-    while (getline(&line, &size, file) != -1)
+    while (getline(&line, &size, file) >= 0)
     {
         if (line[0] != '#' && line[0] != '\n')
         {
-            char *l = strdupa(line);
-            char *o = strtok(l, " \t\n\r#");
-            char *v = strtok(NULL, "\t\n\r#"); /* don't delimit by space this time */
-
-            if (o && v && strlen(o) && strlen(v))
-            {
-                if (!(x = realloc(x, (i + 2) * sizeof( conf_t * ))))
-                    die(_("out of memory @ %s:%i"), __FILE__, __LINE__ - 1);
-                if (!(x[i] = malloc(sizeof( conf_t ))))
-                    die(_("out of memory @ %s:%i"), __FILE__, __LINE__ - 1);
-
-                if (!(x[i]->option = strdup(o)))
-                    die(_("out of memory @ %s:%i"), __FILE__, __LINE__ - 1);
-                if (!(x[i]->value  = strdup(v)))
-                    die(_("out of memory @ %s:%i"), __FILE__, __LINE__ - 1);
-
-                x[++i] = NULL;
-            }
+            conf_t *c = calloc(1, sizeof( conf_t * ));
+            char *l = strdup(line);
+            c->option = strdup(strsep(&l, " \t\n\r#"));
+            c->value = strdup(strsep(&l, "\n\r#")); /* don't delimit by space this time, only end of line or start of comment */
+            list_append(&list, c);
         }
-
-        free(line);
-        line = NULL;
-        size = 0;
     }
+    free(line);
     fclose(file);
-
-    return x;
+    return list;
 }
 
 extern int64_t show_licence(void)
@@ -119,24 +117,36 @@ extern void hex(void *v, uint64_t l)
         if (c > HEX_LINE_WRAP)
         {
             c = 1;
-            msg(b);
+            msg("%s", b);
             memset(b, 0x00, sizeof( b ));
         }
         sprintf(b, "%s%02X%s", b, s[i], (c % sizeof( uint32_t )) ? "" : " ");
     }
-    msg(b);
+    msg("%s", b);
 }
 
 extern void msg(const char *s, ...)
 {
     if (!s)
+    {
+        if (errno)
+        {
+            char *e = strdup(strerror(errno));
+            for (uint32_t i = 0; i < strlen(e); i++)
+                e[i] = tolower(e[i]);
+            msg("%s", e);
+            free(e);
+        }
         return;
+    }
     va_list ap;
     va_start(ap, s);
-    fprintf(stderr, "\r%s: ", c_app);
-    vfprintf(stderr, s, ap);
-    fprintf(stderr, "\n");
-    fflush(stderr);
+    flockfile(LOG_FILE);
+    fprintf(LOG_FILE, "\r%s: ", c_app);
+    vfprintf(LOG_FILE, s, ap);
+    fprintf(LOG_FILE, "\n");
+    fflush(LOG_FILE);
+    funlockfile(LOG_FILE);
     va_end(ap);
 }
 
@@ -147,7 +157,7 @@ extern void die(const char *s, ...)
     if (errno)
     {
         char *e = strdup(strerror(errno));
-        for (uint8_t i = 0; i < strlen(e); i++)
+        for (uint32_t i = 0; i < strlen(e); i++)
             e[i] = tolower(e[i]);
         msg("%s", e);
         free(e);
@@ -183,10 +193,40 @@ extern void sigint(int s)
     c_sig = true;
 }
 
-extern void wait(uint32_t s)
+extern void wait_timeout(uint32_t s)
 {
     div_t a = div(s, 1000);
     struct timespec t = { a.quot, a.rem * 10 };
     struct timespec r = { 0, 0 };
     nanosleep(&t, &r);
 }
+
+#if 0
+extern ssize_t getline(char **lineptr, size_t *n, FILE *stream)
+{
+    size_t r = 0;
+    uint32_t step = 0xFF;
+    char *buffer = malloc(step);
+    
+    for (r = 0; ; r++)
+    {
+        int c = fgetc(stream);
+        if (c == EOF)
+            break;
+        buffer[r] = c;
+        if (c == '\n')
+            break;
+        if (r >= step - 0x10)
+        {
+            step += 0xFF;
+            buffer = realloc(buffer, step);
+        }
+    }
+    if (*lineptr)
+        free(*lineptr);
+    *lineptr = buffer;
+    *n = r;
+
+    return r;
+}
+#endif
