@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 
     int64_t (*fp)(int64_t, int64_t, uint8_t *);
 
-    init(NAME, VERSION);
+    init(NAME, VERSION, NULL);
 
 #ifndef _BUILD_GUI_
     /*
@@ -380,45 +380,43 @@ uint8_t *key_calculate(void *p, char *s, ekey_t k)
     switch (k)
     {
         case KEYFILE:
-        {
-            int64_t  f = 0;
-            if ((f = open(s, O_RDONLY)) < 0)
-                die(_("could not access key file %s"), s);
-            l = lseek(f, 0, SEEK_END);
-            lseek(f, 0, SEEK_SET);
-            d = calloc(l, sizeof( uint8_t ));
-            if (!d)
-                return NULL;
-            for (int64_t i = 0; i < l / 2; i++)
             {
-                char c[3] = { 0x00 };
-                if (read(f, &c, 2 * sizeof( uint8_t )) != 2 * sizeof( uint8_t ))
-                    msg(_("unexpected end of key file %s"), s);
-                d[i] = strtol(c, NULL, 0x0F);
+                int64_t  f = 0;
+                if ((f = open(s, O_RDONLY)) < 0)
+                    die(_("could not access key file %s"), s);
+                l = lseek(f, 0, SEEK_END);
+                lseek(f, 0, SEEK_SET);
+                d = calloc(l, sizeof( uint8_t ));
+                if (!d)
+                    return NULL;
+                for (int64_t i = 0; i < l / 2; i++)
+                {
+                    char c[3] = { 0x00 };
+                    if (read(f, &c, 2 * sizeof( uint8_t )) != 2 * sizeof( uint8_t ))
+                        msg(_("unexpected end of key file %s"), s);
+                    d[i] = strtol(c, NULL, 0x0F);
+                }
+                close(f);
+                return d;
             }
-            close(f);
-            return d;
-        }
-        break; // why?
+            break; // why? (see 2 lines above)
         case PASSFILE:
-        {
-            int64_t f = 0;
-            if ((f = open(s, O_RDONLY)) < 0)
-                die(_("could not access passphrase file %s"), s);
-            l = lseek(f, 0, SEEK_END);
-            lseek(f, 0, SEEK_SET);
-            c = calloc(l, sizeof( uint8_t ));
-            if (read(f, c, l) != l)
-                msg(_("unexpected end of passphrase %s"), s);
-            close(f);
-        }
-        break;
+            {
+                int64_t f = 0;
+                if ((f = open(s, O_RDONLY)) < 0)
+                    die(_("could not access passphrase file %s"), s);
+                l = lseek(f, 0, SEEK_END);
+                lseek(f, 0, SEEK_SET);
+                c = calloc(l, sizeof( uint8_t ));
+                if (read(f, c, l) != l)
+                    msg(_("unexpected end of passphrase %s"), s);
+                close(f);
+            }
+            break;
         case PASSWORD:
-        {
             c = (uint8_t *)strdup(s);
             l = strlen(s);
-        }
-        break;
+            break;
         default:
             die(_("invalid key type"));
     }
