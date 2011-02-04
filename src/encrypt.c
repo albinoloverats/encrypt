@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS,) encryption utility
- * Copyright (c) 2005-2009, albinoloverats ~ Software Development
+ * Copyright (c) 2005-2011, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,6 +24,7 @@
 #include <getopt.h>
 #include <stddef.h>
 #include <unistd.h>
+#include <stdbool.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -68,7 +69,7 @@ int main(int argc, char **argv)
 
     int64_t (*fp)(int64_t, int64_t, uint8_t *);
 
-    init(NAME, VERSION, NULL);
+    init(NAME, VERSION);
 
 #ifndef _BUILD_GUI_
     /*
