@@ -14,10 +14,10 @@
 #define FILE_VERSION "3.1"
 #define FILE_DESCRIPTION "Use this as a template for building plugins; giving everybody a variety of algorithms to use :)"
 #define INTERNAL_NAME "example"
-#define LEGAL_COPYRIGHT "Copyright (c) 2007-2009, albinoloverats ~ Software Development"
+#define LEGAL_COPYRIGHT "Copyright (c) 2007-2011, albinoloverats ~ Software Development"
 #define LEGAL_TRADEMARKS ""
 #define ORIGINAL_FILENAME "helloworld.dll"
 #define PRODUCT_NAME "Hello World Example"
-#define PRODUCT_VERSION "200901"
+#define PRODUCT_VERSION "201101"
 
 #endif /*HELLOWORLD_PRIVATE_H*/

@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS,) encryption utility
- * Copyright (c) 2005-2009, albinoloverats ~ Software Development
+ * Copyright (c) 2005-2011, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -32,18 +32,18 @@
 
 #define A_NAME      "Hello World Example - Boo!"                  /* algorithm name - duh */
 #define A_AUTHORS   "albinoloverats ~ Software Development"       /* algorithm authors - who wrote/designed it */
-#define A_COPYRIGHT "Copyright (c) 2007-2009, albinoloverats ~ Software Development" /* algorithm copyright - who owns it (usually the authors) */
+#define A_COPYRIGHT "Copyright (c) 2007-2011, albinoloverats ~ Software Development" /* algorithm copyright - who owns it (usually the authors) */
 #define A_LICNECE   "GPL"                                         /* algorithm licence */
 #define A_YEAR      "2007"                                        /* algorithm year - when was it introduced */
 #define A_BLOCK     "N/A"                                         /* algorithm block size */
 #define K_NAME      "N/A"                                         /* key name */
 #define K_AUTHORS   "albinoloverats ~ Software Development"       /* key authors */
-#define K_COPYRIGHT "Copyright (c) 2007-2009, albinoloverats ~ Software Development" /* key copyright */
+#define K_COPYRIGHT "Copyright (c) 2007-2011, albinoloverats ~ Software Development" /* key copyright */
 #define K_LICENCE   "GPL"                                         /* key licence */
 #define K_YEAR      "2007"                                        /* key year */
 #define K_SIZE      "N/A"                                         /* key size */
 #define M_AUTHORS   "albinoloverats ~ Software Development"       /* module authors - who coded the module */
-#define M_COPYRIGHT "Copyright (c) 2007-2009, albinoloverats ~ Software Development" /* module copyright - who owns it (again, usually the authors) */
+#define M_COPYRIGHT "Copyright (c) 2007-2011, albinoloverats ~ Software Development" /* module copyright - who owns it (again, usually the authors) */
 #define M_LICENCE   "GPL"                                         /* module licence */
 #define M_VERSION   "3.1"                                         /* module version */
 #define M_COMMENT   "Use this as a template for building plugins;\ngiving everybody a variety of algorithms to use :-)"

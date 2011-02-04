@@ -14,10 +14,10 @@
 #define FILE_VERSION "2.1"
 #define FILE_DESCRIPTION "Anubis Block Cipher with RIPEMD-160 hashing algorithm"
 #define INTERNAL_NAME "anubis"
-#define LEGAL_COPYRIGHT "Copyright (c) 2007-2009, Ashley Anderson"
+#define LEGAL_COPYRIGHT "Copyright (c) 2007-2011, Ashley Anderson"
 #define LEGAL_TRADEMARKS ""
 #define ORIGINAL_FILENAME "anubis.dll"
 #define PRODUCT_NAME "Anubis+Ripe160"
-#define PRODUCT_VERSION "200901"
+#define PRODUCT_VERSION "201101"
 
 #endif /*ANUBIS_PRIVATE_H*/

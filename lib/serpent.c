@@ -1,6 +1,6 @@
 /*
  *    This serpent module is an algorithm plugin for encrypt
- *    Copyright (c) 2005-2009, Ashley Anderson
+ *    Copyright (c) 2005-2011, Ashley Anderson
  *    email: amanderson@albinoloverats.net
  *
  *    This program is free software: you can redistribute it and/or modify

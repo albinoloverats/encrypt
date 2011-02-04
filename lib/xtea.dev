@@ -50,11 +50,11 @@ CompanyName=albinoloverats ~ Software Development
 FileVersion=4.1
 FileDescription=Designed to correct weaknesses in TEA, it uses the RSA Data Security, Inc. MD5 Message Digest Algorithm to generate the key
 InternalName=xtea
-LegalCopyright=Copyright (c) 2007-2009, Ashley Anderson
+LegalCopyright=Copyright (c) 2007-2011, Ashley Anderson
 LegalTrademarks=
 OriginalFilename=xtea.dll
 ProductName=XTEA Algorithm
-ProductVersion=200901
+ProductVersion=201101
 AutoIncBuildNr=0
 
 [Unit1]

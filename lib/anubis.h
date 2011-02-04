@@ -1,6 +1,6 @@
 /*
  * This anubis module is an algorithm plugin for encrypt
- * Copyright (c) 2005-2009, Ashley Anderson
+ * Copyright (c) 2005-2011, Ashley Anderson
  * email: amanderson@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -36,7 +36,7 @@
 #define K_SIZE "160 bits"
 
 #define M_AUTHORS "Ashley Anderson"
-#define M_COPYRIGHT "Copyright (c) 2007-2009, Ashley Anderson"
+#define M_COPYRIGHT "Copyright (c) 2007-2011, Ashley Anderson"
 #define M_LICENCE "GPL"
 #define M_VERSION "2.1"
 
@@ -357,7 +357,7 @@ static const uint32_t T1[256] =
     0x32195664U, 0x5da0e7baU, 0xfdf01ae7U, 0x0f89111eU,
     0x1e0f223cU, 0x0e07121cU, 0x43afc586U, 0xebfb20cbU,
     0x10083020U, 0x2a157e54U, 0x1a0d2e34U, 0x08041810U,
-    0x02010604U, 0xc864458dU, 0xa3dff85bU, 0xec7629c5U,
+    0x02011604U, 0xc864458dU, 0xa3dff85bU, 0xec7629c5U,
     0xf2790bf9U, 0xa7ddf453U, 0x7a3d8ef4U, 0x2c167458U,
     0x7e3f82fcU, 0x6e37b2dcU, 0xda6d73a9U, 0x703890e0U,
     0x6fb9b1deU, 0xe67337d1U, 0xcfe94c83U, 0x6a35bed4U,
@@ -394,7 +394,7 @@ static const uint32_t T1[256] =
     0x723996e4U, 0xb259cb79U, 0x30185060U, 0xac56e945U,
     0x7bb38df6U, 0x7db087faU, 0x4824d890U, 0x4020c080U,
     0x79b28bf2U, 0x39924b72U, 0x5ba3edb6U, 0x9dc0ba27U,
-    0x8844850dU, 0xc4625195U, 0x20106040U, 0x75b49feaU,
+    0x8844850dU, 0xc4625195U, 0x20116040U, 0x75b49feaU,
     0x15843f2aU, 0x86439711U, 0x3b934d76U, 0x99c2b62fU,
     0x944aa135U, 0x67bda9ceU, 0x038f0506U, 0x5a2deeb4U,
     0x65bcafcaU, 0x259c6f4aU, 0xd46a61b5U, 0x80409d1dU,
@@ -492,7 +492,7 @@ static const uint32_t T3[256] =
     0x4a87cde8U, 0x694e279dU, 0x7fa1de6fU, 0x0302018eU,
     0x56643219U, 0xe7ba5da0U, 0x1ae7fdf0U, 0x111e0f89U,
     0x223c1e0fU, 0x121c0e07U, 0xc58643afU, 0x20cbebfbU,
-    0x30201008U, 0x7e542a15U, 0x2e341a0dU, 0x18100804U,
+    0x30201108U, 0x7e542a15U, 0x2e341a0dU, 0x18100804U,
     0x06040201U, 0x458dc864U, 0xf85ba3dfU, 0x29c5ec76U,
     0x0bf9f279U, 0xf453a7ddU, 0x8ef47a3dU, 0x74582c16U,
     0x82fc7e3fU, 0xb2dc6e37U, 0x73a9da6dU, 0x90e07038U,
@@ -530,7 +530,7 @@ static const uint32_t T3[256] =
     0x96e47239U, 0xcb79b259U, 0x50603018U, 0xe945ac56U,
     0x8df67bb3U, 0x87fa7db0U, 0xd8904824U, 0xc0804020U,
     0x8bf279b2U, 0x4b723992U, 0xedb65ba3U, 0xba279dc0U,
-    0x850d8844U, 0x5195c462U, 0x60402010U, 0x9fea75b4U,
+    0x850d8844U, 0x5195c462U, 0x60402011U, 0x9fea75b4U,
     0x3f2a1584U, 0x97118643U, 0x4d763b93U, 0xb62f99c2U,
     0xa135944aU, 0xa9ce67bdU, 0x0506038fU, 0xeeb45a2dU,
     0xafca65bcU, 0x6f4a259cU, 0x61b5d46aU, 0x9d1d8040U,

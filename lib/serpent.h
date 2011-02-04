@@ -1,6 +1,6 @@
 /*
  *    encrypt ~ a simple, modular, (multi-OS,) encryption utility
- *    Copyright (c) 2005-2009, albinoloverats ~ Software Development
+ *    Copyright (c) 2005-2011, albinoloverats ~ Software Development
  *    email: encrypt@albinoloverats.net
  *
  *    This program is free software: you can redistribute it and/or modify
@@ -36,7 +36,7 @@
 #define K_SIZE      "192 bits"
 
 #define M_AUTHORS   "Ashley Anderson"
-#define M_COPYRIGHT "Copyright (c) 2008-2009, Ashley Anderson"
+#define M_COPYRIGHT "Copyright (c) 2008-2011, Ashley Anderson"
 #define M_LICENCE   "GPL"
 #define M_VERSION   "1.1"
 #define M_COMMENT "\

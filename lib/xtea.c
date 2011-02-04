@@ -1,6 +1,6 @@
 /*
  * xtea is a plugin for encrypt
- * Copyright (c) 2007-2009, Ashley Anderson
+ * Copyright (c) 2007-2011, Ashley Anderson
  * email: amanderson@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -45,7 +45,7 @@
 #define K_YEAR "1992"
 #define K_SIZE "128 bits"
 #define M_AUTHORS "Ashley Anderson"
-#define M_COPYRIGHT "Copyright (c) 2007-2009, Ashley Anderson"
+#define M_COPYRIGHT "Copyright (c) 2007-2011, Ashley Anderson"
 #define M_VERSION "4.1"
 #define M_LICENCE "GPL"
 #define M_COMMENT "The XTEA algorithm was originally designed to correct a\n  weaknesses in TEA.  This implementation uses a free MD5\n  library, which is based on RFC1321, and as such is RSA-\n  free. From: http://sourceforge.net/projects/libmd5-rfc/"

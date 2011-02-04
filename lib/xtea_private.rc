@@ -20,11 +20,11 @@ FILETYPE VFT_DLL
 			 VALUE "FileVersion", "4.1"
 			 VALUE "FileDescription", "Designed to correct weaknesses in TEA, it uses the RSA Data Security, Inc. MD5 Message Digest Algorithm to generate the key"
 			 VALUE "InternalName", "xtea"
-			 VALUE "LegalCopyright", "Copyright (c) 2007-2009, Ashley Anderson"
+			 VALUE "LegalCopyright", "Copyright (c) 2007-2011, Ashley Anderson"
 			 VALUE "LegalTrademarks", ""
 			 VALUE "OriginalFilename", "xtea.dll"
 			 VALUE "ProductName", "XTEA Algorithm"
-			 VALUE "ProductVersion", "200901"
+			 VALUE "ProductVersion", "201101"
 		 }
 	 }
   BLOCK "VarFileInfo"
