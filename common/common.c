@@ -20,24 +20,25 @@
 
 #include "common.h"
 
-#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
-#include <signal.h>
+#include <stdint.h>
 #include <ctype.h>
+#include <stdarg.h>
+#include <signal.h>
 #include <errno.h>
 #include <time.h>
 
 static bool c_sig = false;
 /*@null@*/static char *c_app = NULL;
 /*@null@*/static char *c_ver = NULL;
-/*@null@*/static FILE *LOG_FILE = NULL;
 
-extern void init3(const char * const restrict a, const char * const restrict v, const char * const restrict f)
+extern list_t *init7(const char * const restrict a, const char * const restrict v, const char * const restrict u, char **g, const char * const restrict c, list_t *o, const char * const restrict m)
 {
     errno = 0;
     if (c_app)
-        return;
+        return NULL;
     /*@i1@*/c_app = strdup(a);
     /*@i1@*/c_ver = strdup(v);
     if ((signal(SIGTERM, sigint) == SIG_ERR) || (signal(SIGINT, sigint) == SIG_ERR) || (signal(SIGQUIT, sigint) == SIG_ERR))
@@ -48,129 +49,185 @@ extern void init3(const char * const restrict a, const char * const restrict v, 
     textdomain(c_app);
 #endif
     /*
-     * log to a file if we can, else revert to stderr
+     * TODO move command line and config file parsing into own component
      */
-    if (f)
-        redirect_log(f);
-    if (!LOG_FILE)
-        LOG_FILE = stderr;
-    return;
+    list_t *z = NULL;
+    if (g)
+    {
+        /*
+         * setup some default command line arguments
+         */
+        args_t help     = {'h', "help",      false, false, NULL, "Show this help screen"};
+        args_t version  = {'v', "version",   false, false, NULL, "Show application verison"};
+        args_t licence  = {'l', "licence",   false, false, NULL, "Show GNU GPL v3 licence header"};
+        args_t debug    = {'d', "debug",     false, true,  NULL, "Show debugging messages during execution"};
+        args_t quiet    = {'q', "quiet",     false, false, NULL, "Hide standard messages during execution"};
+        args_t conf     = {'c', "config",    false, true,  NULL, "Use given config file instead of default"};
+        list_t *d = list_create(NULL);
+        list_append(&d, &licence);
+        list_append(&d, &version);
+        list_append(&d, &help);
+        list_append(&d, &debug);
+        list_append(&d, &quiet);
+        if (c)
+            list_append(&d, &conf);
+        if (o)
+            list_join(d, o);
+        /*
+         * read config file before command line arguments - command line overrides file
+         */
+        z = parse_args(g, d);
+        list_t *y = list_create(NULL);
+        if (c)
+        {
+            y = parse_config(c, d);
+            /*
+             * reparse command line arguments as they should always override config file settings
+             */
+            parse_args(g, d);
+        }
+        list_join(z, y);
+        if (licence.found)
+            show_licence();
+        if (version.found)
+            show_version();
+        if (help.found)
+            show_help(u, o, m);
+        if (debug.found && quiet.found)
+            die("please use either debug or quiet not both");
+        log_e l = LOG_DEFAULT;
+        if (debug.found)
+        {
+            if (debug.option)
+                l = log_parse_level(debug.option);
+        }
+        else if (quiet.found)
+            l = LOG_ERROR;
+        log_relevel(l);
+    }
+    return z;
 }
 
-extern void redirect_log(const char * const restrict f)
+extern list_t *parse_args(char **v, list_t *a)
 {
-    /*
-     * log to a file if we can, else revert to stderr
-     */
-    if (f)
-        LOG_FILE = fopen(f, "a");
-    if (!LOG_FILE)
-        LOG_FILE = stderr;
+    list_t *x = list_create(NULL);
+    uint16_t expected = list_size(a);
+    for (uint16_t i = 1; ; i++) 
+    {
+        if (!v[i])
+            break;
+        bool found = false;
+        for (uint16_t j = 0; j < expected && !found; j++)
+        {
+            args_t *arg = list_get(a, j);
+            if (strlen(v[i]) == 2)
+            {
+                if (*(v[i]) == '-' && *(v[i] + 1) == arg->short_option)
+                    found = true;
+            }
+            else
+            {
+                if (!strncmp(v[i], "--", 2) && !strcmp(v[i] + 2, arg->long_option))
+                    found = true;
+            }
+            if (found)
+            {
+                if (arg->has_option && v[i + 1] && strncmp(v[i + 1], "-", 1))
+                {
+                    i++;
+                    asprintf(&arg->option, v[i]);
+                }
+                arg->found = true;
+            }
+        }
+        if (!found)
+            list_append(&x, v[i]);
+    }
+    return x;
 }
 
-/*@null@*/extern list_t *config(const char * const restrict f)
+/*@null@*/extern list_t *parse_config(const char * const restrict f, list_t *a)
 {
     FILE *file = fopen(f, "r");
     if (!file)
     {
-        msg(_("could not open configuration file %s"), f);
+        log_message(LOG_WARNING, _("could not open configuration file %s"), f);
         return NULL;
     }
  
-    list_t *list = list_create(NULL);
+    uint16_t expected = list_size(a);
+    list_t *x = list_create(NULL);
     char  *line = NULL;
     size_t size = 0;
     while (getline(&line, &size, file) >= 0)
     {
         if (line[0] != '#' && line[0] != '\n')
         {
-            conf_t *c = calloc(1, sizeof( conf_t * ));
             char *l = strdup(line);
-            c->option = strdup(strsep(&l, " \t\n\r#"));
-            c->value = strdup(strsep(&l, "\n\r#")); /* don't delimit by space this time, only end of line or start of comment */
-            list_append(&list, c);
+            char *p = l;
+            char *o = strdup(strsep(&l, " \t\n\r#"));
+            char *v = strdup(strsep(&l, "\n\r#")); /* don't delimit by space this time, only end of line or start of comment */
+
+            for (uint16_t j = 0; j < expected; j++)
+            {
+                args_t *arg = list_get(a, j);
+                if (!strcmp(arg->long_option, o))
+                {
+                    arg->found = true;
+                    asprintf(&arg->option, v);
+                    break;
+                }
+            }
+            free(o);
+            free(v);
+            free(p);
         }
     }
     free(line);
     fclose(file);
-    return list;
+    return x;
 }
 
-extern int64_t show_licence(void)
+extern void show_licence(void)
 {
     fprintf(stderr, _(TEXT_LICENCE));
-    return EXIT_SUCCESS;
+    exit(EXIT_SUCCESS);
 }
 
-extern int64_t show_usage(void)
+extern void show_usage(const char * const restrict u)
 {
     fprintf(stderr, _("Usage:\n"));
-    fprintf(stderr, _("  %s [OPTION] [ARGUMENT] ...\n"), c_app);
-    return EXIT_SUCCESS;
+    fprintf(stderr, _("  %s %s...\n"), c_app, u ? : "[OPTION] ...");
+    exit(EXIT_SUCCESS);
 }
 
-extern int64_t show_version(void)
+extern void show_version(void)
 {
     fprintf(stderr, _("%s version : %s\n%*s built on: %s %s\n"), c_app, c_ver, (int)strlen(c_app), "", __DATE__, __TIME__);
-    return EXIT_SUCCESS;
+    exit(EXIT_SUCCESS);
 }
 
-extern void hex(void *v, uint64_t l)
+extern void show_help(const char * const restrict u, list_t *l, const char * const restrict m)
 {
-    const uint8_t * const s = v;
-    char b[HEX_LINE_WIDTH] = { 0x00 };
-    uint8_t c = 1;
-    for (uint64_t i = 0; i < l; i++, c++)
+    fprintf(stderr, _("%s version : %s\n%*s built on: %s %s\n"), c_app, c_ver, (int)strlen(c_app), "", __DATE__, __TIME__);
+    fprintf(stderr, _("Usage:\n"));
+    fprintf(stderr, _("  %s %s...\n"), c_app, u ? : "[OPTION] ...");
+    fprintf(stderr, "\nOptions:\n\n");
+    int lm = list_size(l);
+    int w = 0;
+    for (int i = 0; i < lm; i++)
     {
-        if (c > HEX_LINE_WRAP)
-        {
-            c = 1;
-            msg("%s", b);
-            memset(b, 0x00, sizeof( b ));
-        }
-        sprintf(b, "%s%02X%s", b, s[i], (c % sizeof( uint32_t )) ? "" : " ");
+        int n = strlen(((args_t *)list_get(l, i))->long_option);
+        w = n > w ? n : w;
     }
-    msg("%s", b);
-}
-
-extern void msg(const char * const restrict s, ...)
-{
-    if (!s)
+    for (int i = 0; i < lm; i++)
     {
-        if (errno)
-        {
-            char * const restrict e = strdup(strerror(errno));
-            for (uint32_t i = 0; i < strlen(e); i++)
-                e[i] = tolower(e[i]);
-            msg("%s", e);
-            free(e);
-        }
-        return;
+        args_t *arg = list_get(l, i);
+        fprintf(stderr, "  -%c, --%-*s  %s  %s\n", arg->short_option, w, arg->long_option, arg->has_option ? "*" : " ", arg->message);
     }
-    va_list ap;
-    va_start(ap, s);
-    flockfile(LOG_FILE);
-    fprintf(LOG_FILE, "\r%s: ", c_app);
-    vfprintf(LOG_FILE, s, ap);
-    fprintf(LOG_FILE, "\n");
-    fflush(LOG_FILE);
-    funlockfile(LOG_FILE);
-    va_end(ap);
-}
-
-extern void die(const char * const restrict s, ...)
-{
-    if (s)
-        msg("%s", s);
-    if (errno)
-    {
-        char * const restrict e = strdup(strerror(errno));
-        for (uint32_t i = 0; i < strlen(e); i++)
-            e[i] = tolower(e[i]);
-        msg("%s", e);
-        free(e);
-    }
-    exit(errno);
+    if (m)
+        fprintf(stderr, "\n%s\n", m);
+    exit(EXIT_SUCCESS);
 }
 
 extern void sigint(int s)
@@ -195,20 +252,81 @@ extern void sigint(int s)
         default:
             ss = strdup(_("UNKNOWN"));
     }
-    msg(_("caught and ignoring %s signal"), ss);
-    msg(_("try again once more to force quit"));
+    log_message(LOG_INFO, _("caught and ignoring %s signal"), ss);
+    log_message(LOG_INFO, _("try again once more to force quit"));
     free(ss);
     c_sig = true;
+}
+
+extern void die(const char * const restrict s, ...)
+{
+    if (s)
+    {
+        char *d = NULL;
+        va_list ap;
+        va_start(ap, s);
+        vasprintf(&d, s, ap);
+        log_message(LOG_FATAL, d);
+        va_end(ap);
+    }
+    if (errno)
+    {
+        char * const restrict e = strdup(strerror(errno));
+        for (uint32_t i = 0; i < strlen(e); i++)
+            e[i] = tolower(e[i]);
+        log_message(LOG_FATAL, "%s", e);
+        free(e);
+    }
+    exit(errno);
 }
 
 extern void chill(uint32_t s)
 {
     div_t a = div(s, 1000);
-    struct timespec t = { a.quot, a.rem * 10 };
-    struct timespec r = { 0, 0 };
-    nanosleep(&t, &r);
+    struct timespec t = {a.quot, a.rem * TEN_MILLION};
+    struct timespec r = {0, 0};
+    do
+        nanosleep(&t, &r);
+    while (r.tv_sec > 0 && r.tv_nsec > 0);
 }
 
+extern endian_e get_endian(void)
+{
+   uint64_t i = 0x1;
+   char *p = (char *)&i;
+   /*
+    * TODO check for middle endian
+    */
+   if (p[0] == 0x1) /* lowest address contains the least significant byte */
+      return ENDIAN_LITTLE;
+   else
+      return ENDIAN_BIG;
+}
+
+__inline__ uint64_t to_big_endian(uint64_t i)
+{
+    switch (get_endian())
+    {
+        case ENDIAN_BIG:
+            break;
+        case ENDIAN_LITTLE:
+            i = (i >> 56) | 
+               ((i << 40) & 0x00FF000000000000LL) |
+               ((i << 24) & 0x0000FF0000000000LL) |
+               ((i <<  8) & 0x000000FF00000000LL) |
+               ((i >>  8) & 0x00000000FF000000LL) |
+               ((i >> 24) & 0x0000000000FF0000LL) |
+               ((i >> 40) & 0x000000000000FF00LL) |
+                   (i << 56);
+           break;
+        default:
+            log_message(LOG_WARNING, "nothing done");
+            break;
+    }
+    return i;
+}
+
+#ifndef _GNU_SOURCE
 extern ssize_t getline(char **lineptr, size_t *n, FILE *stream)
 {
     size_t r = 0;
@@ -234,3 +352,4 @@ extern ssize_t getline(char **lineptr, size_t *n, FILE *stream)
     *n = r;
     return r;
 }
+#endif
