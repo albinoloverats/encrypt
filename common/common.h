@@ -56,6 +56,17 @@
         #endif
     #endif
 
+    #if __BYTE_ORDER == __BIG_ENDIAN
+        #define ntohll(x) (x)
+        #define htonll(x) (x)
+    #else
+        #if __BYTE_ORDER == __LITTLE_ENDIAN
+            #define ntohll(x) __bswap_64 (x)
+            #define htonll(x) __bswap_64 (x)
+        #endif
+    #endif
+
+
     #define _(s) gettext(s) /*!< Allow use of _() to refer to gettext() */
 
     #define COMMON_CONCAT(A, B) COMMON_CONCAT2(A, B) /*!< Function overloading argument concatination (part 1) */
@@ -267,17 +278,6 @@
      * Get the endianness of the current system - TODO: add check for middle/mixed endian
      */
     extern endian_e get_endian(void);
-
-    /*!
-     * \brief         Convert 64 bit integer to big endian
-     * \param[in]  i  The integer to convert
-     * \return        The value of i in big endian format
-     *
-     * Convert the given 64 bit value in to big endian format; if already on a machine
-     * which is big endian, do nothing; the standard networking function htonl() would
-     * have been nice but it only supports uint32_t sized values
-     */
-    extern uint64_t to_big_endian(uint64_t i);
 
 	/*!
 	 * \brief  Wrapper function for systems without getline (ie BSD)
