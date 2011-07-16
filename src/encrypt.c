@@ -18,484 +18,647 @@
  *
  */
 
-#include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
 #include <fcntl.h>
-#include <dirent.h>
-#include <getopt.h>
-#include <stddef.h>
 #include <unistd.h>
+#include <errno.h>
+#include <limits.h>
+
+#include <inttypes.h>
 #include <stdbool.h>
-#include <sys/stat.h>
-#include <sys/types.h>
+
+#ifndef _WIN32
+#include <netinet/in.h>
+#endif
+
+#include <gcrypt.h>
+
+#define __ENCRYPT__H__
+#include "encrypt.h"
 
 #include "common/common.h"
 
-#include "src/encrypt.h"
-#include "lib/plugins.h"
+static bool lib_init = false;
+static uint8_t *stream = NULL; 
+static size_t length = 0;
+static size_t block = 0;
 
-#ifdef _BUILD_GUI_
-#include <gtk/gtk.h>
-#include "src/interface.h"
-#include "src/support.h"
-#endif /* _BUILD_GUI_ */
+static uint64_t decrypted_size = 0;
+static uint64_t bytes_processed = 0;
+static status_e status = RUNNING;
 
-/*
- * if we're building the GUI then these get defined here as globals, else they're local to main only (below)
- */
-//#ifdef _BUILD_GUI_
-//    char *filename_in  = NULL;
-//    char *filename_out = NULL;
-//    char    *key_plain = NULL;
-//#endif /* _BUILD_GUI */
-
-int main(int argc, char **argv)
+extern bool file_encrypted3(int64_t f, char **c, char **h)
 {
-    char *filename_in  = NULL;
-    char *filename_out = NULL;
-
-    int64_t  file_in  = STDIN_FILENO;
-    int64_t  file_out = STDOUT_FILENO;
-#ifndef _WIN32
-    void    *file_mod = NULL;
-#else  /* ! _WIN32 */
-    HANDLE   file_mod = NULL;
-#endif /*   _WIN32 */
-
-    char    *key_plain = NULL;
-    uint8_t *key_data  = NULL;
-    ekey_t   key_type  = NOTSET;
-
-    func_t function = NOTSET;
-
-    int64_t (*fp)(int64_t, int64_t, uint8_t *);
-
-    init(NAME, VERSION);
-
-#ifndef _BUILD_GUI_
-    /*
-     * start as we mean to go on...
-     */
-    if (argc < 2)
-        return show_usage();
-#endif /* _BUILD_GUI */
-    /*
-     * get all of the command line options and arguments - note that if the plugin string contains / then we treat it
-     * as a path to the plugin, instead of allowing the system to find it
-     */
-    while (true)
-    {
-        static struct option long_options[] =
-        {
-            {"in"      , required_argument, 0, 'i'},
-            {"out"     , required_argument, 0, 'o'},
-            {"keyfile" , required_argument, 0, 'k'},
-            {"passfile", required_argument, 0, 'f'},
-            {"password", required_argument, 0, 'p'},
-            {"encrypt" , required_argument, 0, 'e'},
-            {"decrypt" , required_argument, 0, 'd'},
-            {"generate", required_argument, 0, 'g'},
-            {"about"   , required_argument, 0, 'a'},
-            {"modules" ,       no_argument, 0, 'm'},
-            {"help"    ,       no_argument, 0, 'h'},
-            {"licence" ,       no_argument, 0, 'l'},
-            {"version" ,       no_argument, 0, 'v'},
-            {0, 0, 0, 0}
-        };
-        int32_t optex = 0;
-        int32_t opt = getopt_long(argc, argv, "i:o:k:f:p:e:d:g:a:mhlv", long_options, &optex);
-        if (opt < 0)
-            break;
-        switch (opt)
-        {
-            case 'i':
-                filename_in = strdup(optarg);
-                break;
-            case 'o':
-                filename_out = strdup(optarg);
-                break;
-            case 'k':
-                key_plain = strdup(optarg);
-                key_type  = KEYFILE;
-                break;
-            case 'f':
-                key_plain = strdup(optarg);
-                key_type  = PASSFILE;
-                break;
-            case 'p':
-                key_plain = strdup(optarg);
-                key_type  = PASSWORD;
-                break;
-            case 'e':
-                file_mod = open_mod(optarg);
-                function = ENCRYPT;
-                break;
-            case 'd':
-                file_mod = open_mod(optarg);
-                function = DECRYPT;
-                break;
-            case 'a':
-                return algorithm_info(optarg);
-            case 'g':
-                return key_generate(optarg, key_plain);
-            case 'h':
-                return show_help();
-            case 'l':
-                return show_licence();
-            case 'm':
-                return list_modules();
-            case 'v':
-                return show_version();
-            case '?':
-            default:
-                die(_("unknown option %c"), opt);
-                /*
-                 * it's worth noting that unknown options cause encrypt to bail
-                 */
-        }
-    }
-#ifdef _BUILD_GUI_
-    /*
-     * now we've parsed the command line arguments, try and draw the gui (if
-     * we've been told to build it) and if we can; also, if enough options are
-     * passed we might as well do something with them...
-     */
-    if (!gtk_init_check(&argc, &argv))
-        die(_("could not initialize GTK interface"));
-
-    if ((!filename_in && !filename_out) || (!function) || (!key_type))
-    {
-        GtkWidget *window_main;
-
-        gtk_set_locale();
-        add_pixmap_directory("./pixmap");
-#ifndef _WIN32
-        add_pixmap_directory("/usr/lib/encrypt/pixmap");
-#else  /* ! _WIN32 */
-        add_pixmap_directory("/Program Files/encrypt/pixmap");
-#endif /*   _WIN32 */
-        window_main = create_window_main();
-        gtk_widget_show(window_main);
-        gtk_main();
-
-        free(filename_in);
-        free(filename_out);
-        return EXIT_SUCCESS;
-    }
-    else
-    {
-#endif /* _BUILD_GUI_ */
-        /*
-         * open the files iff we have a name for them, otherwise stick with the defaults (stdin/stdout) defined above
-         */
-        if (filename_in)
-        {
-            if ((file_in = open(filename_in, O_RDONLY | O_BINARY | F_RDLCK)) < 0)
-                die(_("could not access input file %s"), filename_in);
-            free(filename_in);
-        }
-        if (filename_out)
-        {
-            if ((file_out = open(filename_out, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY | F_WRLCK, S_IRUSR | S_IWUSR)) < 0)
-                die(_("could not access/create output file %s"), filename_out);
-            free(filename_out);
-        }
-        /*
-         * generate a binary key using the chosen method
-         */
-        key_data = key_calculate(file_mod, key_plain, key_type);
-        free(key_plain);
-        /*
-         * search for the function we want - if we were able to load the module then it should be there, otherwise it's
-         * likely that the user forgot to give us a name for the module above
-         */
-#ifndef _WIN32
-        if (!(fp = (int64_t (*)(int64_t, int64_t, uint8_t *))dlsym(file_mod, function == ENCRYPT ? "plugin_encrypt" : "plugin_decrypt")))
-#else  /* ! _WIN32 */
-        if (!(fp = (void *)GetProcAddress(file_mod, function == ENCRYPT ? "plugin_encrypt" : "plugin_decrypt")))
-#endif /*   _WIN32 */
-            die(_("could not import module function %s"), function == ENCRYPT ? "encryption" : "decryption");
-        /*
-         * we made it - if we reach here then everything is okay and we're now ready to start :)
-         */
-        int64_t s = fp(file_in, file_out, key_data);
-        /*
-         * if there's an error tell the user - however it's unlikely we'll know exactly what the error is
-         */
-        if (s != EXIT_SUCCESS)
-            msg(_("an unexpected error has occured"));
-        /*
-         * close all open files obviously if in_file / out_file are stdin / stdout it makes no sense to close them
-         */
-        free(key_data);
-#ifdef _DLFCN_H
-        dlclose(file_mod);
-#endif /* _DLFCN_H */
-        if (file_in != STDIN_FILENO)
-            close(file_in);
-        if (file_out != STDOUT_FILENO)
-            close(file_out);
-        return EXIT_SUCCESS;
-#ifdef _BUILD_GUI_
-    }
-#endif /* _BUILD_GUI_ */
+    log_message(LOG_DEBUG, "check for file header");
+    uint64_t head[3] = {0x0};
+    lseek(f, 0, SEEK_SET);
+    read(f, head, sizeof( head ));
+    if (head[0] != htonll(HEADER_0) || head[1] != htonll(HEADER_1) || head[2] != htonll(HEADER_2))
+        return false;
+    if (c == (char **)-1 || h == (char **)-1)
+        return true;
+    log_message(LOG_DEBUG, "check for known algorithms");
+    uint8_t l = 0;
+    read(f, &l, sizeof( uint8_t ));
+    *c = calloc(l + 1, sizeof( char ));
+    read(f, *c, l);
+    *h = strchr(*c, '/');
+    **h = '\0';
+    (*h)++;
+    log_message(LOG_VERBOSE, "file has cipher %s", *c);
+    log_message(LOG_VERBOSE, "file has hash %s", *h);
+    return true;
 }
 
-void *open_mod(char *n)
+extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h, const char *c)
 {
-#ifndef _WIN32
-    void *p = NULL;
-#else  /* ! _WIN32 */
-    HANDLE p = NULL;
-#endif /*   _WIN32 */
-    if (!n)
-        die(_("module name cannot be (null)"));
-#ifndef _WIN32
-    if (!strchr(n, '/'))
-  #ifndef FEDORA_PATH_HACK
-        if (asprintf(&n, "%s.so", n) < 0)
-  #else  /* ! FEDORA_PATH_HACK */
-        if (asprintf(&n, "/usr/lib/encrypt/lib/%s.so", n) < 0)
-  #endif /*   FEDORA_PATH_HACK */
+    status = RUNNING;
+
+    log_message(LOG_DEBUG, "encrypting...");
+    /*
+     * initialise GNU Crypt library
+     */
+    if (!lib_init)
+        init_gcrypt_library();
+    /*
+     * get the algorithms
+     */
+    log_message(LOG_DEBUG, "find algorithms");
+    int mdi = 0;
+    if (!(mdi = get_algorithm_hash(h)))
+        die("could not find hash %s", h);
+    int cyi = 0;
+    if (!(cyi = get_algorithm_crypt(c)))
+        die("could not find cipher %s", c);
+
+    gcry_md_hd_t md = NULL;
+    gcry_md_open(&md, mdi, GCRY_MD_FLAG_SECURE);
+    gcry_cipher_hd_t cy = NULL;
+    gcry_cipher_open(&cy, cyi, GCRY_CIPHER_MODE_CBC, GCRY_CIPHER_SECURE);
+    /*
+     * write the default header
+     */
+    log_message(LOG_DEBUG, "writing standard header");
+    uint64_t head[3] = {htonll(HEADER_0), htonll(HEADER_1), htonll(HEADER_2)};
+    write(g, head, sizeof( head ));
+    char *algos = NULL;
+    asprintf(&algos, "%s/%s", get_name_algorithm_crypt(cyi), get_name_algorithm_hash(mdi));
+    uint8_t l1 = (uint8_t)strlen(algos);
+    write(g, &l1, sizeof( uint8_t ));
+    write(g, algos, l1);
+    free(algos);
+
+    gcry_cipher_algo_info(cyi, GCRYCTL_GET_BLKLEN, NULL, &block);
+    log_message(LOG_VERBOSE, "encryption block size %zu bytes", block);
+    /*
+     * generate key hash
+     */
+    int ma = gcry_md_get_algo(md);
+    key->h_length = gcry_md_get_algo_dlen(ma);
+    key->h_data = malloc(key->h_length);
+    if (!key->h_data)
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
+    gcry_md_hash_buffer(ma, key->h_data, key->p_data, key->p_length);
+    /*
+     * setup algorithm (key and IV) - copy no more than the length of the key
+     * into a new buffer (pad with 0x0 if necessary) then hash back to the
+     * original buffer the IV
+     */
+    size_t lk = 0;
+    gcry_cipher_algo_info(cyi, GCRYCTL_GET_KEYLEN, NULL, &lk);
+    uint8_t *buffer = calloc(lk, sizeof( uint8_t ));
+    if (!buffer)
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
+    memmove(buffer, key->h_data, lk < key->h_length ? lk : key->h_length);
+    gcry_cipher_setkey(cy, buffer, lk);
+    uint8_t *iv = calloc(key->h_length, sizeof( uint8_t ));
+    if (!iv)
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
+    gcry_md_hash_buffer(ma, iv, key->h_data, key->h_length);
+    memmove(buffer, iv, lk < key->h_length ? lk : key->h_length);
+    free(iv);
+    free(key->h_data);
+    gcry_cipher_setiv(cy, buffer, lk);
+    /*
+     * all data written from here on is encrypted
+     */
+    log_message(LOG_DEBUG, "write source file info");
+    /*
+     * write simple addition (x + y + z) where x, y and random
+     * 64bit signed integers
+     */
+    int64_t x = 0;
+    int64_t y = 0;
+    gcry_create_nonce(&x, sizeof( x ));
+    gcry_create_nonce(&y, sizeof( y ));
+    int64_t z = x ^ y;
+    log_message(LOG_INFO, "x = %jx ; y = %jx ; z = %jx", x, y, z);
+    x = htonll(x);
+    y = htonll(y);
+    z = htonll(z);
+    log_message(LOG_INFO, "x = %jx ; y = %jx ; z = %jx", x, y, z);
+    ewrite(g, &x, sizeof( x ), cy);
+    ewrite(g, &y, sizeof( y ), cy);
+    ewrite(g, &z, sizeof( z ), cy);
+    /*
+     * write a random length of random bytes
+     */
+    gcry_create_nonce(&l1, sizeof( l1 ));
+
+    uint8_t *q = realloc(buffer, l1);
+    if (!q)
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
+    buffer = q;
+    gcry_create_nonce(buffer, l1);
+    ewrite(g, &l1, sizeof( l1 ), cy);
+    ewrite(g, buffer, l1, cy);
+    /*
+     * write original file size
+     */
+    decrypted_size = lseek(f, 0, SEEK_END);
+    uint64_t nll = htonll(decrypted_size);
+    ewrite(g, &nll, sizeof( uint64_t ), cy);
+    lseek(f, 0, SEEK_SET);
+    /*
+     * main encryption loop
+     */
+    log_message(LOG_DEBUG, "starting encryption process");
+    q = realloc(buffer, block);
+    if (!q)
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
+    buffer = q;
+    /*
+     * reset hash algorithm, so we can use it to generate a checksum of the plaintext data
+     */
+    gcry_md_reset(md);
+    for (bytes_processed = 0; bytes_processed < decrypted_size; bytes_processed += block)
+    {
+        if (status == CANCELLED)
+            goto cleanup;
+        memset(buffer, 0x00, block);
+        size_t y = block;
+        if (bytes_processed + block > decrypted_size)
+            y = block - (bytes_processed + block - decrypted_size);
+        ssize_t r = read(f, buffer, y);
+        gcry_md_write(md, buffer, r);
+        ewrite(g, buffer, r, cy);
+    }
+    /*
+     * write data checksum
+     */
+    gcry_md_final(md);
+    uint8_t *cs = gcry_md_read(md, ma);
+    ewrite(g, cs, key->h_length, cy);
+    /*
+     * add some random data at the end
+     */
+    log_message(LOG_DEBUG, "appending file random data");
+    gcry_create_nonce(&l1, sizeof( l1 ));
+    if (!(q = realloc(buffer, l1)))
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
+    buffer = q;
+    gcry_create_nonce(buffer, l1);
+    ewrite(g, buffer, l1, cy);
+
+    status = SUCCEEDED;
+
+cleanup:
+    /*
+     * done
+     */
+    free(buffer);
+    free(stream);
+
+    gcry_cipher_close(cy);
+    gcry_md_close(md);
+
+    return status;
+}
+
+extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
+{
+    status = RUNNING;
+
+    log_message(LOG_DEBUG, "decrypting...");
+    /*
+     * initialise GNU Crypt library
+     */
+    if (!lib_init)
+        init_gcrypt_library();
+    /*
+     * read the standard header
+     */
+    char *algonc = NULL, *algonh = NULL;
+    if (!file_encrypted(f, &algonc, &algonh))
+    {
+        log_message(LOG_ERROR, "file is not encrypted");
+        return FAILED_OTHER;
+    }
+    int mdi = 0;
+    if (!(mdi = get_algorithm_hash(algonh)))
+        die("could not find hash %s", algonh);
+    int cyi = 0;
+    if (!(cyi = get_algorithm_crypt(algonc)))
+        die("could not find cipher %s", algonc);
+    free(algonc);
+
+    gcry_md_hd_t md = NULL;
+    gcry_md_open(&md, mdi, GCRY_MD_FLAG_SECURE);
+    gcry_cipher_hd_t cy = NULL;
+    gcry_cipher_open(&cy, cyi, GCRY_CIPHER_MODE_CBC, GCRY_CIPHER_SECURE);
+
+    gcry_cipher_algo_info(cyi, GCRYCTL_GET_BLKLEN, NULL, &block);
+    log_message(LOG_VERBOSE, "decryption block size %zu bytes", block);
+    /*
+     * generate key hash
+     */
+    int ma = gcry_md_get_algo(md);
+    key->h_length = gcry_md_get_algo_dlen(ma);
+    key->h_data = malloc(key->h_length);
+    if (!key->h_data)
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
+    gcry_md_hash_buffer(ma, key->h_data, key->p_data, key->p_length);
+    /*
+     * setup algorithm (key and IV)
+     */
+    size_t lk = 0;
+    gcry_cipher_algo_info(cyi, GCRYCTL_GET_KEYLEN, NULL, &lk);
+    uint8_t *buffer = calloc(lk, sizeof( uint8_t ));
+    if (!buffer)
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
+    memmove(buffer, key->h_data, lk < key->h_length ? lk : key->h_length);
+    gcry_cipher_setkey(cy, buffer, lk);
+    uint8_t *iv = calloc(key->h_length, sizeof( uint8_t ));
+    if (!iv)
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
+    gcry_md_hash_buffer(ma, iv, key->h_data, key->h_length);
+    memmove(buffer, iv, lk < key->h_length ? lk : key->h_length);
+    free(iv);
+    free(key->h_data);
+    gcry_cipher_setiv(cy, buffer, lk);
+
+    log_message(LOG_DEBUG, "reading source file info");
+    /*
+     * read three 64bit signed integers and assert that x + y = z
+     */
+    int64_t x = 0;
+    int64_t y = 0;
+    int64_t z = 0;
+    eread(f, &x, sizeof( x ), cy);
+    eread(f, &y, sizeof( y ), cy);
+    eread(f, &z, sizeof( z ), cy);
+    log_message(LOG_DEBUG, "verifying x + y = z");
+    log_message(LOG_INFO, "x = %jx ; y = %jx ; z = %jx", x, y, z);
+    x = ntohll(x);
+    y = ntohll(y);
+    z = ntohll(z);
+    log_message(LOG_INFO, "x = %jx ; y = %jx ; z = %jx", x, y, z);
+    if ((x ^ y) != z)
+    {
+        log_message(LOG_ERROR, "failed decryption attempt");
+        free(buffer);
+        return FAILED_DECRYPTION;
+    }
+    /*
+     * skip past random data
+     */
+    uint8_t l1 = 0;
+    eread(f, &l1, sizeof( uint8_t ), cy);
+    uint8_t *q = realloc(buffer, l1);
+    if (!q)
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
+    buffer = q;
+    eread(f, buffer, l1, cy);
+    /*
+     * read the original file size
+     */
+    eread(f, &decrypted_size, sizeof( uint64_t ), cy);
+    decrypted_size = ntohll(decrypted_size);
+    /*
+     * main decryption loop
+     */
+    log_message(LOG_DEBUG, "startng decryption process");
+    q = realloc(buffer, block);
+    if (!q)
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
+    buffer = q;
+    /*
+     * reset hash algorithm, so we can use it to generate a checksum of the plaintext data
+     */
+    gcry_md_reset(md);
+    for (bytes_processed = 0; bytes_processed < decrypted_size; bytes_processed += block)
+    {
+        if (status == CANCELLED)
+            goto cleanup;
+        memset(buffer, 0x00, block);
+        size_t y = block;
+        if (bytes_processed + block > decrypted_size)
+            y = block - (bytes_processed + block - decrypted_size);
+        ssize_t r = eread(f, buffer, y, cy);
+        gcry_md_write(md, buffer, r);
+        write(g, buffer, r);
+    }
+#if 0 // FIXME checksum verification fails - why?
+    /*
+     * compare data checksum
+     */
+    gcry_md_final(md);
+    ma = gcry_md_get_algo(md);
+    uint8_t *cs = gcry_md_read(md, ma);
+    if (!(q = realloc(buffer, key->h_length)))
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
+    buffer = q;
+    eread(f, buffer, key->h_length, cy);
+    log_message(LOG_DEBUG, "verifying checksum");
+    if (memcmp(cs, buffer, key->h_length))
+    {
+        log_message(LOG_ERROR, "checksum verification failed");
+        log_binary(LOG_DEBUG, cs, key->h_length);
+        log_binary(LOG_DEBUG, buffer, key->h_length);
+        status = FAILED_CHECKSUM;
+    }
+#endif
+    status = SUCCEEDED;
+
+cleanup:
+    /*
+     * done
+     */
+    free(buffer);
+    free(stream);
+
+    gcry_cipher_close(cy);
+    gcry_md_close(md);
+
+    return status;
+}
+
+extern uint64_t get_decrypted_size()
+{
+    return decrypted_size;
+}
+
+extern uint64_t get_bytes_processed()
+{
+    return bytes_processed;
+}
+
+extern status_e get_status()
+{
+    return status;
+}
+
+extern void stop_running()
+{
+    status = CANCELLED;
+}
+
+extern list_t *get_algorithms_hash(void)
+{
+    if (!lib_init)
+        init_gcrypt_library();
+    list_t *l = list_create((int (*)(const void *, const void *))strcmp);
+    int list[0xff] = {0x00};
+    int len = sizeof(list);
+    gcry_md_list(list, &len);
+    for (int i = 0; i < len; i++)
+    {
+        const char *n = gcry_md_algo_name(list[i]);
+        if (algorithm_is_duplicate(n))
+            continue;
+        if (!strcasecmp(n, NAME_TIGER192))
+            list_append(&l, correct_tiger192(n));
+        else if (!strncasecmp(n, NAME_SHA1, strlen(NAME_SHA1) - 1))
+            list_append(&l, correct_sha1(n));
+        else
+            list_append(&l, n);
+    }
+    return list_sort(&l);
+}
+
+extern list_t *get_algorithms_crypt(void)
+{
+    if (!lib_init)
+        init_gcrypt_library();
+    list_t *l = list_create((int (*)(const void *, const void *))strcmp);
+    int list[0xff] = {0x00};
+    int len = sizeof(list);
+    gcry_cipher_list(list, &len);
+    for (int i = 0; i < len; i++)
+    {
+        const char *n = gcry_cipher_algo_name(list[i]);
+        if (algorithm_is_duplicate(n))
+            continue;
+        if (!strncasecmp(n, NAME_AES, strlen(NAME_AES)))
+            list_append(&l, correct_aes_rijndael(n));
+        else if (!strcasecmp(n, NAME_BLOWFISH))
+            list_append(&l, correct_blowfish128(n));
+        else if (!strcasecmp(n, NAME_TWOFISH))
+            list_append(&l, correct_twofish256(n));
+        else
+            list_append(&l, n);
+    }
+    return list_sort(&l);
+}
+
+static void init_gcrypt_library(void)
+{
+    /*
+     * initialise GNU Crypt library
+     */
+    log_message(LOG_VERBOSE, "Initialise GNU Crypt library");
+    if (!gcry_check_version(GCRYPT_VERSION))
+        die("could not find GNU Crypt library");
+    gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
+    errno = 0; /* need to reset errno after gcry_check_version() */
+    lib_init = true;
+}
+
+static int ewrite(int64_t f, const void *d, size_t l, gcry_cipher_hd_t c)
+{
+    if (!stream)
+        if (!(stream = calloc(block, sizeof( uint8_t ))))
             die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    if (!(p = dlopen(n, RTLD_LAZY)))
-#else  /* ! _WIN32 */
-    if (!strchr(n, '\\') && !strchr(n, '/'))
+    int e = EXIT_SUCCESS;
+    size_t i = 0, j = l;
+    while (length + j >= block)
     {
-        n = realloc(n, strlen(n) + 5);
-        sprintf(n, "%s.dll", n);
+        memmove(stream + length, d + i, block - length);
+        gcry_cipher_encrypt(c, stream, block, NULL, 0);
+        e = write(f, stream, block);
+        j = length + j - block;
+        i += block;
+        memset(stream, 0x00, block);
+        length = 0;
     }
-    if (!(p = LoadLibrary(n)))
-#endif /*   _WIN32 */
-        die(_("could not open plugin %s"), n);
-    return p;
+    memmove(stream + length, d + (l - j), j);
+    length += j;
+    return e;
 }
 
-int64_t algorithm_info(char *n)
+static int eread(int64_t f, void * const d, size_t l, gcry_cipher_hd_t c)
+{
+    if (!stream)
+        if (!(stream = calloc(2 * block, sizeof( uint8_t ))))
+            die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
+    if (length == l)
+    {
+        memcpy(d, stream, l);
+        length = 0;
+        return l;
+    }
+    if (length > l)
+    {
+        memcpy(d, stream, l);
+        length -= l;
+        memmove(stream, stream + l, length);
+        return l;
+    }
+    int e = EXIT_SUCCESS;
+    memcpy(d, stream, length);
+    size_t i = length;
+    length = 0;
+    while (i < l)
+    {
+        e = read(f, stream, block);
+        gcry_cipher_decrypt(c, stream, block, NULL, 0);
+        size_t j = block;
+        if (i + block > l)
+            j = block - (i + block - l);
+        memcpy(d + i, stream, j);
+        i += j;
+        length = block - j;
+    }
+    memmove(stream, stream + block - length, length);
+    return e < 0 ? e : (int)l;
+}
+
+static int get_algorithm_hash(const char * const restrict n)
 {
     if (!n)
-        die(_("missing module name"));
-    void *p = open_mod(n);
-    if (!p)
-        die(_("invalid pointer to module"));
-    /*
-     * set everything up so we can get some info about the given algorithm
-     */
-    info_t *about, *(*fp)(void);
-    errno = 0;
-
-#ifndef _WIN32
-    if (!(fp = (info_t *(*)(void))dlsym(p, "plugin_info")))
-#else   /* ! _WIN32 */
-    if (!(fp = (void *)GetProcAddress(p, "plugin_info")))
-#endif /*   _WIN32 */
-        die("could not find plugin information");
-    /*
-     * now get the info
-     */
-    about = fp();
-    fprintf(stdout, "%s\n", _("Algorithm Details"));
-    fprintf(stdout, "  %12s : %s\n", _("Name"), about->algorithm_name);
-    fprintf(stdout, "  %12s : %s\n", _("Authors"), about->algorithm_authors);
-    fprintf(stdout, "  %12s : %s\n", _("Copyright"), about->algorithm_copyright);
-    fprintf(stdout, "  %12s : %s\n", _("Licence"), about->algorithm_licence);
-    fprintf(stdout, "  %12s : %s\n", _("Year"), about->algorithm_year);
-    fprintf(stdout, "  %12s : %s\n", _("Block size"), about->algorithm_block);
-    fprintf(stdout, "\n%s\n", _("Key Details"));
-    fprintf(stdout, "  %12s : %s\n", _("Name"), about->key_name);
-    fprintf(stdout, "  %12s : %s\n", _("Authors"), about->key_authors);
-    fprintf(stdout, "  %12s : %s\n", _("Copyright"), about->key_copyright);
-    fprintf(stdout, "  %12s : %s\n", _("Licence"), about->key_licence);
-    fprintf(stdout, "  %12s : %s\n", _("Year"), about->key_year);
-    fprintf(stdout, "  %12s : %s\n", _("Key size"), about->key_size);
-    fprintf(stdout, "\n%s\n", _("Plugin Details"));
-    fprintf(stdout, "  %12s : %s\n", _("Authors"), about->module_authors);
-    fprintf(stdout, "  %12s : %s\n", _("Copyright"), about->module_copyright);
-    fprintf(stdout, "  %12s : %s\n", _("Licence"), about->module_licence);
-    fprintf(stdout, "  %12s : %s\n", _("Version"), about->module_version);
-    fprintf(stdout, "\n%s\n", _("Additional Details"));
-    fprintf(stdout, "  %s\n", about->module_comment);
-
-    /*
-     * go on a free'ing spree...
-     */
-    free(about->algorithm_name);
-    free(about->algorithm_authors);
-    free(about->algorithm_copyright);
-    free(about->algorithm_licence);
-    free(about->algorithm_year);
-    free(about->algorithm_block);
-
-    free(about->key_name);
-    free(about->key_authors);
-    free(about->key_copyright);
-    free(about->key_licence);
-    free(about->key_year);
-    free(about->key_size);
-
-    free(about->module_authors);
-    free(about->module_copyright);
-    free(about->module_licence);
-    free(about->module_version);
-    free(about->module_comment);
-
-    free(about);
-#ifdef _DLFCN_H
-    dlclose(p);
-#endif /* _DLFCN_H */
-    return errno;
-}
-
-int64_t key_generate(char *s, char *f)
-{
-    /*
-     * generate a key (for later use) of a given size - it's up to each algorithm plugin to decide how to use a given
-     * key file (all keys are in hex)
-     */
-    uint64_t l = strtol(s, NULL, 10) / 8;
-    FILE *k = stdout;
-    errno = EXIT_SUCCESS;
-    srand48(time(0));
-    /*
-     * either print the hex key to stdout, or to a file if we can
-     */
-    if (f)
-        if (!(k = fopen(f, "w")))
-            die(_("could not access/create key file %s"), f);
-    for (uint64_t i = 0; i < l; i++)
-        fprintf(k, "%02X", (uint8_t)(lrand48() % 256));
-    if (k == stdout)
-        printf("\n");
-    fclose(k);
-    return errno;
-}
-
-uint8_t *key_calculate(void *p, char *s, ekey_t k)
-{
-    if (!p)
-        die(_("invalid pointer to module"));
-    if (!s)
-        die(_("missing data for key generation"));
-    uint8_t *c = NULL;
-    uint8_t *d = NULL;
-    int64_t  l = 0;
-    switch (k)
+        return 0;
+    int list[0xff] = {0x00};
+    int len = sizeof(list);
+    gcry_md_list(list, &len);
+    for (int i = 0; i < len; i++)
     {
-        case KEYFILE:
-            {
-                int64_t  f = 0;
-                if ((f = open(s, O_RDONLY)) < 0)
-                    die(_("could not access key file %s"), s);
-                l = lseek(f, 0, SEEK_END);
-                lseek(f, 0, SEEK_SET);
-                d = calloc(l, sizeof( uint8_t ));
-                if (!d)
-                    return NULL;
-                for (int64_t i = 0; i < l / 2; i++)
-                {
-                    char c[3] = { 0x00 };
-                    if (read(f, &c, 2 * sizeof( uint8_t )) != 2 * sizeof( uint8_t ))
-                        msg(_("unexpected end of key file %s"), s);
-                    d[i] = strtol(c, NULL, 0x0F);
-                }
-                close(f);
-                return d;
-            }
-            break; // why? (see 2 lines above)
-        case PASSFILE:
-            {
-                int64_t f = 0;
-                if ((f = open(s, O_RDONLY)) < 0)
-                    die(_("could not access passphrase file %s"), s);
-                l = lseek(f, 0, SEEK_END);
-                lseek(f, 0, SEEK_SET);
-                c = calloc(l, sizeof( uint8_t ));
-                if (read(f, c, l) != l)
-                    msg(_("unexpected end of passphrase %s"), s);
-                close(f);
-            }
-            break;
-        case PASSWORD:
-            c = (uint8_t *)strdup(s);
-            l = strlen(s);
-            break;
-        default:
-            die(_("invalid key type"));
+        const char *x = gcry_md_algo_name(list[i]);
+        if (algorithm_is_duplicate(x))
+            continue;
+        char *y = NULL;
+        if (!strncasecmp(x, NAME_SHA1, strlen(NAME_SHA1) - 1))
+            y = correct_sha1(x);
+        else
+            y = strdup(x);
+        if (!strcasecmp(y, n))
+        {
+            free(y);
+            log_message(LOG_DEBUG, "found hash algorithm %s", gcry_md_algo_name(list[i]));
+            return list[i];
+        }
+        free(y);
     }
-    uint8_t *(*fp)(uint8_t *, size_t);
-
-#ifndef _WIN32
-    if (!(fp = (uint8_t *(*)(uint8_t *, size_t))dlsym(p, "plugin_key")))
-#else   /* ! _WIN32 */
-    if (!(fp = (void *)GetProcAddress(p, "plugin_key")))
-#endif /*   _WIN32 */
-        die(_("could not import module function %s"), "plugin_key");
-    d = fp(c, l);
-    free(c);
-    return d;
+    return 0;
 }
 
-int64_t list_modules(void)
+static int get_algorithm_crypt(const char * const restrict n)
 {
-    errno = EXIT_SUCCESS;
-    /*
-     * list all modules which are installed in /usr/lib/encrypt
-     */
-    fprintf(stdout, _("Installed Modules:\n"));
-#ifndef _WIN32
-    /*
-     * linux version is much nicer than the windows (this is becoming common)
-     */
-    struct dirent **eps;
-    int64_t n = scandir("/usr/lib/encrypt/lib", &eps, NULL, alphasort);
-    if (n >= 0)
+    if (!n)
+        return 0;
+    int list[0xff] = {0x00};
+    int len = sizeof(list);
+    gcry_cipher_list(list, &len);
+    for (int i = 0; i < len; i++)
     {
-        for (int64_t i = 0; i < n; ++i)
-            if (strstr(eps[i]->d_name, ".so"))
-#ifdef linux
-                fprintf(stdout, "  %*s\n", (uint32_t)(strlen(eps[i]->d_name) - 3), eps[i]->d_name);
-#else  /*   linux */
-            {
-                char *n = calloc(strlen(eps[i]->d_name), sizeof( char ));
-                memcpy(n, eps[i]->d_name, strlen(eps[i]->d_name) - 3);
-                fprintf(stdout, "  %s\n", n);
-            }
-#endif /* ! linux */
-        free(*eps);
-#else  /* ! _WIN32 */
-    DIR *dp = opendir("/Program Files/encrypt/lib");
-    if (dp)
-    {
-        struct dirent *ep;
-        while ((ep = readdir(dp)))
-            if (strstr(ep->d_name, ".dll"))
-                fprintf(stdout, "  %s\n", ep->d_name);
-        (void)closedir(dp);
-#endif /*   _WIN32 */
+        const char *x = gcry_cipher_algo_name(list[i]);
+        char *y = NULL;
+        if (!strncasecmp(x, NAME_AES, strlen(NAME_AES)))
+            y = correct_aes_rijndael(x);
+        else if (!strcasecmp(x, NAME_BLOWFISH))
+            y = correct_blowfish128(x);
+        else if (!strcasecmp(x, NAME_TWOFISH))
+            y = correct_twofish256(x);
+        else
+            y = strdup(x);
+        if (!strcasecmp(y, n))
+        {
+            log_message(LOG_DEBUG, "found crypto algorithm %s", gcry_cipher_algo_name(list[i]));
+            free(y);
+            return list[i];
+        }
+        free(y);
     }
-    return errno;
+    return 0;
 }
 
-int64_t show_help(void)
+static const char *get_name_algorithm_hash(int a)
 {
+    const char *n = gcry_md_algo_name(a);
+    if (strncasecmp(n, NAME_SHA1, strlen(NAME_SHA1) - 1))
+        return n;
+    return correct_sha1(n);
+}
+
+static const char *get_name_algorithm_crypt(int a)
+{
+    const char *x = gcry_cipher_algo_name(a);
+    if (!strncasecmp(x, NAME_AES, strlen(NAME_AES)))
+        return correct_aes_rijndael(x);
+    else if (!strcasecmp(x, NAME_BLOWFISH))
+        return correct_blowfish128(x);
+    else if (!strcasecmp(x, NAME_TWOFISH))
+        return correct_twofish256(x);
+    return x;
+}
+
+static char *correct_sha1(const char * const restrict n)
+{
+    if (strcasecmp(n, NAME_SHA1))
+        return strdup(n);
+    return strdup(NAME_SHA160);
+}
+
+static char *correct_tiger192(const char * const restrict n)
+{
+#ifndef _WIN32
+    return strndup(n, strlen(NAME_TIGER));
+#else
+    char *x = calloc(strlen(NAME_TIGER) + 1, sizeof( char ));
+    memcpy(x, n, strlen(NAME_TIGER));
+    return x;
+#endif
+}
+
+static char *correct_aes_rijndael(const char * const restrict n)
+{
+    if (!strcasecmp(NAME_AES, n))
+        return strdup(n); /* use AES (bits/blocks/etc) */
     /*
-     * boo
+     * use rijndael instead of AES as that's the actual cipher name
      */
-    show_version();
-    show_usage();
-    fprintf(stderr, _("\nOptions:\n\n"));
-    fprintf(stderr, _("  -i, --in       FILE        Input file\n"));
-    fprintf(stderr, _("  -o, --out      FILE        Output file\n"));
-    fprintf(stderr, _("  -k, --keyfile  FILE        Key file (must come first if generating a key)\n"));
-    fprintf(stderr, _("  -f, --passfile FILE        File to use as passphrase to generate key\n"));
-    fprintf(stderr, _("  -p, --password PASSWORD    Use given password to generate key\n"));
-    fprintf(stderr, _("  -e, --encrypt  ALGORITHM   Algorithm to use for encryption\n"));
-    fprintf(stderr, _("  -d, --decrypt  ALGORITHM   Algorithm to use for decryption\n"));
-    fprintf(stderr, _("  -a, --about    ALGORITHM   Information about a particular algorithm\n"));
-    fprintf(stderr, _("  -g, --generate SIZE        Generate a key of specified size (in bits)\n"));
-    fprintf(stderr, _("  -m, --modules              List all available algorithms\n"));
-    fprintf(stderr, _("  -h, --help                 This help list\n"));
-    fprintf(stderr, _("  -l, --licence              An overview of the GNU GPL\n"));
-    fprintf(stderr, _("  -v, --version              Show version number and quit\n\n"));
-    fprintf(stderr, _(TEXT_HELP));
-    return EXIT_SUCCESS;
+    char *x = NULL;
+    asprintf(&x, "%s%s", NAME_RIJNDAEL, n + strlen(NAME_AES));
+    if (!x)
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
+    return x;
+}
+
+static char *correct_blowfish128(const char * const restrict n)
+{
+    return strdup(NAME_BLOWFISH128);
+}
+
+static char *correct_twofish256(const char * const restrict n)
+{
+    return strdup(NAME_TWOFISH256);
+}
+
+static bool algorithm_is_duplicate(const char * const restrict n)
+{
+    if (!strcmp(NAME_TIGER192, n))
+        return true;
+    return false;
 }

@@ -7,11 +7,18 @@
 A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "pixmap/encrypt.ico"
 
 //
+// SUPPORT FOR WINDOWS XP THEMES:
+// THIS WILL MAKE THE PROGRAM USE THE COMMON CONTROLS
+// LIBRARY VERSION 6.0 (IF IT IS AVAILABLE)
+//
+1 24 "encrypt.exe.Manifest"
+
+//
 // TO CHANGE VERSION INFORMATION, EDIT PROJECT OPTIONS...
 //
 1 VERSIONINFO
-FILEVERSION 2009,10,0,0
-PRODUCTVERSION 2009,10,0,0
+FILEVERSION 2011,7,0,0
+PRODUCTVERSION 2011,7,0,0
 FILETYPE VFT_APP
 {
   BLOCK "StringFileInfo"
@@ -19,14 +26,14 @@ FILETYPE VFT_APP
 		 BLOCK "080904E4"
 		 {
 			 VALUE "CompanyName", "albinoloverats ~ Software Development"
-			 VALUE "FileVersion", "200910"
+			 VALUE "FileVersion", "2011.07"
 			 VALUE "FileDescription", "encrypt is a simple, cross platform utility for securing your personal files"
 			 VALUE "InternalName", "encrypt"
-			 VALUE "LegalCopyright", "Copyright (c) 2004-2009, albinoloverats ~ Software Development"
+			 VALUE "LegalCopyright", "Copyright (c) 2004-2011, albinoloverats ~ Software Development"
 			 VALUE "LegalTrademarks", ""
 			 VALUE "OriginalFilename", "encrypt.exe"
 			 VALUE "ProductName", "encrypt"
-			 VALUE "ProductVersion", "200910"
+			 VALUE "ProductVersion", "2011.07"
 		 }
 	 }
   BLOCK "VarFileInfo"
