@@ -1,62 +1,67 @@
-.PHONY: encrypt gui all gui-all install install-all clean distclean uninstall
+.PHONY: clean distclean
 
-LIB_MAKE      = 
-LIB_INSTALL   = 
-LIB_CLEAN     = 
-LIB_UNINSTALL = 
+APP      = encrypt
 
-PO_MAKE       = 
-PO_INSTALL    = 
-PO_CLEAN      = 
-PO_UNINSTALL  = 
+SOURCE   = src/main.c src/encrypt.c
+COMMON   = common/common.c common/logging.c common/list.c
+GUI      = src/gui.c
 
-OPTIONS := -o encrypt -std=c99 -Wall -Wextra -O2 -pipe -ldl -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -I ./ ${OS_OPTS}
-GUIOPTS := `pkg-config --cflags --libs gtk+-2.0` -lpthread -D_BUILD_GUI_
-COMMON  := common/common.c common/list.c src/encrypt.c
+CFLAGS   = -Wall -Wextra -Wno-unused-parameter -O0 -std=gnu99 `libgcrypt-config --cflags` -pipe -ggdb
+CPPFLAGS = -DLOG_DEFAULT=LOG_ERROR -I. -Isrc -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64
+GUIFLAGS = -DBUILD_GUI `pkg-config --cflags gtk+-3.0 gmodule-2.0`
 
-encrypt:
-# build the main executible
-	 @gcc $(OPTIONS) $(COMMON)
-	-@echo "compiled \`src/encrypt.c common/common.c common/list.c' --> \`encrypt'"
+LIBS     = `libgcrypt-config --libs` -lpthread
+GUILIBS  = `pkg-config --libs gtk+-3.0 gmodule-2.0` -lpthread
+
+cli:
+	@$(CC) $(CFLAGS) $(CPPFLAGS) $(SOURCE) $(COMMON) $(LIBS) -o $(APP)
+	@echo "built \`$(SOURCE) $(COMMON)' --> \`$(APP)'"
 
 gui:
-# build the gui package
-	 @gcc $(OPTIONS) $(COMMON) $(GUIOPTS) src/callbacks.c src/interface.c src/support.c
-	-@echo "compiled \`src/encrypt.c common/common.c src/callbacks.c src/interface.c src/support.c --> encrypt'"
+	@$(CC) $(CFLAGS) $(CPPFLAGS) $(GUIFLAGS) $(SOURCE) $(COMMON) $(GUI) $(LIBS) $(GUILIBS) -o $(APP)
+	@echo "built \`$(SOURCE) $(COMMON) $(GUI)' --> \`$(APP)'"
 
--include lib/*.mk
--include po/*.mk
-all: encrypt $(LIB_MAKE) $(PO_MAKE)
-gui-all: gui $(LIB_MAKE) $(PO_MAKE)
+all: gui documentation language man
+
+documentation:
+	@echo "TODO - generate html/pdf from Doxygen"
+#	@doxygen
+
+language:
+	@echo "TODO - fully translate all strings"
+#	@$(MAKE) -C po
+
+man:
+	@gzip -c doc/encrypt.1a > encrypt.1a.gz
+	@echo "compressing \`doc/encrypt.1a' --> \`encrypt.1a.gz"
 
 install:
 # install the main executible, then softlink to it from /usr/bin
 	 @install -c -m 755 -s -D -T encrypt $(PREFIX)/usr/lib/encrypt/encrypt
 	 @ln -fs /usr/lib/encrypt/encrypt $(PREFIX)/usr/bin/
 	-@echo "installed \`encrypt' --> \`$(PREFIX)/usr/bin/encrypt'"
-# install the icon/pixmap
-	 @install -c -m 644 -D -T pixmap/encrypt.xpm $(PREFIX)/usr/lib/encrypt/pixmap/encrypt.xpm
-	-@echo "installed \`encrypt.xpm' --> \`$(PREFIX)/usr/lib/encrypt/pixmap/encrypt.xpm'" 
-	 @install -c -m 644 -D -T pixmap/albinoloverats.xpm $(PREFIX)/usr/lib/encrypt/pixmap/albinoloverats.xpm
-	-@echo "installed \`albinoloverats.xpm' --> \`$(PREFIX)/usr/lib/encrypt/pixmap/albinoloverats.xpm'" 
+# install the pixmap/svg and glade xml
+	 @install -c -m 644 -D -T pixmap/encrypt.svg $(PREFIX)/usr/lib/encrypt/pixmap/encrypt.svg
+	-@echo "installed \`pixmap/encrypt.svg' --> \`$(PREFIX)/usr/lib/encrypt/pixmap/encrypt.svg'" 
+	 @install -c -m 644 -D -T encrypt.glade $(PREFIX)/usr/lib/encrypt/encrypt.glade
+	-@echo "installed \`encrypt.glade' --> \`$(PREFIX)/usr/lib/encrypt/encrypt.glade'" 
 # ditto, but this time for the man page
-	 @install -c -m 644 -D -T doc/encrypt.1a.gz $(PREFIX)/usr/lib/encrypt/doc/encrypt.1a.gz
+	 @install -c -m 644 -D -T encrypt.1a.gz $(PREFIX)/usr/lib/encrypt/doc/encrypt.1a.gz
 	 @ln -fs /usr/lib/encrypt/doc/encrypt.1a.gz $(PREFIX)/usr/man/man1/
-	-@echo "installed \`doc/encrypt.1a.gz' --> \`$(PREFIX)/usr/man/man1/encrypt.1a.gz'"
+	-@echo "installed \`encrypt.1a.gz' --> \`$(PREFIX)/usr/man/man1/encrypt.1a.gz'"
 # finally the desktop file
 	 @install -c -m 644 -D -T encrypt.desktop $(PREFIX)/usr/lib/encrypt/encrypt.desktop
 	 @ln -fs /usr/lib/encrypt/encrypt.desktop $(PREFIX)/usr/share/applications/
 	-@echo "installed \`encrypt.desktop' --> \`$(PREFIX)/usr/share/applications/encrypt.desktop'"
-install-all: install $(LIB_INSTALL) $(PO_INSTALL)
+
+uninstall:
+	@rm -fvr $(PREFIX)/usr/lib/encrypt
+	@rm -fv $(PREFIX)/usr/man/man1/encrypt/1a/ga
+	@rm -fv $(PREFIX)/usr/share/applications/encrypt.desktop
 
 clean:
-	-@rm -fv encrypt
-distclean: clean $(LIB_CLEAN) $(PO_CLEAN)
+	@rm -fv $(APP)
 
-uninstall: $(LIB_UNINSTALL) $(PO_CLEAN)
-	 @rm -fv  $(PREFIX)/usr/share/applications/encrypt.desktop
-	 @rm -fv  $(PREFIX)/usr/man/man1/encrypt.1a.gz
-	 @rm -fv  $(PREFIX)/usr/lib/encrypt/pixmap/encrypt.xpm
-	 @rm -frv $(PREFIX)/usr/lib/encrypt/pixmap
-	 @rm -fv  $(PREFIX)/usr/bin/encrypt
-	 @rm -frv $(PREFIX)/usr/lib/encrypt
+distclean: clean
+	@rm -fv encrypt.1a.gz
+#	@$(MAKE) -C po distclean

@@ -33,6 +33,11 @@
 
     #include <inttypes.h>
 
+    #ifdef _WIN32
+        #define flockfile(f)   (void)f /*!< Function doesn't exist on Windows - ginore it */
+        #define funlockfile(f) (void)f /*!< Function doesn't exist on Windows - ginore it */
+    #endif
+
     #ifndef LOG_DEFAULT
         #define LOG_DEFAULT LOG_INFO /*!< The default log level */
     #endif
@@ -49,13 +54,14 @@
      */
     typedef enum log_e
     {
-        LOG_VERBOSE, /*!< Really verbose logging */
-        LOG_DEBUG,   /*!< Minimum level with debugging turned on */
-        LOG_INFO,    /*!< Default minimum log level */
-        LOG_WARNING, /*!< Warning level of logging */
-        LOG_ERROR,   /*!< Error log level */
-        LOG_FATAL,   /*!< Fatal event occured, used by die() */
-        LOG_LEVEL_COUNT
+        LOG_EVERYTHING, /*!< Log out everything (use with caution) */
+        LOG_VERBOSE,    /*!< Really verbose logging */
+        LOG_DEBUG,      /*!< Minimum level with debugging turned on */
+        LOG_INFO,       /*!< Default minimum log level */
+        LOG_WARNING,    /*!< Warning level of logging */
+        LOG_ERROR,      /*!< Error log level */
+        LOG_FATAL,      /*!< Fatal event occured, used by die() */
+        LOG_LEVEL_COUNT /*!< The number of available log levels */
     } __attribute__((packed))
     log_e;
 

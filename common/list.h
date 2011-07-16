@@ -76,7 +76,7 @@
      */
     #define SHUFFLE_FACTOR 4
 
-    //typedef list_t * LIST;
+    /*typedef list_t * LIST;*/
 
     /*
      * TODO find a way to make the function pointer optional; overload
@@ -185,7 +185,7 @@
      */
     extern list_t *list_shuffle(list_t **l) __attribute__((nonnull(1)));
 
-    #ifdef _DEBUG_ON_
+    #ifdef DEBUGGING
         /*!
          * \brief         Print out the list structure
          * \param[in]  l  The list to print the structure of

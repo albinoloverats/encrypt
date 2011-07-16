@@ -5,14 +5,14 @@ CPP  = g++.exe -D__DEBUG__
 CC   = gcc.exe -D__DEBUG__
 WINDRES = windres.exe
 RES  = src/encrypt_private.res
-OBJ  = src/encrypt.o src/callbacks.o src/support.o common/common.o src/interface.o $(RES)
-LINKOBJ  = src/encrypt.o src/callbacks.o src/support.o common/common.o src/interface.o $(RES)
-LIBS =  -L"C:/Dev-Cpp/lib" -mwindows -lgtk-win32-2.0  -lgdk-win32-2.0  -latk-1.0  -lgdk_pixbuf-2.0  -lpangowin32-1.0  -lgdi32  -lpango-1.0  -lgobject-2.0  -lgmodule-2.0  -lglib-2.0 -lpthreadGC2  -g3 
-INCS =  -I"C:/Dev-Cpp/include"  -I"C:/Documents and Settings/Ashley Anderson/My Documents/encrypt" 
-CXXINCS =  -I"C:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Dev-Cpp/include/c++/3.4.2"  -I"C:/Dev-Cpp/include"  -I"C:/Documents and Settings/Ashley Anderson/My Documents/encrypt" 
+OBJ  = src/encrypt.o common/common.o src/main.o src/gui.o common/logging.o common/list.o $(RES)
+LINKOBJ  = src/encrypt.o common/common.o src/main.o src/gui.o common/logging.o common/list.o $(RES)
+LIBS =  -L"C:/MinGW/lib" -mwindows -LC:/MinGW/lib -lgtk-win32-2.0 -lgdk-win32-2.0 -latk-1.0 -lgio-2.0 -lpangowin32-1.0 -lgdi32 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lpango-1.0 -lcairo -lgobject-2.0 -lgthread-2.0 -lgmodule-2.0 -lglib-2.0 -lintl -lgladeui-1 -lpthread -lgcrypt -lgpg-error  -g3 
+INCS =  -I"C:/MinGW/include"  -I"."  -I"src" 
+CXXINCS =  -I"."  -I"src" 
 BIN  = encrypt.exe
-CXXFLAGS = $(CXXINCS)   -w -g3
-CFLAGS = $(INCS) -I"C:\Dev-Cpp\\include\gtk-2.0"  -I"C:\Dev-Cpp\\include\..\lib\gtk-2.0\include"  -I"C:\Dev-Cpp\\include\atk-1.0"  -I"C:\Dev-Cpp\\include\pango-1.0"  -I"C:\Dev-Cpp\\include\glib-2.0"  -I"C:\Dev-Cpp\\include\..\lib\glib-2.0\include"  -mms-bitfields -std=c99 -D_GNU_SOURCE -D_BUILD_GUI_   -w -g3
+CXXFLAGS = $(CXXINCS)   -g3
+CFLAGS = $(INCS) -DLOG_DEFAULT=LOG_ERROR -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DBUILD_GUI -std=gnu99 -mms-bitfields -IC:\MinGW\include\gtk-2.0 -IC:\MinGW\lib\gtk-2.0\include -IC:\MinGW\include\atk-1.0 -IC:\MinGW\include\cairo -IC:\MinGW\include\gdk-pixbuf-2.0 -IC:\MinGW\include\pango-1.0 -IC:\MinGW\include\glib-2.0 -IC:\MinGW\lib\glib-2.0\include -IC:\MinGW\include -IC:\MinGW\include\freetype2 -IC:\MinGW\include\libpng14   -g3
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
@@ -29,17 +29,20 @@ $(BIN): $(OBJ)
 src/encrypt.o: src/encrypt.c
 	$(CC) -c src/encrypt.c -o src/encrypt.o $(CFLAGS)
 
-src/callbacks.o: src/callbacks.c
-	$(CC) -c src/callbacks.c -o src/callbacks.o $(CFLAGS)
-
-src/support.o: src/support.c
-	$(CC) -c src/support.c -o src/support.o $(CFLAGS)
-
 common/common.o: common/common.c
 	$(CC) -c common/common.c -o common/common.o $(CFLAGS)
 
-src/interface.o: src/interface.c
-	$(CC) -c src/interface.c -o src/interface.o $(CFLAGS)
+src/main.o: src/main.c
+	$(CC) -c src/main.c -o src/main.o $(CFLAGS)
+
+src/gui.o: src/gui.c
+	$(CC) -c src/gui.c -o src/gui.o $(CFLAGS)
+
+common/logging.o: common/logging.c
+	$(CC) -c common/logging.c -o common/logging.o $(CFLAGS)
+
+common/list.o: common/list.c
+	$(CC) -c common/list.c -o common/list.o $(CFLAGS)
 
 src/encrypt_private.res: src/encrypt_private.rc 
 	$(WINDRES) -i src/encrypt_private.rc --input-format=rc -o src/encrypt_private.res -O coff 

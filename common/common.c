@@ -20,7 +20,6 @@
 
 #include "common.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
@@ -29,6 +28,10 @@
 #include <signal.h>
 #include <errno.h>
 #include <time.h>
+
+#ifdef WIN32
+char *program_invocation_short_name = NULL;
+#endif
 
 static bool c_sig = false;
 /*@null@*/static char *c_app = NULL;
@@ -165,8 +168,8 @@ extern list_t *parse_args(char **v, list_t *a)
         {
             char *l = strdup(line);
             char *p = l;
-            char *o = strdup(strsep(&l, " \t\n\r#"));
-            char *v = strdup(strsep(&l, "\n\r#")); /* don't delimit by space this time, only end of line or start of comment */
+            char *o = strdup(strtok(l, " \t\n\r#"));
+            char *v = strdup(strtok(NULL, "\n\r#")); /* don't delimit by space this time, only end of line or start of comment */
 
             for (uint16_t j = 0; j < expected; j++)
             {
@@ -252,8 +255,8 @@ extern void sigint(int s)
         default:
             ss = strdup(_("UNKNOWN"));
     }
-    log_message(LOG_INFO, _("caught and ignoring %s signal"), ss);
-    log_message(LOG_INFO, _("try again once more to force quit"));
+    log_message(LOG_WARNING, _("caught and ignoring %s signal"), ss);
+    log_message(LOG_WARNING, _("try again once more to force quit"));
     free(ss);
     c_sig = true;
 }
@@ -265,8 +268,18 @@ extern void die(const char * const restrict s, ...)
         char *d = NULL;
         va_list ap;
         va_start(ap, s);
+#ifndef _WIN32
         vasprintf(&d, s, ap);
         log_message(LOG_FATAL, d);
+#else
+        uint8_t l = 0xFF;
+        d = calloc(l, sizeof( uint8_t ));
+        if (d)
+            vsnprintf(d, l - 1, s, ap);
+        log_message(LOG_FATAL, d);
+        if (d)
+            free(d);
+#endif
         va_end(ap);
     }
     if (errno)
@@ -280,14 +293,16 @@ extern void die(const char * const restrict s, ...)
     exit(errno);
 }
 
-extern void chill(uint32_t s)
+extern void chill(uint32_t m)
 {
-    div_t a = div(s, 1000);
+#ifndef _WIN32
+    div_t a = div(m, 1000);
     struct timespec t = {a.quot, a.rem * TEN_MILLION};
     struct timespec r = {0, 0};
     do
         nanosleep(&t, &r);
     while (r.tv_sec > 0 && r.tv_nsec > 0);
+#endif
 }
 
 extern endian_e get_endian(void)
@@ -303,30 +318,7 @@ extern endian_e get_endian(void)
       return ENDIAN_BIG;
 }
 
-__inline__ uint64_t to_big_endian(uint64_t i)
-{
-    switch (get_endian())
-    {
-        case ENDIAN_BIG:
-            break;
-        case ENDIAN_LITTLE:
-            i = (i >> 56) | 
-               ((i << 40) & 0x00FF000000000000LL) |
-               ((i << 24) & 0x0000FF0000000000LL) |
-               ((i <<  8) & 0x000000FF00000000LL) |
-               ((i >>  8) & 0x00000000FF000000LL) |
-               ((i >> 24) & 0x0000000000FF0000LL) |
-               ((i >> 40) & 0x000000000000FF00LL) |
-                   (i << 56);
-           break;
-        default:
-            log_message(LOG_WARNING, "nothing done");
-            break;
-    }
-    return i;
-}
-
-#ifndef _GNU_SOURCE
+#if !defined(_GNU_SOURCE) || defined(_WIN32)
 extern ssize_t getline(char **lineptr, size_t *n, FILE *stream)
 {
     size_t r = 0;
@@ -351,5 +343,64 @@ extern ssize_t getline(char **lineptr, size_t *n, FILE *stream)
     *lineptr = buffer;
     *n = r;
     return r;
+}
+#endif
+
+#ifdef _WIN32
+extern ssize_t pread(int filedes, void *buffer, size_t size, off_t offset)
+{
+    off_t o = lseek(filedes, 0, SEEK_CUR);
+    lseek(filedes, offset, SEEK_SET);
+    ssize_t s = read(filedes, buffer, size);
+    lseek(filedes, o, SEEK_SET);
+    return s;
+}
+
+extern ssize_t pwrite(int filedes, const void *buffer, size_t size, off_t offset)
+{
+    off_t o = lseek(filedes, 0, SEEK_CUR);
+    lseek(filedes, offset, SEEK_SET);
+    ssize_t s = write(filedes, buffer, size);
+    lseek(filedes, o, SEEK_SET);
+    return s;
+}
+
+int asprintf(char **buffer, char *fmt, ...)
+{
+    /* Guess we need no more than 200 chars of space. */
+    int size = 200;
+    int nchars;
+    va_list ap;
+    
+    *buffer = (char*)malloc(size);
+    if (*buffer == NULL) return -1;
+          
+    /* Try to print in the allocated space. */
+    va_start(ap, fmt);
+    nchars = vsnprintf(*buffer, size, fmt, ap);
+    va_end(ap);
+
+    if (nchars >= size)
+    {
+        char *tmpbuff;
+        /* Reallocate buffer now that we know how much space is needed. */
+        size = nchars+1;
+        tmpbuff = (char*)realloc(*buffer, size);
+        
+          
+        if (tmpbuff == NULL) { /* we need to free it*/
+            free(*buffer);
+            return -1;
+        }
+        
+        *buffer=tmpbuff;
+        /* Try again. */
+        va_start(ap, fmt);
+        nchars = vsnprintf(*buffer, size, fmt, ap);
+        va_end(ap);
+    }
+
+    if (nchars < 0) return nchars;
+    return size;
 }
 #endif

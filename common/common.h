@@ -35,9 +35,7 @@
     #include <inttypes.h>
     #include <stdbool.h>
     #include <libintl.h>
-
-    #include "list.h"
-    #include "logging.h"
+    #include <stdio.h>
 
     #define NOTSET 0 /*!< Value to use when nothing else is available */
 
@@ -54,6 +52,29 @@
         #ifndef SIGQUIT
             #define SIGQUIT SIGBREAK /*!< If value doesn't exist on Windows, use next closest match */
         #endif
+        #ifndef ECANCELED
+            #define ECANCELED 125 /*!< Make sure the missing error code exists */
+        #endif
+        #define __attribute__(x) /*!< MinGW cannot handle attributes correctly */
+        #define __LITTLE_ENDIAN 1234         /*!< Not defined in MinGW, so set here */
+        #define __BYTE_ORDER __LITTLE_ENDIAN /*!< Windows is almost always going to be LE */
+        
+        extern char *program_invocation_short_name; /*!< Again, not declared on Windows */
+    #endif
+
+    #include "list.h"
+    #include "logging.h"
+
+    #ifndef __bswap_64
+        #define __bswap_64(x) \
+            ((((x) & 0xff00000000000000ull) >> 56) \
+           | (((x) & 0x00ff000000000000ull) >> 40) \
+           | (((x) & 0x0000ff0000000000ull) >> 24) \
+           | (((x) & 0x000000ff00000000ull) >> 8)  \
+           | (((x) & 0x00000000ff000000ull) << 8)  \
+           | (((x) & 0x0000000000ff0000ull) << 24) \
+           | (((x) & 0x000000000000ff00ull) << 40) \
+           | (((x) & 0x00000000000000ffull) << 56))
     #endif
 
     #if __BYTE_ORDER == __BIG_ENDIAN
@@ -61,13 +82,16 @@
         #define htonll(x) (x)
     #else
         #if __BYTE_ORDER == __LITTLE_ENDIAN
-            #define ntohll(x) __bswap_64 (x)
-            #define htonll(x) __bswap_64 (x)
+            #define ntohll(x) __bswap_64(x)
+            #define htonll(x) __bswap_64(x)
         #endif
     #endif
 
-
-    #define _(s) gettext(s) /*!< Allow use of _() to refer to gettext() */
+    #ifndef _WIN32
+        #define _(s) gettext(s) /*!< Allow use of _() to refer to gettext() */
+    #else
+        #define _(s) s
+    #endif
 
     #define COMMON_CONCAT(A, B) COMMON_CONCAT2(A, B) /*!< Function overloading argument concatination (part 1) */
     #define COMMON_CONCAT2(A, B) A ## B              /*!< Function overloading argument concatination (part 2) */
@@ -265,11 +289,12 @@
 
     /*!
      * \brief         Wait (or chill out) for the specified number of milliseconds
-     * \param[in]  s  Number of milliseconds
+     * \param[in]  m  Number of milliseconds
      *
-     * Pause application execution for the given number of milliseconds
+     * Pause application execution for the given number of milliseconds - currently
+     * this function does nothing in MS Windows
      */
-    extern void chill(uint32_t s);
+    extern void chill(uint32_t m);
 
     /*!
      * \brief   Get the endianness of the current system
@@ -279,11 +304,35 @@
      */
     extern endian_e get_endian(void);
 
-	/*!
-	 * \brief  Wrapper function for systems without getline (ie BSD)
-	 */
-    #ifndef _GNU_SOURCE
-    	extern ssize_t getline(char **lineptr, size_t *n, FILE *stream);
+    #if !defined(_GNU_SOURCE) || defined(_WIN32)
+        /*!
+         * \brief  Wrapper function for systems without getline (ie BSD or MS Windows)
+         */
+        extern ssize_t getline(char **lineptr, size_t *n, FILE *stream);
+    #endif
+    
+    #ifdef _WIN32
+        /*!
+         * \brief  Wrapper function for systems without pread (ie MS Windows)
+         */
+        extern ssize_t pread(int filedes, void *buffer, size_t size, off_t offset);
+        
+        /*!
+         * \brief  Wrapper function for systems without pwrite (ie MS Windows)
+         */
+        extern ssize_t pwrite(int filedes, const void *buffer, size_t size, off_t offset);
+
+        #ifndef vsnprintf
+            /*!
+             * \brief  Map the GNU name to the WIN32 name
+             */
+            #define vsnprintf _vsnprintf
+        #endif
+
+        /*!
+         * \brief  Wrapper function for systems without asprintf (ie MS Windows)
+         */
+        int asprintf(char **buffer, char *fmt, ...);
     #endif
 
 #endif

@@ -19,6 +19,7 @@
  */
 
 #include "logging.h"
+#include "common.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,11 +30,16 @@
 #include <stdarg.h>
 #include <sys/types.h>
 
+#ifdef WIN32
+extern char *program_invocation_short_name;
+#endif
+
 /*@null@*/static FILE *log_destination = NULL;
 static log_e log_current_level = LOG_INFO;
 
 static const char *LOG_LEVELS[] =
 {
+    "EVERYTHING",
     "VERBOSE",
     "DEBUG",
     "INFO",

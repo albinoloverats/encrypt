@@ -1,33 +1,37 @@
 [Project]
 FileName=encrypt.dev
 Name=encrypt
-UnitCount=5
+UnitCount=6
 Type=0
 Ver=1
+IsCpp=0
+Folders=
+CommandLine=
+CompilerSettings=0000000000000001000000
+PchHead=-1
+PchSource=-1
+ProfilesCount=1
+ProfileIndex=0
 ObjFiles=
-Includes="C:\Documents and Settings\Ashley Anderson\My Documents\encrypt"
+Includes=.;src
 Libs=
 PrivateResource=src\encrypt_private.rc
 ResourceIncludes=
 MakeIncludes=
-Compiler=-I"<INCLUDE>\gtk-2.0" _@@_-I"<INCLUDE>\..\lib\gtk-2.0\include" _@@_-I"<INCLUDE>\atk-1.0" _@@_-I"<INCLUDE>\pango-1.0" _@@_-I"<INCLUDE>\glib-2.0" _@@_-I"<INCLUDE>\..\lib\glib-2.0\include" _@@_-mms-bitfields_@@_-std=c99_@@_-D_GNU_SOURCE_@@_-D_BUILD_GUI__@@_
+Compiler=-DLOG_DEFAULT=LOG_ERROR_@@_-D_GNU_SOURCE_@@_-D_FILE_OFFSET_BITS=64_@@_-DBUILD_GUI_@@_-std=gnu99_@@_-mms-bitfields_@@_-IC:\MinGW\include\gtk-2.0_@@_-IC:\MinGW\lib\gtk-2.0\include_@@_-IC:\MinGW\include\atk-1.0_@@_-IC:\MinGW\include\cairo_@@_-IC:\MinGW\include\gdk-pixbuf-2.0_@@_-IC:\MinGW\include\pango-1.0_@@_-IC:\MinGW\include\glib-2.0_@@_-IC:\MinGW\lib\glib-2.0\include_@@_-IC:\MinGW\include_@@_-IC:\MinGW\include\freetype2_@@_-IC:\MinGW\include\libpng14_@@_
 CppCompiler=
-Linker=-lgtk-win32-2.0 _@@_-lgdk-win32-2.0 _@@_-latk-1.0 _@@_-lgdk_pixbuf-2.0 _@@_-lpangowin32-1.0 _@@_-lgdi32 _@@_-lpango-1.0 _@@_-lgobject-2.0 _@@_-lgmodule-2.0 _@@_-lglib-2.0_@@_-lpthreadGC2_@@_
-IsCpp=0
-Icon="pixmap\encrypt.ico"
+Linker=-LC:\MinGW\lib_@@_-lgtk-win32-2.0_@@_-lgdk-win32-2.0_@@_-latk-1.0_@@_-lgio-2.0_@@_-lpangowin32-1.0_@@_-lgdi32_@@_-lpangocairo-1.0_@@_-lgdk_pixbuf-2.0_@@_-lpango-1.0_@@_-lcairo_@@_-lgobject-2.0_@@_-lgthread-2.0_@@_-lgmodule-2.0_@@_-lglib-2.0_@@_-lintl_@@_-lgladeui-1_@@_-lpthread_@@_-lgcrypt_@@_-lgpg-error_@@_
+Icon=pixmap\encrypt.ico
 ExeOutput=
 ObjectOutput=
 OverrideOutput=0
 OverrideOutputName=encrypt.exe
 HostApplication=
-Folders=
-CommandLine=
 UseCustomMakefile=0
 CustomMakefile=
 IncludeVersionInfo=1
-SupportXPThemes=0
-CompilerSet=0
-CompilerSettings=0010000000000001000000
+SupportXPThemes=1
+CompilerSet=1
 
 [Unit1]
 FileName=src\encrypt.c
@@ -40,44 +44,26 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [VersionInfo]
-Major=2009
-Minor=1
+Major=2011
+Minor=7
 Release=0
 Build=0
 LanguageID=2057
 CharsetID=1252
 CompanyName=albinoloverats ~ Software Development
-FileVersion=200901
+FileVersion=2011.07
 FileDescription=encrypt is a simple, cross platform utility for securing your personal files
 InternalName=encrypt
-LegalCopyright=Copyright (c) 2004-2009, albinoloverats ~ Software Development
+LegalCopyright=Copyright (c) 2004-2011, albinoloverats ~ Software Development
 LegalTrademarks=
 OriginalFilename=encrypt.exe
 ProductName=encrypt
-ProductVersion=200901
+ProductVersion=2011.07
+AutoIncBuildNrOnRebuild=0
+AutoIncBuildNrOnCompile=0
 AutoIncBuildNr=0
 
 [Unit2]
-FileName=src\callbacks.c
-CompileCpp=0
-Folder=encrypt
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit3]
-FileName=src\support.c
-CompileCpp=0
-Folder=encrypt
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit4]
 FileName=common\common.c
 CompileCpp=0
 Folder=encrypt
@@ -87,8 +73,8 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit5]
-FileName=src\interface.c
+[Unit3]
+FileName=src\main.c
 CompileCpp=0
 Folder=encrypt
 Compile=1
@@ -96,4 +82,61 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+
+[Unit4]
+FileName=src\gui.c
+CompileCpp=0
+Folder=encrypt
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit5]
+FileName=common\logging.c
+CompileCpp=0
+Folder=encrypt
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit6]
+FileName=common\list.c
+CompileCpp=0
+Folder=encrypt
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Profile1]
+ProfileName=Default Profile
+Type=0
+ObjFiles=
+Includes="C:\Documents and Settings\Ashley Anderson\My Documents\projects\encrypt";"C:\Documents and Settings\Ashley Anderson\My Documents\projects\w32root\include"
+Libs="C:\Documents and Settings\Ashley Anderson\My Documents\projects\w32root\lib"
+ResourceIncludes=
+MakeIncludes=
+Compiler=-I"<INCLUDE>\gtk-2.0" _@@_-I"<INCLUDE>\..\lib\gtk-2.0\include" _@@_-I"<INCLUDE>\atk-1.0" _@@_-I"<INCLUDE>\pango-1.0" _@@_-I"<INCLUDE>\glib-2.0" _@@_-I"<INCLUDE>\..\lib\glib-2.0\include" _@@_-mms-bitfields_@@_-std=gnu99_@@_-D_GNU_SOURCE_@@_-D_FILE_OFFSET_BITS=64_@@_
+CppCompiler=
+Linker=
+PreprocDefines=
+CompilerSettings=0000000000000001000000
+Icon=pixmap\encrypt.ico
+ExeOutput=Default Profile
+ObjectOutput=Default Profile
+OverrideOutput=0
+OverrideOutputName=encrypt.exe
+HostApplication=
+CommandLine=
+UseCustomMakefile=0
+CustomMakefile=
+IncludeVersionInfo=1
+SupportXPThemes=1
+CompilerSet=0
+CompilerType=0
 
