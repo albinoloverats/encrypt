@@ -65,12 +65,15 @@ extern void list_append(list_t **l, const void * const restrict o)
     log_message(LOG_EVERYTHING, "%s:%d:%s(%p, %p)", __FILE__, __LINE__, __func__, l, o);
     if (!l || *l == NEW_LIST)
     {
-        *l = calloc(1, sizeof( list_t ));
+        if (!(*l = calloc(1, sizeof( list_t ))))
+            die("out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, sizeof( list_t ));
         (*l)->object = o;
         return;
     }
     list_t *x = list_find_last(*l);
     list_t *n = calloc(1, sizeof( list_t ));
+    if (!n)
+        die("out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, sizeof( list_t ));
     n->prev = x;
     n->object = o;
     x->next = n;

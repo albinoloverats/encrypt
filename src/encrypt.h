@@ -71,6 +71,12 @@ typedef enum status_e
 }
 status_e;
 
+typedef enum file_info_e
+{
+    TAG_SIZE
+}
+file_info_e;
+
 extern list_t *get_algorithms_hash(void);
 extern list_t *get_algorithms_crypt(void);
 

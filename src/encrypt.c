@@ -40,6 +40,8 @@
 #include "encrypt.h"
 
 #include "common/common.h"
+#include "common/list.h"
+#include "common/tlv.h"
 
 static bool lib_init = false;
 static uint8_t *stream = NULL; 
@@ -176,11 +178,23 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
     ewrite(g, &l1, sizeof( l1 ), cy);
     ewrite(g, buffer, l1, cy);
     /*
-     * write original file size
+     * write various metadata about the original file (if any); start
+     * off writing the number of metadata entries (not the total number
+     * of bytes) and then a list of tlv's
+     *
+     * TODO store more than just size (required in all instances)
      */
+    l1 = 1;
+    ewrite(g, &l1, sizeof( l1 ), cy);
+
+    l1 = TAG_SIZE;
+    ewrite(g, &l1, sizeof( l1 ), cy);
+    uint16_t l2 = sizeof( uint64_t );
+    ewrite(g, &l2, sizeof( uint16_t ), cy);
     decrypted_size = lseek(f, 0, SEEK_END);
-    uint64_t nll = htonll(decrypted_size);
-    ewrite(g, &nll, sizeof( uint64_t ), cy);
+    uint64_t l8 = htonll(decrypted_size);
+    ewrite(g, &l8, sizeof( uint64_t ), cy);
+
     lseek(f, 0, SEEK_SET);
     /*
      * main encryption loop
@@ -333,9 +347,28 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
     buffer = q;
     eread(f, buffer, l1, cy);
     /*
-     * read the original file size
+     * read the original file metadata - skip any unknown tag values
      */
-    eread(f, &decrypted_size, sizeof( uint64_t ), cy);
+    eread(f, &l1, sizeof( l1 ), cy);
+    for (int i = 0; i < l1; i++)
+    {
+        tlv_t tlv;
+        eread(f, &tlv.tag, sizeof( uint8_t ), cy);
+        eread(f, &tlv.length, sizeof( uint16_t ), cy);
+        tlv.value = malloc(tlv.length);
+        eread(f, tlv.value, tlv.length, cy);
+        switch (tlv.tag)
+        {
+            case TAG_SIZE:
+                memcpy(&decrypted_size, tlv.value, sizeof( uint64_t ));
+                log_message(LOG_DEBUG, "found size: %zu", decrypted_size);
+                break;
+
+            default:
+                break;
+        }
+        free(tlv.value);
+    }
     decrypted_size = ntohll(decrypted_size);
     /*
      * main decryption loop

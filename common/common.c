@@ -305,25 +305,14 @@ extern void chill(uint32_t m)
 #endif
 }
 
-extern endian_e get_endian(void)
-{
-   uint64_t i = 0x1;
-   char *p = (char *)&i;
-   /*
-    * TODO check for middle endian
-    */
-   if (p[0] == 0x1) /* lowest address contains the least significant byte */
-      return ENDIAN_LITTLE;
-   else
-      return ENDIAN_BIG;
-}
-
 #if !defined(_GNU_SOURCE) || defined(_WIN32)
 extern ssize_t getline(char **lineptr, size_t *n, FILE *stream)
 {
     size_t r = 0;
     uint32_t step = 0xFF;
     char *buffer = malloc(step);
+    if (!buffer)
+        die("out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, step);
     for (r = 0; ; r++)
     {
         int c = fgetc(stream);
@@ -335,7 +324,8 @@ extern ssize_t getline(char **lineptr, size_t *n, FILE *stream)
         if (r >= step - 0x10)
         {
             step += 0xFF;
-            buffer = realloc(buffer, step);
+            if (!(buffer = realloc(buffer, step)))
+                die("out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, step);
         }
     }
     if (*lineptr)
@@ -367,15 +357,14 @@ extern ssize_t pwrite(int filedes, const void *buffer, size_t size, off_t offset
 
 int asprintf(char **buffer, char *fmt, ...)
 {
-    /* Guess we need no more than 200 chars of space. */
+    /* guess we need no more than 200 chars of space */
     int size = 200;
     int nchars;
     va_list ap;
     
-    *buffer = (char*)malloc(size);
-    if (*buffer == NULL) return -1;
+    if (!(*buffer = (char*)malloc(size)))
+        die("out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, size);
           
-    /* Try to print in the allocated space. */
     va_start(ap, fmt);
     nchars = vsnprintf(*buffer, size, fmt, ap);
     va_end(ap);
@@ -383,24 +372,18 @@ int asprintf(char **buffer, char *fmt, ...)
     if (nchars >= size)
     {
         char *tmpbuff;
-        /* Reallocate buffer now that we know how much space is needed. */
-        size = nchars+1;
-        tmpbuff = (char*)realloc(*buffer, size);
-        
-          
-        if (tmpbuff == NULL) { /* we need to free it*/
-            free(*buffer);
-            return -1;
-        }
-        
-        *buffer=tmpbuff;
-        /* Try again. */
+        size = nchars + 1;
+        if (!(tmpbuff = (char *)realloc(*buffer, size)))
+            die("out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, *buffer * size);
+
+        *buffer = tmpbuff;
+
         va_start(ap, fmt);
         nchars = vsnprintf(*buffer, size, fmt, ap);
         va_end(ap);
     }
-
-    if (nchars < 0) return nchars;
+    if (nchars < 0)
+        return nchars;
     return size;
 }
 #endif

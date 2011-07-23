@@ -161,21 +161,6 @@
     args_t;
 
     /*!
-     * \brief  Enum indicating the endianness of the machine
-     *
-     * It's often useful to known the endianness of the machine being
-     * used; the values in this enum are returned from the function
-     * \func get_endian()
-     */
-    typedef enum endian_e
-    {
-        ENDIAN_LITTLE, /*!< Indicates a little endian proceesor */
-        ENDIAN_MIDDLE, /*!< Indicates a middle endian processor */
-        ENDIAN_BIG,    /*!< Indicates a big endian processor */
-    } __attribute__((packed))
-    endian_e;
-
-    /*!
      * \brief         Initialisation of signal handler and locale settings
      * \param[in]  a  The application name to use when displaying messages
      * \param[in]  v  The version of the application
@@ -295,14 +280,6 @@
      * this function does nothing in MS Windows
      */
     extern void chill(uint32_t m);
-
-    /*!
-     * \brief   Get the endianness of the current system
-     * \return  An endian_e enum
-     *
-     * Get the endianness of the current system - TODO: add check for middle/mixed endian
-     */
-    extern endian_e get_endian(void);
 
     #if !defined(_GNU_SOURCE) || defined(_WIN32)
         /*!
