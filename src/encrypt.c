@@ -149,7 +149,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
      */
     log_message(LOG_DEBUG, "write source file info");
     /*
-     * write simple addition (x + y + z) where x, y and random
+     * write simple addition (x ^ y = z) where x, y and random
      * 64bit signed integers
      */
     int64_t x = 0;
@@ -316,7 +316,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
 
     log_message(LOG_DEBUG, "reading source file info");
     /*
-     * read three 64bit signed integers and assert that x + y = z
+     * read three 64bit signed integers and assert that x ^ y = z
      */
     int64_t x = 0;
     int64_t y = 0;
@@ -324,7 +324,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
     eread(f, &x, sizeof( x ), cy);
     eread(f, &y, sizeof( y ), cy);
     eread(f, &z, sizeof( z ), cy);
-    log_message(LOG_DEBUG, "verifying x + y = z");
+    log_message(LOG_DEBUG, "verifying x ^ y = z");
     log_message(LOG_INFO, "x = %jx ; y = %jx ; z = %jx", x, y, z);
     x = ntohll(x);
     y = ntohll(y);
