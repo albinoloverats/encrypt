@@ -189,7 +189,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
 
     l1 = TAG_SIZE;
     ewrite(g, &l1, sizeof( l1 ), cy);
-    uint16_t l2 = sizeof( uint64_t );
+    uint16_t l2 = htons(sizeof( uint64_t ));
     ewrite(g, &l2, sizeof( uint16_t ), cy);
     decrypted_size = lseek(f, 0, SEEK_END);
     uint64_t l8 = htonll(decrypted_size);
@@ -355,6 +355,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
         tlv_t tlv;
         eread(f, &tlv.tag, sizeof( uint8_t ), cy);
         eread(f, &tlv.length, sizeof( uint16_t ), cy);
+        tlv.length = ntohs(tlv.length);
         tlv.value = malloc(tlv.length);
         eread(f, tlv.value, tlv.length, cy);
         switch (tlv.tag)
