@@ -149,7 +149,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
      */
     log_message(LOG_DEBUG, "write source file info");
     /*
-     * write simple addition (x ^ y = z) where x, y and random
+     * write simple addition (x ^ y = z) where x, y are random
      * 64bit signed integers
      */
     int64_t x = 0;
