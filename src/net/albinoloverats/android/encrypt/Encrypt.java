@@ -45,6 +45,31 @@ public class Encrypt extends Thread implements Runnable
         }
     }
 
+    private enum MetaData
+    {
+        SIZE((byte)0);
+
+        private byte tag;
+
+        private MetaData(final byte tag)
+        {
+            this.tag = tag;
+        }
+
+        public byte getTagValue()
+        {
+            return tag;
+        }
+
+        public static MetaData getFromTagValue(final byte tag)
+        {
+            for (final MetaData m : MetaData.values())
+                if (m.getTagValue() == tag)
+                    return m;
+            return null;
+        }
+    }
+
     private static final long[] HEADER = { 0x3697de5d96fca0faL, 0xc845c2fa95e2f52dL, 0x72761df3e497c983L };
 
     private File sourceFile;
@@ -229,8 +254,12 @@ public class Encrypt extends Thread implements Runnable
             encryptedWrite(out, Convert.toBytes((byte)(head_r & 0x00FF)), crypt);
             encryptedWrite(out, buffer, crypt);
             /*
-             * write the original file size
+             * write file metadata
              */
+            encryptedWrite(out, Convert.toBytes((byte)1), crypt);
+
+            encryptedWrite(out, Convert.toBytes(MetaData.SIZE.getTagValue()), crypt);
+            encryptedWrite(out, Convert.toBytes((short)Short.SIZE / Byte.SIZE), crypt);
             decryptedSize = sourceFile.length();
             encryptedWrite(out, Convert.toBytes(decryptedSize), crypt);
             /*
@@ -344,16 +373,34 @@ public class Encrypt extends Thread implements Runnable
             /*
              * skip random data
              */
-            byte[] len = new byte[Byte.SIZE / Byte.SIZE];
-            encryptedRead(in, len, crypt);
-            buffer = new byte[((short)Convert.byteFromBytes(len) & 0x00FF)];
+            byte[] singleByte = new byte[Byte.SIZE / Byte.SIZE];
+            encryptedRead(in, singleByte, crypt);
+            buffer = new byte[((short)Convert.byteFromBytes(singleByte) & 0x00FF)];
             encryptedRead(in, buffer, crypt);
             /*
-             * read original file size
+             * read original file metadata
              */
-            buffer = new byte[Long.SIZE / Byte.SIZE];
-            encryptedRead(in, buffer, crypt);
-            decryptedSize = Convert.longFromBytes(buffer);
+            encryptedRead(in, singleByte, crypt);
+            final byte tags = Convert.byteFromBytes(singleByte);
+            byte[] doubleByte = new byte[Short.SIZE / Byte.SIZE];
+            for (int i = 0; i < tags; i++)
+            {
+                encryptedRead(in, singleByte, crypt);
+                encryptedRead(in, doubleByte, crypt);
+                final MetaData t = MetaData.getFromTagValue(Convert.byteFromBytes(singleByte));
+                final short l = Convert.shortFromBytes(doubleByte);
+                buffer = new byte[l];
+                encryptedRead(in, buffer, crypt);
+                switch (t)
+                {
+                    case SIZE:
+                        decryptedSize = Convert.longFromBytes(buffer); 
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             out = new FileOutputStream(outputFile);
             /*
              * main decryption loop
