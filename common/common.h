@@ -60,6 +60,22 @@
         #define __BYTE_ORDER __LITTLE_ENDIAN /*!< Windows is almost always going to be LE */
         
         extern char *program_invocation_short_name; /*!< Again, not declared on Windows */
+
+        #define __bswap_16(x) \
+            ((((x) & 0xff00) >> 8)\
+           | (((x) & 0x00ff) << 8))
+
+        #define ntohs(x) __bswap_16(x)
+        #define htons(x) __bswap_16(x)
+
+        #define __bswap_32(x) \
+            ((((x) & 0xff000000) >> 24) \
+           | (((x) & 0x00ff0000) >>  8) \
+           | (((x) & 0x0000ff00) <<  8) \
+           | (((x) & 0x000000ff) << 24))
+
+        #define ntohl(x) __bswap_32(x)
+        #define htonl(x) __bswap_32(x)
     #endif
 
     #include "list.h"

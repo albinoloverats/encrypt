@@ -312,7 +312,7 @@ extern ssize_t getline(char **lineptr, size_t *n, FILE *stream)
     uint32_t step = 0xFF;
     char *buffer = malloc(step);
     if (!buffer)
-        die("out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, step);
+        die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, step);
     for (r = 0; ; r++)
     {
         int c = fgetc(stream);
@@ -325,7 +325,7 @@ extern ssize_t getline(char **lineptr, size_t *n, FILE *stream)
         {
             step += 0xFF;
             if (!(buffer = realloc(buffer, step)))
-                die("out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, step);
+                die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, step);
         }
     }
     if (*lineptr)
@@ -363,7 +363,7 @@ int asprintf(char **buffer, char *fmt, ...)
     va_list ap;
     
     if (!(*buffer = (char*)malloc(size)))
-        die("out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, size);
+        die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, size);
           
     va_start(ap, fmt);
     nchars = vsnprintf(*buffer, size, fmt, ap);
@@ -374,7 +374,7 @@ int asprintf(char **buffer, char *fmt, ...)
         char *tmpbuff;
         size = nchars + 1;
         if (!(tmpbuff = (char *)realloc(*buffer, size)))
-            die("out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, *buffer * size);
+            die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, size);
 
         *buffer = tmpbuff;
 
