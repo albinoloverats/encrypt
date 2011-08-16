@@ -45,20 +45,20 @@ BuildCmd=
 
 [VersionInfo]
 Major=2011
-Minor=7
+Minor=8
 Release=0
 Build=0
 LanguageID=2057
 CharsetID=1252
 CompanyName=albinoloverats ~ Software Development
-FileVersion=2011.07
+FileVersion=2011.08
 FileDescription=encrypt is a simple, cross platform utility for securing your personal files
 InternalName=encrypt
 LegalCopyright=Copyright (c) 2004-2011, albinoloverats ~ Software Development
 LegalTrademarks=
 OriginalFilename=encrypt.exe
 ProductName=encrypt
-ProductVersion=2011.07
+ProductVersion=2011.08
 AutoIncBuildNrOnRebuild=0
 AutoIncBuildNrOnCompile=0
 AutoIncBuildNr=0
@@ -139,4 +139,14 @@ IncludeVersionInfo=1
 SupportXPThemes=1
 CompilerSet=0
 CompilerType=0
+
+[Unit7]
+FileName=common\tlv.c
+CompileCpp=0
+Folder=encrypt
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
 
