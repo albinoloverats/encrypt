@@ -37,31 +37,29 @@ man:
 
 install:
 # install the main executible, then softlink to it from /usr/bin
-	 @install -c -m 755 -s -D -T encrypt $(PREFIX)/usr/lib/encrypt/encrypt
-	 @ln -fs /usr/lib/encrypt/encrypt $(PREFIX)/usr/bin/
+	 @install -c -m 755 -s -D -T encrypt $(PREFIX)/usr/bin/encrypt
 	-@echo "installed \`encrypt' --> \`$(PREFIX)/usr/bin/encrypt'"
-# install the pixmap/svg and glade xml
-	 @install -c -m 644 -D -T pixmap/encrypt.png $(PREFIX)/usr/lib/encrypt/pixmap/encrypt.png
-	-@echo "installed \`pixmap/encrypt.png' --> \`$(PREFIX)/usr/lib/encrypt/pixmap/encrypt.png'" 
-	 @install -c -m 644 -D -T pixmap/encrypt.svg $(PREFIX)/usr/lib/encrypt/pixmap/encrypt.svg
-	-@echo "installed \`pixmap/encrypt.svg' --> \`$(PREFIX)/usr/lib/encrypt/pixmap/encrypt.svg'" 
-	 @install -c -m 644 -D -T encrypt.glade $(PREFIX)/usr/lib/encrypt/encrypt.glade
-	 @ln -fs /usr/lib/encrypt/encrypt.glade $(PREFIX)/usr/bin/
-	-@echo "installed \`encrypt.glade' --> \`$(PREFIX)/usr/lib/encrypt/encrypt.glade'" 
+# install the pixmaps
+	 @install -c -m 644 -D -T pixmaps/encrypt.png $(PREFIX)/usr/share/pixmaps/encrypt.png
+	-@echo "installed \`pixmaps/encrypt.png' --> \`$(PREFIX)/usr/share/pixmaps/encrypt.png'" 
+	 @install -c -m 644 -D -T pixmaps/encrypt.svg $(PREFIX)/usr/share/pixmaps/encrypt.svg
+	-@echo "installed \`pixmaps/encrypt.svg' --> \`$(PREFIX)/usr/share/pixmaps/encrypt.svg'" 
+# next encrypt.glade
+	 @install -c -m 644 -D -T encrypt.glade $(PREFIX)/usr/share/encrypt/encrypt.glade
+	-@echo "installed \`encrypt.glade' --> \`$(PREFIX)/usr/share/encrypt/encrypt.glade'" 
 # ditto, but this time for the man page
-	 @install -c -m 644 -D -T encrypt.1a.gz $(PREFIX)/usr/lib/encrypt/doc/encrypt.1a.gz
-	 @ln -fs /usr/lib/encrypt/doc/encrypt.1a.gz $(PREFIX)/usr/man/man1/
-	-@echo "installed \`encrypt.1a.gz' --> \`$(PREFIX)/usr/man/man1/encrypt.1a.gz'"
+	 @install -c -m 644 -D -T encrypt.1a.gz $(PREFIX)/usr/share/man/man1/encrypt.1a.gz
+	-@echo "installed \`encrypt.1a.gz' --> \`$(PREFIX)/usr/share/man/man1/encrypt.1a.gz'"
 # finally the desktop file
-	 @install -c -m 644 -D -T encrypt.desktop $(PREFIX)/usr/lib/encrypt/encrypt.desktop
-	 @ln -fs /usr/lib/encrypt/encrypt.desktop $(PREFIX)/usr/share/applications/
+	 @install -c -m 644 -D -T encrypt.desktop $(PREFIX)/usr/share/applications/encrypt.desktop
 	-@echo "installed \`encrypt.desktop' --> \`$(PREFIX)/usr/share/applications/encrypt.desktop'"
 
 uninstall:
-	@rm -fvr $(PREFIX)/usr/lib/encrypt
-	@rm -fv $(PREFIX)/usr/man/man1/encrypt.1a.gz
+	@rm -fvr $(PREFIX)/usr/share/encrypt
+	@rm -fv $(PREFIX)/usr/share/pixmaps/encrypt.svg
+	@rm -fv $(PREFIX)/usr/share/pixmaps/encrypt.png
+	@rm -fv $(PREFIX)/usr/share/man/man1/encrypt.1a.gz
 	@rm -fv $(PREFIX)/usr/share/applications/encrypt.desktop
-	@rm -fv $(PREFIX)/usr/bin/encrypt.glade
 	@rm -fv $(PREFIX)/usr/bin/encrypt
 
 clean:
