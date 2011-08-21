@@ -24,8 +24,6 @@
 #include "common/common.h"
 #include "common/list.h"
 
-#define HELP_INFO "TODO ..."
-
 #define ui_thread_initialise1(A) ui_thread_initialise2(A, NULL)
 #define ui_thread_initialise(...) COMMON_CONCAT(ui_thread_initialise, COMMON_ARGS_COUNT(__VA_ARGS__))(__VA_ARGS__)
 

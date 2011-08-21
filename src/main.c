@@ -69,7 +69,7 @@ int main(int argc, char **argv)
     list_append(&opts, &password);
     list_append(&opts, &keyfile);
 
-    list_t *unknown = init(E_ENCRYPT, E_VERSION, "TODO: usage...", argv, NULL, opts, HELP_INFO);
+    list_t *unknown = init(E_ENCRYPT, E_VERSION, "[-c algorithm] [-s algorithm] [-k/-p password source] file...", argv, NULL, opts);
     /*
      * list available algorithms if asked to (possibly both hash and crypto)
      */
