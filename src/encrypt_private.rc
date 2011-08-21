@@ -1,0 +1,44 @@
+/* THIS FILE WILL BE OVERWRITTEN BY DEV-C++ */
+/* DO NOT EDIT! */
+
+#include <windows.h> // include for version info constants
+
+
+A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "pixmap/encrypt.ico"
+
+//
+// SUPPORT FOR WINDOWS XP THEMES:
+// THIS WILL MAKE THE PROGRAM USE THE COMMON CONTROLS
+// LIBRARY VERSION 6.0 (IF IT IS AVAILABLE)
+//
+1 24 "encrypt.exe.Manifest"
+
+//
+// TO CHANGE VERSION INFORMATION, EDIT PROJECT OPTIONS...
+//
+1 VERSIONINFO
+FILEVERSION 2011,8,0,0
+PRODUCTVERSION 2011,8,0,0
+FILETYPE VFT_APP
+{
+  BLOCK "StringFileInfo"
+	 {
+		 BLOCK "080904E4"
+		 {
+			 VALUE "CompanyName", "albinoloverats ~ Software Development"
+			 VALUE "FileVersion", "2011.08"
+			 VALUE "FileDescription", "encrypt is a simple, cross platform utility for securing your personal files"
+			 VALUE "InternalName", "encrypt"
+			 VALUE "LegalCopyright", "Copyright (c) 2004-2011, albinoloverats ~ Software Development"
+			 VALUE "LegalTrademarks", ""
+			 VALUE "OriginalFilename", "encrypt.exe"
+			 VALUE "ProductName", "encrypt"
+			 VALUE "ProductVersion", "2011.08"
+		 }
+	 }
+  BLOCK "VarFileInfo"
+	 {
+		 VALUE "Translation", 0x0809, 1252
+	 }
+}
+
