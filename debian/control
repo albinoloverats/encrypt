@@ -1,5 +1,5 @@
 Source: encrypt
-Section: accessories
+Section: Accessories
 Priority: extra
 Maintainer: Ashley Anderson <amanderson@albinoloverats.net>
 Build-Depends: debhelper (>= 5)

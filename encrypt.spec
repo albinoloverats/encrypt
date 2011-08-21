@@ -21,7 +21,7 @@ make all OS_OPTS=-DFEDORA_PATH_HACK
 
 %install
 rm -rf %{buildroot}
-mkdir -p %{buildroot}/usr/{bin,lib,man/man1,share/applications} # ,share/locale/de/LC_MESSAGES}
+mkdir -p %{buildroot}/usr/{bin,share/{encrypt,man/man1,applications,pixmaps}} # ,share/locale/de/LC_MESSAGES}
 make install PREFIX=%{buildroot}
 
 %clean
@@ -30,8 +30,9 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root)
 /usr/bin/encrypt
-/usr/bin/encrypt.glade
-/usr/man/man1/encrypt.1a.gz
+/usr/share/encrypt/encrypt.glade
+/usr/share/man/man1/encrypt.1a.gz
 /usr/share/applications/encrypt.desktop
-/usr/lib/encrypt/
+/usr/share/pixmaps/encrypt.svg
+/usr/share/pixmaps/encrypt.png
 #/usr/share/locale/de/LC_MESSAGES/encrypt.mo
