@@ -9,9 +9,6 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-
-
-
 CFLAGS = -Wall -g
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
@@ -27,14 +24,13 @@ configure-stamp:
 
 	touch configure-stamp
 
-
 build: build-stamp
 
 build-stamp: configure-stamp 
 	dh_testdir
 
 	# Add here commands to compile the package.
-	$(MAKE) gui-all
+	$(MAKE) all
 	#docbook-to-man debian/encrypt.sgml > encrypt.1
 
 	touch $@

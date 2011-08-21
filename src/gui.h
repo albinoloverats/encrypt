@@ -29,7 +29,7 @@
 #define CH_GET_WIDGET( builder, name, data ) \
         CH_GET_OBJECT( builder, name, GTK_WIDGET, data )
 
-#define UI_FILE "encrypt.glade"
+#define UI_FILE "/usr/lib/encrypt/" "encrypt.glade"
 
 #define LABEL_ENCRYPT "Encrypt"
 #define LABEL_DECRYPT "Decrypt"

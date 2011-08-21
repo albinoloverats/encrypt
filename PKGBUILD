@@ -21,7 +21,7 @@ md5sums=()
 
 build() {
   cd ..
-  mkdir -p pkg/usr/{bin,lib,man/man1,share/{applications,locale/de/LC_MESSAGES}}
+  mkdir -p pkg/usr/{bin,lib,man/man1,share/{applications}} # ,locale/de/LC_MESSAGES}}
   make -f Makefile.gnu all
   make -f Makefile.gnu install PREFIX=pkg
 }

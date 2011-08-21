@@ -1,6 +1,6 @@
-encrypt (200901-1) unstable; urgency=low
+encrypt (201108-1) unstable; urgency=low
 
-  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+  * Release of version 2011.08 - see README for details
 
- -- Ashley Anderson <amanderson@albinoloverats.net>  Thu,  1 Jan 2009 15:08:40 +0000
+ -- Ashley Anderson <amanderson@albinoloverats.net> Sun, 21 Aug 2011 17:42:00 +0000
 

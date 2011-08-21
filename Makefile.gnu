@@ -41,9 +41,12 @@ install:
 	 @ln -fs /usr/lib/encrypt/encrypt $(PREFIX)/usr/bin/
 	-@echo "installed \`encrypt' --> \`$(PREFIX)/usr/bin/encrypt'"
 # install the pixmap/svg and glade xml
+	 @install -c -m 644 -D -T pixmap/encrypt.png $(PREFIX)/usr/lib/encrypt/pixmap/encrypt.png
+	-@echo "installed \`pixmap/encrypt.png' --> \`$(PREFIX)/usr/lib/encrypt/pixmap/encrypt.png'" 
 	 @install -c -m 644 -D -T pixmap/encrypt.svg $(PREFIX)/usr/lib/encrypt/pixmap/encrypt.svg
 	-@echo "installed \`pixmap/encrypt.svg' --> \`$(PREFIX)/usr/lib/encrypt/pixmap/encrypt.svg'" 
 	 @install -c -m 644 -D -T encrypt.glade $(PREFIX)/usr/lib/encrypt/encrypt.glade
+	 @ln -fs /usr/lib/encrypt/encrypt.glade $(PREFIX)/usr/bin/
 	-@echo "installed \`encrypt.glade' --> \`$(PREFIX)/usr/lib/encrypt/encrypt.glade'" 
 # ditto, but this time for the man page
 	 @install -c -m 644 -D -T encrypt.1a.gz $(PREFIX)/usr/lib/encrypt/doc/encrypt.1a.gz
@@ -56,8 +59,10 @@ install:
 
 uninstall:
 	@rm -fvr $(PREFIX)/usr/lib/encrypt
-	@rm -fv $(PREFIX)/usr/man/man1/encrypt/1a/ga
+	@rm -fv $(PREFIX)/usr/man/man1/encrypt.1a.gz
 	@rm -fv $(PREFIX)/usr/share/applications/encrypt.desktop
+	@rm -fv $(PREFIX)/usr/bin/encrypt.glade
+	@rm -fv $(PREFIX)/usr/bin/encrypt
 
 clean:
 	@rm -fv $(APP)
