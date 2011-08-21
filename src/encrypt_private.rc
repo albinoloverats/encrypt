@@ -4,7 +4,7 @@
 #include <windows.h> // include for version info constants
 
 
-A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "pixmap/encrypt.ico"
+A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "pixmaps/encrypt.ico"
 
 //
 // SUPPORT FOR WINDOWS XP THEMES:
