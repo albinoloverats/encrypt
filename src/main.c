@@ -57,10 +57,10 @@ int main(int argc, char **argv)
     /*
      * handle command line arguments
      */
-    args_t hash     = {'s', "hash",     false, true,  NULL, "Hash algroithm to use to generate key"};
-    args_t crypt    = {'c', "crypto",   false, true,  NULL, "Algorithm to en/decrypt data"};
-    args_t password = {'p', "password", false, true,  NULL, "Password used to generate key"};
-    args_t keyfile  = {'k', "keyfile",  false, true,  NULL, "File (whose data) will be used to generate the key"};
+    args_t hash     = {'s', "hash",     false, true,  NULL, "Hash algorithm to use to generate key"};
+    args_t crypt    = {'c', "crypto",   false, true,  NULL, "Algorithm to encrypt data"};
+    args_t password = {'p', "password", false, true,  NULL, "Password used to generate the key"};
+    args_t keyfile  = {'k', "keyfile",  false, true,  NULL, "File whose data will be used to generate the key"};
 
     list_t *opts = list_create(NULL);
 
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
     list_append(&opts, &password);
     list_append(&opts, &keyfile);
 
-    list_t *unknown = init(E_ENCRYPT, E_VERSION, "[-c algorithm] [-s algorithm] [-k/-p password source] file...", argv, NULL, opts);
+    list_t *unknown = init(E_ENCRYPT, E_VERSION, "[-c algorithm] [-s algorithm] [-k/-p password source] [source file] [destination file]", argv, NULL, opts);
     /*
      * list available algorithms if asked to (possibly both hash and crypto)
      */

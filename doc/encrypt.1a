@@ -2,64 +2,32 @@
 .SH NAME
 encrypt \- a (simple) cross\-platform encryption program
 .SH SYNOPSIS
-.B encrypt
-\fIOPTION ARGUMENT\fR ...
+encrypt [\fI\-c\fR \fBalgorithm\fR] [\fI\-s\fR \fBalgorithm\fR] [\fI\-k/\-p\fR \fBpassword source\fR] [\fBsource file\fR] [\fBdestination file\fR]
 .SH DESCRIPTION
-.PP
-\fBencrypt\fR is a simple encryption utility with the intention of being
-simple yet powerful. To achieve this, everything is kept simple and
-functional, and as intuitive as possible. It further aims to provide a
-standard interface across all platforms to make itself more appealing to
-those who use multiple operating systems. It uses a collection of 
-modules, or plugins, which allow the user to choose an algorithm for 
-encryption at runtime.
+\fBencrypt\fR is a simple encryption utility with the intention of being simple yet powerful. To achieve this, everything is kept simple and functional, and as intuitive as possible. It further aims to provide a standard interface across all platforms to make itself more appealing to those who use multiple operating systems.
 .SH OPTIONS
 .TP
-\fB\-i\fR, \fB\-\-in FILE\fR
-Input file
+\fI\-l\fR, \fI\-\-licence\fR An overview of the GNU GPL
 .TP
-\fB\-o\fR, \fB\-\-out FILE\fR
-Output file
+\fI\-v\fR, \fI\-\-version\fR Show the version number and quit
 .TP
-\fB\-k\fR, \fB\-\-keyfile FILE\fR
-Key file (must come first if generating a key)
+\fI\-h\fR, \fI\-\-help\fR This help list
 .TP
-\fB\-f\fR, \fB\-\-passfile FILE\fR
-File to use as passphrase to generate key
+\fI\-d\fR, \fI\-\-debug\fR \fBDEBUG LEVEL\fR Show debugging messages during execution
 .TP
-\fB\-p\fR, \fB\-\-password PASSWORD\fR
-The password you wish to use for the key
+\fI\-q\fR, \fI\-\-quiet\fR Hide standard messages during execution
 .TP
-\fB\-e\fR, \fB\-\-encrypt ALGORITHM\fR
-Algorithm to use for encryption
+\fI\-s\fR, \fI\-\-hash\fR \fBALGORITHM\fR Hash algorithm to use to generate key
 .TP
-\fB\-d\fR, \fB\-\-decrypt ALGORITHM\fR
-Algorithm to use for decryption
+\fI\-c\fR, \fI\-\-crypto\fR \fBALGORITHM\fR Algorithm to encrypt data
 .TP
-\fB\-a\fR, \fB\-\-about ALGORITHM\fR
-Information about a particular algorithm
+\fI\-p\fR, \fI\-\-password\fR \fBPASSWORD\fR Password used to generate the key
 .TP
-\fB\-g\fR, \fB\-\-generate SIZE\fR
-Generate a key of specified size (in bits)
-.TP
-\fB\-m\fR, \fB\-\-modules\fR
-List all available algorithms
-.TP
-\fB\-h\fR, \fB\-\-help\fR
-This help list
-.TP
-\fB\-l\fR, \fB\-\-licence\fR
-An overview of the GNU GPL
-.TP
-\fB\-v\fR, \fB\-\-version\fR
-Show the version number and quit
+\fI\-k\fR, \fI\-\-keyfile\fR \fBFILE\fR File whose data will be used to generate the key
 .PP
-If \fB\-i\fR or \fB\-o\fR are omitted then stdin/stdout are used. Either
-\fB\-e\fR or \fB\-d\fR must be present if you intend to do something, as well
-as \fB\-k\fR \fB\-f\fR or \fB-p\fR. Using \fB\-g\fR will generate a random key
-and echo it to stdout unless \fB\-g\fR is preceded by \fB\-k\fR; the key
-can be used later with the \fB\-k\fR option. However \fB\-a\fR \fB\-m\fR
-\fB\-h\fR \fB\-l\fR \fB\-v\fR may be used on their own or not at all.
+If either the source file or destination file are omitted then stdin/stdout are used. When encrypting, both \fB\-s\fR and \fB\-c\fR are required to specify the algorithms you wish to use; when decrypting the algorithms originally used are read from the encrypted file.
+.PP
+One of either \fB\-p\fR or \fB\-k\fR must be used to indicate where the key data come from. \fB\-p\fR accepts the password as a plain text argument, and \fB\-k\fR accepts a path to a file which will be used to generate the encryption key.
 .SH AUTHOR
 Written by Ashley Anderson
 .SH BUGS
@@ -67,22 +35,11 @@ There are no bugs only features yet to be documented :p
 .SH COPYRIGHT
 Copyright (c) 2004\-2011 albinoloverats ~ Software Development
 .SH LICENCE
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+.PP
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+.PP
+You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
+.PP
+Note on spelling: As albinoloverats.net is a British company and "licence" is the correct spelling in its native language. However, the name of the licences, written in most cases in America, feature the American spelling of the word, license. As part of the title of the official licensing document it was thought inappropriate to alter the spelling. In British English, license is the verb, licence is the noun and licensee is the person who is granted a Licence.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-Note on spelling: As albinoloverats.net is a British company and "licence" is
-the correct spelling in its native language. However, the name of the licences,
-written in most cases in America, feature the American spelling of the word,
-license. As part of the title of the official licensing document it was thought
-inappropriate to alter the spelling.  In British English, license is the verb,
-licence is the noun and licensee is the person who is granted a Licence.
