@@ -327,15 +327,15 @@ static void *bg_thread_gui(void *n)
 
     if (encrypting)
     {
-#if GTK_MAJOR_VERSION == 3
-        char *cipher = gtk_combo_box_text_get_active_text((GtkComboBoxText *)data->crypto_combo);
-        char *hash = gtk_combo_box_text_get_active_text((GtkComboBoxText *)data->hash_combo);
-#else
-        char *cipher = gtk_combo_box_get_active_text((GtkComboBox *)data->crypto_combo);
-        char *hash = gtk_combo_box_get_active_text((GtkComboBox *)data->hash_combo);
-#endif
-
+        int c = gtk_combo_box_get_active((GtkComboBox *)data->crypto_combo);
+        int h = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
+        list_t *ciphers = get_algorithms_crypt();
+        list_t *hashes = get_algorithms_hash();
+        char *cipher = list_get(ciphers, c);
+        char *hash = list_get(hashes, h);
         status = main_encrypt(source, output, &key, hash, cipher);
+        list_delete(&ciphers);
+        list_delete(&hashes);
     }
     else
         status = main_decrypt(source, output, &key);
