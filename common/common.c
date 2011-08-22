@@ -228,6 +228,7 @@ extern void show_help(const char * const restrict u, list_t *l, const char * con
         args_t *arg = list_get(l, i);
         fprintf(stderr, "  -%c, --%-*s  %s  %s\n", arg->short_option, w, arg->long_option, arg->has_option ? "*" : " ", arg->message);
     }
+    fprintf(stderr, "\n  * Denotes mandatory argument\n");
     if (m)
         fprintf(stderr, "\n%s\n", m);
     exit(EXIT_SUCCESS);
