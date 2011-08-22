@@ -362,7 +362,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
         {
             case TAG_SIZE:
                 memcpy(&decrypted_size, tlv.value, sizeof( uint64_t ));
-                log_message(LOG_DEBUG, "found size: %zu", decrypted_size);
+                log_message(LOG_DEBUG, "found size: %ju", decrypted_size);
                 break;
 
             default:
