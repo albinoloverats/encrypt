@@ -331,8 +331,8 @@ static void *bg_thread_gui(void *n)
         int h = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
         list_t *ciphers = get_algorithms_crypt();
         list_t *hashes = get_algorithms_hash();
-        char *cipher = list_get(ciphers, c);
-        char *hash = list_get(hashes, h);
+        char *cipher = list_get(ciphers, c - 1); /* subtract 1 to get algorithm offset from combobox */
+        char *hash = list_get(hashes, h - 1);    /* combobox item 0 is the 'select...' text */
         status = main_encrypt(source, output, &key, hash, cipher);
         list_delete(&ciphers);
         list_delete(&hashes);
