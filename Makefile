@@ -7,7 +7,7 @@ COMMON   = common/common.c common/logging.c common/list.c common/tlv.c
 GUI      = src/gui.c
 
 CFLAGS   = -Wall -Wextra -Wno-unused-parameter -std=gnu99 `libgcrypt-config --cflags` -pipe -O2 # -O0 -ggdb
-CPPFLAGS = -I. -Isrc -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 # -DLOG_DEFAULT=LOG_ERROR 
+CPPFLAGS = -I. -Isrc -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DLOG_DEFAULT=LOG_ERROR 
 GUIFLAGS = -DBUILD_GUI `pkg-config --cflags gtk+-3.0 gmodule-2.0`
 
 LIBS     = `libgcrypt-config --libs` -lpthread
@@ -32,8 +32,8 @@ language:
 #	@$(MAKE) -C po
 
 man:
-	@gzip -c doc/encrypt.1a > encrypt.1a.gz
-	@echo "compressing \`doc/encrypt.1a' --> \`encrypt.1a.gz"
+	@gzip -c docs/encrypt.1a > encrypt.1a.gz
+	@echo "compressing \`docs/encrypt.1a' --> \`encrypt.1a.gz"
 
 install:
 # install the main executible, then softlink to it from /usr/bin

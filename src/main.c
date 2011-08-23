@@ -137,6 +137,7 @@ int main(int argc, char **argv)
         g_slice_free(gtk_widgets_t, widgets);
     }
     else
+        fprintf(stderr, "Could not create GUI");
 #endif /* we couldn't create the gui, so revert back to command line */
     {
         /*
