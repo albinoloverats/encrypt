@@ -15,6 +15,7 @@
     <string name="decryption_succeeded">Decryption succeeded</string>
 
     <string name="cancelled">User cancelled operation</string>
+    <string name="failed_unknown">An unknown error has occurred!</string>
     <string name="failed_io">Failed with IO error!</string>
     <string name="failed_algorithm">Unsupported algorithm!</string>
     <string name="failed_key">Invalid key data!</string>
