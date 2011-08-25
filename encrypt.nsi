@@ -19,7 +19,7 @@ Icon "${NSISDIR}\Contrib\Graphics\Icons\classic-install.ico"
 UninstallIcon "${NSISDIR}\Contrib\Graphics\Icons\classic-uninstall.ico"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 LicenseText "If you accept all the terms of the agreement, choose I Agree to continue. You must accept the agreement to install $(^Name)."
-LicenseData "doc\Licence.txt"
+LicenseData "docs\Licence.txt"
 ShowInstDetails show
 ShowUnInstDetails show
 
@@ -51,19 +51,19 @@ Section "main" SEC01
   File "C:\Program Files\GTK2-Runtime\bin\libpng14-14.dll"
   File "C:\MinGW\bin\libpthread-2.dll"
   File "C:\Program Files\GTK2-Runtime\bin\zlib1.dll"
-  SetOutPath "$INSTDIR\doc"
-  File "doc\Licence.txt"
-  File "doc\ReadMe.txt"
-  File "doc\GNU_LGPGv3_License.txt"
-  File "doc\FreeBSD_License.txt"
+  SetOutPath "$INSTDIR\docs"
+  File "docs\Licence.txt"
+  File "docs\ReadMe.txt"
+  File "docs\GNU_LGPGv3_License.txt"
+  File "docs\FreeBSD_License.txt"
   SetOutPath "$INSTDIR\pixmaps"
   File "pixmaps\encrypt.svg"
   File "pixmaps\encrypt.png"
   SetOutPath "$INSTDIR"
   CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\encrypt.lnk" "$INSTDIR\encrypt.exe"
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Licence.lnk" "$INSTDIR\doc\Licence.txt"
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\ReadMe.lnk" "$INSTDIR\doc\ReadMe.txt"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Licence.lnk" "$INSTDIR\docs\Licence.txt"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\ReadMe.lnk" "$INSTDIR\docs\ReadMe.txt"
 SectionEnd
 
 Section -AdditionalIcons
@@ -131,7 +131,7 @@ Section Uninstall
   Delete "$SMPROGRAMS\encrypt\encrypt.lnk"
 
   RMDir "$SMPROGRAMS\encrypt"
-  RMDir "$INSTDIR\doc"
+  RMDir "$INSTDIR\docs"
   RMDIR "$INSTDIR\pixmaps"
   RMDir "$INSTDIR"
 
