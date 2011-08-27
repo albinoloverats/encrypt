@@ -24,18 +24,15 @@
 #include <gtk/gtk.h>
 
 /* Convenience macros for obtaining objects from UI file */
-#define CH_GET_OBJECT( builder, name, type, data ) \
-        data->name = type( gtk_builder_get_object( builder, #name ) )
-#define CH_GET_WIDGET( builder, name, data ) \
-        CH_GET_OBJECT( builder, name, GTK_WIDGET, data )
+#define CH_GET_OBJECT( builder, name, type, data )  data->name = type( gtk_builder_get_object( builder, #name ) )
+#define CH_GET_WIDGET( builder, name, data )        CH_GET_OBJECT( builder, name, GTK_WIDGET, data )
 
 #ifndef _WIN32
-    #define GLADE_PREFIX "/usr/share/encrypt/"
+    #define GLADE_UI_FILE "/usr/share/encrypt/" "encrypt.glade"
 #else
-    #define GLADE_PREFIX ""
+    #define GLADE_UI_FILE "encrypt_win32.glade"
 #endif
 
-#define UI_FILE GLADE_PREFIX "encrypt.glade"
 
 #define LABEL_ENCRYPT "Encrypt"
 #define LABEL_DECRYPT "Decrypt"

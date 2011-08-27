@@ -225,7 +225,11 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
      */
     gcry_md_final(md);
     uint8_t *cs = gcry_md_read(md, ma);
-    ewrite(g, cs, key->h_length, cy);
+    if (!(q = realloc(buffer, key->h_length)))
+        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
+    memmove(buffer, cs, key->h_length);
+    log_binary(LOG_VERBOSE, buffer, key->h_length);
+    ewrite(g, buffer, key->h_length, cy);
     /*
      * add some random data at the end
      */
@@ -395,17 +399,18 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
         gcry_md_write(md, buffer, r);
         write(g, buffer, r);
     }
-#if 0 // FIXME checksum verification fails - why?
     /*
      * compare data checksum
      */
     gcry_md_final(md);
     ma = gcry_md_get_algo(md);
     uint8_t *cs = gcry_md_read(md, ma);
+    log_binary(LOG_VERBOSE, cs, key->h_length);
     if (!(q = realloc(buffer, key->h_length)))
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     buffer = q;
     eread(f, buffer, key->h_length, cy);
+    log_binary(LOG_VERBOSE, buffer, key->h_length);
     log_message(LOG_DEBUG, "verifying checksum");
     if (memcmp(cs, buffer, key->h_length))
     {
@@ -414,7 +419,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
         log_binary(LOG_DEBUG, buffer, key->h_length);
         status = FAILED_CHECKSUM;
     }
-#endif
+
     status = SUCCEEDED;
 
 cleanup:

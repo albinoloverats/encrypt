@@ -89,7 +89,7 @@ int main(int argc, char **argv)
     if (gtk_init_check(&argc, &argv))
     {
         builder = gtk_builder_new();
-        if (!gtk_builder_add_from_file(builder, UI_FILE, &error))
+        if (!gtk_builder_add_from_file(builder, GLADE_UI_FILE, &error))
             die("%s", error->message);
         /*
          * allocate widgets structure
@@ -137,7 +137,7 @@ int main(int argc, char **argv)
         g_slice_free(gtk_widgets_t, widgets);
     }
     else
-        fprintf(stderr, "Could not create GUI");
+        fprintf(stderr, "Could not create GUI - falling back to command line");
 #endif /* we couldn't create the gui, so revert back to command line */
     {
         /*
