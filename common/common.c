@@ -291,6 +291,10 @@ extern void die(const char * const restrict s, ...)
         log_message(LOG_FATAL, "%s", e);
         free(e);
     }
+    /*
+     * TODO if running a GUI don't necessarily exit with alerting the user first
+     * Users seem to dislike applications just quitting for no apparent reason!
+     */
     exit(errno);
 }
 

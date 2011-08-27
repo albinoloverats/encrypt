@@ -39,7 +39,7 @@
     #endif
 
     #ifndef LOG_DEFAULT
-        #define LOG_DEFAULT LOG_INFO /*!< The default log level */
+        #define LOG_DEFAULT LOG_INFO /*!< The default log level, if not already defined */
     #endif
 
     #define LOG_BINARY_LINE_WIDTH 72 /*!< Maximum line width for log_binary() output */

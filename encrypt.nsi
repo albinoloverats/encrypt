@@ -10,7 +10,6 @@ ShowInstDetails show
 ShowUnInstDetails show
 SetCompressor lzma
 
-
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile "${PRODUCT_NAME}-${PRODUCT_VERSION}-install.exe"
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\English.nlf"
@@ -19,7 +18,7 @@ Icon "${NSISDIR}\Contrib\Graphics\Icons\classic-install.ico"
 UninstallIcon "${NSISDIR}\Contrib\Graphics\Icons\classic-uninstall.ico"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 LicenseText "If you accept all the terms of the agreement, choose I Agree to continue. You must accept the agreement to install $(^Name)."
-LicenseData "docs\Licence.txt"
+LicenseData "doc\Licence.txt"
 ShowInstDetails show
 ShowUnInstDetails show
 
@@ -27,7 +26,7 @@ Section "main" SEC01
   SetOutPath "$INSTDIR"
   SetOverwrite on
   File "encrypt.exe"
-  File "encrypt.glade"
+  File "encrypt_win32.glade"
   File "C:\Program Files\GTK2-Runtime\bin\freetype6.dll"
   File "C:\Program Files\GTK2-Runtime\bin\intl.dll"
   File "C:\Program Files\GTK2-Runtime\bin\libatk-1.0-0.dll"
@@ -52,10 +51,10 @@ Section "main" SEC01
   File "C:\MinGW\bin\libpthread-2.dll"
   File "C:\Program Files\GTK2-Runtime\bin\zlib1.dll"
   SetOutPath "$INSTDIR\docs"
-  File "docs\Licence.txt"
-  File "docs\ReadMe.txt"
-  File "docs\GNU_LGPGv3_License.txt"
-  File "docs\FreeBSD_License.txt"
+  File "doc\Licence.txt"
+  File "doc\ReadMe.txt"
+  File "doc\GNU_LGPGv3_License.txt"
+  File "doc\FreeBSD_License.txt"
   SetOutPath "$INSTDIR\pixmaps"
   File "pixmaps\encrypt.svg"
   File "pixmaps\encrypt.png"
@@ -95,7 +94,7 @@ FunctionEnd
 Section Uninstall
   Delete "$INSTDIR\uninst.exe"
   Delete "$INSTDIR\encrypt.exe"
-  Delete "$INSTDIR\encrypt.glade"
+  Delete "$INSTDIR\encrypt_win32.glade"
   Delete "$INSTDIR\freetype6.dll"
   Delete "$INSTDIR\intl.dll"
   Delete "$INSTDIR\libatk-1.0-0.dll"
@@ -119,10 +118,10 @@ Section Uninstall
   Delete "$INSTDIR\libpng14-14.dll"
   Delete "$INSTDIR\libpthread-2.dll"
   Delete "$INSTDIR\zlib1.dll"
-  Delete "$INSTDIR\doc\Licence.txt"
-  Delete "$INSTDIR\doc\ReadMe.txt"
-  Delete "$INSTDIR\doc\GNU_LGPGv3_License.txt"
-  Delete "$INSTDIR\doc\FreeBSD_License.txt"
+  Delete "$INSTDIR\docs\Licence.txt"
+  Delete "$INSTDIR\docs\ReadMe.txt"
+  Delete "$INSTDIR\docs\GNU_LGPGv3_License.txt"
+  Delete "$INSTDIR\docs\FreeBSD_License.txt"
   Delete "$INSTDIR\pixmaps\encrypt.svg"
   Delete "$INSTDIR\pixmaps\encrypt.png"
   Delete "$SMPROGRAMS\encrypt\Uninstall.lnk"
