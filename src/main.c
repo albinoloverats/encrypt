@@ -141,7 +141,7 @@ int main(int argc, char **argv)
         goto eop;
     }
     else
-        fprintf(stderr, "Could not create GUI - falling back to command line");
+        fprintf(stderr, "Could not create GUI - falling back to command line\n");
 #endif /* we couldn't create the gui, so revert back to command line */
     {
         /*
