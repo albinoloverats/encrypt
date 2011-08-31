@@ -24,7 +24,7 @@
 #include "common/list.h"
 
 #define E_ENCRYPT "encrypt"
-#define E_VERSION "2011.08"
+#define E_VERSION "2011.09"
 
 #define HEADER_0 0x3697de5d96fca0faLL
 #define HEADER_1 0xc845c2fa95e2f52dLL
