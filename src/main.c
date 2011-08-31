@@ -86,7 +86,9 @@ int main(int argc, char **argv)
     GtkBuilder *builder;
     GError *error = NULL;
 
-    if (gtk_init_check(&argc, &argv))
+    if (hash.found && crypt.found && (password.found || keyfile.found))
+        ; /* all required arguments were provided, no need for gui */
+    else if (gtk_init_check(&argc, &argv))
     {
         builder = gtk_builder_new();
         if (!gtk_builder_add_from_file(builder, GLADE_UI_FILE, &error))
@@ -135,6 +137,8 @@ int main(int argc, char **argv)
         gtk_main();
 
         g_slice_free(gtk_widgets_t, widgets);
+
+        goto eop;
     }
     else
         fprintf(stderr, "Could not create GUI - falling back to command line");
@@ -205,6 +209,7 @@ int main(int argc, char **argv)
         close(source);
     }
 
+eop:
     list_delete(&unknown);
     list_delete(&opts);
 

@@ -28,7 +28,11 @@
 #define CH_GET_WIDGET( builder, name, data )        CH_GET_OBJECT( builder, name, GTK_WIDGET, data )
 
 #ifndef _WIN32
-    #define GLADE_UI_FILE "/usr/share/encrypt/" "encrypt.glade"
+    #ifdef DEBUGGING
+        #define GLADE_UI_FILE "encrypt.glade"
+    #else
+        #define GLADE_UI_FILE "/usr/share/encrypt/" "encrypt.glade"
+    #endif
 #else
     #define GLADE_UI_FILE "encrypt_win32.glade"
 #endif
