@@ -86,7 +86,9 @@ int main(int argc, char **argv)
     GtkBuilder *builder;
     GError *error = NULL;
 
-    bool fe = file_encrypted((char *)list_get(unknown, 0));
+    bool fe = false;
+    if (list_size(unknown) >= 1)
+        fe = file_encrypted((char *)list_get(unknown, 0));
     if ((!fe && (hash.found && crypt.found && (password.found || keyfile.found)))
         || (fe && (password.found || keyfile.found)))
         ; /* all required arguments were provided, no need for gui */
