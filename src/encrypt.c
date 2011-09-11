@@ -52,7 +52,17 @@ static uint64_t decrypted_size = 0;
 static uint64_t bytes_processed = 0;
 static status_e status = RUNNING;
 
-extern bool file_encrypted3(int64_t f, char **c, char **h)
+extern bool file_encrypted_c(char *n)
+{
+    int64_t f = open(n, O_RDONLY | O_BINARY);
+    if (f < 0)
+        return false;
+    bool e = file_encrypted(f);
+    close(f);
+    return e;
+}
+
+extern bool file_encrypted_3(int64_t f, char **c, char **h)
 {
     log_message(LOG_DEBUG, "check for file header");
     uint64_t head[3] = {0x0};
@@ -228,8 +238,8 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
     if (!(q = realloc(buffer, key->h_length)))
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     memmove(buffer, cs, key->h_length);
-    log_binary(LOG_VERBOSE, buffer, key->h_length);
     ewrite(g, buffer, key->h_length, cy);
+    log_binary(LOG_DEBUG, buffer, key->h_length);
     /*
      * add some random data at the end
      */
@@ -366,6 +376,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
         {
             case TAG_SIZE:
                 memcpy(&decrypted_size, tlv.value, sizeof( uint64_t ));
+                decrypted_size = ntohll(decrypted_size);
                 log_message(LOG_DEBUG, "found size: %ju", decrypted_size);
                 break;
 
@@ -374,7 +385,6 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
         }
         free(tlv.value);
     }
-    decrypted_size = ntohll(decrypted_size);
     /*
      * main decryption loop
      */
@@ -405,12 +415,10 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
     gcry_md_final(md);
     ma = gcry_md_get_algo(md);
     uint8_t *cs = gcry_md_read(md, ma);
-    log_binary(LOG_VERBOSE, cs, key->h_length);
     if (!(q = realloc(buffer, key->h_length)))
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     buffer = q;
     eread(f, buffer, key->h_length, cy);
-    log_binary(LOG_VERBOSE, buffer, key->h_length);
     log_message(LOG_DEBUG, "verifying checksum");
     if (memcmp(cs, buffer, key->h_length))
     {
@@ -419,8 +427,8 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
         log_binary(LOG_DEBUG, buffer, key->h_length);
         status = FAILED_CHECKSUM;
     }
-
-    status = SUCCEEDED;
+    else
+        status = SUCCEEDED;
 
 cleanup:
     /*

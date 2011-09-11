@@ -69,7 +69,7 @@ int main(int argc, char **argv)
     list_append(&opts, &password);
     list_append(&opts, &keyfile);
 
-    list_t *unknown = init(E_ENCRYPT, E_VERSION, "[-c algorithm] [-s algorithm] [-k/-p password source] [source file] [destination file]", argv, NULL, opts);
+    list_t *unknown = init(E_ENCRYPT, E_VERSION, USAGE_STRING, argv, NULL, opts);
     /*
      * list available algorithms if asked to (possibly both hash and crypto)
      */
@@ -86,7 +86,9 @@ int main(int argc, char **argv)
     GtkBuilder *builder;
     GError *error = NULL;
 
-    if (hash.found && crypt.found && (password.found || keyfile.found))
+    bool fe = file_encrypted((char *)list_get(unknown, 0));
+    if ((!fe && (hash.found && crypt.found && (password.found || keyfile.found)))
+        || (fe && (password.found || keyfile.found)))
         ; /* all required arguments were provided, no need for gui */
     else if (gtk_init_check(&argc, &argv))
     {
@@ -196,7 +198,10 @@ int main(int argc, char **argv)
             close(kf);
         }
         else
-            die("missing key data source");
+        {
+            show_usage(USAGE_STRING);
+            return EXIT_FAILURE;
+        }
         /*
          * here we go ...
          */
@@ -209,7 +214,9 @@ int main(int argc, char **argv)
         close(source);
     }
 
+#ifdef BUILD_GUI
 eop:
+#endif
     list_delete(&unknown);
     list_delete(&opts);
 

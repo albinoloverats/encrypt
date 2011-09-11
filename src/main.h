@@ -24,6 +24,8 @@
 #include "common/common.h"
 #include "common/list.h"
 
+#define USAGE_STRING "[-c algorithm] [-s algorithm] [-k/-p password source] [source file] [destination file]"
+
 #define ui_thread_initialise1(A) ui_thread_initialise2(A, NULL)
 #define ui_thread_initialise(...) COMMON_CONCAT(ui_thread_initialise, COMMON_ARGS_COUNT(__VA_ARGS__))(__VA_ARGS__)
 

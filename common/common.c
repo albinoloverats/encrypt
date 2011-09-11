@@ -200,7 +200,7 @@ extern void show_licence(void)
 extern void show_usage(const char * const restrict u)
 {
     fprintf(stderr, _("Usage:\n"));
-    fprintf(stderr, _("  %s %s...\n"), c_app, u ? : "[OPTION] ...");
+    fprintf(stderr, _("  %s %s\n"), c_app, u ? : "[OPTION] ...");
     exit(EXIT_SUCCESS);
 }
 
