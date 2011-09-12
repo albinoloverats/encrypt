@@ -52,26 +52,27 @@ static uint64_t decrypted_size = 0;
 static uint64_t bytes_processed = 0;
 static status_e status = RUNNING;
 
-extern bool file_encrypted_c(char *n)
-{
-    int64_t f = open(n, O_RDONLY | O_BINARY);
-    if (f < 0)
-        return false;
-    bool e = file_encrypted(f);
-    close(f);
-    return e;
-}
-
-extern bool file_encrypted_3(int64_t f, char **c, char **h)
+extern bool file_encrypted_aux(int t, int64_t f, char **c, char **h)
 {
     log_message(LOG_DEBUG, "check for file header");
+    if (t == 1)
+    {
+        void *x = (intptr_t *)f;
+        char *n = strdup((char *)x);
+        f = open(n, O_RDONLY | O_BINARY);
+        free(n);
+        if (f < 0)
+            return false;
+    }
+    bool r_val = false;
     uint64_t head[3] = {0x0};
     lseek(f, 0, SEEK_SET);
     read(f, head, sizeof( head ));
     if (head[0] != htonll(HEADER_0) || head[1] != htonll(HEADER_1) || head[2] != htonll(HEADER_2))
-        return false;
+        goto clean_up;
+    r_val = true;
     if (c == (char **)-1 || h == (char **)-1)
-        return true;
+        goto clean_up;
     log_message(LOG_DEBUG, "check for known algorithms");
     uint8_t l = 0;
     read(f, &l, sizeof( uint8_t ));
@@ -82,7 +83,10 @@ extern bool file_encrypted_3(int64_t f, char **c, char **h)
     (*h)++;
     log_message(LOG_VERBOSE, "file has cipher %s", *c);
     log_message(LOG_VERBOSE, "file has hash %s", *h);
-    return true;
+clean_up:
+    if (t == 1)
+        close(f);
+    return r_val;
 }
 
 extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h, const char *c)

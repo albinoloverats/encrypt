@@ -83,13 +83,14 @@ extern list_t *get_algorithms_crypt(void);
 #define IS_ENCRYPTED_ARGS_COUNT(...) IS_ENCRYPTED_ARGS_COUNT2(__VA_ARGS__, 3, 2, 1)
 #define IS_ENCRYPTED_ARGS_COUNT2(_1, _2, _3, _, ...) _
 
-#define file_encrypted_1(A)       (sizeof( A ) == sizeof( char )) ? file_encrypted_c((char  *)A) : file_encrypted_3((int64_t)A, (char **)-1, (char **)-1)
-#define file_encrypted_2(A, B)    file_encrypted_3(A, B, (char **)-1)
+#define file_encrypted_1(A)       file_encrypted_aux(__builtin_types_compatible_p(typeof( A ), char *) * 1 + \
+                                                     __builtin_types_compatible_p(typeof( A ), int64_t) * 2, A, (char **)-1, (char **)-1)
+#define file_encrypted_2(A, B)    file_encrypted_aux(2, A, B, (char **)-1)
+#define file_encrypted_3(A, B, C) file_encrypted_aux(2, A, B, C)
 
 #define file_encrypted(...) COMMON_CONCAT(file_encrypted_, IS_ENCRYPTED_ARGS_COUNT(__VA_ARGS__))(__VA_ARGS__)
 
-extern bool file_encrypted_c(char *n);
-extern bool file_encrypted_3(int64_t f, char **c, char **h); // free(c), don't free(h)
+extern bool file_encrypted_aux(int t, int64_t f, char **c, char **h); // free(c), don't free(h)
 
 extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *k, const char *h, const char *c);
 extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *k);
