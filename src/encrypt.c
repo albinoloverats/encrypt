@@ -81,12 +81,10 @@ extern bool file_encrypted_aux(int t, int64_t f, char **c, char **h)
      */
     switch (htonll(head[2]))
     {
-        case HEADER_2: /* original release 2011.08 */
+        case HEADER_VERSION_201009: /* original release 2011.08 */
+        case HEADER_VERSION_201110: /* currently no new features */
             features = NONE;
             break;
-
-            /* TODO start using easily identifiable version number in header */
-
         default:
             log_message(LOG_ERROR, "file encrypted with more recent release of encrypt");
             goto clean_up;
@@ -166,7 +164,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
      */
     size_t lk = 0;
     gcry_cipher_algo_info(cyi, GCRYCTL_GET_KEYLEN, NULL, &lk);
-    uint8_t *buffer = calloc(lk, sizeof( uint8_t ));
+    uint8_t *buffer = malloc(lk);
     if (!buffer)
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     memmove(buffer, key->h_data, lk < key->h_length ? lk : key->h_length);
@@ -205,10 +203,8 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
      */
     gcry_create_nonce(&l1, sizeof( l1 ));
 
-    uint8_t *q = realloc(buffer, l1);
-    if (!q)
+    if (!(buffer = realloc(buffer, l1)))
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    buffer = q;
     gcry_create_nonce(buffer, l1);
     ewrite(g, &l1, sizeof( l1 ), cy);
     ewrite(g, buffer, l1, cy);
@@ -235,10 +231,8 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
      * main encryption loop
      */
     log_message(LOG_DEBUG, "starting encryption process");
-    q = realloc(buffer, block);
-    if (!q)
+    if (!(buffer = realloc(buffer, block)))
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    buffer = q;
     /*
      * reset hash algorithm, so we can use it to generate a checksum of the plaintext data
      */
@@ -260,20 +254,16 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
      */
     gcry_md_final(md);
     uint8_t *cs = gcry_md_read(md, ma);
-    if (!(q = realloc(buffer, key->h_length)))
-        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    memmove(buffer, cs, key->h_length);
     log_message(LOG_DEBUG, "writing data checksum");
-    ewrite(g, buffer, key->h_length, cy);
-    log_binary(LOG_VERBOSE, buffer, key->h_length);
+    ewrite(g, cs, key->h_length, cy);
+    log_binary(LOG_VERBOSE, cs, key->h_length);
     /*
      * add some random data at the end
      */
     log_message(LOG_DEBUG, "appending file random data");
     gcry_create_nonce(&l1, sizeof( l1 ));
-    if (!(q = realloc(buffer, l1)))
+    if (!(buffer = realloc(buffer, l1)))
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    buffer = q;
     gcry_create_nonce(buffer, l1);
     ewrite(g, buffer, l1, cy);
 
@@ -381,10 +371,8 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
      */
     uint8_t l1 = 0;
     eread(f, &l1, sizeof( uint8_t ), cy);
-    uint8_t *q = realloc(buffer, l1);
-    if (!q)
+    if (!realloc(buffer, l1))
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    buffer = q;
     eread(f, buffer, l1, cy);
     /*
      * read the original file metadata - skip any unknown tag values
@@ -415,10 +403,8 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
      * main decryption loop
      */
     log_message(LOG_DEBUG, "starting decryption process");
-    q = realloc(buffer, block);
-    if (!q)
+    if (!realloc(buffer, block))
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    buffer = q;
     /*
      * reset hash algorithm, so we can use it to generate a checksum of the plaintext data
      */
@@ -441,9 +427,8 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
     gcry_md_final(md);
     ma = gcry_md_get_algo(md);
     uint8_t *cs = gcry_md_read(md, ma);
-    if (!(q = realloc(buffer, key->h_length)))
+    if (!realloc(buffer, key->h_length))
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    buffer = q;
     eread(f, buffer, key->h_length, cy);
     log_message(LOG_DEBUG, "verifying checksum");
     log_binary(LOG_VERBOSE, cs, key->h_length);
