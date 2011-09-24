@@ -89,6 +89,9 @@ int main(int argc, char **argv)
     bool fe = false;
     if (list_size(unknown) >= 1)
         fe = file_encrypted((char *)list_get(unknown, 0));
+    /*
+     * check args for files/passwords/algroithms...
+     */
     if ((!fe && (hash.found && crypt.found && (password.found || keyfile.found))) 
       || (fe && (password.found || keyfile.found)))
         ; /* all required arguments were provided, no need for gui */
@@ -119,9 +122,7 @@ int main(int argc, char **argv)
         CH_GET_WIDGET(builder, progress_cancel_button, widgets);
         CH_GET_WIDGET(builder, progress_close_button, widgets);
         CH_GET_WIDGET(builder, about_dialog, widgets);
-        /*
-         * TODO check args for files/passwords/algroithms...
-         */
+
         auto_select_algorithms(widgets, crypt.option, hash.option);
 
         if (list_size(unknown) >= 1)
@@ -147,74 +148,72 @@ int main(int argc, char **argv)
     else
         fprintf(stderr, "Could not create GUI - falling back to command line\n");
 #endif /* we couldn't create the gui, so revert back to command line */
-    {
-        /*
-         * setup where the data is coming from; use stdin/stdout if no files are
-         * suggested
-         */
-        int64_t source = STDIN_FILENO;
-        int64_t output = STDOUT_FILENO;
 
-        if (list_size(unknown) >= 1)
-        {
-            char *nm = (char *)list_get(unknown, 0);
-            log_message(LOG_VERBOSE, "find source file %s", nm);
-            source = open(nm, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
-            if (source < 0)
-                die(_("could not access input file %s"), nm);
-            log_message(LOG_DEBUG, "opened %s for read access", nm);
-        }
-        if (list_size(unknown) >= 2)
-        {
-            char *nm = (char *)list_get(unknown, 1);
-            log_message(LOG_VERBOSE, "find output file %s", nm);
-            output = open(nm, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY | F_WRLCK, S_IRUSR | S_IWUSR);
-            if (output < 0)
-                die(_("could not access output file %s"), nm);
-            log_message(LOG_DEBUG, "opened %s for write access", nm);
-        }
-        /*
-         * get raw key data in form of password/phrase, key file
-         */
-        log_message(LOG_WARNING, "TODO: get raw key data (password)");
-        raw_key_t key = {NULL, 0, NULL, 0};
-        if (password.found)
-        {
-            if (!password.option || !strlen(password.option))
-                die("insufficient password");
-            key.p_data = (uint8_t *)password.option;
-            key.p_length = (uint64_t)strlen((char *)key.p_data);
-        }
-        else if (keyfile.found)
-        {
-            if (!keyfile.option || !strlen(keyfile.option))
-                die("invalid key data file");
-            int64_t kf = open(keyfile.option, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
-            if (kf < 0)
-                die("could not access key data file");
-            key.p_length = lseek(kf, 0, SEEK_END);
-            key.p_data = malloc(key.p_length);
-            if (!key.p_data)
-                die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-            pread(kf, key.p_data, key.p_length, 0);
-            close(kf);
-        }
-        else
-        {
-            show_usage(USAGE_STRING);
-            return EXIT_FAILURE;
-        }
-        /*
-         * here we go ...
-         */
-        pthread_t ui_thread = ui_thread_initialise(ui_thread_cli);
-        if (file_encrypted(source))
-            main_decrypt(source, output, &key);
-        else
-            main_encrypt(source, output, &key, hash.option, crypt.option);
-        pthread_join(ui_thread, NULL);
-        close(source);
+    /*
+     * setup where the data is coming from; use stdin/stdout if no files are
+     * suggested
+     */
+    int64_t source = STDIN_FILENO;
+    int64_t output = STDOUT_FILENO;
+
+    if (list_size(unknown) >= 1)
+    {
+        char *nm = (char *)list_get(unknown, 0);
+        log_message(LOG_VERBOSE, "find source file %s", nm);
+        source = open(nm, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
+        if (source < 0)
+            die(_("could not access input file %s"), nm);
+        log_message(LOG_DEBUG, "opened %s for read access", nm);
     }
+    if (list_size(unknown) >= 2)
+    {
+        char *nm = (char *)list_get(unknown, 1);
+        log_message(LOG_VERBOSE, "find output file %s", nm);
+        output = open(nm, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY | F_WRLCK, S_IRUSR | S_IWUSR);
+        if (output < 0)
+            die(_("could not access output file %s"), nm);
+        log_message(LOG_DEBUG, "opened %s for write access", nm);
+    }
+    /*
+     * get raw key data in form of password/phrase, key file
+     */
+    raw_key_t key = {NULL, 0, NULL, 0};
+    if (password.found)
+    {
+        if (!password.option || !strlen(password.option))
+            die("insufficient password");
+        key.p_data = (uint8_t *)password.option;
+        key.p_length = (uint64_t)strlen((char *)key.p_data);
+    }
+    else if (keyfile.found)
+    {
+        if (!keyfile.option || !strlen(keyfile.option))
+            die("invalid key data file");
+        int64_t kf = open(keyfile.option, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
+        if (kf < 0)
+            die("could not access key data file");
+        key.p_length = lseek(kf, 0, SEEK_END);
+        key.p_data = malloc(key.p_length);
+        if (!key.p_data)
+            die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
+        pread(kf, key.p_data, key.p_length, 0);
+        close(kf);
+    }
+    else
+    {
+        show_usage(USAGE_STRING);
+        return EXIT_FAILURE;
+    }
+    /*
+     * here we go ...
+     */
+    pthread_t ui_thread = ui_thread_initialise(ui_thread_cli);
+    if (file_encrypted(source))
+        main_decrypt(source, output, &key);
+    else
+        main_encrypt(source, output, &key, hash.option, crypt.option);
+    pthread_join(ui_thread, NULL);
+    close(source);
 
 #ifdef BUILD_GUI
 eop:
