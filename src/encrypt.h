@@ -26,10 +26,11 @@
 #define E_ENCRYPT "encrypt"
 #define E_VERSION "2011.10"
 
+#define HEAdER_VERSION_201009 0x72761df3e497c983LL
+#define HEADER_VERSION_201110 0xbb116f7d00201110LL
 #define HEADER_0 0x3697de5d96fca0faLL
 #define HEADER_1 0xc845c2fa95e2f52dLL
-#define HEADER_2 0x72761df3e497c983LL /* only for version 2011.08, replaced by version number is subsequent releases */
-/* TODO start using easily identifiable version number in header */
+#define HEADER_2 HEADER_VERSION_201110
 
 #define NAME_SHA1 "SHA1"
 #define NAME_SHA160 "SHA160"
