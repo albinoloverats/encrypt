@@ -115,7 +115,7 @@ extern void log_message(log_e l, const char * const restrict s, ...)
         flockfile(f);
         if (f == stderr)
             fprintf(f, "\r%s: ", program_invocation_short_name);
-        fprintf(f, "(%d) [%s] ", getpid(), LOG_LEVELS[l]);
+        fprintf(f, "(%d) [%s] ", getpid(), l < LOG_LEVEL_COUNT ? LOG_LEVELS[l] : "(unknown)");
         vfprintf(f, s, ap);
         fprintf(f, "\n");
         fflush(f);
