@@ -24,11 +24,12 @@
 #include "common/list.h"
 
 #define E_ENCRYPT "encrypt"
-#define E_VERSION "2011.09"
+#define E_VERSION "2011.10"
 
 #define HEADER_0 0x3697de5d96fca0faLL
 #define HEADER_1 0xc845c2fa95e2f52dLL
-#define HEADER_2 0x72761df3e497c983LL
+#define HEADER_2 0x72761df3e497c983LL /* only for version 2011.08, replaced by version number is subsequent releases */
+/* TODO start using easily identifiable version number in header */
 
 #define NAME_SHA1 "SHA1"
 #define NAME_SHA160 "SHA160"
@@ -77,14 +78,20 @@ typedef enum file_info_e
 }
 file_info_e;
 
+typedef enum features_e
+{
+    NONE /*!< version 2011.08 had no additional features */
+}
+features_e;
+
 extern list_t *get_algorithms_hash(void);
 extern list_t *get_algorithms_crypt(void);
 
 #define IS_ENCRYPTED_ARGS_COUNT(...) IS_ENCRYPTED_ARGS_COUNT2(__VA_ARGS__, 3, 2, 1)
 #define IS_ENCRYPTED_ARGS_COUNT2(_1, _2, _3, _, ...) _
 
-#define file_encrypted_1(A)       file_encrypted_aux(__builtin_types_compatible_p(typeof( A ), char *) * 1 + \
-                                                     __builtin_types_compatible_p(typeof( A ), int64_t) * 2, A, (char **)-1, (char **)-1)
+#define file_encrypted_1(A)       file_encrypted_aux(__builtin_types_compatible_p(__typeof__( A ), char *) * 1 + \
+                                                     __builtin_types_compatible_p(__typeof__( A ), int64_t) * 2, A, (char **)-1, (char **)-1)
 #define file_encrypted_2(A, B)    file_encrypted_aux(2, A, B, (char **)-1)
 #define file_encrypted_3(A, B, C) file_encrypted_aux(2, A, B, C)
 

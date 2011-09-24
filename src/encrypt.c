@@ -51,10 +51,11 @@ static size_t block = 0;
 static uint64_t decrypted_size = 0;
 static uint64_t bytes_processed = 0;
 static status_e status = RUNNING;
+static features_e features = NONE;
 
 extern bool file_encrypted_aux(int t, int64_t f, char **c, char **h)
 {
-    log_message(LOG_DEBUG, "check for file header");
+    log_message(LOG_INFO, "check for file header");
     if (t == 1)
     {
         void *x = (intptr_t *)f;
@@ -68,8 +69,28 @@ extern bool file_encrypted_aux(int t, int64_t f, char **c, char **h)
     uint64_t head[3] = {0x0};
     lseek(f, 0, SEEK_SET);
     read(f, head, sizeof( head ));
-    if (head[0] != htonll(HEADER_0) || head[1] != htonll(HEADER_1) || head[2] != htonll(HEADER_2))
+    /*
+     * check which (previous) version file was encrypted with
+     */
+    if (head[0] != htonll(HEADER_0) || head[1] != htonll(HEADER_1))
         goto clean_up;
+    /*
+     * check which version the file was encrypted with - obviously we
+     * cannot handle releases newer than ourselves because features
+     * we don't understand may have been used
+     */
+    switch (htonll(head[2]))
+    {
+        case HEADER_2: /* original release 2011.08 */
+            features = NONE;
+            break;
+
+            /* TODO start using easily identifiable version number in header */
+
+        default:
+            log_message(LOG_ERROR, "file encrypted with more recent release of encrypt");
+            goto clean_up;
+    }
     r_val = true;
     if (c == (char **)-1 || h == (char **)-1)
         goto clean_up;
@@ -81,8 +102,8 @@ extern bool file_encrypted_aux(int t, int64_t f, char **c, char **h)
     *h = strchr(*c, '/');
     **h = '\0';
     (*h)++;
-    log_message(LOG_VERBOSE, "file has cipher %s", *c);
-    log_message(LOG_VERBOSE, "file has hash %s", *h);
+    log_message(LOG_INFO, "file has cipher %s", *c);
+    log_message(LOG_INFO, "file has hash %s", *h);
 clean_up:
     if (t == 1)
         close(f);
@@ -93,7 +114,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
 {
     status = RUNNING;
 
-    log_message(LOG_DEBUG, "encrypting...");
+    log_message(LOG_INFO, "encrypting...");
     /*
      * initialise GNU Crypt library
      */
@@ -171,11 +192,11 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
     gcry_create_nonce(&x, sizeof( x ));
     gcry_create_nonce(&y, sizeof( y ));
     int64_t z = x ^ y;
-    log_message(LOG_INFO, "x = %jx ; y = %jx ; z = %jx", x, y, z);
+    log_message(LOG_VERBOSE, "x = %jx ; y = %jx ; z = %jx", x, y, z);
     x = htonll(x);
     y = htonll(y);
     z = htonll(z);
-    log_message(LOG_INFO, "x = %jx ; y = %jx ; z = %jx", x, y, z);
+    log_message(LOG_VERBOSE, "x = %jx ; y = %jx ; z = %jx", x, y, z);
     ewrite(g, &x, sizeof( x ), cy);
     ewrite(g, &y, sizeof( y ), cy);
     ewrite(g, &z, sizeof( z ), cy);
@@ -225,7 +246,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
     for (bytes_processed = 0; bytes_processed < decrypted_size; bytes_processed += block)
     {
         if (status == CANCELLED)
-            goto cleanup;
+            goto clean_up;
         memset(buffer, 0x00, block);
         size_t y = block;
         if (bytes_processed + block > decrypted_size)
@@ -242,8 +263,9 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
     if (!(q = realloc(buffer, key->h_length)))
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     memmove(buffer, cs, key->h_length);
+    log_message(LOG_DEBUG, "writing data checksum");
     ewrite(g, buffer, key->h_length, cy);
-    log_binary(LOG_DEBUG, buffer, key->h_length);
+    log_binary(LOG_VERBOSE, buffer, key->h_length);
     /*
      * add some random data at the end
      */
@@ -257,7 +279,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
 
     status = SUCCEEDED;
 
-cleanup:
+clean_up:
     /*
      * done
      */
@@ -274,7 +296,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
 {
     status = RUNNING;
 
-    log_message(LOG_DEBUG, "decrypting...");
+    log_message(LOG_INFO, "decrypting...");
     /*
      * initialise GNU Crypt library
      */
@@ -343,11 +365,11 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
     eread(f, &y, sizeof( y ), cy);
     eread(f, &z, sizeof( z ), cy);
     log_message(LOG_DEBUG, "verifying x ^ y = z");
-    log_message(LOG_INFO, "x = %jx ; y = %jx ; z = %jx", x, y, z);
+    log_message(LOG_VERBOSE, "x = %jx ; y = %jx ; z = %jx", x, y, z);
     x = ntohll(x);
     y = ntohll(y);
     z = ntohll(z);
-    log_message(LOG_INFO, "x = %jx ; y = %jx ; z = %jx", x, y, z);
+    log_message(LOG_VERBOSE, "x = %jx ; y = %jx ; z = %jx", x, y, z);
     if ((x ^ y) != z)
     {
         log_message(LOG_ERROR, "failed decryption attempt");
@@ -381,7 +403,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
             case TAG_SIZE:
                 memcpy(&decrypted_size, tlv.value, sizeof( uint64_t ));
                 decrypted_size = ntohll(decrypted_size);
-                log_message(LOG_DEBUG, "found size: %ju", decrypted_size);
+                log_message(LOG_VERBOSE, "found size: %ju", decrypted_size);
                 break;
 
             default:
@@ -392,7 +414,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
     /*
      * main decryption loop
      */
-    log_message(LOG_DEBUG, "startng decryption process");
+    log_message(LOG_DEBUG, "starting decryption process");
     q = realloc(buffer, block);
     if (!q)
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
@@ -404,7 +426,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
     for (bytes_processed = 0; bytes_processed < decrypted_size; bytes_processed += block)
     {
         if (status == CANCELLED)
-            goto cleanup;
+            goto clean_up;
         memset(buffer, 0x00, block);
         size_t y = block;
         if (bytes_processed + block > decrypted_size)
@@ -424,17 +446,17 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
     buffer = q;
     eread(f, buffer, key->h_length, cy);
     log_message(LOG_DEBUG, "verifying checksum");
+    log_binary(LOG_VERBOSE, cs, key->h_length);
+    log_binary(LOG_VERBOSE, buffer, key->h_length);
     if (memcmp(cs, buffer, key->h_length))
     {
         log_message(LOG_ERROR, "checksum verification failed");
-        log_binary(LOG_DEBUG, cs, key->h_length);
-        log_binary(LOG_DEBUG, buffer, key->h_length);
         status = FAILED_CHECKSUM;
     }
     else
         status = SUCCEEDED;
 
-cleanup:
+clean_up:
     /*
      * done
      */
@@ -538,10 +560,12 @@ static int ewrite(int64_t f, const void *d, size_t l, gcry_cipher_hd_t c)
     while (length + j >= block)
     {
         memmove(stream + length, d + i, block - length);
+#ifndef DEBUGGING
         gcry_cipher_encrypt(c, stream, block, NULL, 0);
+#endif /* !DEBUGGING */
         e = write(f, stream, block);
         j = length + j - block;
-        i += block;
+        i += (block - length);
         memset(stream, 0x00, block);
         length = 0;
     }
@@ -575,7 +599,9 @@ static int eread(int64_t f, void * const d, size_t l, gcry_cipher_hd_t c)
     while (i < l)
     {
         e = read(f, stream, block);
+#ifndef DEBUGGING
         gcry_cipher_decrypt(c, stream, block, NULL, 0);
+#endif /* !DEBUGGING */
         size_t j = block;
         if (i + block > l)
             j = block - (i + block - l);
