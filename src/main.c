@@ -208,12 +208,16 @@ int main(int argc, char **argv)
      * here we go ...
      */
     pthread_t ui_thread = ui_thread_initialise(ui_thread_cli);
+    status_e status = PREPROCESSING;
     if (file_encrypted(source))
-        main_decrypt(source, output, &key);
+        status = main_decrypt(source, output, &key);
     else
-        main_encrypt(source, output, &key, hash.option, crypt.option);
+        status = main_encrypt(source, output, &key, hash.option, crypt.option);
     pthread_join(ui_thread, NULL);
     close(source);
+
+    if (status >= CANCELLED)
+        log_message(LOG_WARNING, "%s", FAILED_MESSAGE[status]);
 
 #ifdef BUILD_GUI
 eop:
