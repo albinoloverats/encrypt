@@ -93,7 +93,7 @@ extern bool file_encrypted_aux(int t, int64_t f, char **c, char **h)
      */
     switch (htonll(head[2]))
     {
-        case HEADER_VERSION_201009: /* original release 2011.08 */
+        case HEADER_VERSION_201008: /* original release 2011.08 */
         case HEADER_VERSION_201110: /* currently no new features */
             features = NONE;
             break;
