@@ -84,6 +84,7 @@ file_info_e;
 typedef enum features_e
 {
     NONE /*!< version 2011.08 had no additional features */
+    /* proposed features: compression, archive/directories support  */
 }
 features_e;
 

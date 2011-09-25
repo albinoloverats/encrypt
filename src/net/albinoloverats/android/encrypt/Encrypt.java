@@ -90,7 +90,14 @@ public class Encrypt extends Thread implements Runnable
         }
     }
 
-    private static final long[] HEADER = { 0x3697de5d96fca0faL, 0xc845c2fa95e2f52dL, 0x72761df3e497c983L };
+    private enum Features
+    {
+        NONE;
+    }
+
+    private static final long HEADER_VERSION_201108 = 0x72761df3e497c983L;
+    private static final long HEADER_VERSION_201110 = 0xbb116f7d00201110L;
+    private static final long[] HEADER = { 0x3697de5d96fca0faL, 0xc845c2fa95e2f52dL, HEADER_VERSION_201110 };
 
     private File sourceFile;
     private File outputFile;
@@ -106,7 +113,8 @@ public class Encrypt extends Thread implements Runnable
     private long decryptedSize = 0;
     private long bytesProcessed = 0;
 
-    private Status status = Status.NOT_STARTED;;
+    private Status status = Status.NOT_STARTED;
+    private Features features = Features.NONE;
 
     public Encrypt(final File sourceFile, final File outputFile, final byte[] keyData, final String hashName, final String cipherName)
     {
@@ -190,12 +198,22 @@ public class Encrypt extends Thread implements Runnable
         try
         {
             in = new FileInputStream(f);
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 2; i++)
             {
                 byte[] header = new byte[Long.SIZE / Byte.SIZE];
                 in.read(header, 0, header.length);
                 if (Convert.longFromBytes(header) != HEADER[i])
                     return false;
+            }
+            in.read(header, 0, header.length);
+            switch (Convert.longFromBytes(header))
+            {
+                case HEADER_VERSION_201108:
+                case HEADER_VERSION_201110:
+                    features = Features.NONE;
+                    break;
+                default:
+                    return false; /* throw exception to indicate version not supported */
             }
             return true;
         }
