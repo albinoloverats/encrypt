@@ -53,6 +53,18 @@ static uint64_t bytes_processed = 0;
 static status_e status = RUNNING;
 static features_e features = NONE;
 
+char *FAILED_MESSAGE[] =
+{
+    NULL,
+    NULL,
+    NULL, /* "Success", */ /* ignore success, no message, just finish */
+    "User cancelled operation!",
+    "Unsupported algorithm!",
+    "Decryption verification failed!",
+    "Finished but with possible file corruption!"
+    "An unknown error has occurred!",
+};
+
 extern bool file_encrypted_aux(int t, int64_t f, char **c, char **h)
 {
     log_message(LOG_INFO, "check for file header");
