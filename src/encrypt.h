@@ -73,6 +73,8 @@ typedef enum status_e
 }
 status_e;
 
+extern char *FAILED_MESSAGE[];
+
 typedef enum file_info_e
 {
     TAG_SIZE
