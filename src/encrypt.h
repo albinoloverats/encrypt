@@ -60,6 +60,15 @@ typedef struct key_t
 }
 raw_key_t;
 
+typedef struct encrypt_t
+{
+    char *cipher;
+    char *hash;
+    raw_key_t key;
+    bool compressed:1;
+}
+encrypt_t;
+
 typedef enum status_e
 {
     PREPROCESSING,
@@ -77,34 +86,28 @@ extern char *FAILED_MESSAGE[];
 
 typedef enum file_info_e
 {
-    TAG_SIZE
-}
+    TAG_SIZE,
+    TAG_COMPRESSED,
+    TAG_TOTAL
+} __attribute__((packed))
 file_info_e;
-
-typedef enum features_e
-{
-    NONE /*!< version 2011.08 had no additional features */
-    /* proposed features: compression, archive/directories support  */
-}
-features_e;
 
 extern list_t *get_algorithms_hash(void);
 extern list_t *get_algorithms_crypt(void);
 
-#define IS_ENCRYPTED_ARGS_COUNT(...) IS_ENCRYPTED_ARGS_COUNT2(__VA_ARGS__, 3, 2, 1)
-#define IS_ENCRYPTED_ARGS_COUNT2(_1, _2, _3, _, ...) _
+#define IS_ENCRYPTED_ARGS_COUNT(...) IS_ENCRYPTED_ARGS_COUNT2(__VA_ARGS__, 2, 1)
+#define IS_ENCRYPTED_ARGS_COUNT2(_1, _2, _, ...) _
 
 #define file_encrypted_1(A)       file_encrypted_aux(__builtin_types_compatible_p(__typeof__( A ), char *) * 1 + \
-                                                     __builtin_types_compatible_p(__typeof__( A ), int64_t) * 2, A, (char **)-1, (char **)-1)
-#define file_encrypted_2(A, B)    file_encrypted_aux(2, A, B, (char **)-1)
-#define file_encrypted_3(A, B, C) file_encrypted_aux(2, A, B, C)
+                                                     __builtin_types_compatible_p(__typeof__( A ), int64_t) * 2, A, NULL)
+#define file_encrypted_2(A, B)    file_encrypted_aux(2, A, B)
 
 #define file_encrypted(...) COMMON_CONCAT(file_encrypted_, IS_ENCRYPTED_ARGS_COUNT(__VA_ARGS__))(__VA_ARGS__)
 
-extern bool file_encrypted_aux(int t, int64_t f, char **c, char **h); // free(c), don't free(h)
+extern bool file_encrypted_aux(int t, int64_t f, encrypt_t *e);
 
-extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *k, const char *h, const char *c);
-extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *k);
+extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e);
+extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e);
 
 extern uint64_t get_decrypted_size();
 extern uint64_t get_bytes_processed();

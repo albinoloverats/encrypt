@@ -57,10 +57,11 @@ int main(int argc, char **argv)
     /*
      * handle command line arguments
      */
-    args_t hash     = {'s', "hash",     false, true,  NULL, "Hash algorithm to use to generate key"};
-    args_t crypt    = {'c', "crypto",   false, true,  NULL, "Algorithm to encrypt data"};
-    args_t password = {'p', "password", false, true,  NULL, "Password used to generate the key"};
-    args_t keyfile  = {'k', "keyfile",  false, true,  NULL, "File whose data will be used to generate the key"};
+    args_t hash     = { 's', "hash",     false, true,  NULL, "Hash algorithm to use to generate key" };
+    args_t crypt    = { 'c', "crypto",   false, true,  NULL, "Algorithm to encrypt data" };
+    args_t password = { 'p', "password", false, true,  NULL, "Password used to generate the key" };
+    args_t keyfile  = { 'k', "keyfile",  false, true,  NULL, "File whose data will be used to generate the key" };
+    args_t compress = { 'x', "compress", false, false, NULL, "TODO: implement compression" };
 
     list_t *opts = list_create(NULL);
 
@@ -68,6 +69,7 @@ int main(int argc, char **argv)
     list_append(&opts, &crypt);
     list_append(&opts, &password);
     list_append(&opts, &keyfile);
+    list_append(&opts, &compress);
 
     list_t *unknown = init(E_ENCRYPT, E_VERSION, USAGE_STRING, argv, NULL, opts);
     /*
@@ -174,16 +176,17 @@ int main(int argc, char **argv)
             die(_("could not access output file %s"), nm);
         log_message(LOG_DEBUG, "opened %s for write access", nm);
     }
+
+    encrypt_t e_data = { crypt.option, hash.option, { NULL, 0, NULL, 0 }, compress.found };
     /*
      * get raw key data in form of password/phrase, key file
      */
-    raw_key_t key = {NULL, 0, NULL, 0};
     if (password.found)
     {
         if (!password.option || !strlen(password.option))
             die("insufficient password");
-        key.p_data = (uint8_t *)password.option;
-        key.p_length = (uint64_t)strlen((char *)key.p_data);
+        e_data.key.p_data = (uint8_t *)password.option;
+        e_data.key.p_length = (uint64_t)strlen((char *)e_data.key.p_data);
     }
     else if (keyfile.found)
     {
@@ -192,11 +195,11 @@ int main(int argc, char **argv)
         int64_t kf = open(keyfile.option, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
         if (kf < 0)
             die("could not access key data file");
-        key.p_length = lseek(kf, 0, SEEK_END);
-        key.p_data = malloc(key.p_length);
-        if (!key.p_data)
+        e_data.key.p_length = lseek(kf, 0, SEEK_END);
+        e_data.key.p_data = malloc(e_data.key.p_length);
+        if (!e_data.key.p_data)
             die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-        pread(kf, key.p_data, key.p_length, 0);
+        pread(kf, e_data.key.p_data, e_data.key.p_length, 0);
         close(kf);
     }
     else
@@ -210,9 +213,9 @@ int main(int argc, char **argv)
     pthread_t ui_thread = ui_thread_initialise(ui_thread_cli);
     status_e status = PREPROCESSING;
     if (file_encrypted(source))
-        status = main_decrypt(source, output, &key);
+        status = main_decrypt(source, output, e_data);
     else
-        status = main_encrypt(source, output, &key, hash.option, crypt.option);
+        status = main_encrypt(source, output, e_data);
     pthread_join(ui_thread, NULL);
     close(source);
 

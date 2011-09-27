@@ -51,7 +51,6 @@ static size_t block = 0;
 static uint64_t decrypted_size = 0;
 static uint64_t bytes_processed = 0;
 static status_e status = RUNNING;
-static features_e features = NONE;
 
 char *FAILED_MESSAGE[] =
 {
@@ -65,7 +64,7 @@ char *FAILED_MESSAGE[] =
     "An unknown error has occurred!",
 };
 
-extern bool file_encrypted_aux(int t, int64_t f, char **c, char **h)
+extern bool file_encrypted_aux(int t, int64_t f, encrypt_t *e)
 {
     log_message(LOG_INFO, "check for file header");
     if (t == 1)
@@ -94,33 +93,38 @@ extern bool file_encrypted_aux(int t, int64_t f, char **c, char **h)
     switch (htonll(head[2]))
     {
         case HEADER_VERSION_201008: /* original release 2011.08 */
-        case HEADER_VERSION_201110: /* currently no new features */
-            features = NONE;
+            break;
+        case HEADER_VERSION_201110:
+            if (e)
+                e->compressed = true; /* this file may be compressed */
             break;
         default:
             log_message(LOG_ERROR, "file encrypted with more recent release of encrypt");
             goto clean_up;
     }
     r_val = true;
-    if (c == (char **)-1 || h == (char **)-1)
+    if (!e)
         goto clean_up;
     log_message(LOG_DEBUG, "check for known algorithms");
     uint8_t l = 0;
     read(f, &l, sizeof( uint8_t ));
-    *c = calloc(l + 1, sizeof( char ));
-    read(f, *c, l);
-    *h = strchr(*c, '/');
-    **h = '\0';
-    (*h)++;
-    log_message(LOG_INFO, "file has cipher %s", *c);
-    log_message(LOG_INFO, "file has hash %s", *h);
+    char *c = calloc(l + 1, sizeof( char ));
+    read(f, c, l);
+    char *h = strchr(c, '/');
+    *h = '\0';
+    h++;
+    e->cipher = strdup(c);
+    e->hash = strdup(h);
+    free(c);
+    log_message(LOG_INFO, "file has cipher %s", e->cipher);
+    log_message(LOG_INFO, "file has hash %s", e->hash);
 clean_up:
     if (t == 1)
         close(f);
     return r_val;
 }
 
-extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h, const char *c)
+extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
 {
     status = RUNNING;
 
@@ -135,11 +139,11 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
      */
     log_message(LOG_DEBUG, "find algorithms");
     int mdi = 0;
-    if (!(mdi = get_algorithm_hash(h)))
-        die("could not find hash %s", h);
+    if (!(mdi = get_algorithm_hash(e.hash)))
+        die("could not find hash %s", e.hash);
     int cyi = 0;
-    if (!(cyi = get_algorithm_crypt(c)))
-        die("could not find cipher %s", c);
+    if (!(cyi = get_algorithm_crypt(e.cipher)))
+        die("could not find cipher %s", e.cipher);
 
     gcry_md_hd_t md = NULL;
     gcry_md_open(&md, mdi, GCRY_MD_FLAG_SECURE);
@@ -164,11 +168,11 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
      * generate key hash
      */
     int ma = gcry_md_get_algo(md);
-    key->h_length = gcry_md_get_algo_dlen(ma);
-    key->h_data = malloc(key->h_length);
-    if (!key->h_data)
+    e.key.h_length = gcry_md_get_algo_dlen(ma);
+    e.key.h_data = malloc(e.key.h_length);
+    if (!e.key.h_data)
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    gcry_md_hash_buffer(ma, key->h_data, key->p_data, key->p_length);
+    gcry_md_hash_buffer(ma, e.key.h_data, e.key.p_data, e.key.p_length);
     /*
      * setup algorithm (key and IV) - copy no more than the length of the key
      * into a new buffer (pad with 0x0 if necessary) then hash back to the
@@ -179,15 +183,15 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
     uint8_t *buffer = malloc(lk);
     if (!buffer)
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    memmove(buffer, key->h_data, lk < key->h_length ? lk : key->h_length);
+    memmove(buffer, e.key.h_data, lk < e.key.h_length ? lk : e.key.h_length);
     gcry_cipher_setkey(cy, buffer, lk);
-    uint8_t *iv = calloc(key->h_length, sizeof( uint8_t ));
+    uint8_t *iv = calloc(e.key.h_length, sizeof( uint8_t ));
     if (!iv)
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    gcry_md_hash_buffer(ma, iv, key->h_data, key->h_length);
-    memmove(buffer, iv, lk < key->h_length ? lk : key->h_length);
+    gcry_md_hash_buffer(ma, iv, e.key.h_data, e.key.h_length);
+    memmove(buffer, iv, lk < e.key.h_length ? lk : e.key.h_length);
     free(iv);
-    free(key->h_data);
+    free(e.key.h_data);
     gcry_cipher_setiv(cy, buffer, lk);
     /*
      * all data written from here on is encrypted
@@ -199,26 +203,26 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
      */
     int64_t x = 0;
     int64_t y = 0;
-    gcry_create_nonce(&x, sizeof( x ));
-    gcry_create_nonce(&y, sizeof( y ));
+    gcry_create_nonce(&x, sizeof( int64_t ));
+    gcry_create_nonce(&y, sizeof( int64_t ));
     int64_t z = x ^ y;
     log_message(LOG_VERBOSE, "x = %jx ; y = %jx ; z = %jx", x, y, z);
     x = htonll(x);
     y = htonll(y);
     z = htonll(z);
     log_message(LOG_VERBOSE, "x = %jx ; y = %jx ; z = %jx", x, y, z);
-    ewrite(g, &x, sizeof( x ), cy);
-    ewrite(g, &y, sizeof( y ), cy);
-    ewrite(g, &z, sizeof( z ), cy);
+    ewrite(g, &x, sizeof( int64_t ), cy);
+    ewrite(g, &y, sizeof( int64_t ), cy);
+    ewrite(g, &z, sizeof( int64_t ), cy);
     /*
      * write a random length of random bytes
      */
-    gcry_create_nonce(&l1, sizeof( l1 ));
+    gcry_create_nonce(&l1, sizeof( uint8_t ));
 
     if (!(buffer = realloc(buffer, l1)))
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     gcry_create_nonce(buffer, l1);
-    ewrite(g, &l1, sizeof( l1 ), cy);
+    ewrite(g, &l1, sizeof( uint8_t ), cy);
     ewrite(g, buffer, l1, cy);
     /*
      * write various metadata about the original file (if any); start
@@ -228,15 +232,31 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
      * TODO store more than just size (required in all instances)
      */
     l1 = 1;
-    ewrite(g, &l1, sizeof( l1 ), cy);
+    if (e.compressed)
+        l1++;
+    ewrite(g, &l1, sizeof( uint8_t ), cy);
 
     l1 = TAG_SIZE;
-    ewrite(g, &l1, sizeof( l1 ), cy);
+    ewrite(g, &l1, sizeof( uint8_t ), cy);
     uint16_t l2 = htons(sizeof( uint64_t ));
     ewrite(g, &l2, sizeof( uint16_t ), cy);
     decrypted_size = lseek(f, 0, SEEK_END);
     uint64_t l8 = htonll(decrypted_size);
     ewrite(g, &l8, sizeof( uint64_t ), cy);
+
+    if (e.compressed)
+    {
+        /*
+         * TODO actually compress the data if requested
+         *   ...find a way to store the compressed size...
+         */
+        l1 = TAG_COMPRESSED;
+        ewrite(g, &l1, sizeof( uint8_t ), cy);
+        l2 = htons(sizeof( bool ));
+        ewrite(g, &l2, sizeof( uint16_t ), cy);
+        bool b1 = e.compressed;
+        ewrite(g, &b1, sizeof( bool ), cy);
+    }
 
     lseek(f, 0, SEEK_SET);
     /*
@@ -267,13 +287,13 @@ extern status_e main_encrypt(int64_t f, int64_t g, raw_key_t *key, const char *h
     gcry_md_final(md);
     uint8_t *cs = gcry_md_read(md, ma);
     log_message(LOG_DEBUG, "writing data checksum");
-    ewrite(g, cs, key->h_length, cy);
-    log_binary(LOG_VERBOSE, cs, key->h_length);
+    ewrite(g, cs, e.key.h_length, cy);
+    log_binary(LOG_VERBOSE, cs, e.key.h_length);
     /*
      * add some random data at the end
      */
     log_message(LOG_DEBUG, "appending file random data");
-    gcry_create_nonce(&l1, sizeof( l1 ));
+    gcry_create_nonce(&l1, sizeof( uint8_t ));
     if (!(buffer = realloc(buffer, l1)))
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     gcry_create_nonce(buffer, l1);
@@ -294,7 +314,7 @@ clean_up:
     return status;
 }
 
-extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
+extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
 {
     status = RUNNING;
 
@@ -307,19 +327,17 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
     /*
      * read the standard header
      */
-    char *algonc = NULL, *algonh = NULL;
-    if (!file_encrypted(f, &algonc, &algonh))
+    if (!file_encrypted(f, &e))
     {
         log_message(LOG_ERROR, "file is not encrypted");
         return FAILED_OTHER;
     }
     int mdi = 0;
-    if (!(mdi = get_algorithm_hash(algonh)))
-        die("could not find hash %s", algonh);
+    if (!(mdi = get_algorithm_hash(e.hash)))
+        die("could not find hash %s", e.hash);
     int cyi = 0;
-    if (!(cyi = get_algorithm_crypt(algonc)))
-        die("could not find cipher %s", algonc);
-    free(algonc);
+    if (!(cyi = get_algorithm_crypt(e.cipher)))
+        die("could not find cipher %s", e.cipher);
 
     gcry_md_hd_t md = NULL;
     gcry_md_open(&md, mdi, GCRY_MD_FLAG_SECURE);
@@ -332,11 +350,11 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
      * generate key hash
      */
     int ma = gcry_md_get_algo(md);
-    key->h_length = gcry_md_get_algo_dlen(ma);
-    key->h_data = malloc(key->h_length);
-    if (!key->h_data)
+    e.key.h_length = gcry_md_get_algo_dlen(ma);
+    e.key.h_data = malloc(e.key.h_length);
+    if (!e.key.h_data)
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    gcry_md_hash_buffer(ma, key->h_data, key->p_data, key->p_length);
+    gcry_md_hash_buffer(ma, e.key.h_data, e.key.p_data, e.key.p_length);
     /*
      * setup algorithm (key and IV)
      */
@@ -345,15 +363,15 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
     uint8_t *buffer = calloc(lk, sizeof( uint8_t ));
     if (!buffer)
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    memmove(buffer, key->h_data, lk < key->h_length ? lk : key->h_length);
+    memmove(buffer, e.key.h_data, lk < e.key.h_length ? lk : e.key.h_length);
     gcry_cipher_setkey(cy, buffer, lk);
-    uint8_t *iv = calloc(key->h_length, sizeof( uint8_t ));
+    uint8_t *iv = calloc(e.key.h_length, sizeof( uint8_t ));
     if (!iv)
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    gcry_md_hash_buffer(ma, iv, key->h_data, key->h_length);
-    memmove(buffer, iv, lk < key->h_length ? lk : key->h_length);
+    gcry_md_hash_buffer(ma, iv, e.key.h_data, e.key.h_length);
+    memmove(buffer, iv, lk < e.key.h_length ? lk : e.key.h_length);
     free(iv);
-    free(key->h_data);
+    free(e.key.h_data);
     gcry_cipher_setiv(cy, buffer, lk);
 
     log_message(LOG_DEBUG, "reading source file info");
@@ -363,9 +381,9 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
     int64_t x = 0;
     int64_t y = 0;
     int64_t z = 0;
-    eread(f, &x, sizeof( x ), cy);
-    eread(f, &y, sizeof( y ), cy);
-    eread(f, &z, sizeof( z ), cy);
+    eread(f, &x, sizeof( int64_t ), cy);
+    eread(f, &y, sizeof( int64_t ), cy);
+    eread(f, &z, sizeof( int64_t ), cy);
     log_message(LOG_DEBUG, "verifying x ^ y = z");
     log_message(LOG_VERBOSE, "x = %jx ; y = %jx ; z = %jx", x, y, z);
     x = ntohll(x);
@@ -383,7 +401,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
      */
     uint8_t l1 = 0;
     eread(f, &l1, sizeof( uint8_t ), cy);
-    if (!realloc(buffer, l1))
+    if (!(buffer = realloc(buffer, l1)))
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     eread(f, buffer, l1, cy);
     /*
@@ -392,11 +410,12 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
     eread(f, &l1, sizeof( l1 ), cy);
     for (int i = 0; i < l1; i++)
     {
-        tlv_t tlv;
+        tlv_t tlv = { 0, 0, buffer };
         eread(f, &tlv.tag, sizeof( uint8_t ), cy);
         eread(f, &tlv.length, sizeof( uint16_t ), cy);
         tlv.length = ntohs(tlv.length);
-        tlv.value = malloc(tlv.length);
+        if (!(tlv.value = realloc(tlv.value, tlv.length)))
+            die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
         eread(f, tlv.value, tlv.length, cy);
         switch (tlv.tag)
         {
@@ -405,17 +424,23 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
                 decrypted_size = ntohll(decrypted_size);
                 log_message(LOG_VERBOSE, "found size: %ju", decrypted_size);
                 break;
-
+            case TAG_COMPRESSED:
+                {
+                    bool b1 = false;
+                    memcpy(&b1, tlv.value, sizeof( bool ));
+                    e.compressed = b1;
+                }
+                log_message(LOG_VERBOSE, "compressed: %s", e.compressed ? "true" : "false");
+                break;
             default:
                 break;
         }
-        free(tlv.value);
     }
     /*
      * main decryption loop
      */
     log_message(LOG_DEBUG, "starting decryption process");
-    if (!realloc(buffer, block))
+    if (!(buffer = realloc(buffer, block)))
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     /*
      * reset hash algorithm, so we can use it to generate a checksum of the plaintext data
@@ -439,13 +464,13 @@ extern status_e main_decrypt(int64_t f, int64_t g, raw_key_t *key)
     gcry_md_final(md);
     ma = gcry_md_get_algo(md);
     uint8_t *cs = gcry_md_read(md, ma);
-    if (!realloc(buffer, key->h_length))
+    if (!(buffer = realloc(buffer, e.key.h_length)))
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    eread(f, buffer, key->h_length, cy);
+    eread(f, buffer, e.key.h_length, cy);
     log_message(LOG_DEBUG, "verifying checksum");
-    log_binary(LOG_VERBOSE, cs, key->h_length);
-    log_binary(LOG_VERBOSE, buffer, key->h_length);
-    if (memcmp(cs, buffer, key->h_length))
+    log_binary(LOG_VERBOSE, cs, e.key.h_length);
+    log_binary(LOG_VERBOSE, buffer, e.key.h_length);
+    if (memcmp(cs, buffer, e.key.h_length))
     {
         log_message(LOG_ERROR, "checksum verification failed");
         status = FAILED_CHECKSUM;
@@ -492,7 +517,7 @@ extern list_t *get_algorithms_hash(void)
         init_gcrypt_library();
     list_t *l = list_create((int (*)(const void *, const void *))strcmp);
     int list[0xff] = {0x00};
-    int len = sizeof(list);
+    int len = sizeof( list );
     gcry_md_list(list, &len);
     for (int i = 0; i < len; i++)
     {
@@ -515,7 +540,7 @@ extern list_t *get_algorithms_crypt(void)
         init_gcrypt_library();
     list_t *l = list_create((int (*)(const void *, const void *))strcmp);
     int list[0xff] = {0x00};
-    int len = sizeof(list);
+    int len = sizeof( list );
     gcry_cipher_list(list, &len);
     for (int i = 0; i < len; i++)
     {
@@ -615,7 +640,7 @@ static int get_algorithm_hash(const char * const restrict n)
     if (!n)
         return 0;
     int list[0xff] = {0x00};
-    int len = sizeof(list);
+    int len = sizeof( list );
     gcry_md_list(list, &len);
     for (int i = 0; i < len; i++)
     {
@@ -643,7 +668,7 @@ static int get_algorithm_crypt(const char * const restrict n)
     if (!n)
         return 0;
     int list[0xff] = {0x00};
-    int len = sizeof(list);
+    int len = sizeof( list );
     gcry_cipher_list(list, &len);
     for (int i = 0; i < len; i++)
     {
