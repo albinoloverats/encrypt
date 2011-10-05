@@ -79,8 +79,10 @@ typedef enum status_e
     RUNNING,
     SUCCEEDED,
     CANCELLED,
-    FAILED_INITIALISATION,
+    FAILED_PARAMETER,
+    FAILED_ALGORITHM,
     FAILED_DECRYPTION,
+    FAILED_TAG,
     FAILED_CHECKSUM,
     FAILED_OTHER
 }
@@ -93,7 +95,6 @@ typedef enum file_info_e
     TAG_SIZE,
     TAG_BLOCKED,
     TAG_COMPRESSED,
-    TAG_TOTAL
 } __attribute__((packed))
 file_info_e;
 
