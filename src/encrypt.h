@@ -44,6 +44,9 @@
 #define NAME_TWOFISH "TWOFISH"
 #define NAME_TWOFISH256 "TWOFISH256"
 
+#define ALGORITHM_BLOCKS_PER_FILE_BLOCK 16
+#define BLOCK_SIZE 1024
+
 typedef enum raw_key_e
 {
     KEYFILE = 1,
@@ -65,6 +68,7 @@ typedef struct encrypt_t
     char *cipher;
     char *hash;
     raw_key_t key;
+    bool blocked:1;
     bool compressed:1;
 }
 encrypt_t;
@@ -87,6 +91,7 @@ extern char *FAILED_MESSAGE[];
 typedef enum file_info_e
 {
     TAG_SIZE,
+    TAG_BLOCKED,
     TAG_COMPRESSED,
     TAG_TOTAL
 } __attribute__((packed))
@@ -118,10 +123,17 @@ extern void stop_running();
 
 #ifdef __ENCRYPT__H__
 
+typedef struct gcrypt_wrapper_t
+{
+    gcry_cipher_hd_t cipher;
+    int algorithm;
+}
+gcrypt_wrapper_t;
+
 static void init_gcrypt_library(void);
 
-static int ewrite(int64_t f, const void *d, size_t l, gcry_cipher_hd_t c);
-static int eread(int64_t f, void * const d, size_t l, gcry_cipher_hd_t c);
+static int ewrite(int64_t f, const void * const restrict d, size_t l, gcrypt_wrapper_t c);
+static int eread(int64_t f, void * const d, size_t l, gcrypt_wrapper_t c);
 
 static int get_algorithm_hash(const char * const restrict n);
 static int get_algorithm_crypt(const char * const restrict n);
@@ -139,3 +151,4 @@ static bool algorithm_is_duplicate(const char * const restrict n);
 
 #undef __ENCRYPT__H__
 #endif /* __ENCRYPT__H__ */
+

@@ -44,10 +44,6 @@
 #include "common/tlv.h"
 
 static bool lib_init = false;
-static uint8_t *stream = NULL; 
-static size_t length = 0;
-static size_t block = 0;
-
 static uint64_t decrypted_size = 0;
 static uint64_t bytes_processed = 0;
 static status_e status = RUNNING;
@@ -73,6 +69,7 @@ extern bool file_encrypted_aux(int t, int64_t f, encrypt_t *e)
         char *n = strdup((char *)x);
         f = open(n, O_RDONLY | O_BINARY);
         free(n);
+        n = NULL;
         if (f < 0)
             return false;
     }
@@ -96,7 +93,12 @@ extern bool file_encrypted_aux(int t, int64_t f, encrypt_t *e)
             break;
         case HEADER_VERSION_201110:
             if (e)
+            {
+                e->blocked = true;
+#if 0 /* no compression yet */
                 e->compressed = true; /* this file may be compressed */
+#endif
+            }
             break;
         default:
             log_message(LOG_ERROR, "file encrypted with more recent release of encrypt");
@@ -116,6 +118,7 @@ extern bool file_encrypted_aux(int t, int64_t f, encrypt_t *e)
     e->cipher = strdup(c);
     e->hash = strdup(h);
     free(c);
+    c = NULL;
     log_message(LOG_INFO, "file has cipher %s", e->cipher);
     log_message(LOG_INFO, "file has hash %s", e->hash);
 clean_up:
@@ -141,14 +144,14 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     int mdi = 0;
     if (!(mdi = get_algorithm_hash(e.hash)))
         die("could not find hash %s", e.hash);
-    int cyi = 0;
-    if (!(cyi = get_algorithm_crypt(e.cipher)))
+    gcrypt_wrapper_t c_wrapper = { NULL, 0 };
+
+    if (!(c_wrapper.algorithm = get_algorithm_crypt(e.cipher)))
         die("could not find cipher %s", e.cipher);
 
     gcry_md_hd_t md = NULL;
     gcry_md_open(&md, mdi, GCRY_MD_FLAG_SECURE);
-    gcry_cipher_hd_t cy = NULL;
-    gcry_cipher_open(&cy, cyi, GCRY_CIPHER_MODE_CBC, GCRY_CIPHER_SECURE);
+    gcry_cipher_open(&c_wrapper.cipher, c_wrapper.algorithm, GCRY_CIPHER_MODE_CBC, GCRY_CIPHER_SECURE);
     /*
      * write the default header
      */
@@ -156,21 +159,18 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     uint64_t head[3] = {htonll(HEADER_0), htonll(HEADER_1), htonll(HEADER_2)};
     write(g, head, sizeof( head ));
     char *algos = NULL;
-    asprintf(&algos, "%s/%s", get_name_algorithm_crypt(cyi), get_name_algorithm_hash(mdi));
+    asprintf(&algos, "%s/%s", get_name_algorithm_crypt(c_wrapper.algorithm), get_name_algorithm_hash(mdi));
     uint8_t l1 = (uint8_t)strlen(algos);
     write(g, &l1, sizeof( uint8_t ));
     write(g, algos, l1);
     free(algos);
-
-    gcry_cipher_algo_info(cyi, GCRYCTL_GET_BLKLEN, NULL, &block);
-    log_message(LOG_VERBOSE, "encryption block size %zu bytes", block);
+    algos = NULL;
     /*
      * generate key hash
      */
     int ma = gcry_md_get_algo(md);
     e.key.h_length = gcry_md_get_algo_dlen(ma);
-    e.key.h_data = malloc(e.key.h_length);
-    if (!e.key.h_data)
+    if (!(e.key.h_data = malloc(e.key.h_length)))
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     gcry_md_hash_buffer(ma, e.key.h_data, e.key.p_data, e.key.p_length);
     /*
@@ -179,20 +179,22 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
      * original buffer the IV
      */
     size_t lk = 0;
-    gcry_cipher_algo_info(cyi, GCRYCTL_GET_KEYLEN, NULL, &lk);
-    uint8_t *buffer = malloc(lk);
-    if (!buffer)
-        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    memmove(buffer, e.key.h_data, lk < e.key.h_length ? lk : e.key.h_length);
-    gcry_cipher_setkey(cy, buffer, lk);
-    uint8_t *iv = calloc(e.key.h_length, sizeof( uint8_t ));
+    gcry_cipher_algo_info(c_wrapper.algorithm, GCRYCTL_GET_KEYLEN, NULL, &lk);
+    uint8_t buffer[0xFF] = { 0x00 };
+    memcpy(buffer, e.key.h_data, lk < e.key.h_length ? lk : e.key.h_length);
+    gcry_cipher_setkey(c_wrapper.cipher, buffer, lk);
+    memset(buffer, 0x00, 0xFF);
+    uint8_t *iv = malloc(e.key.h_length);
     if (!iv)
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     gcry_md_hash_buffer(ma, iv, e.key.h_data, e.key.h_length);
-    memmove(buffer, iv, lk < e.key.h_length ? lk : e.key.h_length);
+    memcpy(buffer, iv, lk < e.key.h_length ? lk : e.key.h_length);
     free(iv);
+    iv = NULL;
     free(e.key.h_data);
-    gcry_cipher_setiv(cy, buffer, lk);
+    e.key.h_data = NULL;
+    gcry_cipher_setiv(c_wrapper.cipher, buffer, lk);
+    memset(buffer, 0x00, 0xFF);
     /*
      * all data written from here on is encrypted
      */
@@ -211,19 +213,17 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     y = htonll(y);
     z = htonll(z);
     log_message(LOG_VERBOSE, "x = %jx ; y = %jx ; z = %jx", x, y, z);
-    ewrite(g, &x, sizeof( int64_t ), cy);
-    ewrite(g, &y, sizeof( int64_t ), cy);
-    ewrite(g, &z, sizeof( int64_t ), cy);
+    ewrite(g, &x, sizeof( int64_t ), c_wrapper);
+    ewrite(g, &y, sizeof( int64_t ), c_wrapper);
+    ewrite(g, &z, sizeof( int64_t ), c_wrapper);
     /*
      * write a random length of random bytes
      */
     gcry_create_nonce(&l1, sizeof( uint8_t ));
-
-    if (!(buffer = realloc(buffer, l1)))
-        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     gcry_create_nonce(buffer, l1);
-    ewrite(g, &l1, sizeof( uint8_t ), cy);
-    ewrite(g, buffer, l1, cy);
+    ewrite(g, &l1, sizeof( uint8_t ), c_wrapper);
+    ewrite(g, buffer, l1, c_wrapper);
+    memset(buffer, 0x00, 0xFF);
     /*
      * write various metadata about the original file (if any); start
      * off writing the number of metadata entries (not the total number
@@ -232,17 +232,27 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
      * TODO store more than just size (required in all instances)
      */
     l1 = 1;
+#if 0
     if (e.compressed)
         l1++;
-    ewrite(g, &l1, sizeof( uint8_t ), cy);
+#endif
+    ewrite(g, &l1, sizeof( uint8_t ), c_wrapper);
 
     l1 = TAG_SIZE;
-    ewrite(g, &l1, sizeof( uint8_t ), cy);
+    ewrite(g, &l1, sizeof( uint8_t ), c_wrapper);
     uint16_t l2 = htons(sizeof( uint64_t ));
-    ewrite(g, &l2, sizeof( uint16_t ), cy);
+    ewrite(g, &l2, sizeof( uint16_t ), c_wrapper);
     decrypted_size = lseek(f, 0, SEEK_END);
     uint64_t l8 = htonll(decrypted_size);
-    ewrite(g, &l8, sizeof( uint64_t ), cy);
+    ewrite(g, &l8, sizeof( uint64_t ), c_wrapper);
+
+#if 0
+    l1 = TAG_BLOCKED;
+    ewrite(g, &l1, sizeof( uint8_t ), c_wrapper);
+    l2 = htons(sizeof( bool ));
+    ewrite(g, &l2, sizeof( uint16_t ), c_wrapper);
+    bool b1 = true;
+    ewrite(g, &b1, sizeof( bool ), c_wrapper);
 
     if (e.compressed)
     {
@@ -251,35 +261,34 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
          *   ...find a way to store the compressed size...
          */
         l1 = TAG_COMPRESSED;
-        ewrite(g, &l1, sizeof( uint8_t ), cy);
+        ewrite(g, &l1, sizeof( uint8_t ), c_wrapper);
         l2 = htons(sizeof( bool ));
-        ewrite(g, &l2, sizeof( uint16_t ), cy);
-        bool b1 = e.compressed;
-        ewrite(g, &b1, sizeof( bool ), cy);
+        ewrite(g, &l2, sizeof( uint16_t ), c_wrapper);
+        b1 = e.compressed;
+        ewrite(g, &b1, sizeof( bool ), c_wrapper);
     }
-
+#endif
     lseek(f, 0, SEEK_SET);
     /*
      * main encryption loop
      */
     log_message(LOG_DEBUG, "starting encryption process");
-    if (!(buffer = realloc(buffer, block)))
-        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     /*
      * reset hash algorithm, so we can use it to generate a checksum of the plaintext data
      */
     gcry_md_reset(md);
-    for (bytes_processed = 0; bytes_processed < decrypted_size; bytes_processed += block)
+//    b1 = true;
+    for (bytes_processed = 0; bytes_processed < decrypted_size; bytes_processed += BLOCK_SIZE)
     {
         if (status == CANCELLED)
             goto clean_up;
-        memset(buffer, 0x00, block);
-        size_t y = block;
-        if (bytes_processed + block > decrypted_size)
-            y = block - (bytes_processed + block - decrypted_size);
-        ssize_t r = read(f, buffer, y);
-        gcry_md_write(md, buffer, r);
-        ewrite(g, buffer, r, cy);
+        size_t y = BLOCK_SIZE;
+        if (bytes_processed + BLOCK_SIZE > decrypted_size)
+            y = BLOCK_SIZE - (bytes_processed + BLOCK_SIZE - decrypted_size);
+        uint8_t read_buffer[BLOCK_SIZE] = { 0x00 };
+        ssize_t r = read(f, read_buffer, y);
+        gcry_md_write(md, read_buffer, r);
+        ewrite(g, read_buffer, r, c_wrapper);
     }
     /*
      * write data checksum
@@ -287,28 +296,26 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     gcry_md_final(md);
     uint8_t *cs = gcry_md_read(md, ma);
     log_message(LOG_DEBUG, "writing data checksum");
-    ewrite(g, cs, e.key.h_length, cy);
+    ewrite(g, cs, e.key.h_length, c_wrapper);
     log_binary(LOG_VERBOSE, cs, e.key.h_length);
     /*
      * add some random data at the end
      */
     log_message(LOG_DEBUG, "appending file random data");
     gcry_create_nonce(&l1, sizeof( uint8_t ));
-    if (!(buffer = realloc(buffer, l1)))
-        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     gcry_create_nonce(buffer, l1);
-    ewrite(g, buffer, l1, cy);
+    ewrite(g, buffer, l1, c_wrapper);
+    memset(buffer, 0x00, 0xFF);
 
+    ewrite(g, NULL, 0, c_wrapper);
     status = SUCCEEDED;
 
 clean_up:
     /*
      * done
      */
-    free(buffer);
-    free(stream);
 
-    gcry_cipher_close(cy);
+    gcry_cipher_close(c_wrapper.cipher);
     gcry_md_close(md);
 
     return status;
@@ -335,44 +342,42 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     int mdi = 0;
     if (!(mdi = get_algorithm_hash(e.hash)))
         die("could not find hash %s", e.hash);
-    int cyi = 0;
-    if (!(cyi = get_algorithm_crypt(e.cipher)))
+    gcrypt_wrapper_t c_wrapper = { NULL, 0 };
+    if (!(c_wrapper.algorithm = get_algorithm_crypt(e.cipher)))
         die("could not find cipher %s", e.cipher);
 
     gcry_md_hd_t md = NULL;
     gcry_md_open(&md, mdi, GCRY_MD_FLAG_SECURE);
-    gcry_cipher_hd_t cy = NULL;
-    gcry_cipher_open(&cy, cyi, GCRY_CIPHER_MODE_CBC, GCRY_CIPHER_SECURE);
+    gcry_cipher_open(&c_wrapper.cipher, c_wrapper.algorithm, GCRY_CIPHER_MODE_CBC, GCRY_CIPHER_SECURE);
 
-    gcry_cipher_algo_info(cyi, GCRYCTL_GET_BLKLEN, NULL, &block);
-    log_message(LOG_VERBOSE, "decryption block size %zu bytes", block);
     /*
      * generate key hash
      */
     int ma = gcry_md_get_algo(md);
     e.key.h_length = gcry_md_get_algo_dlen(ma);
-    e.key.h_data = malloc(e.key.h_length);
-    if (!e.key.h_data)
+    if (!(e.key.h_data = malloc(e.key.h_length)))
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     gcry_md_hash_buffer(ma, e.key.h_data, e.key.p_data, e.key.p_length);
     /*
      * setup algorithm (key and IV)
      */
     size_t lk = 0;
-    gcry_cipher_algo_info(cyi, GCRYCTL_GET_KEYLEN, NULL, &lk);
-    uint8_t *buffer = calloc(lk, sizeof( uint8_t ));
-    if (!buffer)
-        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    memmove(buffer, e.key.h_data, lk < e.key.h_length ? lk : e.key.h_length);
-    gcry_cipher_setkey(cy, buffer, lk);
-    uint8_t *iv = calloc(e.key.h_length, sizeof( uint8_t ));
+    gcry_cipher_algo_info(c_wrapper.algorithm, GCRYCTL_GET_KEYLEN, NULL, &lk);
+    uint8_t buffer[0xFF] = { 0x00 };
+    memcpy(buffer, e.key.h_data, lk < e.key.h_length ? lk : e.key.h_length);
+    gcry_cipher_setkey(c_wrapper.cipher, buffer, lk);
+    memset(buffer, 0x00, 0xFF);
+    uint8_t *iv = malloc(e.key.h_length);
     if (!iv)
         die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     gcry_md_hash_buffer(ma, iv, e.key.h_data, e.key.h_length);
-    memmove(buffer, iv, lk < e.key.h_length ? lk : e.key.h_length);
+    memcpy(buffer, iv, lk < e.key.h_length ? lk : e.key.h_length);
     free(iv);
+    iv = NULL;
     free(e.key.h_data);
-    gcry_cipher_setiv(cy, buffer, lk);
+    e.key.h_data = NULL;
+    gcry_cipher_setiv(c_wrapper.cipher, buffer, lk);
+    memset(buffer, 0x00, 0xFF);
 
     log_message(LOG_DEBUG, "reading source file info");
     /*
@@ -381,9 +386,9 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     int64_t x = 0;
     int64_t y = 0;
     int64_t z = 0;
-    eread(f, &x, sizeof( int64_t ), cy);
-    eread(f, &y, sizeof( int64_t ), cy);
-    eread(f, &z, sizeof( int64_t ), cy);
+    eread(f, &x, sizeof( int64_t ), c_wrapper);
+    eread(f, &y, sizeof( int64_t ), c_wrapper);
+    eread(f, &z, sizeof( int64_t ), c_wrapper);
     log_message(LOG_DEBUG, "verifying x ^ y = z");
     log_message(LOG_VERBOSE, "x = %jx ; y = %jx ; z = %jx", x, y, z);
     x = ntohll(x);
@@ -393,30 +398,28 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     if ((x ^ y) != z)
     {
         log_message(LOG_ERROR, "failed decryption attempt");
-        free(buffer);
         return FAILED_DECRYPTION;
     }
     /*
      * skip past random data
      */
     uint8_t l1 = 0;
-    eread(f, &l1, sizeof( uint8_t ), cy);
-    if (!(buffer = realloc(buffer, l1)))
-        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    eread(f, buffer, l1, cy);
+    eread(f, &l1, sizeof( uint8_t ), c_wrapper);
+    eread(f, buffer, l1, c_wrapper);
+    memset(buffer, 0x00, 0xFF);
     /*
      * read the original file metadata - skip any unknown tag values
      */
-    eread(f, &l1, sizeof( l1 ), cy);
+    eread(f, &l1, sizeof( l1 ), c_wrapper);
     for (int i = 0; i < l1; i++)
     {
-        tlv_t tlv = { 0, 0, buffer };
-        eread(f, &tlv.tag, sizeof( uint8_t ), cy);
-        eread(f, &tlv.length, sizeof( uint16_t ), cy);
+        tlv_t tlv = { 0, 0, NULL };
+        eread(f, &tlv.tag, sizeof( uint8_t ), c_wrapper);
+        eread(f, &tlv.length, sizeof( uint16_t ), c_wrapper);
         tlv.length = ntohs(tlv.length);
-        if (!(tlv.value = realloc(tlv.value, tlv.length)))
+        if (!(tlv.value = malloc(tlv.length)))
             die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-        eread(f, tlv.value, tlv.length, cy);
+        eread(f, tlv.value, tlv.length, c_wrapper);
         switch (tlv.tag)
         {
             case TAG_SIZE:
@@ -435,28 +438,28 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
             default:
                 break;
         }
+        free(tlv.value);
+        tlv.value = NULL;
     }
     /*
      * main decryption loop
      */
     log_message(LOG_DEBUG, "starting decryption process");
-    if (!(buffer = realloc(buffer, block)))
-        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
     /*
      * reset hash algorithm, so we can use it to generate a checksum of the plaintext data
      */
     gcry_md_reset(md);
-    for (bytes_processed = 0; bytes_processed < decrypted_size; bytes_processed += block)
+    for (bytes_processed = 0; bytes_processed < decrypted_size; bytes_processed += BLOCK_SIZE)
     {
         if (status == CANCELLED)
             goto clean_up;
-        memset(buffer, 0x00, block);
-        size_t y = block;
-        if (bytes_processed + block > decrypted_size)
-            y = block - (bytes_processed + block - decrypted_size);
-        ssize_t r = eread(f, buffer, y, cy);
-        gcry_md_write(md, buffer, r);
-        write(g, buffer, r);
+        size_t y = BLOCK_SIZE;
+        if (bytes_processed + BLOCK_SIZE > decrypted_size)
+            y = BLOCK_SIZE - (bytes_processed + BLOCK_SIZE - decrypted_size);
+        uint8_t read_buffer[BLOCK_SIZE] = { 0x00 };
+        ssize_t r = eread(f, read_buffer, y, c_wrapper);
+        gcry_md_write(md, read_buffer, r);
+        write(g, read_buffer, r);
     }
     /*
      * compare data checksum
@@ -464,9 +467,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     gcry_md_final(md);
     ma = gcry_md_get_algo(md);
     uint8_t *cs = gcry_md_read(md, ma);
-    if (!(buffer = realloc(buffer, e.key.h_length)))
-        die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    eread(f, buffer, e.key.h_length, cy);
+    eread(f, buffer, e.key.h_length, c_wrapper);
     log_message(LOG_DEBUG, "verifying checksum");
     log_binary(LOG_VERBOSE, cs, e.key.h_length);
     log_binary(LOG_VERBOSE, buffer, e.key.h_length);
@@ -477,15 +478,14 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     }
     else
         status = SUCCEEDED;
+    memset(buffer, 0x00, 0xFF);
 
 clean_up:
     /*
      * done
      */
-    free(buffer);
-    free(stream);
 
-    gcry_cipher_close(cy);
+    gcry_cipher_close(c_wrapper.cipher);
     gcry_md_close(md);
 
     return status;
@@ -516,7 +516,7 @@ extern list_t *get_algorithms_hash(void)
     if (!lib_init)
         init_gcrypt_library();
     list_t *l = list_create((int (*)(const void *, const void *))strcmp);
-    int list[0xff] = {0x00};
+    int list[0xff] = { 0x00 };
     int len = sizeof( list );
     gcry_md_list(list, &len);
     for (int i = 0; i < len; i++)
@@ -539,7 +539,7 @@ extern list_t *get_algorithms_crypt(void)
     if (!lib_init)
         init_gcrypt_library();
     list_t *l = list_create((int (*)(const void *, const void *))strcmp);
-    int list[0xff] = {0x00};
+    int list[0xff] = { 0x00 };
     int len = sizeof( list );
     gcry_cipher_list(list, &len);
     for (int i = 0; i < len; i++)
@@ -572,74 +572,107 @@ static void init_gcrypt_library(void)
     lib_init = true;
 }
 
-static int ewrite(int64_t f, const void *d, size_t l, gcry_cipher_hd_t c)
+static int ewrite(int64_t f, const void * const restrict d, size_t l, gcrypt_wrapper_t c)
 {
+    static uint8_t *stream = NULL;
+    static size_t block = 0;
+    static off_t offset[2] = { 0, 0 };
+    if (!block)
+        gcry_cipher_algo_info(c.algorithm, GCRYCTL_GET_BLKLEN, NULL, &block);
     if (!stream)
         if (!(stream = calloc(block, sizeof( uint8_t ))))
             die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    int e = EXIT_SUCCESS;
-    size_t i = 0, j = l;
-    while (length + j >= block)
+
+    size_t remainder[2] = { l, block - offset[0] };
+    if (!d && !l)
     {
-        memmove(stream + length, d + i, block - length);
+        gcry_create_nonce(stream + offset[0], remainder[1]);
 #ifndef DEBUGGING
-        gcry_cipher_encrypt(c, stream, block, NULL, 0);
+        gcry_cipher_encrypt(c.cipher, stream, block, NULL, 0);
 #endif /* !DEBUGGING */
-        e = write(f, stream, block);
-        j = length + j - block;
-        i += (block - length);
-        memset(stream, 0x00, block);
-        length = 0;
+        int e = write(f, stream, block);
+        block = 0;
+        free(stream);
+        stream = NULL;
+        memset(offset, 0x00, sizeof( offset ));
+        fsync(f);
+        return e;
     }
-    memmove(stream + length, d + (l - j), j);
-    length += j;
-    return e;
+
+    offset[1] = 0;
+    while (remainder[0])
+    {
+        if (remainder[0] < remainder[1])
+        {
+            memcpy(stream + offset[0], d + offset[1], remainder[0]);
+            offset[0] += remainder[0];
+            return l;
+        }
+        memcpy(stream + offset[0], d + offset[1], remainder[1]);
+#ifndef DEBUGGING
+        gcry_cipher_encrypt(c.cipher, stream + offset[0], block, NULL, 0);
+#endif /* !DEBUGGING */
+        int e = EXIT_SUCCESS;
+        if ((e = write(f, stream, block)) < 0)
+            return e;
+        offset[0] = 0;
+        memset(stream, 0x00, block);
+        offset[1] += remainder[1];
+        remainder[0] -= remainder[1];
+        remainder[1] = block - offset[0];
+    }
+    return l;
 }
 
-static int eread(int64_t f, void * const d, size_t l, gcry_cipher_hd_t c)
+static int eread(int64_t f, void * const d, size_t l, gcrypt_wrapper_t c)
 {
+    static uint8_t *stream = NULL;
+    static size_t current[2] = { 0, 0 };
+    static size_t block = 0;
+    if (!block)
+        gcry_cipher_algo_info(c.algorithm, GCRYCTL_GET_BLKLEN, NULL, &block);
     if (!stream)
-        if (!(stream = calloc(2 * block, sizeof( uint8_t ))))
+        if (!(stream = calloc(block, sizeof( uint8_t ))))
             die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
-    if (length == l)
+
+    current[1] = l;
+    off_t offset = 0;
+    while (true)
     {
-        memcpy(d, stream, l);
-        length = 0;
-        return l;
-    }
-    if (length > l)
-    {
-        memcpy(d, stream, l);
-        length -= l;
-        memmove(stream, stream + l, length);
-        return l;
-    }
-    int e = EXIT_SUCCESS;
-    memcpy(d, stream, length);
-    size_t i = length;
-    length = 0;
-    while (i < l)
-    {
-        e = read(f, stream, block);
+        if (current[0] >= current[1])
+        {
+            memcpy(d + offset, stream, current[1]);
+            current[0] -= current[1];
+            uint8_t *x = calloc(block, sizeof( uint8_t ));
+            memcpy(x, stream + current[1], current[0]);
+            memset(stream, 0x00, block);
+            memcpy(stream, x, current[0]);
+            free(x);
+            x = NULL;
+            return l;
+        }
+
+        memcpy(d + offset, stream, current[0]);
+        offset += current[0];
+        current[1] -= current[0];
+        current[0] = 0;
+
+        int e = EXIT_SUCCESS;
+        if ((e = read(f, stream, block)) < 0)
+            return e;
 #ifndef DEBUGGING
-        gcry_cipher_decrypt(c, stream, block, NULL, 0);
+        gcry_cipher_decrypt(c.cipher, stream, block, NULL, 0);
 #endif /* !DEBUGGING */
-        size_t j = block;
-        if (i + block > l)
-            j = block - (i + block - l);
-        memcpy(d + i, stream, j);
-        i += j;
-        length = block - j;
+        current[0] = block;
+
     }
-    memmove(stream, stream + block - length, length);
-    return e < 0 ? e : (int)l;
 }
 
 static int get_algorithm_hash(const char * const restrict n)
 {
     if (!n)
         return 0;
-    int list[0xff] = {0x00};
+    int list[0xff] = { 0x00 };
     int len = sizeof( list );
     gcry_md_list(list, &len);
     for (int i = 0; i < len; i++)
@@ -667,7 +700,7 @@ static int get_algorithm_crypt(const char * const restrict n)
 {
     if (!n)
         return 0;
-    int list[0xff] = {0x00};
+    int list[0xff] = { 0x00 };
     int len = sizeof( list );
     gcry_cipher_list(list, &len);
     for (int i = 0; i < len; i++)
@@ -761,3 +794,4 @@ static bool algorithm_is_duplicate(const char * const restrict n)
         return true;
     return false;
 }
+
