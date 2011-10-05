@@ -117,3 +117,4 @@
     extern void log_message(log_e l, const char * const restrict s, ...) __attribute__((format(printf, 2, 3)));
 
 #endif /* _COMMON_LOG_H_ */
+

@@ -123,3 +123,4 @@ extern void log_message(log_e l, const char * const restrict s, ...)
     }
     va_end(ap);
 }
+
