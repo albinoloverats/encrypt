@@ -54,8 +54,10 @@ char *FAILED_MESSAGE[] =
     NULL,
     NULL, /* "Success", */ /* ignore success, no message, just finish */
     "User cancelled operation!",
+    "Invalid parameter!",
     "Unsupported algorithm!",
     "Decryption verification failed!",
+    "Unknown tag value!",
     "Finished but with possible file corruption!"
     "An unknown error has occurred!",
 };
@@ -151,11 +153,10 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     log_message(LOG_DEBUG, "find algorithms");
     int mdi = 0;
     if (!(mdi = get_algorithm_hash(e.hash)))
-        die("could not find hash %s", e.hash);
+        return (status = FAILED_ALGORITHM);
     gcrypt_wrapper_t c_wrapper = { NULL, 0 };
-
     if (!(c_wrapper.algorithm = get_algorithm_crypt(e.cipher)))
-        die("could not find cipher %s", e.cipher);
+        return (status = FAILED_ALGORITHM);
 
     gcry_md_hd_t md = NULL;
     gcry_md_open(&md, mdi, GCRY_MD_FLAG_SECURE);
@@ -234,8 +235,8 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     memset(buffer, 0x00, 0xFF);
     /*
      * write various metadata about the original file (if any); start
-     * off writing the number of metadata entries (not the total number
-     * of bytes) and then a list of tlv's
+     * off writing the number of metadata entries and then a list of
+     * tlv's
      *
      * NB Old style (version 2011.08) only stored the size; newer
      * versions don't need to: they store a block size, and an
@@ -367,21 +368,17 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
      * read the standard header
      */
     if (!file_encrypted(f, &e))
-    {
-        log_message(LOG_ERROR, "file is not encrypted");
-        return FAILED_OTHER;
-    }
+        return (status = FAILED_PARAMETER);
     int mdi = 0;
     if (!(mdi = get_algorithm_hash(e.hash)))
-        die("could not find hash %s", e.hash);
+        return (status = FAILED_ALGORITHM);
     gcrypt_wrapper_t c_wrapper = { NULL, 0 };
     if (!(c_wrapper.algorithm = get_algorithm_crypt(e.cipher)))
-        die("could not find cipher %s", e.cipher);
+        return (status = FAILED_ALGORITHM);
 
     gcry_md_hd_t md = NULL;
     gcry_md_open(&md, mdi, GCRY_MD_FLAG_SECURE);
     gcry_cipher_open(&c_wrapper.cipher, c_wrapper.algorithm, GCRY_CIPHER_MODE_CBC, GCRY_CIPHER_SECURE);
-
     /*
      * generate key hash
      */
@@ -430,7 +427,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     if ((x ^ y) != z)
     {
         log_message(LOG_ERROR, "failed decryption attempt");
-        return FAILED_DECRYPTION;
+        return (status = FAILED_DECRYPTION);
     }
     /*
      * skip past random data
@@ -466,10 +463,14 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
                 log_message(LOG_VERBOSE, "file split into blocks of size: %ju", decrypted_size);
                 break;
             default:
+                log_message(LOG_WARNING, "unknown parameter: %hhx", tlv.tag);
+                status = FAILED_TAG;
                 break;
         }
         free(tlv.value);
         tlv.value = NULL;
+        if (status != RUNNING)
+            goto clean_up;
     }
     /*
      * main decryption loop
