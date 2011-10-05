@@ -90,6 +90,13 @@ extern bool file_encrypted_aux(int t, int64_t f, encrypt_t *e)
     switch (htonll(head[2]))
     {
         case HEADER_VERSION_201008: /* original release 2011.08 */
+            if (e)
+            {
+                e->blocked = false;
+#if 0
+                e->compressed = false;
+#endif
+            }
             break;
         case HEADER_VERSION_201110:
             if (e)
@@ -117,6 +124,7 @@ extern bool file_encrypted_aux(int t, int64_t f, encrypt_t *e)
     h++;
     e->cipher = strdup(c);
     e->hash = strdup(h);
+    h = NULL;
     free(c);
     c = NULL;
     log_message(LOG_INFO, "file has cipher %s", e->cipher);
@@ -229,7 +237,9 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
      * off writing the number of metadata entries (not the total number
      * of bytes) and then a list of tlv's
      *
-     * TODO store more than just size (required in all instances)
+     * NB Old style (version 2011.08) only stored the size; newer
+     * versions don't need to: they store a block size, and an
+     * indicator whether there are more blocks to come
      */
     l1 = 1;
 #if 0
@@ -238,22 +248,23 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
 #endif
     ewrite(g, &l1, sizeof( uint8_t ), c_wrapper);
 
-    l1 = TAG_SIZE;
+    if (e.blocked)
+    {
+        l1 = TAG_BLOCKED;
+        decrypted_size = BLOCK_SIZE; /* TODO eventually allow user defined block size */
+    }
+    else
+    {
+        l1 = TAG_SIZE;
+        decrypted_size = lseek(f, 0, SEEK_END);
+    }
     ewrite(g, &l1, sizeof( uint8_t ), c_wrapper);
     uint16_t l2 = htons(sizeof( uint64_t ));
     ewrite(g, &l2, sizeof( uint16_t ), c_wrapper);
-    decrypted_size = lseek(f, 0, SEEK_END);
     uint64_t l8 = htonll(decrypted_size);
     ewrite(g, &l8, sizeof( uint64_t ), c_wrapper);
 
 #if 0
-    l1 = TAG_BLOCKED;
-    ewrite(g, &l1, sizeof( uint8_t ), c_wrapper);
-    l2 = htons(sizeof( bool ));
-    ewrite(g, &l2, sizeof( uint16_t ), c_wrapper);
-    bool b1 = true;
-    ewrite(g, &b1, sizeof( bool ), c_wrapper);
-
     if (e.compressed)
     {
         /*
@@ -268,28 +279,49 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
         ewrite(g, &b1, sizeof( bool ), c_wrapper);
     }
 #endif
-    lseek(f, 0, SEEK_SET);
     /*
      * main encryption loop
      */
     log_message(LOG_DEBUG, "starting encryption process");
+    lseek(f, 0, SEEK_SET);
     /*
      * reset hash algorithm, so we can use it to generate a checksum of the plaintext data
      */
     gcry_md_reset(md);
-//    b1 = true;
-    for (bytes_processed = 0; bytes_processed < decrypted_size; bytes_processed += BLOCK_SIZE)
+    if (e.blocked)
     {
-        if (status == CANCELLED)
-            goto clean_up;
-        size_t y = BLOCK_SIZE;
-        if (bytes_processed + BLOCK_SIZE > decrypted_size)
-            y = BLOCK_SIZE - (bytes_processed + BLOCK_SIZE - decrypted_size);
-        uint8_t read_buffer[BLOCK_SIZE] = { 0x00 };
-        ssize_t r = read(f, read_buffer, y);
-        gcry_md_write(md, read_buffer, r);
-        ewrite(g, read_buffer, r, c_wrapper);
+        bool b1 = true;
+        uint8_t *read_buffer = malloc(decrypted_size);
+        while (b1)
+        {
+            if (status == CANCELLED)
+                goto clean_up;
+            gcry_create_nonce(read_buffer, decrypted_size);
+            uint64_t r = read(f, read_buffer, decrypted_size);
+            gcry_md_write(md, read_buffer, r);
+            if (r < decrypted_size)
+                b1 = false;
+            ewrite(g, &b1, sizeof( bool ), c_wrapper);
+            ewrite(g, read_buffer, decrypted_size, c_wrapper);
+            if (!b1)
+                ewrite(g, &r, sizeof( uint64_t ), c_wrapper);
+        }
+        free(read_buffer);
+        read_buffer = NULL;
     }
+    else /* old style encryption - relied on knowing the original size */
+        for (bytes_processed = 0; bytes_processed < decrypted_size; bytes_processed += BLOCK_SIZE)
+        {
+            if (status == CANCELLED)
+                goto clean_up;
+            size_t l = BLOCK_SIZE;
+            if (bytes_processed + BLOCK_SIZE > decrypted_size)
+                l = BLOCK_SIZE - (bytes_processed + BLOCK_SIZE - decrypted_size);
+            uint8_t read_buffer[BLOCK_SIZE] = { 0x00 };
+            ssize_t r = read(f, read_buffer, l);
+            gcry_md_write(md, read_buffer, r);
+            ewrite(g, read_buffer, r, c_wrapper);
+        }
     /*
      * write data checksum
      */
@@ -413,7 +445,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     eread(f, &l1, sizeof( l1 ), c_wrapper);
     for (int i = 0; i < l1; i++)
     {
-        tlv_t tlv = { 0, 0, NULL };
+        tlv_t tlv = { 1, 0, NULL };
         eread(f, &tlv.tag, sizeof( uint8_t ), c_wrapper);
         eread(f, &tlv.length, sizeof( uint16_t ), c_wrapper);
         tlv.length = ntohs(tlv.length);
@@ -427,13 +459,11 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
                 decrypted_size = ntohll(decrypted_size);
                 log_message(LOG_VERBOSE, "found size: %ju", decrypted_size);
                 break;
-            case TAG_COMPRESSED:
-                {
-                    bool b1 = false;
-                    memcpy(&b1, tlv.value, sizeof( bool ));
-                    e.compressed = b1;
-                }
-                log_message(LOG_VERBOSE, "compressed: %s", e.compressed ? "true" : "false");
+            case TAG_BLOCKED:
+                memcpy(&decrypted_size, tlv.value, sizeof( uint64_t ));
+                decrypted_size = ntohll(decrypted_size);
+                e.blocked = true;
+                log_message(LOG_VERBOSE, "file split into blocks of size: %ju", decrypted_size);
                 break;
             default:
                 break;
@@ -449,35 +479,57 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
      * reset hash algorithm, so we can use it to generate a checksum of the plaintext data
      */
     gcry_md_reset(md);
-    for (bytes_processed = 0; bytes_processed < decrypted_size; bytes_processed += BLOCK_SIZE)
+    if (e.blocked)
     {
-        if (status == CANCELLED)
-            goto clean_up;
-        size_t y = BLOCK_SIZE;
-        if (bytes_processed + BLOCK_SIZE > decrypted_size)
-            y = BLOCK_SIZE - (bytes_processed + BLOCK_SIZE - decrypted_size);
-        uint8_t read_buffer[BLOCK_SIZE] = { 0x00 };
-        ssize_t r = eread(f, read_buffer, y, c_wrapper);
-        gcry_md_write(md, read_buffer, r);
-        write(g, read_buffer, r);
+        bool b1 = true;
+        uint8_t *read_buffer = malloc(decrypted_size);
+        while (b1)
+        {
+            if (status == CANCELLED)
+                goto clean_up;
+            eread(f, &b1, sizeof( bool ), c_wrapper);
+            uint64_t r = eread(f, read_buffer, decrypted_size, c_wrapper);
+            if (!b1)
+                eread(f, &r, sizeof( uint64_t ), c_wrapper);
+            gcry_md_write(md, read_buffer, r);
+            write(g, read_buffer, r);
+        }
+        free(read_buffer);
+        read_buffer = NULL;
     }
+    else /* old style decryption - relied on knowing the original size */
+        for (bytes_processed = 0; bytes_processed < decrypted_size; bytes_processed += BLOCK_SIZE)
+        {
+            if (status == CANCELLED)
+                goto clean_up;
+            size_t l = BLOCK_SIZE;
+            if (bytes_processed + BLOCK_SIZE > decrypted_size)
+                l = BLOCK_SIZE - (bytes_processed + BLOCK_SIZE - decrypted_size);
+            uint8_t read_buffer[BLOCK_SIZE] = { 0x00 };
+            ssize_t r = eread(f, read_buffer, l, c_wrapper);
+            gcry_md_write(md, read_buffer, r);
+            write(g, read_buffer, r);
+        }
     /*
-     * compare data checksum
+     * compare data checksum (but only if the file was encrypted
+     * with a recent version that create the checksum correctly)
      */
-    gcry_md_final(md);
-    ma = gcry_md_get_algo(md);
-    uint8_t *cs = gcry_md_read(md, ma);
-    eread(f, buffer, e.key.h_length, c_wrapper);
-    log_message(LOG_DEBUG, "verifying checksum");
-    log_binary(LOG_VERBOSE, cs, e.key.h_length);
-    log_binary(LOG_VERBOSE, buffer, e.key.h_length);
-    if (memcmp(cs, buffer, e.key.h_length))
+    status = SUCCEEDED;
+    if (e.blocked)
     {
-        log_message(LOG_ERROR, "checksum verification failed");
-        status = FAILED_CHECKSUM;
+        gcry_md_final(md);
+        ma = gcry_md_get_algo(md);
+        uint8_t *cs = gcry_md_read(md, ma);
+        eread(f, buffer, e.key.h_length, c_wrapper);
+        log_message(LOG_DEBUG, "verifying checksum");
+        log_binary(LOG_VERBOSE, cs, e.key.h_length);
+        log_binary(LOG_VERBOSE, buffer, e.key.h_length);
+        if (memcmp(cs, buffer, e.key.h_length))
+        {
+            log_message(LOG_ERROR, "checksum verification failed");
+            status = FAILED_CHECKSUM;
+        }
     }
-    else
-        status = SUCCEEDED;
     memset(buffer, 0x00, 0xFF);
 
 clean_up:
@@ -610,7 +662,7 @@ static int ewrite(int64_t f, const void * const restrict d, size_t l, gcrypt_wra
         }
         memcpy(stream + offset[0], d + offset[1], remainder[1]);
 #ifndef DEBUGGING
-        gcry_cipher_encrypt(c.cipher, stream + offset[0], block, NULL, 0);
+        gcry_cipher_encrypt(c.cipher, stream, block, NULL, 0);
 #endif /* !DEBUGGING */
         int e = EXIT_SUCCESS;
         if ((e = write(f, stream, block)) < 0)
