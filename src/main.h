@@ -32,3 +32,4 @@
 extern pthread_t ui_thread_initialise2(void *(fn)(void *), void *n);
 
 #endif /* _MAIN_H_ */
+

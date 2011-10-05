@@ -69,7 +69,9 @@ int main(int argc, char **argv)
     list_append(&opts, &crypt);
     list_append(&opts, &password);
     list_append(&opts, &keyfile);
+#if 0 /* no compression yet */
     list_append(&opts, &compress);
+#endif
 
     list_t *unknown = init(E_ENCRYPT, E_VERSION, USAGE_STRING, argv, NULL, opts);
     /*
@@ -177,7 +179,7 @@ int main(int argc, char **argv)
         log_message(LOG_DEBUG, "opened %s for write access", nm);
     }
 
-    encrypt_t e_data = { crypt.option, hash.option, { NULL, 0, NULL, 0 }, compress.found };
+    encrypt_t e_data = { crypt.option, hash.option, { NULL, 0, NULL, 0 }, true, compress.found };
     /*
      * get raw key data in form of password/phrase, key file
      */
@@ -284,3 +286,4 @@ static bool list_algorithms_crypt(void)
         fprintf(stderr, "%s\n", (char *)list_get(l, i));
     return true;
 }
+
