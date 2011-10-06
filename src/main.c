@@ -286,4 +286,3 @@ static bool list_algorithms_crypt(void)
         fprintf(stderr, "%s\n", (char *)list_get(l, i));
     return true;
 }
-

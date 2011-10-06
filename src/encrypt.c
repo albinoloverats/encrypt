@@ -847,4 +847,3 @@ static bool algorithm_is_duplicate(const char * const restrict n)
         return true;
     return false;
 }
-

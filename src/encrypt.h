@@ -152,4 +152,3 @@ static bool algorithm_is_duplicate(const char * const restrict n);
 
 #undef __ENCRYPT__H__
 #endif /* __ENCRYPT__H__ */
-
