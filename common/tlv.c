@@ -56,4 +56,3 @@ extern uint64_t tlv_build(uint8_t **b, list_t *l)
     }
     return z;
 }
-
