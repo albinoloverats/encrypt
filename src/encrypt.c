@@ -240,29 +240,32 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
      *
      * NB Old style (version 2011.08) only stored the size; newer
      * versions don't need to: they store a block size, and an
-     * indicator whether there are more blocks to come
+     * indicator whether there are more blocks to come, however we
+     * do still store the original file size so that during the
+     * decryption process we can display a rough guess at current
+     * progress
      */
-    l1 = 1;
+    l1 = 2;
 #if 0
     if (e.compressed)
         l1++;
 #endif
     ewrite(g, &l1, sizeof( uint8_t ), c_wrapper);
 
-    if (e.blocked)
-    {
-        l1 = TAG_BLOCKED;
-        decrypted_size = BLOCK_SIZE; /* TODO eventually allow user defined block size */
-    }
-    else
-    {
-        l1 = TAG_SIZE;
-        decrypted_size = lseek(f, 0, SEEK_END);
-    }
+    l1 = TAG_SIZE;
+    decrypted_size = lseek(f, 0, SEEK_END);
     ewrite(g, &l1, sizeof( uint8_t ), c_wrapper);
     uint16_t l2 = htons(sizeof( uint64_t ));
     ewrite(g, &l2, sizeof( uint16_t ), c_wrapper);
     uint64_t l8 = htonll(decrypted_size);
+    ewrite(g, &l8, sizeof( uint64_t ), c_wrapper);
+
+    uint64_t block_size = BLOCK_SIZE /* TODO eventually allow user defined block size */;
+    l1 = TAG_BLOCKED;
+    ewrite(g, &l1, sizeof( uint8_t ), c_wrapper);
+    l2 = htons(sizeof( uint64_t ));
+    ewrite(g, &l2, sizeof( uint16_t ), c_wrapper);
+    l8 = htonll(block_size);
     ewrite(g, &l8, sizeof( uint64_t ), c_wrapper);
 
 #if 0
@@ -289,40 +292,25 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
      * reset hash algorithm, so we can use it to generate a checksum of the plaintext data
      */
     gcry_md_reset(md);
-    if (e.blocked)
+    bool b1 = true;
+    uint8_t *read_buffer = malloc(block_size);
+    while (b1)
     {
-        bool b1 = true;
-        uint8_t *read_buffer = malloc(decrypted_size);
-        while (b1)
-        {
-            if (status == CANCELLED)
-                goto clean_up;
-            gcry_create_nonce(read_buffer, decrypted_size);
-            uint64_t r = read(f, read_buffer, decrypted_size);
-            gcry_md_write(md, read_buffer, r);
-            if (r < decrypted_size)
-                b1 = false;
-            ewrite(g, &b1, sizeof( bool ), c_wrapper);
-            ewrite(g, read_buffer, decrypted_size, c_wrapper);
-            if (!b1)
-                ewrite(g, &r, sizeof( uint64_t ), c_wrapper);
-        }
-        free(read_buffer);
-        read_buffer = NULL;
+        if (status == CANCELLED)
+            goto clean_up;
+        gcry_create_nonce(read_buffer, block_size);
+        uint64_t r = read(f, read_buffer, block_size);
+        gcry_md_write(md, read_buffer, r);
+        if (r < block_size)
+            b1 = false;
+        ewrite(g, &b1, sizeof( bool ), c_wrapper);
+        ewrite(g, read_buffer, block_size, c_wrapper);
+        if (!b1)
+            ewrite(g, &r, sizeof( uint64_t ), c_wrapper);
+        bytes_processed += block_size;
     }
-    else /* old style encryption - relied on knowing the original size */
-        for (bytes_processed = 0; bytes_processed < decrypted_size; bytes_processed += BLOCK_SIZE)
-        {
-            if (status == CANCELLED)
-                goto clean_up;
-            size_t l = BLOCK_SIZE;
-            if (bytes_processed + BLOCK_SIZE > decrypted_size)
-                l = BLOCK_SIZE - (bytes_processed + BLOCK_SIZE - decrypted_size);
-            uint8_t read_buffer[BLOCK_SIZE] = { 0x00 };
-            ssize_t r = read(f, read_buffer, l);
-            gcry_md_write(md, read_buffer, r);
-            ewrite(g, read_buffer, r, c_wrapper);
-        }
+    free(read_buffer);
+    read_buffer = NULL;
     /*
      * write data checksum
      */
@@ -440,6 +428,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
      * read the original file metadata - skip any unknown tag values
      */
     eread(f, &l1, sizeof( l1 ), c_wrapper);
+    uint64_t block_size = 0;
     for (int i = 0; i < l1; i++)
     {
         tlv_t tlv = { 1, 0, NULL };
@@ -457,10 +446,10 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
                 log_message(LOG_VERBOSE, "found size: %ju", decrypted_size);
                 break;
             case TAG_BLOCKED:
-                memcpy(&decrypted_size, tlv.value, sizeof( uint64_t ));
-                decrypted_size = ntohll(decrypted_size);
+                memcpy(&block_size, tlv.value, sizeof( uint64_t ));
+                block_size = ntohll(block_size);
                 e.blocked = true;
-                log_message(LOG_VERBOSE, "file split into blocks of size: %ju", decrypted_size);
+                log_message(LOG_VERBOSE, "file split into blocks of size: %ju", block_size);
                 break;
             default:
                 log_message(LOG_WARNING, "unknown parameter: %hhx", tlv.tag);
@@ -483,17 +472,18 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     if (e.blocked)
     {
         bool b1 = true;
-        uint8_t *read_buffer = malloc(decrypted_size);
+        uint8_t *read_buffer = malloc(block_size);
         while (b1)
         {
             if (status == CANCELLED)
                 goto clean_up;
             eread(f, &b1, sizeof( bool ), c_wrapper);
-            uint64_t r = eread(f, read_buffer, decrypted_size, c_wrapper);
+            uint64_t r = eread(f, read_buffer, block_size, c_wrapper);
             if (!b1)
                 eread(f, &r, sizeof( uint64_t ), c_wrapper);
             gcry_md_write(md, read_buffer, r);
             write(g, read_buffer, r);
+            bytes_processed += r;
         }
         free(read_buffer);
         read_buffer = NULL;
@@ -680,35 +670,35 @@ static int ewrite(int64_t f, const void * const restrict d, size_t l, gcrypt_wra
 static int eread(int64_t f, void * const d, size_t l, gcrypt_wrapper_t c)
 {
     static uint8_t *stream = NULL;
-    static size_t current[2] = { 0, 0 };
     static size_t block = 0;
+    static size_t offset[3] = { 0, 0, 0 };
     if (!block)
         gcry_cipher_algo_info(c.algorithm, GCRYCTL_GET_BLKLEN, NULL, &block);
     if (!stream)
         if (!(stream = calloc(block, sizeof( uint8_t ))))
             die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
 
-    current[1] = l;
-    off_t offset = 0;
+    offset[1] = l;
+    offset[2] = 0;
     while (true)
     {
-        if (current[0] >= current[1])
+        if (offset[0] >= offset[1])
         {
-            memcpy(d + offset, stream, current[1]);
-            current[0] -= current[1];
+            memcpy(d + offset[2], stream, offset[1]);
+            offset[0] -= offset[1];
             uint8_t *x = calloc(block, sizeof( uint8_t ));
-            memcpy(x, stream + current[1], current[0]);
+            memcpy(x, stream + offset[1], offset[0]);
             memset(stream, 0x00, block);
-            memcpy(stream, x, current[0]);
+            memcpy(stream, x, offset[0]);
             free(x);
             x = NULL;
             return l;
         }
 
-        memcpy(d + offset, stream, current[0]);
-        offset += current[0];
-        current[1] -= current[0];
-        current[0] = 0;
+        memcpy(d + offset[2], stream, offset[0]);
+        offset[2] += offset[0];
+        offset[1] -= offset[0];
+        offset[0] = 0;
 
         int e = EXIT_SUCCESS;
         if ((e = read(f, stream, block)) < 0)
@@ -716,8 +706,7 @@ static int eread(int64_t f, void * const d, size_t l, gcrypt_wrapper_t c)
 #ifndef DEBUGGING
         gcry_cipher_decrypt(c.cipher, stream, block, NULL, 0);
 #endif /* !DEBUGGING */
-        current[0] = block;
-
+        offset[0] = block;
     }
 }
 
