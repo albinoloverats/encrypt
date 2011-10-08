@@ -91,4 +91,14 @@ public abstract class Convert
     {
         return (byte)((int)b[0] & 0x000000FF);
     }
+
+    public static byte[] toBytes(final boolean x)
+    {
+        return toBytes((byte)(x ? 1 : 0));
+    }
+
+    public static boolean booleanFromBytes(final byte[] b)
+    {
+        return ((int)b[0] & 0x000000FF) == 1 ? true : false;
+    }
 }

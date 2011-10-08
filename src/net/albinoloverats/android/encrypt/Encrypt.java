@@ -34,6 +34,7 @@ import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,9 +68,10 @@ public class Encrypt extends Thread implements Runnable
 
     private enum MetaData
     {
-        SIZE((byte)0);
+        SIZE((byte)0),
+        BLOCKED((byte)1);
 
-        private byte tag;
+        private final byte tag;
 
         private MetaData(final byte tag)
         {
@@ -90,14 +92,11 @@ public class Encrypt extends Thread implements Runnable
         }
     }
 
-    private enum Features
-    {
-        NONE;
-    }
-
     private static final long HEADER_VERSION_201108 = 0x72761df3e497c983L;
     private static final long HEADER_VERSION_201110 = 0xbb116f7d00201110L;
     private static final long[] HEADER = { 0x3697de5d96fca0faL, 0xc845c2fa95e2f52dL, HEADER_VERSION_201110 };
+
+    private static final int BLOCK_SIZE = 1024;
 
     private File sourceFile;
     private File outputFile;
@@ -105,16 +104,12 @@ public class Encrypt extends Thread implements Runnable
     private String hashName;
     private String cipherName;
 
-    private byte[] streamBytes = null;
-    private int streamLength = 0;
-
     private boolean encrypting = true;
 
     private long decryptedSize = 0;
     private long bytesProcessed = 0;
 
     private Status status = Status.NOT_STARTED;
-    private Features features = Features.NONE;
 
     public Encrypt(final File sourceFile, final File outputFile, final byte[] keyData, final String hashName, final String cipherName)
     {
@@ -137,6 +132,10 @@ public class Encrypt extends Thread implements Runnable
     @Override
     public void run()
     {
+        this.stream = null;
+        this.block = 0;
+        this.offset = new int[3];
+
         status = Status.RUNNING;
         try
         {
@@ -198,24 +197,20 @@ public class Encrypt extends Thread implements Runnable
         try
         {
             in = new FileInputStream(f);
+            byte[] header = new byte[Long.SIZE / Byte.SIZE];
             for (int i = 0; i < 2; i++)
             {
-                byte[] header = new byte[Long.SIZE / Byte.SIZE];
                 in.read(header, 0, header.length);
                 if (Convert.longFromBytes(header) != HEADER[i])
                     return false;
             }
             in.read(header, 0, header.length);
-            switch (Convert.longFromBytes(header))
-            {
-                case HEADER_VERSION_201108:
-                case HEADER_VERSION_201110:
-                    features = Features.NONE;
-                    break;
-                default:
-                    return false; /* throw exception to indicate version not supported */
-            }
-            return true;
+            final long encryptedVersion = Convert.longFromBytes(header);
+            if (encryptedVersion == HEADER_VERSION_201108)
+                return true;
+            else if (encryptedVersion == HEADER_VERSION_201110)
+                return true;
+            return false;
         }
         catch (final IOException e)
         {
@@ -232,14 +227,11 @@ public class Encrypt extends Thread implements Runnable
             {
                 ;
             }
-        }
+        }        
     }
 
     private void encrypt() throws InterruptedException, IOException, NoSuchAlgorithmException, InvalidKeyException
     {
-        streamBytes = null;
-        streamLength = 0;
-
         final IMessageDigest hash = AlgorithmNames.getHashAlgorithm(hashName);
         final IBlockCipher cipher = AlgorithmNames.getCipherAlgorithm(cipherName);
         final int blockLength = cipher.defaultBlockSize();
@@ -260,7 +252,7 @@ public class Encrypt extends Thread implements Runnable
             out.write((byte)algos.length());
             out.write(algos.getBytes());
             /*
-             * write hash of key data
+             * setup crypto algorithms
              */
             hash.update(keyData, 0, keyData.length);
             final byte[] key = hash.digest();
@@ -303,29 +295,38 @@ public class Encrypt extends Thread implements Runnable
             /*
              * write file metadata
              */
-            encryptedWrite(out, Convert.toBytes((byte)1), crypt);
+            encryptedWrite(out, Convert.toBytes((byte)2), crypt);
 
             encryptedWrite(out, Convert.toBytes(MetaData.SIZE.getTagValue()), crypt);
             encryptedWrite(out, Convert.toBytes((short)(Long.SIZE / Byte.SIZE)), crypt);
             decryptedSize = sourceFile.length();
             encryptedWrite(out, Convert.toBytes(decryptedSize), crypt);
+
+            encryptedWrite(out, Convert.toBytes(MetaData.BLOCKED.getTagValue()), crypt);
+            encryptedWrite(out, Convert.toBytes((short)(Long.SIZE / Byte.SIZE)), crypt);
+            encryptedWrite(out, Convert.toBytes((long)BLOCK_SIZE), crypt);
+
             /*
              * main encryption loop
              */
             in = new FileInputStream(sourceFile);
-            buffer = new byte[blockLength];
+            buffer = new byte[BLOCK_SIZE];
             hash.reset();
-            for (bytesProcessed = 0; bytesProcessed < decryptedSize; bytesProcessed += blockLength)
+            boolean b1 = true;
+            while (b1)
             {
                 if (interrupted())
                     throw new InterruptedException();
-                int r = blockLength;
-                if (bytesProcessed + blockLength > decryptedSize)
-                    r = (int)(blockLength - (bytesProcessed + blockLength - decryptedSize));
-                buffer = new byte[r];
-                in.read(buffer, 0, r);
-                hash.update(buffer, 0, r);
+                PRNG.nextBytes(buffer);
+                int r = in.read(buffer, 0, BLOCK_SIZE);
+                if (r < BLOCK_SIZE)
+                    b1 = false;
+                encryptedWrite(out, Convert.toBytes(b1), crypt);
                 encryptedWrite(out, buffer, crypt);
+                hash.update(buffer, 0, r);
+                if (!b1)
+                    encryptedWrite(out, Convert.toBytes((long)r), crypt);
+                bytesProcessed += r;
             }
             /*
              * write check sum of data
@@ -360,9 +361,6 @@ public class Encrypt extends Thread implements Runnable
 
     private void decrypt() throws InterruptedException,  IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidParameterException, SignatureException
     {
-        streamBytes = null;
-        streamLength = 0;
-
         FileInputStream in = null;
         FileOutputStream out = null;
         try
@@ -433,6 +431,7 @@ public class Encrypt extends Thread implements Runnable
             encryptedRead(in, singleByte, crypt);
             final byte tags = Convert.byteFromBytes(singleByte);
             byte[] doubleByte = new byte[Short.SIZE / Byte.SIZE];
+            int blockSize = 0;
             for (int i = 0; i < tags; i++)
             {
                 encryptedRead(in, singleByte, crypt);
@@ -446,6 +445,8 @@ public class Encrypt extends Thread implements Runnable
                     case SIZE:
                         decryptedSize = Convert.longFromBytes(buffer); 
                         break;
+                    case BLOCKED:
+                        blockSize = (int)Convert.longFromBytes(buffer);
                     default:
                         break;
                 }
@@ -456,27 +457,55 @@ public class Encrypt extends Thread implements Runnable
              * main decryption loop
              */
             hash.reset();
-            for (bytesProcessed = 0; bytesProcessed < decryptedSize; bytesProcessed += blockLength)
+            if (blockSize > 0)
             {
-                if (interrupted())
-                    throw new InterruptedException();
-                int j = blockLength;
-                if (bytesProcessed + blockLength > decryptedSize)
-                    j = (int)(blockLength - (bytesProcessed + blockLength - decryptedSize));
-                buffer = new byte[j];
-                encryptedRead(in, buffer, crypt);
-                hash.update(buffer, 0, j);
-                out.write(buffer);
+                final byte[] booleanByte = new byte[1];
+                final byte[] longBytes = new byte[Long.SIZE / Byte.SIZE];
+                boolean b1 = true;
+                buffer = new byte[BLOCK_SIZE];
+                while (b1)
+                {
+                    if (interrupted())
+                        throw new InterruptedException();
+                    encryptedRead(in, booleanByte, crypt);
+                    b1 = Convert.booleanFromBytes(booleanByte);
+                    int r = BLOCK_SIZE;
+                    encryptedRead(in, buffer, crypt);
+                    if (!b1)
+                    {
+                        encryptedRead(in, longBytes, crypt);
+                        r = (int)Convert.longFromBytes(longBytes);
+                        byte[] tmp = new byte[r];
+                        System.arraycopy(buffer, 0, tmp, 0, r);
+                        buffer = new byte[r];
+                        System.arraycopy(tmp, 0, buffer, 0, r);
+                    }
+                    hash.update(buffer, 0, r);
+                    out.write(buffer);
+                    bytesProcessed += r;
+                }
             }
+            else
+                for (bytesProcessed = 0; bytesProcessed < decryptedSize; bytesProcessed += blockLength)
+                {
+                    if (interrupted())
+                        throw new InterruptedException();
+                    int j = blockLength;
+                    if (bytesProcessed + blockLength > decryptedSize)
+                        j = (int)(blockLength - (bytesProcessed + blockLength - decryptedSize));
+                    buffer = new byte[j];
+                    encryptedRead(in, buffer, crypt);
+                    hash.update(buffer, 0, j);
+                    out.write(buffer);
+                }
             /*
              * compare checksums of plain data
              */
-            // FIXME checksum verification fails - why? 
-//            buffer = new byte[hash.hashSize()];
-//            encryptedRead(in, buffer, crypt);
-//            final byte[] digest = hash.digest();
-//            if (!Arrays.equals(buffer, digest))
-//                throw new SignatureException();
+            buffer = new byte[hash.hashSize()];
+            encryptedRead(in, buffer, crypt);
+            final byte[] digest = hash.digest();
+            if (!Arrays.equals(buffer, digest))
+                throw new SignatureException();
         }
         finally
         {
@@ -494,64 +523,66 @@ public class Encrypt extends Thread implements Runnable
         }
     }
 
+    private byte[] stream = null;
+    private int block = 0;
+    private int[] offset = { 0, 0, 0 };
+    
     private void encryptedWrite(final FileOutputStream out, final byte[] bytes, final IMode cipher) throws IOException
     {
-        final int block = cipher.defaultBlockSize();
-        if (streamBytes == null)
-            streamBytes = new byte[block];
-        int bytesWritten = 0, bytesRemaining = bytes.length;
-        while ((bytesRemaining + streamLength) >= block)
+        if (block == 0)
+            block = cipher.defaultBlockSize();
+        if (stream == null)
+            stream = new byte[block];
+        int[] remainder = { bytes.length, block - offset[0] };
+        offset[1] = 0;
+        while (remainder[0] > 0)
         {
-            System.arraycopy(bytes, bytesWritten, streamBytes, streamLength, block - streamLength);
-            final byte[] encryptedBytes = new byte[block];
-            cipher.update(streamBytes, 0, encryptedBytes, 0);
-            //System.arraycopy(streamBytes, 0, encryptedBytes, 0, block);
-            out.write(encryptedBytes);
-            bytesWritten += (block - streamLength);
-            bytesRemaining -= (block - streamLength);
-            streamBytes = new byte[block];
-            streamLength = 0;
+            if (remainder[0] < remainder[1])
+            {
+                System.arraycopy(stream, offset[0], bytes, offset[1], remainder[0]);
+                offset[0] += remainder[0];
+                return;
+            }
+            System.arraycopy(stream, offset[0], bytes, offset[1], remainder[1]);
+            final byte[]eBytes = new byte[block];
+            cipher.update(stream, 0, eBytes, 0);
+            out.write(eBytes);
+            offset[0] = 0;
+            stream = new byte[block];
+            offset[1] += remainder[1];
+            remainder[0] -= remainder[1];
+            remainder[1] = block - offset[0];
         }
-        System.arraycopy(bytes, bytesWritten, streamBytes, streamLength, bytesRemaining);
-        streamLength += bytesRemaining;
         return;
     }
 
     private void encryptedRead(final FileInputStream in, byte[] bytes, final IMode cipher) throws IOException
     {
-        final int block = cipher.defaultBlockSize();
-        if (streamBytes == null)
-            streamBytes = new byte[2 * block];
-        if (streamLength == bytes.length)
+        if (block == 0)
+            block = cipher.defaultBlockSize();
+        if (stream == null)
+            stream = new byte[block];
+        offset[1] = bytes.length;
+        offset[2] = 0;
+        while (true)
         {
-            System.arraycopy(streamBytes, 0, bytes, 0, bytes.length);
-            streamLength = 0;
-            return;
+            if (offset[0] >= offset[1])
+            {
+                System.arraycopy(bytes, offset[2], stream, 0, offset[1]);
+                offset[0] -= offset[1];
+                final byte[] x = new byte[block];
+                System.arraycopy(x, 0, stream, offset[1], offset[0]);
+                stream = new byte[block];
+                System.arraycopy(stream, 0, x, 0, offset[0]);
+            }
+            System.arraycopy(bytes, offset[2], stream, 0, offset[0]);
+            offset[2] += offset[0];
+            offset[1] -= offset[0];
+            offset[0] = 0;
+            final byte[] eBytes = new byte[block];
+            in.read(eBytes);
+            cipher.update(eBytes, 0, stream, 0);
+            offset[0] = block;
         }
-        if (streamLength > bytes.length)
-        {
-            System.arraycopy(streamBytes, 0, bytes, 0, bytes.length);
-            streamLength -= bytes.length;
-            System.arraycopy(streamBytes, bytes.length, streamBytes, 0, streamLength);
-            return;
-        }
-        System.arraycopy(streamBytes, 0, bytes, 0, streamLength);
-        int i = streamLength;
-        streamLength = 0;
-        while (i < bytes.length)
-        {
-            final byte[] encryptedBytes = new byte[block];
-            in.read(encryptedBytes, 0, block);
-            cipher.update(encryptedBytes, 0, streamBytes, 0);
-            //System.arraycopy(encryptedBytes, 0, streamBytes, 0, block);
-            int j = block;
-            if (i + block > bytes.length)
-                j = block - (i + block - bytes.length);
-            System.arraycopy(streamBytes, 0, bytes, i, j);
-            i += j;
-            streamLength = block - j;
-        }
-        System.arraycopy(streamBytes, block - streamLength, streamBytes, 0, streamLength);
-        return;
     }
 }
