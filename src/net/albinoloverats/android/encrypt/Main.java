@@ -401,6 +401,9 @@ public class Main extends Activity
                 case FAILED_DECRYPTION:
                     finished = getString(R.string.failed_decryption);
                     break;
+                case FAILED_UNKNOWN_TAG:
+                    finished = getString(R.string.failed_unknown_tag);
+                    break;
                 case FAILED_CHECKSUM:
                     finished = getString(R.string.failed_checksum);
                     break;
