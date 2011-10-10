@@ -306,7 +306,10 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
         ewrite(g, &b1, sizeof( bool ), c_wrapper);
         ewrite(g, read_buffer, block_size, c_wrapper);
         if (!b1)
+        {
+            r = htonll(r);
             ewrite(g, &r, sizeof( uint64_t ), c_wrapper);
+        }
         bytes_processed += block_size;
     }
     free(read_buffer);
@@ -480,7 +483,10 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
             eread(f, &b1, sizeof( bool ), c_wrapper);
             uint64_t r = eread(f, read_buffer, block_size, c_wrapper);
             if (!b1)
+            {
                 eread(f, &r, sizeof( uint64_t ), c_wrapper);
+                r = ntohll(r);
+            }
             gcry_md_write(md, read_buffer, r);
             write(g, read_buffer, r);
             bytes_processed += r;
