@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.NoSuchAlgorithmException;
@@ -51,6 +52,7 @@ public class Encrypt extends Thread implements Runnable
         FAILED_KEY,
         FAILED_IO,
         FAILED_DECRYPTION,
+        FAILED_UNKNOWN_TAG,
         FAILED_CHECKSUM;
 
         private String additional;
@@ -149,10 +151,6 @@ public class Encrypt extends Thread implements Runnable
         {
             status = Status.CANCELLED;
         }
-        catch (final IOException e)
-        {
-            status = Status.FAILED_IO;
-        }
         catch (final NoSuchAlgorithmException e)
         {
             status = Status.FAILED_ALGORITHM;
@@ -166,9 +164,17 @@ public class Encrypt extends Thread implements Runnable
         {
             status = Status.FAILED_DECRYPTION;
         }
+        catch (final UnsupportedEncodingException e)
+        {
+            status = Status.FAILED_UNKNOWN_TAG;
+        }
         catch (final SignatureException e)
         {
             status = Status.FAILED_CHECKSUM;
+        }
+        catch (final IOException e)
+        {
+            status = Status.FAILED_IO;
         }
         catch (final Exception e)
         {
@@ -318,7 +324,7 @@ public class Encrypt extends Thread implements Runnable
                 if (interrupted())
                     throw new InterruptedException();
                 PRNG.nextBytes(buffer);
-                int r = in.read(buffer, 0, BLOCK_SIZE);
+                final int r = in.read(buffer, 0, BLOCK_SIZE);
                 if (r < BLOCK_SIZE)
                     b1 = false;
                 encryptedWrite(out, Convert.toBytes(b1), crypt);
@@ -359,7 +365,7 @@ public class Encrypt extends Thread implements Runnable
         }
     }
 
-    private void decrypt() throws InterruptedException,  IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidParameterException, SignatureException
+    private void decrypt() throws InterruptedException,  IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidParameterException, UnsupportedEncodingException, SignatureException
     {
         FileInputStream in = null;
         FileOutputStream out = null;
@@ -447,8 +453,9 @@ public class Encrypt extends Thread implements Runnable
                         break;
                     case BLOCKED:
                         blockSize = (int)Convert.longFromBytes(buffer);
-                    default:
                         break;
+                    default:
+                        throw new UnsupportedEncodingException();
                 }
             }
 
@@ -459,19 +466,19 @@ public class Encrypt extends Thread implements Runnable
             hash.reset();
             if (blockSize > 0)
             {
-                final byte[] booleanByte = new byte[1];
+                final byte[] booleanBytes = new byte[1];
                 final byte[] longBytes = new byte[Long.SIZE / Byte.SIZE];
-                boolean b1 = true;
+                boolean booleanByte = true;
                 buffer = new byte[BLOCK_SIZE];
-                while (b1)
+                while (booleanByte)
                 {
                     if (interrupted())
                         throw new InterruptedException();
-                    encryptedRead(in, booleanByte, crypt);
-                    b1 = Convert.booleanFromBytes(booleanByte);
+                    encryptedRead(in, booleanBytes, crypt);
+                    booleanByte = Convert.booleanFromBytes(booleanBytes);
                     int r = BLOCK_SIZE;
                     encryptedRead(in, buffer, crypt);
-                    if (!b1)
+                    if (!booleanByte)
                     {
                         encryptedRead(in, longBytes, crypt);
                         r = (int)Convert.longFromBytes(longBytes);
@@ -539,11 +546,11 @@ public class Encrypt extends Thread implements Runnable
         {
             if (remainder[0] < remainder[1])
             {
-                System.arraycopy(stream, offset[0], bytes, offset[1], remainder[0]);
+                System.arraycopy(bytes, offset[1], stream, offset[0], remainder[0]);
                 offset[0] += remainder[0];
                 return;
             }
-            System.arraycopy(stream, offset[0], bytes, offset[1], remainder[1]);
+            System.arraycopy(bytes, offset[1], stream, offset[0], remainder[1]);
             final byte[]eBytes = new byte[block];
             cipher.update(stream, 0, eBytes, 0);
             out.write(eBytes);
@@ -568,14 +575,15 @@ public class Encrypt extends Thread implements Runnable
         {
             if (offset[0] >= offset[1])
             {
-                System.arraycopy(bytes, offset[2], stream, 0, offset[1]);
+                System.arraycopy(stream, 0, bytes, offset[2], offset[1]);
                 offset[0] -= offset[1];
                 final byte[] x = new byte[block];
-                System.arraycopy(x, 0, stream, offset[1], offset[0]);
+                System.arraycopy(stream, offset[1], x, 0, offset[0]);
                 stream = new byte[block];
-                System.arraycopy(stream, 0, x, 0, offset[0]);
+                System.arraycopy(x, 0, stream, 0, offset[0]);
+                return;
             }
-            System.arraycopy(bytes, offset[2], stream, 0, offset[0]);
+            System.arraycopy(stream, 0, bytes, offset[2], offset[0]);
             offset[2] += offset[0];
             offset[1] -= offset[0];
             offset[0] = 0;
