@@ -105,12 +105,12 @@ extern list_t *get_algorithms_crypt(void);
 #define IS_ENCRYPTED_ARGS_COUNT2(_1, _2, _, ...) _
 
 #define file_encrypted_1(A)       file_encrypted_aux(__builtin_types_compatible_p(__typeof__( A ), char *) * 1 + \
-                                                     __builtin_types_compatible_p(__typeof__( A ), int64_t) * 2, A, NULL)
-#define file_encrypted_2(A, B)    file_encrypted_aux(2, A, B)
+                                                     __builtin_types_compatible_p(__typeof__( A ), int64_t) * 2, (intptr_t)A, NULL)
+#define file_encrypted_2(A, B)    file_encrypted_aux(2, (intptr_t)A, B)
 
 #define file_encrypted(...) COMMON_CONCAT(file_encrypted_, IS_ENCRYPTED_ARGS_COUNT(__VA_ARGS__))(__VA_ARGS__)
 
-extern bool file_encrypted_aux(int t, int64_t f, encrypt_t *e);
+extern bool file_encrypted_aux(int t, intptr_t p, encrypt_t *e);
 
 extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e);
 extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e);

@@ -62,12 +62,13 @@ char *FAILED_MESSAGE[] =
     "An unknown error has occurred!",
 };
 
-extern bool file_encrypted_aux(int t, int64_t f, encrypt_t *e)
+extern bool file_encrypted_aux(int t, intptr_t p, encrypt_t *e)
 {
+    int64_t f = 0;
     log_message(LOG_INFO, "check for file header");
     if (t == 1)
     {
-        void *x = (intptr_t *)f;
+        void *x = (intptr_t *)p;
         char *n = strdup((char *)x);
         f = open(n, O_RDONLY | O_BINARY);
         free(n);
@@ -75,6 +76,8 @@ extern bool file_encrypted_aux(int t, int64_t f, encrypt_t *e)
         if (f < 0)
             return false;
     }
+    else
+        f = (int64_t)p;
     bool r_val = false;
     uint64_t head[3] = {0x0};
     lseek(f, 0, SEEK_SET);
