@@ -348,6 +348,7 @@ public class Encrypt extends Thread implements Runnable
             buffer = new byte[sr];
             PRNG.nextBytes(buffer);
             encryptedWrite(out, buffer, crypt);
+            encryptedWrite(out, null, crypt);
         }
         finally
         {
@@ -541,6 +542,20 @@ public class Encrypt extends Thread implements Runnable
         if (stream == null)
             stream = new byte[block];
         int[] remainder = { bytes.length, block - offset[0] };
+        if (bytes == null)
+        {
+            final byte[] x = new byte[remainder[1]];
+            PRNG.nextBytes(x);
+            System.arraycopy(x, 0, stream, offset[0], remainder[1]);
+            final byte[]eBytes = new byte[block];
+            cipher.update(stream, 0, eBytes, 0);
+            out.write(eBytes);
+            block = 0;
+            stream = null;
+            offset = new int[3];
+            out.flush();
+            return;
+        }
         offset[1] = 0;
         while (remainder[0] > 0)
         {

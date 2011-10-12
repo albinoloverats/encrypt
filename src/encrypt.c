@@ -338,7 +338,6 @@ clean_up:
     /*
      * done
      */
-
     gcry_cipher_close(c_wrapper.cipher);
     gcry_md_close(md);
 
@@ -533,7 +532,6 @@ clean_up:
     /*
      * done
      */
-
     gcry_cipher_close(c_wrapper.cipher);
     gcry_md_close(md);
 
