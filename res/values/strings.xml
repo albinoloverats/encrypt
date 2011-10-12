@@ -20,6 +20,7 @@
     <string name="failed_algorithm">Unsupported algorithm!</string>
     <string name="failed_key">Invalid key data!</string>
     <string name="failed_decryption">Decryption verification failed!</string>
+    <string name="failed_unknown_tag">Unsupported container feature!</string>
     <string name="failed_checksum">Finished but with possible file corruption!</string>
 
     <string name="choose_file">Choose File</string>
