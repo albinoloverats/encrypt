@@ -61,7 +61,7 @@ G_MODULE_EXPORT gboolean file_chooser_callback(GtkWidget *widget, gtk_widgets_t 
     if (f < 0)
         return FALSE;
     char *c = NULL, *h = NULL;
-    if (file_encrypted(f, &c, &h))
+    if (file_encrypted(f))
     {
         encrypting = false;
         auto_select_algorithms(data, c, h);
@@ -305,7 +305,7 @@ static void *bg_thread_gui(void *n)
                 int64_t kf = open(gtk_file_chooser_get_filename((GtkFileChooser *)data->key_chooser), O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
                 if (kf < 0)
                 {
-                    status = FAILED_INITIALISATION;
+                    status = FAILED_OTHER;
                     memcpy(r, &status, sizeof( status ));
                     pthread_exit(r);
                     return NULL;
@@ -324,6 +324,7 @@ static void *bg_thread_gui(void *n)
             key.p_length = strlen((char *)key.p_data);
             break;
     }
+    encrypt_t e_data = { NULL, NULL, key, true, false };
 
     if (encrypting)
     {
@@ -331,14 +332,14 @@ static void *bg_thread_gui(void *n)
         int h = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
         list_t *ciphers = get_algorithms_crypt();
         list_t *hashes = get_algorithms_hash();
-        char *cipher = list_get(ciphers, c - 1); /* subtract 1 to get algorithm offset from combobox */
-        char *hash = list_get(hashes, h - 1);    /* combobox item 0 is the 'select...' text */
-        status = main_encrypt(source, output, &key, hash, cipher);
+        e_data.cipher = list_get(ciphers, c - 1); /* subtract 1 to get algorithm offset from combobox */
+        e_data.hash = list_get(hashes, h - 1);    /* combobox item 0 is the 'select...' text */
+        status = main_encrypt(source, output, e_data);
         list_delete(&ciphers);
         list_delete(&hashes);
     }
     else
-        status = main_decrypt(source, output, &key);
+        status = main_decrypt(source, output, e_data);
 
     close(source);
     close(output);
