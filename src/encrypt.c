@@ -30,8 +30,10 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
-#ifndef _WIN32
-#include <netinet/in.h>
+#ifdef _WIN32
+    #define fsync(fd) _commit(fd)
+#else
+    #include <netinet/in.h>
 #endif
 
 #include <gcrypt.h>
