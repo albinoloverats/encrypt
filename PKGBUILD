@@ -1,6 +1,6 @@
 # Contributor: Ashley Anderson <amanderson@albinoloverats.net>
 pkgname=encrypt
-pkgver=2011.09
+pkgver=2011.10
 pkgrel=1
 pkgdesc="encrypt is a simple encryption application which is suitable for any modern OS. It uses the GTK to provide a graphical user interface, yet is equally usable from the command line."
 arch=(i686 x86_64)

@@ -11,13 +11,13 @@
 #define VER_RELEASE	0
 #define VER_BUILD	0
 #define COMPANY_NAME	"albinoloverats ~ Software Development"
-#define FILE_VERSION	"2011.09"
+#define FILE_VERSION	"2011.10"
 #define FILE_DESCRIPTION	"encrypt is a simple, cross platform utility for securing your personal files"
 #define INTERNAL_NAME	"encrypt"
 #define LEGAL_COPYRIGHT	"Copyright (c) 2004-2011, albinoloverats ~ Software Development"
 #define LEGAL_TRADEMARKS	""
 #define ORIGINAL_FILENAME	"encrypt.exe"
 #define PRODUCT_NAME	"encrypt"
-#define PRODUCT_VERSION	"2011.09"
+#define PRODUCT_VERSION	"2011.10"
 
 #endif /*ENCRYPT_PRIVATE_H*/
