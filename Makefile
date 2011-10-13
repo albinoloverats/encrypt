@@ -11,7 +11,7 @@ CPPFLAGS = -I. -Isrc -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DLOG_LEVEL=LOG_WARNIN
 GUIFLAGS = -DBUILD_GUI `pkg-config --cflags gtk+-3.0 gmodule-2.0`
 
 LIBS     = `libgcrypt-config --libs` -lpthread
-GUILIBS  = `pkg-config --libs gtk+-3.0 gmodule-2.0` -lpthread
+GUILIBS  = `pkg-config --libs gtk+-3.0 gmodule-2.0`
 
 cli:
 	@$(CC) $(CFLAGS) $(CPPFLAGS) $(SOURCE) $(COMMON) $(LIBS) -o $(APP)
