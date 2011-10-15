@@ -23,8 +23,8 @@
 
 #include "common/list.h"
 
-#define E_ENCRYPT "encrypt"
-#define E_VERSION "2011.10"
+#define ENCRYPT_NAME "encrypt"
+#define ENCRYPT_VERSION "2011.10"
 
 #define HEADER_VERSION_201008 0x72761df3e497c983LL
 #define HEADER_VERSION_201110 0xbb116f7d00201110LL

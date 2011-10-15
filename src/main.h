@@ -26,9 +26,9 @@
 
 #define USAGE_STRING "[-c algorithm] [-s algorithm] [-k/-p password source] [source file] [destination file]"
 
-#define ui_thread_initialise1(A) ui_thread_initialise2(A, NULL)
-#define ui_thread_initialise(...) COMMON_CONCAT(ui_thread_initialise, COMMON_ARGS_COUNT(__VA_ARGS__))(__VA_ARGS__)
+#define bg_thread_initialise1(A) bg_thread_initialise2(A, NULL)
+#define bg_thread_initialise(...) COMMON_CONCAT(bg_thread_initialise, COMMON_ARGS_COUNT(__VA_ARGS__))(__VA_ARGS__)
 
-extern pthread_t ui_thread_initialise2(void *(fn)(void *), void *n);
+extern pthread_t bg_thread_initialise2(void *(fn)(void *), void *n);
 
 #endif /* _MAIN_H_ */

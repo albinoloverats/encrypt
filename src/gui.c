@@ -195,7 +195,7 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
     gtk_widget_show(data->progress_dialog);
     //gtk_main_iteration();
 
-    pthread_t bgt = ui_thread_initialise(bg_thread_gui, data);
+    pthread_t bgt = bg_thread_initialise(bg_thread_gui, data);
 
     log_message(LOG_DEBUG, "reset cancel/close buttons");
     gtk_widget_set_sensitive(data->progress_cancel_button, TRUE);
@@ -237,6 +237,8 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
     free(r);
     log_message(LOG_DEBUG, "bg thread finished with status %d", status);
 
+    update_status_bar(data, status);
+
     char *msg;
     switch (status)
     {
@@ -274,6 +276,20 @@ G_MODULE_EXPORT gboolean on_close_button_clicked(GtkButton *button, gtk_widgets_
     gtk_widget_hide(data->progress_dialog);
 
     return TRUE;
+}
+
+extern void update_status_bar(gtk_widgets_t *data, int64_t status)
+{
+    static int ctx = -1;
+    if (ctx != -1)
+        gtk_statusbar_pop((GtkStatusbar *)data->status_bar, ctx);
+    char *msg;
+    if (status == -1)
+        msg = STATUS_NEW_VERSION;
+    else
+        msg = FAILED_MESSAGE[status] ? : STATUS_READY;
+    ctx = gtk_statusbar_get_context_id((GtkStatusbar *)data->status_bar, msg);
+    gtk_statusbar_push((GtkStatusbar *)data->status_bar, ctx, msg);
 }
 
 static void *bg_thread_gui(void *n)

@@ -37,9 +37,11 @@
     #define GLADE_UI_FILE "encrypt_win32.glade"
 #endif
 
-
 #define LABEL_ENCRYPT "Encrypt"
 #define LABEL_DECRYPT "Decrypt"
+
+#define STATUS_NEW_VERSION "A new version of encrypt is available!"
+#define STATUS_READY "Ready"
 
 typedef struct gtk_widgets_t
 {
@@ -53,6 +55,7 @@ typedef struct gtk_widgets_t
     GtkWidget *password_entry;
     GtkWidget *key_chooser;
     GtkWidget *encrypt_button;
+    GtkWidget *status_bar;
     GtkWidget *progress_dialog;
     GtkWidget *progress_bar;
     GtkWidget *progress_cancel_button;
@@ -78,5 +81,7 @@ G_MODULE_EXPORT gboolean on_cancel_button_clicked(GtkButton *button, gtk_widgets
 G_MODULE_EXPORT gboolean on_close_button_clicked(GtkButton *button, gtk_widgets_t *data);
 
 G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_t *data);
+
+extern void update_status_bar(gtk_widgets_t *data, int64_t status);
 
 #endif /* _GUI_H_ */

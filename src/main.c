@@ -29,6 +29,7 @@
 #include <stdbool.h>
 
 #include <pthread.h>
+#include <curl/curl.h>
 
 #ifdef _WIN32
     #include <windows.h>
@@ -45,9 +46,13 @@
     #include "gui.h"
 #endif
 
-static void *ui_thread_cli(void *n);
+static void *ui_thread_cli(void *);
 static bool list_algorithms_hash(void);
 static bool list_algorithms_crypt(void);
+
+static void *check_new_version(void *);
+static size_t verify_new_version(void *, size_t, size_t, void *);
+static bool new_available = false;
 
 int main(int argc, char **argv)
 {
@@ -73,7 +78,7 @@ int main(int argc, char **argv)
     list_append(&opts, &compress);
 #endif
 
-    list_t *unknown = init(E_ENCRYPT, E_VERSION, USAGE_STRING, argv, NULL, opts);
+    list_t *unknown = init(ENCRYPT_NAME, ENCRYPT_VERSION, USAGE_STRING, argv, NULL, opts);
     /*
      * list available algorithms if asked to (possibly both hash and crypto)
      */
@@ -84,6 +89,8 @@ int main(int argc, char **argv)
         la = list_algorithms_crypt();
     if (la)
         return EXIT_SUCCESS;
+
+    pthread_t version_thread;
 
 #ifdef BUILD_GUI
     gtk_widgets_t *widgets;
@@ -121,11 +128,14 @@ int main(int argc, char **argv)
         CH_GET_WIDGET(builder, password_entry, widgets);
         CH_GET_WIDGET(builder, key_chooser, widgets);
         CH_GET_WIDGET(builder, encrypt_button, widgets);
+        CH_GET_WIDGET(builder, status_bar, widgets);
         CH_GET_WIDGET(builder, progress_dialog, widgets);
         CH_GET_WIDGET(builder, progress_bar, widgets);
         CH_GET_WIDGET(builder, progress_cancel_button, widgets);
         CH_GET_WIDGET(builder, progress_close_button, widgets);
         CH_GET_WIDGET(builder, about_dialog, widgets);
+
+        version_thread = bg_thread_initialise(check_new_version, widgets);
 
         auto_select_algorithms(widgets, crypt.option, hash.option);
 
@@ -142,6 +152,7 @@ int main(int argc, char **argv)
         /*
          * show main window and start main loop
          */
+        update_status_bar(widgets, new_available ? -1 : 0);
         gtk_widget_show(widgets->main_window);
         gtk_main();
 
@@ -152,6 +163,14 @@ int main(int argc, char **argv)
     else
         fprintf(stderr, "Could not create GUI - falling back to command line\n");
 #endif /* we couldn't create the gui, so revert back to command line */
+
+    /*
+     * start background thread to check for newer version of encrypt
+     *
+     * NB If (When) encrypt makes it into a package manager for some
+     * distro this can/should be removed as it will be unnecessary
+     */
+    version_thread = bg_thread_initialise(check_new_version);
 
     /*
      * setup where the data is coming from; use stdin/stdout if no files are
@@ -212,7 +231,7 @@ int main(int argc, char **argv)
     /*
      * here we go ...
      */
-    pthread_t ui_thread = ui_thread_initialise(ui_thread_cli);
+    pthread_t ui_thread = bg_thread_initialise(ui_thread_cli);
     status_e status = PREPROCESSING;
     if (file_encrypted(source))
         status = main_decrypt(source, output, e_data);
@@ -227,6 +246,8 @@ int main(int argc, char **argv)
 #ifdef BUILD_GUI
 eop:
 #endif
+    pthread_join(version_thread, NULL);
+
     list_delete(&unknown);
     list_delete(&opts);
 
@@ -255,16 +276,15 @@ static void *ui_thread_cli(void *n)
     return NULL;
 }
 
-extern pthread_t ui_thread_initialise2(void *(fn)(void *), void *n)
+extern pthread_t bg_thread_initialise2(void *(fn)(void *), void *n)
 {
     /*
-     * initialize UI thread
+     * initialize background thread
      */
     log_message(LOG_DEBUG, "setting up UI thread");
-    pthread_t ui_thread;
-    pthread_create(&ui_thread, NULL, fn, n);
-
-    return ui_thread;
+    pthread_t bg_thread;
+    pthread_create(&bg_thread, NULL, fn, n);
+    return bg_thread;
 }
 
 static bool list_algorithms_hash(void)
@@ -285,4 +305,36 @@ static bool list_algorithms_crypt(void)
     for (int i = 0; i < x; i++)
         fprintf(stderr, "%s\n", (char *)list_get(l, i));
     return true;
+}
+
+static void *check_new_version(void *n)
+{
+    curl_global_init(CURL_GLOBAL_ALL);
+    CURL *curl_handle = curl_easy_init();
+    curl_easy_setopt(curl_handle, CURLOPT_URL, "https://albinoloverats.net/encrypt.release");
+#ifdef WIN32
+    curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
+#endif
+    curl_easy_setopt(curl_handle, CURLOPT_NOPROGRESS, 1L);
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, verify_new_version);
+    curl_easy_perform(curl_handle);
+    curl_easy_cleanup(curl_handle);
+#ifdef BUILD_GUI
+    if (n)
+        update_status_bar((gtk_widgets_t *)n, new_available ? -1 : 0);
+#endif
+    return n;
+}
+
+static size_t verify_new_version(void *p, size_t s, size_t n, void *x)
+{
+    char *b = calloc(s + 1, n);
+    memcpy(b, p, s * n);
+    char *l = strrchr(b, '\n');
+    if (l)
+        *l = '\0';
+    if (strcmp(b, ENCRYPT_VERSION) > 0)
+        new_available = true;
+    free(b);
+    return s * n;
 }
