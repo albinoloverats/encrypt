@@ -7,7 +7,7 @@
 /* VERSION DEFINITIONS */
 #define VER_STRING	"2011.10.0.0"
 #define VER_MAJOR	2011
-#define VER_MINOR	8
+#define VER_MINOR	10
 #define VER_RELEASE	0
 #define VER_BUILD	0
 #define COMPANY_NAME	"albinoloverats ~ Software Development"
