@@ -1,0 +1,33 @@
+encrypt - 201110                                       16th October 2011
+
+We're on some sort of a roll here; there's a new release of encrypt.  It
+fixes a couple of minor bugs---checksums are now correctly computed and,
+therefore, correctly verified upon decryption---as well as introducing a
+few new behind-the-scenes features:  the internal structure of encrypted
+data is split into blocks, which will be necessary in the future,  as we
+introduce data compression (planned for the next release). The other new
+feature is the ability to notify the user if  a newer version of encrypt
+is available for download.
+
+That's all for now, although we'll be back soon with more updates,  such
+as compression, and anything else that comes our way...
+
+
+encrypt - 201108                                        21st August 2011
+
+It's been  a little  while but here  we have  the  latest  offering  for
+personal file security!
+
+In an effort to make encrypt even more useful to even more people,  it's
+been rewritten to use a 3rd party encryption library---notably,  the GNU
+Project's libgcrypt and gnu-crypto.  This change increases the choice of
+algorithms as well as providing a base for an Android counterpart to the
+standard desktop package.  That's right---we've an Android version which
+is compatible with the desktop version.
+
+The inspiration behind providing an  Android app came ( in part ) due to
+some of the security  concerns which have been highlighted with services
+such as Dropbox. Whilst online file hosting services are a great way for
+transferring  files  from  desktop  to  laptop, and now to smartphone or
+tablet,  their less-than-ideal encryption processes meant something more
+was needed: encrypt for GNU/Linux, MS Windows and Android!

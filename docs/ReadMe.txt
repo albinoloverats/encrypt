@@ -1,21 +1,16 @@
-encrypt - 201108                                        21st August 2011
+encrypt - 201110                                       16th October 2011
 
-It's been a little while but here we have the latest offering for
-personal file security!
+We're on some sort of a roll here; there's a new release of encrypt.  It
+fixes a couple of minor bugs---checksums are now correctly computed and,
+therefore, correctly verified upon decryption---as well as introducing a
+few new behind-the-scenes features:  the internal structure of encrypted
+data is split into blocks, which will be necessary in the future,  as we
+introduce data compression (planned for the next release). The other new
+feature is the ability to notify the user if  a newer version of encrypt
+is available for download.
 
-In an effort to make encrypt even more useful to even more people, it's
-been rewritten to use a 3rd party encryption library - notably, the GNU
-Project's libgcrypt and gnu-crypto. This change increases the choice of
-algorithms as well as providing a base for an Android counterpart to the
-standard desktop package. That's right - we've an Android version which
-is compatible with the desktop version.
-
-The inspiration behind providing an Android app came (in part) due to
-some of the security concerns which have been highlighted with services
-such as Dropbox. Whilst online file hosting services are a great way
-for transferring files from desktop to laptop, and now to smartphone or
-tablet, their less-than-ideal encryption processes meant something more
-was needed: encrypt for GNU/Linux, MS Windows and Android!
+That's all for now, although we'll be back soon with more updates,  such
+as compression, and anything else that comes our way...
 
 The encrypt Development Team
 
@@ -23,13 +18,13 @@ The encrypt Development Team
 Copyright/Licencing:
   All components of encrypt are freely available under one free software
   licence or another. The cryptographic libraries (glibc and gnu-crypto)
-  are both available under the terms of the GNU General Public License;
-  GTK and GDK are available under the terms of the GNU Lesser General
-  Public License. The Android File Dialog is available under the terms
+  are both available  under the terms of the GNU General Public License;
+  GTK and  GDK are available  under the terms of the  GNU Lesser General
+  Public License.  The Android File Dialog is available under the  terms
   of the FreeBSD License.
 
-  The icon used by encrypt is a modification taken from the Crystal
-  Clear icon set, which makes it available under the terms of the GNU
+  The icon  used by  encrypt is a modification  taken  from  the Crystal
+  Clear icon set,  which makes  it available  under the terms of the GNU
   Lesser General Public License.
 
   Copies of all of the above licences should have been distributed along
@@ -38,9 +33,10 @@ Copyright/Licencing:
 
 Prerequisites:
   Desktop implementation:
-    GTK (and all of its requirements: GDK/Cairo/etc) - version 2.24 or later
-    libgcrypt cryptographic library
-    pthread library
+    - GTK (and all of its requirements: GDK/Cairo/etc)---version 2.24 or
+      later
+    - libgcrypt cryptographic library
+    - pthread library
 
   Android implementation:
     gnu-crypto
@@ -48,34 +44,33 @@ Prerequisites:
 
 
 Build/Installation instructions:
-  For most, installing encrypt will pull in all the required libraries,
-  either through your systems package management system, or if you're
-  on MS Windows, the installer includes all the necessary runtime
-  libraries. If you intend to build from source you will require the
+  For most,  installing encrypt will pull in all the required libraries,
+  either  through your systems  package management system,  or if you're
+  on  MS Windows,  the  installer  includes all  the  necessary  runtime
+  libraries.  If you  intend to  build from source  you will require the
   development packages too.
 
-  On GNU/*Nix Systems (where %o is your operating system specific
-  Makefile):
+  On GNU/Linux Systems:
     Simply:
-      $ make -f Makefile.%o
-      # make -f Makefile.%o install
+      $ make -f Makefile
+      # make -f Makefile install
 
     To build with the GTK GUI:
-      $ make -f Makefile.%o gui
-      $ make -f Makefile.%o install
+      $ make -f Makefile gui
+      $ make -f Makefile install
 
     Eventually, you may need the following:
-      $ make -f Makefile.%o clean
-      $ make -f Makefile.%o distclean
-      # make -f Makefile.%o uninstall
+      $ make -f Makefile clean
+      $ make -f Makefile distclean
+      # make -f Makefile uninstall
 
   On MS Systems:
-    It's all done for you (Using Dev-C++) - if you wish to compile from
-    source yourself, this shouldn't be too much of a problem using
+    It's all done for you  (Using Dev-C++)---if you wish to compile from
+    source  yourself,  this shouldn't  be too  much  of a  problem using
     Dev-C++ (just ask if you need help). The NSIS script will then allow
-    you to build the installer (or you can just copy the binaries to
+    you to  build the installer  (or you can just  copy the  binaries to
     wherever and go from there).
 
   For Android:
-    Import the Eclipse/Android project into Eclipse and build using the
+    Import the Eclipse/Android project into  Eclipse and build using the
     standard Android development tools.
