@@ -7,7 +7,7 @@ arch=(i686 x86_64)
 url="https://albinoloverats.net/projects/encrypt"
 license=('GPL')
 groups=()
-depends=('gtk2>=2.24 libgcrypt')
+depends=('gtk2>=2.24 libgcrypt curl')
 makedepends=('pkgconfig')
 provides=()
 conflicts=()
