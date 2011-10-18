@@ -221,7 +221,11 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
             gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress_bar, (double)bp / (double)sz);
 
             char *prgs = NULL;
+#ifdef WIN32
+            asprintf(&prgs, "%llu / %llu", bp, sz);
+#else
             asprintf(&prgs, "%ju / %ju", bp, sz);
+#endif
             gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar, prgs);
             free(prgs);
         }
