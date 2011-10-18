@@ -222,7 +222,7 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
 
             char *prgs = NULL;
 #ifdef WIN32
-            asprintf(&prgs, "%llu / %llu", bp, sz);
+            asprintf(&prgs, "%llu", bp);
 #else
             asprintf(&prgs, "%ju / %ju", bp, sz);
 #endif
