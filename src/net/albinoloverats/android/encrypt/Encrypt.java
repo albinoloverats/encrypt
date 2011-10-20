@@ -541,7 +541,7 @@ public class Encrypt extends Thread implements Runnable
             block = cipher.defaultBlockSize();
         if (stream == null)
             stream = new byte[block];
-        int[] remainder = { bytes.length, block - offset[0] };
+        int[] remainder = { bytes != null ? bytes.length : 0, block - offset[0] };
         if (bytes == null)
         {
             final byte[] x = new byte[remainder[1]];
