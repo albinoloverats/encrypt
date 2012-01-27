@@ -93,14 +93,12 @@
            | (((x) & 0x00000000000000ffull) << 56))
     #endif
 
-    #if __BYTE_ORDER == __BIG_ENDIAN
+    #if __BYTE_ORDER == __BIG_ENDIAN && !defined __APPLE__
         #define ntohll(x) (x)
         #define htonll(x) (x)
-    #else
-        #if __BYTE_ORDER == __LITTLE_ENDIAN
-            #define ntohll(x) __bswap_64(x)
-            #define htonll(x) __bswap_64(x)
-        #endif
+    #elif __BYTE_ORDER == __LITTLE_ENDIAN
+        #define ntohll(x) __bswap_64(x)
+        #define htonll(x) __bswap_64(x)
     #endif
 
     #ifndef _WIN32
