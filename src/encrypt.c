@@ -226,11 +226,11 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     gcry_create_nonce(&x, sizeof( int64_t ));
     gcry_create_nonce(&y, sizeof( int64_t ));
     int64_t z = x ^ y;
-    log_message(LOG_VERBOSE, "x = %jx ; y = %jx ; z = %jx", x, y, z);
+    log_message(LOG_VERBOSE, "x = %" PRIx64 " ; y = %" PRIx64 " ; z = %" PRIx64, x, y, z);
     x = htonll(x);
     y = htonll(y);
     z = htonll(z);
-    log_message(LOG_VERBOSE, "x = %jx ; y = %jx ; z = %jx", x, y, z);
+    log_message(LOG_VERBOSE, "x = %" PRIx64 " ; y = %" PRIx64 " ; z = %" PRIx64, x, y, z);
     ewrite(g, &x, sizeof( int64_t ), c_wrapper);
     ewrite(g, &y, sizeof( int64_t ), c_wrapper);
     ewrite(g, &z, sizeof( int64_t ), c_wrapper);
@@ -418,11 +418,11 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     eread(f, &y, sizeof( int64_t ), c_wrapper);
     eread(f, &z, sizeof( int64_t ), c_wrapper);
     log_message(LOG_DEBUG, "verifying x ^ y = z");
-    log_message(LOG_VERBOSE, "x = %jx ; y = %jx ; z = %jx", x, y, z);
+    log_message(LOG_VERBOSE, "x = %" PRIx64 " ; y = %" PRIx64 " ; z = %" PRIx64, x, y, z);
     x = ntohll(x);
     y = ntohll(y);
     z = ntohll(z);
-    log_message(LOG_VERBOSE, "x = %jx ; y = %jx ; z = %jx", x, y, z);
+    log_message(LOG_VERBOSE, "x = %" PRIx64 " ; y = %" PRIx64 " ; z = %" PRIx64, x, y, z);
     if ((x ^ y) != z)
     {
         log_message(LOG_ERROR, "failed decryption attempt");
@@ -454,13 +454,13 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
             case TAG_SIZE:
                 memcpy(&decrypted_size, tlv.value, sizeof( uint64_t ));
                 decrypted_size = ntohll(decrypted_size);
-                log_message(LOG_VERBOSE, "found size: %ju", decrypted_size);
+                log_message(LOG_VERBOSE, "found size: %" PRIu64, decrypted_size);
                 break;
             case TAG_BLOCKED:
                 memcpy(&block_size, tlv.value, sizeof( uint64_t ));
                 block_size = ntohll(block_size);
                 e.blocked = true;
-                log_message(LOG_VERBOSE, "file split into blocks of size: %ju", block_size);
+                log_message(LOG_VERBOSE, "file split into blocks of size: %" PRIu64, block_size);
                 break;
             default:
                 log_message(LOG_WARNING, "unknown parameter: %hhx", tlv.tag);

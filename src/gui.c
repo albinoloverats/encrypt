@@ -224,7 +224,7 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
 #ifdef WIN32
             asprintf(&prgs, "%llu", bp);
 #else
-            asprintf(&prgs, "%ju / %ju", bp, sz);
+            asprintf(&prgs, "%" PRIu64 " / %" PRIu64, bp, sz);
 #endif
             gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar, prgs);
             free(prgs);
