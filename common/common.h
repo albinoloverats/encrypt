@@ -43,6 +43,12 @@
         #ifndef O_BINARY
             #define O_BINARY NOTSET /*!< Value is only relevant on MS systems (and is required), pretend it exists elsewhere */
         #endif
+        #ifdef __APPLE__
+            #undef F_RDLCK         /*!< Undefine value on Mac OS X as it causes runtime issues */
+            #define F_RDLCK NOTSET /*!< Set value to NOTSET */
+            #undef F_WRLCK         /*!< Undefine value on Mac OS X as it causes runtime issues */
+            #define F_WRLCK NOTSET /*!< Set value to NOTSET */
+        #endif
     #else
         #define srand48 srand  /*!< Quietly alias srand48 to be srand on Windows */
         #define lrand48 rand   /*!< Quietly alias lrand48 to be rand on Windows */
