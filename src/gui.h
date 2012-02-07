@@ -27,14 +27,14 @@
 #define CH_GET_OBJECT( builder, name, type, data )  data->name = type( gtk_builder_get_object( builder, #name ) )
 #define CH_GET_WIDGET( builder, name, data )        CH_GET_OBJECT( builder, name, GTK_WIDGET, data )
 
-#ifndef _WIN32
+#if !defined _WIN32 && !defined __APPLE__
     #ifdef DEBUGGING
         #define GLADE_UI_FILE "encrypt.glade"
     #else
         #define GLADE_UI_FILE "/usr/share/encrypt/" "encrypt.glade"
     #endif
 #else
-    #define GLADE_UI_FILE "encrypt_win32.glade"
+    #define GLADE_UI_FILE "encrypt_legacy.glade"
 #endif
 
 #define LABEL_ENCRYPT "Encrypt"
