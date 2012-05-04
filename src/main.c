@@ -257,7 +257,7 @@ eop:
 static void *ui_thread_cli(void *n)
 {
     log_message(LOG_EVERYTHING, "starting UI thread...");
-    n = n;
+    (void)n;
     fprintf(stderr, "\rPercent complete: %7.3f%%", 0.0f);
     uint64_t sz = 0;
     do
