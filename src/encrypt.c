@@ -98,7 +98,7 @@ extern bool file_encrypted_aux(int t, intptr_t p, encrypt_t *e)
      * cannot handle releases newer than ourselves because features
      * we don't understand may have been used
      */
-    switch (htonll(head[2]))
+    switch (ntohll(head[2]))
     {
         case HEADER_VERSION_201008: /* original release 2011.08 */
             if (e)
@@ -748,6 +748,7 @@ static int get_algorithm_hash(const char * const restrict n)
         }
         free(y);
     }
+    log_message(LOG_ERROR, "could not find algorithm %s", n);
     return 0;
 }
 
@@ -778,6 +779,7 @@ static int get_algorithm_crypt(const char * const restrict n)
         }
         free(y);
     }
+    log_message(LOG_ERROR, "could not find algorithm %s", n);
     return 0;
 }
 
