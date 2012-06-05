@@ -1,16 +1,12 @@
-encrypt - 201110                                       16th October 2011
+encrypt - 201207 (alpha)                                   5th June 2012
 
-We're on some sort of a roll here; there's a new release of encrypt.  It
-fixes a couple of minor bugs---checksums are now correctly computed and,
-therefore, correctly verified upon decryption---as well as introducing a
-few new behind-the-scenes features:  the internal structure of encrypted
-data is split into blocks, which will be necessary in the future,  as we
-introduce data compression (planned for the next release). The other new
-feature is the ability to notify the user if  a newer version of encrypt
-is available for download.
-
-That's all for now, although we'll be back soon with more updates,  such
-as compression, and anything else that comes our way...
+A few notes before release:
+ - Data is now compressed before encryption
+   - Don't compress if the data is already compressed
+   - Allow the user to toggle compression via command line argument
+   - Update/Check compatibility on Windows/Mac OS X
+   - Update build scripts to link to liblzma
+   - Add compression support to Android app
 
 The encrypt Development Team
 
