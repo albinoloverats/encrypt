@@ -31,6 +31,7 @@
 
 #include <sys/types.h>
 
+#include "common/common.h"
 #include "common/logging.h"
 
 #ifdef WIN32
