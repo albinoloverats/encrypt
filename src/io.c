@@ -140,7 +140,7 @@ extern int enc_write(int64_t f, const void * const restrict d, size_t l, io_para
         gcry_cipher_algo_info(c->algorithm, GCRYCTL_GET_BLKLEN, NULL, &block);
     if (!stream)
         if (!(stream = calloc(block, sizeof( uint8_t ))))
-            die("out of memory @ %s:%d:%s [%" PRIu64 "]", __FILE__, __LINE__, __func__, block * sizeof( uint8_t ));
+            die("out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, block * sizeof( uint8_t ));
 
     size_t remainder[2] = { l, block - offset[0] };
     if (!d && !l)
@@ -192,7 +192,7 @@ extern int enc_read(int64_t f, void * const d, size_t l, io_params_t *c)
         gcry_cipher_algo_info(c->algorithm, GCRYCTL_GET_BLKLEN, NULL, &block);
     if (!stream)
         if (!(stream = calloc(block, sizeof( uint8_t ))))
-            die("out of memory @ %s:%d:%s [%" PRIu64 "]", __FILE__, __LINE__, __func__, block * sizeof( uint8_t ));
+            die("out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, block * sizeof( uint8_t ));
 
     offset[1] = l;
     offset[2] = 0;
