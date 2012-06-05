@@ -38,6 +38,7 @@
         #define O_BINARY NOTSET /*!< Value is only relevant on MS systems (and is required), pretend it exists elsewhere */
     #endif
     #ifdef __APPLE__
+        #define program_invocation_short_name getprogname() /*!< This is the best/closest we have */
         #undef F_RDLCK         /*!< Undefine value on Mac OS X as it causes runtime issues */
         #define F_RDLCK NOTSET /*!< Set value to NOTSET */
         #undef F_WRLCK         /*!< Undefine value on Mac OS X as it causes runtime issues */
