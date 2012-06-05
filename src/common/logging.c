@@ -1,6 +1,6 @@
 /*
  * Common code shared between projects
- * Copyright (c) 2009-2011, albinoloverats ~ Software Development
+ * Copyright (c) 2009-2012, albinoloverats ~ Software Development
  * email: webmaster@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,18 +18,20 @@
  *
  */
 
-#include "logging.h"
-#include "common.h"
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
 #include <unistd.h>
-#include <errno.h>
 #include <stdarg.h>
-#include <sys/types.h>
+
+#include <errno.h>
 #include <time.h>
+
+#include <ctype.h>
+#include <string.h>
+
+#include <sys/types.h>
+
+#include "common/logging.h"
 
 #ifdef WIN32
 extern char *program_invocation_short_name;
