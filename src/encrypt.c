@@ -806,7 +806,7 @@ static char *correct_aes_rijndael(const char * const restrict n)
     char *x = NULL;
     asprintf(&x, "%s%s", NAME_RIJNDAEL, n + strlen(NAME_AES));
     if (!x)
-        die("out of memory @ %s:%d:%s [%" PRIu64 "]", __FILE__, __LINE__, __func__, strlen(NAME_RIJNDAEL) + strlen(n) - strlen(NAME_AES));
+        die("out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, strlen(NAME_RIJNDAEL) + strlen(n) - strlen(NAME_AES));
     return x;
 }
 
