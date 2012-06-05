@@ -2,8 +2,9 @@
 
 APP      = encrypt
 
-SOURCE   = src/main.c src/init.c src/encrypt.c
+SOURCE   = src/main.c src/init.c src/encrypt.c src/io.c
 GUI      = src/gui.c
+COMMON   = src/common/error.c src/common/logging.c
 
 CFLAGS   = -Wall -Wextra -Wno-unused-parameter -std=gnu99 `libgcrypt-config --cflags` -pipe -O0 -g
 CPPFLAGS = -I. -Isrc -I`brew --prefix gettext`/include -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DLOG_LEVEL=LOG_WARNING
