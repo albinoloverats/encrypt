@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS,) encryption utility
- * Copyright (c) 2005-2011, albinoloverats ~ Software Development
+ * Copyright (c) 2005-2012, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,26 +19,35 @@
  */
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <fcntl.h>
 #include <unistd.h>
 
 #include <errno.h>
+#include <libintl.h>
+
+#include <string.h>
+#include <inttypes.h>
+#include <stdbool.h>
+
 #include <sys/stat.h>
+
 #include <pthread.h>
 
+#include "common/common.h"
+#include "common/error.h"
+#include "common/logging.h"
+
+#ifdef _WIN32
+    #include "common/win32_ext.c"
+#endif
+
+#include "init.h"
+#include "main.h"
 #include "encrypt.h"
 #include "gui.h"
 
-#include "main.h"
-
-#include "common/common.h"
-#include "common/logging.h"
-
 static void check_enable_encrypt_button(gtk_widgets_t *data);
-
 static void *bg_thread_gui(void *n);
 
 static bool encrypting = true;
@@ -99,37 +108,39 @@ G_MODULE_EXPORT gboolean file_chooser_callback(GtkWidget *widget, gtk_widgets_t 
 
 extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash)
 {
-    list_t *ciphers = get_algorithms_crypt();
-    uint64_t cc = list_size(ciphers);
+    char **ciphers = get_algorithms_crypt();
     unsigned slctd_cipher = 0;
-    for (unsigned i = 0; i < cc; i++)
+    for (unsigned i = 0; ; i++)
     {
-        char *ct = (char *)list_get(ciphers, i);
-        if (cipher && !strcasecmp(ct, cipher))
+        if (!ciphers[i])
+            break;
+        if (cipher && !strcasecmp(ciphers[i], cipher))
         {
             slctd_cipher = i + 1;
-            log_message(LOG_VERBOSE, "algorithm %s is %d in the list", cipher, slctd_cipher);
+            log_message(LOG_VERBOSE, _("algorithm %s is %d in the list"), cipher, slctd_cipher);
         }
-        gtk_combo_box_text_append_text((GtkComboBoxText *)data->crypto_combo, ct);
+        gtk_combo_box_text_append_text((GtkComboBoxText *)data->crypto_combo, ciphers[i]);
+        free(ciphers[i]);
     }
     gtk_combo_box_set_active((GtkComboBox *)data->crypto_combo, slctd_cipher);
-    list_delete(&ciphers);
+    free(ciphers);
 
-    list_t *hashes = get_algorithms_hash();
-    uint64_t hc = list_size(hashes);
+    char **hashes = get_algorithms_hash();
     unsigned slctd_hash = 0;
-    for (unsigned  i = 0; i < hc; i++)
+    for (unsigned  i = 0; ; i++)
     {
-        char *ht = (char *)list_get(hashes, i);
-        if (hash && !strcasecmp(ht, hash))
+        if (!hashes[i])
+            break;
+        if (hash && !strcasecmp(hashes[i], hash))
         {
             slctd_hash = i + 1;
-            log_message(LOG_VERBOSE, "algorithm %s is %d in the list", hash, slctd_hash);
+            log_message(LOG_VERBOSE, _("algorithm %s is %d in the list"), hash, slctd_hash);
         }
-        gtk_combo_box_text_append_text((GtkComboBoxText *)data->hash_combo, ht);
+        gtk_combo_box_text_append_text((GtkComboBoxText *)data->hash_combo, hashes[i]);
+        free(hashes[i]);
     }
     gtk_combo_box_set_active((GtkComboBox *)data->hash_combo, slctd_hash);
-    list_delete(&hashes);
+    free(hashes);
 
     return;
 }
@@ -191,25 +202,25 @@ G_MODULE_EXPORT gboolean key_chooser_callback(GtkFileChooser *file_chooser, gtk_
 
 G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widgets_t *data)
 {
-    log_message(LOG_DEBUG, "show progress dialog");
+    log_message(LOG_EVERYTHING, _("show progress dialog"));
     gtk_widget_show(data->progress_dialog);
     //gtk_main_iteration();
 
     pthread_t bgt = bg_thread_initialise(bg_thread_gui, data);
 
-    log_message(LOG_DEBUG, "reset cancel/close buttons");
+    log_message(LOG_EVERYTHING, _("reset cancel/close buttons"));
     gtk_widget_set_sensitive(data->progress_cancel_button, TRUE);
     gtk_widget_show(data->progress_cancel_button);
     gtk_widget_set_sensitive(data->progress_close_button, FALSE);
     gtk_widget_hide(data->progress_close_button);
 
-    log_message(LOG_DEBUG, "reset progress bar");
+    log_message(LOG_EVERYTHING, _("reset progress bar"));
     gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress_bar, 0.0);
     gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar, "");
 
     uint64_t sz = 0;
 
-    log_message(LOG_DEBUG, "update progress bar in loop");
+    log_message(LOG_EVERYTHING, _("update progress bar in loop"));
     status_e status = PREPROCESSING;
     do
     {
@@ -239,7 +250,7 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
     pthread_join(bgt, &r);
     memcpy(&status, r, sizeof( status ));
     free(r);
-    log_message(LOG_DEBUG, "bg thread finished with status %d", status);
+    log_message(LOG_VERBOSE, _("bg thread finished with status %d"), status);
 
     update_status_bar(data, status);
 
@@ -269,7 +280,7 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
 
 G_MODULE_EXPORT gboolean on_cancel_button_clicked(GtkButton *button, gtk_widgets_t *data)
 {
-    log_message(LOG_DEBUG, "cancel background thread");
+    log_message(LOG_DEBUG, _("cancel background thread"));
     stop_running();
 
     return TRUE;
@@ -333,7 +344,7 @@ static void *bg_thread_gui(void *n)
                 key.p_length = lseek(kf, 0, SEEK_END);
                 key.p_data = malloc(key.p_length);
                 if (!key.p_data)
-                    die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
+                    die(_("out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, key.p_length);
                 pread(kf, key.p_data, key.p_length, 0);
                 close(kf);
             }
@@ -350,13 +361,23 @@ static void *bg_thread_gui(void *n)
     {
         int c = gtk_combo_box_get_active((GtkComboBox *)data->crypto_combo);
         int h = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
-        list_t *ciphers = get_algorithms_crypt();
-        list_t *hashes = get_algorithms_hash();
-        e_data.cipher = list_get(ciphers, c - 1); /* subtract 1 to get algorithm offset from combobox */
-        e_data.hash = list_get(hashes, h - 1);    /* combobox item 0 is the 'select...' text */
+        char **ciphers = get_algorithms_crypt();
+        char **hashes = get_algorithms_hash();
+        e_data.cipher = ciphers[c - 1]; /* subtract 1 to get algorithm offset from combobox */
+        e_data.hash = hashes[h - 1];    /* combobox item 0 is the 'select...' text */
         status = main_encrypt(source, output, e_data);
-        list_delete(&ciphers);
-        list_delete(&hashes);
+        for (int i = 0; ; i++)
+            if (!ciphers[i])
+                break;
+            else
+                free(ciphers[i]);
+        free(ciphers);
+        for (int i = 0; ; i++)
+            if (!hashes[i])
+                break;
+            else
+                free(hashes[i]);
+        free(hashes);
     }
     else
         status = main_decrypt(source, output, e_data);
