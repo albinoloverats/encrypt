@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS,) encryption utility
- * Copyright (c) 2005-2011, albinoloverats ~ Software Development
+ * Copyright (c) 2005-2012, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,16 +21,16 @@
 #ifndef _ENCRYPT_H_
 #define _ENCRYPT_H_
 
-#include "common/list.h"
+#include <stdint.h>
 
-#define ENCRYPT_NAME "encrypt"
-#define ENCRYPT_VERSION "2011.10"
+#define TEXT_VERSION "2012.07"
 
 #define HEADER_VERSION_201008 0x72761df3e497c983LL
 #define HEADER_VERSION_201110 0xbb116f7d00201110LL
+#define HEADER_VERSION_201207 0x51d2824500201207LL
 #define HEADER_0 0x3697de5d96fca0faLL
 #define HEADER_1 0xc845c2fa95e2f52dLL
-#define HEADER_2 HEADER_VERSION_201110
+#define HEADER_2 HEADER_VERSION_201207
 
 #define NAME_SHA1 "SHA1"
 #define NAME_SHA160 "SHA160"
@@ -98,8 +98,8 @@ typedef enum file_info_e
 } __attribute__((packed))
 file_info_e;
 
-extern list_t *get_algorithms_hash(void);
-extern list_t *get_algorithms_crypt(void);
+extern char **get_algorithms_hash(void);
+extern char **get_algorithms_crypt(void);
 
 #define IS_ENCRYPTED_ARGS_COUNT(...) IS_ENCRYPTED_ARGS_COUNT2(__VA_ARGS__, 2, 1)
 #define IS_ENCRYPTED_ARGS_COUNT2(_1, _2, _, ...) _
@@ -107,48 +107,71 @@ extern list_t *get_algorithms_crypt(void);
 #define file_encrypted_1(A)       file_encrypted_aux(__builtin_types_compatible_p(__typeof__( A ), char *) * 1 + \
                                                      __builtin_types_compatible_p(__typeof__( A ), int64_t) * 2, (intptr_t)A, NULL)
 #define file_encrypted_2(A, B)    file_encrypted_aux(2, (intptr_t)A, B)
+#define file_encrypted(...) CONCAT(file_encrypted_, IS_ENCRYPTED_ARGS_COUNT(__VA_ARGS__))(__VA_ARGS__)
 
-#define file_encrypted(...) COMMON_CONCAT(file_encrypted_, IS_ENCRYPTED_ARGS_COUNT(__VA_ARGS__))(__VA_ARGS__)
-
+/*!
+ * \brief         Check whether the file/stream encrypted
+ * \param[in]  t  Type pointed to by p
+ * \param[in]  p  Either: pointer to file name, or a file descriptor
+ * \param[out] e  (Optional) Pointer to information about encrypted stream
+ *                (If not NULL)
+ *
+ * Determine if the file or stream given is encrypted or not. And possibly
+ * provide back information about the encrypted data.
+ */
 extern bool file_encrypted_aux(int t, intptr_t p, encrypt_t *e);
 
+/*!
+ * \brief         Main encryption function
+ * \param[in]  f  File descriptor for source
+ * \param[in]  g  File descriptor for output
+ * \param[in]  e  Details for processing the data
+ *
+ * Encrypt the input and dump it to the output, performing any user
+ * requested operations as necessary.
+ */
 extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e);
+
+/*!
+ * \brief         Main decryption function
+ * \param[in]  f  File descriptor for source
+ * \param[in]  g  File descriptor for output
+ * \param[in]  e  Details for processing the data
+ *
+ * Decrypt the input and dump it to the output.
+ */
 extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e);
 
+/*!
+ * \brief         Get the size of the decrypted data
+ * \return        The decrypted size
+ *
+ * Return the descrypted size of the data (if possible/known).
+ */
 extern uint64_t get_decrypted_size();
+
+/*!
+ * \brief         Get the number of bytes processed
+ * \return        The number of bytes processed
+ *
+ * Return the number of bytes processed so far.
+ */
 extern uint64_t get_bytes_processed();
+
+/*!
+ * \brief         Get the current status
+ * \return        The current status
+ *
+ * Get the current status of what's currently going on
+ * internally.
+ */
 extern status_e get_status();
+
+/*!
+ * \brief         Force stop the process
+ *
+ * Force the background process to stop.
+ */
 extern void stop_running();
 
 #endif /* _ENCRYPT_H_ */
-
-#ifdef __ENCRYPT__H__
-
-typedef struct gcrypt_wrapper_t
-{
-    gcry_cipher_hd_t cipher;
-    int algorithm;
-}
-gcrypt_wrapper_t;
-
-static void init_gcrypt_library(void);
-
-static int ewrite(int64_t f, const void * const restrict d, size_t l, gcrypt_wrapper_t c);
-static int eread(int64_t f, void * const d, size_t l, gcrypt_wrapper_t c);
-
-static int get_algorithm_hash(const char * const restrict n);
-static int get_algorithm_crypt(const char * const restrict n);
-
-static const char *get_name_algorithm_hash(int a);
-static const char *get_name_algorithm_crypt(int a);
-
-static char *correct_sha1(const char * const restrict n);
-static char *correct_tiger192(const char * const restrict n);
-static char *correct_aes_rijndael(const char * const restrict n);
-static char *correct_blowfish128(const char * const restrict n);
-static char *correct_twofish256(const char * const restrict n);
-
-static bool algorithm_is_duplicate(const char * const restrict n);
-
-#undef __ENCRYPT__H__
-#endif /* __ENCRYPT__H__ */
