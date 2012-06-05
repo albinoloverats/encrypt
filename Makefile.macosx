@@ -10,7 +10,7 @@ CFLAGS   = -Wall -Wextra -Wno-unused-parameter -std=gnu99 `libgcrypt-config --cf
 CPPFLAGS = -I. -Isrc -I`brew --prefix gettext`/include -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DLOG_LEVEL=LOG_WARNING
 GUIFLAGS = -DBUILD_GUI `pkg-config --cflags gtk+-2.0 gmodule-2.0`
 
-LIBS     = -L`brew --prefix gettext`/lib -lintl `libgcrypt-config --libs` -lpthread -lcurl
+LIBS     = -L`brew --prefix gettext`/lib -lintl `libgcrypt-config --libs` -lpthread -lcurl -llzma
 GUILIBS  = `pkg-config --libs gtk+-2.0 gmodule-2.0`
 
 cli:
