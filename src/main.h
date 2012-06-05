@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS,) encryption utility
- * Copyright (c) 2005-2011, albinoloverats ~ Software Development
+ * Copyright (c) 2005-2012, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,14 +21,14 @@
 #ifndef _MAIN_H_
 #define _MAIN_H_
 
-#include "common/common.h"
-#include "common/list.h"
-
-#define USAGE_STRING "[-c algorithm] [-s algorithm] [-k/-p password source] [source file] [destination file]"
-
 #define bg_thread_initialise1(A) bg_thread_initialise2(A, NULL)
-#define bg_thread_initialise(...) COMMON_CONCAT(bg_thread_initialise, COMMON_ARGS_COUNT(__VA_ARGS__))(__VA_ARGS__)
+#define bg_thread_initialise(...) CONCAT(bg_thread_initialise, ARGS_COUNT(__VA_ARGS__))(__VA_ARGS__)
 
+/*!
+ * \brief         Background thread
+ *
+ * Background thread to display progress (if applicable).
+ */
 extern pthread_t bg_thread_initialise2(void *(fn)(void *), void *n);
 
 #endif /* _MAIN_H_ */

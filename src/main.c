@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS,) encryption utility
- * Copyright (c) 2005-2011, albinoloverats ~ Software Development
+ * Copyright (c) 2005-2012, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,72 +20,63 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <unistd.h>
 #include <fcntl.h>
-#include <errno.h>
-#include <limits.h>
 
-#include <inttypes.h>
+#include <libintl.h>
+
+#include <string.h>
 #include <stdbool.h>
 
 #include <pthread.h>
+
 #include <curl/curl.h>
 
 #ifdef _WIN32
     #include <windows.h>
     #include <sys/stat.h>
+    #include "common/win32_ext.h"
     extern char *program_invocation_short_name;
 #endif
 
+#include "common/common.h"
+#include "common/error.h"
+#include "common/logging.h"
+
+#include "init.h"
 #include "main.h"
 #include "encrypt.h"
-
-#include "common/common.h"
 
 #ifdef BUILD_GUI
     #include "gui.h"
 #endif
 
 static void *ui_thread_cli(void *);
+
 static bool list_algorithms_hash(void);
 static bool list_algorithms_crypt(void);
 
 static void *check_new_version(void *);
 static size_t verify_new_version(void *, size_t, size_t, void *);
+
 static bool new_available = false;
 
 int main(int argc, char **argv)
 {
+    log_relevel(LOG_ERROR);
+
 #ifdef _WIN32
     program_invocation_short_name = strdup(argv[0]);
 #endif
-    /*
-     * handle command line arguments
-     */
-    args_t hash     = { 's', "hash",     false, true,  NULL, "Hash algorithm to use to generate key" };
-    args_t crypt    = { 'c', "crypto",   false, true,  NULL, "Algorithm to encrypt data" };
-    args_t password = { 'p', "password", false, true,  NULL, "Password used to generate the key" };
-    args_t keyfile  = { 'k', "keyfile",  false, true,  NULL, "File whose data will be used to generate the key" };
-    args_t compress = { 'x', "compress", false, false, NULL, "TODO: implement compression" };
+    args_t args = init(argc, argv);
 
-    list_t *opts = list_create(NULL);
-
-    list_append(&opts, &hash);
-    list_append(&opts, &crypt);
-    list_append(&opts, &password);
-    list_append(&opts, &keyfile);
-#if 0 /* no compression yet */
-    list_append(&opts, &compress);
-#endif
-
-    list_t *unknown = init(ENCRYPT_NAME, ENCRYPT_VERSION, USAGE_STRING, argv, NULL, opts);
     /*
      * list available algorithms if asked to (possibly both hash and crypto)
      */
     bool la = false;
-    if (hash.found && hash.option && !strcasecmp(hash.option, "list"))
+    if (args.hash && !strcasecmp(args.hash, "list"))
         la = list_algorithms_hash();
-    if (crypt.found && crypt.option && !strcasecmp(crypt.option, "list"))
+    if (args.cipher && !strcasecmp(args.cipher, "list"))
         la = list_algorithms_crypt();
     if (la)
         return EXIT_SUCCESS;
@@ -98,19 +89,19 @@ int main(int argc, char **argv)
     GError *error = NULL;
 
     bool fe = false;
-    if (list_size(unknown) >= 1)
-        fe = file_encrypted((char *)list_get(unknown, 0));
+    if (args.source)
+        fe = file_encrypted(args.source);
     /*
      * check args for files/passwords/algroithms...
      */
-    if ((!fe && (hash.found && crypt.found && (password.found || keyfile.found))) 
-      || (fe && (password.found || keyfile.found)))
+    if ((!fe && (args.hash && args.cipher && (args.password || args.key))) 
+      || (fe && (args.password || args.key)))
         ; /* all required arguments were provided, no need for gui */
     else if (gtk_init_check(&argc, &argv))
     {
         builder = gtk_builder_new();
         if (!gtk_builder_add_from_file(builder, GLADE_UI_FILE, &error))
-            die("%s", error->message);
+            die(_("%s"), error->message);
         /*
          * allocate widgets structure
          */
@@ -137,12 +128,12 @@ int main(int argc, char **argv)
 
         version_thread = bg_thread_initialise(check_new_version, widgets);
 
-        auto_select_algorithms(widgets, crypt.option, hash.option);
+        auto_select_algorithms(widgets, args.cipher, args.hash);
 
-        if (list_size(unknown) >= 1)
-            gtk_file_chooser_set_filename((GtkFileChooser *)widgets->file_chooser, (char *)list_get(unknown, 0));
-        if (list_size(unknown) >= 2)
-            gtk_entry_set_text((GtkEntry *)widgets->out_file_entry, (char *)list_get(unknown, 1));
+        if (args.source)
+            gtk_file_chooser_set_filename((GtkFileChooser *)widgets->file_chooser, args.source);
+        if (args.output)
+            gtk_entry_set_text((GtkEntry *)widgets->out_file_entry, args.output);
         file_chooser_callback(NULL, widgets);
 
         gtk_builder_connect_signals(builder, widgets);
@@ -161,7 +152,7 @@ int main(int argc, char **argv)
         goto eop;
     }
     else
-        fprintf(stderr, "Could not create GUI - falling back to command line\n");
+        fprintf(stderr, _("Could not create GUI - falling back to command line\n"));
 #endif /* we couldn't create the gui, so revert back to command line */
 
     /*
@@ -179,55 +170,46 @@ int main(int argc, char **argv)
     int64_t source = STDIN_FILENO;
     int64_t output = STDOUT_FILENO;
 
-    if (list_size(unknown) >= 1)
+    if (args.source)
     {
-        char *nm = (char *)list_get(unknown, 0);
-        log_message(LOG_VERBOSE, "find source file %s", nm);
-        source = open(nm, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
+        log_message(LOG_VERBOSE, _("find source file %s"), args.source);
+        source = open(args.source, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
         if (source < 0)
-            die(_("could not access input file %s"), nm);
-        log_message(LOG_DEBUG, "opened %s for read access", nm);
+            die(_("could not access input file %s"), args.source);
+        log_message(LOG_DEBUG, "opened %s for read access", args.source);
     }
-    if (list_size(unknown) >= 2)
+    if (args.output)
     {
-        char *nm = (char *)list_get(unknown, 1);
-        log_message(LOG_VERBOSE, "find output file %s", nm);
-        output = open(nm, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY | F_WRLCK, S_IRUSR | S_IWUSR);
+        log_message(LOG_VERBOSE, _("find output file %s"), args.output);
+        output = open(args.output, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY | F_WRLCK, S_IRUSR | S_IWUSR);
         if (output < 0)
-            die(_("could not access output file %s"), nm);
-        log_message(LOG_DEBUG, "opened %s for write access", nm);
+            die(_("could not access output file %s"), args.output);
+        log_message(LOG_DEBUG, _("opened %s for write access"), args.output);
     }
 
-    encrypt_t e_data = { crypt.option, hash.option, { NULL, 0, NULL, 0 }, true, compress.found };
+    encrypt_t e_data = { args.cipher, args.hash, { NULL, 0, NULL, 0 }, true, true };
     /*
      * get raw key data in form of password/phrase, key file
      */
-    if (password.found)
+    if (args.password)
     {
-        if (!password.option || !strlen(password.option))
-            die("insufficient password");
-        e_data.key.p_data = (uint8_t *)password.option;
+        e_data.key.p_data = (uint8_t *)args.password;
         e_data.key.p_length = (uint64_t)strlen((char *)e_data.key.p_data);
     }
-    else if (keyfile.found)
+    else if (args.key)
     {
-        if (!keyfile.option || !strlen(keyfile.option))
-            die("invalid key data file");
-        int64_t kf = open(keyfile.option, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
+        int64_t kf = open(args.key, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
         if (kf < 0)
-            die("could not access key data file");
+            die(_("could not access key data file"));
         e_data.key.p_length = lseek(kf, 0, SEEK_END);
         e_data.key.p_data = malloc(e_data.key.p_length);
         if (!e_data.key.p_data)
-            die(_("out of memory @ %s:%i"), __FILE__, __LINE__);
+            die(_("out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, e_data.key.p_length);
         pread(kf, e_data.key.p_data, e_data.key.p_length, 0);
         close(kf);
     }
     else
-    {
-        show_usage(USAGE_STRING);
-        return EXIT_FAILURE;
-    }
+        show_usage();
     /*
      * here we go ...
      */
@@ -241,38 +223,42 @@ int main(int argc, char **argv)
     close(source);
 
     if (status >= CANCELLED)
-        log_message(LOG_WARNING, "%s", FAILED_MESSAGE[status]);
+        fprintf(stderr, _("%s\n"), FAILED_MESSAGE[status]);
 
 #ifdef BUILD_GUI
 eop:
 #endif
     pthread_join(version_thread, NULL);
-
-    list_delete(&unknown);
-    list_delete(&opts);
+    if (new_available)
+        log_message(LOG_INFO, _("A new version of encrypt is available"));
 
     return EXIT_SUCCESS;
 }
 
 static void *ui_thread_cli(void *n)
 {
-    log_message(LOG_EVERYTHING, "starting UI thread...");
+    log_message(LOG_EVERYTHING, _("starting UI thread..."));
     (void)n;
-    fprintf(stderr, "\rPercent complete: %7.3f%%", 0.0f);
+    fprintf(stderr, _("\rPercent complete: %7.3f%%"), 0.0f);
     uint64_t sz = 0;
     do
     {
-        chill(10);
+#ifndef _WIN32
+        struct timespec t = {0, TEN_MILLION};
+        struct timespec r = {0, 0};
+        do
+            nanosleep(&t, &r);
+        while (r.tv_sec > 0 && r.tv_nsec > 0);
+#endif
         if (!sz)
             sz = get_decrypted_size();
         else
-            fprintf(stderr, "\b\b\b\b\b\b\b\b%7.3f%%", (get_bytes_processed() * 100.0f / sz));
+            fprintf(stderr, _("\b\b\b\b\b\b\b\b%7.3f%%"), (get_bytes_processed() * 100.0f / sz));
     }
     while (get_status() == RUNNING);
 
-    fprintf(stderr, "\rPercent complete: %7.3f%%", 100.0f);
-    fprintf(stderr, "\n");
-    log_message(LOG_EVERYTHING, "finished UI thread");
+    fprintf(stderr, _("\rPercent complete: %7.3f%%\n"), 100.0f);
+    log_message(LOG_EVERYTHING, _("finished UI thread"));
     return NULL;
 }
 
@@ -281,7 +267,7 @@ extern pthread_t bg_thread_initialise2(void *(fn)(void *), void *n)
     /*
      * initialize background thread
      */
-    log_message(LOG_DEBUG, "setting up UI thread");
+    log_message(LOG_EVERYTHING, _("setting up UI thread"));
     pthread_t bg_thread;
     pthread_create(&bg_thread, NULL, fn, n);
     return bg_thread;
@@ -289,21 +275,31 @@ extern pthread_t bg_thread_initialise2(void *(fn)(void *), void *n)
 
 static bool list_algorithms_hash(void)
 {
-    list_t *l = get_algorithms_hash();
-    int x = list_size(l);
-    fprintf(stderr, "%d hashing algorithms\n", x);
-    for (int i = 0; i < x; i++)
-        fprintf(stderr, "%s\n", (char *)list_get(l, i));
+    char **l = get_algorithms_hash();
+    for (int i = 0; ; i++)
+    {
+        if (!l[i])
+            break;
+        else
+            fprintf(stderr, "%s\n", l[i]);
+        free(l[i]);
+    }
+    free(l);
     return true;
 }
 
 static bool list_algorithms_crypt(void)
 {
-    list_t *l = get_algorithms_crypt();
-    int x = list_size(l);
-    fprintf(stderr, "%d cryptographic algorithms\n", x);
-    for (int i = 0; i < x; i++)
-        fprintf(stderr, "%s\n", (char *)list_get(l, i));
+    char **l = get_algorithms_crypt();
+    for (int i = 0; ; i++)
+    {
+        if (!l[i])
+            break;
+        else
+        fprintf(stderr, "%s\n", l[i]);
+        free(l[i]);
+    }
+    free(l);
     return true;
 }
 
@@ -333,7 +329,7 @@ static size_t verify_new_version(void *p, size_t s, size_t n, void *x)
     char *l = strrchr(b, '\n');
     if (l)
         *l = '\0';
-    if (strcmp(b, ENCRYPT_VERSION) > 0)
+    if (strcmp(b, TEXT_VERSION) > 0)
         new_available = true;
     free(b);
     return s * n;
