@@ -5,8 +5,8 @@ CPP  = g++.exe
 CC   = gcc.exe
 WINDRES = windres.exe
 RES  = src/encrypt_private.res
-OBJ  = src/encrypt.o common/common.o src/main.o src/gui.o common/logging.o common/list.o $(RES)
-LINKOBJ  = src/encrypt.o common/common.o src/main.o src/gui.o common/logging.o common/list.o $(RES)
+OBJ  = src/encrypt.o src/main.o src/gui.o src/init.o src/io.o src/common/logging.o src/common/error.o src/common/win32_ext.o $(RES)
+LINKOBJ  = src/encrypt.o src/main.o src/gui.o src/init.o src/io.o src/common/logging.o src/common/error.o src/common/win32_ext.o $(RES)
 LIBS =  -L"C:/MinGW/lib" -mwindows -LC:/MinGW/lib -lgtk-win32-2.0 -lgdk-win32-2.0 -latk-1.0 -lgio-2.0 -lpangowin32-1.0 -lgdi32 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lpango-1.0 -lcairo -lgobject-2.0 -lgthread-2.0 -lgmodule-2.0 -lglib-2.0 -lintl -lgladeui-1 -lpthread -lcurldll -lgcrypt -lgpg-error  -s 
 INCS =  -I"C:/MinGW/include"  -I"."  -I"src" 
 CXXINCS =  -I"."  -I"src" 
@@ -29,20 +29,26 @@ $(BIN): $(OBJ)
 src/encrypt.o: src/encrypt.c
 	$(CC) -c src/encrypt.c -o src/encrypt.o $(CFLAGS)
 
-common/common.o: common/common.c
-	$(CC) -c common/common.c -o common/common.o $(CFLAGS)
-
 src/main.o: src/main.c
 	$(CC) -c src/main.c -o src/main.o $(CFLAGS)
 
 src/gui.o: src/gui.c
 	$(CC) -c src/gui.c -o src/gui.o $(CFLAGS)
 
-common/logging.o: common/logging.c
-	$(CC) -c common/logging.c -o common/logging.o $(CFLAGS)
+src/init.o: src/init.c
+	$(CC) -c src/init.c -o src/init.o $(CFLAGS)
 
-common/list.o: common/list.c
-	$(CC) -c common/list.c -o common/list.o $(CFLAGS)
+src/io.o: src/io.c
+	$(CC) -c src/io.c -o src/io.o $(CFLAGS)
+
+src/common/logging.o: src/common/logging.c
+	$(CC) -c src/common/logging.c -o src/common/logging.o $(CFLAGS)
+
+comsrc/mon/error.o: src/common/error.c
+	$(CC) -c src/common/error.c -o src/common/error.o $(CFLAGS)
+
+comsrc/mon/win32_ext.o: src/common/win32_ext.c
+	$(CC) -c src/common/win32_ext.c -o src/common/win32_ext.o $(CFLAGS)
 
 src/encrypt_private.res: src/encrypt_private.rc 
 	$(WINDRES) -i src/encrypt_private.rc --input-format=rc -o src/encrypt_private.res -O coff 

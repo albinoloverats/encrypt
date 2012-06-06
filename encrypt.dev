@@ -1,7 +1,7 @@
 [Project]
 FileName=encrypt.dev
 Name=encrypt
-UnitCount=6
+UnitCount=8
 Type=0
 Ver=1
 IsCpp=0
@@ -64,16 +64,6 @@ AutoIncBuildNrOnCompile=0
 AutoIncBuildNr=0
 
 [Unit2]
-FileName=common\common.c
-CompileCpp=0
-Folder=encrypt
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit3]
 FileName=src\main.c
 CompileCpp=0
 Folder=encrypt
@@ -83,7 +73,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit4]
+[Unit3]
 FileName=src\gui.c
 CompileCpp=0
 Folder=encrypt
@@ -93,8 +83,18 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
+[Unit4]
+FileName=src\io.c
+CompileCpp=0
+Folder=encrypt
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
 [Unit5]
-FileName=common\logging.c
+FileName=src\init.c
 CompileCpp=0
 Folder=encrypt
 Compile=1
@@ -104,7 +104,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit6]
-FileName=common\list.c
+FileName=src\common\win32_ext.c
 CompileCpp=0
 Folder=encrypt
 Compile=1
@@ -141,7 +141,17 @@ CompilerSet=0
 CompilerType=0
 
 [Unit7]
-FileName=common\tlv.c
+FileName=src\common\error.c
+CompileCpp=0
+Folder=encrypt
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit8]
+FileName=src\common\logging.c
 CompileCpp=0
 Folder=encrypt
 Compile=1
