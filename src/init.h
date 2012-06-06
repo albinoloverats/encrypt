@@ -23,7 +23,7 @@
 
 #define TEXT_NAME "encrypt"
 
-#define TEXT_USAGE "[-c algorithm] [-s algorithm] [-k/-p password source] [source file] [destination file]"
+#define TEXT_USAGE "[-c algorithm] [-s algorithm] -k/-p key/password [input] [output]"
 
 /*!
  * \brief  Structure of expected options
