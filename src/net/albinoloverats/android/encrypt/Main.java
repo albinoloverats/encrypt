@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS,) encryption utility
- * Copyright (c) 2005-2011, albinoloverats ~ Software Development
+ * Copyright (c) 2005-2012, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,14 +24,13 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.Set;
 
-import net.albinoloverats.android.encrypt.R;
 import net.albinoloverats.android.encrypt.Encrypt.Status;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -42,6 +41,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -49,7 +49,6 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemSelectedListener;
 
 import com.lamerman.FileDialog;
 
@@ -77,7 +76,7 @@ public class Main extends Activity
         setContentView(R.layout.main);
 
         // setup the file chooser button
-        final Button fChooser = (Button)findViewById(R.id.button_file);
+        final Button fChooser = (Button) findViewById(R.id.button_file);
         fChooser.setOnClickListener(new OnClickListener()
         {
             @Override
@@ -90,7 +89,7 @@ public class Main extends Activity
         });
 
         // setup the file output chooser button
-        final Button oChooser = (Button)findViewById(R.id.button_output);
+        final Button oChooser = (Button) findViewById(R.id.button_output);
         oChooser.setOnClickListener(new OnClickListener()
         {
             @Override
@@ -103,7 +102,7 @@ public class Main extends Activity
         });
 
         // setup the hash and crypto spinners
-        final Spinner cSpinner = (Spinner)findViewById(R.id.spin_crypto);
+        final Spinner cSpinner = (Spinner) findViewById(R.id.spin_crypto);
         final ArrayAdapter<CharSequence> cipherSpinAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
         cipherSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         cSpinner.setAdapter(cipherSpinAdapter);
@@ -114,18 +113,17 @@ public class Main extends Activity
             {
                 int i = 0;
                 for (final Iterator<String> iterator = cipherNames.iterator(); iterator.hasNext(); i++)
-                {
                     if (position > 0 && i == position - 1)
-                        cipher = (String)iterator.next();
+                        cipher = iterator.next();
                     else
                     {
                         if (position == 0)
                             cipher = null;
                         iterator.next();
                     }
-                }
                 checkEnableEncryptButton();
             }
+
             @Override
             public void onNothingSelected(final AdapterView<?> parent)
             {
@@ -134,7 +132,7 @@ public class Main extends Activity
         });
         cSpinner.setEnabled(false);
 
-        final Spinner hSpinner = (Spinner)findViewById(R.id.spin_hash);
+        final Spinner hSpinner = (Spinner) findViewById(R.id.spin_hash);
         final ArrayAdapter<CharSequence> hashSpinAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
         hashSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         hSpinner.setAdapter(hashSpinAdapter);
@@ -145,18 +143,17 @@ public class Main extends Activity
             {
                 int i = 0;
                 for (final Iterator<String> iterator = hashNames.iterator(); iterator.hasNext(); i++)
-                {
                     if (i > 0 && i == position - 1)
-                        hash = (String)iterator.next();
+                        hash = iterator.next();
                     else
                     {
                         if (position == 0)
                             hash = null;
                         iterator.next();
                     }
-                }
                 checkEnableEncryptButton();
             }
+
             @Override
             public void onNothingSelected(final AdapterView<?> parent)
             {
@@ -175,13 +172,13 @@ public class Main extends Activity
             hashSpinAdapter.add(s);
 
         // get reference to password text box
-        final EditText pEntry = (EditText)findViewById(R.id.text_password);
+        final EditText pEntry = (EditText) findViewById(R.id.text_password);
         pEntry.setOnKeyListener(new OnKeyListener()
         {
             @Override
             public boolean onKey(final View v, final int keyCode, final KeyEvent event)
             {
-                final String p = ((EditText)findViewById(R.id.text_password)).getText().toString();
+                final String p = ((EditText) findViewById(R.id.text_password)).getText().toString();
                 if (p.length() == 0)
                     password = null;
                 else
@@ -193,7 +190,7 @@ public class Main extends Activity
         pEntry.setEnabled(false);
 
         // get reference to encrypt/decrypt button
-        final Button encutton = (Button)findViewById(R.id.button_go);
+        final Button encutton = (Button) findViewById(R.id.button_go);
         encutton.setOnClickListener(new OnClickListener()
         {
             @Override
@@ -234,12 +231,13 @@ public class Main extends Activity
         final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.about);
         dialog.setTitle(getString(R.string.app_name) + " " + getString(R.string.version));
-        ((ImageView)dialog.findViewById(R.id.about_image)).setImageResource(R.drawable.icon);
-        ((TextView)dialog.findViewById(R.id.about_text)).setText(getString(R.string.shpeel) + "\n" + getString(R.string.copyright) + "\n" + getString(R.string.url));
+        ((ImageView) dialog.findViewById(R.id.about_image)).setImageResource(R.drawable.icon);
+        ((TextView) dialog.findViewById(R.id.about_text)).setText(getString(R.string.shpeel) + "\n" + getString(R.string.copyright) + "\n" + getString(R.string.url));
         dialog.show();
     }
 
-    public synchronized void onActivityResult(final int requestCode, int resultCode, final Intent data)
+    @Override
+    public synchronized void onActivityResult(final int requestCode, final int resultCode, final Intent data)
     {
         if (resultCode == Activity.RESULT_OK)
         {
@@ -247,22 +245,22 @@ public class Main extends Activity
             {
                 case FileDialog.REQUEST_LOAD:
                     filenameIn = data.getStringExtra(FileDialog.RESULT_PATH);
-                    ((Button)findViewById(R.id.button_file)).setText(filenameIn);
+                    ((Button) findViewById(R.id.button_file)).setText(filenameIn);
                     break;
                 case FileDialog.REQUEST_SAVE:
                     filenameOut = data.getStringExtra(FileDialog.RESULT_PATH);
-                    ((Button)findViewById(R.id.button_output)).setText(filenameOut);
+                    ((Button) findViewById(R.id.button_output)).setText(filenameOut);
                     break;
             }
             if (filenameIn != null && filenameOut != null)
             {
-                ((EditText)findViewById(R.id.text_password)).setEnabled(true);
-    
-                final Spinner cSpinner = (Spinner)findViewById(R.id.spin_crypto);
-                final Spinner hSpinner = (Spinner)findViewById(R.id.spin_hash);
-    
-                final Button encButton = (Button)findViewById(R.id.button_go);
-    
+                ((EditText) findViewById(R.id.text_password)).setEnabled(true);
+
+                final Spinner cSpinner = (Spinner) findViewById(R.id.spin_crypto);
+                final Spinner hSpinner = (Spinner) findViewById(R.id.spin_hash);
+
+                final Button encButton = (Button) findViewById(R.id.button_go);
+
                 if (Encrypt.fileEncrypted(new File(filenameIn)))
                 {
                     encrypting = false;
@@ -281,11 +279,10 @@ public class Main extends Activity
             }
         }
         else if (resultCode == Activity.RESULT_CANCELED)
-        {
             ;
-        }
     }
 
+    @Override
     protected Dialog onCreateDialog(final int id)
     {
         switch (id)
@@ -311,7 +308,7 @@ public class Main extends Activity
     @Override
     protected void onPrepareDialog(final int id, final Dialog dialog)
     {
-        switch(id)
+        switch (id)
         {
             case PROGRESS_DIALOG:
                 progressDialog.setProgress(0);
@@ -322,6 +319,7 @@ public class Main extends Activity
 
     final Handler handler = new Handler()
     {
+        @Override
         public void handleMessage(final Message msg)
         {
             if (msg.arg1 > 0)
@@ -332,14 +330,14 @@ public class Main extends Activity
             else if (msg.arg1 < 0)
             {
                 dismissDialog(PROGRESS_DIALOG);
-                Toast.makeText(getApplicationContext(), (String)msg.obj, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), (String) msg.obj, Toast.LENGTH_LONG).show();
             }
         }
     };
 
     private void checkEnableEncryptButton()
     {
-        if ((encrypting && hash != null && cipher != null && password != null) || (!encrypting && password != null))
+        if (encrypting && hash != null && cipher != null && password != null || !encrypting && password != null)
             findViewById(R.id.button_go).setEnabled(true);
         else
             findViewById(R.id.button_go).setEnabled(false);
@@ -347,13 +345,14 @@ public class Main extends Activity
 
     private class ProgressThread extends Thread
     {
-        private Handler mHandler;
+        private final Handler mHandler;
 
         private ProgressThread(final Handler h)
         {
             mHandler = h;
         }
-       
+
+        @Override
         public void run()
         {
             final Encrypt encryptProcess;
@@ -375,7 +374,7 @@ public class Main extends Activity
                 {
                     encryptProcess.interrupt();
                 }
-                mHandler.sendMessage(mHandler.obtainMessage(0, (int)encryptProcess.getDecryptedSize(), (int)encryptProcess.getBytesProcessed()));
+                mHandler.sendMessage(mHandler.obtainMessage(0, (int) encryptProcess.getDecryptedSize(), (int) encryptProcess.getBytesProcessed()));
 
                 status = encryptProcess.getStatus();
             }
