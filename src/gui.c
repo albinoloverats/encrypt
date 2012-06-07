@@ -22,24 +22,19 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
-
 #include <errno.h>
 #include <libintl.h>
-
 #include <string.h>
 #include <inttypes.h>
 #include <stdbool.h>
-
 #include <sys/stat.h>
-
 #include <pthread.h>
 
 #include "common/common.h"
 #include "common/error.h"
 #include "common/logging.h"
-
 #ifdef _WIN32
-    #include "common/win32_ext.c"
+    #include "common/win32_ext.h"
 #endif
 
 #include "init.h"

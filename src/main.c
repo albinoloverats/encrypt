@@ -22,31 +22,23 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-
 #include <libintl.h>
-
 #include <string.h>
 #include <stdbool.h>
-
 #include <pthread.h>
-
 #include <curl/curl.h>
-
-#ifdef _WIN32
-    #include <windows.h>
-    #include <sys/stat.h>
-    #include "common/win32_ext.h"
-    extern char *program_invocation_short_name;
-#endif
 
 #include "common/common.h"
 #include "common/error.h"
 #include "common/logging.h"
+#ifdef _WIN32
+    #include "common/win32_ext.h"
+    extern char *program_invocation_short_name;
+#endif
 
 #include "init.h"
 #include "main.h"
 #include "encrypt.h"
-
 #ifdef BUILD_GUI
     #include "gui.h"
 #endif

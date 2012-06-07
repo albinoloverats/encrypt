@@ -21,29 +21,24 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
-
 #include <errno.h>
-
 #include <stdbool.h>
-
-#include <gcrypt.h>
-#include <lzma.h>
-
-#ifdef _WIN32
-    #define fsync(fd) _commit(fd)
-    #include "common/win32_ext.c"
-#else
+#ifndef _WIN32
     #include <netinet/in.h>
 #endif
+#include <gcrypt.h>
+#include <lzma.h>
 
 #include "common/common.h"
 #include "common/error.h"
 #include "common/logging.h"
+#ifdef _WIN32
+    #include "common/win32_ext.h"
+#endif
 
 #include "init.h"
 #include "encrypt.h"
 #include "io.h"
-
 
 static void init_gcrypt_library(void);
 

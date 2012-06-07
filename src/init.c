@@ -21,15 +21,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
-
 #include <errno.h>
 #include <libintl.h>
-
 #include <string.h>
 #include <stdbool.h>
 
 #include "common/common.h"
 #include "common/logging.h"
+#ifdef _WIN32
+    #include "common/win32_ext.h"
+    extern char *program_invocation_short_name;
+#endif
 
 #include "init.h"
 #include "encrypt.h"

@@ -22,20 +22,17 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdarg.h>
-
 #include <errno.h>
 #include <time.h>
-
 #include <ctype.h>
 #include <string.h>
-
 #include <sys/types.h>
 
 #include "common/common.h"
 #include "common/logging.h"
-
-#ifdef WIN32
-extern char *program_invocation_short_name;
+#ifdef _WIN32
+    #include "common/win32_ext.h"
+    extern char *program_invocation_short_name;
 #endif
 
 /*@null@*/static FILE *log_destination = NULL;

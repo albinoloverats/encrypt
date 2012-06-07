@@ -60,8 +60,6 @@
     #define __LITTLE_ENDIAN 1234 /*!< Not defined in MinGW, so set here */
     #define __BYTE_ORDER __LITTLE_ENDIAN /*!< Windows is almost always going to be LE */
     
-    extern char *program_invocation_short_name; /*!< Again, not declared on Windows */
-
     #define __bswap_16(x) /*!< Define ourselves a 2-byte swap macro */ \
         ((((x) & 0xff00) >> 8)\
        | (((x) & 0x00ff) << 8))

@@ -21,6 +21,9 @@
 #ifndef _IO_H_
 #define _IO_H_
 
+#include <gcrypt.h>
+#include <lzma.h>
+
 typedef struct io_params_t
 {
     gcry_cipher_hd_t cipher;

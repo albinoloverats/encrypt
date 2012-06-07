@@ -22,15 +22,18 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdarg.h>
-
 #include <errno.h>
-#include <execinfo.h>
-
+#ifndef _WIN32
+    #include <execinfo.h>
+#endif
 #include <ctype.h>
 #include <string.h>
 
 #include "common/error.h"
 #include "common/logging.h"
+#ifdef _WIN32
+    #include "common/win32_ext.h"
+#endif
 
 extern void die(const char * const restrict s, ...)
 {
@@ -62,6 +65,7 @@ extern void die(const char * const restrict s, ...)
         log_message(LOG_FATAL, "%s", e);
         free(e);
     }
+#ifndef _WIN32
     void *bt[BACKTRACE_BUFFER_LIMIT];
     int c = backtrace(bt, BACKTRACE_BUFFER_LIMIT);
     char **sym = backtrace_symbols(bt, c);
@@ -71,6 +75,7 @@ extern void die(const char * const restrict s, ...)
             log_message(LOG_DEBUG, "%s", sym[i]);
         free(sym);
     }
+#endif
     /*
      * TODO if running a GUI don't necessarily exit without alerting the user first
      * Users seem to dislike applications just quitting for no apparent reason!

@@ -20,7 +20,15 @@
 
 #ifdef _WIN32
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
 #include "common/win32_ext.h"
+#include "common/common.h"
+#include "common/error.h"
+
+char *program_invocation_short_name = NULL;
 
 extern ssize_t pread(int filedes, void *buffer, size_t size, off_t offset)
 {

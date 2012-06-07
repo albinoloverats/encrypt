@@ -23,9 +23,13 @@
 #ifndef _WIN32_EXT_H_
 #define _WIN32_EXT_H_
 
+#include <sys/stat.h>
+
 #ifndef vsnprintf
     #define vsnprintf _vsnprintf
 #endif
+
+#define fsync(fd) _commit(fd)
 
 extern ssize_t pread(int filedes, void *buffer, size_t size, off_t offset);
 
