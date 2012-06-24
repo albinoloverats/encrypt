@@ -28,13 +28,13 @@
 #define CH_GET_WIDGET( builder, name, data )        CH_GET_OBJECT( builder, name, GTK_WIDGET, data )
 
 #if !defined _WIN32 && !defined __APPLE__
-    #ifdef DEBUGGING
+    #ifdef __DEBUG__
         #define GLADE_UI_FILE "encrypt.glade"
     #else
         #define GLADE_UI_FILE "/usr/share/encrypt/" "encrypt.glade"
     #endif
 #else
-    #define GLADE_UI_FILE "encrypt_legacy.glade"
+    #define GLADE_UI_FILE "encrypt_w32_osx.glade"
 #endif
 
 #define LABEL_ENCRYPT "Encrypt"

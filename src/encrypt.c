@@ -254,7 +254,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     /*
      * write a random length of random bytes
      */
-#ifndef DEBUGGING
+#ifndef __DEBUG__
     gcry_create_nonce(&l1, sizeof( uint8_t ));
     gcry_create_nonce(buffer, l1);
     enc_write(g, &l1, sizeof( uint8_t ), &io_params);
@@ -371,7 +371,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     /*
      * add some random data at the end
      */
-#ifndef DEBUGGING
+#ifndef __DEBUG__
     log_message(LOG_DEBUG, "appending file random data");
     gcry_create_nonce(&l1, sizeof( uint8_t ));
     gcry_create_nonce(buffer, l1);
@@ -470,7 +470,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
      * skip past random data
      */
     uint8_t l1 = 0;
-#ifndef DEBUGGING
+#ifndef __DEBUG__
     enc_read(f, &l1, sizeof( uint8_t ), &io_params);
     enc_read(f, buffer, l1, &io_params);
     memset(buffer, 0x00, 0xFF);

@@ -147,7 +147,7 @@ extern int enc_write(int64_t f, const void * const restrict d, size_t l, io_para
     if (!d && !l)
     {
         gcry_create_nonce(stream + offset[0], remainder[1]);
-#ifndef DEBUGGING
+#ifndef __DEBUG__
         gcry_cipher_encrypt(c->cipher, stream, block, NULL, 0);
 #endif
         int e = write(f, stream, block);
@@ -169,7 +169,7 @@ extern int enc_write(int64_t f, const void * const restrict d, size_t l, io_para
             return l;
         }
         memcpy(stream + offset[0], d + offset[1], remainder[1]);
-#ifndef DEBUGGING
+#ifndef __DEBUG__
         gcry_cipher_encrypt(c->cipher, stream, block, NULL, 0);
 #endif
         int e = EXIT_SUCCESS;
@@ -220,7 +220,7 @@ extern int enc_read(int64_t f, void * const d, size_t l, io_params_t *c)
         int e = EXIT_SUCCESS;
         if ((e = read(f, stream, block)) < 0)
             return e;
-#ifndef DEBUGGING
+#ifndef __DEBUG__
         gcry_cipher_decrypt(c->cipher, stream, block, NULL, 0);
 #endif
         offset[0] = block;
