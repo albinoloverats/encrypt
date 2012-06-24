@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import net.albinoloverats.android.encrypt.Encrypt.Status;
+import net.albinoloverats.android.encrypt.utils.AlgorithmNames;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -76,7 +77,7 @@ public class Main extends Activity
         setContentView(R.layout.main);
 
         // setup the file chooser button
-        final Button fChooser = (Button) findViewById(R.id.button_file);
+        final Button fChooser = (Button)findViewById(R.id.button_file);
         fChooser.setOnClickListener(new OnClickListener()
         {
             @Override
@@ -89,7 +90,7 @@ public class Main extends Activity
         });
 
         // setup the file output chooser button
-        final Button oChooser = (Button) findViewById(R.id.button_output);
+        final Button oChooser = (Button)findViewById(R.id.button_output);
         oChooser.setOnClickListener(new OnClickListener()
         {
             @Override
@@ -102,7 +103,7 @@ public class Main extends Activity
         });
 
         // setup the hash and crypto spinners
-        final Spinner cSpinner = (Spinner) findViewById(R.id.spin_crypto);
+        final Spinner cSpinner = (Spinner)findViewById(R.id.spin_crypto);
         final ArrayAdapter<CharSequence> cipherSpinAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
         cipherSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         cSpinner.setAdapter(cipherSpinAdapter);
@@ -132,7 +133,7 @@ public class Main extends Activity
         });
         cSpinner.setEnabled(false);
 
-        final Spinner hSpinner = (Spinner) findViewById(R.id.spin_hash);
+        final Spinner hSpinner = (Spinner)findViewById(R.id.spin_hash);
         final ArrayAdapter<CharSequence> hashSpinAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
         hashSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         hSpinner.setAdapter(hashSpinAdapter);
@@ -172,13 +173,13 @@ public class Main extends Activity
             hashSpinAdapter.add(s);
 
         // get reference to password text box
-        final EditText pEntry = (EditText) findViewById(R.id.text_password);
+        final EditText pEntry = (EditText)findViewById(R.id.text_password);
         pEntry.setOnKeyListener(new OnKeyListener()
         {
             @Override
             public boolean onKey(final View v, final int keyCode, final KeyEvent event)
             {
-                final String p = ((EditText) findViewById(R.id.text_password)).getText().toString();
+                final String p = ((EditText)findViewById(R.id.text_password)).getText().toString();
                 if (p.length() == 0)
                     password = null;
                 else
@@ -190,7 +191,7 @@ public class Main extends Activity
         pEntry.setEnabled(false);
 
         // get reference to encrypt/decrypt button
-        final Button encutton = (Button) findViewById(R.id.button_go);
+        final Button encutton = (Button)findViewById(R.id.button_go);
         encutton.setOnClickListener(new OnClickListener()
         {
             @Override
@@ -231,8 +232,8 @@ public class Main extends Activity
         final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.about);
         dialog.setTitle(getString(R.string.app_name) + " " + getString(R.string.version));
-        ((ImageView) dialog.findViewById(R.id.about_image)).setImageResource(R.drawable.icon);
-        ((TextView) dialog.findViewById(R.id.about_text)).setText(getString(R.string.shpeel) + "\n" + getString(R.string.copyright) + "\n" + getString(R.string.url));
+        ((ImageView)dialog.findViewById(R.id.about_image)).setImageResource(R.drawable.icon);
+        ((TextView)dialog.findViewById(R.id.about_text)).setText(getString(R.string.shpeel) + "\n" + getString(R.string.copyright) + "\n" + getString(R.string.url));
         dialog.show();
     }
 
@@ -245,21 +246,21 @@ public class Main extends Activity
             {
                 case FileDialog.REQUEST_LOAD:
                     filenameIn = data.getStringExtra(FileDialog.RESULT_PATH);
-                    ((Button) findViewById(R.id.button_file)).setText(filenameIn);
+                    ((Button)findViewById(R.id.button_file)).setText(filenameIn);
                     break;
                 case FileDialog.REQUEST_SAVE:
                     filenameOut = data.getStringExtra(FileDialog.RESULT_PATH);
-                    ((Button) findViewById(R.id.button_output)).setText(filenameOut);
+                    ((Button)findViewById(R.id.button_output)).setText(filenameOut);
                     break;
             }
             if (filenameIn != null && filenameOut != null)
             {
-                ((EditText) findViewById(R.id.text_password)).setEnabled(true);
+                ((EditText)findViewById(R.id.text_password)).setEnabled(true);
 
-                final Spinner cSpinner = (Spinner) findViewById(R.id.spin_crypto);
-                final Spinner hSpinner = (Spinner) findViewById(R.id.spin_hash);
+                final Spinner cSpinner = (Spinner)findViewById(R.id.spin_crypto);
+                final Spinner hSpinner = (Spinner)findViewById(R.id.spin_hash);
 
-                final Button encButton = (Button) findViewById(R.id.button_go);
+                final Button encButton = (Button)findViewById(R.id.button_go);
 
                 if (Encrypt.fileEncrypted(new File(filenameIn)))
                 {
@@ -330,7 +331,7 @@ public class Main extends Activity
             else if (msg.arg1 < 0)
             {
                 dismissDialog(PROGRESS_DIALOG);
-                Toast.makeText(getApplicationContext(), (String) msg.obj, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), (String)msg.obj, Toast.LENGTH_LONG).show();
             }
         }
     };
@@ -374,7 +375,7 @@ public class Main extends Activity
                 {
                     encryptProcess.interrupt();
                 }
-                mHandler.sendMessage(mHandler.obtainMessage(0, (int) encryptProcess.getDecryptedSize(), (int) encryptProcess.getBytesProcessed()));
+                mHandler.sendMessage(mHandler.obtainMessage(0, (int)encryptProcess.getDecryptedSize(), (int)encryptProcess.getBytesProcessed()));
 
                 status = encryptProcess.getStatus();
             }
