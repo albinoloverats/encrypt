@@ -18,7 +18,7 @@ Libs=
 PrivateResource=src\encrypt_private.rc
 ResourceIncludes=
 MakeIncludes=
-Compiler=-DLOG_DEFAULT=LOG_ERROR_@@_-D_GNU_SOURCE_@@_-D_FILE_OFFSET_BITS=64_@@_-DBUILD_GUI_@@_-std=gnu99_@@_-mms-bitfields_@@_-IC:\MinGW\include\gtk-2.0_@@_-IC:\MinGW\lib\gtk-2.0\include_@@_-IC:\MinGW\include\atk-1.0_@@_-IC:\MinGW\include\cairo_@@_-IC:\MinGW\include\gdk-pixbuf-2.0_@@_-IC:\MinGW\include\pango-1.0_@@_-IC:\MinGW\include\glib-2.0_@@_-IC:\MinGW\lib\glib-2.0\include_@@_-IC:\MinGW\include_@@_-IC:\MinGW\include\freetype2_@@_-IC:\MinGW\include\libpng14_@@_
+Compiler=-DLOG_DEFAULT=LOG_EVERYTHING_@@_-D_GNU_SOURCE_@@_-D_FILE_OFFSET_BITS=64_@@_-DBUILD_GUI_@@_-std=gnu99_@@_-mms-bitfields_@@_-IC:\MinGW\include\gtk-2.0_@@_-IC:\MinGW\lib\gtk-2.0\include_@@_-IC:\MinGW\include\atk-1.0_@@_-IC:\MinGW\include\cairo_@@_-IC:\MinGW\include\gdk-pixbuf-2.0_@@_-IC:\MinGW\include\pango-1.0_@@_-IC:\MinGW\include\glib-2.0_@@_-IC:\MinGW\lib\glib-2.0\include_@@_-IC:\MinGW\include_@@_-IC:\MinGW\include\freetype2_@@_-IC:\MinGW\include\libpng14_@@_
 CppCompiler=
 Linker=-LC:\MinGW\lib_@@_-lgtk-win32-2.0_@@_-lgdk-win32-2.0_@@_-latk-1.0_@@_-lgio-2.0_@@_-lpangowin32-1.0_@@_-lgdi32_@@_-lpangocairo-1.0_@@_-lgdk_pixbuf-2.0_@@_-lpango-1.0_@@_-lcairo_@@_-lgobject-2.0_@@_-lgthread-2.0_@@_-lgmodule-2.0_@@_-lglib-2.0_@@_-lintl_@@_-lgladeui-1_@@_-lpthread_@@_-lcurldll_@@_-lgcrypt_@@_-lgpg-error_@@_-llzma_@@_
 Icon=pixmaps\encrypt.ico
