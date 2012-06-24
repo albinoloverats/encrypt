@@ -90,7 +90,8 @@ public class Encrypt extends Thread implements Runnable
 
     private static final long HEADER_VERSION_201108 = 0x72761df3e497c983L;
     private static final long HEADER_VERSION_201110 = 0xbb116f7d00201110L;
-    private static final long[] HEADER = { 0x3697de5d96fca0faL, 0xc845c2fa95e2f52dL, HEADER_VERSION_201110 };
+    private static final long HEADER_VERSION_201207 = 0x51d2824500201207L;
+    private static final long[] HEADER = { 0x3697de5d96fca0faL, 0xc845c2fa95e2f52dL, HEADER_VERSION_201207 };
 
     private static final int BLOCK_SIZE = 1024;
 
