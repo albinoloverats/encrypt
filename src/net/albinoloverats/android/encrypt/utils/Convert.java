@@ -18,21 +18,21 @@
  *
  */
 
-package net.albinoloverats.android.encrypt;
+package net.albinoloverats.android.encrypt.utils;
 
 public abstract class Convert
 {
     public static byte[] toBytes(final long l)
     {
         final byte b[] = new byte[8];
-        b[0] = (byte) ((l & 0xFF00000000000000L) >> 56);
-        b[1] = (byte) ((l & 0x00FF000000000000L) >> 48);
-        b[2] = (byte) ((l & 0x0000FF0000000000L) >> 40);
-        b[3] = (byte) ((l & 0x000000FF00000000L) >> 32);
-        b[4] = (byte) ((l & 0x00000000FF000000L) >> 24);
-        b[5] = (byte) ((l & 0x0000000000FF0000L) >> 16);
-        b[6] = (byte) ((l & 0x000000000000FF00L) >> 8);
-        b[7] = (byte) (l & 0x00000000000000FFL);
+        b[0] = (byte)((l & 0xFF00000000000000L) >> 56);
+        b[1] = (byte)((l & 0x00FF000000000000L) >> 48);
+        b[2] = (byte)((l & 0x0000FF0000000000L) >> 40);
+        b[3] = (byte)((l & 0x000000FF00000000L) >> 32);
+        b[4] = (byte)((l & 0x00000000FF000000L) >> 24);
+        b[5] = (byte)((l & 0x0000000000FF0000L) >> 16);
+        b[6] = (byte)((l & 0x000000000000FF00L) >> 8);
+        b[7] = (byte)(l & 0x00000000000000FFL);
         return b;
     }
 
@@ -51,10 +51,10 @@ public abstract class Convert
     public static byte[] toBytes(final int i)
     {
         final byte b[] = new byte[4];
-        b[0] = (byte) ((i & 0xFF000000) >> 24);
-        b[1] = (byte) ((i & 0x00FF0000) >> 16);
-        b[2] = (byte) ((i & 0x0000FF00) >> 8);
-        b[3] = (byte) (i & 0x000000FF);
+        b[0] = (byte)((i & 0xFF000000) >> 24);
+        b[1] = (byte)((i & 0x00FF0000) >> 16);
+        b[2] = (byte)((i & 0x0000FF00) >> 8);
+        b[3] = (byte)(i & 0x000000FF);
         return b;
     }
 
@@ -69,15 +69,15 @@ public abstract class Convert
     public static byte[] toBytes(final short s)
     {
         final byte b[] = new byte[2];
-        b[0] = (byte) ((s & 0xFF00) >> 8);
-        b[1] = (byte) (s & 0x00FF);
+        b[0] = (byte)((s & 0xFF00) >> 8);
+        b[1] = (byte)(s & 0x00FF);
         return b;
     }
 
     public static short shortFromBytes(final byte[] b)
     {
-        final short s = (short) ((b[0] & 0x00FF) << 8);
-        return (short) (s | (short) (b[1] & 0x00FF));
+        final short s = (short)((b[0] & 0x00FF) << 8);
+        return (short)(s | (short)(b[1] & 0x00FF));
     }
 
     public static byte[] toBytes(final byte x)
@@ -89,12 +89,12 @@ public abstract class Convert
 
     public static byte byteFromBytes(final byte[] b)
     {
-        return (byte) (b[0] & 0x000000FF);
+        return (byte)(b[0] & 0x000000FF);
     }
 
     public static byte[] toBytes(final boolean x)
     {
-        return toBytes((byte) (x ? 1 : 0));
+        return toBytes((byte)(x ? 1 : 0));
     }
 
     public static boolean booleanFromBytes(final byte[] b)

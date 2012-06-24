@@ -18,7 +18,7 @@
  *
  */
 
-package net.albinoloverats.android.encrypt;
+package net.albinoloverats.android.encrypt.utils;
 
 import gnu.crypto.cipher.CipherFactory;
 import gnu.crypto.cipher.IBlockCipher;
@@ -49,7 +49,7 @@ public abstract class AlgorithmNames
         final Set<?> s = HashFactory.getNames();
         final Set<String> h = new TreeSet<String>();
         for (final Object o : s)
-            h.add(((String) o).replace("-", "").toUpperCase());
+            h.add(((String)o).replace("-", "").toUpperCase());
         return h;
     }
 
@@ -57,8 +57,8 @@ public abstract class AlgorithmNames
     {
         final Set<?> s = HashFactory.getNames();
         for (final Object o : s)
-            if (name.equals(((String) o).replace("-", "").toUpperCase()))
-                return HashFactory.getInstance((String) o);
+            if (name.equals(((String)o).replace("-", "").toUpperCase()))
+                return HashFactory.getInstance((String)o);
         throw new NoSuchAlgorithmException(name);
     }
 
@@ -68,12 +68,12 @@ public abstract class AlgorithmNames
         final Set<String> h = new TreeSet<String>();
         for (final Object o : s)
         {
-            String n = ((String) o).replace("-", "").toUpperCase();
+            String n = ((String)o).replace("-", "").toUpperCase();
             if (n.equals("NULL"))
                 continue;
             final Set<Integer> keySizes = new TreeSet<Integer>();
             for (final Iterator<?> iterator = CipherFactory.getInstance(n).keySizes(); iterator.hasNext();)
-                keySizes.add((Integer) iterator.next());
+                keySizes.add((Integer)iterator.next());
             if (n.equals(NAME_TRIPLE_DES))
                 n = NAME_3DES;
             if (keySizes.size() == 1 || n.equals(NAME_CAST5))
@@ -99,7 +99,7 @@ public abstract class AlgorithmNames
         final Set<?> s = CipherFactory.getNames();
         for (final Object o : s)
         {
-            final String n = ((String) o).replace("-", "").toUpperCase();
+            final String n = ((String)o).replace("-", "").toUpperCase();
             if (n.equals("NULL"))
                 continue;
             if (n.length() > name.length())
@@ -109,7 +109,7 @@ public abstract class AlgorithmNames
                 final Set<Integer> keySizes = new TreeSet<Integer>();
                 final IBlockCipher cipher = CipherFactory.getInstance(n);
                 for (final Iterator<?> iterator = cipher.keySizes(); iterator.hasNext();)
-                    keySizes.add((Integer) iterator.next());
+                    keySizes.add((Integer)iterator.next());
                 if (keySizes.size() == 1 || n.equals(NAME_CAST5))
                     return cipher;
                 else
@@ -130,7 +130,7 @@ public abstract class AlgorithmNames
         final Set<?> s = CipherFactory.getNames();
         for (final Object o : s)
         {
-            final String n = ((String) o).replace("-", "").toUpperCase();
+            final String n = ((String)o).replace("-", "").toUpperCase();
             if (n.equals("NULL"))
                 continue;
             if (n.length() > name.length())
@@ -140,7 +140,7 @@ public abstract class AlgorithmNames
                 final Set<Integer> keySizes = new TreeSet<Integer>();
                 final IBlockCipher cipher = CipherFactory.getInstance(n);
                 for (final Iterator<?> iterator = cipher.keySizes(); iterator.hasNext();)
-                    keySizes.add((Integer) iterator.next());
+                    keySizes.add((Integer)iterator.next());
                 if (keySizes.size() == 1)
                     return cipher.defaultKeySize() * Byte.SIZE;
                 else if (name.endsWith(NAME_CAST5))
