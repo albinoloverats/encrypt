@@ -55,8 +55,6 @@ static bool new_available = false;
 
 int main(int argc, char **argv)
 {
-    log_relevel(LOG_ERROR);
-
 #ifdef _WIN32
     program_invocation_short_name = strdup(argv[0]);
 #endif
@@ -183,12 +181,7 @@ int main(int argc, char **argv)
     /*
      * get raw key data in form of password/phrase, key file
      */
-    if (args.password)
-    {
-        e_data.key.p_data = (uint8_t *)args.password;
-        e_data.key.p_length = (uint64_t)strlen((char *)e_data.key.p_data);
-    }
-    else if (args.key)
+    if (args.key)
     {
         int64_t kf = open(args.key, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
         if (kf < 0)
@@ -199,6 +192,16 @@ int main(int argc, char **argv)
             die(_("out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, e_data.key.p_length);
         pread(kf, e_data.key.p_data, e_data.key.p_length, 0);
         close(kf);
+    }
+    else if (args.password)
+    {
+        e_data.key.p_data = (uint8_t *)args.password;
+        e_data.key.p_length = (uint64_t)strlen((char *)e_data.key.p_data);
+    }
+    else if (isatty(STDIN_FILENO))
+    {
+        e_data.key.p_data = (uint8_t *)getpass("Please enter a password: ");
+        e_data.key.p_length = (uint64_t)strlen((char *)e_data.key.p_data);
     }
     else
         show_usage();
