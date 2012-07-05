@@ -2,8 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="lib" path="C:/gnu/gnu-crypto-2.0.1-bin/lib/gnu-crypto.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files/Common Files/Java/libs/xz-1.0.jar"/>
+	<classpathentry kind="lib" path="/private/opt/org.tukaani.xz/xz-1.0.jar"/>
+	<classpathentry kind="lib" path="/private/opt/gnu-crypto-2.0.1-bin/lib/gnu-crypto.jar"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="output" path="bin/classes"/>
