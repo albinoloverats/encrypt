@@ -243,7 +243,7 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
 
     void *r = NULL;
     pthread_join(bgt, &r);
-    memcpy(&status, r, sizeof( status ));
+    memcpy(&status, r, sizeof status);
     free(r);
     log_message(LOG_VERBOSE, _("bg thread finished with status %d"), status);
 
@@ -320,7 +320,7 @@ static void *bg_thread_gui(void *n)
     int64_t output = open(out_file, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY | F_WRLCK, S_IRUSR | S_IWUSR);
 
     status_e status = SUCCEEDED;
-    void *r = calloc(1, sizeof( status ));
+    void *r = calloc(1, sizeof status);
 
     int key_type = gtk_combo_box_get_active((GtkComboBox *)data->key_combo);
     raw_key_t key = {NULL, 0, NULL, 0};
@@ -332,7 +332,7 @@ static void *bg_thread_gui(void *n)
                 if (kf < 0)
                 {
                     status = FAILED_OTHER;
-                    memcpy(r, &status, sizeof( status ));
+                    memcpy(r, &status, sizeof status);
                     pthread_exit(r);
                     return NULL;
                 }
@@ -380,7 +380,7 @@ static void *bg_thread_gui(void *n)
     close(source);
     close(output);
 
-    memcpy(r, &status, sizeof( status ));
+    memcpy(r, &status, sizeof status);
     pthread_exit(r);
 
     return r;
