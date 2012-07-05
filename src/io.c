@@ -33,6 +33,20 @@
 #include "encrypt.h"
 #include "io.h"
 
+typedef enum eof_e
+{
+    EOF_NO,
+    EOF_MAYBE,
+    EOF_YES
+}
+eof_e;
+
+extern int lzma_sync(int64_t f, io_params_t *c)
+{
+    lzma_write(f, NULL, 0, c);
+    return 0;
+}
+
 extern int lzma_write(int64_t f, const void * const restrict d, size_t l, io_params_t *c)
 {
     static uint8_t *stream = NULL;
@@ -40,8 +54,8 @@ extern int lzma_write(int64_t f, const void * const restrict d, size_t l, io_par
     {
         if (!(stream = calloc(BLOCK_SIZE, sizeof( uint8_t ))))
             die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, BLOCK_SIZE);
-        c->lzma.next_out = stream;
-        c->lzma.avail_out = BLOCK_SIZE;
+        c->lzma->next_out = stream;
+        c->lzma->avail_out = BLOCK_SIZE;
     }
 
     lzma_action x = LZMA_RUN;
@@ -49,13 +63,17 @@ extern int lzma_write(int64_t f, const void * const restrict d, size_t l, io_par
     {
         bool lzf = false;
         if (!d && !l)
+        {
+            c->lzma->next_in = (void *)"";
+            c->lzma->avail_in = 0;
             x = LZMA_FINISH;
+        }
         else
         {
-            c->lzma.next_in = d;
-            c->lzma.avail_in = l;
+            c->lzma->next_in = d;
+            c->lzma->avail_in = l;
         }
-        switch (lzma_code(&c->lzma, x))
+        switch (lzma_code(c->lzma, x))
         {
             case LZMA_STREAM_END:
                 lzf = true;
@@ -64,17 +82,17 @@ extern int lzma_write(int64_t f, const void * const restrict d, size_t l, io_par
             default:
                 die("unexpected error during compression");
         }
-        if (c->lzma.avail_out == 0)
+        if (c->lzma->avail_out == 0)
         {
             enc_write(f, stream, BLOCK_SIZE, c);
-            c->lzma.next_out = stream;
-            c->lzma.avail_out = BLOCK_SIZE;
+            c->lzma->next_out = stream;
+            c->lzma->avail_out = BLOCK_SIZE;
         }
         if (lzf)
         {
-            enc_write(f, stream, BLOCK_SIZE - c->lzma.avail_out, c);
-            enc_write(f, NULL, 0, c); /* flush the buffer */
-            return BLOCK_SIZE - c->lzma.avail_out;
+            enc_write(f, stream, BLOCK_SIZE - c->lzma->avail_out, c);
+            enc_sync(f, c);
+            return BLOCK_SIZE - c->lzma->avail_out;
         }
     }
     while (x == LZMA_FINISH);
@@ -84,8 +102,10 @@ extern int lzma_write(int64_t f, const void * const restrict d, size_t l, io_par
 
 extern int lzma_read(int64_t f, void * const d, size_t l, io_params_t *c)
 {
-    static bool eof = false;
-    if (eof)
+    static eof_e eof = EOF_NO;
+    if (eof == EOF_YES)
+        return 0;
+    else if (eof == EOF_MAYBE)
         goto proc_remain;
 
     static uint8_t *stream = NULL;
@@ -100,36 +120,45 @@ extern int lzma_read(int64_t f, void * const d, size_t l, io_params_t *c)
             uint8_t *x = realloc(stream, sz);
             if (!x)
                 die("out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, sz);
-            c->lzma.next_out = (stream = x);
-            c->lzma.avail_out += sz;
+            c->lzma->next_out = (stream = x);
+            c->lzma->avail_out += sz;
         }
         uint8_t chr = 0x00;
-        if (c->lzma.avail_in == 0)
+        if (c->lzma->avail_in == 0)
         {
-            c->lzma.next_in = &chr;
-            if ((c->lzma.avail_in = enc_read(f, &chr, sizeof chr, c)) < sizeof chr)
+            c->lzma->next_in = &chr;
+            if ((c->lzma->avail_in = enc_read(f, &chr, sizeof chr, c)) < sizeof chr)
                 a = LZMA_FINISH;
         }
 proc_remain:
-        switch (lzma_code(&c->lzma, a))
+        ;
+        lzma_ret x = lzma_code(c->lzma, a);
+        switch (x)
         {
             case LZMA_STREAM_END:
-                eof = true;
+                eof = EOF_MAYBE;
             case LZMA_OK:
                 break;
             default:
-                die("unexpected error during decompression");
+                die("unexpected error during decompression : %d", x);
         }
 
-        if (c->lzma.avail_out == 0 || eof)
+        if (c->lzma->avail_out == 0 || eof)
         {
+            l = (c->lzma->avail_out > 0 && c->lzma->avail_out < l) ? (eof = EOF_YES, sz - c->lzma->avail_out) : l;
             memcpy(d, stream, l);
             memmove(stream, stream + l, sz - l);
-            c->lzma.next_out = stream + (sz - l);
-            c->lzma.avail_out += l;
+            c->lzma->next_out = stream + (sz - l);
+            c->lzma->avail_out += l;
             return l;
         }
     }
+}
+
+extern int enc_sync(int64_t f, io_params_t *c)
+{
+    enc_write(f, NULL, 0, c);
+    return 0;
 }
 
 extern int enc_write(int64_t f, const void * const restrict d, size_t l, io_params_t *c)
@@ -151,11 +180,11 @@ extern int enc_write(int64_t f, const void * const restrict d, size_t l, io_para
         gcry_cipher_encrypt(c->cipher, stream, block, NULL, 0);
 #endif
         int e = write(f, stream, block);
+        fsync(f);
         block = 0;
         free(stream);
         stream = NULL;
-        memset(offset, 0x00, sizeof( offset ));
-        fsync(f);
+        memset(offset, 0x00, sizeof offset );
         return e;
     }
 
