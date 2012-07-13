@@ -30,6 +30,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
@@ -44,11 +46,25 @@ import net.albinoloverats.android.encrypt.io.EncryptedFileOutputStream;
 import net.albinoloverats.android.encrypt.utils.AlgorithmNames;
 import net.albinoloverats.android.encrypt.utils.Convert;
 
+import org.tukaani.xz.LZMA2Options;
+import org.tukaani.xz.XZInputStream;
+import org.tukaani.xz.XZOutputStream;
+
 public class Encrypt extends Thread implements Runnable
 {
     public enum Status
     {
-        NOT_STARTED, RUNNING, SUCCEEDED, CANCELLED, FAILED_UNKNOWN, FAILED_ALGORITHM, FAILED_KEY, FAILED_IO, FAILED_DECRYPTION, FAILED_UNKNOWN_TAG, FAILED_CHECKSUM;
+        NOT_STARTED,
+        RUNNING,
+        SUCCEEDED,
+        CANCELLED,
+        FAILED_UNKNOWN,
+        FAILED_ALGORITHM,
+        FAILED_KEY,
+        FAILED_IO,
+        FAILED_DECRYPTION,
+        FAILED_UNKNOWN_TAG,
+        FAILED_CHECKSUM;
 
         private String additional;
 
@@ -65,13 +81,15 @@ public class Encrypt extends Thread implements Runnable
 
     private enum MetaData
     {
-        SIZE((byte)0), BLOCKED((byte)1);
+        SIZE(0),
+        BLOCKED(1),
+        COMPRESSED(2);
 
         private final byte tag;
 
-        private MetaData(final byte tag)
+        private MetaData(final int tag)
         {
-            this.tag = tag;
+            this.tag = (byte)tag;
         }
 
         public byte getTagValue()
@@ -100,6 +118,7 @@ public class Encrypt extends Thread implements Runnable
     private final byte[] keyData;
     private String hashName;
     private String cipherName;
+    private boolean compressed = true;
 
     private boolean encrypting = true;
 
@@ -108,7 +127,7 @@ public class Encrypt extends Thread implements Runnable
 
     private Status status = Status.NOT_STARTED;
 
-    public Encrypt(final File sourceFile, final File outputFile, final byte[] keyData, final String hashName, final String cipherName)
+    public Encrypt(final File sourceFile, final File outputFile, final byte[] keyData, final String hashName, final String cipherName, final boolean compress)
     {
         this.sourceFile = sourceFile;
         this.outputFile = outputFile;
@@ -116,14 +135,20 @@ public class Encrypt extends Thread implements Runnable
         this.hashName = hashName;
         this.cipherName = cipherName;
         encrypting = true;
+        compressed = compress;
     }
 
-    public Encrypt(final File sourceFile, final File outputFile, final byte[] keyData)
+    public Encrypt(final File sourceFile, final File outputFile, final byte[] keyData, final String hashName, final String cipherName)
+    {
+        this(sourceFile, outputFile, keyData, hashName, cipherName, true);
+    }
+
+    protected Encrypt(final File sourceFile, final File outputFile, final byte[] keyData, final boolean encrypting)
     {
         this.sourceFile = sourceFile;
         this.outputFile = outputFile;
         this.keyData = keyData;
-        encrypting = false;
+        this.encrypting = encrypting;
     }
 
     @Override
@@ -234,20 +259,20 @@ public class Encrypt extends Thread implements Runnable
         final int blockLength = cipher.defaultBlockSize();
         final IMode crypt = ModeFactory.getInstance("CBC", cipher, blockLength);
 
-        EncryptedFileOutputStream out = null;
+        EncryptedFileOutputStream enc_out = null;
         FileInputStream in = null;
         try
         {
-            out = new EncryptedFileOutputStream(outputFile, crypt);
+            enc_out = new EncryptedFileOutputStream(outputFile);
             /*
              * write the default header
              */
-            out.write(Convert.toBytes(HEADER[0]));
-            out.write(Convert.toBytes(HEADER[1]));
-            out.write(Convert.toBytes(HEADER[2]));
+            enc_out.write(Convert.toBytes(HEADER[0]));
+            enc_out.write(Convert.toBytes(HEADER[1]));
+            enc_out.write(Convert.toBytes(HEADER[2]));
             final String algos = cipherName + "/" + hashName;
-            out.write((byte)algos.length());
-            out.write(algos.getBytes());
+            enc_out.write((byte)algos.length());
+            enc_out.write(algos.getBytes());
             /*
              * setup crypto algorithms
              */
@@ -267,6 +292,7 @@ public class Encrypt extends Thread implements Runnable
             System.arraycopy(iv, 0, correctedIV, 0, keyLength < key.length ? keyLength : key.length);
             attributes.put(IMode.IV, correctedIV);
             crypt.init(attributes);
+            enc_out.setCipher(crypt);
             /*
              * write simple addition (x ^ y = z) where x, y and random
              * 64bit signed integers
@@ -276,9 +302,9 @@ public class Encrypt extends Thread implements Runnable
             final long x = Convert.longFromBytes(buffer);
             PRNG.nextBytes(buffer);
             final long y = Convert.longFromBytes(buffer);
-            out.write(Convert.toBytes(x));
-            out.write(Convert.toBytes(y));
-            out.write(Convert.toBytes(x ^ y));
+            enc_out.write(Convert.toBytes(x));
+            enc_out.write(Convert.toBytes(y));
+            enc_out.write(Convert.toBytes(x ^ y));
             /*
              * write a random length of random bytes
              */
@@ -287,21 +313,25 @@ public class Encrypt extends Thread implements Runnable
             short sr = (short)(Convert.shortFromBytes(buffer) & 0x00FF);
             buffer = new byte[sr];
             PRNG.nextBytes(buffer);
-            out.write(Convert.toBytes((byte)sr));
-            out.write(buffer);
+            enc_out.write(Convert.toBytes((byte)sr));
+            enc_out.write(buffer);
             /*
              * write file metadata
              */
-            out.write(Convert.toBytes((byte)2));
+            enc_out.write(Convert.toBytes((byte)(compressed ? 3 : 2)));
 
-            out.write(Convert.toBytes(MetaData.SIZE.getTagValue()));
-            out.write(Convert.toBytes((short)(Long.SIZE / Byte.SIZE)));
+            enc_out.write(Convert.toBytes(MetaData.SIZE.getTagValue()));
+            enc_out.write(Convert.toBytes((short)(Long.SIZE / Byte.SIZE)));
             decryptedSize = sourceFile.length();
-            out.write(Convert.toBytes(decryptedSize));
+            enc_out.write(Convert.toBytes(decryptedSize));
 
-            out.write(Convert.toBytes(MetaData.BLOCKED.getTagValue()));
-            out.write(Convert.toBytes((short)(Long.SIZE / Byte.SIZE)));
-            out.write(Convert.toBytes((long)BLOCK_SIZE));
+            enc_out.write(Convert.toBytes(MetaData.BLOCKED.getTagValue()));
+            enc_out.write(Convert.toBytes((short)(Long.SIZE / Byte.SIZE)));
+            enc_out.write(Convert.toBytes((long)BLOCK_SIZE));
+
+            enc_out.write(Convert.toBytes(MetaData.COMPRESSED.getTagValue()));
+            enc_out.write(Convert.toBytes((short)(Byte.SIZE / Byte.SIZE)));
+            enc_out.write(Convert.toBytes(compressed));
 
             /*
              * main encryption loop
@@ -310,6 +340,7 @@ public class Encrypt extends Thread implements Runnable
             buffer = new byte[BLOCK_SIZE];
             hash.reset();
             boolean b1 = true;
+            final OutputStream out = compressed ? new XZOutputStream(enc_out, new LZMA2Options()) : enc_out;
             while (b1)
             {
                 if (interrupted())
@@ -335,18 +366,19 @@ public class Encrypt extends Thread implements Runnable
              */
             buffer = new byte[Short.SIZE / Byte.SIZE];
             PRNG.nextBytes(buffer);
-            sr = Convert.shortFromBytes(buffer);
+            sr = (short)(Convert.shortFromBytes(buffer) & 0x00FF);
             buffer = new byte[sr];
             PRNG.nextBytes(buffer);
             out.write(buffer);
-            out.write(null);
+            if (compressed)
+                ((XZOutputStream)out).finish();
         }
         finally
         {
             try
             {
-                if (out != null)
-                    out.close();
+                if (enc_out != null)
+                    enc_out.close();
                 if (in != null)
                     in.close();
             }
@@ -360,25 +392,25 @@ public class Encrypt extends Thread implements Runnable
     private void decrypt() throws InterruptedException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidParameterException, UnsupportedEncodingException,
             SignatureException
     {
-        EncryptedFileInputStream in = null;
+        EncryptedFileInputStream enc_in = null;
         FileOutputStream out = null;
         try
         {
             /*
              * read the default header
              */
-            in = new EncryptedFileInputStream(sourceFile);
+            enc_in = new EncryptedFileInputStream(sourceFile);
             for (int i = 0; i < 3; i++)
             {
                 final byte[] header = new byte[Long.SIZE / Byte.SIZE];
-                in.read(header, 0, header.length);
+                enc_in.read(header, 0, header.length);
             }
             /*
              * initialise algorithms
              */
-            final int length = in.read();
+            final int length = enc_in.read();
             byte[] buffer = new byte[length];
-            in.read(buffer, 0, buffer.length);
+            enc_in.read(buffer, 0, buffer.length);
             final String algos = new String(buffer);
             final String cipherName = algos.substring(0, algos.indexOf('/'));
             final String hashName = algos.substring(algos.indexOf('/') + 1);
@@ -386,7 +418,7 @@ public class Encrypt extends Thread implements Runnable
             final IBlockCipher cipher = AlgorithmNames.getCipherAlgorithm(cipherName);
             final int blockLength = cipher.defaultBlockSize();
             final IMode crypt = ModeFactory.getInstance("CBC", cipher, blockLength);
-            in.setCipher(crypt);
+            enc_in.setCipher(crypt);
             /*
              * validate key hash
              */
@@ -410,11 +442,11 @@ public class Encrypt extends Thread implements Runnable
              * read three 64bit signed integers and assert that x ^ y = z
              */
             buffer = new byte[Long.SIZE / Byte.SIZE];
-            in.read(buffer);
+            enc_in.read(buffer);
             final long x = Convert.longFromBytes(buffer);
-            in.read(buffer);
+            enc_in.read(buffer);
             final long y = Convert.longFromBytes(buffer);
-            in.read(buffer);
+            enc_in.read(buffer);
             final long z = Convert.longFromBytes(buffer);
             if ((x ^ y) != z)
                 throw new InvalidParameterException();
@@ -422,24 +454,25 @@ public class Encrypt extends Thread implements Runnable
              * skip random data
              */
             final byte[] singleByte = new byte[Byte.SIZE / Byte.SIZE];
-            in.read(singleByte);
+            enc_in.read(singleByte);
             buffer = new byte[Convert.byteFromBytes(singleByte) & 0x00FF];
-            in.read(buffer);
+            enc_in.read(buffer);
             /*
              * read original file metadata
              */
-            in.read(singleByte);
+            enc_in.read(singleByte);
             final byte tags = Convert.byteFromBytes(singleByte);
             final byte[] doubleByte = new byte[Short.SIZE / Byte.SIZE];
             int blockSize = 0;
+            compressed = false;
             for (int i = 0; i < tags; i++)
             {
-                in.read(singleByte);
-                in.read(doubleByte);
+                enc_in.read(singleByte);
+                enc_in.read(doubleByte);
                 final MetaData t = MetaData.getFromTagValue(Convert.byteFromBytes(singleByte));
                 final short l = Convert.shortFromBytes(doubleByte);
                 buffer = new byte[l];
-                in.read(buffer);
+                enc_in.read(buffer);
                 switch (t)
                 {
                     case SIZE:
@@ -448,12 +481,16 @@ public class Encrypt extends Thread implements Runnable
                     case BLOCKED:
                         blockSize = (int)Convert.longFromBytes(buffer);
                         break;
+                    case COMPRESSED:
+                        compressed = Convert.booleanFromBytes(buffer);
+                        break;
                     default:
                         throw new UnsupportedEncodingException();
                 }
             }
 
             out = new FileOutputStream(outputFile);
+            final InputStream in = compressed ? new XZInputStream(enc_in) : enc_in;
             /*
              * main decryption loop
              */
@@ -514,8 +551,8 @@ public class Encrypt extends Thread implements Runnable
             {
                 if (out != null)
                     out.close();
-                if (in != null)
-                    in.close();
+                if (enc_in != null)
+                    enc_in.close();
             }
             catch (final Exception e)
             {

@@ -34,21 +34,37 @@ import net.albinoloverats.android.encrypt.utils.Convert;
 public class EncryptedFileOutputStream extends FileOutputStream
 {
     private final FileOutputStream stream;
-    private final IMode cipher;
+    private IMode cipher;
     private byte[] buffer = null;
     private int block = 0;
     private int[] offset = { 0, 0, 0 };
 
-    public EncryptedFileOutputStream(final File file, final IMode cipher) throws FileNotFoundException
+    public EncryptedFileOutputStream(final File file) throws FileNotFoundException
     {
         super(file);
         stream = new FileOutputStream(file);
+    }
+
+    public void setCipher(final IMode cipher)
+    {
         this.cipher = cipher;
     }
 
     @Override
     public void close() throws IOException
     {
+        final int[] remainder = { 0, block - offset[0] };
+        final byte[] x = new byte[remainder[1]];
+        PRNG.nextBytes(x);
+        System.arraycopy(x, 0, buffer, offset[0], remainder[1]);
+        final byte[] eBytes = new byte[block];
+        cipher.update(buffer, 0, eBytes, 0);
+        stream.write(eBytes);
+        stream.write(buffer);
+        block = 0;
+        buffer = null;
+        offset = new int[3];
+        stream.flush();
         stream.close();
     }
 
@@ -67,25 +83,16 @@ public class EncryptedFileOutputStream extends FileOutputStream
     @Override
     public void write(final byte[] bytes) throws IOException
     {
+        if (cipher == null)
+        {
+            stream.write(bytes);
+            return;
+        }
         if (block == 0)
             block = cipher.defaultBlockSize();
         if (buffer == null)
             buffer = new byte[block];
-        final int[] remainder = { bytes != null ? bytes.length : 0, block - offset[0] };
-        if (bytes == null)
-        {
-            final byte[] x = new byte[remainder[1]];
-            PRNG.nextBytes(x);
-            System.arraycopy(x, 0, buffer, offset[0], remainder[1]);
-            final byte[] eBytes = new byte[block];
-            cipher.update(buffer, 0, eBytes, 0);
-            stream.write(eBytes);
-            block = 0;
-            buffer = null;
-            offset = new int[3];
-            stream.flush();
-            return;
-        }
+        final int[] remainder = { bytes.length, block - offset[0] };
         offset[1] = 0;
         while (remainder[0] > 0)
         {
@@ -99,6 +106,7 @@ public class EncryptedFileOutputStream extends FileOutputStream
             final byte[] eBytes = new byte[block];
             cipher.update(buffer, 0, eBytes, 0);
             stream.write(eBytes);
+            stream.write(buffer);
             offset[0] = 0;
             buffer = new byte[block];
             offset[1] += remainder[1];

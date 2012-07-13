@@ -360,7 +360,7 @@ public class Main extends Activity
             if (encrypting)
                 encryptProcess = new Encrypt(new File(filenameIn), new File(filenameOut), password.getBytes(), hash, cipher);
             else
-                encryptProcess = new Encrypt(new File(filenameIn), new File(filenameOut), password.getBytes());
+                encryptProcess = new Decrypt(new File(filenameIn), new File(filenameOut), password.getBytes());
 
             encryptProcess.start();
 

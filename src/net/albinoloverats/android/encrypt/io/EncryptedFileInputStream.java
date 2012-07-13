@@ -28,13 +28,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
+import net.albinoloverats.android.encrypt.utils.Convert;
+
 public class EncryptedFileInputStream extends FileInputStream
 {
     private final FileInputStream stream;
     private IMode cipher;
     private byte[] buffer = null;
     private int block = 0;
-    private final int[] offset = { 0, 0, 0 };
+    private final int[] offset = { 0, 0, 0 }; /* bytes available, requested, ready */
 
     public EncryptedFileInputStream(final File file) throws FileNotFoundException
     {
@@ -74,42 +76,51 @@ public class EncryptedFileInputStream extends FileInputStream
     @Override
     public int read() throws IOException
     {
-        final byte[] b = new byte[1];
-        read(b);
-        return b[0];
+        final byte[] b = new byte[Integer.SIZE / Byte.SIZE];
+        read(b, 3, 1);
+        return Convert.intFromBytes(b);
     }
 
     @Override
     public int read(final byte[] bytes) throws IOException
     {
-        if (cipher == null)
-            return stream.read(bytes);
-        if (block == 0)
-            block = cipher.defaultBlockSize();
-        if (buffer == null)
-            buffer = new byte[block];
-        offset[1] = bytes.length;
-        offset[2] = 0;
-        while (true)
+        try
         {
-            if (offset[0] >= offset[1])
-            {
-                System.arraycopy(buffer, 0, bytes, offset[2], offset[1]);
-                offset[0] -= offset[1];
-                final byte[] x = new byte[block];
-                System.arraycopy(buffer, offset[1], x, 0, offset[0]);
+            if (cipher == null)
+                return stream.read(bytes);
+            if (block == 0)
+                block = cipher.defaultBlockSize();
+            if (buffer == null)
                 buffer = new byte[block];
-                System.arraycopy(x, 0, buffer, 0, offset[0]);
-                return offset[0];
+            offset[1] = bytes.length;
+            offset[2] = 0;
+            while (true)
+            {
+                if (offset[0] >= offset[1])
+                {
+                    System.arraycopy(buffer, 0, bytes, offset[2], offset[1]);
+                    offset[0] -= offset[1];
+                    final byte[] x = new byte[block];
+                    System.arraycopy(buffer, offset[1], x, 0, offset[0]);
+                    buffer = new byte[block];
+                    System.arraycopy(x, 0, buffer, 0, offset[0]);
+                    return offset[1] + offset[2];
+                }
+                System.arraycopy(buffer, 0, bytes, offset[2], offset[0]);
+                offset[2] += offset[0];
+                offset[1] -= offset[0];
+                offset[0] = 0;
+                final byte[] eBytes = new byte[block];
+                stream.read(eBytes);
+                cipher.update(eBytes, 0, buffer, 0);
+                stream.read(buffer);
+                offset[0] = block;
             }
-            System.arraycopy(buffer, 0, bytes, offset[2], offset[0]);
-            offset[2] += offset[0];
-            offset[1] -= offset[0];
-            offset[0] = 0;
-            final byte[] eBytes = new byte[block];
-            stream.read(eBytes);
-            cipher.update(eBytes, 0, buffer, 0);
-            offset[0] = block;
+        }
+        catch (final Exception e)
+        {
+            System.err.println(e);
+            throw new IOException();
         }
     }
 
@@ -118,7 +129,7 @@ public class EncryptedFileInputStream extends FileInputStream
     {
         final byte[] bytes = new byte[len];
         final int x = read(bytes);
-        System.arraycopy(bytes, 0, b, off, len);
+        System.arraycopy(bytes, 0, b, off, x);
         return x;
     }
 
