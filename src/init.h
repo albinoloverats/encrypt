@@ -39,6 +39,7 @@ typedef struct args_t
     char *password;  /*!< The password for key generation */
     char *source;    /*!< The input file/stream */
     char *output;    /*!< The output file/stream */
+    bool compress:1; /*!< Compress the file (with xz) before encrypting */
 }
 args_t;
 

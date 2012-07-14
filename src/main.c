@@ -177,7 +177,7 @@ int main(int argc, char **argv)
         log_message(LOG_DEBUG, _("opened %s for write access"), args.output);
     }
 
-    encrypt_t e_data = { args.cipher, args.hash, { NULL, 0, NULL, 0 }, true, true };
+    encrypt_t e_data = { args.cipher, args.hash, { NULL, 0, NULL, 0 }, true, args.compress };
     /*
      * get raw key data in form of password/phrase, key file
      */

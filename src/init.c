@@ -40,18 +40,19 @@ extern args_t init(int argc, char **argv)
 {
     struct option options[] =
     {
-        { "help",     no_argument,       0, 'h' },
-        { "version",  no_argument,       0, 'v' },
-        { "licence",  no_argument,       0, 'l' },
-        { "debug",    optional_argument, 0, 'd' },
-        { "quiet",    no_argument,       0, 'q' },
-        { "cipher",   required_argument, 0, 'c' },
-        { "hash",     required_argument, 0, 's' },
-        { "key",      required_argument, 0, 'k' },
-        { "password", required_argument, 0, 'p' },
-        { NULL,       0,                 0,  0  }
+        { "help",        no_argument,       0, 'h' },
+        { "version",     no_argument,       0, 'v' },
+        { "licence",     no_argument,       0, 'l' },
+        { "debug",       optional_argument, 0, 'd' },
+        { "quiet",       no_argument,       0, 'q' },
+        { "cipher",      required_argument, 0, 'c' },
+        { "hash",        required_argument, 0, 's' },
+        { "key",         required_argument, 0, 'k' },
+        { "password",    required_argument, 0, 'p' },
+        { "no-compress", no_argument,       0, 'x' },
+        { NULL,          0,                 0,  0  }
     };
-    args_t a = { NULL };
+    args_t a = { NULL, NULL, NULL, NULL, NULL, NULL, true };
     
     while (true)
     {
@@ -87,6 +88,9 @@ extern args_t init(int argc, char **argv)
             case 'p':
                 a.password = strdup(optarg);
                 break;
+            case 'x':
+                a.compress = false;
+                break;
             case '?':
             default:
                 show_usage();
@@ -117,6 +121,8 @@ extern void show_help(void)
     fprintf(stderr, _("  -s/--hash <algorithm>     Hash algorithm to generate key\n"));
     fprintf(stderr, _("  -k/--key <key file>       File whose data will be used to generate the key\n"));
     fprintf(stderr, _("  -p/--password <password>  Password used to generate the key\n"));
+    fprintf(stderr, _("  -x/--no-compress          Do not compress the plaintext using the xz algorithm\n"));
+    fprintf(stderr, _("\nNote: If you do not supply a key or password, you will be prompted for one.\n"));
     fprintf(stderr, "\n");
     exit(EXIT_SUCCESS);
 }
