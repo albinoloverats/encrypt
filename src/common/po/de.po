@@ -1,5 +1,5 @@
 # Common code translations - German language file
-# Copyright (c) 2010, albinoloverats ~ Software Development
+# Copyright © 2010-2012, albinoloverats ~ Software Development
 # This file is distributed under the same license as the application.
 # Ashley Anderson <amanderson@albinoloverats.net>, 2010.
 #
