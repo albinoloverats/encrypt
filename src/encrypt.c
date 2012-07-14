@@ -548,13 +548,15 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     if (e.blocked)
     {
         bool b1 = true;
-        uint8_t *read_buffer = malloc(block_size);
+        uint8_t *read_buffer = malloc(block_size + sizeof( bool ));
         while (b1)
         {
             if (status == CANCELLED)
                 goto clean_up;
-            read_func(f, &b1, sizeof( bool ), &io_params);
-            uint64_t r = read_func(f, read_buffer, block_size, &io_params);
+            uint64_t r = read_func(f, read_buffer, block_size + sizeof( bool ), &io_params);
+            memcpy(&b1, read_buffer, sizeof( bool ));
+            r -= sizeof( bool );
+            memmove(read_buffer, read_buffer + sizeof( bool ), r);
             if (!b1)
             {
                 read_func(f, &r, sizeof( uint64_t ), &io_params);
