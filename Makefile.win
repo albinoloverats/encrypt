@@ -1,8 +1,8 @@
 # Project: encrypt
 # Makefile created by Dev-C++ 4.9.9.2
 
-CPP  = g++.exe -D__DEBUG__
-CC   = gcc.exe -D__DEBUG__
+CPP  = g++.exe
+CC   = gcc.exe
 WINDRES = windres.exe
 RES  = src/encrypt_private.res
 OBJ  = src/encrypt.o src/main.o src/gui.o src/io.o src/init.o src/common/win32_ext.o src/common/error.o src/common/logging.o $(RES)
@@ -12,7 +12,7 @@ INCS =  -I"C:/MinGW/include"  -I"."  -I"src"
 CXXINCS =  -I"."  -I"src" 
 BIN  = encrypt.exe
 CXXFLAGS = $(CXXINCS)   -fexpensive-optimizations -g3
-CFLAGS = $(INCS) -DLOG_DEFAULT=LOG_EVERYTHING -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DBUILD_GUI -std=gnu99 -mms-bitfields -IC:\MinGW\include\gtk-2.0 -IC:\MinGW\lib\gtk-2.0\include -IC:\MinGW\include\atk-1.0 -IC:\MinGW\include\cairo -IC:\MinGW\include\gdk-pixbuf-2.0 -IC:\MinGW\include\pango-1.0 -IC:\MinGW\include\glib-2.0 -IC:\MinGW\lib\glib-2.0\include -IC:\MinGW\include -IC:\MinGW\include\freetype2 -IC:\MinGW\include\libpng14   -fexpensive-optimizations -g3
+CFLAGS = $(INCS) -DLOG_DEFAULT=LOG_WARNING -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DBUILD_GUI -std=gnu99 -mms-bitfields -IC:\MinGW\include\gtk-2.0 -IC:\MinGW\lib\gtk-2.0\include -IC:\MinGW\include\atk-1.0 -IC:\MinGW\include\cairo -IC:\MinGW\include\gdk-pixbuf-2.0 -IC:\MinGW\include\pango-1.0 -IC:\MinGW\include\glib-2.0 -IC:\MinGW\lib\glib-2.0\include -IC:\MinGW\include -IC:\MinGW\include\freetype2 -IC:\MinGW\include\libpng14   -fexpensive-optimizations -g3
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
