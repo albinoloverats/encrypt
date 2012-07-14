@@ -36,7 +36,7 @@
 #endif
 
 /*@null@*/static FILE *log_destination = NULL;
-static log_e log_current_level = LOG_INFO;
+static log_e log_current_level = LOG_DEFAULT;
 
 static const char *LOG_LEVELS[] =
 {
