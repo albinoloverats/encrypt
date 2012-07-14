@@ -97,7 +97,7 @@ extern bool file_encrypted_aux(int t, intptr_t p, encrypt_t *e)
     bool r_val = false;
     uint64_t head[3] = {0x0};
     lseek(f, 0, SEEK_SET);
-    if ((read(f, head, sizeof( head ))) < 0)
+    if ((read(f, head, sizeof head)) < 0)
     {
         log_message(LOG_ERROR, NULL);
         goto clean_up;
@@ -180,7 +180,8 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     int mdi = 0;
     if (!(mdi = get_algorithm_hash(e.hash)))
         return (status = FAILED_ALGORITHM);
-    io_params_t io_params = { NULL, 0, LZMA_STREAM_INIT };
+    lzma_stream lzs = LZMA_STREAM_INIT;
+    io_params_t io_params = { NULL, 0, &lzs };
     if (!(io_params.algorithm = get_algorithm_crypt(e.cipher)))
         return (status = FAILED_ALGORITHM);
 
@@ -192,7 +193,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
      */
     log_message(LOG_DEBUG, "writing standard header");
     uint64_t head[3] = {htonll(HEADER_0), htonll(HEADER_1), htonll(HEADER_2)};
-    write(g, head, sizeof( head ));
+    write(g, head, sizeof head);
     char *algos = NULL;
     asprintf(&algos, "%s/%s", get_name_algorithm_crypt(io_params.algorithm), get_name_algorithm_hash(mdi));
     uint8_t l1 = (uint8_t)strlen(algos);
@@ -218,7 +219,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     uint8_t buffer[0xFF] = { 0x00 };
     memcpy(buffer, e.key.h_data, lk < e.key.h_length ? lk : e.key.h_length);
     gcry_cipher_setkey(io_params.cipher, buffer, lk);
-    memset(buffer, 0x00, 0xFF);
+    memset(buffer, 0x00, sizeof buffer);
     uint8_t *iv = malloc(e.key.h_length);
     if (!iv)
         die("out of memory @ %s:%d:%s [%" PRIu64 "]", __FILE__, __LINE__, __func__, e.key.h_length);
@@ -229,7 +230,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     free(e.key.h_data);
     e.key.h_data = NULL;
     gcry_cipher_setiv(io_params.cipher, buffer, lk);
-    memset(buffer, 0x00, 0xFF);
+    memset(buffer, 0x00, sizeof buffer);
     /*
      * all data written from here on is encrypted
      */
@@ -259,7 +260,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     gcry_create_nonce(buffer, l1);
     enc_write(g, &l1, sizeof( uint8_t ), &io_params);
     enc_write(g, buffer, l1, &io_params);
-    memset(buffer, 0x00, 0xFF);
+    memset(buffer, 0x00, sizeof buffer);
 #endif
     /*
      * write various metadata about the original file (if any); start
@@ -275,6 +276,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
      */
     l1 = 2;
     int (*write_func)(int64_t, const void * const restrict, size_t, io_params_t *) = enc_write;
+    int (*sync_func)(int64_t, io_params_t *) = enc_sync;
     if (e.compressed)
     {
 #ifndef DEBUG_LZMA
@@ -282,18 +284,20 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
          * setup for liblzma compression
          */
         log_message(LOG_VERBOSE, "initialising lzma compression");
-        lzma_filter lzf;
+        lzma_filter lzf[2];
         lzma_options_lzma lzo;
-        lzma_lzma_preset(&lzo, 9);
-        lzf.id = LZMA_FILTER_LZMA1;
-        lzf.options = &lzo;
-        if (lzma_alone_encoder(&io_params.lzma, lzf.options) == LZMA_OK)
+        lzma_lzma_preset(&lzo, LZMA_PRESET_DEFAULT);
+        lzf[0].id = LZMA_FILTER_LZMA2;
+        lzf[0].options = &lzo;
+        lzf[1].id = LZMA_VLI_UNKNOWN;
+        if (lzma_stream_encoder(io_params.lzma, lzf, LZMA_CHECK_NONE) == LZMA_OK)
         {
             l1++;
             write_func = lzma_write;
+            sync_func = lzma_sync;
         }
-#endif
         else
+#endif
             e.compressed = false;
     }
     enc_write(g, &l1, sizeof( uint8_t ), &io_params);
@@ -342,7 +346,8 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     {
         if (status == CANCELLED)
             goto clean_up;
-        gcry_create_nonce(read_buffer, block_size);
+        //gcry_create_nonce(read_buffer, block_size);
+        memset(read_buffer, 0xFF, block_size);
         uint64_t r = read(f, read_buffer, block_size);
         gcry_md_write(md, read_buffer, r);
         if (r < block_size)
@@ -376,9 +381,9 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     gcry_create_nonce(&l1, sizeof( uint8_t ));
     gcry_create_nonce(buffer, l1);
     write_func(g, buffer, l1, &io_params);
-    memset(buffer, 0x00, 0xFF);
+    memset(buffer, 0x00, sizeof buffer);
 #endif
-    write_func(g, NULL, 0, &io_params); /* flush the buffer */
+    sync_func(g, &io_params);
     status = SUCCEEDED;
 
 clean_up:
@@ -409,7 +414,8 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     int mdi = 0;
     if (!(mdi = get_algorithm_hash(e.hash)))
         return (status = FAILED_ALGORITHM);
-    io_params_t io_params = { NULL, 0, LZMA_STREAM_INIT };
+    lzma_stream lzs = LZMA_STREAM_INIT;
+    io_params_t io_params = { NULL, 0, &lzs };
     if (!(io_params.algorithm = get_algorithm_crypt(e.cipher)))
         return (status = FAILED_ALGORITHM);
 
@@ -432,7 +438,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     uint8_t buffer[0xFF] = { 0x00 };
     memcpy(buffer, e.key.h_data, lk < e.key.h_length ? lk : e.key.h_length);
     gcry_cipher_setkey(io_params.cipher, buffer, lk);
-    memset(buffer, 0x00, 0xFF);
+    memset(buffer, 0x00, sizeof buffer);
     uint8_t *iv = malloc(e.key.h_length);
     if (!iv)
         die("out of memory @ %s:%d:%s [%" PRIu64 "]", __FILE__, __LINE__, __func__, e.key.h_length);
@@ -443,7 +449,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     free(e.key.h_data);
     e.key.h_data = NULL;
     gcry_cipher_setiv(io_params.cipher, buffer, lk);
-    memset(buffer, 0x00, 0xFF);
+    memset(buffer, 0x00, sizeof buffer);
 
     log_message(LOG_DEBUG, "reading source file info");
     /*
@@ -473,12 +479,12 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
 #ifndef __DEBUG__
     enc_read(f, &l1, sizeof( uint8_t ), &io_params);
     enc_read(f, buffer, l1, &io_params);
-    memset(buffer, 0x00, 0xFF);
+    memset(buffer, 0x00, sizeof buffer);
 #endif
     /*
      * read the original file metadata - skip any unknown tag values
      */
-    enc_read(f, &l1, sizeof( l1 ), &io_params);
+    enc_read(f, &l1, sizeof l1, &io_params);
     uint64_t block_size = 0;
     int (*read_func)(int64_t, void * const, size_t, io_params_t *) = enc_read;
     for (int i = 0; i < l1; i++)
@@ -510,7 +516,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
                 if ((e.compressed = value[0])) /* yes, this is what i actually want */
                 {
                     log_message(LOG_VERBOSE, "data stream is compressed");
-                    if (lzma_alone_decoder(&io_params.lzma, UINT64_MAX) != LZMA_OK)
+                    if (lzma_stream_decoder(io_params.lzma, UINT64_MAX, 0) != LZMA_OK)
                         die("expecting compressed data but could not setup liblzma");
                     read_func = lzma_read;
                 }
@@ -562,9 +568,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
         read_buffer = NULL;
     }
     else /*
-          * old style decryption - relied on knowing the original size; also
-          * note that we don't need to decompress this data as compression
-          * wasn't supported in this release
+          * old style decryption - relied on knowing the original size
           */
         for (bytes_processed = 0; bytes_processed < decrypted_size; bytes_processed += BLOCK_SIZE)
         {
@@ -598,7 +602,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
             status = FAILED_CHECKSUM;
         }
     }
-    memset(buffer, 0x00, 0xFF);
+    memset(buffer, 0x00, sizeof buffer);
 
 clean_up:
     /*
@@ -635,7 +639,7 @@ extern char **get_algorithms_hash(void)
     if (!lib_init)
         init_gcrypt_library();
     int lid[0xff] = { 0x00 };
-    int len = sizeof( lid );
+    int len = sizeof lid;
     gcry_md_list(lid, &len);
     char **l = malloc(sizeof( char * ) * len + 1);
     for (int i = 0; i < len; i++)
@@ -659,7 +663,7 @@ extern char **get_algorithms_crypt(void)
     if (!lib_init)
         init_gcrypt_library();
     int lid[0xff] = { 0x00 };
-    int len = sizeof( lid );
+    int len = sizeof lid;
     gcry_cipher_list(lid, &len);
     char **l = malloc(sizeof( char * ) * len + 1);
     for (int i = 0; i < len; i++)
@@ -698,7 +702,7 @@ static int get_algorithm_hash(const char * const restrict n)
     if (!n)
         return 0;
     int list[0xff] = { 0x00 };
-    int len = sizeof( list );
+    int len = sizeof list;
     gcry_md_list(list, &len);
     for (int i = 0; i < len; i++)
     {
@@ -727,7 +731,7 @@ static int get_algorithm_crypt(const char * const restrict n)
     if (!n)
         return 0;
     int list[0xff] = { 0x00 };
-    int len = sizeof( list );
+    int len = sizeof list;
     gcry_cipher_list(list, &len);
     for (int i = 0; i < len; i++)
     {

@@ -41,12 +41,6 @@ typedef enum eof_e
 }
 eof_e;
 
-extern int lzma_sync(int64_t f, io_params_t *c)
-{
-    lzma_write(f, NULL, 0, c);
-    return 0;
-}
-
 extern int lzma_write(int64_t f, const void * const restrict d, size_t l, io_params_t *c)
 {
     static uint8_t *stream = NULL;
@@ -63,16 +57,9 @@ extern int lzma_write(int64_t f, const void * const restrict d, size_t l, io_par
     {
         bool lzf = false;
         if (!d && !l)
-        {
-            c->lzma->next_in = (void *)"";
-            c->lzma->avail_in = 0;
             x = LZMA_FINISH;
-        }
-        else
-        {
-            c->lzma->next_in = d;
-            c->lzma->avail_in = l;
-        }
+        c->lzma->next_in = d;
+        c->lzma->avail_in = l;
         switch (lzma_code(c->lzma, x))
         {
             case LZMA_STREAM_END:
@@ -111,6 +98,7 @@ extern int lzma_read(int64_t f, void * const d, size_t l, io_params_t *c)
     static uint8_t *stream = NULL;
     static size_t sz = 0;
     lzma_action a = LZMA_RUN;
+    uint8_t buf = 0x00;
 
     while (true)
     {
@@ -120,14 +108,13 @@ extern int lzma_read(int64_t f, void * const d, size_t l, io_params_t *c)
             uint8_t *x = realloc(stream, sz);
             if (!x)
                 die("out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, sz);
-            c->lzma->next_out = (stream = x);
-            c->lzma->avail_out += sz;
+            c->lzma->next_out = stream = x;
+            c->lzma->avail_out += BLOCK_SIZE;
         }
-        uint8_t chr = 0x00;
         if (c->lzma->avail_in == 0)
         {
-            c->lzma->next_in = &chr;
-            if ((c->lzma->avail_in = enc_read(f, &chr, sizeof chr, c)) < sizeof chr)
+            c->lzma->next_in = &buf;
+            if ((c->lzma->avail_in = enc_read(f, &buf, 1, c)) < 1)
                 a = LZMA_FINISH;
         }
 proc_remain:
@@ -143,11 +130,12 @@ proc_remain:
                 die("unexpected error during decompression : %d", x);
         }
 
-        if (c->lzma->avail_out == 0 || eof)
+        if (c->lzma->avail_out == 0 || eof != EOF_NO)
         {
             l = (c->lzma->avail_out > 0 && c->lzma->avail_out < l) ? (eof = EOF_YES, sz - c->lzma->avail_out) : l;
             memcpy(d, stream, l);
-            memmove(stream, stream + l, sz - l);
+            if (sz - l > 0)
+                memmove(stream, stream + l, sz - l);
             c->lzma->next_out = stream + (sz - l);
             c->lzma->avail_out += l;
             return l;
@@ -155,9 +143,9 @@ proc_remain:
     }
 }
 
-extern int enc_sync(int64_t f, io_params_t *c)
+extern int lzma_sync(int64_t f, io_params_t *c)
 {
-    enc_write(f, NULL, 0, c);
+    lzma_write(f, NULL, 0, c);
     return 0;
 }
 
@@ -175,8 +163,10 @@ extern int enc_write(int64_t f, const void * const restrict d, size_t l, io_para
     size_t remainder[2] = { l, block - offset[0] };
     if (!d && !l)
     {
+#ifdef __DEBUG__
+        memset(stream + offset[0], 0x00, remainder[1]);
+#else
         gcry_create_nonce(stream + offset[0], remainder[1]);
-#ifndef __DEBUG__
         gcry_cipher_encrypt(c->cipher, stream, block, NULL, 0);
 #endif
         int e = write(f, stream, block);
@@ -184,7 +174,7 @@ extern int enc_write(int64_t f, const void * const restrict d, size_t l, io_para
         block = 0;
         free(stream);
         stream = NULL;
-        memset(offset, 0x00, sizeof offset );
+        memset(offset, 0x00, sizeof offset);
         return e;
     }
 
@@ -233,6 +223,8 @@ extern int enc_read(int64_t f, void * const d, size_t l, io_params_t *c)
             memcpy(d + offset[2], stream, offset[1]);
             offset[0] -= offset[1];
             uint8_t *x = calloc(block, sizeof( uint8_t ));
+            if (!x)
+                die("out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, block * sizeof( uint8_t ));
             memcpy(x, stream + offset[1], offset[0]);
             memset(stream, 0x00, block);
             memcpy(stream, x, offset[0]);
@@ -254,4 +246,10 @@ extern int enc_read(int64_t f, void * const d, size_t l, io_params_t *c)
 #endif
         offset[0] = block;
     }
+}
+
+extern int enc_sync(int64_t f, io_params_t *c)
+{
+    enc_write(f, NULL, 0, c);
+    return 0;
 }
