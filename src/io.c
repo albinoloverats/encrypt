@@ -89,28 +89,23 @@ extern int lzma_write(int64_t f, const void * const restrict d, size_t l, io_par
 
 extern int lzma_read(int64_t f, void * const d, size_t l, io_params_t *c)
 {
+    lzma_action a = LZMA_RUN;
     static eof_e eof = EOF_NO;
+
+    c->lzma->next_out = d;
+    c->lzma->avail_out = l;
+
     if (eof == EOF_YES)
         return 0;
     else if (eof == EOF_MAYBE)
+    {
+        a = LZMA_FINISH;
         goto proc_remain;
-
-    static uint8_t *stream = NULL;
-    static size_t sz = 0;
-    lzma_action a = LZMA_RUN;
-    uint8_t buf = 0x00;
+    }
 
     while (true)
     {
-        while (!stream || sz < l)
-        {
-            sz += BLOCK_SIZE;
-            uint8_t *x = realloc(stream, sz);
-            if (!x)
-                die("out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, sz);
-            c->lzma->next_out = stream = x;
-            c->lzma->avail_out += BLOCK_SIZE;
-        }
+        uint8_t buf = 0x00;
         if (c->lzma->avail_in == 0)
         {
             c->lzma->next_in = &buf;
@@ -131,15 +126,7 @@ proc_remain:
         }
 
         if (c->lzma->avail_out == 0 || eof != EOF_NO)
-        {
-            l = (c->lzma->avail_out > 0 && c->lzma->avail_out < l) ? (eof = EOF_YES, sz - c->lzma->avail_out) : l;
-            memcpy(d, stream, l);
-            if (sz - l > 0)
-                memmove(stream, stream + l, sz - l);
-            c->lzma->next_out = stream + (sz - l);
-            c->lzma->avail_out += l;
-            return l;
-        }
+            return l - c->lzma->avail_out;
     }
 }
 
