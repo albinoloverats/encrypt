@@ -81,7 +81,7 @@ char *FAILED_MESSAGE[] =
 extern bool file_encrypted_aux(int t, intptr_t p, encrypt_t *e)
 {
     int64_t f = 0;
-    log_message(LOG_INFO, "check for file header");
+    log_message(LOG_INFO, _("Checking for file header"));
     if (t == 1)
     {
         void *x = (intptr_t *)p;
@@ -136,13 +136,13 @@ extern bool file_encrypted_aux(int t, intptr_t p, encrypt_t *e)
             }
             break;
         default:
-            log_message(LOG_ERROR, "file encrypted with more recent release of encrypt");
+            log_message(LOG_ERROR, _("File encrypted with more recent release of encrypt"));
             goto clean_up;
     }
     r_val = true;
     if (!e)
         goto clean_up;
-    log_message(LOG_DEBUG, "check for known algorithms");
+    log_message(LOG_DEBUG, _("Checking for known algorithms"));
     uint8_t l = 0;
     read(f, &l, sizeof( uint8_t ));
     char *c = calloc(l + 1, sizeof( char ));
@@ -155,8 +155,8 @@ extern bool file_encrypted_aux(int t, intptr_t p, encrypt_t *e)
     h = NULL;
     free(c);
     c = NULL;
-    log_message(LOG_INFO, "file has cipher %s", e->cipher);
-    log_message(LOG_INFO, "file has hash %s", e->hash);
+    log_message(LOG_INFO, _("File encrypted using algorithm: %s"), e->cipher);
+    log_message(LOG_INFO, _("Encryption key generated using hash: %s"), e->hash);
 clean_up:
     if (t == 1)
         close(f);
@@ -167,7 +167,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
 {
     status = RUNNING;
 
-    log_message(LOG_INFO, "encrypting...");
+    log_message(LOG_INFO, _("Encrypting..."));
     /*
      * initialise GNU Crypt library
      */
@@ -176,7 +176,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     /*
      * get the algorithms
      */
-    log_message(LOG_DEBUG, "find algorithms");
+    log_message(LOG_DEBUG, _("Searching for known algorithms"));
     int mdi = 0;
     if (!(mdi = get_algorithm_hash(e.hash)))
         return (status = FAILED_ALGORITHM);
@@ -191,7 +191,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     /*
      * write the default header
      */
-    log_message(LOG_DEBUG, "writing standard header");
+    log_message(LOG_DEBUG, _("Writing standard header"));
     uint64_t head[3] = {htonll(HEADER_0), htonll(HEADER_1), htonll(HEADER_2)};
     write(g, head, sizeof head);
     char *algos = NULL;
@@ -207,7 +207,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     int ma = gcry_md_get_algo(md);
     e.key.h_length = gcry_md_get_algo_dlen(ma);
     if (!(e.key.h_data = malloc(e.key.h_length)))
-        die("out of memory @ %s:%d:%s [%" PRIu64 "]", __FILE__, __LINE__, __func__, e.key.h_length);
+        die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, e.key.h_length);
     gcry_md_hash_buffer(ma, e.key.h_data, e.key.p_data, e.key.p_length);
     /*
      * setup algorithm (key and IV) - copy no more than the length of the key
@@ -222,7 +222,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     memset(buffer, 0x00, sizeof buffer);
     uint8_t *iv = malloc(e.key.h_length);
     if (!iv)
-        die("out of memory @ %s:%d:%s [%" PRIu64 "]", __FILE__, __LINE__, __func__, e.key.h_length);
+        die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, e.key.h_length);
     gcry_md_hash_buffer(ma, iv, e.key.h_data, e.key.h_length);
     memcpy(buffer, iv, lk < e.key.h_length ? lk : e.key.h_length);
     free(iv);
@@ -234,7 +234,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     /*
      * all data written from here on is encrypted
      */
-    log_message(LOG_DEBUG, "write source file info");
+    log_message(LOG_DEBUG, _("Writing source file info"));
     /*
      * write simple addition (x ^ y = z) where x, y are random
      * 64bit signed integers
@@ -283,7 +283,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
         /*
          * setup for liblzma compression
          */
-        log_message(LOG_VERBOSE, "initialising lzma compression");
+        log_message(LOG_VERBOSE, _("Initialising xz compression"));
         lzma_filter lzf[2];
         lzma_options_lzma lzo;
         lzma_lzma_preset(&lzo, LZMA_PRESET_DEFAULT);
@@ -334,7 +334,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
      * main encryption loop; if we're compressing the output then everything
      * from here will be compressed
      */
-    log_message(LOG_DEBUG, "starting encryption process");
+    log_message(LOG_DEBUG, _("Starting encryption process"));
     lseek(f, 0, SEEK_SET);
     /*
      * reset hash algorithm, so we can use it to generate a checksum of the plaintext data
@@ -370,14 +370,14 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
      */
     gcry_md_final(md);
     uint8_t *cs = gcry_md_read(md, ma);
-    log_message(LOG_DEBUG, "writing data checksum");
+    log_message(LOG_DEBUG, _("Writing data checksum"));
     write_func(g, cs, e.key.h_length, &io_params);
     log_binary(LOG_VERBOSE, cs, e.key.h_length);
     /*
      * add some random data at the end
      */
 #ifndef __DEBUG__
-    log_message(LOG_DEBUG, "appending file random data");
+    log_message(LOG_DEBUG, _("Appending file random data"));
     gcry_create_nonce(&l1, sizeof( uint8_t ));
     gcry_create_nonce(buffer, l1);
     write_func(g, buffer, l1, &io_params);
@@ -400,7 +400,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
 {
     status = RUNNING;
 
-    log_message(LOG_INFO, "decrypting...");
+    log_message(LOG_INFO, _("Decrypting..."));
     /*
      * initialise GNU Crypt library
      */
@@ -428,7 +428,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     int ma = gcry_md_get_algo(md);
     e.key.h_length = gcry_md_get_algo_dlen(ma);
     if (!(e.key.h_data = malloc(e.key.h_length)))
-        die("out of memory @ %s:%d:%s [%" PRIu64 "]", __FILE__, __LINE__, __func__, e.key.h_length);
+        die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, e.key.h_length);
     gcry_md_hash_buffer(ma, e.key.h_data, e.key.p_data, e.key.p_length);
     /*
      * setup algorithm (key and IV)
@@ -441,7 +441,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     memset(buffer, 0x00, sizeof buffer);
     uint8_t *iv = malloc(e.key.h_length);
     if (!iv)
-        die("out of memory @ %s:%d:%s [%" PRIu64 "]", __FILE__, __LINE__, __func__, e.key.h_length);
+        die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, e.key.h_length);
     gcry_md_hash_buffer(ma, iv, e.key.h_data, e.key.h_length);
     memcpy(buffer, iv, lk < e.key.h_length ? lk : e.key.h_length);
     free(iv);
@@ -451,7 +451,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     gcry_cipher_setiv(io_params.cipher, buffer, lk);
     memset(buffer, 0x00, sizeof buffer);
 
-    log_message(LOG_DEBUG, "reading source file info");
+    log_message(LOG_DEBUG, _("Reading source file info"));
     /*
      * read three 64bit signed integers and assert that x ^ y = z
      */
@@ -461,7 +461,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     enc_read(f, &x, sizeof( int64_t ), &io_params);
     enc_read(f, &y, sizeof( int64_t ), &io_params);
     enc_read(f, &z, sizeof( int64_t ), &io_params);
-    log_message(LOG_DEBUG, "verifying x ^ y = z");
+    log_message(LOG_DEBUG, _("Verifying x ^ y = z"));
     log_message(LOG_VERBOSE, "x = %" PRIx64 " ; y = %" PRIx64 " ; z = %" PRIx64, x, y, z);
     x = ntohll(x);
     y = ntohll(y);
@@ -469,7 +469,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     log_message(LOG_VERBOSE, "x = %" PRIx64 " ; y = %" PRIx64 " ; z = %" PRIx64, x, y, z);
     if ((x ^ y) != z)
     {
-        log_message(LOG_ERROR, "failed decryption attempt");
+        log_message(LOG_ERROR, _("Failed decryption attempt"));
         return (status = FAILED_DECRYPTION);
     }
     /*
@@ -496,39 +496,39 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
         enc_read(f, &length, sizeof( uint16_t ), &io_params);
         length = ntohs(length);
         if (!(value = malloc(length)))
-            die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, length);
+            die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, length);
         enc_read(f, value, length, &io_params);
         switch (tag)
         {
             case TAG_SIZE:
                 memcpy(&decrypted_size, value, sizeof( uint64_t ));
                 decrypted_size = ntohll(decrypted_size);
-                log_message(LOG_VERBOSE, "found size: %" PRIu64, decrypted_size);
+                log_message(LOG_VERBOSE, _("Original file size: %" PRIu64), decrypted_size);
                 break;
             case TAG_BLOCKED:
                 memcpy(&block_size, value, sizeof( uint64_t ));
                 block_size = ntohll(block_size);
                 e.blocked = true;
-                log_message(LOG_VERBOSE, "file split into blocks of size: %" PRIu64, block_size);
+                log_message(LOG_VERBOSE, _("File split into blocks of size: %" PRIu64), block_size);
                 break;
             case TAG_COMPRESSED:
 #ifndef DEBUGL_LZMA
                 if ((e.compressed = value[0])) /* yes, this is what i actually want */
                 {
-                    log_message(LOG_VERBOSE, "data stream is compressed");
+                    log_message(LOG_VERBOSE, _("Data stream is compressed"));
                     if (lzma_stream_decoder(io_params.lzma, UINT64_MAX, 0) != LZMA_OK)
-                        die("expecting compressed data but could not setup liblzma");
+                        die(_("Expecting compressed data but could not setup liblzma"));
                     read_func = lzma_read;
                 }
                 else
 #endif
                 {
-                    log_message(LOG_VERBOSE, "data stream is not compressed");
+                    log_message(LOG_VERBOSE, _("Data stream is not compressed"));
                     e.compressed = false;
                 }
                 break;
             default:
-                log_message(LOG_WARNING, "unknown parameter: %hhx", tag);
+                log_message(LOG_WARNING, _("Encountered unknown tlv tag: %hhx"), tag);
                 status = FAILED_TAG;
                 break;
         }
@@ -540,7 +540,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     /*
      * main decryption loop
      */
-    log_message(LOG_DEBUG, "starting decryption process");
+    log_message(LOG_DEBUG, _("Starting decryption process"));
     /*
      * reset hash algorithm, so we can use it to generate a checksum of the plaintext data
      */
@@ -595,12 +595,12 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
         ma = gcry_md_get_algo(md);
         uint8_t *cs = gcry_md_read(md, ma);
         read_func(f, buffer, e.key.h_length, &io_params);
-        log_message(LOG_DEBUG, "verifying checksum");
+        log_message(LOG_DEBUG, _("Verifying checksum"));
         log_binary(LOG_VERBOSE, cs, e.key.h_length);
         log_binary(LOG_VERBOSE, buffer, e.key.h_length);
         if (memcmp(cs, buffer, e.key.h_length))
         {
-            log_message(LOG_ERROR, "checksum verification failed");
+            log_message(LOG_ERROR, _("Checksum verification failed"));
             status = FAILED_CHECKSUM;
         }
     }
@@ -691,9 +691,9 @@ static void init_gcrypt_library(void)
     /*
      * initialise GNU Crypt library
      */
-    log_message(LOG_VERBOSE, "Initialise GNU Crypt library");
+    log_message(LOG_VERBOSE, _("Initialising GNU Crypt library"));
     if (!gcry_check_version(GCRYPT_VERSION))
-        die("could not find GNU Crypt library");
+        die(_("Could not find GNU Crypt library"));
     gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
     errno = 0; /* need to reset errno after gcry_check_version() */
     lib_init = true;
@@ -719,12 +719,12 @@ static int get_algorithm_hash(const char * const restrict n)
         if (!strcasecmp(y, n))
         {
             free(y);
-            log_message(LOG_DEBUG, "found hash algorithm %s", gcry_md_algo_name(list[i]));
+            log_message(LOG_DEBUG, _("Found requested hash: %s"), gcry_md_algo_name(list[i]));
             return list[i];
         }
         free(y);
     }
-    log_message(LOG_ERROR, "could not find algorithm %s", n);
+    log_message(LOG_ERROR, _("Could not find requested hash: %s"), n);
     return 0;
 }
 
@@ -749,13 +749,13 @@ static int get_algorithm_crypt(const char * const restrict n)
             y = strdup(x);
         if (!strcasecmp(y, n))
         {
-            log_message(LOG_DEBUG, "found crypto algorithm %s", gcry_cipher_algo_name(list[i]));
+            log_message(LOG_DEBUG, _("Found requested encryption algorithm: %s"), gcry_cipher_algo_name(list[i]));
             free(y);
             return list[i];
         }
         free(y);
     }
-    log_message(LOG_ERROR, "could not find algorithm %s", n);
+    log_message(LOG_ERROR, _("Could not find requested encryption algorithm: %s"), n);
     return 0;
 }
 
@@ -807,7 +807,7 @@ static char *correct_aes_rijndael(const char * const restrict n)
     char *x = NULL;
     asprintf(&x, "%s%s", NAME_RIJNDAEL, n + strlen(NAME_AES));
     if (!x)
-        die("out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, strlen(NAME_RIJNDAEL) + strlen(n) - strlen(NAME_AES));
+        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(NAME_RIJNDAEL) + strlen(n) - strlen(NAME_AES));
     return x;
 }
 

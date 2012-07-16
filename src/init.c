@@ -107,9 +107,15 @@ extern args_t init(int argc, char **argv)
     return a;
 }
 
-extern void show_help(void)
+static void print_version(void)
 {
     fprintf(stderr, _("%s version : %s\n%*s built on: %s %s\n"), TEXT_NAME, TEXT_VERSION, (int)strlen(TEXT_NAME), "", __DATE__, __TIME__);
+    return;
+}
+
+extern void show_help(void)
+{
+    print_version();
     fprintf(stderr, _("Usage:\n  %s %s\n\n"), TEXT_NAME, TEXT_USAGE);
     fprintf(stderr, _("Options:\n"));
     fprintf(stderr, _("  -h/--help                 Display this message\n"));
@@ -141,6 +147,6 @@ extern void show_usage(void)
 
 extern void show_version(void)
 {
-    fprintf(stderr, _("%s version : %s\n%*s built on: %s %s\n"), TEXT_NAME, TEXT_VERSION, (int)strlen(program_invocation_short_name), "", __DATE__, __TIME__);
+    print_version();
     exit(EXIT_SUCCESS);
 }

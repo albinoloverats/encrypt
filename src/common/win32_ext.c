@@ -63,7 +63,7 @@ extern int asprintf(char **buffer, char *fmt, ...)
     va_list ap;
     
     if (!(*buffer = (char *)malloc(size)))
-        die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, size);
+        die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, size);
           
     va_start(ap, fmt);
     nchars = vsnprintf(*buffer, size, fmt, ap);
@@ -74,7 +74,7 @@ extern int asprintf(char **buffer, char *fmt, ...)
         char *tmpbuff;
         size = nchars + 1;
         if (!(tmpbuff = (char *)realloc(*buffer, size)))
-            die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, size);
+            die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, size);
 
         *buffer = tmpbuff;
 

@@ -47,7 +47,7 @@ extern int lzma_write(int64_t f, const void * const restrict d, size_t l, io_par
     if (!stream)
     {
         if (!(stream = calloc(BLOCK_SIZE, sizeof( uint8_t ))))
-            die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, BLOCK_SIZE);
+            die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, BLOCK_SIZE);
         c->lzma->next_out = stream;
         c->lzma->avail_out = BLOCK_SIZE;
     }
@@ -67,7 +67,7 @@ extern int lzma_write(int64_t f, const void * const restrict d, size_t l, io_par
             case LZMA_OK:
                 break;
             default:
-                die("unexpected error during compression");
+                die(_("Unexpected error during compression"));
         }
         if (c->lzma->avail_out == 0)
         {
@@ -113,16 +113,14 @@ extern int lzma_read(int64_t f, void * const d, size_t l, io_params_t *c)
                 a = LZMA_FINISH;
         }
 proc_remain:
-        ;
-        lzma_ret x = lzma_code(c->lzma, a);
-        switch (x)
+        switch (lzma_code(c->lzma, a))
         {
             case LZMA_STREAM_END:
                 eof = EOF_MAYBE;
             case LZMA_OK:
                 break;
             default:
-                die("unexpected error during decompression : %d", x);
+                die(_("Unexpected error during decompression"));
         }
 
         if (c->lzma->avail_out == 0 || eof != EOF_NO)
@@ -145,7 +143,7 @@ extern int enc_write(int64_t f, const void * const restrict d, size_t l, io_para
         gcry_cipher_algo_info(c->algorithm, GCRYCTL_GET_BLKLEN, NULL, &block);
     if (!stream)
         if (!(stream = calloc(block, sizeof( uint8_t ))))
-            die("out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, block * sizeof( uint8_t ));
+            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, block * sizeof( uint8_t ));
 
     size_t remainder[2] = { l, block - offset[0] };
     if (!d && !l)
@@ -199,7 +197,7 @@ extern int enc_read(int64_t f, void * const d, size_t l, io_params_t *c)
         gcry_cipher_algo_info(c->algorithm, GCRYCTL_GET_BLKLEN, NULL, &block);
     if (!stream)
         if (!(stream = calloc(block, sizeof( uint8_t ))))
-            die("out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, block * sizeof( uint8_t ));
+            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, block * sizeof( uint8_t ));
 
     offset[1] = l;
     offset[2] = 0;
@@ -211,7 +209,7 @@ extern int enc_read(int64_t f, void * const d, size_t l, io_params_t *c)
             offset[0] -= offset[1];
             uint8_t *x = calloc(block, sizeof( uint8_t ));
             if (!x)
-                die("out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, block * sizeof( uint8_t ));
+                die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, block * sizeof( uint8_t ));
             memcpy(x, stream + offset[1], offset[0]);
             memset(stream, 0x00, block);
             memcpy(stream, x, offset[0]);

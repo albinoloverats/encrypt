@@ -112,7 +112,7 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
         if (cipher && !strcasecmp(ciphers[i], cipher))
         {
             slctd_cipher = i + 1;
-            log_message(LOG_VERBOSE, _("algorithm %s is %d in the list"), cipher, slctd_cipher);
+            log_message(LOG_VERBOSE, _("Selected %d is algorithm: %s"), slctd_cipher, cipher);
         }
         gtk_combo_box_text_append_text((GtkComboBoxText *)data->crypto_combo, ciphers[i]);
         free(ciphers[i]);
@@ -129,7 +129,7 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
         if (hash && !strcasecmp(hashes[i], hash))
         {
             slctd_hash = i + 1;
-            log_message(LOG_VERBOSE, _("algorithm %s is %d in the list"), hash, slctd_hash);
+            log_message(LOG_VERBOSE, _("Selected %d is hash: %d"), slctd_hash, hash);
         }
         gtk_combo_box_text_append_text((GtkComboBoxText *)data->hash_combo, hashes[i]);
         free(hashes[i]);
@@ -197,25 +197,25 @@ G_MODULE_EXPORT gboolean key_chooser_callback(GtkFileChooser *file_chooser, gtk_
 
 G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widgets_t *data)
 {
-    log_message(LOG_EVERYTHING, _("show progress dialog"));
+    log_message(LOG_EVERYTHING, _("Show progress dialog"));
     gtk_widget_show(data->progress_dialog);
     //gtk_main_iteration();
 
     pthread_t bgt = bg_thread_initialise(bg_thread_gui, data);
 
-    log_message(LOG_EVERYTHING, _("reset cancel/close buttons"));
+    log_message(LOG_EVERYTHING, _("Reset cancel/close buttons"));
     gtk_widget_set_sensitive(data->progress_cancel_button, TRUE);
     gtk_widget_show(data->progress_cancel_button);
     gtk_widget_set_sensitive(data->progress_close_button, FALSE);
     gtk_widget_hide(data->progress_close_button);
 
-    log_message(LOG_EVERYTHING, _("reset progress bar"));
+    log_message(LOG_EVERYTHING, _("Reset progress bar"));
     gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress_bar, 0.0);
     gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar, "");
 
     uint64_t sz = 0;
 
-    log_message(LOG_EVERYTHING, _("update progress bar in loop"));
+    log_message(LOG_EVERYTHING, _("Update progress bar in loop"));
     status_e status = PREPROCESSING;
     do
     {
@@ -245,7 +245,7 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
     pthread_join(bgt, &r);
     memcpy(&status, r, sizeof status);
     free(r);
-    log_message(LOG_VERBOSE, _("bg thread finished with status %d"), status);
+    log_message(LOG_VERBOSE, _("Background thread finished with status: %d"), status);
 
     update_status_bar(data, status);
 
@@ -275,7 +275,7 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
 
 G_MODULE_EXPORT gboolean on_cancel_button_clicked(GtkButton *button, gtk_widgets_t *data)
 {
-    log_message(LOG_DEBUG, _("cancel background thread"));
+    log_message(LOG_DEBUG, _("Cancel background thread"));
     stop_running();
 
     return TRUE;
@@ -339,7 +339,7 @@ static void *bg_thread_gui(void *n)
                 key.p_length = lseek(kf, 0, SEEK_END);
                 key.p_data = malloc(key.p_length);
                 if (!key.p_data)
-                    die(_("out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, key.p_length);
+                    die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, key.p_length);
                 pread(kf, key.p_data, key.p_length, 0);
                 close(kf);
             }

@@ -162,19 +162,19 @@ int main(int argc, char **argv)
 
     if (args.source)
     {
-        log_message(LOG_VERBOSE, _("find source file %s"), args.source);
+        log_message(LOG_VERBOSE, _("Requested source file: %s"), args.source);
         source = open(args.source, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
         if (source < 0)
-            die(_("could not access input file %s"), args.source);
-        log_message(LOG_DEBUG, "opened %s for read access", args.source);
+            die(_("Could not access input file %s"), args.source);
+        log_message(LOG_DEBUG, "Opened %s for read access", args.source);
     }
     if (args.output)
     {
-        log_message(LOG_VERBOSE, _("find output file %s"), args.output);
+        log_message(LOG_VERBOSE, _("Requested output file %s"), args.output);
         output = open(args.output, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY | F_WRLCK, S_IRUSR | S_IWUSR);
         if (output < 0)
-            die(_("could not access output file %s"), args.output);
-        log_message(LOG_DEBUG, _("opened %s for write access"), args.output);
+            die(_("Could not access output file %s"), args.output);
+        log_message(LOG_DEBUG, _("Opened %s for write access"), args.output);
     }
 
     encrypt_t e_data = { args.cipher, args.hash, { NULL, 0, NULL, 0 }, true, args.compress };
@@ -185,11 +185,11 @@ int main(int argc, char **argv)
     {
         int64_t kf = open(args.key, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
         if (kf < 0)
-            die(_("could not access key data file"));
+            die(_("Could not access key data file"));
         e_data.key.p_length = lseek(kf, 0, SEEK_END);
         e_data.key.p_data = malloc(e_data.key.p_length);
         if (!e_data.key.p_data)
-            die(_("out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, e_data.key.p_length);
+            die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, e_data.key.p_length);
         pread(kf, e_data.key.p_data, e_data.key.p_length, 0);
         close(kf);
     }
@@ -200,7 +200,7 @@ int main(int argc, char **argv)
     }
     else if (isatty(STDIN_FILENO))
     {
-        e_data.key.p_data = (uint8_t *)getpass("Please enter a password: ");
+        e_data.key.p_data = (uint8_t *)getpass(_("Please enter a password: "));
         e_data.key.p_length = (uint64_t)strlen((char *)e_data.key.p_data);
     }
     else
@@ -218,7 +218,7 @@ int main(int argc, char **argv)
     close(source);
 
     if (status >= CANCELLED)
-        fprintf(stderr, _("%s\n"), FAILED_MESSAGE[status]);
+        fprintf(stderr, _("%s"), FAILED_MESSAGE[status]);
 
 #ifdef BUILD_GUI
 eop:
@@ -232,7 +232,7 @@ eop:
 
 static void *ui_thread_cli(void *n)
 {
-    log_message(LOG_EVERYTHING, _("starting UI thread..."));
+    log_message(LOG_EVERYTHING, _("Starting UI thread..."));
     (void)n;
     fprintf(stderr, _("\rPercent complete: %7.3f%%"), 0.0f);
     uint64_t sz = 0;
@@ -248,12 +248,12 @@ static void *ui_thread_cli(void *n)
         if (!sz)
             sz = get_decrypted_size();
         else
-            fprintf(stderr, _("\b\b\b\b\b\b\b\b%7.3f%%"), (get_bytes_processed() * 100.0f / sz));
+            fprintf(stderr, "\b\b\b\b\b\b\b\b%7.3f%%", (get_bytes_processed() * 100.0f / sz));
     }
     while (get_status() == RUNNING);
 
     fprintf(stderr, _("\rPercent complete: %7.3f%%\n"), 100.0f);
-    log_message(LOG_EVERYTHING, _("finished UI thread"));
+    log_message(LOG_EVERYTHING, _("Finished UI thread"));
     return NULL;
 }
 
@@ -262,7 +262,7 @@ extern pthread_t bg_thread_initialise2(void *(fn)(void *), void *n)
     /*
      * initialize background thread
      */
-    log_message(LOG_EVERYTHING, _("setting up UI thread"));
+    log_message(LOG_EVERYTHING, _("Setting up UI thread"));
     pthread_t bg_thread;
     pthread_create(&bg_thread, NULL, fn, n);
     return bg_thread;
