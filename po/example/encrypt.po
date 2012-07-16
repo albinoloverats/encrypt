@@ -1,0 +1,167 @@
+#: src/encrypt.c:84
+#| Checking for file header
+msgid "Checking for file header"
+msgstr ""
+
+#: src/encrypt.c:139
+#| File encrypted with more recent release of encrypt
+msgid "File encrypted with more recent release of encrypt"
+msgstr ""
+
+#: src/encrypt.c:145
+#| Checking for known algorithms
+msgid "Checking for known algorithms"
+msgstr ""
+
+#: src/encrypt.c:158
+#| File encrypted using algorithm: %s
+msgid "File encrypted using algorithm: %s"
+msgstr ""
+
+#: src/encrypt.c:159
+#| Encryption key generated using hash: %s
+msgid "Encryption key generated using hash: %s"
+msgstr ""
+
+#: src/encrypt.c:170
+#| Encrypting...
+msgid "Encrypting..."
+msgstr ""
+
+#: src/encrypt.c:179
+#| Searching for known algorithms
+msgid "Searching for known algorithms"
+msgstr ""
+
+#: src/encrypt.c:194
+#| Writing standard header
+msgid "Writing standard header"
+msgstr ""
+
+#: src/encrypt.c:210
+#. See common/common.po for the definitive "Out of memory" translation
+
+#: src/encrypt.c:225
+#. See common/common.po for the definitive "Out of memory" translation
+
+#: src/encrypt.c:237
+#| Writing source file info
+msgid "Writing source file info"
+msgstr ""
+
+#: src/encrypt.c:286
+#| Initialising xz compression
+msgid "Initialising xz compression"
+msgstr ""
+
+#: src/encrypt.c:337
+#| Starting encryption process
+msgid "Starting encryption process"
+msgstr ""
+
+#: src/encrypt.c:373
+#| Writing data checksum
+msgid "Writing data checksum"
+msgstr ""
+
+#: src/encrypt.c:380
+#| Appending file random data
+msgid "Appending file random data"
+msgstr ""
+
+#: src/encrypt.c:403
+#| Decrypting...
+msgid "Decrypting..."
+msgstr ""
+
+#: src/encrypt.c:431
+#. See common/common.po for the definitive "Out of memory" translation
+
+#: src/encrypt.c:444
+#. See common/common.po for the definitive "Out of memory" translation
+
+#: src/encrypt.c:454
+#| Reading source file info
+msgid "Reading source file info"
+msgstr ""
+
+#: src/encrypt.c:464
+#| Verifying x ^ y = z
+msgid "Verifying x ^ y = z"
+msgstr ""
+
+#: src/encrypt.c:472
+#| Failed decryption attempt
+msgid "Failed decryption attempt"
+msgstr ""
+
+#: src/encrypt.c:499
+#. See common/common.po for the definitive "Out of memory" translation
+
+#: src/encrypt.c:518
+#| Data stream is compressed
+msgid "Data stream is compressed"
+msgstr ""
+
+#: src/encrypt.c:520
+#| Expecting compressed data but could not setup liblzma
+msgid "Expecting compressed data but could not setup liblzma"
+msgstr ""
+
+#: src/encrypt.c:526
+#| Data stream is not compressed
+msgid "Data stream is not compressed"
+msgstr ""
+
+#: src/encrypt.c:531
+#| Encountered unknown tlv tag: %hhx
+msgid "Encountered unknown tlv tag: %hhx"
+msgstr ""
+
+#: src/encrypt.c:543
+#| Starting decryption process
+msgid "Starting decryption process"
+msgstr ""
+
+#: src/encrypt.c:598
+#| Verifying checksum
+msgid "Verifying checksum"
+msgstr ""
+
+#: src/encrypt.c:603
+#| Checksum verification failed
+msgid "Checksum verification failed"
+msgstr ""
+
+#: src/encrypt.c:694
+#| Initialising GNU Crypt library
+msgid "Initialising GNU Crypt library"
+msgstr ""
+
+#: src/encrypt.c:696
+#| Could not find GNU Crypt library
+msgid "Could not find GNU Crypt library"
+msgstr ""
+
+#: src/encrypt.c:722
+#| Found requested hash: %s
+msgid "Found requested hash: %s"
+msgstr ""
+
+#: src/encrypt.c:727
+#| Could not find requested hash: %s
+msgid "Could not find requested hash: %s"
+msgstr ""
+
+#: src/encrypt.c:752
+#| Found requested encryption algorithm: %s
+msgid "Found requested encryption algorithm: %s"
+msgstr ""
+
+#: src/encrypt.c:758
+#| Could not find requested encryption algorithm: %s
+msgid "Could not find requested encryption algorithm: %s"
+msgstr ""
+
+#: src/encrypt.c:810
+#. See common/common.po for the definitive "Out of memory" translation

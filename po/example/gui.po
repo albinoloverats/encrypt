@@ -1,0 +1,42 @@
+#: src/gui.c:115
+#| Selected %d is algorithm: %s
+msgid "Selected %d is algorithm: %s"
+msgstr ""
+
+#: src/gui.c:132
+#| Selected %d is hash: %d
+msgid "Selected %d is hash: %d"
+msgstr ""
+
+#: src/gui.c:200
+#| Show progress dialog
+msgid "Show progress dialog"
+msgstr ""
+
+#: src/gui.c:206
+#| Reset cancel/close buttons
+msgid "Reset cancel/close buttons"
+msgstr ""
+
+#: src/gui.c:212
+#| Reset progress bar
+msgid "Reset progress bar"
+msgstr ""
+
+#: src/gui.c:218
+#| Update progress bar in loop
+msgid "Update progress bar in loop"
+msgstr ""
+
+#: src/gui.c:248
+#| Background thread finished with status: %d
+msgid "Background thread finished with status: %d"
+msgstr ""
+
+#: src/gui.c:278
+#| Cancel background thread
+msgid "Cancel background thread"
+msgstr ""
+
+#. See common/common.po for the definitive "Out of memory" translation
+#: src/gui.c:342
