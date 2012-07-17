@@ -97,7 +97,8 @@
     #define htonll(x) __bswap_64(x) /*!< Do need to swap bytes (mostly on Mac OS X) */
 #endif
 
-#ifndef _WIN32
+#if !defined _WIN32
+    #include <libintl.h>
     #define _(s) gettext(s) /*!< Allow use of _() to refer to gettext() */
 #else
     #define _(s) s /*!< Don't yet support translations on MS Windows */
