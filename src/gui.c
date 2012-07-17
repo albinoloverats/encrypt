@@ -129,7 +129,7 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
         if (hash && !strcasecmp(hashes[i], hash))
         {
             slctd_hash = i + 1;
-            log_message(LOG_VERBOSE, _("Selected %d is hash: %d"), slctd_hash, hash);
+            log_message(LOG_VERBOSE, _("Selected %d is hash: %s"), slctd_hash, hash);
         }
         gtk_combo_box_text_append_text((GtkComboBoxText *)data->hash_combo, hashes[i]);
         free(hashes[i]);
