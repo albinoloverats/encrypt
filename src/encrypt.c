@@ -46,6 +46,8 @@ static void init_gcrypt_library(void);
 static int get_algorithm_hash(const char * const restrict n);
 static int get_algorithm_crypt(const char * const restrict n);
 
+static int algorithm_compare(const void *a, const void *b);
+
 static const char *get_name_algorithm_hash(int a);
 static const char *get_name_algorithm_crypt(int a);
 
@@ -648,8 +650,8 @@ extern char **get_algorithms_hash(void)
     {
         const char *n = gcry_md_algo_name(lid[i]);
         if (algorithm_is_duplicate(n))
-            continue;
-        if (!strcasecmp(n, NAME_TIGER192))
+            l[i] = strdup(""); // a duplicate of another algorithm already in the list (empty strings will be ignored)
+        else if (!strcasecmp(n, NAME_TIGER192))
             l[i] = strdup(correct_tiger192(n));
         else if (!strncasecmp(n, NAME_SHA1, strlen(NAME_SHA1) - 1))
             l[i] = strdup(correct_sha1(n));
@@ -657,6 +659,7 @@ extern char **get_algorithms_hash(void)
             l[i] = strdup(n);
     }
     l[len] = NULL;
+    qsort(l, len, sizeof( char * ), algorithm_compare);
     return l;
 }
 
@@ -672,8 +675,8 @@ extern char **get_algorithms_crypt(void)
     {
         const char *n = gcry_cipher_algo_name(lid[i]);
         if (algorithm_is_duplicate(n))
-            continue;
-        if (!strncasecmp(n, NAME_AES, strlen(NAME_AES)))
+            l[i] = strdup(""); // ditto to above
+        else if (!strncasecmp(n, NAME_AES, strlen(NAME_AES)))
             l[i] = strdup(correct_aes_rijndael(n));
         else if (!strcasecmp(n, NAME_BLOWFISH))
             l[i] = strdup(correct_blowfish128(n));
@@ -683,9 +686,15 @@ extern char **get_algorithms_crypt(void)
             l[i] = strdup(n);
     }
     l[len] = NULL;
+    qsort(l, len, sizeof( char * ), algorithm_compare);
     return l;
 }
 
+static int algorithm_compare(const void *a, const void *b)
+{
+    return strcmp(*(char **)a, *(char **)b);
+}
+        
 static void init_gcrypt_library(void)
 {
     /*
