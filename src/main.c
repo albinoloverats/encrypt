@@ -115,6 +115,7 @@ int main(int argc, char **argv)
         CH_GET_WIDGET(builder, progress_cancel_button, widgets);
         CH_GET_WIDGET(builder, progress_close_button, widgets);
         CH_GET_WIDGET(builder, about_dialog, widgets);
+        CH_GET_WIDGET(builder, compress_menu_item, widgets);
 
         version_thread = bg_thread_initialise(check_new_version, widgets);
 
