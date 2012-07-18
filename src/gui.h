@@ -28,7 +28,7 @@
 #define CH_GET_WIDGET( builder, name, data )        CH_GET_OBJECT( builder, name, GTK_WIDGET, data )
 
 #if !defined _WIN32 && !defined __APPLE__
-    #ifdef __DEBUG__
+    #if defined __DEBUG__ || defined __DEBUG_GUI__
         #define GLADE_UI_FILE "encrypt.glade"
     #else
         #define GLADE_UI_FILE "/usr/share/encrypt/" "encrypt.glade"
@@ -61,6 +61,7 @@ typedef struct gtk_widgets_t
     GtkWidget *progress_cancel_button;
     GtkWidget *progress_close_button;
     GtkWidget *about_dialog;
+    GtkWidget *compress_menu_item;
 }
 gtk_widgets_t;
 
@@ -81,6 +82,8 @@ G_MODULE_EXPORT gboolean on_cancel_button_clicked(GtkButton *button, gtk_widgets
 G_MODULE_EXPORT gboolean on_close_button_clicked(GtkButton *button, gtk_widgets_t *data);
 
 G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_t *data);
+
+G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *widget, gtk_widgets_t *data);
 
 extern void update_status_bar(gtk_widgets_t *data, int64_t status);
 
