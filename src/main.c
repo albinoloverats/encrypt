@@ -275,7 +275,7 @@ static bool list_algorithms_hash(void)
     {
         if (!l[i])
             break;
-        else
+        else if (strlen(l[i]))
             fprintf(stderr, "%s\n", l[i]);
         free(l[i]);
     }
@@ -290,8 +290,8 @@ static bool list_algorithms_crypt(void)
     {
         if (!l[i])
             break;
-        else
-        fprintf(stderr, "%s\n", l[i]);
+        else if (strlen(l[i]))
+            fprintf(stderr, "%s\n", l[i]);
         free(l[i]);
     }
     free(l);

@@ -109,7 +109,9 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
     {
         if (!ciphers[i])
             break;
-        if (cipher && !strcasecmp(ciphers[i], cipher))
+        else if (!strlen(ciphers[i]))
+            continue;
+        else if (cipher && !strcasecmp(ciphers[i], cipher))
         {
             slctd_cipher = i + 1;
             log_message(LOG_VERBOSE, _("Selected %d is algorithm: %s"), slctd_cipher, cipher);
@@ -126,7 +128,9 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
     {
         if (!hashes[i])
             break;
-        if (hash && !strcasecmp(hashes[i], hash))
+        else if (!strlen(hashes[i]))
+            continue;
+        else if (hash && !strcasecmp(hashes[i], hash))
         {
             slctd_hash = i + 1;
             log_message(LOG_VERBOSE, _("Selected %d is hash: %s"), slctd_hash, hash);
