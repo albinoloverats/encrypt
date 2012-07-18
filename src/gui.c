@@ -46,6 +46,7 @@ static void check_enable_encrypt_button(gtk_widgets_t *data);
 static void *bg_thread_gui(void *n);
 
 static bool encrypting = true;
+static bool compress = true;
 
 G_MODULE_EXPORT gboolean file_chooser_callback(GtkWidget *widget, gtk_widgets_t *data)
 {
@@ -354,7 +355,7 @@ static void *bg_thread_gui(void *n)
             key.p_length = strlen((char *)key.p_data);
             break;
     }
-    encrypt_t e_data = { NULL, NULL, key, true, false };
+    encrypt_t e_data = { NULL, NULL, key, true, compress };
 
     if (encrypting)
     {
@@ -394,6 +395,14 @@ G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_t *data)
 {
     gtk_dialog_run((GtkDialog *)data->about_dialog);
     gtk_widget_hide(data->about_dialog);
+
+    return TRUE;
+}
+
+G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *widget, gtk_widgets_t *data)
+{
+    compress = gtk_check_menu_item_get_active((GtkCheckMenuItem *)data->compress_menu_item);
+    log_message(LOG_VERBOSE, _("Compression is now %s"), compress ? "on" : "off");
 
     return TRUE;
 }
