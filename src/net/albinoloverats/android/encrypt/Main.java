@@ -64,6 +64,7 @@ public class Main extends Activity
     private ProgressThread progressThread;
 
     private boolean encrypting = true;
+    private boolean compress = true;
     private String filenameIn;
     private String filenameOut;
     private String hash;
@@ -220,6 +221,9 @@ public class Main extends Activity
             case R.id.menu_about:
                 aboutDialog();
                 break;
+            case R.id.menu_compress:
+                compress = item.isChecked();
+                break;
         }
         return true;
     }
@@ -280,7 +284,7 @@ public class Main extends Activity
             }
         }
         else if (resultCode == Activity.RESULT_CANCELED)
-            ;
+            ; // do nothing
     }
 
     @Override
@@ -358,7 +362,7 @@ public class Main extends Activity
         {
             final Encrypt encryptProcess;
             if (encrypting)
-                encryptProcess = new Encrypt(new File(filenameIn), new File(filenameOut), password.getBytes(), hash, cipher);
+                encryptProcess = new Encrypt(new File(filenameIn), new File(filenameOut), password.getBytes(), hash, cipher, compress);
             else
                 encryptProcess = new Decrypt(new File(filenameIn), new File(filenameOut), password.getBytes());
 

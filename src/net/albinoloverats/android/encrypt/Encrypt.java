@@ -54,17 +54,7 @@ public class Encrypt extends Thread implements Runnable
 {
     public enum Status
     {
-        NOT_STARTED,
-        RUNNING,
-        SUCCEEDED,
-        CANCELLED,
-        FAILED_UNKNOWN,
-        FAILED_ALGORITHM,
-        FAILED_KEY,
-        FAILED_IO,
-        FAILED_DECRYPTION,
-        FAILED_UNKNOWN_TAG,
-        FAILED_CHECKSUM;
+        NOT_STARTED, RUNNING, SUCCEEDED, CANCELLED, FAILED_UNKNOWN, FAILED_ALGORITHM, FAILED_KEY, FAILED_IO, FAILED_DECRYPTION, FAILED_UNKNOWN_TAG, FAILED_CHECKSUM;
 
         private String additional;
 
@@ -81,9 +71,7 @@ public class Encrypt extends Thread implements Runnable
 
     private enum MetaData
     {
-        SIZE(0),
-        BLOCKED(1),
-        COMPRESSED(2);
+        SIZE(0), BLOCKED(1), COMPRESSED(2);
 
         private final byte tag;
 
@@ -136,11 +124,6 @@ public class Encrypt extends Thread implements Runnable
         this.cipherName = cipherName;
         encrypting = true;
         compressed = compress;
-    }
-
-    public Encrypt(final File sourceFile, final File outputFile, final byte[] keyData, final String hashName, final String cipherName)
-    {
-        this(sourceFile, outputFile, keyData, hashName, cipherName, true);
     }
 
     protected Encrypt(final File sourceFile, final File outputFile, final byte[] keyData, final boolean encrypting)

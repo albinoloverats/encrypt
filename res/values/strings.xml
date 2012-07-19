@@ -10,6 +10,9 @@
     <string name="shpeel">encrypt ~ a cross platform, symetric key, file encryption application</string>
     <string name="copyright">Copyright © 2004–2012, albinoloverats ~ Software Development</string>
     <string name="url">https://albinoloverats.net/projects/encrypt</string>
+    
+    <string name="options">Options</string>
+    <string name="compress">Compress</string>
 
     <string name="encryption_succeeded">Encryption succeeded</string>
     <string name="decryption_succeeded">Decryption succeeded</string>
