@@ -222,7 +222,9 @@ public class Main extends Activity
                 aboutDialog();
                 break;
             case R.id.menu_compress:
-                compress = item.isChecked();
+                compress = !item.isChecked();
+                item.setChecked(compress);
+                Toast.makeText(getApplicationContext(), getString(R.string.compress) + ": " + (compress ? getString(R.string.on) : getString(R.string.off)), Toast.LENGTH_SHORT).show();
                 break;
         }
         return true;

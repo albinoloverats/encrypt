@@ -12,7 +12,10 @@
     <string name="url">https://albinoloverats.net/projects/encrypt</string>
     
     <string name="options">Options</string>
-    <string name="compress">Compress</string>
+    <string name="compress">Compression</string>
+
+    <string name="on">On</string>
+    <string name="off">Off</string>
 
     <string name="encryption_succeeded">Encryption succeeded</string>
     <string name="decryption_succeeded">Decryption succeeded</string>
