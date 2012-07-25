@@ -116,7 +116,7 @@ extern bool file_encrypted_aux(int t, intptr_t p, encrypt_t *e)
      */
     switch (ntohll(head[2]))
     {
-        case HEADER_VERSION_201008: /* original release 2011.08 */
+        case HEADER_VERSION_201108: /* original release 2011.08 */
             if (e)
             {
                 e->blocked = false;
@@ -130,7 +130,8 @@ extern bool file_encrypted_aux(int t, intptr_t p, encrypt_t *e)
                 e->compressed = false;
             }
             break;
-        case HEADER_VERSION_201207:
+        //case HEADER_VERSION_201207:
+        case HEADER_VERSION_NEXT_DEV:
             if (e)
             {
                 e->blocked = true;
