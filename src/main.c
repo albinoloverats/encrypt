@@ -146,6 +146,7 @@ int main(int argc, char **argv)
         fprintf(stderr, _("Could not create GUI - falling back to command line\n"));
 #endif /* we couldn't create the gui, so revert back to command line */
 
+#ifndef _WIN32 /* it's GUI or nothing */
     /*
      * start background thread to check for newer version of encrypt
      *
@@ -220,6 +221,8 @@ int main(int argc, char **argv)
 
     if (status >= CANCELLED)
         fprintf(stderr, _("%s"), FAILED_MESSAGE[status]);
+
+#endif /* ! _WIN32 */
 
 #ifdef BUILD_GUI
 eop:
