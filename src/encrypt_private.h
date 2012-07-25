@@ -6,7 +6,7 @@
 
 /* VERSION DEFINITIONS */
 #define VER_STRING	"2012.7.0.0"
-#define VER_MAJOR	2017
+#define VER_MAJOR	2012
 #define VER_MINOR	7
 #define VER_RELEASE	0
 #define VER_BUILD	0
