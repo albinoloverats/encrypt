@@ -96,8 +96,8 @@ public class Encrypt extends Thread implements Runnable
 
     private static final long HEADER_VERSION_201108 = 0x72761df3e497c983L;
     private static final long HEADER_VERSION_201110 = 0xbb116f7d00201110L;
-    private static final long HEADER_VERSION_201207 = 0x51d2824500201207L;
-    private static final long[] HEADER = { 0x3697de5d96fca0faL, 0xc845c2fa95e2f52dL, HEADER_VERSION_201207 };
+    private static final long HEADER_VERSION_NEXT_DEV = 0x51d28245e1216c45L;
+    private static final long[] HEADER = { 0x3697de5d96fca0faL, 0xc845c2fa95e2f52dL, HEADER_VERSION_NEXT_DEV };
 
     private static final int BLOCK_SIZE = 1024;
 
@@ -215,6 +215,8 @@ public class Encrypt extends Thread implements Runnable
                 return true;
             else if (encryptedVersion == HEADER_VERSION_201110)
                 return true;
+            else if (encryptedVersion == HEADER_VERSION_NEXT_DEV)
+                return true;
             return false;
         }
         catch (final IOException e)
@@ -323,7 +325,10 @@ public class Encrypt extends Thread implements Runnable
             buffer = new byte[BLOCK_SIZE];
             hash.reset();
             boolean b1 = true;
-            final OutputStream out = compressed ? new XZOutputStream(enc_out, new LZMA2Options()) : enc_out;
+            final LZMA2Options opts = new LZMA2Options(LZMA2Options.PRESET_DEFAULT);
+            opts.setDictSize(LZMA2Options.DICT_SIZE_DEFAULT / 10); // default dictionary size is 8MiB which is too large
+            final OutputStream out = compressed ? new XZOutputStream(enc_out, opts) : enc_out;
+
             while (b1)
             {
                 if (interrupted())
