@@ -25,6 +25,9 @@
 
 #define TEXT_USAGE "[-c algorithm] [-s algorithm] -k/-p key/password [input] [output]"
 
+#define ENCRYPTRC ".encryptrc"
+#define CONF_COMPRESS "compress"
+
 /*!
  * \brief  Structure of expected options
  *

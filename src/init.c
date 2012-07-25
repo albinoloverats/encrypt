@@ -20,9 +20,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <getopt.h>
 #include <errno.h>
 #include <libintl.h>
+#include <ctype.h>
 #include <string.h>
 #include <stdbool.h>
 
@@ -33,11 +35,54 @@
     extern char *program_invocation_short_name;
 #endif
 
+#include "common/error.h"
 #include "init.h"
 #include "encrypt.h"
 
+static char *parse_config_tail(const char *c, const char *l);
+
 extern args_t init(int argc, char **argv)
 {
+    args_t a = { NULL, NULL, NULL, NULL, NULL, NULL, true };
+
+    /*
+     * check for options in rc file (~/.encryptrc)
+     */
+    char *rc = NULL;
+    if (!asprintf(&rc, "%s/%s", getenv("HOME"), ENCRYPTRC))
+        die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, strlen(getenv("HOME")) + strlen(ENCRYPTRC) + 2);
+    if (!access(rc, F_OK | R_OK))
+    {
+        FILE *f = fopen(rc, "r");
+
+        char *line = NULL;
+        size_t len = 0;
+
+        while (getline(&line, &len, f) >= 0)
+        {
+            if (line[0] == '#' || len == 0)
+                continue;
+
+            if (!strncmp(CONF_COMPRESS, line, strlen(CONF_COMPRESS)) && isspace(line[strlen(CONF_COMPRESS)]))
+            {
+                char *tail = parse_config_tail(CONF_COMPRESS, line);
+                if (!strcasecmp("true", tail) || !strcasecmp("on", tail))
+                    a.compress = true;
+                else if (!strcasecmp("false", tail) || !strcasecmp("off", tail))
+                    a.compress = false;
+                else
+                    log_message(LOG_WARNING, "Unknown value %s for %s in config file", tail, CONF_COMPRESS);
+            }
+
+        }
+
+        fclose(f);
+    }
+
+    /*
+     * parse commandline arguments (they override the rc file)
+     */
+
     struct option options[] =
     {
         { "help",        no_argument,       0, 'h' },
@@ -52,8 +97,7 @@ extern args_t init(int argc, char **argv)
         { "no-compress", no_argument,       0, 'x' },
         { NULL,          0,                 0,  0  }
     };
-    args_t a = { NULL, NULL, NULL, NULL, NULL, NULL, true };
-    
+
     while (true)
     {
         int index = 0;
@@ -149,4 +193,27 @@ extern void show_version(void)
 {
     print_version();
     exit(EXIT_SUCCESS);
+}
+
+static char *parse_config_tail(const char *c, const char *l)
+{
+    char *x = strdup(l + strlen(c));
+    if (!x)
+        die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, strlen(l) - strlen(c) + 1);
+    size_t i = 0;
+    for (i = 0; i < strlen(x); i++)
+        if (!isspace(x[i]))
+            break;
+    char *y = strdup(x + i);
+    if (!y)
+        die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, strlen(x) - i + 1);
+    free(x);
+    for (i = strlen(y) - 1; i > 0; i--)
+        if (isspace(y[i]))
+            y[i] = '\0';
+        else
+            break;
+    char *tail = strdup(y);
+    free(y);
+    return tail;
 }
