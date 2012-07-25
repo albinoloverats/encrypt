@@ -50,12 +50,18 @@ install:
 # ditto, but this time for the man page
 	 @install -c -m 644 -D -T encrypt.1a.gz $(PREFIX)/usr/share/man/man1/encrypt.1a.gz
 	-@echo "installed \`encrypt.1a.gz' --> \`$(PREFIX)/usr/share/man/man1/encrypt.1a.gz'"
-# finally the desktop file
+# and then the desktop file
 	 @install -c -m 644 -D -T encrypt.desktop $(PREFIX)/usr/share/applications/encrypt.desktop
 	-@echo "installed \`encrypt.desktop' --> \`$(PREFIX)/usr/share/applications/encrypt.desktop'"
+# and finally the magic pattern
+	 @install -c -m 644 -D -T docs/magic $(PREFIX)/usr/share/file/magic/encrypt
+	-@echo "installed \`docs/magic' --> \`$(PREFIX)/usr/share/file/magic/encrypt'"
+	 @file -C && mv magic.mgc /usr/share/file/magic.mgc
+	-@echo "compiled updated magic pattern file"
 
 uninstall:
 	@rm -fvr $(PREFIX)/usr/share/encrypt
+	#@rm -fv $(PREFIX)/usr/share/file/magic/encrypt
 	@rm -fv $(PREFIX)/usr/share/pixmaps/encrypt.svg
 	@rm -fv $(PREFIX)/usr/share/pixmaps/encrypt.png
 	@rm -fv $(PREFIX)/usr/share/man/man1/encrypt.1a.gz
