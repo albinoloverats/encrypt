@@ -32,6 +32,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -56,6 +57,7 @@ import com.lamerman.FileDialog;
 public class Main extends Activity
 {
     private static final int PROGRESS_DIALOG = 0;
+    private static final String SHARED_PREFERENCES = "encrypt_preferences";
 
     private Set<String> cipherNames;
     private Set<String> hashNames;
@@ -204,6 +206,20 @@ public class Main extends Activity
         encutton.setEnabled(false);
 
         fChooser.requestFocus();
+
+        final SharedPreferences settings = getSharedPreferences(SHARED_PREFERENCES, 0);
+        compress = settings.getBoolean("compress", true);
+    }
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+
+        final SharedPreferences.Editor editor = getSharedPreferences(SHARED_PREFERENCES, 0).edit();
+        editor.putBoolean("compress", compress);
+
+        editor.commit();
     }
 
     @Override
@@ -224,7 +240,8 @@ public class Main extends Activity
             case R.id.menu_compress:
                 compress = !item.isChecked();
                 item.setChecked(compress);
-                Toast.makeText(getApplicationContext(), getString(R.string.compress) + ": " + (compress ? getString(R.string.on) : getString(R.string.off)), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.compress) + ": " + (compress ? getString(R.string.on) : getString(R.string.off)), Toast.LENGTH_SHORT)
+                        .show();
                 break;
         }
         return true;
