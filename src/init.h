@@ -23,7 +23,7 @@
 
 #define TEXT_NAME "encrypt"
 
-#define TEXT_USAGE "[-c algorithm] [-s algorithm] -k/-p key/password [input] [output]"
+#define TEXT_USAGE "[-c algorithm] [-s algorithm] [-k key/-p password] [-x] [input] [output]"
 
 #define ENCRYPTRC ".encryptrc"
 #define CONF_COMPRESS "compress"

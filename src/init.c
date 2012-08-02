@@ -101,7 +101,7 @@ extern args_t init(int argc, char **argv)
     while (true)
     {
         int index = 0;
-        int c = getopt_long(argc, argv, "hvld::qc:s:k:p:", options, &index);
+        int c = getopt_long(argc, argv, "hvld::qc:s:k:p:x", options, &index);
         if (c == -1)
             break;
         switch (c)
