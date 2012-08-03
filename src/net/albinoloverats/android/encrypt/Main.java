@@ -34,6 +34,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
@@ -87,7 +88,7 @@ public class Main extends Activity
             public void onClick(final View v)
             {
                 final Intent intent = new Intent(Main.this.getBaseContext(), FileDialog.class);
-                intent.putExtra(FileDialog.START_PATH, "/sdcard");
+                intent.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory().getPath());
                 Main.this.startActivityForResult(intent, FileDialog.REQUEST_LOAD);
             }
         });
@@ -100,7 +101,7 @@ public class Main extends Activity
             public void onClick(final View v)
             {
                 final Intent intent = new Intent(Main.this.getBaseContext(), FileDialog.class);
-                intent.putExtra(FileDialog.START_PATH, "/sdcard");
+                intent.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory().getPath());
                 Main.this.startActivityForResult(intent, FileDialog.REQUEST_SAVE);
             }
         });
@@ -218,7 +219,6 @@ public class Main extends Activity
 
         final SharedPreferences.Editor editor = getSharedPreferences(SHARED_PREFERENCES, 0).edit();
         editor.putBoolean("compress", compress);
-
         editor.commit();
     }
 
@@ -226,6 +226,7 @@ public class Main extends Activity
     public boolean onCreateOptionsMenu(final Menu menu)
     {
         getMenuInflater().inflate(R.menu.menu, menu);
+        menu.findItem(R.id.menu_item_compress).setChecked(compress);
         return true;
     }
 
@@ -234,14 +235,13 @@ public class Main extends Activity
     {
         switch (item.getItemId())
         {
-            case R.id.menu_about:
+            case R.id.menu_item_about:
                 aboutDialog();
                 break;
-            case R.id.menu_compress:
+            case R.id.menu_item_compress:
                 compress = !item.isChecked();
                 item.setChecked(compress);
-                Toast.makeText(getApplicationContext(), getString(R.string.compress) + ": " + (compress ? getString(R.string.on) : getString(R.string.off)), Toast.LENGTH_SHORT)
-                        .show();
+                Toast.makeText(getApplicationContext(), getString(R.string.compress) + ": " + (compress ? getString(R.string.on) : getString(R.string.off)), Toast.LENGTH_SHORT).show();
                 break;
         }
         return true;
@@ -429,6 +429,9 @@ public class Main extends Activity
                     break;
                 case FAILED_CHECKSUM:
                     finished = getString(R.string.failed_checksum);
+                    break;
+                case FAILED_MEMORY:
+                    finished = getString(R.string.failed_memory);
                     break;
                 default:
                     finished = getString(encrypting ? R.string.encryption_succeeded : R.string.decryption_succeeded);
