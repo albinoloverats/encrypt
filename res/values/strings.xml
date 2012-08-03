@@ -28,6 +28,7 @@
     <string name="failed_decryption">Decryption verification failed!</string>
     <string name="failed_unknown_tag">Unsupported container feature!</string>
     <string name="failed_checksum">Finished but with possible file corruption!</string>
+    <string name="failed_memory">Out of memory!\nTry turning off compression</string>
 
     <string name="choose_file">Choose File</string>
     <string name="choose_cipher">Choose Cipher</string>

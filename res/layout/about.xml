@@ -2,4 +2,3 @@
     <ImageView android:id="@+id/about_image" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginRight="10dp"/>
     <TextView android:id="@+id/about_text" android:autoLink="web" android:layout_width="wrap_content" android:layout_height="fill_parent" android:textColor="#FFF" />
 </LinearLayout>
-    
