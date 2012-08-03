@@ -349,8 +349,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     {
         if (status == CANCELLED)
             goto clean_up;
-        //gcry_create_nonce(read_buffer, block_size);
-        memset(read_buffer, 0xFF, block_size);
+        gcry_create_nonce(read_buffer, block_size);
         uint64_t r = read(f, read_buffer, block_size);
         gcry_md_write(md, read_buffer, r);
         if (r < block_size)
