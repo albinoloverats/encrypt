@@ -54,7 +54,18 @@ public class Encrypt extends Thread implements Runnable
 {
     public enum Status
     {
-        NOT_STARTED, RUNNING, SUCCEEDED, CANCELLED, FAILED_UNKNOWN, FAILED_ALGORITHM, FAILED_KEY, FAILED_IO, FAILED_DECRYPTION, FAILED_UNKNOWN_TAG, FAILED_CHECKSUM;
+        NOT_STARTED,
+        RUNNING,
+        SUCCEEDED,
+        CANCELLED,
+        FAILED_UNKNOWN,
+        FAILED_ALGORITHM,
+        FAILED_KEY,
+        FAILED_IO,
+        FAILED_DECRYPTION,
+        FAILED_UNKNOWN_TAG,
+        FAILED_CHECKSUM,
+        FAILED_MEMORY;
 
         private String additional;
 
@@ -71,7 +82,10 @@ public class Encrypt extends Thread implements Runnable
 
     private enum MetaData
     {
-        SIZE(0), BLOCKED(1), COMPRESSED(2);
+        SIZE(0),
+        BLOCKED(1),
+        COMPRESSED(2),
+        TOTAL(3);
 
         private final byte tag;
 
@@ -145,6 +159,10 @@ public class Encrypt extends Thread implements Runnable
             else
                 decrypt();
             status = Status.SUCCEEDED;
+        }
+        catch (final OutOfMemoryError e)
+        {
+            status = Status.FAILED_MEMORY;
         }
         catch (final InterruptedException e)
         {
@@ -303,7 +321,7 @@ public class Encrypt extends Thread implements Runnable
             /*
              * write file metadata
              */
-            enc_out.write(Convert.toBytes((byte)(compressed ? 3 : 2)));
+            enc_out.write(Convert.toBytes(MetaData.TOTAL.getTagValue()));
 
             enc_out.write(Convert.toBytes(MetaData.SIZE.getTagValue()));
             enc_out.write(Convert.toBytes((short)(Long.SIZE / Byte.SIZE)));
@@ -326,7 +344,7 @@ public class Encrypt extends Thread implements Runnable
             hash.reset();
             boolean b1 = true;
             final LZMA2Options opts = new LZMA2Options(LZMA2Options.PRESET_DEFAULT);
-            opts.setDictSize(LZMA2Options.DICT_SIZE_DEFAULT / 10); // default dictionary size is 8MiB which is too large
+            opts.setDictSize(LZMA2Options.DICT_SIZE_MIN); // default dictionary size is 8MiB which is too large
             final OutputStream out = compressed ? new XZOutputStream(enc_out, opts) : enc_out;
 
             while (b1)
@@ -377,8 +395,7 @@ public class Encrypt extends Thread implements Runnable
         }
     }
 
-    private void decrypt() throws InterruptedException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidParameterException, UnsupportedEncodingException,
-            SignatureException
+    private void decrypt() throws InterruptedException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidParameterException, UnsupportedEncodingException, SignatureException
     {
         EncryptedFileInputStream enc_in = null;
         FileOutputStream out = null;
@@ -488,14 +505,14 @@ public class Encrypt extends Thread implements Runnable
                 final byte[] booleanBytes = new byte[1];
                 final byte[] longBytes = new byte[Long.SIZE / Byte.SIZE];
                 boolean booleanByte = true;
-                buffer = new byte[BLOCK_SIZE];
+                buffer = new byte[blockSize];
                 while (booleanByte)
                 {
                     if (interrupted())
                         throw new InterruptedException();
                     in.read(booleanBytes);
                     booleanByte = Convert.booleanFromBytes(booleanBytes);
-                    int r = BLOCK_SIZE;
+                    int r = blockSize;
                     in.read(buffer);
                     if (!booleanByte)
                     {
