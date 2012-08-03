@@ -60,7 +60,6 @@ public class EncryptedFileOutputStream extends FileOutputStream
         final byte[] eBytes = new byte[block];
         cipher.update(buffer, 0, eBytes, 0);
         stream.write(eBytes);
-        stream.write(buffer);
         block = 0;
         buffer = null;
         offset = new int[3];
@@ -106,7 +105,6 @@ public class EncryptedFileOutputStream extends FileOutputStream
             final byte[] eBytes = new byte[block];
             cipher.update(buffer, 0, eBytes, 0);
             stream.write(eBytes);
-            stream.write(buffer);
             offset[0] = 0;
             buffer = new byte[block];
             offset[1] += remainder[1];

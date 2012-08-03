@@ -113,7 +113,6 @@ public class EncryptedFileInputStream extends FileInputStream
                 final byte[] eBytes = new byte[block];
                 stream.read(eBytes);
                 cipher.update(eBytes, 0, buffer, 0);
-                stream.read(buffer);
                 offset[0] = block;
             }
         }
