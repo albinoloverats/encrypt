@@ -50,7 +50,7 @@ extern args_t init(int argc, char **argv)
      */
     char *rc = NULL;
     if (!asprintf(&rc, "%s/%s", getenv("HOME"), ENCRYPTRC))
-        die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, strlen(getenv("HOME")) + strlen(ENCRYPTRC) + 2);
+        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(getenv("HOME")) + strlen(ENCRYPTRC) + 2);
     if (!access(rc, F_OK | R_OK))
     {
         FILE *f = fopen(rc, "r");
@@ -112,6 +112,7 @@ extern args_t init(int argc, char **argv)
                 show_version();
             case 'l':
                 show_licence();
+
             case 'd':
                 if (optarg)
                     log_relevel(log_parse_level(optarg));
@@ -120,6 +121,7 @@ extern args_t init(int argc, char **argv)
                 break;
             case 'q':
                 log_relevel(LOG_ERROR);
+                break;
             case 'c':
                 a.cipher = strdup(optarg);
                 break;
@@ -135,6 +137,7 @@ extern args_t init(int argc, char **argv)
             case 'x':
                 a.compress = false;
                 break;
+
             case '?':
             default:
                 show_usage();
@@ -199,14 +202,14 @@ static char *parse_config_tail(const char *c, const char *l)
 {
     char *x = strdup(l + strlen(c));
     if (!x)
-        die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, strlen(l) - strlen(c) + 1);
+        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(l) - strlen(c) + 1);
     size_t i = 0;
     for (i = 0; i < strlen(x); i++)
         if (!isspace(x[i]))
             break;
     char *y = strdup(x + i);
     if (!y)
-        die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, strlen(x) - i + 1);
+        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(x) - i + 1);
     free(x);
     for (i = strlen(y) - 1; i > 0; i--)
         if (isspace(y[i]))
