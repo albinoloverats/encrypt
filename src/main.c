@@ -55,6 +55,10 @@ static bool new_available = false;
 
 int main(int argc, char **argv)
 {
+#ifdef __DEBUG__
+    fprintf(stderr, _("\n**** DEBUG BUILD ****\n\n"));
+#endif
+
 #ifdef _WIN32
     program_invocation_short_name = strdup(argv[0]);
 #endif
@@ -230,6 +234,10 @@ eop:
     pthread_join(version_thread, NULL);
     if (new_available)
         log_message(LOG_INFO, _("A new version of encrypt is available"));
+
+#ifdef __DEBUG__
+    fprintf(stderr, _("\n**** DEBUG BUILD ****\n\n"));
+#endif
 
     return EXIT_SUCCESS;
 }
