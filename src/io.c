@@ -43,23 +43,18 @@ eof_e;
 
 extern int lzma_write(int64_t f, const void * const restrict d, size_t l, io_params_t *c)
 {
-    static uint8_t *stream = NULL;
-    if (!stream)
-    {
-        if (!(stream = calloc(BLOCK_SIZE, sizeof( uint8_t ))))
-            die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, BLOCK_SIZE);
-        c->lzma->next_out = stream;
-        c->lzma->avail_out = BLOCK_SIZE;
-    }
-
     lzma_action x = LZMA_RUN;
+    if (!d && !l)
+        x = LZMA_FINISH;
+    c->lzma->next_in = d;
+    c->lzma->avail_in = l;
+
+    uint8_t stream = 0x00;
+    c->lzma->next_out = &stream;
+    c->lzma->avail_out = sizeof stream;
     do
     {
         bool lzf = false;
-        if (!d && !l)
-            x = LZMA_FINISH;
-        c->lzma->next_in = d;
-        c->lzma->avail_in = l;
         switch (lzma_code(c->lzma, x))
         {
             case LZMA_STREAM_END:
@@ -71,18 +66,14 @@ extern int lzma_write(int64_t f, const void * const restrict d, size_t l, io_par
         }
         if (c->lzma->avail_out == 0)
         {
-            enc_write(f, stream, BLOCK_SIZE, c);
-            c->lzma->next_out = stream;
-            c->lzma->avail_out = BLOCK_SIZE;
+            enc_write(f, &stream, sizeof stream, c);
+            c->lzma->next_out = &stream;
+            c->lzma->avail_out = sizeof stream;
         }
-        if (lzf)
-        {
-            enc_write(f, stream, BLOCK_SIZE - c->lzma->avail_out, c);
-            enc_sync(f, c);
-            return BLOCK_SIZE - c->lzma->avail_out;
-        }
+        if (lzf && c->lzma->avail_in == 0 && c->lzma->avail_out == sizeof stream)
+            return l;
     }
-    while (x == LZMA_FINISH);
+    while (x == LZMA_FINISH || c->lzma->avail_in > 0);
 
     return l;
 }
@@ -131,6 +122,7 @@ proc_remain:
 extern int lzma_sync(int64_t f, io_params_t *c)
 {
     lzma_write(f, NULL, 0, c);
+    enc_sync(f, c);
     return 0;
 }
 
@@ -138,14 +130,14 @@ extern int enc_write(int64_t f, const void * const restrict d, size_t l, io_para
 {
     static uint8_t *stream = NULL;
     static size_t block = 0;
-    static off_t offset[2] = { 0, 0 };
+    static off_t offset[2] = { 0, 0 }; /* 0: length of data buffered so far (in stream); 1: length of data processed (from d) */
     if (!block)
         gcry_cipher_algo_info(c->algorithm, GCRYCTL_GET_BLKLEN, NULL, &block);
     if (!stream)
         if (!(stream = calloc(block, sizeof( uint8_t ))))
             die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, block * sizeof( uint8_t ));
 
-    size_t remainder[2] = { l, block - offset[0] };
+    size_t remainder[2] = { l, block - offset[0] }; /* 0: length of data yet to buffer (from d); 1: available space in output buffer (stream) */
     if (!d && !l)
     {
 #ifdef __DEBUG__
@@ -192,7 +184,7 @@ extern int enc_read(int64_t f, void * const d, size_t l, io_params_t *c)
 {
     static uint8_t *stream = NULL;
     static size_t block = 0;
-    static size_t offset[3] = { 0, 0, 0 };
+    static size_t offset[3] = { 0, 0, 0 }; /* 0: length of available data in input buffer (stream); 1: available space in read buffer (d); 2: next available memory location for data (from d) */
     if (!block)
         gcry_cipher_algo_info(c->algorithm, GCRYCTL_GET_BLKLEN, NULL, &block);
     if (!stream)
