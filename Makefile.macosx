@@ -6,7 +6,7 @@ SOURCE   = src/main.c src/init.c src/encrypt.c src/io.c
 GUI      = src/gui.c
 COMMON   = src/common/error.c src/common/logging.c
 
-CFLAGS   = -Wall -Wextra -Wno-unused-parameter -std=gnu99 `libgcrypt-config --cflags` -pipe -O0 -g
+CFLAGS   = -Wall -Wextra -Wno-unused-parameter -std=gnu99 `libgcrypt-config --cflags` -pipe -O2
 CPPFLAGS = -I. -Isrc -I`brew --prefix gettext`/include -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DLOG_DEFAULT=LOG_WARNING
 GUIFLAGS = -DBUILD_GUI `pkg-config --cflags gtk+-2.0 gmodule-2.0`
 
@@ -73,4 +73,5 @@ clean:
 
 distclean: clean
 	@rm -fv encrypt.1a.gz
+	@rm -fvr encrypt.dSYM
 #	@$(MAKE) -C po distclean
