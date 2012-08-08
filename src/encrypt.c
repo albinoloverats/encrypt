@@ -147,7 +147,7 @@ extern bool file_encrypted_aux(int t, intptr_t p, encrypt_t *e)
         goto clean_up;
     log_message(LOG_DEBUG, _("Checking for known algorithms"));
     uint8_t l = 0;
-    read(f, &l, sizeof( uint8_t ));
+    read(f, &l, sizeof l);
     char *c = calloc(l + 1, sizeof( char ));
     read(f, c, l);
     char *h = strchr(c, '/');
@@ -200,7 +200,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     char *algos = NULL;
     asprintf(&algos, "%s/%s", get_name_algorithm_crypt(io_params.algorithm), get_name_algorithm_hash(mdi));
     uint8_t l1 = (uint8_t)strlen(algos);
-    write(g, &l1, sizeof( uint8_t ));
+    write(g, &l1, sizeof l1);
     write(g, algos, l1);
     free(algos);
     algos = NULL;
@@ -242,26 +242,26 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
      * write simple addition (x ^ y = z) where x, y are random
      * 64bit signed integers
      */
-    int64_t x = 0;
-    int64_t y = 0;
-    gcry_create_nonce(&x, sizeof( int64_t ));
-    gcry_create_nonce(&y, sizeof( int64_t ));
-    int64_t z = x ^ y;
+    uint64_t x = 0;
+    uint64_t y = 0;
+    gcry_create_nonce(&x, sizeof x);
+    gcry_create_nonce(&y, sizeof y);
+    uint64_t z = x ^ y;
     log_message(LOG_VERBOSE, "x = %" PRIx64 " ; y = %" PRIx64 " ; z = %" PRIx64, x, y, z);
     x = htonll(x);
     y = htonll(y);
     z = htonll(z);
     log_message(LOG_VERBOSE, "x = %" PRIx64 " ; y = %" PRIx64 " ; z = %" PRIx64, x, y, z);
-    enc_write(g, &x, sizeof( int64_t ), &io_params);
-    enc_write(g, &y, sizeof( int64_t ), &io_params);
-    enc_write(g, &z, sizeof( int64_t ), &io_params);
+    enc_write(g, &x, sizeof x, &io_params);
+    enc_write(g, &y, sizeof y, &io_params);
+    enc_write(g, &z, sizeof z, &io_params);
     /*
      * write a random length of random bytes
      */
 #ifndef __DEBUG__
-    gcry_create_nonce(&l1, sizeof( uint8_t ));
+    gcry_create_nonce(&l1, sizeof l1);
     gcry_create_nonce(buffer, l1);
-    enc_write(g, &l1, sizeof( uint8_t ), &io_params);
+    enc_write(g, &l1, sizeof l1, &io_params);
     enc_write(g, buffer, l1, &io_params);
     memset(buffer, 0x00, sizeof buffer);
 #endif
@@ -282,7 +282,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     int (*sync_func)(int64_t, io_params_t *) = enc_sync;
     if (e.compressed)
     {
-#ifndef DEBUG_LZMA
+#ifndef __DEBUG_NO_LZMA__
         /*
          * setup for liblzma compression
          */
@@ -303,23 +303,23 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
 #endif
             e.compressed = false;
     }
-    enc_write(g, &l1, sizeof( uint8_t ), &io_params);
+    enc_write(g, &l1, sizeof l1, &io_params);
 
     l1 = TAG_SIZE;
     decrypted_size = lseek(f, 0, SEEK_END);
-    enc_write(g, &l1, sizeof( uint8_t ), &io_params);
+    enc_write(g, &l1, sizeof l1, &io_params);
     uint16_t l2 = htons(sizeof( uint64_t ));
-    enc_write(g, &l2, sizeof( uint16_t ), &io_params);
+    enc_write(g, &l2, sizeof l2, &io_params);
     uint64_t l8 = htonll(decrypted_size);
-    enc_write(g, &l8, sizeof( uint64_t ), &io_params);
+    enc_write(g, &l8, sizeof l8, &io_params);
 
     uint64_t block_size = BLOCK_SIZE /* TODO eventually allow user defined block size */;
     l1 = TAG_BLOCKED;
-    enc_write(g, &l1, sizeof( uint8_t ), &io_params);
+    enc_write(g, &l1, sizeof l1, &io_params);
     l2 = htons(sizeof( uint64_t ));
-    enc_write(g, &l2, sizeof( uint16_t ), &io_params);
+    enc_write(g, &l2, sizeof l2, &io_params);
     l8 = htonll(block_size);
-    enc_write(g, &l8, sizeof( uint64_t ), &io_params);
+    enc_write(g, &l8, sizeof l8, &io_params);
 
     if (e.compressed)
     {
@@ -327,11 +327,11 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
          * write the tag which indicates the encrypted data is compressed
          */
         l1 = TAG_COMPRESSED;
-        enc_write(g, &l1, sizeof( uint8_t ), &io_params);
+        enc_write(g, &l1, sizeof l1, &io_params);
         l2 = htons(sizeof( bool ));
-        enc_write(g, &l2, sizeof( uint16_t ), &io_params);
+        enc_write(g, &l2, sizeof l2, &io_params);
         bool b1 = true;
-        enc_write(g, &b1, sizeof( bool ), &io_params);
+        enc_write(g, &b1, sizeof b1, &io_params);
     }
     /*
      * main encryption loop; if we're compressing the output then everything
@@ -344,27 +344,28 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
      */
     gcry_md_reset(md);
     bool b1 = true;
-    uint8_t *read_buffer = malloc(block_size);
-    while (b1)
+    uint8_t *read_buffer = malloc(block_size + sizeof b1);
+    do
     {
         if (status == CANCELLED)
             goto clean_up;
-        gcry_create_nonce(read_buffer, block_size);
-        uint64_t r = read(f, read_buffer, block_size);
-        gcry_md_write(md, read_buffer, r);
+        gcry_create_nonce(read_buffer, block_size + sizeof b1);
+        uint64_t r = read(f, read_buffer + sizeof b1, block_size);
+        gcry_md_write(md, read_buffer + sizeof b1, r);
         if (r < block_size)
             b1 = false;
-        write_func(g, &b1, sizeof( bool ), &io_params);
-        write_func(g, read_buffer, block_size, &io_params);
+        memcpy(read_buffer, &b1, sizeof b1);
+        write_func(g, read_buffer, block_size + sizeof b1, &io_params);
         if (!b1)
         {   /*
              * after the last block write the size of the last block
              */
             r = htonll(r);
-            write_func(g, &r, sizeof( uint64_t ), &io_params);
+            write_func(g, &r, sizeof r, &io_params);
         }
         bytes_processed += block_size;
     }
+    while (b1);
     free(read_buffer);
     read_buffer = NULL;
     /*
@@ -380,7 +381,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
      */
 #ifndef __DEBUG__
     log_message(LOG_DEBUG, _("Appending file random data"));
-    gcry_create_nonce(&l1, sizeof( uint8_t ));
+    gcry_create_nonce(&l1, sizeof l1);
     gcry_create_nonce(buffer, l1);
     write_func(g, buffer, l1, &io_params);
     memset(buffer, 0x00, sizeof buffer);
@@ -457,12 +458,12 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     /*
      * read three 64bit signed integers and assert that x ^ y = z
      */
-    int64_t x = 0;
-    int64_t y = 0;
-    int64_t z = 0;
-    enc_read(f, &x, sizeof( int64_t ), &io_params);
-    enc_read(f, &y, sizeof( int64_t ), &io_params);
-    enc_read(f, &z, sizeof( int64_t ), &io_params);
+    uint64_t x = 0;
+    uint64_t y = 0;
+    uint64_t z = 0;
+    enc_read(f, &x, sizeof x, &io_params);
+    enc_read(f, &y, sizeof y, &io_params);
+    enc_read(f, &z, sizeof z, &io_params);
     log_message(LOG_DEBUG, _("Verifying x ^ y = z"));
     log_message(LOG_VERBOSE, "x = %" PRIx64 " ; y = %" PRIx64 " ; z = %" PRIx64, x, y, z);
     x = ntohll(x);
@@ -479,7 +480,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
      */
     uint8_t l1 = 0;
 #ifndef __DEBUG__
-    enc_read(f, &l1, sizeof( uint8_t ), &io_params);
+    enc_read(f, &l1, sizeof l1, &io_params);
     enc_read(f, buffer, l1, &io_params);
     memset(buffer, 0x00, sizeof buffer);
 #endif
@@ -494,8 +495,8 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
         uint8_t tag = 0;
         uint16_t length = 0;
         uint8_t *value = NULL;
-        enc_read(f, &tag, sizeof( uint8_t ), &io_params);
-        enc_read(f, &length, sizeof( uint16_t ), &io_params);
+        enc_read(f, &tag, sizeof tag, &io_params);
+        enc_read(f, &length, sizeof length, &io_params);
         length = ntohs(length);
         if (!(value = malloc(length)))
             die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, length);
@@ -503,18 +504,18 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
         switch (tag)
         {
             case TAG_SIZE:
-                memcpy(&decrypted_size, value, sizeof( uint64_t ));
+                memcpy(&decrypted_size, value, sizeof decrypted_size);
                 decrypted_size = ntohll(decrypted_size);
                 log_message(LOG_VERBOSE, _("Original file size: %" PRIu64), decrypted_size);
                 break;
             case TAG_BLOCKED:
-                memcpy(&block_size, value, sizeof( uint64_t ));
+                memcpy(&block_size, value, sizeof block_size);
                 block_size = ntohll(block_size);
                 e.blocked = true;
                 log_message(LOG_VERBOSE, _("File split into blocks of size: %" PRIu64), block_size);
                 break;
             case TAG_COMPRESSED:
-#ifndef DEBUGL_LZMA
+#ifndef __DEBUG_NO_LZMA__
                 if ((e.compressed = value[0])) /* yes, this is what i actually want */
                 {
                     log_message(LOG_VERBOSE, _("Data stream is compressed"));
@@ -550,18 +551,18 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     if (e.blocked)
     {
         bool b1 = true;
-        uint8_t *read_buffer = malloc(block_size + sizeof( bool ));
+        uint8_t *read_buffer = malloc(block_size + sizeof b1);
         while (b1)
         {
             if (status == CANCELLED)
                 goto clean_up;
-            uint64_t r = read_func(f, read_buffer, block_size + sizeof( bool ), &io_params);
-            memcpy(&b1, read_buffer, sizeof( bool ));
-            r -= sizeof( bool );
-            memmove(read_buffer, read_buffer + sizeof( bool ), r);
+            uint64_t r = read_func(f, read_buffer, block_size + sizeof b1, &io_params);
+            memcpy(&b1, read_buffer, sizeof b1);
+            r -= sizeof b1;
+            memmove(read_buffer, read_buffer + sizeof b1, r);
             if (!b1)
             {
-                read_func(f, &r, sizeof( uint64_t ), &io_params);
+                read_func(f, &r, sizeof r, &io_params);
                 r = ntohll(r);
             }
             gcry_md_write(md, read_buffer, r);
