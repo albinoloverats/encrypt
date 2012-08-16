@@ -44,6 +44,11 @@
         #undef F_WRLCK         /*!< Undefine value on Mac OS X as it causes runtime issues */
         #define F_WRLCK NOTSET /*!< Set value to NOTSET */
     #endif
+    #ifdef __FreeBSD__
+        #define program_invocation_short_name getprogname() /*!< This is the best/closest we have */
+        #define S_IRUSR NOTSET
+        #define S_IWUSR NOTSET
+    #endif
 #else
     #define srand48 srand  /*!< Quietly alias srand48 to be srand on Windows */
     #define lrand48 rand   /*!< Quietly alias lrand48 to be rand on Windows */
@@ -89,7 +94,7 @@
        | (((x) & 0x00000000000000ffull) << 56))
 #endif
 
-#if __BYTE_ORDER == __BIG_ENDIAN && !defined __APPLE__
+#if __BYTE_ORDER == __BIG_ENDIAN && !defined __APPLE__ && !defined __FreeBSD__
     #define ntohll(x) (x) /*!< No need to swap bytes from network byte order */
     #define htonll(x) (x) /*!< No need to swap bytes to network byte order */
 #elif __BYTE_ORDER == __LITTLE_ENDIAN

@@ -23,7 +23,7 @@
 #include <unistd.h>
 #include <stdarg.h>
 #include <errno.h>
-#if !defined _WIN32 && !defined __CYGWIN__
+#if !defined _WIN32 && !defined __CYGWIN__ && !defined __FreeBSD__
     #include <execinfo.h>
 #endif
 #include <ctype.h>
@@ -65,7 +65,7 @@ extern void die(const char * const restrict s, ...)
         log_message(LOG_FATAL, "%s", e);
         free(e);
     }
-#if !defined _WIN32 && !defined __CYGWIN__
+#if !defined _WIN32 && !defined __CYGWIN__ && !defined __FreeBSD__
     void *bt[BACKTRACE_BUFFER_LIMIT];
     int c = backtrace(bt, BACKTRACE_BUFFER_LIMIT);
     char **sym = backtrace_symbols(bt, c);
