@@ -49,12 +49,21 @@ extern args_t init(int argc, char **argv)
      * check for options in rc file (~/.encryptrc)
      */
     char *rc = NULL;
+#ifndef _WIN32
     if (!asprintf(&rc, "%s/%s", getenv("HOME"), ENCRYPTRC))
+#else
+    if (!(rc = strdup(ENCRYPTRC)))
+#endif
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(getenv("HOME")) + strlen(ENCRYPTRC) + 2);
+#ifndef _WIN32
     if (!access(rc, F_OK | R_OK))
+#endif
     {
         FILE *f = fopen(rc, "r");
-
+#ifdef _WIN32
+        if (f == NULL)
+            goto pargs;
+#endif
         char *line = NULL;
         size_t len = 0;
 
@@ -82,7 +91,9 @@ extern args_t init(int argc, char **argv)
     /*
      * parse commandline arguments (they override the rc file)
      */
-
+#ifdef _WIN32
+pargs: ;
+#endif
     struct option options[] =
     {
         { "help",        no_argument,       0, 'h' },
