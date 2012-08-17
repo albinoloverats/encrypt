@@ -24,6 +24,7 @@
 #define _WIN32_EXT_H_
 
 #include <sys/stat.h>
+#include <stdio.h>
 
 #ifndef vsnprintf
     #define vsnprintf _vsnprintf
@@ -36,6 +37,8 @@ extern ssize_t pread(int filedes, void *buffer, size_t size, off_t offset);
 extern ssize_t pwrite(int filedes, const void *buffer, size_t size, off_t offset);
 
 extern int asprintf(char **buffer, char *fmt, ...);
+
+extern ssize_t getline(char **lineptr, size_t *n, FILE *stream);
 
 #endif /* _WIN32_EXT_H_ */
 

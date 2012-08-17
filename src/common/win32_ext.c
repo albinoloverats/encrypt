@@ -87,4 +87,33 @@ extern int asprintf(char **buffer, char *fmt, ...)
     return size;
 }
 
+extern ssize_t getline(char **lineptr, size_t *n, FILE *stream)
+{
+    size_t r = 0;
+    uint32_t step = 0xFF;
+    char *buffer = malloc(step);
+    if (!buffer)
+        die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, step);
+    for (r = 0; ; r++)
+    {
+        int c = fgetc(stream);
+        if (c == EOF)
+            break;
+        buffer[r] = c;
+        if (c == '\n')
+            break;
+        if (r >= step - 0x10)
+        {
+            step += 0xFF;
+            if (!(buffer = realloc(buffer, step)))
+                die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, step);
+        }
+    }
+    if (*lineptr)
+        free(*lineptr);
+    *lineptr = buffer;
+    *n = r;
+    return r;
+}
+
 #endif
