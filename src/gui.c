@@ -111,7 +111,10 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
         if (!ciphers[i])
             break;
         else if (!strlen(ciphers[i]))
+        {
+            free(ciphers[i]);
             continue;
+        }
         else if (cipher && !strcasecmp(ciphers[i], cipher))
         {
             slctd_cipher = i + 1;
@@ -130,7 +133,10 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
         if (!hashes[i])
             break;
         else if (!strlen(hashes[i]))
+        {
+            free(ciphers[i]);
             continue;
+        }
         else if (hash && !strcasecmp(hashes[i], hash))
         {
             slctd_hash = i + 1;
