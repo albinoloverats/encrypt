@@ -37,7 +37,7 @@
     #ifndef O_BINARY
         #define O_BINARY NOTSET /*!< Value is only relevant on MS systems (and is required), pretend it exists elsewhere */
     #endif
-    #ifdef __APPLE__
+    #if defined __APPLE__ || defined __FreeBSD__
         #define program_invocation_short_name getprogname() /*!< This is the best/closest we have */
         #undef F_RDLCK         /*!< Undefine value on Mac OS X as it causes runtime issues */
         #define F_RDLCK NOTSET /*!< Set value to NOTSET */
@@ -45,7 +45,6 @@
         #define F_WRLCK NOTSET /*!< Set value to NOTSET */
     #endif
     #ifdef __FreeBSD__
-        #define program_invocation_short_name getprogname() /*!< This is the best/closest we have */
         #define S_IRUSR NOTSET
         #define S_IWUSR NOTSET
     #endif
