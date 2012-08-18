@@ -231,6 +231,7 @@ int main(int argc, char **argv)
 #ifdef BUILD_GUI
 eop:
 #endif
+
     pthread_join(version_thread, NULL);
     if (new_available)
         log_message(LOG_INFO, _("A new version of encrypt is available"));
