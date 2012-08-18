@@ -134,7 +134,7 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
             break;
         else if (!strlen(hashes[i]))
         {
-            free(ciphers[i]);
+            free(hashes[i]);
             continue;
         }
         else if (hash && !strcasecmp(hashes[i], hash))
