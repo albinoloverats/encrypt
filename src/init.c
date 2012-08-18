@@ -81,12 +81,17 @@ extern args_t init(int argc, char **argv)
                     a.compress = false;
                 else
                     log_message(LOG_WARNING, "Unknown value %s for %s in config file", tail, CONF_COMPRESS);
+                free(tail);
             }
 
+            free(line);
+            line = NULL;
+            len = 0;
         }
-
         fclose(f);
+        free(line);
     }
+    free(rc);
 
     /*
      * parse commandline arguments (they override the rc file)
