@@ -48,8 +48,8 @@ static int get_algorithm_crypt(const char * const restrict n);
 
 static int algorithm_compare(const void *a, const void *b);
 
-static const char *get_name_algorithm_hash(int a);
-static const char *get_name_algorithm_crypt(int a);
+static char *get_name_algorithm_hash(int a);
+static char *get_name_algorithm_crypt(int a);
 
 
 static char *correct_sha1(const char * const restrict n);
@@ -198,7 +198,11 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
     uint64_t head[3] = {htonll(HEADER_0), htonll(HEADER_1), htonll(HEADER_2)};
     write(g, head, sizeof head);
     char *algos = NULL;
-    asprintf(&algos, "%s/%s", get_name_algorithm_crypt(io_params.algorithm), get_name_algorithm_hash(mdi));
+    char *nac = get_name_algorithm_crypt(io_params.algorithm);
+    char *nah = get_name_algorithm_hash(mdi);
+    asprintf(&algos, "%s/%s", nac, nah);
+    free(nac);
+    free(nah);
     uint8_t l1 = (uint8_t)strlen(algos);
     write(g, &l1, sizeof l1);
     write(g, algos, l1);
@@ -646,16 +650,16 @@ extern char **get_algorithms_hash(void)
     int lid[0xff] = { 0x00 };
     int len = sizeof lid;
     gcry_md_list(lid, &len);
-    char **l = malloc(sizeof( char * ) * len + 1);
+    char **l = malloc(sizeof( char * ) * (len + 1));
     for (int i = 0; i < len; i++)
     {
         const char *n = gcry_md_algo_name(lid[i]);
         if (algorithm_is_duplicate(n))
             l[i] = strdup(""); // a duplicate of another algorithm already in the list (empty strings will be ignored)
         else if (!strcasecmp(n, NAME_TIGER192))
-            l[i] = strdup(correct_tiger192(n));
+            l[i] = correct_tiger192(n);
         else if (!strncasecmp(n, NAME_SHA1, strlen(NAME_SHA1) - 1))
-            l[i] = strdup(correct_sha1(n));
+            l[i] = correct_sha1(n);
         else
             l[i] = strdup(n);
     }
@@ -671,18 +675,18 @@ extern char **get_algorithms_crypt(void)
     int lid[0xff] = { 0x00 };
     int len = sizeof lid;
     gcry_cipher_list(lid, &len);
-    char **l = malloc(sizeof( char * ) * len + 1);
+    char **l = malloc(sizeof( char * ) * (len + 1));
     for (int i = 0; i < len; i++)
     {
         const char *n = gcry_cipher_algo_name(lid[i]);
         if (algorithm_is_duplicate(n))
             l[i] = strdup(""); // ditto to above
         else if (!strncasecmp(n, NAME_AES, strlen(NAME_AES)))
-            l[i] = strdup(correct_aes_rijndael(n));
+            l[i] = correct_aes_rijndael(n);
         else if (!strcasecmp(n, NAME_BLOWFISH))
-            l[i] = strdup(correct_blowfish128(n));
+            l[i] = correct_blowfish128(n);
         else if (!strcasecmp(n, NAME_TWOFISH))
-            l[i] = strdup(correct_twofish256(n));
+            l[i] = correct_twofish256(n);
         else
             l[i] = strdup(n);
     }
@@ -769,15 +773,15 @@ static int get_algorithm_crypt(const char * const restrict n)
     return 0;
 }
 
-static const char *get_name_algorithm_hash(int a)
+static char *get_name_algorithm_hash(int a)
 {
     const char *n = gcry_md_algo_name(a);
     if (strncasecmp(n, NAME_SHA1, strlen(NAME_SHA1) - 1))
-        return n;
+        return strdup(n);
     return correct_sha1(n);
 }
 
-static const char *get_name_algorithm_crypt(int a)
+static char *get_name_algorithm_crypt(int a)
 {
     const char *x = gcry_cipher_algo_name(a);
     if (!strncasecmp(x, NAME_AES, strlen(NAME_AES)))
@@ -786,7 +790,7 @@ static const char *get_name_algorithm_crypt(int a)
         return correct_blowfish128(x);
     else if (!strcasecmp(x, NAME_TWOFISH))
         return correct_twofish256(x);
-    return x;
+    return strdup(x);
 }
 
 static char *correct_sha1(const char * const restrict n)
