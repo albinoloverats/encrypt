@@ -6,9 +6,9 @@ SOURCE   = src/main.c src/init.c src/encrypt.c src/io.c
 GUI      = src/gui.c
 COMMON   = src/common/error.c src/common/logging.c
 
-CFLAGS   = -Wall -Wextra -Wno-unused-parameter -std=gnu99 `libgcrypt-config --cflags` -pipe -O2
+CFLAGS   = -Wall -Wextra -Wno-unused-parameter -std=gnu99 `libgcrypt-config --cflags` -pipe -O0 -ggdb
 CPPFLAGS = -I. -Isrc -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DLOG_DEFAULT=LOG_WARNING
-GUIFLAGS = -DBUILD_GUI -D__DEBUG_GUI__ `pkg-config --cflags gtk+-3.0 gmodule-2.0`
+GUIFLAGS = -DBUILD_GUI `pkg-config --cflags gtk+-3.0 gmodule-2.0`
 
 LIBS     = `libgcrypt-config --libs` -lpthread -lcurl -llzma
 GUILIBS  = `pkg-config --libs gtk+-3.0 gmodule-2.0`
