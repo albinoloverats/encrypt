@@ -88,9 +88,8 @@ int main(int argc, char **argv)
     /*
      * check args for files/passwords/algroithms...
      */
-    if ((!fe && (args.hash && args.cipher && (args.password || args.key))) 
-      || (fe && (args.password || args.key)))
-        ; /* all required arguments were provided, no need for gui */
+    if (fe || args.hash && args.cipher)
+        ; /* user has given enough arguments on command line that we'll skip the gui */
     else if (gtk_init_check(&argc, &argv))
     {
         builder = gtk_builder_new();
@@ -332,6 +331,7 @@ static void *check_new_version(void *n)
 
 static size_t verify_new_version(void *p, size_t s, size_t n, void *x)
 {
+    (void)x;
     char *b = calloc(s + 1, n);
     memcpy(b, p, s * n);
     char *l = strrchr(b, '\n');
