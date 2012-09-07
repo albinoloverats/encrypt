@@ -38,7 +38,7 @@ This program is free software: you can redistribute it and/or modify
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</property>
     <property name="authors">encrypt was written by Ashley Anderson
-	http://albinoloverats.net/amanderson
+	https://albinoloverats.net/amanderson/
 
 libgcrypt is part of GNU
 	http://www.gnu.org/software/libgcrypt/</property>
@@ -287,8 +287,8 @@ The logo is part of the Crystal Icon Theme by Everaldo Coelho
                 <property name="sensitive">False</property>
                 <property name="can_focus">False</property>
                 <property name="has_tooltip">True</property>
-                <property name="tooltip_markup" translatable="yes">Select Key Type</property>
-                <property name="tooltip_text" translatable="yes">Select Key Type</property>
+                <property name="tooltip_markup" translatable="yes">Select Key Source</property>
+                <property name="tooltip_text" translatable="yes">Select Key Source</property>
                 <property name="active">0</property>
                 <items>
                   <item translatable="yes">Select Key Source</item>
