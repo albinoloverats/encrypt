@@ -1,75 +1,75 @@
-#: src/encrypt.c:84
+#: src/encrypt.c:86
 #| Checking for file header
 msgid "Checking for file header"
 msgstr ""
 
-#: src/encrypt.c:139
+#: src/encrypt.c:142
 #| File encrypted with more recent release of encrypt
 msgid "File encrypted with more recent release of encrypt"
 msgstr ""
 
-#: src/encrypt.c:145
+#: src/encrypt.c:148
 #| Checking for known algorithms
 msgid "Checking for known algorithms"
 msgstr ""
 
-#: src/encrypt.c:158
+#: src/encrypt.c:161
 #| File encrypted using algorithm: %s
 msgid "File encrypted using algorithm: %s"
 msgstr ""
 
-#: src/encrypt.c:159
+#: src/encrypt.c:162
 #| Encryption key generated using hash: %s
 msgid "Encryption key generated using hash: %s"
 msgstr ""
 
-#: src/encrypt.c:170
+#: src/encrypt.c:173
 #| Encrypting...
 msgid "Encrypting..."
 msgstr ""
 
-#: src/encrypt.c:179
+#: src/encrypt.c:182
 #| Searching for known algorithms
 msgid "Searching for known algorithms"
 msgstr ""
 
-#: src/encrypt.c:194
+#: src/encrypt.c:197
 #| Writing standard header
 msgid "Writing standard header"
 msgstr ""
 
-#: src/encrypt.c:210
+#: src/encrypt.c:217
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:225
+#: src/encrypt.c:232
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:237
+#: src/encrypt.c:244
 #| Writing source file info
 msgid "Writing source file info"
 msgstr ""
 
-#: src/encrypt.c:286
+#: src/encrypt.c:293
 #| Initialising xz compression
 msgid "Initialising xz compression"
 msgstr ""
 
-#: src/encrypt.c:337
+#: src/encrypt.c:344
 #| Starting encryption process
 msgid "Starting encryption process"
 msgstr ""
 
-#: src/encrypt.c:373
+#: src/encrypt.c:380
 #| Writing data checksum
 msgid "Writing data checksum"
 msgstr ""
 
-#: src/encrypt.c:380
+#: src/encrypt.c:387
 #| Appending file random data
 msgid "Appending file random data"
 msgstr ""
 
-#: src/encrypt.c:403
+#: src/encrypt.c:410
 #| Decrypting...
 msgid "Decrypting..."
 msgstr ""
@@ -80,17 +80,17 @@ msgstr ""
 #: src/encrypt.c:444
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:454
+#: src/encrypt.c:461
 #| Reading source file info
 msgid "Reading source file info"
 msgstr ""
 
-#: src/encrypt.c:464
+#: src/encrypt.c:471
 #| Verifying x ^ y = z
 msgid "Verifying x ^ y = z"
 msgstr ""
 
-#: src/encrypt.c:472
+#: src/encrypt.c:479
 #| Failed decryption attempt
 msgid "Failed decryption attempt"
 msgstr ""
@@ -98,67 +98,67 @@ msgstr ""
 #: src/encrypt.c:499
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:518
+#: src/encrypt.c:525
 #| Data stream is compressed
 msgid "Data stream is compressed"
 msgstr ""
 
-#: src/encrypt.c:520
+#: src/encrypt.c:527
 #| Expecting compressed data but could not setup liblzma
 msgid "Expecting compressed data but could not setup liblzma"
 msgstr ""
 
-#: src/encrypt.c:526
+#: src/encrypt.c:533
 #| Data stream is not compressed
 msgid "Data stream is not compressed"
 msgstr ""
 
-#: src/encrypt.c:531
+#: src/encrypt.c:538
 #| Encountered unknown tlv tag: %hhx
 msgid "Encountered unknown tlv tag: %hhx"
 msgstr ""
 
-#: src/encrypt.c:543
+#: src/encrypt.c:550
 #| Starting decryption process
 msgid "Starting decryption process"
 msgstr ""
 
-#: src/encrypt.c:598
+#: src/encrypt.c:605
 #| Verifying checksum
 msgid "Verifying checksum"
 msgstr ""
 
-#: src/encrypt.c:603
+#: src/encrypt.c:610
 #| Checksum verification failed
 msgid "Checksum verification failed"
 msgstr ""
 
-#: src/encrypt.c:694
+#: src/encrypt.c:708
 #| Initialising GNU Crypt library
 msgid "Initialising GNU Crypt library"
 msgstr ""
 
-#: src/encrypt.c:696
+#: src/encrypt.c:710
 #| Could not find GNU Crypt library
 msgid "Could not find GNU Crypt library"
 msgstr ""
 
-#: src/encrypt.c:722
+#: src/encrypt.c:736
 #| Found requested hash: %s
 msgid "Found requested hash: %s"
 msgstr ""
 
-#: src/encrypt.c:727
+#: src/encrypt.c:741
 #| Could not find requested hash: %s
 msgid "Could not find requested hash: %s"
 msgstr ""
 
-#: src/encrypt.c:752
+#: src/encrypt.c:766
 #| Found requested encryption algorithm: %s
 msgid "Found requested encryption algorithm: %s"
 msgstr ""
 
-#: src/encrypt.c:758
+#: src/encrypt.c:772
 #| Could not find requested encryption algorithm: %s
 msgid "Could not find requested encryption algorithm: %s"
 msgstr ""
