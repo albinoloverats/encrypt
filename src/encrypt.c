@@ -827,11 +827,13 @@ static char *correct_aes_rijndael(const char * const restrict n)
 
 static char *correct_blowfish128(const char * const restrict n)
 {
+    (void)n;
     return strdup(NAME_BLOWFISH128);
 }
 
 static char *correct_twofish256(const char * const restrict n)
 {
+    (void)n;
     return strdup(NAME_TWOFISH256);
 }
 
