@@ -22,6 +22,7 @@
 #define _INIT_H_
 
 #define TEXT_NAME "encrypt"
+#define ALT_NAME "decrypt"
 
 #define TEXT_USAGE "[-c algorithm] [-s algorithm] [-k key/-p password] [-x] [input] [output]"
 

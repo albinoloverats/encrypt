@@ -77,6 +77,10 @@ int main(int argc, char **argv)
 
     pthread_t version_thread;
 
+    bool dodec = false;
+    if (!strcmp(argv[0], ALT_NAME))
+        dodec = true;
+
 #ifdef BUILD_GUI
     gtk_widgets_t *widgets;
     GtkBuilder *builder;
@@ -215,7 +219,7 @@ int main(int argc, char **argv)
      */
     pthread_t ui_thread = bg_thread_initialise(ui_thread_cli);
     status_e status = PREPROCESSING;
-    if (file_encrypted(source))
+    if (file_encrypted(source) || dodec)
         status = main_decrypt(source, output, e_data);
     else
         status = main_encrypt(source, output, e_data);

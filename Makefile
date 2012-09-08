@@ -36,9 +36,11 @@ man:
 	@echo "compressing \`docs/encrypt.1a' --> \`encrypt.1a.gz"
 
 install:
-# install the main executible, then softlink to it from /usr/bin
+# install the main executible, also link decrypt
 	 @install -c -m 755 -s -D -T encrypt $(PREFIX)/usr/bin/encrypt
 	-@echo "installed \`encrypt' --> \`$(PREFIX)/usr/bin/encrypt'"
+	 @ln ${PREFIX}/usr/bin/encrypt ${PREFIX}/usr/bin/decrypt
+	-@echo "linked \`decrypt' --> \`encrypt'"
 # install the pixmaps
 	 @install -c -m 644 -D -T pixmaps/encrypt.png $(PREFIX)/usr/share/pixmaps/encrypt.png
 	-@echo "installed \`pixmaps/encrypt.png' --> \`$(PREFIX)/usr/share/pixmaps/encrypt.png'" 
