@@ -92,7 +92,7 @@ int main(int argc, char **argv)
     /*
      * check args for files/passwords/algroithms...
      */
-    if (fe || args.hash && args.cipher)
+    if (fe || (args.hash && args.cipher))
         ; /* user has given enough arguments on command line that we'll skip the gui */
     else if (gtk_init_check(&argc, &argv))
     {
