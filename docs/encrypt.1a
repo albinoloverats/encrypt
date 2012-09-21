@@ -1,4 +1,4 @@
-.TH encrypt "1" "August 2011" "encrypt" "encrypt"
+.TH encrypt "1" "September 2012" "encrypt" "encrypt"
 .SH NAME
 encrypt \- a (simple) cross\-platform encryption program
 .SH SYNOPSIS
@@ -13,17 +13,17 @@ encrypt [\fI\-c\fR \fBalgorithm\fR] [\fI\-s\fR \fBalgorithm\fR] [\fI\-k/\-p\fR \
 .TP
 \fI\-h\fR, \fI\-\-help\fR This help list
 .TP
-\fI\-d\fR, \fI\-\-debug\fR \fBDEBUG LEVEL\fR Show debugging messages during execution
+\fI\-d\fR, \fI\-\-debug\fR \fB[DEBUG LEVEL]\fR Show debugging messages during execution
 .TP
 \fI\-q\fR, \fI\-\-quiet\fR Hide standard messages during execution
 .TP
 \fI\-s\fR, \fI\-\-hash\fR \fBALGORITHM\fR Hash algorithm to use to generate key
 .TP
-\fI\-c\fR, \fI\-\-crypto\fR \fBALGORITHM\fR Algorithm to encrypt data
+\fI\-c\fR, \fI\-\-cipher\fR \fBALGORITHM\fR Algorithm to encrypt data
 .TP
 \fI\-p\fR, \fI\-\-password\fR \fBPASSWORD\fR Password used to generate the key
 .TP
-\fI\-k\fR, \fI\-\-keyfile\fR \fBFILE\fR File whose data will be used to generate the key
+\fI\-k\fR, \fI\-\-key\fR \fBFILE\fR File whose data will be used to generate the key
 .PP
 If either the source file or destination file are omitted then stdin/stdout are used. When encrypting, both \fB\-s\fR and \fB\-c\fR are required to specify the algorithms you wish to use; when decrypting the algorithms originally used are read from the encrypted file.
 .PP
@@ -33,7 +33,7 @@ Written by Ashley Anderson
 .SH BUGS
 There are no bugs only features yet to be documented :p
 .SH COPYRIGHT
-Copyright © 2004\-2011 albinoloverats ~ Software Development
+Copyright © 2004\-2012 albinoloverats ~ Software Development
 .SH LICENCE
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 .PP
