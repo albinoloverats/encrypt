@@ -341,7 +341,7 @@ static size_t verify_new_version(void *p, size_t s, size_t n, void *x)
     char *l = strrchr(b, '\n');
     if (l)
         *l = '\0';
-    if (strcmp(b, TEXT_VERSION) > 0)
+    if (strcmp(b, ENCRYPT_VERSION) > 0)
         new_available = true;
     free(b);
     return s * n;

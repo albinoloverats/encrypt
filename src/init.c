@@ -40,6 +40,8 @@
 #include "encrypt.h"
 
 static char *parse_config_tail(const char *c, const char *l);
+static void print_version(void);
+static void print_usage(void);
 
 extern args_t init(int argc, char **argv)
 {
@@ -172,25 +174,38 @@ pargs: ;
 
 static void print_version(void)
 {
-    fprintf(stderr, _("%s version : %s\n%*s built on: %s %s\n"), TEXT_NAME, TEXT_VERSION, (int)strlen(TEXT_NAME), "", __DATE__, __TIME__);
+    char *app_name = !strcmp(program_invocation_short_name, APP_NAME) ? APP_NAME : ALT_NAME;
+    fprintf(stderr, _("%s version : %s\n%*s built on: %s %s\n"), app_name, ENCRYPT_VERSION, (int)strlen(app_name), "", __DATE__, __TIME__);
+    return;
+}
+
+static void print_usage(void)
+{
+    char *app_name = !strcmp(program_invocation_short_name, APP_NAME) ? APP_NAME : ALT_NAME;
+    char *app_usage = !strcmp(program_invocation_short_name, APP_NAME) ? APP_USAGE : ALT_USAGE;
+    fprintf(stderr, _("Usage:\n  %s %s\n\n"), app_name, app_usage);
     return;
 }
 
 extern void show_help(void)
 {
     print_version();
-    fprintf(stderr, _("Usage:\n  %s %s\n\n"), TEXT_NAME, TEXT_USAGE);
+    print_usage();
     fprintf(stderr, _("Options:\n"));
     fprintf(stderr, _("  -h/--help                 Display this message\n"));
     fprintf(stderr, _("  -l/--licence              Display GNU GPL v3 licence header\n"));
     fprintf(stderr, _("  -v/--version              Display application version\n"));
     fprintf(stderr, _("  -d/--debug [log level]    Turn on debugging [to specified level]\n"));
     fprintf(stderr, _("  -q/--quiet                Turn off all but serious error messages\n"));
-    fprintf(stderr, _("  -c/--cipher <algorithm>   Algorithm to use to encrypt data\n"));
-    fprintf(stderr, _("  -s/--hash <algorithm>     Hash algorithm to generate key\n"));
+    if (!strcmp(program_invocation_short_name, APP_NAME))
+    {
+        fprintf(stderr, _("  -c/--cipher <algorithm>   Algorithm to use to encrypt data\n"));
+        fprintf(stderr, _("  -s/--hash <algorithm>     Hash algorithm to generate key\n"));
+    }
     fprintf(stderr, _("  -k/--key <key file>       File whose data will be used to generate the key\n"));
     fprintf(stderr, _("  -p/--password <password>  Password used to generate the key\n"));
-    fprintf(stderr, _("  -x/--no-compress          Do not compress the plaintext using the xz algorithm\n"));
+    if (!strcmp(program_invocation_short_name, APP_NAME))
+        fprintf(stderr, _("  -x/--no-compress          Do not compress the plaintext using the xz algorithm\n"));
     fprintf(stderr, _("\nNote: If you do not supply a key or password, you will be prompted for one.\n"));
     fprintf(stderr, "\n");
     exit(EXIT_SUCCESS);
@@ -204,7 +219,7 @@ extern void show_licence(void)
 
 extern void show_usage(void)
 {
-    fprintf(stderr, _("Usage:\n  %s %s\n"), TEXT_NAME, TEXT_USAGE);
+    print_usage();
     exit(EXIT_SUCCESS);
 }
 

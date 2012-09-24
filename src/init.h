@@ -21,10 +21,11 @@
 #ifndef _INIT_H_
 #define _INIT_H_
 
-#define TEXT_NAME "encrypt"
+#define APP_NAME "encrypt"
 #define ALT_NAME "decrypt"
 
-#define TEXT_USAGE "[-c algorithm] [-s algorithm] [-k key/-p password] [-x] [input] [output]"
+#define APP_USAGE "[-c algorithm] [-s algorithm] [-k key/-p password] [-x] [input] [output]"
+#define ALT_USAGE "[-k key/-p password] [input] [output]"
 
 #define ENCRYPTRC ".encryptrc"
 #define CONF_COMPRESS "compress"
