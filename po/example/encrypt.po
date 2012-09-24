@@ -74,10 +74,10 @@ msgstr ""
 msgid "Decrypting..."
 msgstr ""
 
-#: src/encrypt.c:431
+#: src/encrypt.c:438
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:444
+#: src/encrypt.c:451
 #. See common/common.po for the definitive "Out of memory" translation
 
 #: src/encrypt.c:461
@@ -95,7 +95,7 @@ msgstr ""
 msgid "Failed decryption attempt"
 msgstr ""
 
-#: src/encrypt.c:499
+#: src/encrypt.c:506
 #. See common/common.po for the definitive "Out of memory" translation
 
 #: src/encrypt.c:525
@@ -163,5 +163,5 @@ msgstr ""
 msgid "Could not find requested encryption algorithm: %s"
 msgstr ""
 
-#: src/encrypt.c:810
+#: src/encrypt.c:824
 #. See common/common.po for the definitive "Out of memory" translation

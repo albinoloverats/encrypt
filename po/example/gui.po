@@ -39,7 +39,7 @@ msgid "Cancel background thread"
 msgstr ""
 
 #. See common/common.po for the definitive "Out of memory" translation
-#: src/gui.c:342
+#: src/gui.c:353
 
 #: src/gui.c:411
 #| Compression is now %s

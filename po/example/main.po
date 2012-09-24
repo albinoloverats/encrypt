@@ -9,55 +9,55 @@
 msgid "\n**** DEBUG BUILD ****\n\n"
 msgstr ""
 
-#: src/main.c:97
+#: src/main.c:101
 #. This will be a GTK error message
 #msgid "%s"
 #msgstr ""
 
-#: src/main.c:149
+#: src/main.c:153
 #| Could not create GUI - falling back to command line\n
 msgid "Could not create GUI - falling back to command line\n"
 msgstr ""
 
-#: src/main.c:170
+#: src/main.c:174
 #| Requested source file: %s
 msgid "Requested source file: %s"
 msgstr ""
 
-#: src/main.c:173
+#: src/main.c:177
 #| Could not access input file %s
 msgid "Could not access input file %s"
 msgstr ""
 
-#: src/main.c:178
+#: src/main.c:182
 #| Requested output file %s
 msgid "Requested output file %s"
 msgstr ""
 
-#: src/main.c:181
+#: src/main.c:185
 #| Could not access output file %s
 msgid "Could not access output file %s"
 msgstr ""
 
-#: src/main.c:182
+#: src/main.c:186
 #| Opened %s for write access
 msgid "Opened %s for write access"
 msgstr ""
 
-#: src/main.c:193
+#: src/main.c:197
 #| Could not access key data file
 msgid "Could not access key data file"
 msgstr ""
 
-#: src/main.c:197
+#: src/main.c:201
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/main.c:208
+#: src/main.c:212
 #| Please enter a password: 
 msgid "Please enter a password: "
 msgstr ""
 
-#: src/main.c:226
+#: src/main.c:230
 #. The following strings need translating for this message: (although I'm not sure
 #. how to translate char arrays in the application yet…)
 #.   User cancelled operation!
@@ -71,33 +71,33 @@ msgstr ""
 #msgid "%s"
 #msgstr ""
 
-#: src/main.c:236
+#: src/main.c:240
 #| A new version of encrypt is available
 msgid "A new version of encrypt is available"
 msgstr ""
 
-#: src/main.c:239
+#: src/main.c:243
 #. See translation for src/main.c:59
 
-#: src/main.c:247
+#: src/main.c:251
 #| Starting UI thread...
 msgid "Starting UI thread..."
 msgstr ""
 
-#: src/main.c:249
+#: src/main.c:253
 #| \rPercent complete: %7.3f%%
 msgid "\rPercent complete: %7.3f%%"
 msgstr ""
 
-#: src/main.c:255
-#. See translation for src/main.c:249
+#: src/main.c:271
+#. See translation for src/main.c:253
 
-#: src/main.c:268
+#: src/main.c:272
 #| Finished UI thread
 msgid "Finished UI thread"
 msgstr ""
 
-#: src/main.c:277
+#: src/main.c:281
 #| Setting up UI thread
 msgid "Setting up UI thread"
 msgstr ""
