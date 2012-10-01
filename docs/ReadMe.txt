@@ -1,4 +1,4 @@
-encrypt - 2012.-1 (pre-release)                            7th Sept 2012
+encrypt - 2012.-1 (pre-release)                           28th Sept 2012
 
 A few notes before release:
  - Data is now compressed before encryption
@@ -74,7 +74,8 @@ Build/Installation instructions:
     For now you'll need Homebrew: http://mxcl.github.com/homebrew/
     As well as GTK and all of its dependencies (a proper OS X port is in
     the works but will have to fit around the current GUI code; which is
-    hardcoded to use GTK).
+    hardcoded to use GTK).  The build instructions are the same as those
+    for GNU/Linux.
 
   For Android:
     Import the Eclipse/Android project into  Eclipse and build using the
