@@ -192,20 +192,20 @@ extern void show_help(void)
     print_version();
     print_usage();
     fprintf(stderr, _("Options:\n"));
-    fprintf(stderr, _("  -h/--help                 Display this message\n"));
-    fprintf(stderr, _("  -l/--licence              Display GNU GPL v3 licence header\n"));
-    fprintf(stderr, _("  -v/--version              Display application version\n"));
-    fprintf(stderr, _("  -d/--debug [log level]    Turn on debugging [to specified level]\n"));
-    fprintf(stderr, _("  -q/--quiet                Turn off all but serious error messages\n"));
+    fprintf(stderr, _("  -h, --help                 Display this message\n"));
+    fprintf(stderr, _("  -l, --licence              Display GNU GPL v3 licence header\n"));
+    fprintf(stderr, _("  -v, --version              Display application version\n"));
+    fprintf(stderr, _("  -d, --debug [log level]    Turn on debugging [to specified level]\n"));
+    fprintf(stderr, _("  -q, --quiet                Turn off all but serious error messages\n"));
     if (!strcmp(program_invocation_short_name, APP_NAME))
     {
-        fprintf(stderr, _("  -c/--cipher <algorithm>   Algorithm to use to encrypt data\n"));
-        fprintf(stderr, _("  -s/--hash <algorithm>     Hash algorithm to generate key\n"));
+        fprintf(stderr, _("  -c, --cipher=<algorithm>   Algorithm to use to encrypt data\n"));
+        fprintf(stderr, _("  -s, --hash=<algorithm>     Hash algorithm to generate key\n"));
     }
-    fprintf(stderr, _("  -k/--key <key file>       File whose data will be used to generate the key\n"));
-    fprintf(stderr, _("  -p/--password <password>  Password used to generate the key\n"));
+    fprintf(stderr, _("  -k, --key=<key file>       File whose data will be used to generate the key\n"));
+    fprintf(stderr, _("  -p, --password=<password>  Password used to generate the key\n"));
     if (!strcmp(program_invocation_short_name, APP_NAME))
-        fprintf(stderr, _("  -x/--no-compress          Do not compress the plaintext using the xz algorithm\n"));
+        fprintf(stderr, _("  -x, --no-compress          Do not compress the plaintext using the xz algorithm\n"));
     fprintf(stderr, _("\nNote: If you do not supply a key or password, you will be prompted for one.\n"));
     fprintf(stderr, "\n");
     exit(EXIT_SUCCESS);
