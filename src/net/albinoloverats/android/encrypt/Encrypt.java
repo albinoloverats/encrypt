@@ -291,8 +291,9 @@ public class Encrypt extends Thread implements Runnable
             hash.reset();
             hash.update(key, 0, key.length);
             final byte[] iv = hash.digest();
-            final byte[] correctedIV = new byte[keyLength];
-            System.arraycopy(iv, 0, correctedIV, 0, keyLength < key.length ? keyLength : key.length);
+            final int ivLength = cipher.currentBlockSize();
+            final byte[] correctedIV = new byte[ivLength];
+            System.arraycopy(iv, 0, correctedIV, 0, ivLength < iv.length ? ivLength : iv.length);
             attributes.put(IMode.IV, correctedIV);
             crypt.init(attributes);
             enc_out.setCipher(crypt);
@@ -439,8 +440,9 @@ public class Encrypt extends Thread implements Runnable
             hash.reset();
             hash.update(key, 0, key.length);
             final byte[] iv = hash.digest();
-            final byte[] correctedIV = new byte[keyLength];
-            System.arraycopy(iv, 0, correctedIV, 0, keyLength < key.length ? keyLength : key.length);
+            final int ivLength = cipher.currentBlockSize();
+            final byte[] correctedIV = new byte[ivLength];
+            System.arraycopy(iv, 0, correctedIV, 0, ivLength < iv.length ? ivLength : iv.length);
             attributes.put(IMode.IV, correctedIV);
             crypt.init(attributes);
             /*

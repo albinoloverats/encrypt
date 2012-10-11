@@ -221,22 +221,24 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
      * into a new buffer (pad with 0x0 if necessary) then hash back to the
      * original buffer the IV
      */
-    size_t lk = 0;
-    gcry_cipher_algo_info(io_params.algorithm, GCRYCTL_GET_KEYLEN, NULL, &lk);
+    size_t key_len = 0;
+    gcry_cipher_algo_info(io_params.algorithm, GCRYCTL_GET_KEYLEN, NULL, &key_len);
     uint8_t buffer[0xFF] = { 0x00 };
-    memcpy(buffer, e.key.h_data, lk < e.key.h_length ? lk : e.key.h_length);
-    gcry_cipher_setkey(io_params.cipher, buffer, lk);
+    memcpy(buffer, e.key.h_data, key_len < e.key.h_length ? key_len : e.key.h_length);
+    gcry_cipher_setkey(io_params.cipher, buffer, key_len);
     memset(buffer, 0x00, sizeof buffer);
     uint8_t *iv = malloc(e.key.h_length);
     if (!iv)
         die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, e.key.h_length);
     gcry_md_hash_buffer(ma, iv, e.key.h_data, e.key.h_length);
-    memcpy(buffer, iv, lk < e.key.h_length ? lk : e.key.h_length);
+    size_t iv_len = 0;
+    gcry_cipher_algo_info(io_params.algorithm, GCRYCTL_GET_BLKLEN, NULL, &iv_len);
+    memcpy(buffer, iv, iv_len < e.key.h_length ? iv_len : e.key.h_length);
     free(iv);
     iv = NULL;
     free(e.key.h_data);
     e.key.h_data = NULL;
-    gcry_cipher_setiv(io_params.cipher, buffer, lk);
+    gcry_cipher_setiv(io_params.cipher, buffer, iv_len);
     memset(buffer, 0x00, sizeof buffer);
     /*
      * all data written from here on is encrypted
@@ -440,22 +442,24 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     /*
      * setup algorithm (key and IV)
      */
-    size_t lk = 0;
-    gcry_cipher_algo_info(io_params.algorithm, GCRYCTL_GET_KEYLEN, NULL, &lk);
+    size_t key_len = 0;
+    gcry_cipher_algo_info(io_params.algorithm, GCRYCTL_GET_KEYLEN, NULL, &key_len);
     uint8_t buffer[0xFF] = { 0x00 };
-    memcpy(buffer, e.key.h_data, lk < e.key.h_length ? lk : e.key.h_length);
-    gcry_cipher_setkey(io_params.cipher, buffer, lk);
+    memcpy(buffer, e.key.h_data, key_len < e.key.h_length ? key_len : e.key.h_length);
+    gcry_cipher_setkey(io_params.cipher, buffer, key_len);
     memset(buffer, 0x00, sizeof buffer);
     uint8_t *iv = malloc(e.key.h_length);
     if (!iv)
         die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, e.key.h_length);
     gcry_md_hash_buffer(ma, iv, e.key.h_data, e.key.h_length);
-    memcpy(buffer, iv, lk < e.key.h_length ? lk : e.key.h_length);
+    size_t iv_len = 0;
+    gcry_cipher_algo_info(io_params.algorithm, GCRYCTL_GET_BLKLEN, NULL, &iv_len);
+    memcpy(buffer, iv, iv_len < e.key.h_length ? iv_len : e.key.h_length);
     free(iv);
     iv = NULL;
     free(e.key.h_data);
     e.key.h_data = NULL;
-    gcry_cipher_setiv(io_params.cipher, buffer, lk);
+    gcry_cipher_setiv(io_params.cipher, buffer, iv_len);
     memset(buffer, 0x00, sizeof buffer);
 
     log_message(LOG_DEBUG, _("Reading source file info"));
