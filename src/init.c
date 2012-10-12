@@ -85,6 +85,10 @@ extern args_t init(int argc, char **argv)
                     log_message(LOG_WARNING, "Unknown value %s for %s in config file", tail, CONF_COMPRESS);
                 free(tail);
             }
+            else if (!strncmp(CONF_CIPHER, line, strlen(CONF_CIPHER)) && isspace(line[strlen(CONF_CIPHER)]))
+                a.cipher = parse_config_tail(CONF_CIPHER, line);
+            else if (!strncmp(CONF_HASH, line, strlen(CONF_HASH)) && isspace(line[strlen(CONF_HASH)]))
+                a.hash = parse_config_tail(CONF_HASH, line);
 
             free(line);
             line = NULL;

@@ -29,6 +29,8 @@
 
 #define ENCRYPTRC ".encryptrc"
 #define CONF_COMPRESS "compress"
+#define CONF_CIPHER "cipher"
+#define CONF_HASH "hash"
 
 /*!
  * \brief  Structure of expected options
