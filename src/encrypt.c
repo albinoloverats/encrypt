@@ -98,7 +98,7 @@ extern uint64_t file_encrypted_aux(int t, intptr_t p, encrypt_t *e)
         f = (int64_t)p;
     uint64_t r_val = 0;
     uint64_t head[3] = {0x0};
-    lseek(f, 0, SEEVK_SET);
+    lseek(f, 0, SEEK_SET);
     if ((read(f, head, sizeof head)) < 0)
     {
         log_message(LOG_ERROR, NULL);
@@ -420,7 +420,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     /*
      * read the standard header
      */
-    uint64_t ver = NOT_ENCRYPTED;
+    uint64_t ver = 0;
     if (!(ver = file_encrypted(f, &e)))
         return (status = FAILED_PARAMETER);
     int mdi = 0;
