@@ -225,25 +225,21 @@ public class Encrypt extends Thread implements Runnable
             {
                 in.read(header, 0, header.length);
                 if (Convert.longFromBytes(header) != HEADER[i])
-                    return false;
+                    return 0;
             }
             in.read(header, 0, header.length);
             final long encryptedVersion = Convert.longFromBytes(header);
-            /*
-             * TODO instead of returning true/false, return this version/
-             * previous version/not encrypted
-             */
             if (encryptedVersion == HEADER_VERSION_201108)
-                return true;
+                return HEADER_VERSION_201108;
             else if (encryptedVersion == HEADER_VERSION_201110)
-                return true;
+                return HEADER_VERSION_201110;
             else if (encryptedVersion == HEADER_VERSION_NEXT_DEV)
-                return true;
-            return false;
+                return HEADER_VERSION_NEXT_DEV;
+            return 0;
         }
         catch (final IOException e)
         {
-            return false;
+            return 0;
         }
         finally
         {
@@ -453,7 +449,7 @@ public class Encrypt extends Thread implements Runnable
             final int ivLength;
             if (ver == HEADER_VERSION_201108 || ver == HEADER_VERSION_201110)
                 ivLength = keyLength;
-            else (ver == HEADER_VERSION_NEXT_DEV 
+            else
                 ivLength = cipher.currentBlockSize();
             final byte[] correctedIV = new byte[ivLength];
             System.arraycopy(iv, 0, correctedIV, 0, ivLength < iv.length ? ivLength : iv.length);
