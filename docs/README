@@ -6,7 +6,8 @@ A few notes before release:
    - Allow the user to toggle compression via command line argument
    - Update/Check compatibility on Windows/Mac OS X
      - Windows GUI is being a pain in the arse
-     - Mac OS X requires Homebrew, GTK, GDK, etc and X11
+     - Mac OS X requires Homebrew, GTK, GDK, etc and X11  (a native OS X
+       port is in the works)
    - Update build scripts to link to liblzma
    - Add compression support to Android app
 
