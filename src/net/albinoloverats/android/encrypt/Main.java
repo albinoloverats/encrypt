@@ -285,7 +285,7 @@ public class Main extends Activity
 
                 final Button encButton = (Button)findViewById(R.id.button_go);
 
-                if (Encrypt.fileEncrypted(new File(filenameIn)))
+                if (Encrypt.fileEncrypted(new File(filenameIn)) > 0)
                 {
                     encrypting = false;
                     encButton.setText(R.string.decrypt);

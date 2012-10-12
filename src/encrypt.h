@@ -120,7 +120,7 @@ extern char **get_algorithms_crypt(void);
  * Determine if the file or stream given is encrypted or not. And possibly
  * provide back information about the encrypted data.
  */
-extern bool file_encrypted_aux(int t, intptr_t p, encrypt_t *e);
+extern uint64_t file_encrypted_aux(int t, intptr_t p, encrypt_t *e);
 
 /*!
  * \brief         Main encryption function

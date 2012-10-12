@@ -214,7 +214,7 @@ public class Encrypt extends Thread implements Runnable
         return status;
     }
 
-    public static boolean fileEncrypted(final File f)
+    public static long fileEncrypted(final File f)
     {
         FileInputStream in = null;
         try
@@ -229,6 +229,10 @@ public class Encrypt extends Thread implements Runnable
             }
             in.read(header, 0, header.length);
             final long encryptedVersion = Convert.longFromBytes(header);
+            /*
+             * TODO instead of returning true/false, return this version/
+             * previous version/not encrypted
+             */
             if (encryptedVersion == HEADER_VERSION_201108)
                 return true;
             else if (encryptedVersion == HEADER_VERSION_201110)
@@ -440,7 +444,17 @@ public class Encrypt extends Thread implements Runnable
             hash.reset();
             hash.update(key, 0, key.length);
             final byte[] iv = hash.digest();
-            final int ivLength = cipher.currentBlockSize();
+            /*
+             * FIXME This update to the IV generation will break backwards
+             * compatibility; we need to use the old method if the file is
+             * encrypted with a previous version of encrypt
+             */
+            final long ver = fileEncrypted(sourceFile);
+            final int ivLength;
+            if (ver == HEADER_VERSION_201108 || ver == HEADER_VERSION_201110)
+                ivLength = keyLength;
+            else (ver == HEADER_VERSION_NEXT_DEV 
+                ivLength = cipher.currentBlockSize();
             final byte[] correctedIV = new byte[ivLength];
             System.arraycopy(iv, 0, correctedIV, 0, ivLength < iv.length ? ivLength : iv.length);
             attributes.put(IMode.IV, correctedIV);

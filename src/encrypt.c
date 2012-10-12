@@ -80,7 +80,7 @@ char *FAILED_MESSAGE[] =
     "An unknown error has occurred!",
 };
 
-extern bool file_encrypted_aux(int t, intptr_t p, encrypt_t *e)
+extern uint64_t file_encrypted_aux(int t, intptr_t p, encrypt_t *e)
 {
     int64_t f = 0;
     log_message(LOG_INFO, _("Checking for file header"));
@@ -96,9 +96,9 @@ extern bool file_encrypted_aux(int t, intptr_t p, encrypt_t *e)
     }
     else
         f = (int64_t)p;
-    bool r_val = false;
+    uint64_t r_val = 0;
     uint64_t head[3] = {0x0};
-    lseek(f, 0, SEEK_SET);
+    lseek(f, 0, SEEVK_SET);
     if ((read(f, head, sizeof head)) < 0)
     {
         log_message(LOG_ERROR, NULL);
@@ -122,6 +122,7 @@ extern bool file_encrypted_aux(int t, intptr_t p, encrypt_t *e)
                 e->blocked = false;
                 e->compressed = false;
             }
+            r_val = HEADER_VERSION_201108;
             break;
         case HEADER_VERSION_201110:
             if (e)
@@ -129,6 +130,7 @@ extern bool file_encrypted_aux(int t, intptr_t p, encrypt_t *e)
                 e->blocked = true;
                 e->compressed = false;
             }
+            r_val = HEADER_VERSION_201110;
             break;
         //case HEADER_VERSION_201207:
         case HEADER_VERSION_NEXT_DEV:
@@ -137,12 +139,12 @@ extern bool file_encrypted_aux(int t, intptr_t p, encrypt_t *e)
                 e->blocked = true;
                 e->compressed = true;
             }
+            r_val = HEADER_VERSION_NEXT_DEV;
             break;
         default:
             log_message(LOG_ERROR, _("File encrypted with more recent release of encrypt"));
             goto clean_up;
     }
-    r_val = true;
     if (!e)
         goto clean_up;
     log_message(LOG_DEBUG, _("Checking for known algorithms"));
@@ -418,7 +420,8 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
     /*
      * read the standard header
      */
-    if (!file_encrypted(f, &e))
+    uint64_t ver = NOT_ENCRYPTED;
+    if (!(ver = file_encrypted(f, &e)))
         return (status = FAILED_PARAMETER);
     int mdi = 0;
     if (!(mdi = get_algorithm_hash(e.hash)))
@@ -453,7 +456,15 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
         die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, e.key.h_length);
     gcry_md_hash_buffer(ma, iv, e.key.h_data, e.key.h_length);
     size_t iv_len = 0;
-    gcry_cipher_algo_info(io_params.algorithm, GCRYCTL_GET_BLKLEN, NULL, &iv_len);
+    switch (ver)
+    {
+        case HEADER_VERSION_201108:
+        case HEADER_VERSION_201110:
+            iv_len = key_len;
+            break;
+        default:
+            gcry_cipher_algo_info(io_params.algorithm, GCRYCTL_GET_BLKLEN, NULL, &iv_len);
+    }
     memcpy(buffer, iv, iv_len < e.key.h_length ? iv_len : e.key.h_length);
     free(iv);
     iv = NULL;
