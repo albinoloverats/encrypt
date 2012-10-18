@@ -1,0 +1,14 @@
+# (Example) encrypt configuration file
+#
+# Boolean options accept values of true/on/enabled or false/off/disabled
+# and free text should match command line options.
+
+# Enable/disable compression of data prior to encryption. The default is
+# enabled
+compress true
+
+# Set the default cipher to use for encryption
+cipher aes
+
+# Set the default hash to use for key generation
+hash sha256
