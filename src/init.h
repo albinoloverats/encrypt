@@ -32,6 +32,13 @@
 #define CONF_CIPHER "cipher"
 #define CONF_HASH "hash"
 
+#define CONF_TRUE     "true"
+#define CONF_ON       "on"
+#define CONF_ENABLED  "enabled"
+#define CONF_FALSE    "true"
+#define CONF_OFF      "on"
+#define CONF_DISABLED "enabled"
+
 /*!
  * \brief  Structure of expected options
  *

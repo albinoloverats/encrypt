@@ -77,9 +77,9 @@ extern args_t init(int argc, char **argv)
             if (!strncmp(CONF_COMPRESS, line, strlen(CONF_COMPRESS)) && isspace(line[strlen(CONF_COMPRESS)]))
             {
                 char *tail = parse_config_tail(CONF_COMPRESS, line);
-                if (!strcasecmp("true", tail) || !strcasecmp("on", tail))
+                if (!strcasecmp(CONF_TRUE, tail) || !strcasecmp(CONF_ON, tail) || !strcasecmp(CONF_ENABLED, tail))
                     a.compress = true;
-                else if (!strcasecmp("false", tail) || !strcasecmp("off", tail))
+                else if (!strcasecmp(CONF_FALSE, tail) || !strcasecmp(CONF_OFF, tail) || !strcasecmp(CONF_DISABLED, tail))
                     a.compress = false;
                 else
                     log_message(LOG_WARNING, "Unknown value %s for %s in config file", tail, CONF_COMPRESS);
