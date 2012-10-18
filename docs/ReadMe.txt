@@ -1,15 +1,15 @@
-encrypt - 2012.-1 (pre-release)                           28th Sept 2012
+encrypt - 2012.-1 (pre-release)                            18th Oct 2012
 
 A few notes before release:
- - Data is now compressed before encryption
+ * Data is now compressed before encryption
    - TODO: Don't compress if the data is already compressed
-   - Allow the user to toggle compression via command line argument
-   - Update/Check compatibility on Windows/Mac OS X
-     - Windows GUI is being a pain in the arse
-     - Mac OS X requires Homebrew, GTK, GDK, etc and X11  (a native OS X
-       port is in the works)
-   - Update build scripts to link to liblzma
-   - Add compression support to Android app
+ * Update/Check compatibility on Windows/Mac OS X
+   - Windows GUI is being a pain in the arse
+   - Mac OS X has the same dependencies as the Linux version; all can be
+     installed using Homebrew (a native OS X port port is in the works)
+ * There is now an user specific rc file which allows users to toggle on
+   or off compression by default as well as specify a default cipher and
+   hash to use if none are given on the command line
 
 The encrypt Development Team
 
@@ -31,16 +31,19 @@ Copyright/Licencing:
 
 
 Prerequisites:
-  Desktop implementation:
-    - GTK (and all of its requirements: GDK/Cairo/etc)---version 2.24 or
-      later---version 3 is recommended (and available on most/some Linux
-      and Mac OS X using Homebrew)
-    - libgcrypt cryptographic library
-    - pthread library
+ * Desktop implementation:
+   - GTK (and all of its requirements: GDK/Cairo/etc)---version 2.24 or
+     later---version 3 is recommended (and available on most/some Linux
+     and Mac OS X using Homebrew)
+   - libgcrypt cryptographic library
+   - pthread library
+   - liblzma
+   - libcurl
 
-  Android implementation:
-    gnu-crypto
-    Android File Dialog - http://code.google.com/p/android-file-dialog/
+ * Android implementation: (all provided)
+   - gnu-crypto.jar
+   - xz-1.0.jar
+   - Android File Dialog - http://code.google.com/p/android-file-dialog/
 
 
 Build/Installation instructions:
@@ -76,7 +79,7 @@ Build/Installation instructions:
     As well as GTK and all of its dependencies (a proper OS X port is in
     the works but will have to fit around the current GUI code; which is
     hardcoded to use GTK).  The build instructions are the same as those
-    for GNU/Linux.
+    for GNU/Linux, although you'll have to use the Makefile.macosx.
 
   For Android:
     Import the Eclipse/Android project into  Eclipse and build using the
