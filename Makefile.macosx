@@ -47,14 +47,14 @@ install: man
 	 @install -c -m 644 -D -T pixmaps/encrypt.svg $(PREFIX)/usr/share/pixmaps/encrypt.svg
 	-@echo "installed \`pixmaps/encrypt.svg' --> \`$(PREFIX)/usr/share/pixmaps/encrypt.svg'" 
 # next encrypt.glade
-	 @install -c -m 644 -D -T encrypt.glade $(PREFIX)/usr/share/encrypt/encrypt.glade
-	-@echo "installed \`encrypt.glade' --> \`$(PREFIX)/usr/share/encrypt/encrypt.glade'" 
+	 @install -c -m 644 -D -T utils/encrypt.glade $(PREFIX)/usr/share/encrypt/encrypt.glade
+	-@echo "installed \`utils/encrypt.glade' --> \`$(PREFIX)/usr/share/encrypt/encrypt.glade'" 
 # ditto, but this time for the man page
 	 @install -c -m 644 -D -T encrypt.1a.gz $(PREFIX)/usr/share/man/man1/encrypt.1a.gz
 	-@echo "installed \`encrypt.1a.gz' --> \`$(PREFIX)/usr/share/man/man1/encrypt.1a.gz'"
 # and then the desktop file
-	 @install -c -m 644 -D -T encrypt.desktop $(PREFIX)/usr/share/applications/encrypt.desktop
-	-@echo "installed \`encrypt.desktop' --> \`$(PREFIX)/usr/share/applications/encrypt.desktop'"
+	 @install -c -m 644 -D -T utils/encrypt.desktop $(PREFIX)/usr/share/applications/encrypt.desktop
+	-@echo "installed \`utils/encrypt.desktop' --> \`$(PREFIX)/usr/share/applications/encrypt.desktop'"
 # and the magic pattern
 	 @install -c -m 644 -D -T utils/magic $(PREFIX)/usr/share/file/magic/encrypt
 	-@echo "installed \`utils/magic' --> \`$(PREFIX)/usr/share/file/magic/encrypt'"
