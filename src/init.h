@@ -27,7 +27,11 @@
 #define APP_USAGE "[-c algorithm] [-s algorithm] [-k key/-p password] [-x] [input] [output]"
 #define ALT_USAGE "[-k key/-p password] [input] [output]"
 
-#define ENCRYPTRC ".encryptrc"
+#ifndef _WIN32
+    #define ENCRYPTRC ".encryptrc"
+#else
+    #define ENCRYPTRC "_encryptrc"
+#endif
 #define CONF_COMPRESS "compress"
 #define CONF_CIPHER "cipher"
 #define CONF_HASH "hash"
