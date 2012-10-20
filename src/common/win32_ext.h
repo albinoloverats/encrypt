@@ -20,6 +20,8 @@
 
 #ifdef _WIN32
 
+#include <windows.h>
+
 #ifndef _WIN32_EXT_H_
 #define _WIN32_EXT_H_
 
@@ -31,10 +33,6 @@
 #endif
 
 #define fsync(fd) _commit(fd)
-
-extern ssize_t pread(int filedes, void *buffer, size_t size, off_t offset);
-
-extern ssize_t pwrite(int filedes, const void *buffer, size_t size, off_t offset);
 
 extern int asprintf(char **buffer, char *fmt, ...);
 

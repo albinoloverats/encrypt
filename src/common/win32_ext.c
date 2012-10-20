@@ -30,24 +30,6 @@
 
 char *program_invocation_short_name = NULL;
 
-extern ssize_t pread(int filedes, void *buffer, size_t size, off_t offset)
-{
-    off_t o = lseek(filedes, 0, SEEK_CUR);
-    lseek(filedes, offset, SEEK_SET);
-    ssize_t s = read(filedes, buffer, size);
-    lseek(filedes, o, SEEK_SET);
-    return s;
-}
-
-extern ssize_t pwrite(int filedes, const void *buffer, size_t size, off_t offset)
-{
-    off_t o = lseek(filedes, 0, SEEK_CUR);
-    lseek(filedes, offset, SEEK_SET);
-    ssize_t s = write(filedes, buffer, size);
-    lseek(filedes, o, SEEK_SET);
-    return s;
-}
-
 /*
  * Copyright (C) 2001 Federico Di Gregorio <fog@debian.org> 
  * Copyright (C) 1991, 1994-1999, 2000, 2001 Free Software Foundation, Inc.
