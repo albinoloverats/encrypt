@@ -411,6 +411,8 @@ G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *widget, gtk_widgets_t *da
     compress = gtk_check_menu_item_get_active((GtkCheckMenuItem *)data->compress_menu_item);
     log_message(LOG_VERBOSE, _("Compression is now %s"), compress ? "on" : "off");
 
+    update_config(CONF_COMPRESS, compress ? CONF_TRUE : CONF_FALSE);
+
     return TRUE;
 }
 

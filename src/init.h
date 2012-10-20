@@ -39,9 +39,9 @@
 #define CONF_TRUE     "true"
 #define CONF_ON       "on"
 #define CONF_ENABLED  "enabled"
-#define CONF_FALSE    "true"
-#define CONF_OFF      "on"
-#define CONF_DISABLED "enabled"
+#define CONF_FALSE    "false"
+#define CONF_OFF      "off"
+#define CONF_DISABLED "disabled"
 
 /*!
  * \brief  Structure of expected options
@@ -62,14 +62,25 @@ typedef struct args_t
 args_t;
 
 /*!
- * \brief         Application init function
- * \return        Any command line options that were set
+ * \brief           Application init function
+ * \param[in]  argc Number of command line arguments
+ * \param[out] argv Command line arguments
+ * \return          Any command line options that were set
  *
  * Provide simple command line argument parsing, and pass back whatever
  * options where set. Removes a lot of the cruft from the legacy common
  * code that used to exist here.
  */
 extern args_t init(int argc, char **argv);
+
+/*!
+ * \brief         Update configuration file
+ * \param[in]  o  Option to update
+ * \param[out] v  New value
+ *
+ * Set or update the given configuration option with the given value.
+ */
+extern void update_config(char *o, char *v);
 
 /*!
  * \brief         Show list of command line options

@@ -132,6 +132,7 @@ int main(int argc, char **argv)
             gtk_file_chooser_set_filename((GtkFileChooser *)widgets->file_chooser, args.source);
         if (args.output)
             gtk_entry_set_text((GtkEntry *)widgets->out_file_entry, args.output);
+        gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->compress_menu_item, args.compress);
         file_chooser_callback(NULL, widgets);
 
         gtk_builder_connect_signals(builder, widgets);
