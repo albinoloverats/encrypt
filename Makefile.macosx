@@ -23,10 +23,6 @@ gui:
 
 all: gui documentation language man
 
-documentation:
-	@echo "TODO - generate html/pdf from Doxygen"
-#	@doxygen
-
 language:
 	@echo "TODO - fully translate all strings"
 #	@$(MAKE) -C po

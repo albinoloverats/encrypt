@@ -7,7 +7,7 @@ GUI      = src/gui.c
 COMMON   = src/common/error.c src/common/logging.c
 
 CFLAGS   = -Wall -Wextra -Werror -Wno-unused-parameter -std=gnu99 `libgcrypt-config --cflags` -pipe -O2
-CPPFLAGS = -I. -Isrc -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DLOG_DEFAULT=LOG_WARNING
+CPPFLAGS = -Isrc -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DLOG_DEFAULT=LOG_WARNING
 GUIFLAGS = -DBUILD_GUI `pkg-config --cflags gtk+-3.0 gmodule-2.0`
 
 LIBS     = `libgcrypt-config --libs` -lpthread -lcurl -llzma
@@ -22,10 +22,6 @@ gui:
 	@echo "built \`$(SOURCE) $(COMMON) $(GUI)' --> \`$(APP)'"
 
 all: gui documentation language man
-
-documentation:
-	@echo "TODO - generate html/pdf from Doxygen"
-#	@doxygen
 
 language:
 	@echo "TODO - fully translate all strings"
