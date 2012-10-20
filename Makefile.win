@@ -8,11 +8,11 @@ RES  = src/encrypt_private.res
 OBJ  = src/encrypt.o src/main.o src/gui.o src/io.o src/init.o src/common/win32_ext.o src/common/error.o src/common/logging.o $(RES)
 LINKOBJ  = src/encrypt.o src/main.o src/gui.o src/io.o src/init.o src/common/win32_ext.o src/common/error.o src/common/logging.o $(RES)
 LIBS =  -L"C:/MinGW/lib" -mwindows -LC:/MinGW/lib -lgtk-win32-2.0 -lgdk-win32-2.0 -latk-1.0 -lgio-2.0 -lpangowin32-1.0 -lgdi32 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lpango-1.0 -lcairo -lgobject-2.0 -lgthread-2.0 -lgmodule-2.0 -lglib-2.0 -lintl -lgladeui-1 -lpthread -lcurldll -lgcrypt -lgpg-error -llzma  
-INCS =  -I"C:/MinGW/include"  -I"."  -I"src" 
-CXXINCS =  -I"."  -I"src" 
+INCS =  -I"C:/MinGW/include"  -I"src" 
+CXXINCS =  -I"src" 
 BIN  = encrypt.exe
-CXXFLAGS = $(CXXINCS)  
-CFLAGS = $(INCS) -DLOG_DEFAULT=LOG_WARNING -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DBUILD_GUI -std=gnu99 -mms-bitfields -IC:\MinGW\include\gtk-2.0 -IC:\MinGW\lib\gtk-2.0\include -IC:\MinGW\include\atk-1.0 -IC:\MinGW\include\cairo -IC:\MinGW\include\gdk-pixbuf-2.0 -IC:\MinGW\include\pango-1.0 -IC:\MinGW\include\glib-2.0 -IC:\MinGW\lib\glib-2.0\include -IC:\MinGW\include -IC:\MinGW\include\freetype2 -IC:\MinGW\include\libpng14  
+CXXFLAGS = $(CXXINCS)   -fexpensive-optimizations
+CFLAGS = $(INCS) -DLOG_DEFAULT=LOG_WARNING -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DBUILD_GUI -std=gnu99 -mms-bitfields -IC:\MinGW\include\gtk-2.0 -IC:\MinGW\lib\gtk-2.0\include -IC:\MinGW\include\atk-1.0 -IC:\MinGW\include\cairo -IC:\MinGW\include\gdk-pixbuf-2.0 -IC:\MinGW\include\pango-1.0 -IC:\MinGW\include\glib-2.0 -IC:\MinGW\lib\glib-2.0\include -IC:\MinGW\include -IC:\MinGW\include\freetype2 -IC:\MinGW\include\libpng14   -fexpensive-optimizations
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
