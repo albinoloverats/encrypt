@@ -351,7 +351,7 @@ static void *bg_thread_gui(void *n)
                 key.p_data = malloc(key.p_length);
                 if (!key.p_data)
                     die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, key.p_length);
-                pread(kf, key.p_data, key.p_length, 0);
+                read(kf, key.p_data, key.p_length);
                 close(kf);
             }
             break;
