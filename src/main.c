@@ -199,7 +199,7 @@ int main(int argc, char **argv)
         e_data.key.p_data = malloc(e_data.key.p_length);
         if (!e_data.key.p_data)
             die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, e_data.key.p_length);
-        pread(kf, e_data.key.p_data, e_data.key.p_length, 0);
+        read(kf, e_data.key.p_data, e_data.key.p_length);
         close(kf);
     }
     else if (args.password)
