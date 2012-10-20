@@ -30,6 +30,8 @@
 #include <sys/stat.h>
 #include <pthread.h>
 
+#include "gui.h"
+
 #include "common/common.h"
 #include "common/error.h"
 #include "common/logging.h"
@@ -40,7 +42,6 @@
 #include "init.h"
 #include "main.h"
 #include "encrypt.h"
-#include "gui.h"
 
 static void check_enable_encrypt_button(gtk_widgets_t *data);
 static void *bg_thread_gui(void *n);
