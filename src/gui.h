@@ -34,11 +34,7 @@
         #define GLADE_UI_FILE "/usr/share/encrypt/" "encrypt.glade"
     #endif
 #else
-    #if defined __DEBUG__ || defined __DEBUG_GUI__
-        #define GLADE_UI_FILE "utils/encrypt_w32.glade"
-    #else
-        #define GLADE_UI_FILE "encrypt_w32.glade"
-    #endif
+    #define GLADE_UI_FILE "utils\\encrypt_w32.glade"
 #endif
 
 #define LABEL_ENCRYPT "Encrypt"
