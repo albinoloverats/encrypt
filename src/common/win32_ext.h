@@ -33,6 +33,7 @@
 #endif
 
 #define fsync(fd) _commit(fd)
+#define ftruncate(fd, sz) _chsize(fd, sz)
 
 extern int asprintf(char **buffer, char *fmt, ...);
 

@@ -51,10 +51,12 @@ extern args_t init(int argc, char **argv)
      * check for options in rc file (~/.encryptrc)
      */
     char *rc = NULL;
-    if (!asprintf(&rc, "%s/%s", getenv("HOME"), ENCRYPTRC))
+    if (!asprintf(&rc, "%s/%s", getenv("HOME") ? : ".", ENCRYPTRC))
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(getenv("HOME")) + strlen(ENCRYPTRC) + 2);
 
     FILE *f = fopen(rc, "rb");
+    if (!f)
+        f = fopen(rc, "wb+");
     if (f)
     {
         char *line = NULL;
@@ -170,7 +172,7 @@ extern void update_config(char *o, char *v)
         return;
 
     char *rc = NULL;
-    if (!asprintf(&rc, "%s/%s", getenv("HOME"), ENCRYPTRC))
+    if (!asprintf(&rc, "%s/%s", getenv("HOME") ? : ".", ENCRYPTRC))
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(getenv("HOME")) + strlen(ENCRYPTRC) + 2);
 
     FILE *f = fopen(rc, "rb+");
@@ -179,6 +181,7 @@ extern void update_config(char *o, char *v)
         FILE *t = tmpfile();
         char *line = NULL;
         size_t len = 0;
+        bool found = false;
 
         for (int i = 0; i < 2; i++)
         {
@@ -192,6 +195,7 @@ extern void update_config(char *o, char *v)
                 {
                     asprintf(&line, "%s %s\n", o, v);
                     log_message(LOG_VERBOSE, "Updated %s to %s in config file", o, v);
+                    found = true;
                 }
                 fprintf(t, "%s", line);
 
@@ -202,11 +206,14 @@ extern void update_config(char *o, char *v)
             fseek(f, 0, SEEK_SET);
             fseek(t, 0, SEEK_SET);
             if (!i)
-                truncate(rc, 0);
+                ftruncate(fileno(f), 0);
             FILE *z = f;
             f = t;
             t = z;
         }
+
+        if (!found)
+            fprintf(f, "\n%s %s\n", o, v);
 
         fclose(f);
         free(line);
