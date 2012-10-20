@@ -17,7 +17,7 @@
     <property name="skip_pager_hint">True</property>
     <property name="has_resize_grip">False</property>
     <property name="program_name">encrypt</property>
-    <property name="version">2012.-1</property>
+    <property name="version">2012.11</property>
     <property name="copyright" translatable="yes">Copyright © 2004-2012, albinoloverats ~ Software Development</property>
     <property name="website">https://albinoloverats.net/projects/encrypt</property>
     <property name="website_label" translatable="yes">https://albinoloverats.net/projects/encrypt</property>
@@ -293,7 +293,7 @@ The logo is part of the Crystal Icon Theme by Everaldo Coelho
                 <items>
                   <item translatable="yes">Select Key Source</item>
                   <item translatable="yes">Key File</item>
-                  <item translatable="yes">Password</item>
+                  <item translatable="yes">Passphrase</item>
                 </items>
                 <signal name="changed" handler="key_combo_callback" swapped="no"/>
               </object>
