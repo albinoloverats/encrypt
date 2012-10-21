@@ -77,7 +77,7 @@ char *FAILED_MESSAGE[] =
     "Decryption verification failed!",
     "Unknown tag value!",
     "Finished but with possible file corruption!"
-    "An unknown error has occurred!",
+    "An unknown error has occurred!"
 };
 
 extern uint64_t file_encrypted_aux(int t, intptr_t p, encrypt_t *e)
@@ -132,14 +132,13 @@ extern uint64_t file_encrypted_aux(int t, intptr_t p, encrypt_t *e)
             }
             r_val = HEADER_VERSION_201110;
             break;
-        //case HEADER_VERSION_201207:
-        case HEADER_VERSION_NEXT_DEV:
+        case HEADER_VERSION_201211:
             if (e)
             {
                 e->blocked = true;
                 e->compressed = true;
             }
-            r_val = HEADER_VERSION_NEXT_DEV;
+            r_val = HEADER_VERSION_201211;
             break;
         default:
             log_message(LOG_ERROR, _("File encrypted with more recent release of encrypt"));
