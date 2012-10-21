@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #include "common/win32_ext.h"
 #include "common/common.h"
@@ -71,6 +72,7 @@ extern int asprintf(char **buffer, char *fmt, ...)
 
 extern ssize_t getline(char **lineptr, size_t *n, FILE *stream)
 {
+    bool e = false;
     size_t r = 0;
     uint32_t step = 0xFF;
     char *buffer = malloc(step);
@@ -80,7 +82,10 @@ extern ssize_t getline(char **lineptr, size_t *n, FILE *stream)
     {
         int c = fgetc(stream);
         if (c == EOF)
+        {
+            e = true;
             break;
+        }
         buffer[r] = c;
         if (c == '\n')
             break;
@@ -91,11 +96,12 @@ extern ssize_t getline(char **lineptr, size_t *n, FILE *stream)
                 die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, step);
         }
     }
+    buffer[r + 1] = 0x00;
     if (*lineptr)
         free(*lineptr);
     *lineptr = buffer;
     *n = r;
-    return r;
+    return e ? -1 : r;
 }
 
 #endif
