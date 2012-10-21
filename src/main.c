@@ -89,12 +89,15 @@ int main(int argc, char **argv)
     bool fe = false;
     if (args.source)
         fe = file_encrypted(args.source);
+#ifndef _WIN32
     /*
      * check args for files/passwords/algroithms...
      */
     if (fe || (args.hash && args.cipher))
         ; /* user has given enough arguments on command line that we'll skip the gui */
-    else if (gtk_init_check(&argc, &argv))
+    else
+#endif
+    if (gtk_init_check(&argc, &argv))
     {
         builder = gtk_builder_new();
         if (!gtk_builder_add_from_file(builder, GLADE_UI_FILE, &error))
