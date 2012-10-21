@@ -21,7 +21,7 @@ gui:
 	@$(CC) $(CFLAGS) $(CPPFLAGS) $(GUIFLAGS) $(SOURCE) $(COMMON) $(GUI) $(LIBS) $(GUILIBS) -o $(APP)
 	@echo "built \`$(SOURCE) $(COMMON) $(GUI)' --> \`$(APP)'"
 
-all: gui documentation language man
+all: gui language man
 
 language:
 	@echo "TODO - fully translate all strings"
