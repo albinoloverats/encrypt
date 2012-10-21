@@ -26,6 +26,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <pthread.h>
+#include <sys/stat.h>
 #include <curl/curl.h>
 
 #include "common/common.h"
@@ -90,11 +91,17 @@ int main(int argc, char **argv)
     if (args.source)
         fe = file_encrypted(args.source);
 #ifndef _WIN32
-    /*
-     * check args for files/passwords/algroithms...
-     */
-    if (fe || (args.hash && args.cipher))
+    struct stat s = { 0x00 };
+    fstat(STDIN_FILENO, &s);
+    struct stat t = { 0x00 };
+    fstat(STDOUT_FILENO, &t);
+
+    if (fe || (args.hash && args.cipher && (args.source || args.output)))
         ; /* user has given enough arguments on command line that we'll skip the gui */
+    else if (!isatty(STDIN_FILENO) && (S_ISREG(s.st_mode) || S_ISFIFO(s.st_mode)))
+        ; /* stdin is a redirect from a file or a pipe */
+    else if (!isatty(STDOUT_FILENO) && (S_ISREG(t.st_mode) || S_ISFIFO(t.st_mode)))
+        ; /* stdout is a redirect to a file or a pipe */
     else
 #endif
     if (gtk_init_check(&argc, &argv))
