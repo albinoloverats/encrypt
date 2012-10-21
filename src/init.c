@@ -55,8 +55,6 @@ extern args_t init(int argc, char **argv)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(getenv("HOME")) + strlen(ENCRYPTRC) + 2);
 
     FILE *f = fopen(rc, "rb");
-    if (!f)
-        f = fopen(rc, "wb+");
     if (f)
     {
         char *line = NULL;
@@ -176,6 +174,8 @@ extern void update_config(char *o, char *v)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(getenv("HOME")) + strlen(ENCRYPTRC) + 2);
 
     FILE *f = fopen(rc, "rb+");
+    if (!f)
+        f = fopen(rc, "wb+");
     if (f)
     {
         FILE *t = tmpfile();
