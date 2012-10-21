@@ -27,7 +27,7 @@
 #define CH_GET_OBJECT( builder, name, type, data )  data->name = type( gtk_builder_get_object( builder, #name ) )
 #define CH_GET_WIDGET( builder, name, data )        CH_GET_OBJECT( builder, name, GTK_WIDGET, data )
 
-#if !defined _WIN32
+#ifndef _WIN32
     #if defined __DEBUG__ || defined __DEBUG_GUI__
         #define GLADE_UI_FILE "utils/encrypt.glade"
     #else
