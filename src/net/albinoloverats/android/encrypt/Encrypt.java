@@ -110,8 +110,8 @@ public class Encrypt extends Thread implements Runnable
 
     private static final long HEADER_VERSION_201108 = 0x72761df3e497c983L;
     private static final long HEADER_VERSION_201110 = 0xbb116f7d00201110L;
-    private static final long HEADER_VERSION_NEXT_DEV = 0x51d28245e1216c45L;
-    private static final long[] HEADER = { 0x3697de5d96fca0faL, 0xc845c2fa95e2f52dL, HEADER_VERSION_NEXT_DEV };
+    private static final long HEADER_VERSION_201211 = 0x51d28245e1216c45L;
+    private static final long[] HEADER = { 0x3697de5d96fca0faL, 0xc845c2fa95e2f52dL, HEADER_VERSION_201211 };
 
     private static final int BLOCK_SIZE = 1024;
 
@@ -233,8 +233,8 @@ public class Encrypt extends Thread implements Runnable
                 return HEADER_VERSION_201108;
             else if (encryptedVersion == HEADER_VERSION_201110)
                 return HEADER_VERSION_201110;
-            else if (encryptedVersion == HEADER_VERSION_NEXT_DEV)
-                return HEADER_VERSION_NEXT_DEV;
+            else if (encryptedVersion == HEADER_VERSION_201211)
+                return HEADER_VERSION_201211;
             return 0;
         }
         catch (final IOException e)
@@ -298,8 +298,7 @@ public class Encrypt extends Thread implements Runnable
             crypt.init(attributes);
             enc_out.setCipher(crypt);
             /*
-             * write simple addition (x ^ y = z) where x, y and random
-             * 64bit signed integers
+             * write simple addition (x ^ y = z) where x, y and random 64bit signed integers
              */
             byte buffer[] = new byte[Long.SIZE / Byte.SIZE];
             PRNG.nextBytes(buffer);
@@ -441,9 +440,8 @@ public class Encrypt extends Thread implements Runnable
             hash.update(key, 0, key.length);
             final byte[] iv = hash.digest();
             /*
-             * FIXME This update to the IV generation will break backwards
-             * compatibility; we need to use the old method if the file is
-             * encrypted with a previous version of encrypt
+             * This update to the IV generation will break backwards compatibility; we need to use
+             * the old method if the file is encrypted with a previous version of encrypt
              */
             final long ver = fileEncrypted(sourceFile);
             final int ivLength;
