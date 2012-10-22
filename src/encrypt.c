@@ -664,21 +664,29 @@ extern char **get_algorithms_hash(void)
     int lid[0xff] = { 0x00 };
     int len = sizeof lid;
     gcry_md_list(lid, &len);
-    char **l = malloc(sizeof( char * ) * (len + 1));
+    char **l = malloc(sizeof( char * ));
+    if (!l)
+        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
+    int j = 0;
     for (int i = 0; i < len; i++)
     {
         const char *n = gcry_md_algo_name(lid[i]);
         if (algorithm_is_duplicate(n))
-            l[i] = strdup(""); // a duplicate of another algorithm already in the list (empty strings will be ignored)
+            continue;
         else if (!strcasecmp(n, NAME_TIGER192))
-            l[i] = correct_tiger192(n);
+            l[j] = correct_tiger192(n);
         else if (!strncasecmp(n, NAME_SHA1, strlen(NAME_SHA1) - 1))
-            l[i] = correct_sha1(n);
+            l[j] = correct_sha1(n);
         else
-            l[i] = strdup(n);
+            l[j] = strdup(n);
+        j++;
+        char **x = realloc(l, (j + 1) * sizeof( char * ));
+        if (!x)
+            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, (j + 1) * sizeof( char * ));
+        l = x;
     }
-    l[len] = NULL;
-    qsort(l, len, sizeof( char * ), algorithm_compare);
+    l[j] = NULL;
+    qsort(l, j, sizeof( char * ), algorithm_compare);
     return l;
 }
 
@@ -689,23 +697,31 @@ extern char **get_algorithms_crypt(void)
     int lid[0xff] = { 0x00 };
     int len = sizeof lid;
     gcry_cipher_list(lid, &len);
-    char **l = malloc(sizeof( char * ) * (len + 1));
+    char **l = malloc(sizeof( char * ));
+    if (!l)
+        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
+    int j = 0;
     for (int i = 0; i < len; i++)
     {
         const char *n = gcry_cipher_algo_name(lid[i]);
         if (algorithm_is_duplicate(n))
-            l[i] = strdup(""); // ditto to above
+            continue;
         else if (!strncasecmp(n, NAME_AES, strlen(NAME_AES)))
-            l[i] = correct_aes_rijndael(n);
+            l[j] = correct_aes_rijndael(n);
         else if (!strcasecmp(n, NAME_BLOWFISH))
-            l[i] = correct_blowfish128(n);
+            l[j] = correct_blowfish128(n);
         else if (!strcasecmp(n, NAME_TWOFISH))
-            l[i] = correct_twofish256(n);
+            l[j] = correct_twofish256(n);
         else
-            l[i] = strdup(n);
+            l[j] = strdup(n);
+        j++;
+        char **x = realloc(l, (j + 1) * sizeof( char * ));
+        if (!x)
+            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, (j + 1) * sizeof( char * ));
+        l = x;
     }
-    l[len] = NULL;
-    qsort(l, len, sizeof( char * ), algorithm_compare);
+    l[j] = NULL;
+    qsort(l, j, sizeof( char * ), algorithm_compare);
     return l;
 }
 
