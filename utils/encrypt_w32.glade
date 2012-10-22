@@ -307,7 +307,7 @@ The logo is part of the Crystal Icon Theme by Everaldo Coelho
             <child>
               <object class="GtkEntry" id="password_entry">
                 <property name="visible">True</property>
-                <property name="sensitive">False</property>
+                <property name="sensitive">True</property>
                 <property name="can_focus">True</property>
                 <property name="has_tooltip">True</property>
                 <property name="tooltip_markup" translatable="yes">Enter Passphrase</property>
