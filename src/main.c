@@ -91,9 +91,9 @@ int main(int argc, char **argv)
     if (args.source)
         fe = file_encrypted(args.source);
 #ifndef _WIN32
-    struct stat s = { 0x00 };
+    struct stat s;
     fstat(STDIN_FILENO, &s);
-    struct stat t = { 0x00 };
+    struct stat t;
     fstat(STDOUT_FILENO, &t);
 
     if (fe || (args.hash && args.cipher && (args.source || args.output)))
@@ -118,8 +118,9 @@ int main(int argc, char **argv)
          */
         CH_GET_WIDGET(builder, main_window, widgets);
         CH_GET_WIDGET(builder, file_chooser, widgets);
-        CH_GET_WIDGET(builder, out_file_chooser, widgets);
-        CH_GET_WIDGET(builder, out_file_entry, widgets);
+        CH_GET_WIDGET(builder, save_file_button, widgets);
+        CH_GET_WIDGET(builder, save_file_label, widgets);
+        CH_GET_WIDGET(builder, save_file_image, widgets);
         CH_GET_WIDGET(builder, crypto_combo, widgets);
         CH_GET_WIDGET(builder, hash_combo, widgets);
         CH_GET_WIDGET(builder, key_combo, widgets);
@@ -133,6 +134,7 @@ int main(int argc, char **argv)
         CH_GET_WIDGET(builder, progress_close_button, widgets);
         CH_GET_WIDGET(builder, about_dialog, widgets);
         CH_GET_WIDGET(builder, compress_menu_item, widgets);
+        CH_GET_WIDGET(builder, save_dialog, widgets);
 
         version_thread = bg_thread_initialise(check_new_version, widgets);
 
@@ -141,7 +143,10 @@ int main(int argc, char **argv)
         if (args.source)
             gtk_file_chooser_set_filename((GtkFileChooser *)widgets->file_chooser, args.source);
         if (args.output)
-            gtk_entry_set_text((GtkEntry *)widgets->out_file_entry, args.output);
+        {
+            gtk_file_chooser_set_filename((GtkFileChooser *)widgets->save_dialog, args.output);
+            save_dialog_ok(NULL, widgets);
+        }
         gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->compress_menu_item, args.compress);
         file_chooser_callback(NULL, widgets);
 
