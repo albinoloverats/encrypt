@@ -21,30 +21,29 @@
     <property name="copyright" translatable="yes">Copyright © 2004-2012, albinoloverats ~ Software Development</property>
     <property name="website">https://albinoloverats.net/projects/encrypt</property>
     <property name="website_label" translatable="yes">https://albinoloverats.net/projects/encrypt</property>
-    <property name="license" translatable="yes">
-encrypt ~ a cross platform, symetric key, file encryption application
-    Copyright © 2004-2012, albinoloverats ~ Software Development
+    <property name="license" translatable="yes">encrypt ~ a cross platform, symetric key, file encryption application
+
+Copyright © 2004-2012, albinoloverats ~ Software Development
 
 This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</property>
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</property>
     <property name="authors">encrypt was written by Ashley Anderson
-	https://albinoloverats.net/amanderson/
+https://albinoloverats.net/amanderson/
 
 libgcrypt is part of GNU
-	http://www.gnu.org/software/libgcrypt/</property>
-    <property name="artists">
-The logo is part of the Crystal Icon Theme by Everaldo Coelho
-	http://www.everaldo.com/</property>
+http://www.gnu.org/software/libgcrypt/</property>
+    <property name="artists">The logo is part of the Crystal Icon Theme by Everaldo Coelho
+http://www.everaldo.com/</property>
     <property name="logo">/usr/share/pixmaps/encrypt.png</property>
     <property name="license_type">gpl-3-0</property>
     <child internal-child="vbox">
@@ -69,6 +68,11 @@ The logo is part of the Crystal Icon Theme by Everaldo Coelho
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkImage" id="go_encrypt">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-execute</property>
   </object>
   <object class="GtkWindow" id="main_window">
     <property name="width_request">320</property>
@@ -202,41 +206,83 @@ The logo is part of the Crystal Icon Theme by Everaldo Coelho
               </packing>
             </child>
             <child>
-              <object class="GtkFileChooserButton" id="out_file_chooser">
+              <object class="GtkButton" id="out_file_button">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="has_tooltip">True</property>
-                <property name="tooltip_markup" translatable="yes">Destination Directory</property>
-                <property name="tooltip_text" translatable="yes">Destination Directory</property>
-                <property name="action">select-folder</property>
-                <property name="do_overwrite_confirmation">True</property>
-                <property name="title" translatable="yes">Choose Directory</property>
-                <signal name="file-set" handler="file_chooser_callback" swapped="no"/>
+                <property name="can_focus">True</property>
+                <property name="can_default">True</property>
+                <property name="has_default">True</property>
+                <property name="receives_default">True</property>
+                <property name="tooltip_markup" translatable="yes">Save As ...</property>
+                <property name="tooltip_text" translatable="yes">Save As ...</property>
+                <property name="use_action_appearance">False</property>
+                <property name="image_position">right</property>
+                <signal name="clicked" handler="save_dialog_callback" swapped="no"/>
+                <child>
+                  <object class="GtkBox" id="box1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkImage" id="save_file_image">
+                        <property name="can_focus">False</property>
+                        <property name="stock">gtk-file</property>
+                        <property name="icon-size">1</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="save_file_label">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="xalign">0</property>
+                        <property name="xpad">2</property>
+                        <property name="label" translatable="yes">(None)</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSeparator" id="separator1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="orientation">vertical</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="padding">4</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkImage" id="save_as_image">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="xalign">1</property>
+                        <property name="stock">gtk-save-as</property>
+                        <property name="icon-size">1</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">3</property>
+                      </packing>
+                    </child>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="padding">4</property>
                 <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEntry" id="out_file_entry">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="has_tooltip">True</property>
-                <property name="tooltip_markup" translatable="yes">Save As...</property>
-                <property name="tooltip_text" translatable="yes">Save As...</property>
-                <property name="invisible_char">•</property>
-                <property name="invisible_char_set">True</property>
-                <property name="caps_lock_warning">False</property>
-                <property name="primary_icon_stock">gtk-file</property>
-                <signal name="changed" handler="file_chooser_callback" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
               </packing>
             </child>
             <child>
@@ -257,7 +303,7 @@ The logo is part of the Crystal Icon Theme by Everaldo Coelho
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="padding">4</property>
-                <property name="position">3</property>
+                <property name="position">2</property>
               </packing>
             </child>
             <child>
@@ -278,7 +324,7 @@ The logo is part of the Crystal Icon Theme by Everaldo Coelho
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="padding">4</property>
-                <property name="position">4</property>
+                <property name="position">3</property>
               </packing>
             </child>
             <child>
@@ -301,13 +347,12 @@ The logo is part of the Crystal Icon Theme by Everaldo Coelho
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="padding">4</property>
-                <property name="position">5</property>
+                <property name="position">4</property>
               </packing>
             </child>
             <child>
               <object class="GtkEntry" id="password_entry">
                 <property name="visible">True</property>
-                <property name="sensitive">True</property>
                 <property name="can_focus">True</property>
                 <property name="has_tooltip">True</property>
                 <property name="tooltip_markup" translatable="yes">Enter Passphrase</property>
@@ -323,7 +368,7 @@ The logo is part of the Crystal Icon Theme by Everaldo Coelho
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="padding">4</property>
-                <property name="position">6</property>
+                <property name="position">5</property>
               </packing>
             </child>
             <child>
@@ -338,7 +383,7 @@ The logo is part of the Crystal Icon Theme by Everaldo Coelho
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="padding">4</property>
-                <property name="position">7</property>
+                <property name="position">6</property>
               </packing>
             </child>
             <child>
@@ -351,6 +396,7 @@ The logo is part of the Crystal Icon Theme by Everaldo Coelho
                 <property name="has_default">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
+                <property name="image">go_encrypt</property>
                 <property name="image_position">right</property>
                 <accelerator key="Return" signal="clicked"/>
                 <signal name="clicked" handler="on_encrypt_button_clicked" swapped="no"/>
@@ -359,7 +405,7 @@ The logo is part of the Crystal Icon Theme by Everaldo Coelho
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="padding">4</property>
-                <property name="position">8</property>
+                <property name="position">7</property>
               </packing>
             </child>
           </object>
@@ -518,6 +564,91 @@ processes your file</property>
     <action-widgets>
       <action-widget response="0">progress_cancel_button</action-widget>
       <action-widget response="0">progress_close_button</action-widget>
+    </action-widgets>
+  </object>
+  <object class="GtkFileChooserDialog" id="save_dialog">
+    <property name="width_request">640</property>
+    <property name="height_request">480</property>
+    <property name="can_focus">False</property>
+    <property name="border_width">5</property>
+    <property name="title" translatable="yes">Save As ...</property>
+    <property name="role">GtkFileChooserDialog</property>
+    <property name="resizable">False</property>
+    <property name="modal">True</property>
+    <property name="window_position">center-on-parent</property>
+    <property name="default_width">640</property>
+    <property name="default_height">480</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="icon_name">document-save-as</property>
+    <property name="type_hint">dialog</property>
+    <property name="skip_taskbar_hint">True</property>
+    <property name="skip_pager_hint">True</property>
+    <property name="action">save</property>
+    <property name="do_overwrite_confirmation">True</property>
+    <signal name="file-activated" handler="gtk_file_chooser_select_filename" swapped="no"/>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="filechooserdialog-vbox1">
+        <property name="width_request">640</property>
+        <property name="height_request">440</property>
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="filechooserdialog-action_area1">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="save_cancel_button">
+                <property name="label">gtk-cancel</property>
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_action_appearance">False</property>
+                <property name="use_stock">True</property>
+                <signal name="clicked" handler="save_dialog_cancel" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="save_button">
+                <property name="label">gtk-save</property>
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="can_default">True</property>
+                <property name="has_default">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_action_appearance">False</property>
+                <property name="use_stock">True</property>
+                <signal name="clicked" handler="save_dialog_ok" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="0">save_cancel_button</action-widget>
+      <action-widget response="0">save_button</action-widget>
     </action-widgets>
   </object>
 </interface>
