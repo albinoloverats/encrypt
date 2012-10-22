@@ -54,6 +54,7 @@ G_MODULE_EXPORT gboolean file_chooser_callback(GtkWidget *widget, gtk_widgets_t 
     gtk_widget_set_sensitive(data->key_combo, FALSE);
     gtk_widget_set_sensitive(data->crypto_combo, FALSE);
     gtk_widget_set_sensitive(data->hash_combo, FALSE);
+
     /*
      * check the source file exists (and is a file)
      */
@@ -74,24 +75,49 @@ G_MODULE_EXPORT gboolean file_chooser_callback(GtkWidget *widget, gtk_widgets_t 
     }
     close(f);
     gtk_button_set_label((GtkButton *)data->encrypt_button, encrypting ? LABEL_ENCRYPT : LABEL_DECRYPT);
-    char *odir = gtk_file_chooser_get_filename((GtkFileChooser *)data->out_file_chooser);
-    if (!odir)
-        return FALSE;
+
+    return TRUE;
+}
+
+G_MODULE_EXPORT gboolean save_dialog_callback(GtkButton *button, gtk_widgets_t *data)
+{
+    gtk_dialog_run((GtkDialog *)data->save_dialog);
+    gtk_widget_hide(data->save_dialog);
+
+    return TRUE;
+}
+
+G_MODULE_EXPORT gboolean save_dialog_cancel(GtkButton *button, gtk_widgets_t *data)
+{
+    gtk_label_set_text((GtkLabel *)data->save_file_label, "(None)");
+    gtk_widget_hide(data->save_file_image);
+
+    gtk_widget_set_sensitive(data->crypto_combo, FALSE);
+    gtk_widget_set_sensitive(data->hash_combo, FALSE);
+    gtk_widget_set_sensitive(data->key_combo, FALSE);
+
+    return TRUE;
+}
+
+G_MODULE_EXPORT gboolean save_dialog_ok(GtkButton *button, gtk_widgets_t *data)
+{
+    gtk_widget_hide(data->save_dialog);
+    gtk_widget_set_sensitive(data->crypto_combo, FALSE);
+    gtk_widget_set_sensitive(data->hash_combo, FALSE);
+    gtk_widget_set_sensitive(data->key_combo, FALSE);
+
+    char *out_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog);
     /*
      * if the destination exists, it has to be a regular file
      */
-    char *oname = (char *)gtk_entry_get_text((GtkEntry *)data->out_file_entry);
-    if (!oname || !strlen(oname))
+    if (!out_file || !strlen(out_file))
         return FALSE;
-    char *out_file = NULL;
-    asprintf(&out_file, "%s/%s", odir, oname);
     struct stat info;
     if (stat(out_file, &info) == 0 && !S_ISREG(info.st_mode))
-    {
-        free(out_file);
         return FALSE;
-    }
-    free(out_file);
+
+    gtk_label_set_text((GtkLabel *)data->save_file_label, basename(out_file));
+    gtk_widget_show(data->save_file_image);
 
     if (encrypting)
     {
@@ -111,11 +137,6 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
     {
         if (!ciphers[i])
             break;
-        else if (!strlen(ciphers[i]))
-        {
-            free(ciphers[i]);
-            continue;
-        }
         else if (cipher && !strcasecmp(ciphers[i], cipher))
         {
             slctd_cipher = i + 1;
@@ -133,11 +154,6 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
     {
         if (!hashes[i])
             break;
-        else if (!strlen(hashes[i]))
-        {
-            free(hashes[i]);
-            continue;
-        }
         else if (hash && !strcasecmp(hashes[i], hash))
         {
             slctd_hash = i + 1;
@@ -324,11 +340,7 @@ static void *bg_thread_gui(void *n)
     char *fname = gtk_file_chooser_get_filename((GtkFileChooser *)data->file_chooser);
     int64_t source = open(fname, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
 
-    char *odir = gtk_file_chooser_get_filename((GtkFileChooser *)data->out_file_chooser);
-    char *oname = (char *)gtk_entry_get_text((GtkEntry *)data->out_file_entry);
-    char *out_file = NULL;
-    asprintf(&out_file, "%s/%s", odir, oname);
-
+    char *out_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog);
     int64_t output = open(out_file, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY | F_WRLCK, S_IRUSR | S_IWUSR);
 
     status_e status = SUCCEEDED;

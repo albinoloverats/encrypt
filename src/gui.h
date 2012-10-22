@@ -47,8 +47,9 @@ typedef struct gtk_widgets_t
 {
     GtkWidget *main_window;
     GtkWidget *file_chooser;
-    GtkWidget *out_file_chooser;
-    GtkWidget *out_file_entry;
+    GtkWidget *save_file_button;
+    GtkWidget *save_file_label;
+    GtkWidget *save_file_image;
     GtkWidget *crypto_combo;
     GtkWidget *hash_combo;
     GtkWidget *key_combo;
@@ -62,10 +63,14 @@ typedef struct gtk_widgets_t
     GtkWidget *progress_close_button;
     GtkWidget *about_dialog;
     GtkWidget *compress_menu_item;
+    GtkWidget *save_dialog;
 }
 gtk_widgets_t;
 
 G_MODULE_EXPORT gboolean file_chooser_callback(GtkWidget *widget, gtk_widgets_t *data);
+G_MODULE_EXPORT gboolean save_dialog_callback(GtkButton *button, gtk_widgets_t *data);
+G_MODULE_EXPORT gboolean save_dialog_cancel(GtkButton *button, gtk_widgets_t *data);
+G_MODULE_EXPORT gboolean save_dialog_ok(GtkButton *button, gtk_widgets_t *data);
 
 extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash);
 
