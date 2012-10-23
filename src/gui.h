@@ -46,15 +46,22 @@
 typedef struct gtk_widgets_t
 {
     GtkWidget *main_window;
-    GtkWidget *file_chooser;
-    GtkWidget *save_file_button;
+    GtkWidget *open_button;
+    GtkWidget *open_dialog;
+    GtkWidget *open_file_label;
+    GtkWidget *open_file_image;
+    GtkWidget *save_button;
+    GtkWidget *save_dialog;
     GtkWidget *save_file_label;
     GtkWidget *save_file_image;
     GtkWidget *crypto_combo;
     GtkWidget *hash_combo;
     GtkWidget *key_combo;
     GtkWidget *password_entry;
-    GtkWidget *key_chooser;
+    GtkWidget *key_file_button;
+    GtkWidget *key_dialog;
+    GtkWidget *key_file_label;
+    GtkWidget *key_file_image;
     GtkWidget *encrypt_button;
     GtkWidget *status_bar;
     GtkWidget *progress_dialog;
@@ -63,24 +70,21 @@ typedef struct gtk_widgets_t
     GtkWidget *progress_close_button;
     GtkWidget *about_dialog;
     GtkWidget *compress_menu_item;
-    GtkWidget *save_dialog;
 }
 gtk_widgets_t;
 
-G_MODULE_EXPORT gboolean file_chooser_callback(GtkWidget *widget, gtk_widgets_t *data);
-G_MODULE_EXPORT gboolean save_dialog_callback(GtkButton *button, gtk_widgets_t *data);
-G_MODULE_EXPORT gboolean save_dialog_cancel(GtkButton *button, gtk_widgets_t *data);
-G_MODULE_EXPORT gboolean save_dialog_ok(GtkButton *button, gtk_widgets_t *data);
+G_MODULE_EXPORT gboolean open_dialog_display(GtkButton *button, gtk_widgets_t *data);
+G_MODULE_EXPORT gboolean save_dialog_display(GtkButton *button, gtk_widgets_t *data);
+G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data);
 
 extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash);
 
-G_MODULE_EXPORT gboolean cipher_combo_callback(GtkComboBox *combo_box, gtk_widgets_t *data);
-G_MODULE_EXPORT gboolean hash_combo_callback(GtkComboBox *combo_box, gtk_widgets_t *data);
+G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_widgets_t *data);
+
 G_MODULE_EXPORT gboolean key_combo_callback(GtkComboBox *combo_box, gtk_widgets_t *data);
-
 G_MODULE_EXPORT gboolean password_entry_callback(GtkComboBox *password_entry, gtk_widgets_t *data);
-
-G_MODULE_EXPORT gboolean key_chooser_callback(GtkFileChooser *file_chooser, gtk_widgets_t *data);
+G_MODULE_EXPORT gboolean key_dialog_display(GtkButton *button, gtk_widgets_t *data);
+G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widgets_t *data);
 
 G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widgets_t *data);
 G_MODULE_EXPORT gboolean on_cancel_button_clicked(GtkButton *button, gtk_widgets_t *data);

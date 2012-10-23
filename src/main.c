@@ -28,6 +28,7 @@
 #include <pthread.h>
 #include <sys/stat.h>
 #include <curl/curl.h>
+#include <libgen.h>
 
 #include "common/common.h"
 #include "common/error.h"
@@ -90,8 +91,8 @@ int main(int argc, char **argv)
     bool fe = false;
     if (args.source)
         fe = file_encrypted(args.source);
-#ifndef _WIN32
     struct stat s;
+#ifndef _WIN32
     fstat(STDIN_FILENO, &s);
     struct stat t;
     fstat(STDOUT_FILENO, &t);
@@ -117,15 +118,22 @@ int main(int argc, char **argv)
          * get widgets from UI
          */
         CH_GET_WIDGET(builder, main_window, widgets);
-        CH_GET_WIDGET(builder, file_chooser, widgets);
-        CH_GET_WIDGET(builder, save_file_button, widgets);
+        CH_GET_WIDGET(builder, open_button, widgets);
+        CH_GET_WIDGET(builder, open_dialog, widgets);
+        CH_GET_WIDGET(builder, open_file_label, widgets);
+        CH_GET_WIDGET(builder, open_file_image, widgets);
+        CH_GET_WIDGET(builder, save_button, widgets);
+        CH_GET_WIDGET(builder, save_dialog, widgets);
         CH_GET_WIDGET(builder, save_file_label, widgets);
         CH_GET_WIDGET(builder, save_file_image, widgets);
         CH_GET_WIDGET(builder, crypto_combo, widgets);
         CH_GET_WIDGET(builder, hash_combo, widgets);
         CH_GET_WIDGET(builder, key_combo, widgets);
         CH_GET_WIDGET(builder, password_entry, widgets);
-        CH_GET_WIDGET(builder, key_chooser, widgets);
+        CH_GET_WIDGET(builder, key_file_button, widgets);
+        CH_GET_WIDGET(builder, key_dialog, widgets);
+        CH_GET_WIDGET(builder, key_file_label, widgets);
+        CH_GET_WIDGET(builder, key_file_image, widgets);
         CH_GET_WIDGET(builder, encrypt_button, widgets);
         CH_GET_WIDGET(builder, status_bar, widgets);
         CH_GET_WIDGET(builder, progress_dialog, widgets);
@@ -134,31 +142,53 @@ int main(int argc, char **argv)
         CH_GET_WIDGET(builder, progress_close_button, widgets);
         CH_GET_WIDGET(builder, about_dialog, widgets);
         CH_GET_WIDGET(builder, compress_menu_item, widgets);
-        CH_GET_WIDGET(builder, save_dialog, widgets);
-
-        version_thread = bg_thread_initialise(check_new_version, widgets);
-
-        auto_select_algorithms(widgets, args.cipher, args.hash);
-
-        if (args.source)
-            gtk_file_chooser_set_filename((GtkFileChooser *)widgets->file_chooser, args.source);
-        if (args.output)
-        {
-            gtk_file_chooser_set_filename((GtkFileChooser *)widgets->save_dialog, args.output);
-            save_dialog_ok(NULL, widgets);
-        }
-        gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->compress_menu_item, args.compress);
-        file_chooser_callback(NULL, widgets);
 
         gtk_builder_connect_signals(builder, widgets);
         g_object_unref(G_OBJECT(builder));
+        gtk_widget_show(widgets->main_window);
 
+        version_thread = bg_thread_initialise(check_new_version, widgets);
+
+        /*
+         * TODO find a way to select and display file encrypt
+         */
+        if (args.source)
+        {
+            gboolean x = gtk_file_chooser_set_filename((GtkFileChooser *)widgets->open_dialog, args.source);
+            char *f = gtk_file_chooser_get_filename((GtkFileChooser *)widgets->open_dialog);
+            log_message(LOG_DEBUG, "%s: %s", x ? "true" : "false", f);
+        }
+#ifdef ABOVE_TODO_IS_DONE
+        if (args.output)
+        {
+            char *cwd = getcwd(NULL, 0);
+            stat(args.output, &s);
+            char *f = NULL;
+            asprintf(&f, "%s/%s", cwd, args.output);
+            bool z = false;
+            if (S_ISREG(s.st_mode))
+                z = gtk_file_chooser_set_filename((GtkFileChooser *)widgets->save_dialog, args.output);
+            else
+            {
+                z = gtk_file_chooser_set_current_folder((GtkFileChooser *)widgets->save_dialog, dirname(f));
+                gtk_file_chooser_set_current_name((GtkFileChooser *)widgets->save_dialog, basename(f));
+            }
+            log_message(LOG_VERBOSE, "%s : %s", z ? "true" : "false", g_quark_to_string(GTK_FILE_CHOOSER_ERROR));
+            save_dialog_ok(NULL, widgets);
+            free(f);
+            free(cwd);
+        }
+#endif
+
+        file_dialog_okay(NULL, widgets);
+        auto_select_algorithms(widgets, args.cipher, args.hash);
+        gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->compress_menu_item, args.compress);
         gtk_combo_box_set_active((GtkComboBox *)widgets->key_combo, 0);
+
         /*
          * show main window and start main loop
          */
         update_status_bar(widgets, new_available ? -1 : 0);
-        gtk_widget_show(widgets->main_window);
         gtk_main();
 
         g_slice_free(gtk_widgets_t, widgets);

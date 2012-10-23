@@ -29,6 +29,7 @@
 #include <stdbool.h>
 #include <sys/stat.h>
 #include <pthread.h>
+#include <libgen.h>
 
 #include "gui.h"
 
@@ -43,88 +44,123 @@
 #include "main.h"
 #include "encrypt.h"
 
-static void check_enable_encrypt_button(gtk_widgets_t *data);
+#define _filename_utf8(A) g_filename_to_utf8(A, -1, NULL, NULL, NULL)
+
+#define NONE_SELECTED "(None)"
+
 static void *bg_thread_gui(void *n);
 
 static bool encrypting = true;
 static bool compress = true;
 
-G_MODULE_EXPORT gboolean file_chooser_callback(GtkWidget *widget, gtk_widgets_t *data)
+G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *data)
 {
-    gtk_widget_set_sensitive(data->key_combo, FALSE);
-    gtk_widget_set_sensitive(data->crypto_combo, FALSE);
-    gtk_widget_set_sensitive(data->hash_combo, FALSE);
+    GtkDialog *d = NULL;
+    GtkLabel *l = NULL;
+    GtkWidget *i = NULL;
 
+    if (button == (GtkButton *)data->open_button)
+    {
+        d = (GtkDialog *)data->open_dialog;
+        l = (GtkLabel *)data->open_file_label;
+        i = data->open_file_image;
+    }
+    else if (button == (GtkButton *)data->save_button)
+    {
+        d = (GtkDialog *)data->save_dialog;
+        l = (GtkLabel *)data->save_file_label;
+        i = data->save_file_image;
+    }
+
+    if (!d || !l || !i)
+        return FALSE;
+
+    if (gtk_dialog_run(d) == GTK_RESPONSE_DELETE_EVENT)
+    {
+        gtk_label_set_text(l, NONE_SELECTED);
+        gtk_widget_hide(i);
+
+        gtk_widget_set_sensitive(data->crypto_combo, FALSE);
+        gtk_widget_set_sensitive(data->hash_combo, FALSE);
+        gtk_widget_set_sensitive(data->key_combo, FALSE);
+        gtk_widget_set_sensitive(data->password_entry, FALSE);
+        gtk_widget_set_sensitive(data->key_file_button, FALSE);
+        gtk_widget_set_sensitive(data->encrypt_button, FALSE);
+    }
+
+    gtk_widget_hide((GtkWidget *)d);
+
+    return TRUE;
+}
+
+G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data)
+{
+    gtk_widget_hide(data->open_dialog);
+    gtk_widget_hide(data->save_dialog);
+
+    gboolean en = TRUE;
     /*
      * check the source file exists (and is a file)
      */
-    char *fname = gtk_file_chooser_get_filename((GtkFileChooser *)data->file_chooser);
-    if (!fname)
-       return FALSE;
-    /*
-     * quickly see if the file is encrypted already
-     */
-    int64_t f = open(fname, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
-    if (f < 0)
-        return FALSE;
-    char *c = NULL, *h = NULL;
-    if (file_encrypted(f))
+    char *open_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog);
+    if (open_file)
     {
-        encrypting = false;
-        auto_select_algorithms(data, c, h);
+        /*
+         * quickly see if the file is encrypted already
+         */
+        int64_t f = open(open_file, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
+        if (f > 0)
+        {
+            gtk_label_set_text((GtkLabel *)data->open_file_label, _filename_utf8(basename(open_file)));
+            gtk_widget_show(data->open_file_image);
+
+            char *c = NULL, *h = NULL;
+            if (file_encrypted(f))
+            {
+                encrypting = false;
+                auto_select_algorithms(data, c, h);
+            }
+            close(f);
+            gtk_button_set_label((GtkButton *)data->encrypt_button, encrypting ? LABEL_ENCRYPT : LABEL_DECRYPT);
+        }
+        else
+            en = FALSE;
     }
-    close(f);
-    gtk_button_set_label((GtkButton *)data->encrypt_button, encrypting ? LABEL_ENCRYPT : LABEL_DECRYPT);
+    else
+        en = FALSE;
+    g_free(open_file);
 
-    return TRUE;
-}
-
-G_MODULE_EXPORT gboolean save_dialog_callback(GtkButton *button, gtk_widgets_t *data)
-{
-    gtk_dialog_run((GtkDialog *)data->save_dialog);
-    gtk_widget_hide(data->save_dialog);
-
-    return TRUE;
-}
-
-G_MODULE_EXPORT gboolean save_dialog_cancel(GtkButton *button, gtk_widgets_t *data)
-{
-    gtk_label_set_text((GtkLabel *)data->save_file_label, "(None)");
-    gtk_widget_hide(data->save_file_image);
-
-    gtk_widget_set_sensitive(data->crypto_combo, FALSE);
-    gtk_widget_set_sensitive(data->hash_combo, FALSE);
-    gtk_widget_set_sensitive(data->key_combo, FALSE);
-
-    return TRUE;
-}
-
-G_MODULE_EXPORT gboolean save_dialog_ok(GtkButton *button, gtk_widgets_t *data)
-{
-    gtk_widget_hide(data->save_dialog);
-    gtk_widget_set_sensitive(data->crypto_combo, FALSE);
-    gtk_widget_set_sensitive(data->hash_combo, FALSE);
-    gtk_widget_set_sensitive(data->key_combo, FALSE);
-
-    char *out_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog);
+    char *save_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog);
+    if (!save_file || !strlen(save_file))
+        en = FALSE;
     /*
      * if the destination exists, it has to be a regular file
      */
-    if (!out_file || !strlen(out_file))
-        return FALSE;
-    struct stat info;
-    if (stat(out_file, &info) == 0 && !S_ISREG(info.st_mode))
-        return FALSE;
-
-    gtk_label_set_text((GtkLabel *)data->save_file_label, basename(out_file));
-    gtk_widget_show(data->save_file_image);
+    if (!save_file || !strlen(save_file))
+        en = FALSE;
+    else
+    {
+        struct stat s;
+        stat(save_file, &s);
+        if (errno == ENOENT || S_ISREG(s.st_mode))
+        {
+            gtk_label_set_text((GtkLabel *)data->save_file_label, _filename_utf8(basename(save_file)));
+            gtk_widget_show(data->save_file_image);
+        }
+        else
+            en = FALSE;
+    }
+    g_free(save_file);
 
     if (encrypting)
     {
-        gtk_widget_set_sensitive(data->crypto_combo, TRUE);
-        gtk_widget_set_sensitive(data->hash_combo, TRUE);
+        gtk_widget_set_sensitive(data->crypto_combo, en);
+        gtk_widget_set_sensitive(data->hash_combo, en);
+        if (en)
+            algorithm_combo_callback(NULL, data);
     }
-    gtk_widget_set_sensitive(data->key_combo, TRUE);
+    else
+        gtk_widget_set_sensitive(data->key_combo, en);
 
     return TRUE;
 }
@@ -168,57 +204,115 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
     return;
 }
 
-G_MODULE_EXPORT gboolean cipher_combo_callback(GtkComboBox *combo_box, gtk_widgets_t *data)
+G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_widgets_t *data)
 {
-    check_enable_encrypt_button(data);
+    int cipher = gtk_combo_box_get_active((GtkComboBox *)data->crypto_combo);
+    int hash = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
 
-    return TRUE;
-}
+    gboolean en = TRUE;
 
-G_MODULE_EXPORT gboolean hash_combo_callback(GtkComboBox *combo_box, gtk_widgets_t *data)
-{
-    check_enable_encrypt_button(data);
+    if (!cipher || !hash)
+        en = FALSE;
+
+    gtk_widget_set_sensitive(data->key_combo, en);
+    gtk_widget_set_sensitive(data->password_entry, en);
+    gtk_widget_set_sensitive(data->key_file_button, en);
+    gtk_widget_set_sensitive(data->encrypt_button, en);
+    if (en)
+        key_combo_callback(NULL, data);
 
     return TRUE;
 }
 
 G_MODULE_EXPORT gboolean key_combo_callback(GtkComboBox *combo_box, gtk_widgets_t *data)
 {
-    switch (gtk_combo_box_get_active(combo_box))
+    switch (gtk_combo_box_get_active((GtkComboBox *)data->key_combo))
     {
         case KEYFILE:
             gtk_widget_set_sensitive(data->password_entry, FALSE);
-            gtk_widget_set_sensitive(data->key_chooser, TRUE);
-            gtk_widget_show(data->key_chooser);
+            gtk_widget_set_sensitive(data->key_file_button, TRUE);
+            gtk_widget_show(data->key_file_button);
             gtk_widget_hide(data->password_entry);
+            key_dialog_okay(NULL, data);
             break;
 
         case PASSWORD:
-            gtk_widget_set_sensitive(data->key_chooser, FALSE);
+            gtk_widget_set_sensitive(data->key_file_button, FALSE);
             gtk_widget_set_sensitive(data->password_entry, TRUE);
             gtk_widget_show(data->password_entry);
-            gtk_widget_hide(data->key_chooser);
+            gtk_widget_hide(data->key_file_button);
+            password_entry_callback(NULL, data);
             break;
 
         default:
             gtk_widget_set_sensitive(data->password_entry, FALSE);
-            gtk_widget_set_sensitive(data->key_chooser, FALSE);
+            gtk_widget_set_sensitive(data->key_file_button, FALSE);
+            gtk_widget_set_sensitive(data->encrypt_button, FALSE);
     }
-    check_enable_encrypt_button(data);
 
     return TRUE;
 }
 
 G_MODULE_EXPORT gboolean password_entry_callback(GtkComboBox *password_entry, gtk_widgets_t *data)
 {
-    check_enable_encrypt_button(data);
+    char *key_data = (char *)gtk_entry_get_text((GtkEntry *)data->password_entry);
+
+    if (key_data && strlen(key_data))
+    {
+        gtk_widget_set_sensitive(data->encrypt_button, TRUE);
+        gtk_widget_grab_default(data->encrypt_button);
+    }
+    else
+        gtk_widget_set_sensitive(data->encrypt_button, FALSE);
 
     return TRUE;
 }
 
-G_MODULE_EXPORT gboolean key_chooser_callback(GtkFileChooser *file_chooser, gtk_widgets_t *data)
+G_MODULE_EXPORT gboolean key_dialog_display(GtkButton *button, gtk_widgets_t *data)
 {
-    check_enable_encrypt_button(data);
+    if (gtk_dialog_run((GtkDialog *)data->key_dialog) == GTK_RESPONSE_DELETE_EVENT)
+    {
+        gtk_label_set_text((GtkLabel *)data->key_file_label, NONE_SELECTED);
+        gtk_widget_hide(data->key_file_image);
+
+        gtk_widget_set_sensitive(data->encrypt_button, FALSE);
+    }
+
+    gtk_widget_hide(data->key_dialog);
+
+    return TRUE;
+}
+
+G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widgets_t *data)
+{
+    gboolean en = TRUE;
+
+    char *key_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog);
+    if (!key_file || !strlen(key_file))
+        en = FALSE;
+    /*
+     * if the destination exists, it has to be a regular file
+     */
+    if (!key_file || !strlen(key_file))
+        en = FALSE;
+
+    struct stat s;
+    stat(key_file, &s);
+    if (errno == ENOENT || !S_ISREG(s.st_mode))
+        en = FALSE;
+
+    gtk_label_set_text((GtkLabel *)data->key_file_label, en ? _filename_utf8(basename(key_file)) : NONE_SELECTED);
+
+    g_free(key_file);
+
+    if (en)
+        gtk_widget_show(data->key_file_image);
+    else
+        gtk_widget_hide(data->key_file_image);
+
+    gtk_widget_set_sensitive(data->encrypt_button, en);
+    if (en)
+        gtk_widget_grab_default(data->encrypt_button);
 
     return TRUE;
 }
@@ -337,11 +431,13 @@ static void *bg_thread_gui(void *n)
      */
     gtk_widgets_t *data = (gtk_widgets_t *)n;
 
-    char *fname = gtk_file_chooser_get_filename((GtkFileChooser *)data->file_chooser);
-    int64_t source = open(fname, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
+    char *open_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog);
+    int64_t source = open(open_file, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
+    g_free(open_file);
 
-    char *out_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog);
-    int64_t output = open(out_file, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY | F_WRLCK, S_IRUSR | S_IWUSR);
+    char *save_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog);
+    int64_t output = open(save_file, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY | F_WRLCK, S_IRUSR | S_IWUSR);
+    g_free(save_file);
 
     status_e status = SUCCEEDED;
     void *r = calloc(1, sizeof status);
@@ -352,7 +448,9 @@ static void *bg_thread_gui(void *n)
     {
         case KEYFILE:
             {
-                int64_t kf = open(gtk_file_chooser_get_filename((GtkFileChooser *)data->key_chooser), O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
+                char *key_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog);
+                int64_t kf = open(key_file, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
+                g_free(key_file);
                 if (kf < 0)
                 {
                     status = FAILED_OTHER;
@@ -404,6 +502,9 @@ static void *bg_thread_gui(void *n)
     close(source);
     close(output);
 
+    if (key_type == PASSWORD)
+        g_free(key.p_data);
+
     memcpy(r, &status, sizeof status);
     pthread_exit(r);
 
@@ -426,31 +527,4 @@ G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *widget, gtk_widgets_t *da
     update_config(CONF_COMPRESS, compress ? CONF_TRUE : CONF_FALSE);
 
     return TRUE;
-}
-
-static void check_enable_encrypt_button(gtk_widgets_t *data)
-{
-    int cipher = encrypting ? gtk_combo_box_get_active((GtkComboBox *)data->crypto_combo) : -1;
-    int hash = encrypting ? gtk_combo_box_get_active((GtkComboBox *)data->hash_combo) : -1;
-
-    int key = gtk_combo_box_get_active((GtkComboBox *)data->key_combo);
-    char *key_data = NULL;
-    switch (key)
-    {
-        case KEYFILE:
-            key_data = gtk_file_chooser_get_filename((GtkFileChooser *)data->key_chooser);
-            break;
-        case PASSWORD:
-            key_data = (char *)gtk_entry_get_text((GtkEntry *)data->password_entry);
-            break;
-    }
-
-    if (cipher != 0 && hash != 0 && key && key_data && strlen(key_data))
-    {
-        gtk_widget_set_sensitive(data->encrypt_button, TRUE);
-        gtk_widget_grab_default(data->encrypt_button);
-    }
-    else
-        gtk_widget_set_sensitive(data->encrypt_button, FALSE);
-    return;
 }
