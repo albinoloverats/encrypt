@@ -73,8 +73,7 @@ typedef struct gtk_widgets_t
 }
 gtk_widgets_t;
 
-G_MODULE_EXPORT gboolean open_dialog_display(GtkButton *button, gtk_widgets_t *data);
-G_MODULE_EXPORT gboolean save_dialog_display(GtkButton *button, gtk_widgets_t *data);
+G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *data);
 G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data);
 
 extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash);
