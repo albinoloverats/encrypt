@@ -40,8 +40,8 @@ install: man
 # install the pixmaps
 	 @install -c -m 644 -D -T pixmaps/encrypt.png $(PREFIX)/usr/share/pixmaps/encrypt.png
 	-@echo "installed \`pixmaps/encrypt.png' --> \`$(PREFIX)/usr/share/pixmaps/encrypt.png'" 
-	 @install -c -m 644 -D -T pixmaps/encrypt.svg $(PREFIX)/usr/share/pixmaps/encrypt.svg
-	-@echo "installed \`pixmaps/encrypt.svg' --> \`$(PREFIX)/usr/share/pixmaps/encrypt.svg'" 
+	 @install -c -m 644 -D -T pixmaps/encrypt_button.png $(PREFIX)/usr/share/pixmaps/encrypto_button.png
+	-@echo "installed \`pixmaps/encrypt_button.png' --> \`$(PREFIX)/usr/share/pixmaps/encrypto_button.png'" 
 # next encrypt.glade
 	 @install -c -m 644 -D -T utils/encrypt.glade $(PREFIX)/usr/share/encrypt/encrypt.glade
 	-@echo "installed \`utils/encrypt.glade' --> \`$(PREFIX)/usr/share/encrypt/encrypt.glade'" 
