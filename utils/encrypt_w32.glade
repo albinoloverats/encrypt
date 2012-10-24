@@ -528,7 +528,7 @@ http://www.everaldo.com/</property>
                 <property name="tooltip_text" translatable="yes">Save As ...</property>
                 <property name="use_action_appearance">False</property>
                 <property name="image_position">right</property>
-                <signal name="clicked" handler="key_dialog_display" swapped="no"/>
+                <signal name="clicked" handler="file_dialog_display" swapped="no"/>
                 <child>
                   <object class="GtkHBox" id="box3">
                     <property name="visible">True</property>
