@@ -48,16 +48,28 @@
 
 #define NONE_SELECTED "(None)"
 
+/*
+ * FIXME There has to be a way to make gtk_file_chooser_set_filename
+ * work correctly
+ */
+char *gtk_file_hack_cipher = NULL;
+char *gtk_file_hack_hash = NULL;
+
 static void *bg_thread_gui(void *n);
 
+static gboolean files = false;
 static bool encrypting = true;
 static bool compress = true;
 
 G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *data)
 {
+    /*
+     * all file selection buttons click-through here
+     */
     GtkDialog *d = NULL;
     GtkLabel *l = NULL;
     GtkWidget *i = NULL;
+    bool a = true;
 
     if (button == (GtkButton *)data->open_button)
     {
@@ -71,6 +83,13 @@ G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *d
         l = (GtkLabel *)data->save_file_label;
         i = data->save_file_image;
     }
+    else if (button == (GtkButton *)data->key_button)
+    {
+        d = (GtkDialog *)data->key_dialog;
+        l = (GtkLabel *)data->key_file_label;
+        i = data->key_file_image;
+        a = false;
+    }
 
     if (!d || !l || !i)
         return FALSE;
@@ -80,11 +99,13 @@ G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *d
         gtk_label_set_text(l, NONE_SELECTED);
         gtk_widget_hide(i);
 
-        gtk_widget_set_sensitive(data->crypto_combo, FALSE);
-        gtk_widget_set_sensitive(data->hash_combo, FALSE);
-        gtk_widget_set_sensitive(data->key_combo, FALSE);
-        gtk_widget_set_sensitive(data->password_entry, FALSE);
-        gtk_widget_set_sensitive(data->key_file_button, FALSE);
+        if (a)
+        {
+            gtk_widget_set_sensitive(data->crypto_combo, FALSE);
+            gtk_widget_set_sensitive(data->hash_combo, FALSE);
+            gtk_widget_set_sensitive(data->key_combo, FALSE);
+            gtk_widget_set_sensitive(data->key_button, FALSE);
+        }
         gtk_widget_set_sensitive(data->encrypt_button, FALSE);
     }
 
@@ -103,6 +124,8 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
      * check the source file exists (and is a file)
      */
     char *open_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog);
+    if (!open_file)
+        open_file = gtk_file_hack_cipher;
     if (open_file)
     {
         /*
@@ -131,17 +154,17 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
     g_free(open_file);
 
     char *save_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog);
-    if (!save_file || !strlen(save_file))
-        en = FALSE;
-    /*
-     * if the destination exists, it has to be a regular file
-     */
+    if (!save_file)
+        save_file = gtk_file_hack_hash;
     if (!save_file || !strlen(save_file))
         en = FALSE;
     else
     {
         struct stat s;
         stat(save_file, &s);
+        /*
+         * if the destination exists, it has to be a regular file
+         */
         if (errno == ENOENT || S_ISREG(s.st_mode))
         {
             gtk_label_set_text((GtkLabel *)data->save_file_label, _filename_utf8(basename(save_file)));
@@ -151,6 +174,8 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
             en = FALSE;
     }
     g_free(save_file);
+
+    files = en;
 
     if (encrypting)
     {
@@ -209,14 +234,14 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_wi
     int cipher = gtk_combo_box_get_active((GtkComboBox *)data->crypto_combo);
     int hash = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
 
-    gboolean en = TRUE;
+    gboolean en = files;
 
     if (!cipher || !hash)
         en = FALSE;
 
     gtk_widget_set_sensitive(data->key_combo, en);
     gtk_widget_set_sensitive(data->password_entry, en);
-    gtk_widget_set_sensitive(data->key_file_button, en);
+    gtk_widget_set_sensitive(data->key_button, en);
     gtk_widget_set_sensitive(data->encrypt_button, en);
     if (en)
         key_combo_callback(NULL, data);
@@ -230,23 +255,23 @@ G_MODULE_EXPORT gboolean key_combo_callback(GtkComboBox *combo_box, gtk_widgets_
     {
         case KEYFILE:
             gtk_widget_set_sensitive(data->password_entry, FALSE);
-            gtk_widget_set_sensitive(data->key_file_button, TRUE);
-            gtk_widget_show(data->key_file_button);
+            gtk_widget_set_sensitive(data->key_button, TRUE);
             gtk_widget_hide(data->password_entry);
+            gtk_widget_show(data->key_button);
             key_dialog_okay(NULL, data);
             break;
 
         case PASSWORD:
-            gtk_widget_set_sensitive(data->key_file_button, FALSE);
             gtk_widget_set_sensitive(data->password_entry, TRUE);
+            gtk_widget_set_sensitive(data->key_button, FALSE);
             gtk_widget_show(data->password_entry);
-            gtk_widget_hide(data->key_file_button);
+            gtk_widget_hide(data->key_button);
             password_entry_callback(NULL, data);
             break;
 
         default:
             gtk_widget_set_sensitive(data->password_entry, FALSE);
-            gtk_widget_set_sensitive(data->key_file_button, FALSE);
+            gtk_widget_set_sensitive(data->key_button, FALSE);
             gtk_widget_set_sensitive(data->encrypt_button, FALSE);
     }
 
@@ -268,31 +293,11 @@ G_MODULE_EXPORT gboolean password_entry_callback(GtkComboBox *password_entry, gt
     return TRUE;
 }
 
-G_MODULE_EXPORT gboolean key_dialog_display(GtkButton *button, gtk_widgets_t *data)
-{
-    if (gtk_dialog_run((GtkDialog *)data->key_dialog) == GTK_RESPONSE_DELETE_EVENT)
-    {
-        gtk_label_set_text((GtkLabel *)data->key_file_label, NONE_SELECTED);
-        gtk_widget_hide(data->key_file_image);
-
-        gtk_widget_set_sensitive(data->encrypt_button, FALSE);
-    }
-
-    gtk_widget_hide(data->key_dialog);
-
-    return TRUE;
-}
-
 G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widgets_t *data)
 {
     gboolean en = TRUE;
 
     char *key_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog);
-    if (!key_file || !strlen(key_file))
-        en = FALSE;
-    /*
-     * if the destination exists, it has to be a regular file
-     */
     if (!key_file || !strlen(key_file))
         en = FALSE;
 
@@ -321,7 +326,6 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
 {
     log_message(LOG_EVERYTHING, _("Show progress dialog"));
     gtk_widget_show(data->progress_dialog);
-    //gtk_main_iteration();
 
     pthread_t bgt = bg_thread_initialise(bg_thread_gui, data);
 

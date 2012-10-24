@@ -58,7 +58,7 @@ typedef struct gtk_widgets_t
     GtkWidget *hash_combo;
     GtkWidget *key_combo;
     GtkWidget *password_entry;
-    GtkWidget *key_file_button;
+    GtkWidget *key_button;
     GtkWidget *key_dialog;
     GtkWidget *key_file_label;
     GtkWidget *key_file_image;
@@ -82,7 +82,6 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_wi
 
 G_MODULE_EXPORT gboolean key_combo_callback(GtkComboBox *combo_box, gtk_widgets_t *data);
 G_MODULE_EXPORT gboolean password_entry_callback(GtkComboBox *password_entry, gtk_widgets_t *data);
-G_MODULE_EXPORT gboolean key_dialog_display(GtkButton *button, gtk_widgets_t *data);
 G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widgets_t *data);
 
 G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widgets_t *data);
@@ -94,5 +93,8 @@ G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_t *data);
 G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *widget, gtk_widgets_t *data);
 
 extern void update_status_bar(gtk_widgets_t *data, int64_t status);
+
+extern char *gtk_file_hack_cipher;
+extern char *gtk_file_hack_hash;
 
 #endif /* _GUI_H_ */

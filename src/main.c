@@ -45,6 +45,9 @@
     #include "gui.h"
 #endif
 
+extern char *gtk_file_hack_cipher;
+extern char *gtk_file_hack_hash;
+
 static void *ui_thread_cli(void *);
 
 static bool list_algorithms_hash(void);
@@ -130,7 +133,7 @@ int main(int argc, char **argv)
         CH_GET_WIDGET(builder, hash_combo, widgets);
         CH_GET_WIDGET(builder, key_combo, widgets);
         CH_GET_WIDGET(builder, password_entry, widgets);
-        CH_GET_WIDGET(builder, key_file_button, widgets);
+        CH_GET_WIDGET(builder, key_button, widgets);
         CH_GET_WIDGET(builder, key_dialog, widgets);
         CH_GET_WIDGET(builder, key_file_label, widgets);
         CH_GET_WIDGET(builder, key_file_image, widgets);
@@ -154,31 +157,18 @@ int main(int argc, char **argv)
          */
         if (args.source)
         {
-            gboolean x = gtk_file_chooser_set_filename((GtkFileChooser *)widgets->open_dialog, args.source);
-            char *f = gtk_file_chooser_get_filename((GtkFileChooser *)widgets->open_dialog);
-            log_message(LOG_DEBUG, "%s: %s", x ? "true" : "false", f);
+            char *cwd = getcwd(NULL, 0);
+            asprintf(&gtk_file_hack_cipher, "%s/%s", cwd, args.source);
+            gtk_file_chooser_set_filename((GtkFileChooser *)widgets->open_dialog, gtk_file_hack_cipher);
+            free(cwd);
         }
-#ifdef ABOVE_TODO_IS_DONE
         if (args.output)
         {
             char *cwd = getcwd(NULL, 0);
-            stat(args.output, &s);
-            char *f = NULL;
-            asprintf(&f, "%s/%s", cwd, args.output);
-            bool z = false;
-            if (S_ISREG(s.st_mode))
-                z = gtk_file_chooser_set_filename((GtkFileChooser *)widgets->save_dialog, args.output);
-            else
-            {
-                z = gtk_file_chooser_set_current_folder((GtkFileChooser *)widgets->save_dialog, dirname(f));
-                gtk_file_chooser_set_current_name((GtkFileChooser *)widgets->save_dialog, basename(f));
-            }
-            log_message(LOG_VERBOSE, "%s : %s", z ? "true" : "false", g_quark_to_string(GTK_FILE_CHOOSER_ERROR));
-            save_dialog_ok(NULL, widgets);
-            free(f);
+            asprintf(&gtk_file_hack_hash, "%s/%s", cwd, args.output);
+            gtk_file_chooser_set_filename((GtkFileChooser *)widgets->save_dialog, gtk_file_hack_hash);
             free(cwd);
         }
-#endif
 
         file_dialog_okay(NULL, widgets);
         auto_select_algorithms(widgets, args.cipher, args.hash);
