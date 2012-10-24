@@ -38,10 +38,10 @@ install: man
 	 @ln -f ${PREFIX}/usr/bin/encrypt ${PREFIX}/usr/bin/decrypt
 	-@echo "linked \`decrypt' --> \`encrypt'"
 # install the pixmaps
-	 @install -c -m 644 -D -T pixmaps/encrypt.png $(PREFIX)/usr/share/pixmaps/encrypt.png
-	-@echo "installed \`pixmaps/encrypt.png' --> \`$(PREFIX)/usr/share/pixmaps/encrypt.png'" 
 	 @install -c -m 644 -D -T pixmaps/encrypt.svg $(PREFIX)/usr/share/pixmaps/encrypt.svg
 	-@echo "installed \`pixmaps/encrypt.svg' --> \`$(PREFIX)/usr/share/pixmaps/encrypt.svg'" 
+	 @install -c -m 644 -D -T pixmaps/encrypt_button.svg $(PREFIX)/usr/share/pixmaps/encrypt_button.svg
+	-@echo "installed \`pixmaps/encrypt_button.svg' --> \`$(PREFIX)/usr/share/pixmaps/encrypt_button.svg'" 
 # next encrypt.glade
 	 @install -c -m 644 -D -T utils/encrypt.glade $(PREFIX)/usr/share/encrypt/encrypt.glade
 	-@echo "installed \`utils/encrypt.glade' --> \`$(PREFIX)/usr/share/encrypt/encrypt.glade'" 
@@ -69,7 +69,7 @@ uninstall:
 	# don't remove the magic number file (it will identify encrypted files even after encrypt is gone)
 	#@rm -fv $(PREFIX)/usr/share/file/magic/encrypt
 	@rm -fv $(PREFIX)/usr/share/pixmaps/encrypt.svg
-	@rm -fv $(PREFIX)/usr/share/pixmaps/encrypt.png
+	@rm -fv $(PREFIX)/usr/share/pixmaps/encrypt_button.svg
 	@rm -fv $(PREFIX)/usr/share/man/man1/encrypt.1a.gz
 	@rm -fv $(PREFIX)/usr/share/applications/encrypt.desktop
 	@rm -fv $(PREFIX)/usr/bin/decrypt
