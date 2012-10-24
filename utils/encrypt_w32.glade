@@ -104,7 +104,7 @@ http://www.everaldo.com/</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton" id="key_dialog_cancel">
+              <object class="GtkButton" id="key_cancel_button">
                 <property name="label">gtk-cancel</property>
                 <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
@@ -120,7 +120,7 @@ http://www.everaldo.com/</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="key_dialog_okay">
+              <object class="GtkButton" id="key_button">
                 <property name="label">gtk-open</property>
                 <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
@@ -152,8 +152,8 @@ http://www.everaldo.com/</property>
       </object>
     </child>
     <action-widgets>
-      <action-widget response="-4">key_dialog_cancel</action-widget>
-      <action-widget response="0">key_dialog_okay</action-widget>
+      <action-widget response="-4">key_cancel_button</action-widget>
+      <action-widget response="0">key_button</action-widget>
     </action-widgets>
   </object>
   <object class="GtkWindow" id="main_window">
@@ -517,7 +517,7 @@ http://www.everaldo.com/</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="key_button">
+              <object class="GtkButton" id="key_file_button">
                 <property name="use_action_appearance">False</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
@@ -528,7 +528,7 @@ http://www.everaldo.com/</property>
                 <property name="tooltip_text" translatable="yes">Save As ...</property>
                 <property name="use_action_appearance">False</property>
                 <property name="image_position">right</property>
-                <signal name="clicked" handler="file_dialog_display" swapped="no"/>
+                <signal name="clicked" handler="key_dialog_display" swapped="no"/>
                 <child>
                   <object class="GtkHBox" id="box3">
                     <property name="visible">True</property>

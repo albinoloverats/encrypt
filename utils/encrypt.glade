@@ -44,7 +44,7 @@ libgcrypt is part of GNU
 http://www.gnu.org/software/libgcrypt/</property>
     <property name="artists">The logo is part of the Crystal Icon Theme by Everaldo Coelho
 http://www.everaldo.com/</property>
-    <property name="logo">/usr/share/pixmaps/encrypt.png</property>
+    <property name="logo">/usr/share/pixmaps/encrypt.svg</property>
     <property name="license_type">gpl-3-0</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="about_dialog_vbox">
