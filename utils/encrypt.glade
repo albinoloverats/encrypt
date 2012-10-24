@@ -517,7 +517,7 @@ http://www.everaldo.com/</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="key_file_button">
+              <object class="GtkButton" id="key_button">
                 <property name="use_action_appearance">False</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
