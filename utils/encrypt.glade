@@ -72,7 +72,7 @@ http://www.everaldo.com/</property>
   <object class="GtkImage" id="go_encrypt">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">../pixmaps/encrypt_button.png</property>
+    <property name="pixbuf">/usr/share/pixmaps/encrypt_button.png</property>
   </object>
   <object class="GtkFileChooserDialog" id="key_dialog">
     <property name="width_request">640</property>
