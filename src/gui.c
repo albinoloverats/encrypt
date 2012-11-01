@@ -508,6 +508,8 @@ static void *bg_thread_gui(void *n)
 
     if (key_type == PASSWORD)
         g_free(key.p_data);
+    else
+        free(key.p_data);
 
     memcpy(r, &status, sizeof status);
     pthread_exit(r);
