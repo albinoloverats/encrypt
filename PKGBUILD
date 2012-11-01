@@ -8,7 +8,7 @@ arch=(i686 x86_64)
 url=(https://albinoloverats.net/projects/encrypt)
 license=(GPL)
 groups=()
-depends=(gtk3 libgcrypt curl xz)
+depends=(libgcrypt gtk3 curl xz)
 makedepends=(pkgconfig)
 provides=()
 conflicts=()
@@ -22,7 +22,7 @@ md5sums=()
 
 build() {
   cd ..
-  mkdir -p pkg/usr/{bin,share/{encrypt,man/man1,applications,pixmaps}} # ,locale/de/LC_MESSAGES}}
+  mkdir -p pkg/usr/{bin,share/{encrypt,applications,man/man1,pixmaps,file/magic,bash-completion/completions,zsh/functions/Completion/Unix}} # ,locale/de/LC_MESSAGES}}
   make -f Makefile all
   make -f Makefile install PREFIX=pkg
 }
