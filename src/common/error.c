@@ -29,8 +29,14 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "common/error.h"
-#include "common/logging.h"
+#ifndef __APPLE__
+    #include "common/error.h"
+    #include "common/logging.h"
+#else
+    #include "error.h"
+    #include "logging.h"
+#endif
+
 #ifdef _WIN32
     #include "common/win32_ext.h"
 #endif

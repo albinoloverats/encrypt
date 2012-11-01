@@ -26,6 +26,7 @@
 #include "common/common.h"
 #include "common/error.h"
 #include "common/logging.h"
+
 #ifdef _WIN32
     #include "common/win32_ext.h"
 #endif

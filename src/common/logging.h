@@ -1,5 +1,5 @@
 /*
- * Common code shared between projects
+ * Common code for logging messages
  * Copyright © 2009-2012, albinoloverats ~ Software Development
  * email: webmaster@albinoloverats.net
  *

@@ -1,5 +1,5 @@
 /*
- * Common code shared between projects
+ * Common code for logging messages
  * Copyright © 2009-2012, albinoloverats ~ Software Development
  * email: webmaster@albinoloverats.net
  *
@@ -28,8 +28,16 @@
 #include <string.h>
 #include <sys/types.h>
 
-#include "common/common.h"
-#include "common/logging.h"
+#ifndef __APPLE__
+    #include "common/common.h"
+    #include "common/error.h"
+    #include "common/logging.h"
+#else
+    #include "common.h"
+    #include "error.h"
+    #include "logging.h"
+#endif
+
 #ifdef _WIN32
     #include "common/win32_ext.h"
     extern char *program_invocation_short_name;
