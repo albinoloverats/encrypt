@@ -33,11 +33,11 @@ typedef struct io_params_t
 io_params_t;
 
 extern int lzma_sync(int64_t f, io_params_t *c);
-extern int lzma_write(int64_t f, const void * const restrict d, size_t l, io_params_t *c);
-extern int lzma_read(int64_t f, void * const d, size_t l, io_params_t *c);
+extern ssize_t lzma_write(int64_t f, const void * const restrict d, size_t l, io_params_t *c);
+extern ssize_t lzma_read(int64_t f, void * const d, size_t l, io_params_t *c);
 
 extern int enc_sync(int64_t f, io_params_t *c);
-extern int enc_write(int64_t f, const void * const restrict d, size_t l, io_params_t *c);
-extern int enc_read(int64_t f, void * const d, size_t l, io_params_t *c);
+extern ssize_t enc_write(int64_t f, const void * const restrict d, size_t l, io_params_t *c);
+extern ssize_t enc_read(int64_t f, void * const d, size_t l, io_params_t *c);
 
 #endif /* _IO_H_ */

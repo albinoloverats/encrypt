@@ -41,7 +41,7 @@ typedef enum eof_e
 }
 eof_e;
 
-extern int lzma_write(int64_t f, const void * const restrict d, size_t l, io_params_t *c)
+extern ssize_t lzma_write(int64_t f, const void * const restrict d, size_t l, io_params_t *c)
 {
     lzma_action x = LZMA_RUN;
     if (!d && !l)
@@ -78,7 +78,7 @@ extern int lzma_write(int64_t f, const void * const restrict d, size_t l, io_par
     return l;
 }
 
-extern int lzma_read(int64_t f, void * const d, size_t l, io_params_t *c)
+extern ssize_t lzma_read(int64_t f, void * const d, size_t l, io_params_t *c)
 {
     lzma_action a = LZMA_RUN;
     static eof_e eof = EOF_NO;
@@ -126,7 +126,7 @@ extern int lzma_sync(int64_t f, io_params_t *c)
     return 0;
 }
 
-extern int enc_write(int64_t f, const void * const restrict d, size_t l, io_params_t *c)
+extern ssize_t enc_write(int64_t f, const void * const restrict d, size_t l, io_params_t *c)
 {
     static uint8_t *stream = NULL;
     static size_t block = 0;
@@ -146,7 +146,7 @@ extern int enc_write(int64_t f, const void * const restrict d, size_t l, io_para
         gcry_create_nonce(stream + offset[0], remainder[1]);
         gcry_cipher_encrypt(c->cipher, stream, block, NULL, 0);
 #endif
-        int e = write(f, stream, block);
+        ssize_t e = write(f, stream, block);
         fsync(f);
         block = 0;
         free(stream);
@@ -168,7 +168,7 @@ extern int enc_write(int64_t f, const void * const restrict d, size_t l, io_para
 #ifndef __DEBUG__
         gcry_cipher_encrypt(c->cipher, stream, block, NULL, 0);
 #endif
-        int e = EXIT_SUCCESS;
+        ssize_t e = EXIT_SUCCESS;
         if ((e = write(f, stream, block)) < 0)
             return e;
         offset[0] = 0;
@@ -180,7 +180,7 @@ extern int enc_write(int64_t f, const void * const restrict d, size_t l, io_para
     return l;
 }
 
-extern int enc_read(int64_t f, void * const d, size_t l, io_params_t *c)
+extern ssize_t enc_read(int64_t f, void * const d, size_t l, io_params_t *c)
 {
     static uint8_t *stream = NULL;
     static size_t block = 0;
@@ -215,7 +215,7 @@ extern int enc_read(int64_t f, void * const d, size_t l, io_params_t *c)
         offset[1] -= offset[0];
         offset[0] = 0;
 
-        int e = EXIT_SUCCESS;
+        ssize_t e = EXIT_SUCCESS;
         if ((e = read(f, stream, block)) < 0)
             return e;
 #ifndef __DEBUG__
