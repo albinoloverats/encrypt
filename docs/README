@@ -1,86 +1,26 @@
-encrypt - 2012.-1 (pre-release)                            18th Oct 2012
+encrypt - 2012.11                                          25th Oct 2012
 
-A few notes before release:
- * Data is now compressed before encryption
-   - TODO: Don't compress if the data is already compressed
- * Update/Check compatibility on Windows/Mac OS X
-   - Windows GUI is being a pain in the arse
-   - Mac OS X has the same dependencies as the Linux version; all can be
-     installed using Homebrew (a native OS X port port is in the works)
- * There is now an user specific rc file which allows users to toggle on
-   or off compression by default as well as specify a default cipher and
-   hash to use if none are given on the command line
+A little over a year since the previous release but we're back with many
+significant changes:  first and foremost is the capability to compress a
+file (or data stream) before it is encrypted.  Before you ask, yes we're
+intending to support encrypting multiple files in an upcoming (maybe the
+next) version.
+
+The other major improvement is the ability to set default algorithms for
+both the key hashing and encryption itself.  On Unix-like systems create
+the file ~/.encryptrc or copy the example from utils/_encryptrc.  If you
+are running MS Windows,  the file is %Program Files%\encrypt\_encryptrc.
+
+The UI of the desktop edition has also been simplified;  the output file
+is selected as you would expect, instead of having to select a directory
+and then type in the file name.  In addition, there is a new menu option
+"Options". Currently the only option is to toggle compression on or off.
+
+Finally, looking to the future again, we've started working on a port of
+encrypt to Apple's OS X (native obviously). However, for now encrypt can
+be built on OS X using the OS X specific  Makefile.osx  in much the same
+way as on Linux.  You will need to have GTK, its dependencies and all of
+their development file too.  We got encrypt running with  some help from
+Homebrew and the default X server.
 
 The encrypt Development Team
-
-
-Copyright/Licencing:
-  All components of encrypt are freely available under one free software
-  licence or another. The cryptographic libraries (glibc and gnu-crypto)
-  are both available  under the terms of the GNU General Public License;
-  GTK and  GDK are available  under the terms of the  GNU Lesser General
-  Public License.  The Android File Dialog is available under the  terms
-  of the FreeBSD License.
-
-  The icon  used by  encrypt is a modification  taken  from  the Crystal
-  Clear icon set,  which makes  it available  under the terms of the GNU
-  Lesser General Public License.
-
-  Copies of all of the above licences should have been distributed along
-  with encrypt, in source or binary form.
-
-
-Prerequisites:
- * Desktop implementation:
-   - GTK (and all of its requirements: GDK/Cairo/etc)---version 2.24 or
-     later---version 3 is recommended (and available on most/some Linux
-     and Mac OS X using Homebrew)
-   - libgcrypt cryptographic library
-   - pthread library
-   - liblzma
-   - libcurl
-
- * Android implementation: (all provided)
-   - gnu-crypto.jar
-   - xz-1.0.jar
-   - Android File Dialog - http://code.google.com/p/android-file-dialog/
-
-
-Build/Installation instructions:
-  For most,  installing encrypt will pull in all the required libraries,
-  either  through your systems  package management system,  or if you're
-  on  MS Windows,  the  installer  includes all  the  necessary  runtime
-  libraries.  If you  intend to  build from source  you will require the
-  development packages too.
-
-  On GNU/Linux Systems:
-    Simply:
-      $ make -f Makefile
-      # make -f Makefile install
-
-    To build with the GTK GUI:
-      $ make -f Makefile gui
-      $ make -f Makefile install
-
-    Eventually, you may need the following:
-      $ make -f Makefile clean
-      $ make -f Makefile distclean
-      # make -f Makefile uninstall
-
-  On MS Systems:
-    It's all done for you  (Using Dev-C++)---if you wish to compile from
-    source  yourself,  this shouldn't  be too  much  of a  problem using
-    Dev-C++ (just ask if you need help). The NSIS script will then allow
-    you to  build the installer  (or you can just  copy the  binaries to
-    wherever and go from there).
-
-  On Mac OS X:
-    For now you'll need Homebrew: http://mxcl.github.com/homebrew/
-    As well as GTK and all of its dependencies (a proper OS X port is in
-    the works but will have to fit around the current GUI code; which is
-    hardcoded to use GTK).  The build instructions are the same as those
-    for GNU/Linux, although you'll have to use the Makefile.macosx.
-
-  For Android:
-    Import the Eclipse/Android project into  Eclipse and build using the
-    standard Android development tools.
