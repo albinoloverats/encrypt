@@ -13,6 +13,8 @@ GUIFLAGS = -DBUILD_GUI `pkg-config --cflags gtk+-3.0 gmodule-2.0`
 LIBS     = `libgcrypt-config --libs` -lpthread -lcurl -llzma
 GUILIBS  = `pkg-config --libs gtk+-3.0 gmodule-2.0`
 
+all: gui language man
+
 cli:
 	@$(CC) $(CFLAGS) $(CPPFLAGS) $(SOURCE) $(COMMON) $(LIBS) -o $(APP)
 	@echo "built \`$(SOURCE) $(COMMON)' --> \`$(APP)'"
@@ -20,8 +22,6 @@ cli:
 gui:
 	@$(CC) $(CFLAGS) $(CPPFLAGS) $(GUIFLAGS) $(SOURCE) $(COMMON) $(GUI) $(LIBS) $(GUILIBS) -o $(APP)
 	@echo "built \`$(SOURCE) $(COMMON) $(GUI)' --> \`$(APP)'"
-
-all: gui language man
 
 language:
 	@echo "TODO - fully translate all strings"
@@ -51,11 +51,11 @@ install: man
 # and then the desktop file
 	 @install -c -m 644 -D -T utils/encrypt.desktop $(PREFIX)/usr/share/applications/encrypt.desktop
 	-@echo "installed \`utils/encrypt.desktop' --> \`$(PREFIX)/usr/share/applications/encrypt.desktop'"
-# and the magic pattern
-	 @install -c -m 644 -D -T utils/magic $(PREFIX)/usr/share/file/magic/encrypt
-	-@echo "installed \`utils/magic' --> \`$(PREFIX)/usr/share/file/magic/encrypt'"
-	 @file -C && mv magic.mgc /usr/share/file/magic.mgc
-	-@echo "compiled updated magic pattern file"
+## and the magic pattern
+#	 @install -c -m 644 -D -T utils/magic $(PREFIX)/usr/share/file/magic/encrypt
+#	-@echo "installed \`utils/magic' --> \`$(PREFIX)/usr/share/file/magic/encrypt'"
+#	 @file -C && mv magic.mgc /usr/share/file/magic.mgc
+#	-@echo "compiled updated magic pattern file"
 # and finally the auto-complete scripts
 	 @install -c -m 755 -D -T utils/autocomplete.bash $(PREFIX)/usr/share/bash-completion/completions/encrypt
 	-@echo "installed \`utils/autocomplete.bash' --> \`$(PREFIX)/usr/share/bash-completion/completions/encrypt'"
