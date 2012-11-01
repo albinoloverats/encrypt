@@ -36,7 +36,6 @@
     #include "common/win32_ext.h"
 #endif
 
-#include "init.h"
 #include "encrypt.h"
 #include "io.h"
 
