@@ -242,7 +242,7 @@
 				<nil key="NSViewClass"/>
 				<nil key="NSUserInterfaceItemIdentifier"/>
 				<object class="NSView" key="NSWindowView" id="439893737">
-					<nil key="NSNextResponder"/>
+					<reference key="NSNextResponder"/>
 					<int key="NSvFlags">45</int>
 					<array class="NSMutableArray" key="NSSubviews">
 						<object class="AMPathPopUpButton" id="383303525">
@@ -254,13 +254,14 @@
 							</set>
 							<string key="NSFrame">{{73, 315}, {174, 26}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="82871881"/>
 							<int key="NSViewLayerContentsRedrawPolicy">2</int>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="_AMVariablePopUpButtonCell" key="NSCell" id="121886443">
 								<int key="NSCellFlags">-2076049856</int>
-								<int key="NSCellFlags2">33556480</int>
+								<int key="NSCellFlags2">2048</int>
 								<object class="NSFont" key="NSSupport" id="572825351">
 									<string key="NSName">LucidaGrande</string>
 									<double key="NSSize">13</double>
@@ -296,6 +297,7 @@
 									<array class="NSMutableArray" key="NSMenuItems"/>
 									<bool key="NSNoAutoenable">YES</bool>
 								</object>
+								<int key="NSSelectedIndex">-1</int>
 								<int key="NSPreferredEdge">3</int>
 								<bool key="NSUsesItemFromMenu">YES</bool>
 								<int key="NSArrowPosition">1</int>
@@ -320,6 +322,7 @@
 							</set>
 							<string key="NSFrame">{{73, 285}, {174, 26}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="213973897"/>
 							<int key="NSViewLayerContentsRedrawPolicy">2</int>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
@@ -354,6 +357,7 @@
 									<array class="NSMutableArray" key="NSMenuItems"/>
 									<bool key="NSNoAutoenable">YES</bool>
 								</object>
+								<int key="NSSelectedIndex">-1</int>
 								<int key="NSPreferredEdge">3</int>
 								<bool key="NSUsesItemFromMenu">YES</bool>
 								<int key="NSArrowPosition">1</int>
@@ -374,6 +378,7 @@
 							<int key="NSvFlags">301</int>
 							<string key="NSFrame">{{73, 255}, {174, 26}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="225905324"/>
 							<int key="NSViewLayerContentsRedrawPolicy">2</int>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
@@ -422,6 +427,7 @@
 							<int key="NSvFlags">301</int>
 							<string key="NSFrame">{{73, 225}, {174, 26}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="249065210"/>
 							<int key="NSViewLayerContentsRedrawPolicy">2</int>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
@@ -470,6 +476,7 @@
 							<int key="NSvFlags">301</int>
 							<string key="NSFrame">{{73, 195}, {174, 26}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="295516593"/>
 							<int key="NSViewLayerContentsRedrawPolicy">2</int>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
@@ -544,6 +551,7 @@
 							</set>
 							<string key="NSFrame">{{73, 169}, {174, 22}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="1054957314"/>
 							<int key="NSViewLayerContentsRedrawPolicy">2</int>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
@@ -578,6 +586,7 @@
 									<string key="NSTitle">OtherViews</string>
 									<array class="NSMutableArray" key="NSMenuItems"/>
 								</object>
+								<int key="NSSelectedIndex">-1</int>
 								<int key="NSPreferredEdge">3</int>
 								<bool key="NSUsesItemFromMenu">YES</bool>
 								<bool key="NSAltersState">YES</bool>
@@ -599,6 +608,7 @@
 							<int key="NSvFlags">301</int>
 							<string key="NSFrame">{{76, 170}, {168, 22}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="830942972"/>
 							<int key="NSViewLayerContentsRedrawPolicy">2</int>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
@@ -639,6 +649,7 @@
 							<int key="NSvFlags">301</int>
 							<string key="NSFrame">{{70, 134}, {180, 32}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="1003282134"/>
 							<int key="NSViewLayerContentsRedrawPolicy">2</int>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
@@ -667,6 +678,8 @@
 							<int key="NSvFlags">268</int>
 							<string key="NSFrameSize">{320, 22}</string>
 							<reference key="NSSuperview" ref="439893737"/>
+							<reference key="NSWindow"/>
+							<reference key="NSNextKeyView"/>
 							<int key="NSViewLayerContentsRedrawPolicy">2</int>
 							<string key="NSReuseIdentifierKey">_NS:1535</string>
 							<bool key="NSEnabled">YES</bool>
@@ -697,6 +710,8 @@
 						</object>
 					</array>
 					<string key="NSFrameSize">{320, 480}</string>
+					<reference key="NSSuperview"/>
+					<reference key="NSWindow"/>
 					<reference key="NSNextKeyView" ref="383303525"/>
 					<bool key="NSViewIsLayerTreeHost">YES</bool>
 					<int key="NSViewLayerContentsRedrawPolicy">2</int>
@@ -1337,7 +1352,6 @@
 						<reference key="object" ref="439893737"/>
 						<array class="NSMutableArray" key="children">
 							<reference ref="82871881"/>
-							<reference ref="213973897"/>
 							<reference ref="225905324"/>
 							<reference ref="295516593"/>
 							<reference ref="1054957314"/>
@@ -1345,6 +1359,7 @@
 							<reference ref="249065210"/>
 							<reference ref="383303525"/>
 							<reference ref="1003282134"/>
+							<reference ref="213973897"/>
 						</array>
 						<reference key="parent" ref="972006081"/>
 					</object>
@@ -1861,16 +1876,22 @@
 					<string key="superclassName">NSObject</string>
 					<dictionary class="NSMutableDictionary" key="actions">
 						<string key="cancelButtonPushed:">id</string>
+						<string key="cipherHashSelected:">id</string>
 						<string key="closeButtonPushed:">id</string>
 						<string key="compressionToggle:">id</string>
 						<string key="encryptButtonPushed:">id</string>
 						<string key="ioFileChoosen:">id</string>
 						<string key="keyFileChoosen:">id</string>
+						<string key="keySourceSelected:">id</string>
 						<string key="passwordFieldUpdated:">id</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
 						<object class="IBActionInfo" key="cancelButtonPushed:">
 							<string key="name">cancelButtonPushed:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="cipherHashSelected:">
+							<string key="name">cipherHashSelected:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="closeButtonPushed:">
@@ -1891,6 +1912,10 @@
 						</object>
 						<object class="IBActionInfo" key="keyFileChoosen:">
 							<string key="name">keyFileChoosen:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="keySourceSelected:">
+							<string key="name">keySourceSelected:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="passwordFieldUpdated:">
