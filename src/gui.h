@@ -27,27 +27,15 @@
 #define CH_GET_OBJECT( builder, name, type, data )  data->name = type( gtk_builder_get_object( builder, #name ) )
 #define CH_GET_WIDGET( builder, name, data )        CH_GET_OBJECT( builder, name, GTK_WIDGET, data )
 
-#ifdef _WIN32
-    #define GLADE_UI_FILE "utils\\encrypt_w32.glade"
-#elif defined __APPLE__
-    #if defined __DEBUG__ || defined __DEBUG_GUI__
-        #define GLADE_UI_FILE "utils/encrypt_osx.glade"
-    #else
-        #define GLADE_UI_FILE "/usr/share/encrypt/" "encrypt_osx.glade"
-    #endif
-#else
+#ifndef _WIN32
     #if defined __DEBUG__ || defined __DEBUG_GUI__
         #define GLADE_UI_FILE "utils/encrypt.glade"
     #else
         #define GLADE_UI_FILE "/usr/share/encrypt/" "encrypt.glade"
     #endif
+#else
+    #define GLADE_UI_FILE "utils\\encrypt_w32.glade"
 #endif
-
-#define LABEL_ENCRYPT "Encrypt"
-#define LABEL_DECRYPT "Decrypt"
-
-#define STATUS_NEW_VERSION "A new version of encrypt is available!"
-#define STATUS_READY "Ready"
 
 typedef struct gtk_widgets_t
 {

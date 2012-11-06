@@ -88,7 +88,7 @@ typedef enum status_e
 }
 status_e;
 
-extern char *FAILED_MESSAGE[];
+char *FAILED_MESSAGE[];
 
 typedef enum file_info_e
 {
@@ -108,6 +108,13 @@ extern char **get_algorithms_crypt(void);
                                                      __builtin_types_compatible_p(__typeof__( A ), int64_t) * 2, (intptr_t)A, NULL)
 #define file_encrypted_2(A, B)    file_encrypted_aux(2, (intptr_t)A, B)
 #define file_encrypted(...) CONCAT(file_encrypted_, IS_ENCRYPTED_ARGS_COUNT(__VA_ARGS__))(__VA_ARGS__)
+
+#define LABEL_ENCRYPT "Encrypt"
+#define LABEL_DECRYPT "Decrypt"
+
+#define STATUS_NEW_VERSION "A new version of encrypt is available!"
+#define STATUS_READY "Ready"
+#define STATUS_DONE "Done"
 
 /*!
  * \brief         Check whether the file/stream encrypted

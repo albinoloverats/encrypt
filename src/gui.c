@@ -48,6 +48,8 @@
 
 #define NONE_SELECTED "(None)"
 
+extern char *FAILED_MESSAGE[];
+
 /*
  * FIXME There has to be a way to make gtk_file_chooser_set_filename
  * work correctly
@@ -376,19 +378,13 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
     update_status_bar(data, status);
 
     char *msg;
-    switch (status)
+    if (status == SUCCEEDED)
     {
-        case SUCCEEDED:
-            gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress_bar, 1.0);
-            msg = "Done";
-            break;
-        case CANCELLED:
-            msg = "Cancelled";
-            break;
-        default:
-            msg = "Failed";
-            break;
+        gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress_bar, 1.0);
+        msg = STATUS_DONE;
     }
+    else
+        msg = FAILED_MESSAGE[status];
     gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar, msg);;
 
     gtk_widget_set_sensitive(data->progress_cancel_button, FALSE);

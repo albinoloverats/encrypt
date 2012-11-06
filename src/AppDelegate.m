@@ -28,6 +28,8 @@
 
 @implementation AppDelegate
 
+extern char *FAILED_MESSAGE[];
+
 static void *bg_thread_gui(void *arg);
 
 static bool encrypted = true;
@@ -86,14 +88,14 @@ static status_e status = PREPROCESSING;
     {
         const char *t = [[_sourceFileChooser itemTitleAtIndex:k] UTF8String];
         
-        if (!strcmp(t, "Select File…"))
+        if (!strcmp(t, SELECT_FILE))
             continue;
         else if (z && !strcmp(t, ""))
         {
             z = false;
             continue;
         }
-        else if (!strcmp(t, "Other…"))
+        else if (!strcmp(t, SELECT_OTHER))
             continue;
         [_sourceFileChooser removeItemAtIndex:k];
         k--;
@@ -105,17 +107,17 @@ static status_e status = PREPROCESSING;
     {
         const char *t = [[_outputFileChooser itemTitleAtIndex:k] UTF8String];
 
-        if (!strcmp(t, "Select File…"))
+        if (!strcmp(t, SELECT_FILE))
             continue;
         else if (z && !strcmp(t, ""))
         {
             z = false;
             continue;
         }
-        else if (!strcmp(t, "New…"))
+        else if (!strcmp(t, SELECT_NEW))
             continue;
 
-        else if (!strcmp(t, "Other…"))
+        else if (!strcmp(t, SELECT_OTHER))
             continue;
         [_outputFileChooser removeItemAtIndex:k];
         k--;
@@ -127,20 +129,20 @@ static status_e status = PREPROCESSING;
     {
         const char *t = [[_keyFileChooser itemTitleAtIndex:k] UTF8String];
 
-        if (!strcmp(t, "Select Key…"))
+        if (!strcmp(t, SELECT_KEY))
             continue;
         else if (z && !strcmp(t, ""))
         {
             z = false;
             continue;
         }
-        else if (!strcmp(t, "Other…"))
+        else if (!strcmp(t, SELECT_OTHER))
             continue;
         [_keyFileChooser removeItemAtIndex:k];
         k--;
     }
 
-    [_statusBar setStringValue:@"Ready"];
+    [_statusBar setStringValue:@STATUS_READY];
 
     return;
 }
@@ -173,7 +175,7 @@ static status_e status = PREPROCESSING;
     if (f < 0)
         goto clean_up;
     encrypted = file_encrypted(f);
-    [_encryptButton setTitle: encrypted ? @"Decrypt" : @"Encrypt"];
+    [_encryptButton setTitle: encrypted ? @LABEL_DECRYPT : @LABEL_ENCRYPT];
     close(f);
 
     if (!save_link || !strlen(save_link))
@@ -203,8 +205,8 @@ clean_up:
 
 - (IBAction)cipherHashSelected:(id)pId
 {
-    if (([[[_cipherCombo selectedItem] title] isEqualTo:@"Select Cipher Algorithm"])
-        || ([[[_hashCombo selectedItem] title] isEqualTo:@"Select Hash Algorithm"]))
+    if (([[[_cipherCombo selectedItem] title] isEqualTo:@SELECT_CIPHER])
+        || ([[[_hashCombo selectedItem] title] isEqualTo:@SELECT_HASH]))
     {
         // Unselected either cipher/hash, disable all options below
         [_keyCombo setEnabled:(FALSE)];
@@ -224,9 +226,9 @@ clean_up:
     Boolean k = FALSE;
     Boolean p = FALSE;
     Boolean h = TRUE;
-    if ([[[_keyCombo selectedItem] title] isEqualToString:@"Key File"])
+    if ([[[_keyCombo selectedItem] title] isEqualToString:@KEY_FILE])
         k = TRUE, h = FALSE;
-    else if([[[_keyCombo selectedItem] title] isEqualToString:@"Passphrase"])
+    else if([[[_keyCombo selectedItem] title] isEqualToString:@PASSPHRASE])
         p = TRUE, h = FALSE;
     // Enable/disable as necessary; show/hide too (keep most recent visible)
     [_keyFileChooser setEnabled:(k)];
@@ -244,7 +246,7 @@ clean_up:
 
 - (IBAction)keyFileChoosen:(id)pId
 {
-    const char *key_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@"sourceFile"] UTF8String];
+    const char *key_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@SOURCE_FILE] UTF8String];
     BOOL en = FALSE;
 
     if (!key_link || !strlen(key_link))
@@ -302,19 +304,13 @@ clean_up:
 
     char *msg = NULL;
 
-    switch (status)
+    if (status == SUCCEEDED)
     {
-        case SUCCEEDED:
-            [_progress setDoubleValue:100.0];
-            msg = "Done";
-            break;
-        case CANCELLED:
-            msg = "Cancelled";
-            break;
-        default:
-            msg = "Failed";
-            break;
+        [_progress setDoubleValue:100.0];
+        msg = STATUS_DONE;
     }
+    else
+        msg = FAILED_MESSAGE[status];
 
     [_statusBar setStringValue:[NSString stringWithUTF8String:msg]];
     [_closeButton setHidden:FALSE];
@@ -326,8 +322,8 @@ clean_up:
     /*
      * open files
      */
-    const char *open_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@"sourceFile"] UTF8String];
-    const char *save_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@"outputFile"] UTF8String];
+    const char *open_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@SOURCE_FILE] UTF8String];
+    const char *save_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@OUTPUT_FILE] UTF8String];
 
     char *open_file = NULL;
     if (open_link[0] == '~')
@@ -351,9 +347,9 @@ clean_up:
      * get raw key data
      */
     raw_key_t key = {NULL, 0, NULL, 0};
-    if ([[[_keyCombo selectedItem] title] isEqualToString:@"Key File"])
+    if ([[[_keyCombo selectedItem] title] isEqualToString:@KEY_FILE])
     {
-        const char *key_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@"sourceFile"] UTF8String];
+        const char *key_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@SOURCE_FILE] UTF8String];
 
         char *key_file = NULL;
         if (key_link[0] == '~')

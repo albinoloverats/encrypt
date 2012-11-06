@@ -23,6 +23,20 @@
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
+#define SELECT_FILE "Select File…"
+#define SELECT_NEW "New…"
+#define SELECT_OTHER "Other…"
+#define SELECT_KEY "Select Key…"
+
+#define KEY_FILE "Key File"
+#define PASSPHRASE "Passphrase"
+
+#define SELECT_CIPHER "Select Cipher Algorithm"
+#define SELECT_HASH "Select Hash Algorithm"
+
+#define SOURCE_FILE "sourceFile"
+#define OUTPUT_FILE "outputFile"
+
 /*
  * main window
  */

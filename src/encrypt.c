@@ -42,7 +42,6 @@
 
 static void init_gcrypt_library(void);
 
-
 static int get_algorithm_hash(const char * const restrict n);
 static int get_algorithm_crypt(const char * const restrict n);
 
@@ -51,7 +50,6 @@ static int algorithm_compare(const void *a, const void *b);
 static char *get_name_algorithm_hash(int a);
 static char *get_name_algorithm_crypt(int a);
 
-
 static char *correct_sha1(const char * const restrict n);
 static char *correct_tiger192(const char * const restrict n);
 static char *correct_aes_rijndael(const char * const restrict n);
@@ -59,7 +57,6 @@ static char *correct_blowfish128(const char * const restrict n);
 static char *correct_twofish256(const char * const restrict n);
 
 static bool algorithm_is_duplicate(const char * const restrict n);
-
 
 static bool lib_init = false;
 static uint64_t decrypted_size = 0;
@@ -285,7 +282,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
      * progress
      */
     l1 = 2;
-    int (*write_func)(int64_t, const void * const restrict, size_t, io_params_t *) = enc_write;
+    ssize_t (*write_func)(int64_t, const void * const restrict, size_t, io_params_t *) = enc_write;
     int (*sync_func)(int64_t, io_params_t *) = enc_sync;
     if (e.compressed)
     {
@@ -507,7 +504,7 @@ extern status_e main_decrypt(int64_t f, int64_t g, encrypt_t e)
      */
     enc_read(f, &l1, sizeof l1, &io_params);
     uint64_t block_size = 0;
-    int (*read_func)(int64_t, void * const, size_t, io_params_t *) = enc_read;
+    ssize_t (*read_func)(int64_t, void * const, size_t, io_params_t *) = enc_read;
     for (int i = 0; i < l1; i++)
     {
         uint8_t tag = 0;
