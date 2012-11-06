@@ -7,13 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2E96E2CD1641294F00C50460 /* libgcrypt.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E96E2CB1641294F00C50460 /* libgcrypt.11.dylib */; };
-		2E96E2CE1641294F00C50460 /* libgpg-error.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E96E2CC1641294F00C50460 /* libgpg-error.0.dylib */; };
 		2E96E2D9164129B200C50460 /* error.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E96E2D1164129B200C50460 /* error.c */; };
 		2E96E2DA164129B200C50460 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E96E2D3164129B200C50460 /* logging.c */; };
 		2E96E2DB164129B200C50460 /* encrypt.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E96E2D5164129B200C50460 /* encrypt.c */; };
 		2E96E2DC164129B200C50460 /* io.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E96E2D7164129B200C50460 /* io.c */; };
-		2E96E2E516412DE600C50460 /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E96E2E416412DE600C50460 /* liblzma.5.dylib */; };
 		2E9BB30D1642C7BC00FF52DB /* Encrypt-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2EA92F67161DDC58008DFF9B /* Encrypt-Info.plist */; };
 		2EA92F60161DDC58008DFF9B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2EA92F5F161DDC58008DFF9B /* Cocoa.framework */; };
 		2EA92F6A161DDC58008DFF9B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2EA92F68161DDC58008DFF9B /* InfoPlist.strings */; };
@@ -26,16 +23,19 @@
 		2EAE3D691642A6D6009C573A /* liblzma.5.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 2E96E2E416412DE600C50460 /* liblzma.5.dylib */; };
 		2EAE3D6A1642A6D6009C573A /* libgcrypt.11.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 2E96E2CB1641294F00C50460 /* libgcrypt.11.dylib */; };
 		2EAE3D6B1642A6D6009C573A /* libgpg-error.0.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 2E96E2CC1641294F00C50460 /* libgpg-error.0.dylib */; };
+		2ECC095316491B4C00CFF47B /* libgcrypt.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E96E2CB1641294F00C50460 /* libgcrypt.11.dylib */; };
+		2ECC095416491B4C00CFF47B /* libgpg-error.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E96E2CC1641294F00C50460 /* libgpg-error.0.dylib */; };
+		2ECC095516491B4C00CFF47B /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E96E2E416412DE600C50460 /* liblzma.5.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		2E96E2CB1641294F00C50460 /* libgcrypt.11.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgcrypt.11.dylib; path = /usr/local/Cellar/libgcrypt/1.5.0/lib/libgcrypt.11.dylib; sourceTree = "<absolute>"; };
-		2E96E2CC1641294F00C50460 /* libgpg-error.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libgpg-error.0.dylib"; path = "/usr/local/Cellar/libgpg-error/1.10/lib/libgpg-error.0.dylib"; sourceTree = "<absolute>"; };
+		2E96E2CB1641294F00C50460 /* libgcrypt.11.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libgcrypt.11.dylib; sourceTree = "<group>"; };
+		2E96E2CC1641294F00C50460 /* libgpg-error.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = "libgpg-error.0.dylib"; sourceTree = "<group>"; };
 		2E96E2D1164129B200C50460 /* error.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = error.c; sourceTree = "<group>"; };
 		2E96E2D3164129B200C50460 /* logging.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = logging.c; sourceTree = "<group>"; };
 		2E96E2D5164129B200C50460 /* encrypt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = encrypt.c; sourceTree = "<group>"; };
 		2E96E2D7164129B200C50460 /* io.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = io.c; sourceTree = "<group>"; };
-		2E96E2E416412DE600C50460 /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = /usr/local/Cellar/xz/5.0.4/lib/liblzma.5.dylib; sourceTree = "<absolute>"; };
+		2E96E2E416412DE600C50460 /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = liblzma.5.dylib; sourceTree = "<group>"; };
 		2E9BB30E1642CC1600FF52DB /* encrypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = encrypt.h; sourceTree = "<group>"; };
 		2E9BB30F1642CC1600FF52DB /* io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = io.h; sourceTree = "<group>"; };
 		2E9BB3101642CC2700FF52DB /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
@@ -64,9 +64,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2E96E2E516412DE600C50460 /* liblzma.5.dylib in Frameworks */,
-				2E96E2CD1641294F00C50460 /* libgcrypt.11.dylib in Frameworks */,
-				2E96E2CE1641294F00C50460 /* libgpg-error.0.dylib in Frameworks */,
+				2ECC095316491B4C00CFF47B /* libgcrypt.11.dylib in Frameworks */,
+				2ECC095416491B4C00CFF47B /* libgpg-error.0.dylib in Frameworks */,
+				2ECC095516491B4C00CFF47B /* liblzma.5.dylib in Frameworks */,
 				2EA92F7D161DDCEF008DFF9B /* Automator.framework in Frameworks */,
 				2EA92F60161DDC58008DFF9B /* Cocoa.framework in Frameworks */,
 			);
@@ -101,7 +101,7 @@
 				2E9BB30C1642C62A00FF52DB /* po */,
 				2E9BB3081642C47C00FF52DB /* pixmaps */,
 				2EA92F65161DDC58008DFF9B /* src */,
-				2EA92F5E161DDC58008DFF9B /* Frameworks */,
+				2EA92F5E161DDC58008DFF9B /* libs */,
 				2EA92F5C161DDC58008DFF9B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -114,7 +114,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		2EA92F5E161DDC58008DFF9B /* Frameworks */ = {
+		2EA92F5E161DDC58008DFF9B /* libs */ = {
 			isa = PBXGroup;
 			children = (
 				2E96E2E416412DE600C50460 /* liblzma.5.dylib */,
@@ -124,7 +124,7 @@
 				2EA92F5F161DDC58008DFF9B /* Cocoa.framework */,
 				2EA92F61161DDC58008DFF9B /* Other Frameworks */,
 			);
-			name = Frameworks;
+			path = libs;
 			sourceTree = "<group>";
 		};
 		2EA92F61161DDC58008DFF9B /* Other Frameworks */ = {
@@ -304,10 +304,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				INFOPLIST_FILE = "Encrypt-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					/usr/local/lib,
-					/usr/local/Cellar/xz/5.0.4/lib,
-				);
+				LIBRARY_SEARCH_PATHS = libs;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx10.7;
@@ -345,10 +342,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				INFOPLIST_FILE = "Encrypt-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					/usr/local/lib,
-					/usr/local/Cellar/xz/5.0.4/lib,
-				);
+				LIBRARY_SEARCH_PATHS = libs;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx10.7;
@@ -369,8 +363,7 @@
 				INFOPLIST_FILE = "Encrypt-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/lib,
-					/usr/local/Cellar/xz/5.0.4/lib,
+					"\"$(SRCROOT)/libs\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -393,8 +386,7 @@
 				INFOPLIST_FILE = "Encrypt-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/lib,
-					/usr/local/Cellar/xz/5.0.4/lib,
+					"\"$(SRCROOT)/libs\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
