@@ -2,86 +2,89 @@
 ## everything lines up (the number of white space characters itself
 ## isn't as long as everything is aligned)
 
-#: src/init.c:59
+#: src/init.c:55
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/init.c:178
+#: src/init.c:174
+#. See common/common.po for the definitive "Out of memory" translation
+
+#: src/init.c:230
 #. White space is important for alignment
 #| %s version : %s\n%*s built on: %s %s\n
 msgid "%s version : %s\n%*s built on: %s %s\n"
 msgstr ""
 
-#: src/init.c:186
+#: src/init.c:238
 #. White space is important for alignment
 #| Usage:\n  %s %s\n\n
 msgid "Usage:\n  %s %s\n\n"
 msgstr ""
 
-#: src/init.c:194
+#: src/init.c:246
 #| Options:\n
 msgid "Options:\n"
 msgstr ""
 
-#: src/init.c:195
+#: src/init.c:247
 #|   -h/--help                 Display this message\n
 msgid "  -h/--help                 Display this message\n"
 msgstr ""
 
-#: src/init.c:196
+#: src/init.c:248
 #|   -l/--licence              Display GNU GPL v3 licence header\n
 msgid "  -l/--licence              Display GNU GPL v3 licence header\n"
 msgstr ""
 
-#: src/init.c:197
+#: src/init.c:249
 #|   -v/--version              Display application version\n
 msgid "  -v/--version              Display application version\n"
 msgstr ""
 
-#: src/init.c:198
+#: src/init.c:250
 #|   -d/--debug [log level]    Turn on debugging [to specified level]\n
 msgid "  -d/--debug [log level]    Turn on debugging [to specified level]\n"
 msgstr ""
 
-#: src/init.c:199
+#: src/init.c:251
 #|   -q/--quiet                Turn off all but serious error messages\n
 msgid "  -q/--quiet                Turn off all but serious error messages\n"
 msgstr ""
 
-#: src/init.c:202
-#|   -c/--cipher <algorithm>   Algorithm to use to encrypt data\n
-msgid "  -c/--cipher <algorithm>   Algorithm to use to encrypt data\n"
+#: src/init.c:254
+#|   -c/--cipher=<algorithm>   Algorithm to use to encrypt data\n
+msgid "  -c/--cipher=<algorithm>   Algorithm to use to encrypt data\n"
 msgstr ""
 
-#: src/init.c:203
-#|   -s/--hash <algorithm>     Hash algorithm to generate key\n
-msgid "  -s/--hash <algorithm>     Hash algorithm to generate key\n"
+#: src/init.c:255
+#|   -s/--hash=<algorithm>     Hash algorithm to generate key\n
+msgid "  -s/--hash=<algorithm>     Hash algorithm to generate key\n"
 msgstr ""
 
-#: src/init.c:205
-#|   -k/--key <key file>       File whose data will be used to generate the key\n
-msgid "  -k/--key <key file>       File whose data will be used to generate the key\n"
+#: src/init.c:257
+#|   -k/--key=<key file>       File whose data will be used to generate the key\n
+msgid "  -k/--key=<key file>       File whose data will be used to generate the key\n"
 msgstr ""
 
-#: src/init.c:206
-#|   -p/--password <password>  Password used to generate the key\n
-msgid "  -p/--password <password>  Password used to generate the key\n"
+#: src/init.c:258
+#|   -p/--password=<password>  Password used to generate the key\n
+msgid "  -p/--password=<password>  Password used to generate the key\n"
 msgstr ""
 
-#: src/init.c:208
+#: src/init.c:260
 #|   -x/--no-compress          Do not compress the plaintext using the xz algorithm\n
 msgid "  -x/--no-compress          Do not compress the plaintext using the xz algorithm\n"
 msgstr ""
 
-#: src/init.c:209
+#: src/init.c:2611
 #| \nNote: If you do not supply a key or password, you will be prompted for one.\n
 msgid "\nNote: If you do not supply a key or password, you will be prompted for one.\n"
 msgstr ""
 
-#: src/init.c:216
+#: src/init.c:268
 #. The GNU GPLv3 header is translated as part of common/common.po
 
-#: src/init.c:236
+#: src/init.c:288
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/init.c:243
+#: src/init.c:295
 #. See common/common.po for the definitive "Out of memory" translation

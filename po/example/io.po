@@ -1,18 +1,18 @@
-#: src/io.c:65
+#: src/io.c:66
 #| Unexpected error during compression
 msgid "Unexpected error during compression"
 msgstr ""
 
-#: src/io.c:114
+#: src/io.c:115
 #| Unexpected error during decompression
 msgid "Unexpected error during decompression"
 msgstr ""
 
 #. See common/common.po for the definitive "Out of memory" translation
-#: src/io.c:138
+#: src/io.c:139
 
 #. See common/common.po for the definitive "Out of memory" translation
-#: src/io.c:192
+#: src/io.c:193
 
 #. See common/common.po for the definitive "Out of memory" translation
-#: src/io.c:204
+#: src/io.c:205
