@@ -51,7 +51,7 @@ static status_e status = PREPROCESSING;
         else if (cipher && !strcasecmp(ciphers[i], cipher))
         {
             slctd_cipher = i + 1;
-            log_message(LOG_VERBOSE, _("Selected %d is algorithm: %s"), slctd_cipher, cipher);
+            log_message(LOG_VERBOSE, "Selected %d is algorithm: %s", slctd_cipher, cipher);
         }
 #endif
         [_cipherCombo addItemWithTitle:[NSString stringWithUTF8String:ciphers[i]]];
@@ -73,7 +73,7 @@ static status_e status = PREPROCESSING;
         else if (hash && !strcasecmp(hashes[i], hash))
         {
             slctd_hash = i + 1;
-            log_message(LOG_VERBOSE, _("Selected %d is hash: %s"), slctd_hash, hash);
+            log_message(LOG_VERBOSE, "Selected %d is hash: %s", slctd_hash, hash);
         }
 #endif
         [_hashCombo addItemWithTitle:[NSString stringWithUTF8String:hashes[i]]];
@@ -367,7 +367,7 @@ clean_up:
         key.p_length = lseek(kf, 0, SEEK_END);
         key.p_data = malloc(key.p_length);
         if (!key.p_data)
-            die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, key.p_length);
+            die("Out of memory @ %s:%d:%s [%" PRIu64 "]", __FILE__, __LINE__, __func__, key.p_length);
         read(kf, key.p_data, key.p_length);
         close(kf);
 
