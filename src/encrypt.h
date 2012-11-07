@@ -88,7 +88,7 @@ typedef enum status_e
 }
 status_e;
 
-char *FAILED_MESSAGE[];
+extern char *FAILED_MESSAGE[];
 
 typedef enum file_info_e
 {
