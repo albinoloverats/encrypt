@@ -1,7 +1,7 @@
 [Project]
 FileName=encrypt.dev
 Name=encrypt
-UnitCount=8
+UnitCount=9
 Type=0
 Ver=1
 IsCpp=0
@@ -152,6 +152,16 @@ BuildCmd=
 
 [Unit8]
 FileName=src\main.c
+CompileCpp=0
+Folder=encrypt
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit9]
+FileName=src\version.c
 CompileCpp=0
 Folder=encrypt
 Compile=1
