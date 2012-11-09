@@ -90,76 +90,79 @@ extern args_t init(int argc, char **argv)
     }
     free(rc);
 
-    /*
-     * parse commandline arguments (they override the rc file)
-     */
-    struct option options[] =
+    if (argc && argv)
     {
-        { "help",        no_argument,       0, 'h' },
-        { "version",     no_argument,       0, 'v' },
-        { "licence",     no_argument,       0, 'l' },
-        { "debug",       optional_argument, 0, 'd' },
-        { "quiet",       no_argument,       0, 'q' },
-        { "cipher",      required_argument, 0, 'c' },
-        { "hash",        required_argument, 0, 's' },
-        { "key",         required_argument, 0, 'k' },
-        { "password",    required_argument, 0, 'p' },
-        { "no-compress", no_argument,       0, 'x' },
-        { NULL,          0,                 0,  0  }
-    };
-
-    while (true)
-    {
-        int index = 0;
-        int c = getopt_long(argc, argv, "hvld::qc:s:k:p:x", options, &index);
-        if (c == -1)
-            break;
-        switch (c)
+        /*
+         * parse commandline arguments (they override the rc file)
+         */
+        struct option options[] =
         {
-            case 'h':
-                show_help();
-            case 'v':
-                show_version();
-            case 'l':
-                show_licence();
+            { "help",        no_argument,       0, 'h' },
+            { "version",     no_argument,       0, 'v' },
+            { "licence",     no_argument,       0, 'l' },
+            { "debug",       optional_argument, 0, 'd' },
+            { "quiet",       no_argument,       0, 'q' },
+            { "cipher",      required_argument, 0, 'c' },
+            { "hash",        required_argument, 0, 's' },
+            { "key",         required_argument, 0, 'k' },
+            { "password",    required_argument, 0, 'p' },
+            { "no-compress", no_argument,       0, 'x' },
+            { NULL,          0,                 0,  0  }
+        };
 
-            case 'd':
-                if (optarg)
-                    log_relevel(log_parse_level(optarg));
-                else
-                    log_relevel(LOG_DEFAULT);
+        while (true)
+        {
+            int index = 0;
+            int c = getopt_long(argc, argv, "hvld::qc:s:k:p:x", options, &index);
+            if (c == -1)
                 break;
-            case 'q':
-                log_relevel(LOG_ERROR);
-                break;
-            case 'c':
-                a.cipher = strdup(optarg);
-                break;
-            case 's':
-                a.hash = strdup(optarg);
-                break;
-            case 'k':
-                a.key = strdup(optarg);
-                break;
-            case 'p':
-                a.password = strdup(optarg);
-                break;
-            case 'x':
-                a.compress = false;
-                break;
+            switch (c)
+            {
+                case 'h':
+                    show_help();
+                case 'v':
+                    show_version();
+                case 'l':
+                    show_licence();
 
-            case '?':
-            default:
-                show_usage();
+                case 'd':
+                    if (optarg)
+                        log_relevel(log_parse_level(optarg));
+                    else
+                        log_relevel(LOG_DEFAULT);
+                    break;
+                case 'q':
+                    log_relevel(LOG_ERROR);
+                    break;
+                case 'c':
+                    a.cipher = strdup(optarg);
+                    break;
+                case 's':
+                    a.hash = strdup(optarg);
+                    break;
+                case 'k':
+                    a.key = strdup(optarg);
+                    break;
+                case 'p':
+                    a.password = strdup(optarg);
+                    break;
+                case 'x':
+                    a.compress = false;
+                    break;
+
+                case '?':
+                default:
+                    show_usage();
+            }
         }
+        while (optind < argc)
+            if (!a.source)
+                a.source = strdup(argv[optind++]);
+            else if (!a.output)
+                a.output = strdup(argv[optind++]);
+            else
+                optind++;
     }
-    while (optind < argc)
-        if (!a.source)
-            a.source = strdup(argv[optind++]);
-        else if (!a.output)
-            a.output = strdup(argv[optind++]);
-        else
-            optind++;
 
     return a;
 }

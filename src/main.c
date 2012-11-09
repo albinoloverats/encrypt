@@ -27,7 +27,6 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <sys/stat.h>
-#include <curl/curl.h>
 #include <libgen.h>
 
 #include "common/common.h"
@@ -41,8 +40,9 @@
 #include "init.h"
 #include "main.h"
 #include "encrypt.h"
+#include "version.h"
 #ifdef BUILD_GUI
-    #include "gui.h"
+    #include "gui-gtk.h"
 #endif
 
 extern char *gtk_file_hack_cipher;
@@ -52,11 +52,6 @@ static void *ui_thread_cli(void *);
 
 static bool list_algorithms_hash(void);
 static bool list_algorithms_crypt(void);
-
-static void *check_new_version(void *);
-static size_t verify_new_version(void *, size_t, size_t, void *);
-
-static bool new_available = false;
 
 int main(int argc, char **argv)
 {
@@ -178,7 +173,7 @@ int main(int argc, char **argv)
         /*
          * show main window and start main loop
          */
-        update_status_bar(widgets, new_available ? -1 : 0);
+        update_status_bar(widgets, new_version_available ? -1 : 0);
         gtk_main();
 
         g_slice_free(gtk_widgets_t, widgets);
@@ -272,8 +267,8 @@ eop:
 #endif
 
     pthread_join(version_thread, NULL);
-    if (new_available)
-        log_message(LOG_INFO, _(STATUS_NEW_VERSION));
+    if (new_version_available)
+        log_message(LOG_INFO, _(NEW_VERSION_AVAILABLE));
 
 #ifdef __DEBUG__
     fprintf(stderr, _("\n**** DEBUG BUILD ****\n\n"));
@@ -348,37 +343,4 @@ static bool list_algorithms_crypt(void)
     }
     free(l);
     return true;
-}
-
-static void *check_new_version(void *n)
-{
-    curl_global_init(CURL_GLOBAL_ALL);
-    CURL *curl_handle = curl_easy_init();
-    curl_easy_setopt(curl_handle, CURLOPT_URL, "https://albinoloverats.net/encrypt.release");
-#ifdef WIN32
-    curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
-#endif
-    curl_easy_setopt(curl_handle, CURLOPT_NOPROGRESS, 1L);
-    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, verify_new_version);
-    curl_easy_perform(curl_handle);
-    curl_easy_cleanup(curl_handle);
-#ifdef BUILD_GUI
-    if (n)
-        update_status_bar((gtk_widgets_t *)n, new_available ? -1 : 0);
-#endif
-    return n;
-}
-
-static size_t verify_new_version(void *p, size_t s, size_t n, void *x)
-{
-    (void)x;
-    char *b = calloc(s + 1, n);
-    memcpy(b, p, s * n);
-    char *l = strrchr(b, '\n');
-    if (l)
-        *l = '\0';
-    if (strcmp(b, ENCRYPT_VERSION) > 0)
-        new_available = true;
-    free(b);
-    return s * n;
 }

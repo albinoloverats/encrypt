@@ -112,7 +112,6 @@ extern char **get_algorithms_crypt(void);
 #define LABEL_ENCRYPT "Encrypt"
 #define LABEL_DECRYPT "Decrypt"
 
-#define STATUS_NEW_VERSION "A new version of encrypt is available!"
 #define STATUS_READY "Ready"
 #define STATUS_DONE "Done"
 
