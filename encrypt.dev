@@ -64,7 +64,7 @@ AutoIncBuildNrOnCompile=0
 AutoIncBuildNr=0
 
 [Unit2]
-FileName=src\gui.c
+FileName=src\gui-gtk.c
 CompileCpp=0
 Folder=encrypt
 Compile=1

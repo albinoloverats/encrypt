@@ -3,7 +3,7 @@
 APP      = encrypt
 
 SOURCE   = src/main.c src/init.c src/encrypt.c src/io.c
-GUI      = src/gui.c
+GUI      = src/gui-gtk.c
 COMMON   = src/common/error.c src/common/logging.c
 
 CFLAGS   = -Wall -Wextra -Werror -Wno-unused-parameter -std=gnu99 `libgcrypt-config --cflags` -pipe -O2

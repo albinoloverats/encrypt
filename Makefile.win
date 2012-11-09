@@ -5,8 +5,8 @@ CPP  = g++.exe -D__DEBUG__
 CC   = gcc.exe -D__DEBUG__
 WINDRES = windres.exe
 RES  = src/encrypt_private.res
-OBJ  = src/encrypt.o src/gui.o src/common/logging.o src/io.o src/init.o src/common/error.o src/common/win32_ext.o src/main.o $(RES)
-LINKOBJ  = src/encrypt.o src/gui.o src/common/logging.o src/io.o src/init.o src/common/error.o src/common/win32_ext.o src/main.o $(RES)
+OBJ  = src/encrypt.o src/gui-gtk.o src/common/logging.o src/io.o src/init.o src/common/error.o src/common/win32_ext.o src/main.o $(RES)
+LINKOBJ  = src/encrypt.o src/gui-gtk.o src/common/logging.o src/io.o src/init.o src/common/error.o src/common/win32_ext.o src/main.o $(RES)
 LIBS =  -L"C:/MinGW/lib" -mwindows -LC:/MinGW/lib -lgtk-win32-2.0 -lgdk-win32-2.0 -latk-1.0 -lgio-2.0 -lpangowin32-1.0 -lgdi32 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lpango-1.0 -lcairo -lgobject-2.0 -lgthread-2.0 -lgmodule-2.0 -lglib-2.0 -lintl -lgladeui-1 -lpthread -lcurldll -lgcrypt -lgpg-error -llzma  -g3 
 INCS =  -I"C:/MinGW/include"  -I"."  -I"src" 
 CXXINCS =  -I"."  -I"src" 
@@ -29,8 +29,8 @@ $(BIN): $(OBJ)
 src/encrypt.o: src/encrypt.c
 	$(CC) -c src/encrypt.c -o src/encrypt.o $(CFLAGS)
 
-src/gui.o: src/gui.c
-	$(CC) -c src/gui.c -o src/gui.o $(CFLAGS)
+src/gui-gtk.o: src/gui-gtk.c
+	$(CC) -c src/gui-gtk.c -o src/gui-gtk.o $(CFLAGS)
 
 src/common/logging.o: src/common/logging.c
 	$(CC) -c src/common/logging.c -o src/common/logging.o $(CFLAGS)
