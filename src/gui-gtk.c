@@ -43,6 +43,7 @@
 #include "init.h"
 #include "main.h"
 #include "encrypt.h"
+#include "version.h"
 
 #define _filename_utf8(A) g_filename_to_utf8(A, -1, NULL, NULL, NULL)
 
