@@ -25,6 +25,7 @@
 		2EA92F73161DDC58008DFF9B /* gui-cocoa.m in Sources */ = {isa = PBXBuildFile; fileRef = 2EA92F72161DDC58008DFF9B /* gui-cocoa.m */; };
 		2EA92F76161DDC59008DFF9B /* Encrypt.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2EA92F74161DDC59008DFF9B /* Encrypt.xib */; };
 		2EA92F7F161DDCFE008DFF9B /* encrypt.icns in Resources */ = {isa = PBXBuildFile; fileRef = 2EA92F7E161DDCFE008DFF9B /* encrypt.icns */; };
+		2EBF1C70165674B20072AA5A /* Automator.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2EBF1C6F165674B20072AA5A /* Automator.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -59,6 +60,7 @@
 		2EA92F75161DDC59008DFF9B /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/Encrypt.xib; sourceTree = "<group>"; };
 		2EA92F7E161DDCFE008DFF9B /* encrypt.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = encrypt.icns; sourceTree = "<group>"; };
 		2EA92F80161DDE94008DFF9B /* Encrypt.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Encrypt.entitlements; sourceTree = "<group>"; };
+		2EBF1C6F165674B20072AA5A /* Automator.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Automator.framework; path = System/Library/Frameworks/Automator.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2EBF1C70165674B20072AA5A /* Automator.framework in Frameworks */,
 				2E3922E5164D12E80028986B /* libcurl.a in Frameworks */,
 				2E3922E3164D12940028986B /* liblzma.a in Frameworks */,
 				2E305358164C1420002300E8 /* libgcrypt.11.dylib in Frameworks */,
@@ -123,6 +126,7 @@
 				2E3922E2164D12940028986B /* liblzma.a */,
 				2E305355164C1420002300E8 /* libgcrypt.11.dylib */,
 				2E305356164C1420002300E8 /* libgpg-error.0.dylib */,
+				2EBF1C6F165674B20072AA5A /* Automator.framework */,
 				2EA92F5F161DDC58008DFF9B /* Cocoa.framework */,
 				2EA92F61161DDC58008DFF9B /* Other Frameworks */,
 			);
