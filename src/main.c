@@ -97,10 +97,12 @@ int main(int argc, char **argv)
 
     if (fe || (args.hash && args.cipher && (args.source || args.output)))
         ; /* user has given enough arguments on command line that we'll skip the gui */
+#if 0 /* currently causing problems */
     else if (!isatty(STDIN_FILENO) && (S_ISREG(s.st_mode) || S_ISFIFO(s.st_mode)))
         ; /* stdin is a redirect from a file or a pipe */
     else if (!isatty(STDOUT_FILENO) && (S_ISREG(t.st_mode) || S_ISFIFO(t.st_mode)))
         ; /* stdout is a redirect to a file or a pipe */
+#endif
     else
 #endif
     if (gtk_init_check(&argc, &argv))
@@ -170,10 +172,6 @@ int main(int argc, char **argv)
         gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->compress_menu_item, args.compress);
         gtk_combo_box_set_active((GtkComboBox *)widgets->key_combo, 0);
 
-        /*
-         * show main window and start main loop
-         */
-        update_status_bar(widgets, new_version_available ? -1 : 0);
         gtk_main();
 
         g_slice_free(gtk_widgets_t, widgets);
