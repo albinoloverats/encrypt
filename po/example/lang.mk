@@ -1,3 +1,5 @@
+# TODO - actually rewrite this makefile
+
 .PHONY:
 
 PO_MAKE      += lang

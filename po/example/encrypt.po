@@ -23,7 +23,7 @@ msgstr ""
 msgid "Encryption key generated using hash: %s"
 msgstr ""
 
-#: src/encrypt.c:170
+#: src/encrypt.c:171
 #| Encrypting...
 msgid "Encrypting..."
 msgstr ""
@@ -90,7 +90,7 @@ msgstr ""
 msgid "Verifying x ^ y = z"
 msgstr ""
 
-#: src/encrypt.c:479
+#: src/encrypt.c:490
 #| Failed decryption attempt
 msgid "Failed decryption attempt"
 msgstr ""
