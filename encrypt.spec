@@ -1,6 +1,6 @@
 Summary: A simple, X-platform, encryption application
 Name: encrypt
-Version: 201211
+Version: 2012.11
 Release: 1
 Source: https://albinoloverats.net/downloads/%{name}.tar.xz
 URL: https://albinoloverats.net/projects/%{name}
