@@ -10,9 +10,10 @@ Group: Applications/File
 Requires: libgcrypt, gtk3, libcurl, xz
 
 %description
-encrypt is a simple encryption application which is suitable for any 
-modern OS. It uses the GTK to provide a graphical user interface, yet
-is equally usable from the command line.
+A simple, cross platform, file encryption application---suitable for any
+modern desktop or mobile operating system. The GUI, either GTK or
+native, has been desigen to be common across systems and intuitive to
+use, whilst still providing command-line capabilities for power-users.
  
 %prep
 %setup -q
