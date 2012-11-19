@@ -75,7 +75,7 @@ static status_e status = PREPROCESSING;
         [_hashCombo addItemWithTitle:[NSString stringWithUTF8String:hashes[i]]];
         free(hashes[i]);
     }
-    [_cipherCombo selectItemAtIndex:slctd_hash];
+    [_hashCombo selectItemAtIndex:slctd_hash];
     free(hashes);
 
     long i = [_sourceFileChooser numberOfItems];
