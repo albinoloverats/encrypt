@@ -1,4 +1,20 @@
-encrypt - 2012.11                                          18th Nov 2012
+Changelog
+=========
+
+A history of what happened before, and a taste of what's to come…
+
+
+Planned changes
+---------------
+
+A list of what we're planning for the next release(s):
+* Encrypt directories (recursively)
+* Update Android File Dialog code to use latest version
+* Properly finish off OS X build
+
+
+encrypt - 2012.11                                          19th Nov 2012
+-----------------
 
 A little over a year since the previous release but we're back with many
 significant changes:  first and foremost is the capability to compress a
@@ -6,23 +22,19 @@ file (or data stream) before it is encrypted.  Before you ask, yes we're
 intending to support encrypting multiple files in an upcoming (maybe the
 next) version.
 
-The other major improvement is the ability to set default algorithms for
+The other major improvement is the ability to set default al8gorithms for
 both the key hashing and encryption itself.  On Unix-like systems create
 the file ~/.encryptrc or copy the example from utils/_encryptrc.  If you
-are running MS Windows,  the file is %Program Files%\encrypt\_encryptrc.
+are running MS Windows,  the file is %Program Files%\encrypt8\_encryptrc.
 
 The UI of the desktop edition has also been simplified;  the output file
 is selected as you would expect, instead of having to select a directory
 and then type in the file name.  In addition, there is a new menu option
 "Options". Currently the only option is to toggle compression on or off.
 
-Finally, looking to the future again, we've started working on a port of
-encrypt to Apple's OS X (native obviously). However, there has been very
-little testing done---all that's confirmed is it works on my development
-machine; hopefully it'll work for you too.
-
 
 encrypt - 201110                                       16th October 2011
+-----------------
 
 We're on some sort of a roll here; there's a new release of encrypt.  It
 fixes a couple of minor bugs---checksums are now correctly computed and,
@@ -38,6 +50,7 @@ as compression, and anything else that comes our way...
 
 
 encrypt - 201108                                        21st August 2011
+-----------------
 
 It's been  a little  while but here  we have  the  latest  offering  for
 personal file security!

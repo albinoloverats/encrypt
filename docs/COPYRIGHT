@@ -8,7 +8,7 @@ licence or another. The cryptographic libraries libgcrypt and gnu-crypto
 are both available under the terms of the GNU General Public License and
 GTK / GDK are available under the terms of the GNU Lesser General Public
 License.  The "Android File Dialog" is available  under the terms of the
-FreeBSD License.
+(3-clause) New BSD License.
 
 The icon used by encrypt is a  modification taken from the Crystal Clear
 icon set and is made available under the terms of the GNU Lesser General
