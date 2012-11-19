@@ -1,4 +1,4 @@
-encrypt - 2012.11                                          18th Nov 2012
+encrypt - 2012.11                                          19th Nov 2012
 
 A little over a year since the previous release but we're back with many
 significant changes:  first and foremost is the capability to compress a
@@ -17,8 +17,9 @@ and then type in the file name.  In addition, there is a new menu option
 "Options". Currently the only option is to toggle compression on or off.
 
 Finally, looking to the future again, we've started working on a port of
-encrypt to Apple's OS X (native obviously). However, there has been very
-little testing done---all that's confirmed is it works on my development
-machine; hopefully it'll work for you too.
+encrypt to Apple's OS X (native obviously).  However, it is dependent on
+Homebrew to provide libgcrypt, xzm and curl; once we've figured this out
+we will provide an easy way to install here too. See INSTALL for details
+on how to do this yourself.
 
 The encrypt Development Team

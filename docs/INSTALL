@@ -1,56 +1,52 @@
-Build instructions
+Compiling/Installing From Source
+================================
 
-Prerequisites:
- * Desktop implementation:
-   - GTK (and all of its requirements: GDK/Cairo/etc)---version 2.24 or
-     later---version 3 is recommended (and available on most/some Linux
-     and Mac OS X using Homebrew)
-   - libgcrypt cryptographic library
-   - pthread library
-   - liblzma
-   - libcurl
+Prerequisites
+-------------
 
- * Android implementation: (all provided)
-   - gnu-crypto.jar
-   - xz-1.0.jar
-   - Android File Dialog - http://code.google.com/p/android-file-dialog/
+To compile from source on GNU/Linux you will need the following:
+* GTK (version 3 or newer)
+* libgcrypt
+* liblzma
+* libcurl
+* pthreads
+
+Most of the above are installed as part of the base (or core) OS on many
+distributions (but not always).
+
+The Process
+-----------
+
+NB There is no configure step, so just do the following:
+* make
+* make install
+
+Or perhaps you don't want a GUI:
+* make cli
+* make install
+
+Done :-)
 
 
-Build/Installation instructions:
-  For most,  installing encrypt will pull in all the required libraries,
-  either  through your systems  package management system,  or if you're
-  on  MS Windows,  the  installer  includes all  the  necessary  runtime
-  libraries.  If you  intend to  build from source  you will require the
-  development packages too.
+For non-GNU/Linux
+-----------------
 
-  On GNU/Linux Systems:
-    Simply:
-      $ make
-      # make install
+* Microsoft Windows
+  - It's a headache! We used Dev C++ as the frontend to gcc and God only
+    knows how we managed to get GTK linked in, but we did! And so now we
+    are not going to touch anything incase it breaks.
+  - Dev C++ can be used to download all of the necessary packages (which
+    includes GTK). encrypt.exe can then be compiled. Check the NSIS file
+    (ncrypt.nsi) to see what binaries are necessary during installation.
 
-    To build with the CLI:
-      $ make cli
-      $ make install
+* Mac OS X
+  - Get Homebrew (http://mxcl.github.com/homebrew/)
+  - Install libgcrypt, xz and curl
+  - Use Xcode to build a native OS X application: Encrypt.app
 
-    Eventually, you may need the following:
-      $ make clean
-      $ make distclean
-      # make uninstall
+There is currently no Mac OS X installer because of the Homebrew issue.
 
-  On MS Systems:
-    It's all done for you  (Using Dev-C++)---if you wish to compile from
-    source  yourself,  this shouldn't  be too  much  of a  problem using
-    Dev-C++ (just ask if you need help). The NSIS script will then allow
-    you to  build the installer  (or you can just  copy the  binaries to
-    wherever and go from there).
-
-  On Mac OS X:
-    For now you'll need Homebrew: http://mxcl.github.com/homebrew/
-    As well as GTK and all of its dependencies (a proper OS X port is in
-    the works but will have to fit around the current GUI code; which is
-    hardcoded to use GTK).  The build instructions are the same as those
-    for GNU/Linux, although you'll have to use the Makefile.macosx.
-
-  For Android:
-    Import the Eclipse/Android project into  Eclipse and build using the
-    standard Android development tools.
+* Android
+  - gnu-crypto.jar
+  - xz-1.0.jar
+  - Android File Dialog - http://code.google.com/p/android-file-dialog/

@@ -1,35 +1,37 @@
-.TH encrypt "1" "September 2012" "encrypt" "encrypt"
+.TH encrypt "1" "November 2012" "encrypt" "encrypt"
 .SH NAME
-encrypt \- a (simple) cross\-platform encryption program
+encrypt \- A simple, cross platform, file encryption application
 .SH SYNOPSIS
 encrypt [\fI\-c\fR \fBalgorithm\fR] [\fI\-s\fR \fBalgorithm\fR] [\fI\-k/\-p\fR \fBpassword source\fR] [\fBsource file\fR] [\fBdestination file\fR]
 .SH DESCRIPTION
-\fBencrypt\fR is a simple encryption utility with the intention of being simple yet powerful. To achieve this, everything is kept simple and functional, and as intuitive as possible. It further aims to provide a standard interface across all platforms to make itself more appealing to those who use multiple operating systems.
+\fBencrypt\fR is a simple, cross platform, file encryption application---suitable for any modern desktop or mobile operating system. The GUI, either GTK or native, has been desigen to be common across systems and intuitive to use, whilst still providing command-line capabilities for power-users.
 .SH OPTIONS
 .TP
-\fI\-l\fR, \fI\-\-licence\fR An overview of the GNU GPL
+\fI\-h\fR, \fI\-\-help\fR Display list of arguments
 .TP
-\fI\-v\fR, \fI\-\-version\fR Show the version number and quit
+\fI\-l\fR, \fI\-\-licence\fR Display GNU GPL v3 licence header
 .TP
-\fI\-h\fR, \fI\-\-help\fR This help list
+\fI\-v\fR, \fI\-\-version\fR Display application version
 .TP
-\fI\-d\fR, \fI\-\-debug\fR \fB[DEBUG LEVEL]\fR Show debugging messages during execution
+\fI\-d\fR, \fI\-\-debug\fR \fB[DEBUG LEVEL]\fR Turn on debugging [to specified level]
 .TP
-\fI\-q\fR, \fI\-\-quiet\fR Hide standard messages during execution
+\fI\-q\fR, \fI\-\-quiet\fR Turn off all but serious error messages
 .TP
-\fI\-s\fR, \fI\-\-hash\fR \fBALGORITHM\fR Hash algorithm to use to generate key
+\fI\-c\fR, \fI\-\-cipher\fR \fBALGORITHM\fR Algorithm to use to encrypt data
 .TP
-\fI\-c\fR, \fI\-\-cipher\fR \fBALGORITHM\fR Algorithm to encrypt data
+\fI\-s\fR, \fI\-\-hash\fR \fBALGORITHM\fR Hash algorithm to generate key
+.TP
+\fI\-k\fR, \fI\-\-key\fR \fBFILE\fR File whose data will be used to generate the key
 .TP
 \fI\-p\fR, \fI\-\-password\fR \fBPASSWORD\fR Password used to generate the key
 .TP
-\fI\-k\fR, \fI\-\-key\fR \fBFILE\fR File whose data will be used to generate the key
+\fI\-x\fR, \fI\-\-no-compress\fR \fBFILE\fR Do not compress the plaintext using the xz algorithm
 .PP
 If either the source file or destination file are omitted then stdin/stdout are used. When encrypting, both \fB\-s\fR and \fB\-c\fR are required to specify the algorithms you wish to use; when decrypting the algorithms originally used are read from the encrypted file.
 .PP
-One of either \fB\-p\fR or \fB\-k\fR must be used to indicate where the key data come from. \fB\-p\fR accepts the password as a plain text argument, and \fB\-k\fR accepts a path to a file which will be used to generate the encryption key.
+If you do not specify either a key or a password, you will be prompted to enter a password. This will then be used to generate a key to encrypt the data with (using the specified hash).
 .SH AUTHOR
-Written by Ashley Anderson
+Written by Ashley Morgan Anderson
 .SH BUGS
 There are no bugs only features yet to be documented :p
 .SH COPYRIGHT
