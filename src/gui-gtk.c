@@ -129,7 +129,9 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
     char *open_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog);
     if (!open_file)
         open_file = gtk_file_hack_cipher;
-    if (open_file)
+    if (!open_file || !strlen(open_file))
+        en = FALSE;
+    else
     {
         /*
          * quickly see if the file is encrypted already
@@ -152,9 +154,8 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
         else
             en = FALSE;
     }
-    else
-        en = FALSE;
-    g_free(open_file);
+    if (open_file)
+        g_free(open_file);
 
     char *save_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog);
     if (!save_file)
@@ -176,7 +177,8 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
         else
             en = FALSE;
     }
-    g_free(save_file);
+    if (save_file)
+        g_free(save_file);
 
     files = en;
 
@@ -303,15 +305,18 @@ G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widge
     char *key_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog);
     if (!key_file || !strlen(key_file))
         en = FALSE;
-
-    struct stat s;
-    stat(key_file, &s);
-    if (errno == ENOENT || !S_ISREG(s.st_mode))
-        en = FALSE;
+    else
+    {
+        struct stat s;
+        stat(key_file, &s);
+        if (errno == ENOENT || !S_ISREG(s.st_mode))
+            en = FALSE;
+    }
 
     gtk_label_set_text((GtkLabel *)data->key_file_label, en ? _filename_utf8(basename(key_file)) : NONE_SELECTED);
 
-    g_free(key_file);
+    if (key_file)
+        g_free(key_file);
 
     if (en)
         gtk_widget_show(data->key_file_image);
