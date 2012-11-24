@@ -129,6 +129,8 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
     char *open_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog);
     if (!open_file)
         open_file = gtk_file_hack_cipher;
+    if (open_file)
+        open_file = _filename_utf8(open_file);
     if (!open_file || !strlen(open_file))
         en = FALSE;
     else
@@ -139,7 +141,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
         int64_t f = open(open_file, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
         if (f > 0)
         {
-            gtk_label_set_text((GtkLabel *)data->open_file_label, _filename_utf8(basename(open_file)));
+            gtk_label_set_text((GtkLabel *)data->open_file_label, basename(open_file));
             gtk_widget_show(data->open_file_image);
 
             char *c = NULL, *h = NULL;
@@ -160,6 +162,8 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
     char *save_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog);
     if (!save_file)
         save_file = gtk_file_hack_hash;
+    if (save_file)
+        save_file = _filename_utf8(save_file);
     if (!save_file || !strlen(save_file))
         en = FALSE;
     else
@@ -171,7 +175,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
          */
         if (errno == ENOENT || S_ISREG(s.st_mode))
         {
-            gtk_label_set_text((GtkLabel *)data->save_file_label, _filename_utf8(basename(save_file)));
+            gtk_label_set_text((GtkLabel *)data->save_file_label, basename(save_file));
             gtk_widget_show(data->save_file_image);
         }
         else
@@ -303,6 +307,8 @@ G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widge
     gboolean en = TRUE;
 
     char *key_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog);
+    if (key_file)
+        key_file = _filename_utf8(key_file);
     if (!key_file || !strlen(key_file))
         en = FALSE;
     else
@@ -313,7 +319,7 @@ G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widge
             en = FALSE;
     }
 
-    gtk_label_set_text((GtkLabel *)data->key_file_label, en ? _filename_utf8(basename(key_file)) : NONE_SELECTED);
+    gtk_label_set_text((GtkLabel *)data->key_file_label, en ? basename(key_file) : NONE_SELECTED);
 
     if (key_file)
         g_free(key_file);
@@ -437,11 +443,11 @@ static void *bg_thread_gui(void *n)
      */
     gtk_widgets_t *data = (gtk_widgets_t *)n;
 
-    char *open_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog);
+    char *open_file = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog));
     int64_t source = open(open_file, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
     g_free(open_file);
 
-    char *save_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog);
+    char *save_file = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog));
     int64_t output = open(save_file, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY | F_WRLCK, S_IRUSR | S_IWUSR);
     g_free(save_file);
 
@@ -454,7 +460,7 @@ static void *bg_thread_gui(void *n)
     {
         case KEYFILE:
             {
-                char *key_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog);
+                char *key_file = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog));
                 int64_t kf = open(key_file, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
                 g_free(key_file);
                 if (kf < 0)
