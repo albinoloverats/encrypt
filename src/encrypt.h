@@ -84,6 +84,7 @@ typedef enum status_e
     FAILED_DECRYPTION,
     FAILED_TAG,
     FAILED_CHECKSUM,
+    FAILED_IO,
     FAILED_OTHER
 }
 status_e;

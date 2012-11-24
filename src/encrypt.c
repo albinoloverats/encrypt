@@ -73,7 +73,8 @@ char *FAILED_MESSAGE[] =
     "Unsupported algorithm!",
     "Decryption verification failed!",
     "Unknown tag value!",
-    "Finished but with possible file corruption!"
+    "Finished but with possible file corruption!",
+    "Read/Write error!",
     "An unknown error has occurred!"
 };
 
@@ -354,7 +355,13 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
         if (status == CANCELLED)
             goto clean_up;
         gcry_create_nonce(read_buffer, block_size + sizeof b1);
-        uint64_t r = read(f, read_buffer + sizeof b1, block_size);
+        int64_t r = read(f, read_buffer + sizeof b1, block_size);
+        if (r < 0)
+        {
+            log_message(LOG_ERROR, _("IO error: %s"), strerror(errno));
+            status = FAILED_IO;
+            goto clean_up;
+        }
         gcry_md_write(md, read_buffer + sizeof b1, r);
         if (r < block_size)
             b1 = false;
