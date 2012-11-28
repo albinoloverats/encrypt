@@ -106,11 +106,9 @@ http://www.everaldo.com/</property>
             <child>
               <object class="GtkButton" id="key_dialog_cancel">
                 <property name="label">gtk-cancel</property>
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
               </object>
               <packing>
@@ -122,13 +120,11 @@ http://www.everaldo.com/</property>
             <child>
               <object class="GtkButton" id="key_dialog_okay">
                 <property name="label">gtk-open</property>
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
                 <signal name="clicked" handler="key_dialog_okay" swapped="no"/>
               </object>
@@ -177,7 +173,6 @@ http://www.everaldo.com/</property>
             <property name="can_focus">False</property>
             <child>
               <object class="GtkMenuItem" id="file_menu_item">
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">_File</property>
@@ -189,7 +184,6 @@ http://www.everaldo.com/</property>
                     <child>
                       <object class="GtkImageMenuItem" id="quit_menu_item">
                         <property name="label">gtk-quit</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
@@ -204,7 +198,6 @@ http://www.everaldo.com/</property>
             </child>
             <child>
               <object class="GtkMenuItem" id="options_menu_item">
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">_Options</property>
@@ -215,7 +208,6 @@ http://www.everaldo.com/</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkCheckMenuItem" id="compress_menu_item">
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label">_Compress</property>
@@ -230,7 +222,6 @@ http://www.everaldo.com/</property>
             </child>
             <child>
               <object class="GtkMenuItem" id="help_menu_item">
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">_Help</property>
@@ -242,7 +233,6 @@ http://www.everaldo.com/</property>
                     <child>
                       <object class="GtkImageMenuItem" id="about_menu_item">
                         <property name="label">gtk-about</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
@@ -271,7 +261,8 @@ http://www.everaldo.com/</property>
             <property name="border_width">64</property>
             <child>
               <object class="GtkButton" id="open_button">
-                <property name="use_action_appearance">False</property>
+                <property name="width_request">160</property>
+                <property name="height_request">24</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
@@ -280,11 +271,11 @@ http://www.everaldo.com/</property>
                 <property name="has_tooltip">True</property>
                 <property name="tooltip_markup" translatable="yes">Save As ...</property>
                 <property name="tooltip_text" translatable="yes">Save As ...</property>
-                <property name="use_action_appearance">False</property>
                 <property name="image_position">right</property>
                 <signal name="clicked" handler="file_dialog_display" swapped="no"/>
                 <child>
                   <object class="GtkHBox" id="box2">
+                    <property name="width_request">144</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
@@ -301,29 +292,20 @@ http://www.everaldo.com/</property>
                     </child>
                     <child>
                       <object class="GtkLabel" id="open_file_label">
+                        <property name="width_request">112</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="xpad">2</property>
                         <property name="label" translatable="yes">(None)</property>
+                        <property name="ellipsize">end</property>
+                        <property name="single_line_mode">True</property>
+                        <property name="max_width_chars">16</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
                         <property name="fill">True</property>
                         <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkHSeparator" id="separator2">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="orientation">vertical</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="padding">4</property>
-                        <property name="position">2</property>
                       </packing>
                     </child>
                     <child>
@@ -344,7 +326,7 @@ http://www.everaldo.com/</property>
                 </child>
               </object>
               <packing>
-                <property name="expand">True</property>
+                <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="padding">4</property>
                 <property name="position">0</property>
@@ -352,19 +334,21 @@ http://www.everaldo.com/</property>
             </child>
             <child>
               <object class="GtkButton" id="save_button">
-                <property name="use_action_appearance">False</property>
+                <property name="width_request">160</property>
+                <property name="height_request">24</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
                 <property name="receives_default">True</property>
+                <property name="has_tooltip">True</property>
                 <property name="tooltip_markup" translatable="yes">Save As ...</property>
                 <property name="tooltip_text" translatable="yes">Save As ...</property>
-                <property name="use_action_appearance">False</property>
                 <property name="image_position">right</property>
                 <signal name="clicked" handler="file_dialog_display" swapped="no"/>
                 <child>
                   <object class="GtkHBox" id="box1">
+                    <property name="width_request">144</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
@@ -381,29 +365,20 @@ http://www.everaldo.com/</property>
                     </child>
                     <child>
                       <object class="GtkLabel" id="save_file_label">
+                        <property name="width_request">112</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="xpad">2</property>
                         <property name="label" translatable="yes">(None)</property>
+                        <property name="ellipsize">end</property>
+                        <property name="single_line_mode">True</property>
+                        <property name="max_width_chars">24</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
                         <property name="fill">True</property>
                         <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkHSeparator" id="separator1">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="orientation">vertical</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="padding">4</property>
-                        <property name="position">2</property>
                       </packing>
                     </child>
                     <child>
@@ -424,7 +399,7 @@ http://www.everaldo.com/</property>
                 </child>
               </object>
               <packing>
-                <property name="expand">True</property>
+                <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="padding">4</property>
                 <property name="position">1</property>
@@ -432,6 +407,8 @@ http://www.everaldo.com/</property>
             </child>
             <child>
               <object class="GtkComboBoxText" id="crypto_combo">
+                <property name="width_request">160</property>
+                <property name="height_request">24</property>
                 <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">False</property>
@@ -445,7 +422,7 @@ http://www.everaldo.com/</property>
                 <signal name="changed" handler="algorithm_combo_callback" swapped="no"/>
               </object>
               <packing>
-                <property name="expand">True</property>
+                <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="padding">4</property>
                 <property name="position">2</property>
@@ -453,6 +430,8 @@ http://www.everaldo.com/</property>
             </child>
             <child>
               <object class="GtkComboBoxText" id="hash_combo">
+                <property name="width_request">160</property>
+                <property name="height_request">24</property>
                 <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">False</property>
@@ -466,7 +445,7 @@ http://www.everaldo.com/</property>
                 <signal name="changed" handler="algorithm_combo_callback" swapped="no"/>
               </object>
               <packing>
-                <property name="expand">True</property>
+                <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="padding">4</property>
                 <property name="position">3</property>
@@ -474,6 +453,8 @@ http://www.everaldo.com/</property>
             </child>
             <child>
               <object class="GtkComboBoxText" id="key_combo">
+                <property name="width_request">160</property>
+                <property name="height_request">24</property>
                 <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">False</property>
@@ -489,7 +470,7 @@ http://www.everaldo.com/</property>
                 <signal name="changed" handler="key_combo_callback" swapped="no"/>
               </object>
               <packing>
-                <property name="expand">True</property>
+                <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="padding">4</property>
                 <property name="position">4</property>
@@ -497,6 +478,7 @@ http://www.everaldo.com/</property>
             </child>
             <child>
               <object class="GtkEntry" id="password_entry">
+                <property name="width_request">160</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="has_tooltip">True</property>
@@ -511,14 +493,15 @@ http://www.everaldo.com/</property>
               </object>
               <packing>
                 <property name="expand">False</property>
-                <property name="fill">False</property>
+                <property name="fill">True</property>
                 <property name="padding">4</property>
                 <property name="position">5</property>
               </packing>
             </child>
             <child>
               <object class="GtkButton" id="key_button">
-                <property name="use_action_appearance">False</property>
+                <property name="width_request">160</property>
+                <property name="height_request">24</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
@@ -526,7 +509,6 @@ http://www.everaldo.com/</property>
                 <property name="has_tooltip">True</property>
                 <property name="tooltip_markup" translatable="yes">Save As ...</property>
                 <property name="tooltip_text" translatable="yes">Save As ...</property>
-                <property name="use_action_appearance">False</property>
                 <property name="image_position">right</property>
                 <signal name="clicked" handler="file_dialog_display" swapped="no"/>
                 <child>
@@ -552,24 +534,14 @@ http://www.everaldo.com/</property>
                         <property name="xalign">0</property>
                         <property name="xpad">2</property>
                         <property name="label" translatable="yes">(None)</property>
+                        <property name="ellipsize">end</property>
+                        <property name="single_line_mode">True</property>
+                        <property name="max_width_chars">16</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
                         <property name="fill">True</property>
                         <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkHSeparator" id="separator3">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="orientation">vertical</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="padding">4</property>
-                        <property name="position">2</property>
                       </packing>
                     </child>
                     <child>
@@ -590,7 +562,7 @@ http://www.everaldo.com/</property>
                 </child>
               </object>
               <packing>
-                <property name="expand">True</property>
+                <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="padding">4</property>
                 <property name="position">6</property>
@@ -599,19 +571,19 @@ http://www.everaldo.com/</property>
             <child>
               <object class="GtkButton" id="encrypt_button">
                 <property name="label" translatable="yes">Encrypt</property>
-                <property name="use_action_appearance">False</property>
+                <property name="width_request">160</property>
+                <property name="height_request">24</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
                 <property name="image">go_encrypt</property>
                 <accelerator key="Return" signal="clicked"/>
                 <signal name="clicked" handler="on_encrypt_button_clicked" swapped="no"/>
               </object>
               <packing>
-                <property name="expand">True</property>
+                <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="padding">4</property>
                 <property name="position">7</property>
@@ -620,7 +592,7 @@ http://www.everaldo.com/</property>
           </object>
           <packing>
             <property name="expand">False</property>
-            <property name="fill">True</property>
+            <property name="fill">False</property>
             <property name="position">1</property>
           </packing>
         </child>
@@ -674,11 +646,9 @@ http://www.everaldo.com/</property>
             <child>
               <object class="GtkButton" id="open_dialog_cancel">
                 <property name="label">gtk-cancel</property>
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
               </object>
               <packing>
@@ -690,13 +660,11 @@ http://www.everaldo.com/</property>
             <child>
               <object class="GtkButton" id="open_dialog_okay">
                 <property name="label">gtk-open</property>
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
                 <signal name="clicked" handler="file_dialog_okay" swapped="no"/>
               </object>
@@ -786,6 +754,7 @@ processes your file</property>
                 <property name="visible">True</property>
                 <property name="app_paintable">True</property>
                 <property name="can_focus">False</property>
+                <property name="show_text">True</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -807,13 +776,11 @@ processes your file</property>
             <child>
               <object class="GtkButton" id="progress_cancel_button">
                 <property name="label">gtk-cancel</property>
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="halign">center</property>
                 <property name="valign">center</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
                 <signal name="clicked" handler="on_cancel_button_clicked" swapped="no"/>
               </object>
@@ -826,13 +793,11 @@ processes your file</property>
             <child>
               <object class="GtkButton" id="progress_close_button">
                 <property name="label">gtk-close</property>
-                <property name="use_action_appearance">False</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="halign">center</property>
                 <property name="valign">center</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
                 <signal name="clicked" handler="on_close_button_clicked" swapped="no"/>
               </object>
@@ -891,11 +856,9 @@ processes your file</property>
             <child>
               <object class="GtkButton" id="save_dialog_cancel">
                 <property name="label">gtk-cancel</property>
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
               </object>
               <packing>
@@ -907,13 +870,11 @@ processes your file</property>
             <child>
               <object class="GtkButton" id="save_dialog_okay">
                 <property name="label">gtk-save</property>
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
                 <signal name="clicked" handler="file_dialog_okay" swapped="no"/>
               </object>
