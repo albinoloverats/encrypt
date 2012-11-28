@@ -23,10 +23,11 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
-#include <libintl.h>
+
 #include <string.h>
 #include <inttypes.h>
 #include <stdbool.h>
+
 #include <sys/stat.h>
 #include <pthread.h>
 #include <libgen.h>
@@ -36,6 +37,7 @@
 #include "common/common.h"
 #include "common/error.h"
 #include "common/logging.h"
+
 #ifdef _WIN32
     #include "common/win32_ext.h"
 #endif
@@ -212,7 +214,11 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
             slctd_cipher = i + 1;
             log_message(LOG_VERBOSE, _("Selected %d is algorithm: %s"), slctd_cipher, cipher);
         }
+#ifndef _WIN32
         gtk_combo_box_text_append_text((GtkComboBoxText *)data->crypto_combo, ciphers[i]);
+#else
+        gtk_combo_box_append_text((GtkComboBox *)data->crypto_combo, ciphers[i]);
+#endif
         free(ciphers[i]);
     }
     gtk_combo_box_set_active((GtkComboBox *)data->crypto_combo, slctd_cipher);
@@ -229,7 +235,11 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
             slctd_hash = i + 1;
             log_message(LOG_VERBOSE, _("Selected %d is hash: %s"), slctd_hash, hash);
         }
+#ifndef _WIN32
         gtk_combo_box_text_append_text((GtkComboBoxText *)data->hash_combo, hashes[i]);
+#else
+        gtk_combo_box_append_text((GtkComboBox *)data->hash_combo, hashes[i]);
+#endif
         free(hashes[i]);
     }
     gtk_combo_box_set_active((GtkComboBox *)data->hash_combo, slctd_hash);
