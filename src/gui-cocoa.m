@@ -283,9 +283,12 @@ clean_up:
 - (IBAction)encryptButtonPushed:(id)pId
 {
     [_popup setIsVisible:TRUE];
-
     [self performSelectorInBackground:@selector(bg_thread_gui:) withObject:nil];
+    [self performSelectorInBackground:@selector(fg_thread_gui:) withObject:nil];
+}
 
+-( void)fg_thread_gui:(id)pId
+{
     uint64_t sz = 0;
 
     do
@@ -296,6 +299,10 @@ clean_up:
         {
             uint64_t bp = get_bytes_processed();
             [_progress setDoubleValue:100 * bp / sz];
+            char *prgs = NULL;
+            asprintf(&prgs, "%" PRIu64 " / %" PRIu64, bp, sz);
+            [_raito setStringValue:[NSString stringWithUTF8String:prgs]];
+            free(prgs);
         }
         status = get_status();
     }
@@ -312,6 +319,7 @@ clean_up:
         msg = FAILED_MESSAGE[status];
 
     [_statusBar setStringValue:[NSString stringWithUTF8String:msg]];
+    [_raito setStringValue:[NSString stringWithUTF8String:msg]];
     [_closeButton setHidden:FALSE];
     [_cancelButton setHidden:TRUE];
 }
