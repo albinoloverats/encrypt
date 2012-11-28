@@ -58,26 +58,30 @@ Section "encrypt" SEC01
   File "C:\extra\bin\libcurl.dll"
   File "C:\extra\bin\libeay32.dll"
   File "C:\extra\bin\libidn-11.dll"
+  File "C:\extra\bin\liblzma.dll"
   File "C:\extra\bin\librtmp.dll"
   File "C:\extra\bin\libssh2.dll"
   File "C:\extra\bin\libssl32.dll"
-  File "C:\extra\bin\liblzma.dll"
+  File "C:\extra\bin\zlib1.dll"
 
   SetOutPath "$INSTDIR\docs"
   File "docs\LICENCE"
-  Rename "docs\LICENCE" "docs\LICENCE.txt"
+  Rename "LICENCE" "LICENCE.txt"
   File "docs\README"
-  Rename "docs\README" "docs\README.txt"
+  Rename "README" "README.txt"
   File "docs\GNU_LGPLv3_LICENSE"
-  Rename "docs\GNU_LGPLv3_LICENSE" "docs\GNU_LGPLv3_LICENSE.txt"
+  Rename "GNU_LGPLv3_LICENSE" "GNU_LGPLv3_LICENSE.txt"
   File "docs\NewBSD_LICENSE"
-  Rename "docs\NewBSD_LICENSE" "docs\NewBSD_LICENSE.txt"
+  Rename "NewBSD_LICENSE" "NewBSD_LICENSE.txt"
+
   SetOutPath "$INSTDIR\pixmaps"
   File "pixmaps\encrypt.png"
   File "pixmaps\encrypt_button.png"
+
   SetOutPath "$INSTDIR\utils"
   File "utils\encrypt_w32.glade"
   File "utils\_encryptrc"
+
   SetOutPath "$INSTDIR"
   CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\encrypt.lnk" "$INSTDIR\encrypt.exe"
@@ -126,25 +130,32 @@ Function un.onInit
 FunctionEnd
 
 Section Uninstall
-  Delete "$INSTDIR\libgpg-error-0.dll"
+  Delete "$INSTDIR\encrypt.exe"
+
   Delete "$INSTDIR\libgcrypt-11.dll"
+  Delete "$INSTDIR\libgpg-error-0.dll"
   Delete "$INSTDIR\libpthread-2.dll"
   Delete "$INSTDIR\libcurl.dll"
   Delete "$INSTDIR\libeay32.dll"
   Delete "$INSTDIR\libidn-11.dll"
+  Delete "$INSTDIR\liblzma.dll"
   Delete "$INSTDIR\librtmp.dll"
   Delete "$INSTDIR\libssh2.dll"
   Delete "$INSTDIR\libssl32.dll"
-  Delete "$INSTDIR\liblzma.dll"
+  Delete "$INSTDIR\zlib1.dll"
 
   Delete "$INSTDIR\docs\LICENCE.txt"
   Delete "$INSTDIR\docs\README.txt"
   Delete "$INSTDIR\docs\GNU_LGPLv3_LICENSE.txt"
   Delete "$INSTDIR\docs\NewBSD_LICENSE.txt"
+
   Delete "$INSTDIR\pixmaps\encrypt_button.png"
   Delete "$INSTDIR\pixmaps\encrypt.png"
+
   Delete "$INSTDIR\utils\encrypt_w32.glade"
   Delete "$INSTDIR\utils\_encryptrc"
+
+  Delete "$INSTDIR\uninst.exe"
 
   Delete "$SMPROGRAMS\encrypt\Uninstall.lnk"
   Delete "$SMPROGRAMS\encrypt\ReadMe.lnk"
@@ -154,6 +165,7 @@ Section Uninstall
   RMDir "$SMPROGRAMS\encrypt"
   RMDir "$INSTDIR\docs"
   RMDIR "$INSTDIR\pixmaps"
+  RMDIR "$INSTDIR\utils"
   RMDir "$INSTDIR"
 
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
