@@ -312,7 +312,11 @@ extern pthread_t bg_thread_initialise2(void *(fn)(void *), void *n)
      */
     log_message(LOG_EVERYTHING, _("Setting up UI thread"));
     pthread_t bg_thread;
-    pthread_create(&bg_thread, NULL, fn, n);
+    pthread_attr_t a;
+    pthread_attr_init(&a);
+    pthread_attr_setdetachstate(&a, PTHREAD_CREATE_JOINABLE);
+    pthread_create(&bg_thread, &a, fn, n);
+    pthread_attr_destroy(&a);
     return bg_thread;
 }
 
