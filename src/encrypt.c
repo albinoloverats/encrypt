@@ -363,7 +363,7 @@ extern status_e main_encrypt(int64_t f, int64_t g, encrypt_t e)
             goto clean_up;
         }
         gcry_md_write(md, read_buffer + sizeof b1, r);
-        if (r < block_size)
+        if ((uint64_t)r < block_size)
             b1 = false;
         memcpy(read_buffer, &b1, sizeof b1);
         write_func(g, read_buffer, block_size + sizeof b1, &io_params);
