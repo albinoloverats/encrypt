@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef _INIT_H_
-#define _INIT_H_
+#ifndef _ENCRYPT_INIT_H_
+#define _ENCRYPT_INIT_H_
 
 #define APP_NAME "encrypt"
 #define ALT_NAME "decrypt"

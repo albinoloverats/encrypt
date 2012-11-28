@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef _IO_H_
-#define _IO_H_
+#ifndef _ENCRYPT_IO_H_
+#define _ENCRYPT_IO_H_
 
 #include <gcrypt.h>
 #include <lzma.h>
@@ -40,4 +40,4 @@ extern int enc_sync(int64_t f, io_params_t *c);
 extern ssize_t enc_write(int64_t f, const void * const restrict d, size_t l, io_params_t *c);
 extern ssize_t enc_read(int64_t f, void * const d, size_t l, io_params_t *c);
 
-#endif /* _IO_H_ */
+#endif /* _ENCRYPT_IO_H_ */

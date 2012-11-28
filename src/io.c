@@ -31,7 +31,6 @@
     #include "common/win32_ext.h"
 #endif
 
-#include "encrypt.h"
 #include "io.h"
 
 typedef enum eof_e

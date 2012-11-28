@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef _VERSION_H_
-#define _VERSION_H_
+#ifndef _ENCRYPT_VERSION_H_
+#define _ENCRYPT_VERSION_H_
 
 #define NEW_VERSION_AVAILABLE "A new version of encrypt is available!"
 

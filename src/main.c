@@ -22,9 +22,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <libintl.h>
+
 #include <string.h>
 #include <stdbool.h>
+
 #include <pthread.h>
 #include <sys/stat.h>
 #include <libgen.h>
@@ -149,6 +150,7 @@ int main(int argc, char **argv)
 
         version_thread = bg_thread_initialise(check_new_version, widgets);
 
+#ifndef _WIN32
         /*
          * TODO find a way to select and display file encrypt
          */
@@ -168,6 +170,7 @@ int main(int argc, char **argv)
         }
 
         file_dialog_okay(NULL, widgets);
+#endif
         auto_select_algorithms(widgets, args.cipher, args.hash);
         gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->compress_menu_item, args.compress);
         gtk_combo_box_set_active((GtkComboBox *)widgets->key_combo, 0);
