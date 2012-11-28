@@ -23,6 +23,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdarg.h>
+
+#include <stdint.h>
 #include <stdbool.h>
 
 #include "common/win32_ext.h"

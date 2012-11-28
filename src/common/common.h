@@ -33,52 +33,21 @@
 
 #define NOTSET 0 /*!< Value to use when nothing else is available */
 
-#ifndef _WIN32
-    #ifndef O_BINARY
-        #define O_BINARY NOTSET /*!< Value is only relevant on MS systems (and is required), pretend it exists elsewhere */
-    #endif
-    #if defined __APPLE__ || defined __FreeBSD__
-        #define program_invocation_short_name getprogname() /*!< This is the best/closest we have */
-        #undef F_RDLCK         /*!< Undefine value on Mac OS X as it causes runtime issues */
-        #define F_RDLCK NOTSET /*!< Set value to NOTSET */
-        #undef F_WRLCK         /*!< Undefine value on Mac OS X as it causes runtime issues */
-        #define F_WRLCK NOTSET /*!< Set value to NOTSET */
-    #endif
-    #ifdef __FreeBSD__
-        #define S_IRUSR NOTSET
-        #define S_IWUSR NOTSET
-    #endif
-#else
-    #define srand48 srand  /*!< Quietly alias srand48 to be srand on Windows */
-    #define lrand48 rand   /*!< Quietly alias lrand48 to be rand on Windows */
-    #define F_RDLCK NOTSET /*!< If value doesn't exist on Windows, ignore it */
-    #define F_WRLCK NOTSET /*!< If value doesn't exist on Windows, ignore it */
-    #define O_FSYNC NOTSET /*!< If value doesn't exist on Windows, ignore it */
-    #ifndef SIGQUIT
-        #define SIGQUIT SIGBREAK /*!< If value doesn't exist on Windows, use next closest match */
-    #endif
-    #ifndef ECANCELED
-        #define ECANCELED 125 /*!< Make sure the missing error code exists */
-    #endif
-    #define __attribute__(x) /*!< MinGW cannot handle attributes correctly */
-    #define __LITTLE_ENDIAN 1234 /*!< Not defined in MinGW, so set here */
-    #define __BYTE_ORDER __LITTLE_ENDIAN /*!< Windows is almost always going to be LE */
-    
-    #define __bswap_16(x) /*!< Define ourselves a 2-byte swap macro */ \
-        ((((x) & 0xff00) >> 8)\
-       | (((x) & 0x00ff) << 8))
+#ifndef O_BINARY
+    #define O_BINARY NOTSET /*!< Value is only relevant on MS systems (and is required), pretend it exists elsewhere */
+#endif
 
-    #define ntohs(x) __bswap_16(x) /*!< Make sure that network-to-host-short exists */
-    #define htons(x) __bswap_16(x) /*!< Make sure that host-to-network-short exists */
+#if defined __APPLE__ || defined __FreeBSD__
+    #define program_invocation_short_name getprogname() /*!< This is the best/closest we have */
+    #undef F_RDLCK         /*!< Undefine value on Mac OS X as it causes runtime issues */
+    #define F_RDLCK NOTSET /*!< Set value to NOTSET */
+    #undef F_WRLCK         /*!< Undefine value on Mac OS X as it causes runtime issues */
+    #define F_WRLCK NOTSET /*!< Set value to NOTSET */
+#endif
 
-    #define __bswap_32(x) /*!< Define ourselves a 4-byte swap macro */ \
-        ((((x) & 0xff000000ul) >> 24) \
-       | (((x) & 0x00ff0000ul) >>  8) \
-       | (((x) & 0x0000ff00ul) <<  8) \
-       | (((x) & 0x000000fful) << 24))
-
-    #define ntohl(x) __bswap_32(x) /*!< Make sure that network-to-host-long exists */
-    #define htonl(x) __bswap_32(x) /*!< Make sure that host-to-network-long exists */
+#ifdef __FreeBSD__
+    #define S_IRUSR NOTSET
+    #define S_IWUSR NOTSET
 #endif
 
 #ifndef __bswap_64
