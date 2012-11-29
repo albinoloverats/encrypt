@@ -1,18 +1,18 @@
 # Project: encrypt
 # Makefile created by Dev-C++ 4.9.9.2
 
-CPP  = g++.exe -D__DEBUG__
-CC   = gcc.exe -D__DEBUG__
+CPP  = g++.exe
+CC   = gcc.exe
 WINDRES = windres.exe
 RES  = src/encrypt_private.res
 OBJ  = src/main.o src/common/logging.o src/common/error.o src/common/win32_ext.o src/io.o src/encrypt.o src/version.o src/init.o src/gui-gtk.o $(RES)
 LINKOBJ  = src/main.o src/common/logging.o src/common/error.o src/common/win32_ext.o src/io.o src/encrypt.o src/version.o src/init.o src/gui-gtk.o $(RES)
-LIBS =  -L"C:/MinGW/lib" -L"C:/extra/lib" -mwindows -lgtk-win32-2.0  -lgdk-win32-2.0  -latk-1.0  -lgdk_pixbuf-2.0  -lpangowin32-1.0  -lgdi32  -lpango-1.0  -lgobject-2.0  -lgmodule-2.0  -lglib-2.0 -lgladeui-1 -lpthread -lcurldll -lgcrypt -lgpg-error -llzma  -g3 
+LIBS =  -L"C:/MinGW/lib" -L"C:/extra/lib" -mwindows -lgtk-win32-2.0  -lgdk-win32-2.0  -latk-1.0  -lgdk_pixbuf-2.0  -lpangowin32-1.0  -lgdi32  -lpango-1.0  -lgobject-2.0  -lgmodule-2.0  -lglib-2.0 -lgladeui-1 -lpthread -lcurldll -lgcrypt -lgpg-error -llzma 
 INCS =  -I"C:/Dev-Cpp/include"  -I"src"  -I"C:/extra/include" 
 CXXINCS =  -I"C:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Dev-Cpp/include/c++/3.4.2"  -I"C:/Dev-Cpp/include"  -I"src"  -I"C:/extra/include" 
 BIN  = encrypt.exe
-CXXFLAGS = $(CXXINCS)   -g3
-CFLAGS = $(INCS) -DBUILD_GUI -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -std=gnu99 -mms-bitfields -I"C:\extra\gtk\include" -I"C:\extra\gtk\include\gtk-2.0"  -I"C:\extra\gtk\include\atk-1.0"  -I"C:\extra\gtk\include\pango-1.0"  -I"C:\extra\gtk\include\glib-2.0"  -I"C:\extra\gtk\lib\gtk-2.0\include"  -I"C:\extra\gtk\lib\glib-2.0\include"  -I"C:\extra\gtk\include\freetype2" -I"C:\extra\gtk\include\gail-1.0" -I"C:\extra\gtk\include\gdk-pixbuf-2.0" -I"C:\extra\gtk\include\gio-win32-2.0" -I"C:\extra\gtk\include\cairo"   -g3
+CXXFLAGS = $(CXXINCS)
+CFLAGS = $(INCS) -DBUILD_GUI -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -std=gnu99 -mms-bitfields -I"C:\extra\gtk\include" -I"C:\extra\gtk\include\gtk-2.0"  -I"C:\extra\gtk\include\atk-1.0"  -I"C:\extra\gtk\include\pango-1.0"  -I"C:\extra\gtk\include\glib-2.0"  -I"C:\extra\gtk\lib\gtk-2.0\include"  -I"C:\extra\gtk\lib\glib-2.0\include"  -I"C:\extra\gtk\include\freetype2" -I"C:\extra\gtk\include\gail-1.0" -I"C:\extra\gtk\include\gdk-pixbuf-2.0" -I"C:\extra\gtk\include\gio-win32-2.0" -I"C:\extra\gtk\include\cairo"
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
