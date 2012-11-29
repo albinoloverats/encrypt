@@ -62,12 +62,14 @@
        | (((x) & 0x00000000000000ffull) << 56))
 #endif
 
-#if __BYTE_ORDER == __BIG_ENDIAN && !defined __APPLE__ && !defined __FreeBSD__
+#if __BYTE_ORDER == __LITTLE_ENDIAN || BYTE_ORDER == LITTLE_ENDIAN || _WIN32
+    #define ntohll(x) __bswap_64(x) /*!< Do need to swap bytes from network byte order */
+    #define htonll(x) __bswap_64(x) /*!< Do need to swap bytes to network byte order */
+#elif __BYTE_ORDER == __BIG_ENDIAN || BYTE_ORDER == BIG_ENDIAN
     #define ntohll(x) (x) /*!< No need to swap bytes from network byte order */
     #define htonll(x) (x) /*!< No need to swap bytes to network byte order */
-#elif __BYTE_ORDER == __LITTLE_ENDIAN
-    #define ntohll(x) __bswap_64(x) /*!< Do need to swap bytes (mostly on Mac OS X) */
-    #define htonll(x) __bswap_64(x) /*!< Do need to swap bytes (mostly on Mac OS X) */
+#else
+    #error "Unknown endianness!"
 #endif
 
 #if !defined _WIN32 && !defined __CYGWIN__ && !defined __APPLE__
