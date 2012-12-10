@@ -27,7 +27,7 @@
  * \brief   Mostly common macros, useful when dealing with different OS's
  *
  * Various macros which help with the transition from one OS to another.
- * There were originlly part of the main common library until it was
+ * There were originally part of the main common library until it was
  * torn apart to reduce complexity.
  */
 
@@ -39,15 +39,15 @@
 
 #if defined __APPLE__ || defined __FreeBSD__
     #define program_invocation_short_name getprogname() /*!< This is the best/closest we have */
-    #undef F_RDLCK         /*!< Undefine value on Mac OS X as it causes runtime issues */
+    #undef F_RDLCK         /*!< Undefined value on Mac OS X as it causes runtime issues */
     #define F_RDLCK NOTSET /*!< Set value to NOTSET */
-    #undef F_WRLCK         /*!< Undefine value on Mac OS X as it causes runtime issues */
+    #undef F_WRLCK         /*!< Undefined value on Mac OS X as it causes runtime issues */
     #define F_WRLCK NOTSET /*!< Set value to NOTSET */
 #endif
 
 #ifdef __FreeBSD__
-    #define S_IRUSR NOTSET
-    #define S_IWUSR NOTSET
+    #define S_IRUSR NOTSET /*!< Unsupported on FreeBSD */
+    #define S_IWUSR NOTSET /*!< Unsupported on FreeBSD */
 #endif
 
 #ifndef __bswap_64
@@ -60,6 +60,8 @@
        | (((x) & 0x0000000000ff0000ull) << 24) \
        | (((x) & 0x000000000000ff00ull) << 40) \
        | (((x) & 0x00000000000000ffull) << 56))
+#else
+    #error "Here we are!"
 #endif
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN || BYTE_ORDER == LITTLE_ENDIAN || _WIN32
@@ -72,18 +74,14 @@
     #error "Unknown endianness!"
 #endif
 
-#if !defined _WIN32 && !defined __CYGWIN__ && !defined __APPLE__
-    #include <libintl.h>
-    #define _(s) gettext(s) /*!< Allow use of _() to refer to gettext() */
-#else
-    #define _(s) s /*!< Don't yet support translations on MS Windows */
-#endif
+//#if !defined _WIN32 && !defined __CYGWIN__ && !defined __APPLE__
+//    #define _(s) gettext(s) /*!< Allow use of _() to refer to gettext() */
+//#else
+    #define _(s) s /*!< Don't yet support translations on MS Windows or Apple OS X */
+//#endif
 
-#define CONCAT(A, B) CONCAT2(A, B) /*!< Function overloading argument concatination (part 1) */
-#define CONCAT2(A, B) A ## B       /*!< Function overloading argument concatination (part 2) */
-
-#define ARGS_COUNT(...) ARGS_COUNT2(__VA_ARGS__, 7, 6, 5, 4, 3, 2, 1) /*!< Function overloading argument count (part 1) */
-#define ARGS_COUNT2(_1, _2, _3, _4, _5, _6, _7, _, ...) _             /*!< Function overloading argument count (part 2) */
+#define CONCAT(A, B) CONCAT2(A, B) /*!< Function overloading argument concatenation (part 1) */
+#define CONCAT2(A, B) A ## B       /*!< Function overloading argument concatenation (part 2) */
 
 /*! Brief overview of the GNU General Public License (version 3) */
 #define TEXT_LICENCE \
@@ -98,9 +96,17 @@
     "You should have received a copy of the GNU General Public License\n"     \
     "along with this program.  If not, see <http://www.gnu.org/licenses/>.\n"
 
-#define ONE_MILLION 1000000 /*!< Integer value for 1 million */
-#define TEN_MILLION 10000000 /*!< Integer value for 10 million */
+#define THOUSAND 1000
+#define MILLION 1000000 /*!< Integer value for 1 million (ideal for timing related things) */
+#define THOUSAND_MILLION 1000000000
+#define MILLION_MILLION 1000000000000
+
+#define KILOBYTE 1024
+#define MEGABYTE 1048576
+#define GIGABYTE 1073741824
 
 #define RANDOM_SEED_SIZE 3 /*!< Size of random seed value in bytes */
+
+typedef unsigned char byte_t; /*!< A byte is just 8 bits, no signedness or an other fancy stuff ;-) */
 
 #endif /* _COMMON_H_ */

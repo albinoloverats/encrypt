@@ -21,23 +21,83 @@
 #ifndef _ENCRYPT_IO_H_
 #define _ENCRYPT_IO_H_
 
-#include <gcrypt.h>
-#include <lzma.h>
+/*!
+ * \file    io.h
+ * \author  Ashley M Anderson
+ * \date    2009-2012
+ * \brief   IO functions for encrypt
+ *
+ * Advanced IO functions for encryption/compression. Wraps read/write
+ * with crypto functions and LZMA compression for encrypt.
+ */
 
-typedef struct io_params_t
-{
-    gcry_cipher_hd_t cipher;
-    int algorithm;
-    lzma_stream *lzma;
-}
-io_params_t;
+#include <stdint.h> /*!< Necessary include as c99 standard integer types are referenced in this header */
 
-extern int lzma_sync(int64_t f, io_params_t *c);
-extern ssize_t lzma_write(int64_t f, const void * const restrict d, size_t l, io_params_t *c);
-extern ssize_t lzma_read(int64_t f, void * const d, size_t l, io_params_t *c);
+typedef void * IO_HANDLE; /*<! Handle type for IO functions */
 
-extern int enc_sync(int64_t f, io_params_t *c);
-extern ssize_t enc_write(int64_t f, const void * const restrict d, size_t l, io_params_t *c);
-extern ssize_t enc_read(int64_t f, void * const d, size_t l, io_params_t *c);
+/*!
+ * \brief         Open a file
+ * \param[in]  n  The file name
+ * \param[in]  f  File open flags
+ * \param[in]  m  File open mode
+ *
+ * Open a file. Using these IO functions wraps the typical IO functions
+ * with encryption and compression support.
+ */
+extern IO_HANDLE io_open(const char *n, int f, mode_t m);
 
-#endif /* _ENCRYPT_IO_H_ */
+/*!
+ * \brief         Destroy an IO instance
+ * \param[in]  h  An IO instance to destroy
+ *
+ * Close's the file and free resources when no longer needed.
+ */
+extern int io_close(IO_HANDLE h);
+
+extern IO_HANDLE io_use_stdin(void);
+extern IO_HANDLE io_use_stdout(void);
+
+extern bool io_is_stdin(IO_HANDLE h);
+extern bool io_is_stdout(IO_HANDLE h);
+
+/*!
+ * \brief         Write data
+ * \param[in]  f  An IO instance
+ * \param[in]  d  The data to write
+ * \param[in]  l  The length of data to write
+ * \return        The number of bytes written
+ *
+ * Write the given data to the given file descriptor, performing any
+ * necessary operations before it is actually written. Returns the
+ * number of bytes actually written.
+ */
+extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l);
+
+/*!
+ * \brief         Read data
+ * \param[in]  f  An IO instance
+ * \param[out] d  The data read
+ * \param[in]  l  The length of data to read (size of d)
+ * \return        The number of bytes read
+ *
+ * Read the specified number of bytes from the given file descriptor,
+ * performing any necessary operations before it's returned.
+ */
+extern ssize_t io_read(IO_HANDLE f, void *d, size_t l);
+
+/*!
+ * \brief         Sync data waiting to be written
+ * \param[in]  f  An IO instance
+ *
+ * Performs a sync of all outstanding data to be written.
+ */
+extern int io_sync(IO_HANDLE f);
+
+extern off_t io_seek(IO_HANDLE f, off_t, int);
+
+extern void io_encryption_init(IO_HANDLE f, const char *c, const char *h, const uint8_t *k, size_t l);
+extern void io_compression_init(IO_HANDLE f);
+extern void io_encryption_checksum_init(IO_HANDLE f);
+extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l);
+
+#endif /* ! _ENCRYPT_IO_H_ */

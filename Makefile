@@ -2,11 +2,11 @@
 
 APP      = encrypt
 
-SOURCE   = src/main.c src/init.c src/encrypt.c src/io.c src/version.c
+SOURCE   = src/main.c src/init.c src/crypto.c src/encrypt.c src/decrypt.c src/io.c
 GUI      = src/gui-gtk.c
-COMMON   = src/common/error.c src/common/logging.c
+COMMON   = src/common/error.c src/common/logging.c src/common/tlv.c src/common/version.c
 
-CFLAGS   = -Wall -Wextra -Werror -Wno-unused-parameter -std=gnu99 `libgcrypt-config --cflags` -pipe -O2
+CFLAGS   = -Wall -Wextra -Werror -Wno-unused-parameter -std=gnu99 `libgcrypt-config --cflags` -pipe -O0 -ggdb
 CPPFLAGS = -Isrc -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DLOG_DEFAULT=LOG_WARNING
 GUIFLAGS = -DBUILD_GUI `pkg-config --cflags gtk+-3.0 gmodule-2.0`
 
@@ -16,7 +16,7 @@ GUILIBS  = `pkg-config --libs gtk+-3.0 gmodule-2.0`
 all: gui language man
 
 cli:
-	@$(CC) $(CFLAGS) $(CPPFLAGS) $(SOURCE) $(COMMON) $(LIBS) -o $(APP)
+	@$(CC) $(LIBS) $(CFLAGS) $(CPPFLAGS) $(SOURCE) $(COMMON) -o $(APP)
 	@echo "built \`$(SOURCE) $(COMMON)' --> \`$(APP)'"
 
 gui:

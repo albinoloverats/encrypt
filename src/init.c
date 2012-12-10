@@ -38,7 +38,7 @@
 #endif
 
 #include "init.h"
-#include "encrypt.h"
+#include "crypto.h"
 
 static char *parse_config_tail(const char *c, const char *l);
 static void print_version(void);
@@ -163,6 +163,16 @@ extern args_t init(int argc, char **argv)
                 a.output = strdup(argv[optind++]);
             else
                 optind++;
+    }
+    if (a.source && !strcmp(a.source, "-"))
+    {
+        free(a.source);
+        a.source = NULL;
+    }
+    if (a.output && !strcmp(a.output, "-"))
+    {
+        free(a.output);
+        a.output = NULL;
     }
 
     return a;

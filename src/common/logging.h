@@ -27,11 +27,11 @@
  * \date    2009-2012
  * \brief   Common logging code shared between projects
  *
- * Common logging code, for outputing warnings and errors to the user, or
- * other log file
+ * Common logging code; for outputing warnings and errors to the user or
+ * other log file.
  */
 
-#include <inttypes.h>
+#include <stdint.h> /*!< Necessary include as c99 standard integer types are referenced in this header */
 
 #ifdef _WIN32
     #define flockfile(f)   (void)f /*!< Function doesn't exist on Windows - ginore it */
@@ -54,9 +54,9 @@
 /*!
  * \brief  Enumeration of log level values
  *
- * Log level values to use when calling log_message()
+ * Log level values to use when calling log_message().
  */
-typedef enum log_e
+typedef enum
 {
     LOG_EVERYTHING, /*!< Log out everything (use with caution) */
     LOG_VERBOSE,    /*!< Really verbose logging */
@@ -71,10 +71,10 @@ log_e;
 
 /*!
  * \brief         Redirect STDERR
- * \param[in]  f  A file name to log messages to; if NULL, stderr is used
+ * \param[in]  f  A file name to log messages to; uses stderr if NULL
  *
- * Useful for redirecting error messages to a log file after the application
- * has started if running as a daemon
+ * Useful for redirecting error messages to a log file after the
+ * application has started if running as a daemon.
  */
 extern void log_redirect(const char * const restrict f) __attribute__((nonnull(1)));
 
@@ -82,8 +82,8 @@ extern void log_redirect(const char * const restrict f) __attribute__((nonnull(1
  * \brief         Update the log level
  * \param[in]  l  The new minimum log level
  *
- * Update the minimum level of logging; all messages which are the given level
- * or higher will be displaayed
+ * Update the minimum level of logging; all messages which are the given
+ * level or higher will be displaayed.
  */
 extern void log_relevel(log_e l);
 
@@ -91,7 +91,7 @@ extern void log_relevel(log_e l);
  * \brief         Parse the string to get the desired log level
  * \param[in]  l  The string name of the log level
  *
- * Get the log_e value for the given string
+ * Get the log_e value for the given string.
  */
 extern log_e log_parse_level(const char * const restrict l) __attribute__((nonnull(1)));
 
@@ -101,18 +101,18 @@ extern log_e log_parse_level(const char * const restrict l) __attribute__((nonnu
  * \param[in]  v  Data to display
  * \param[in]  s  Length of data in bytes
  *
- * Trace out the bytes (displayed as hexadecimal values) in the byte array
- * of the given length. Output is to either a logfile or stderr
+ * Trace out the bytes (displayed as hexadecimal values) in the byte
+ * array of the given length. Output is to either a logfile or stderr.
  */
 extern void log_binary(log_e l, const void * const restrict v, uint64_t s) __attribute__((nonnull(2)));
 
 /*!
  * \brief         Display messages to the user on STDERR
  * \param[in]  l  Log level of this message
- * \param[in]  s  String format, followed by optional additional variables
+ * \param[in]  s  String format followed by additional variables
  *
- * Trace out a text message to either a logfile or stderr, using the given
- * log level value
+ * Trace out a text message to either a logfile or stderr, using the
+ * given log level value.
  */
 extern void log_message(log_e l, const char * const restrict s, ...) __attribute__((format(printf, 2, 3)));
 

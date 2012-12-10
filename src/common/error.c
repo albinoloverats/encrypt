@@ -18,14 +18,17 @@
  *
  */
 
+#include <errno.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdarg.h>
-#include <errno.h>
+
 #if !defined _WIN32 && !defined __CYGWIN__ && !defined __FreeBSD__
     #include <execinfo.h>
 #endif
+
 #include <ctype.h>
 #include <string.h>
 

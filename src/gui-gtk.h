@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef _GUI_H_
-#define _GUI_H_
+#ifndef _ENCRYPT_GUI_GTK_H_
+#define _ENCRYPT_GUI_GTK_H_
 
 #include <gtk/gtk.h>
 
@@ -91,4 +91,4 @@ extern void update_status_bar(gtk_widgets_t *data, int64_t status);
 extern char *gtk_file_hack_cipher;
 extern char *gtk_file_hack_hash;
 
-#endif /* _GUI_H_ */
+#endif /* _ENCRYPT_GUI_GTK_H_ */

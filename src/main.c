@@ -18,13 +18,19 @@
  *
  */
 
+#include <errno.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <stdarg.h>
 
 #include <string.h>
 #include <stdbool.h>
+
+#include <time.h>
+#include <math.h>
 
 #include <pthread.h>
 #include <sys/stat.h>
@@ -33,6 +39,8 @@
 #include "common/common.h"
 #include "common/error.h"
 #include "common/logging.h"
+#include "common/version.h"
+
 #ifdef _WIN32
     #include "common/win32_ext.h"
     extern char *program_invocation_short_name;
@@ -40,8 +48,13 @@
 
 #include "init.h"
 #include "main.h"
+
+//#include "cli.h"
+
+#include "crypto.h"
 #include "encrypt.h"
-#include "version.h"
+#include "decrypt.h"
+
 #ifdef BUILD_GUI
     #include "gui-gtk.h"
 #endif
@@ -49,15 +62,17 @@
 extern char *gtk_file_hack_cipher;
 extern char *gtk_file_hack_hash;
 
-static void *ui_thread_cli(void *);
+extern void cli_display(crypto_t *);
+extern void cli_print_line(const char * const restrict s, ...) __attribute__((format(printf, 1, 2)));
+static void cli_append_bps(float);
 
-static bool list_algorithms_hash(void);
-static bool list_algorithms_crypt(void);
+static bool list_ciphers(void);
+static bool list_hashes(void);
 
 int main(int argc, char **argv)
 {
 #ifdef __DEBUG__
-    fprintf(stderr, _("\n**** DEBUG BUILD ****\n\n"));
+    cli_print_line(_("\n**** DEBUG BUILD ****\n"));
 #endif
 
 #ifdef _WIN32
@@ -69,18 +84,16 @@ int main(int argc, char **argv)
      * list available algorithms if asked to (possibly both hash and crypto)
      */
     bool la = false;
-    if (args.hash && !strcasecmp(args.hash, "list"))
-        la = list_algorithms_hash();
     if (args.cipher && !strcasecmp(args.cipher, "list"))
-        la = list_algorithms_crypt();
+        la = list_ciphers();
+    if (args.hash && !strcasecmp(args.hash, "list"))
+        la = list_hashes();
     if (la)
         return EXIT_SUCCESS;
 
-    pthread_t version_thread;
-
-    bool dodec = false;
+    bool dode = false;
     if (!strcmp(argv[0], ALT_NAME))
-        dodec = true;
+        dode = true;
 
 #ifdef BUILD_GUI
     gtk_widgets_t *widgets;
@@ -90,16 +103,16 @@ int main(int argc, char **argv)
     bool fe = false;
     if (args.source)
         fe = file_encrypted(args.source);
-    struct stat s;
 #ifndef _WIN32
-    fstat(STDIN_FILENO, &s);
+    struct stat n;
+    fstat(STDIN_FILENO, &n);
     struct stat t;
     fstat(STDOUT_FILENO, &t);
 
     if (fe || (args.hash && args.cipher && (args.source || args.output)))
         ; /* user has given enough arguments on command line that we'll skip the gui */
 #if 0 /* currently causing problems */
-    else if (!isatty(STDIN_FILENO) && (S_ISREG(s.st_mode) || S_ISFIFO(s.st_mode)))
+    else if (!isatty(STDIN_FILENO) && (S_ISREG(n.st_mode) || S_ISFIFO(n.st_mode)))
         ; /* stdin is a redirect from a file or a pipe */
     else if (!isatty(STDOUT_FILENO) && (S_ISREG(t.st_mode) || S_ISFIFO(t.st_mode)))
         ; /* stdout is a redirect to a file or a pipe */
@@ -148,11 +161,11 @@ int main(int argc, char **argv)
         g_object_unref(G_OBJECT(builder));
         gtk_widget_show(widgets->main_window);
 
-        version_thread = bg_thread_initialise(check_new_version, widgets);
+        version_check_for_update(widgets);
 
 #ifndef _WIN32
         /*
-         * TODO find a way to select and display file encrypt
+         * TODO find a way to select and display file to encrypt
          */
         if (args.source)
         {
@@ -192,74 +205,50 @@ int main(int argc, char **argv)
      * NB If (When) encrypt makes it into a package manager for some
      * distro this can/should be removed as it will be unnecessary
      */
-    version_thread = bg_thread_initialise(check_new_version);
+    version_check_for_update(ENCRYPT_VERSION, UPDATE_URL);
 
-    /*
-     * setup where the data is coming from; use stdin/stdout if no files are
-     * suggested
-     */
-    int64_t source = STDIN_FILENO;
-    int64_t output = STDOUT_FILENO;
-
-    if (args.source)
-    {
-        log_message(LOG_VERBOSE, _("Requested source file: %s"), args.source);
-        source = open(args.source, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
-        if (source < 0)
-            die(_("Could not access input file %s"), args.source);
-        log_message(LOG_DEBUG, "Opened %s for read access", args.source);
-    }
-    if (args.output)
-    {
-        log_message(LOG_VERBOSE, _("Requested output file %s"), args.output);
-        output = open(args.output, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY | F_WRLCK, S_IRUSR | S_IWUSR);
-        if (output < 0)
-            die(_("Could not access output file %s"), args.output);
-        log_message(LOG_DEBUG, _("Opened %s for write access"), args.output);
-    }
-
-    encrypt_t e_data = { args.cipher, args.hash, { NULL, 0, NULL, 0 }, true, args.compress };
     /*
      * get raw key data in form of password/phrase, key file
      */
+    uint8_t *key;
+    size_t length;
     if (args.key)
     {
-        int64_t kf = open(args.key, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
-        if (kf < 0)
-            die(_("Could not access key data file"));
-        e_data.key.p_length = lseek(kf, 0, SEEK_END);
-        e_data.key.p_data = malloc(e_data.key.p_length);
-        if (!e_data.key.p_data)
-            die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, e_data.key.p_length);
-        read(kf, e_data.key.p_data, e_data.key.p_length);
-        close(kf);
+        key = (uint8_t *)args.key;
+        length = 0;
     }
     else if (args.password)
     {
-        e_data.key.p_data = (uint8_t *)args.password;
-        e_data.key.p_length = (uint64_t)strlen((char *)e_data.key.p_data);
+        key = (uint8_t *)args.password;
+        length = strlen(args.password);
     }
     else if (isatty(STDIN_FILENO))
     {
-        e_data.key.p_data = (uint8_t *)getpass(_("Please enter a password: "));
-        e_data.key.p_length = (uint64_t)strlen((char *)e_data.key.p_data);
+        key = (uint8_t *)getpass(_("Please enter a password: "));
+        length = strlen((char *)key);
+        printf("\n");
     }
     else
         show_usage();
     /*
      * here we go ...
      */
-    pthread_t ui_thread = bg_thread_initialise(ui_thread_cli);
-    status_e status = PREPROCESSING;
-    if (file_encrypted(source) || dodec)
-        status = main_decrypt(source, output, e_data);
+    crypto_t *c;
+    
+    if (dode || (args.source && file_encrypted(args.source)))
+        c = decrypt_init(args.source, args.output, key, length);
     else
-        status = main_encrypt(source, output, e_data);
-    pthread_join(ui_thread, NULL);
-    close(source);
+        c = encrypt_init(args.source, args.output, args.cipher, args.hash, key, length, args.compress);
 
-    if (status >= CANCELLED)
-        fprintf(stderr, _("%s"), FAILED_MESSAGE[status]);
+    execute(c);
+
+    /*
+     * only display the UI if not outputing to stdout (and if stderr is
+     * a terminal)
+     */
+    cli_display(c);
+
+    deinit(&c);
 
 #endif /* ! _WIN32 */
 
@@ -267,62 +256,114 @@ int main(int argc, char **argv)
 eop:
 #endif
 
-    pthread_join(version_thread, NULL);
     if (new_version_available)
-        log_message(LOG_INFO, _(NEW_VERSION_AVAILABLE));
+        cli_print_line(_(NEW_VERSION_OF_AVAILABLE), program_invocation_short_name);
 
 #ifdef __DEBUG__
-    fprintf(stderr, _("\n**** DEBUG BUILD ****\n\n"));
+    cli_print_line(_("\n**** DEBUG BUILD ****\n"));
 #endif
 
     return EXIT_SUCCESS;
 }
 
-static void *ui_thread_cli(void *n)
+extern void cli_display(crypto_t *c)
 {
-    log_message(LOG_EVERYTHING, _("Starting UI thread..."));
-    (void)n;
-    fprintf(stderr, _("\rPercent complete: %7.3f%%"), 0.0f);
-    uint64_t sz = 0;
-    do
+    struct stat t;
+    fstat(STDOUT_FILENO, &t);
+    bool ui = isatty(STDERR_FILENO) && (c->output || S_ISREG(t.st_mode));
+    float bps = 0.0 / 0.0;
+
+    while (c->status == INIT || c->status == RUNNING)
     {
-#ifndef _WIN32
-        struct timespec t = {0, TEN_MILLION};
-        struct timespec r = {0, 0};
-        do
-            nanosleep(&t, &r);
-        while (r.tv_sec > 0 && r.tv_nsec > 0);
-#endif
-        if (!sz)
-            sz = get_decrypted_size();
-        else
-            fprintf(stderr, "\b\b\b\b\b\b\b\b%7.3f%%", (get_bytes_processed() * 100.0f / sz));
+        if (ui)
+        {
+            /*
+             * display percent complete
+             */
+            float pc = (100.0 * c->total.offset + 100.0 * c->current.offset / c->current.size) / c->total.size;
+            if (c->total.offset == c->total.size)
+                pc = 100.0 * c->total.offset / c->total.size;
+            fprintf(stderr, "\r%3.0f%% ", pc);
+            /*
+             * display progress bar (currently hardcoded for 80 columns)
+             */
+            fprintf(stderr, "[");
+            int pb = c->total.size == 1 ? 62 : 27;
+            for (int i = 0; i < pb; i++)
+            {
+                if (i < pb * pc / 100)
+                    fprintf(stderr, "=");
+                else
+                    fprintf(stderr, " ");
+            }
+            if (c->total.size > 1)
+            {
+                fprintf(stderr, "] %3.0f%% [", 100.0 * c->current.offset / c->current.size);
+                for (int i = 0; i < pb; i++)
+                {
+                    if (i < (int)((float)pb * c->current.offset / c->current.size))
+                        fprintf(stderr, "=");
+                    else
+                        fprintf(stderr, " ");
+                }
+            }
+            fprintf(stderr, "] ");
+            /*
+             * display bytes/second (prefixed as necessary)
+             */
+            bps = (float)c->current.offset / (time(NULL) - c->current.started);
+            cli_append_bps(bps);
+        }
+
+        struct timespec s = { 0, MILLION };
+        nanosleep(&s, NULL);
     }
-    while (get_status() == RUNNING);
 
-    fprintf(stderr, _("\rPercent complete: %7.3f%%\n"), 100.0f);
-    log_message(LOG_EVERYTHING, _("Finished UI thread"));
-    return NULL;
+    if (ui)
+    {
+        if (c->status == SUCCESS)
+        {
+            if (c->total.size == 1)
+                fprintf(stderr, "\r100%% [==============================================================] ");
+            else
+                fprintf(stderr, "\r100%% [===========================] 100%% [===========================] ");
+            cli_append_bps(bps);
+        }
+        fprintf(stderr, "\n");
+    }
+    return;
 }
 
-extern pthread_t bg_thread_initialise2(void *(fn)(void *), void *n)
+extern void cli_print_line(const char * const restrict s, ...)
 {
-    /*
-     * initialize background thread
-     */
-    log_message(LOG_EVERYTHING, _("Setting up UI thread"));
-    pthread_t bg_thread;
-    pthread_attr_t a;
-    pthread_attr_init(&a);
-    pthread_attr_setdetachstate(&a, PTHREAD_CREATE_JOINABLE);
-    pthread_create(&bg_thread, &a, fn, n);
-    pthread_attr_destroy(&a);
-    return bg_thread;
+    va_list ap;
+    va_start(ap, s);
+    vfprintf(stderr, s, ap);
+    fprintf(stderr, "\n");
+    va_end(ap);
 }
 
-static bool list_algorithms_hash(void)
+static void cli_append_bps(float bps)
 {
-    char **l = get_algorithms_hash();
+    if (isnan(bps))
+        fprintf(stderr, " ---.- B/s");
+    else
+    {
+        if (bps < 1000)
+            fprintf(stderr, "%5.1f B/s", bps);
+        else if (bps < MILLION)
+            fprintf(stderr, "%5.1f KB/s", bps / KILOBYTE);
+        else if (bps < THOUSAND_MILLION)
+            fprintf(stderr, "%5.1f MB/s", bps / MEGABYTE);
+        else if (bps < MILLION_MILLION)
+            fprintf(stderr, "%5.1f GB/s", bps / GIGABYTE);
+    }
+    return;
+}
+
+static bool list_ciphers(void)
+{
+    char **l = list_of_ciphers();
     for (int i = 0; ; i++)
     {
         if (!l[i])
@@ -335,9 +376,9 @@ static bool list_algorithms_hash(void)
     return true;
 }
 
-static bool list_algorithms_crypt(void)
+static bool list_hashes(void)
 {
-    char **l = get_algorithms_crypt();
+    char **l = list_of_hashes();
     for (int i = 0; ; i++)
     {
         if (!l[i])

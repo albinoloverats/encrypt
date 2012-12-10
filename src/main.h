@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef _MAIN_H_
-#define _MAIN_H_
+#ifndef _ENCRYPT_MAIN_H_
+#define _ENCRYPT_MAIN_H_
 
 #define bg_thread_initialise1(A) bg_thread_initialise2(A, NULL)
 #define bg_thread_initialise(...) CONCAT(bg_thread_initialise, ARGS_COUNT(__VA_ARGS__))(__VA_ARGS__)
@@ -31,4 +31,4 @@
  */
 extern pthread_t bg_thread_initialise2(void *(fn)(void *), void *n);
 
-#endif /* _MAIN_H_ */
+#endif /* ! _ENCRYPT_MAIN_H_ */

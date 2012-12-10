@@ -18,13 +18,14 @@
  *
  */
 
-#ifndef _ENCRYPT_VERSION_H_
-#define _ENCRYPT_VERSION_H_
+#ifndef _COMMON_VERSION_H_
+#define _COMMON_VERSION_H_
 
-#define NEW_VERSION_AVAILABLE "A new version of encrypt is available!"
+#define NEW_VERSION_AVAILABLE "A new version is available!"
+#define NEW_VERSION_OF_AVAILABLE "A new version of %s is available!"
 
-extern void *check_new_version(void *);
+extern void version_check_for_update(char *, char *);
 
 extern bool new_version_available;
 
-#endif /* _VERSION_H_ */
+#endif /* _COMMON_VERSION_H_ */

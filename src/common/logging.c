@@ -30,11 +30,9 @@
 
 #ifndef __APPLE__
     #include "common/common.h"
-    #include "common/error.h"
     #include "common/logging.h"
 #else
     #include "common.h"
-    #include "error.h"
     #include "logging.h"
 #endif
 
@@ -67,13 +65,11 @@ extern log_e log_parse_level(const char * const restrict l)
 {
     log_e e = LOG_DEFAULT;
     for (uint8_t i = 0; i < LOG_LEVEL_COUNT; i++)
-    {
         if (!strcasecmp(l, LOG_LEVELS[i]))
         {
             e = i;
             break;
         }
-    }
     return e;
 }
 

@@ -112,4 +112,4 @@ extern void show_usage(void) __attribute__((noreturn));
  */
 extern void show_version(void) __attribute__((noreturn));
 
-#endif /* _INIT_H_ */
+#endif /* ! _INIT_H_ */

@@ -18,11 +18,11 @@
  *
  */
 
-#ifndef _ERROR_H_
-#define _ERROR_H_
+#ifndef _COMMON_ERROR_H_
+#define _COMMON_ERROR_H_
 
 /*!
- * \file    die.h
+ * \file    error.h
  * \author  albinoloverats ~ Software Development
  * \date    2009-2012
  * \brief   Common logging code shared between projects
@@ -42,4 +42,4 @@
  */
 extern void die(const char * const restrict s, ...) __attribute__((noreturn, format(printf, 1, 2)));
 
-#endif /* _ERROR_H_ */
+#endif /* _COMMON_ERROR_H_ */

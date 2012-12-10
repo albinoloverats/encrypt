@@ -18,16 +18,16 @@
  *
  */
 
-#ifndef _ENCRYPT_ENCRYPT_H_
-#define _ENCRYPT_ENCRYPT_H_
+#ifndef _ENCRYPT_DECRYPT_H_
+#define _ENCRYPT_DECRYPT_H_
 
 /*!
- * \file    encrypt.h
+ * \file    decrypt.h
  * \author  Ashley M Anderson
  * \date    2009-2012
  * \brief   Main encryption routine
  *
- * The main encryption routine; the only visible function is for the
+ * The main decryption routine; the only visible function is for the
  * initialisation, which produces a crypto instance that can be executed
  * in the background when so desired.
  */
@@ -35,20 +35,17 @@
 #include "crypto.h"
 
 /*!
- * \brief         Create a new encryption instance
- * \param[in]  i  The source to encrypt
- * \param[in]  o  The output after encryption
- * \param[in]  c  The name of the cipher
- * \param[in]  h  The name of the hash
+ * \brief         Create a new decryption instance
+ * \param[in]  i  The source to decrypt
+ * \param[in]  o  The plaintext after decryption
  * \param[in]  k  Key data
  * \param[in]  l  Size of key data
- * \param[in]  x  Compress data before encryption
- * \return        A new encryption instance
+ * \return        A new decryption instance
  *
- * Create a new encryption instance, which if the status is INIT, is
+ * Create a new decryption instance, which if the status is INIT, is
  * ready to be executed. Any other status is a failure. If the input and
  * output file names are NULL, stdin/stdout will be used instead.
  */
-extern crypto_t *encrypt_init(const char * const restrict i, const char * const restrict o, const char * const restrict c, const char * const restrict h, const void * const restrict k, size_t l, bool x);
+extern crypto_t *decrypt_init(const char * const restrict, const char * const restrict, const void * const restrict, size_t);
 
-#endif /* ! _ENCRYPT_ENCRYPT_H */
+#endif /* ! _ENCRYPT_DECRYPT_H_ */

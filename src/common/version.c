@@ -19,44 +19,54 @@
  */
 
 #include <stdlib.h>
+
 #include <string.h>
 #include <stdbool.h>
+
 #include <curl/curl.h>
+#include <pthread.h>
 
-#include "version.h"
-#include "encrypt.h"
-#ifdef BUILD_GUI
-    #ifndef __APPLE__
-        #include "gui-gtk.h"
-    #else
-        #include "AppDelegate.h"
-    #endif
-#endif
+#include "common/version.h"
 
-static size_t verify_new_version(void *, size_t, size_t, void *);
+static void *version_check(void *);
+static size_t version_verify(void *, size_t, size_t, void *);
 
 bool new_version_available = false;
 
-extern void *check_new_version(void *n)
+static char *current = NULL;
+
+extern void version_check_for_update(char *c, char *url)
+{
+    if (!c || !url)
+        return;
+
+    current = c;
+
+    pthread_t vt;
+    pthread_attr_t a;
+    pthread_attr_init(&a);
+    pthread_attr_setdetachstate(&a, PTHREAD_CREATE_DETACHED);
+    pthread_create(&vt, &a, version_check, url);
+    pthread_attr_destroy(&a);
+    return;
+}
+
+static void *version_check(void *n)
 {
     curl_global_init(CURL_GLOBAL_ALL);
     CURL *curl_handle = curl_easy_init();
-    curl_easy_setopt(curl_handle, CURLOPT_URL, "https://albinoloverats.net/encrypt.release");
+    curl_easy_setopt(curl_handle, CURLOPT_URL, (char *)n);
 #ifdef WIN32
     curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
 #endif
     curl_easy_setopt(curl_handle, CURLOPT_NOPROGRESS, 1L);
-    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, verify_new_version);
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, version_verify);
     curl_easy_perform(curl_handle);
     curl_easy_cleanup(curl_handle);
-#if defined BUILD_GUI && !defined __APPLE__
-    if (n)
-        update_status_bar((gtk_widgets_t *)n, new_version_available ? -1 : 0);
-#endif
     return n;
 }
 
-static size_t verify_new_version(void *p, size_t s, size_t n, void *x)
+static size_t version_verify(void *p, size_t s, size_t n, void *x)
 {
     (void)x;
     char *b = calloc(s + 1, n);
@@ -64,7 +74,7 @@ static size_t verify_new_version(void *p, size_t s, size_t n, void *x)
     char *l = strrchr(b, '\n');
     if (l)
         *l = '\0';
-    if (strcmp(b, ENCRYPT_VERSION) > 0)
+    if (strcmp(b, current) > 0)
         new_version_available = true;
     free(b);
     return s * n;
