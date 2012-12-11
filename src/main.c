@@ -348,7 +348,7 @@ static void cli_append_bps(float bps)
     else
     {
         if (bps < 1000)
-            fprintf(stderr, "%5.1f B/s", bps);
+            fprintf(stderr, " %5.1f B/s", bps);
         else if (bps < MILLION)
             fprintf(stderr, "%5.1f KB/s", bps / KILOBYTE);
         else if (bps < THOUSAND_MILLION)
