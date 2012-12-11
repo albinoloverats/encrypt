@@ -271,7 +271,6 @@ extern void cli_display(crypto_t *c)
     struct stat t;
     fstat(STDOUT_FILENO, &t);
     bool ui = isatty(STDERR_FILENO) && (c->output || S_ISREG(t.st_mode));
-    float bps = 0.0 / 0.0;
 
     while (c->status == INIT || c->status == RUNNING)
     {
@@ -311,8 +310,7 @@ extern void cli_display(crypto_t *c)
             /*
              * display bytes/second (prefixed as necessary)
              */
-            bps = (float)c->current.offset / (time(NULL) - c->current.started);
-            cli_append_bps(bps);
+            cli_append_bps((float)c->current.offset / (time(NULL) - c->current.started));
         }
 
         struct timespec s = { 0, MILLION };
@@ -327,7 +325,7 @@ extern void cli_display(crypto_t *c)
                 fprintf(stderr, "\r100%% [==============================================================] ");
             else
                 fprintf(stderr, "\r100%% [===========================] 100%% [===========================] ");
-            cli_append_bps(bps);
+            cli_append_bps((float)c->total.total / (time(NULL) - c->total.started));
         }
         fprintf(stderr, "\n");
     }

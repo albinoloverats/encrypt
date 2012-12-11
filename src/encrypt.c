@@ -477,6 +477,7 @@ static void encrypt_stream(crypto_t *c)
     }
     while (b);
     free(buffer);
+    c->total.total += c->current.size;
     return;
 }
 
@@ -501,5 +502,6 @@ static void encrypt_file(crypto_t *c)
         }
         io_write(c->output, buffer, r);
     }
+    c->total.total += c->current.size;
     return;
 }

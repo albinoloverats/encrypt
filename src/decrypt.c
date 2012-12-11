@@ -516,6 +516,7 @@ static void decrypt_stream(crypto_t *c)
         c->current.offset += r;
     }
     free(buffer);
+    c->total.total += c->current.size;
     return;
 }
 
@@ -540,5 +541,6 @@ static void decrypt_file(crypto_t *c)
         }
         io_write(c->output, buffer, r);
     }
+    c->total.total += c->current.size;
     return;
 }

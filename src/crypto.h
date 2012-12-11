@@ -119,6 +119,7 @@ typedef struct
     time_t started;  /*!< Start time */
     uint64_t offset; /*!< Progress */
     uint64_t size;   /*!< Maximum */
+    uint64_t total;  /*<! Total bytes processed */
 }
 progress_t;
 
