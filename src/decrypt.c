@@ -189,6 +189,11 @@ static void *process(void *ptr)
         return NULL;
 
     io_encryption_init(c->source, c->cipher, c->hash, c->key, c->length);
+    free(c->cipher);
+    free(c->hash);
+    free(c->key);
+
+    bool skip_some_random = false;
     switch (version)
     {
         case HEADER_VERSION_201108:
@@ -197,16 +202,18 @@ static void *process(void *ptr)
             /*
              * these versions only had random data after the verification sum
              */
+            skip_some_random = true;
             break;
-        default:
-            skip_random_data(c);
     }
+    if (!skip_some_random)
+        skip_random_data(c);
     if (!read_verification_sum(c))
         return NULL;
     skip_random_data(c);
     if (!read_metadata(c))
         return NULL;
-    skip_random_data(c);
+    if (!skip_some_random)
+        skip_random_data(c);
 
     /*
      * main decryption loop
@@ -229,7 +236,7 @@ static void *process(void *ptr)
      *    it was only to allow pipe to give us data where we didn't know
      *    ahead of time the total size
      */
-    io_encryption_checksum_init(c->output);
+    io_encryption_checksum_init(c->source);
 
     if (c->directory)
         decrypt_directory(c, c->path);
@@ -256,7 +263,7 @@ static void *process(void *ptr)
          */
         uint8_t *cs = NULL;
         size_t cl = 0;
-        io_encryption_checksum(c->output, &cs, &cl);
+        io_encryption_checksum(c->source, &cs, &cl);
         uint8_t *b = malloc(cl);
         io_read(c->source, b, cl);
         if (memcmp(b, cs, cl))
@@ -264,6 +271,7 @@ static void *process(void *ptr)
             log_message(LOG_ERROR, _("Checksum verification failed"));
             c->status = FAILED_CHECKSUM;
         }
+        free(b);
     }
 
     skip_random_data(c); /* not entirely necessary as we already know we've reached the end of the file */
@@ -294,15 +302,15 @@ static uint64_t read_version(crypto_t *c)
     }
     uint8_t l;
     io_read(c->source, &l, sizeof l);
-    char *a = malloc(l + sizeof( char ));
+    char *a = calloc(l + sizeof( char ), sizeof( char ));
     io_read(c->source, a, l);
     char *h = strchr(a, '/');
     *h = '\0';
     h++;
-    asprintf(&c->cipher, "%s", a);
-    asprintf(&c->hash, "%s", h);
+    c->cipher = strdup(a);
+    c->hash = strdup(h);
     h--;
-    *h = '/';
+    *h = '/'; /* probably not necessary, but doesn't harm anyone */
     h = NULL;
     free(a);
 
@@ -427,9 +435,6 @@ static bool read_metadata(crypto_t *c)
 
 static void skip_random_data(crypto_t *c)
 {
-#if 1
-    (void)c;
-#else
     uint8_t l;
     io_read(c->source, &l, sizeof l);
     uint8_t *b = malloc(l);
@@ -437,7 +442,6 @@ static void skip_random_data(crypto_t *c)
         die(_("Out of memory @ %s:%d:%s [%hhu]"), __FILE__, __LINE__, __func__, l);
     io_read(c->source, b, l);
     free(b);
-#endif
     return;
 }
 

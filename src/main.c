@@ -49,8 +49,6 @@
 #include "init.h"
 #include "main.h"
 
-//#include "cli.h"
-
 #include "crypto.h"
 #include "encrypt.h"
 #include "decrypt.h"
@@ -62,8 +60,8 @@
 extern char *gtk_file_hack_cipher;
 extern char *gtk_file_hack_hash;
 
-extern void cli_display(crypto_t *);
-extern void cli_print_line(const char * const restrict s, ...) __attribute__((format(printf, 1, 2)));
+static void cli_display(crypto_t *);
+static void cli_print_line(const char * const restrict s, ...) __attribute__((format(printf, 1, 2)));
 static void cli_append_bps(float);
 
 static bool list_ciphers(void);
@@ -240,6 +238,8 @@ int main(int argc, char **argv)
     else
         c = encrypt_init(args.source, args.output, args.cipher, args.hash, key, length, args.compress);
 
+    init_deinit(args);
+
     execute(c);
 
     /*
@@ -266,7 +266,7 @@ eop:
     return EXIT_SUCCESS;
 }
 
-extern void cli_display(crypto_t *c)
+static void cli_display(crypto_t *c)
 {
     struct stat t;
     fstat(STDOUT_FILENO, &t);
@@ -332,7 +332,7 @@ extern void cli_display(crypto_t *c)
     return;
 }
 
-extern void cli_print_line(const char * const restrict s, ...)
+static void cli_print_line(const char * const restrict s, ...)
 {
     va_list ap;
     va_start(ap, s);

@@ -33,6 +33,7 @@ typedef struct
 {
     size_t tags;
     tlv_t *buffer;
+    uint8_t *export;
 }
 tlv_private_t;
 
@@ -43,9 +44,11 @@ extern TLV_HANDLE tlv_init(void)
 
 extern void tlv_deinit(TLV_HANDLE *ptr)
 {
-    if (!*ptr)
-        return;
     tlv_private_t *tlv_ptr = (tlv_private_t *)*ptr;
+    if (!tlv_ptr)
+        return;
+    if (tlv_ptr->export)
+        free(tlv_ptr->export);
     for (unsigned i = 0; i < tlv_ptr->tags; i++)
     {
         tlv_t tlv = tlv_ptr->buffer[i];
@@ -65,9 +68,9 @@ extern void tlv_deinit(TLV_HANDLE *ptr)
 
 extern void tlv_append(TLV_HANDLE *ptr, tlv_t tlv)
 {
-    if (!*ptr)
-        return;
     tlv_private_t *tlv_ptr = (tlv_private_t *)*ptr;
+    if (!tlv_ptr)
+        return;
     void *z = realloc(tlv_ptr->buffer, (tlv_ptr->tags + 1) * sizeof tlv);
     tlv_ptr->buffer = z;
     tlv_ptr->buffer[tlv_ptr->tags].tag = tlv.tag;
@@ -87,9 +90,9 @@ extern bool tlv_has_tag(TLV_HANDLE ptr, uint8_t tag)
 
 extern uint8_t *tlv_value_of(TLV_HANDLE ptr, uint8_t tag)
 {
-    if (!ptr)
-        return NULL;
     tlv_private_t *tlv_ptr = (tlv_private_t *)ptr;
+    if (!tlv_ptr)
+        return NULL;
     for (unsigned i = 0; i < tlv_ptr->tags; i++)
     {
         tlv_t tlv = tlv_ptr->buffer[i];
@@ -101,24 +104,26 @@ extern uint8_t *tlv_value_of(TLV_HANDLE ptr, uint8_t tag)
 
 extern uint8_t *tlv_export_aux(TLV_HANDLE ptr, bool nbo)
 {
-    if (!ptr)
-        return NULL;
     tlv_private_t *tlv_ptr = (tlv_private_t *)ptr;
+    if (!tlv_ptr)
+        return NULL;
     size_t size = tlv_size(tlv_ptr);
-    uint8_t *buf = malloc(size);
+    if (tlv_ptr->export)
+        free(tlv_ptr->export);
+    tlv_ptr->export = malloc(size);
     size_t off = 0;
     for (unsigned i = 0; i < tlv_ptr->tags; i++)
     {
         tlv_t tlv = tlv_ptr->buffer[i];
-        memcpy(buf + off, &tlv.tag, sizeof tlv.tag);
+        memcpy(tlv_ptr->export + off, &tlv.tag, sizeof tlv.tag);
         off += sizeof tlv.tag;
         uint16_t l = nbo ? htons(tlv.length) : tlv.length;
-        memcpy(buf + off, &l, sizeof tlv.length);
+        memcpy(tlv_ptr->export + off, &l, sizeof tlv.length);
         off += sizeof tlv.length;
-        memcpy(buf + off, tlv.value, tlv.length);
+        memcpy(tlv_ptr->export + off, tlv.value, tlv.length);
         off += tlv.length;
     }
-    return buf;
+    return tlv_ptr->export;
 }
 
 extern uint16_t tlv_count(TLV_HANDLE ptr)
@@ -130,9 +135,9 @@ extern uint16_t tlv_count(TLV_HANDLE ptr)
 
 extern size_t tlv_size(TLV_HANDLE ptr)
 {
-    if (!ptr)
-        return 0;
     tlv_private_t *tlv_ptr = (tlv_private_t *)ptr;
+    if (!tlv_ptr)
+        return 0;
     size_t size = 0;
     for (unsigned i = 0; i < tlv_ptr->tags; i++)
         size += sizeof( uint8_t ) + sizeof( uint16_t ) + tlv_ptr->buffer[i].length;

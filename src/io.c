@@ -53,6 +53,14 @@ typedef enum
 }
 io_e;
 
+typedef enum
+{
+    EOF_NO,
+    EOF_MAYBE,
+    EOF_YES
+}
+eof_e;
+
 typedef struct
 {
     uint8_t *stream;
@@ -71,20 +79,15 @@ typedef struct
 
     buffer_t *buffer;
 
+    eof_e eof;
+    uint8_t byte;
+
     bool lzma_init;
     lzma_stream lzma_handle;
 
     io_e operation;
 }
 io_private_t;
-
-typedef enum
-{
-    EOF_NO,
-    EOF_MAYBE,
-    EOF_YES
-}
-eof_e;
 
 static ssize_t lzma_write(io_private_t *, const void *, size_t);
 static ssize_t lzma_read(io_private_t *, void *, size_t);
@@ -104,19 +107,21 @@ extern IO_HANDLE io_open(const char *n, int f, mode_t m)
         return NULL;
     io_private_t *io_ptr = calloc(1, sizeof( io_private_t ));
     io_ptr->fd = fd;
+    io_ptr->eof = EOF_NO;
     return io_ptr;
 }
 
 extern int io_close(IO_HANDLE ptr)
 {
-    if (!ptr)
+    io_private_t *io_ptr = ptr;
+    if (!io_ptr)
     {
         errno = EBADF;
         return -1;
     }
-    io_private_t *io_ptr = ptr;
-
     int64_t fd = io_ptr->fd;
+    free(io_ptr->buffer->stream);
+    free(io_ptr->buffer);
 
     if (io_ptr->cipher_init)
     {
@@ -149,34 +154,34 @@ extern IO_HANDLE io_use_stdout(void)
 
 extern bool io_is_stdin(IO_HANDLE ptr)
 {
-    if (!ptr)
+    io_private_t *io_ptr = ptr;
+    if (!io_ptr)
     {
         errno = EBADF;
         return false;
     }
-    io_private_t *io_ptr = ptr;
     return io_ptr->fd == STDIN_FILENO;
 }
 
 extern bool io_is_stdout(IO_HANDLE ptr)
 {
-    if (!ptr)
+    io_private_t *io_ptr = ptr;
+    if (!io_ptr)
     {
         errno = EBADF;
         return false;
     }
-    io_private_t *io_ptr = ptr;
     return io_ptr->fd == STDOUT_FILENO;
 }
 
 extern void io_encryption_init(IO_HANDLE ptr, const char *c, const char *h, const uint8_t *k, size_t l)
 {
-    if (!ptr)
+    io_private_t *io_ptr = ptr;
+    if (!io_ptr)
     {
         errno = EBADF;
         return;
     }
-    io_private_t *io_ptr = ptr;
 
     /*
      * start setting up the encryption buffer
@@ -243,25 +248,29 @@ extern void io_encryption_init(IO_HANDLE ptr, const char *c, const char *h, cons
 
 extern void io_encryption_checksum_init(IO_HANDLE ptr)
 {
-    if (!ptr)
+    io_private_t *io_ptr = ptr;
+    if (!io_ptr)
     {
         errno = EBADF;
         return;
     }
-    io_private_t *io_ptr = ptr;
+
     if (io_ptr->cipher_init)
         return;
     gcry_md_reset(io_ptr->hash_handle);
+
+    return;
 }
 
 extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l)
 {
-    if (!ptr)
+    io_private_t *io_ptr = ptr;
+    if (!io_ptr)
     {
         errno = EBADF;
         return;
     }
-    io_private_t *io_ptr = ptr;
+
     if (io_ptr->cipher_init)
     {
         *l = 0;
@@ -272,30 +281,37 @@ extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l)
     if (!x)
         die(_("Out of memyyory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, *l);
     *b = x;
+
     return;
 }
 
 extern void io_compression_init(IO_HANDLE ptr)
 {
-    if (!ptr)
+    io_private_t *io_ptr = ptr;
+    if (!io_ptr)
     {
         errno = EBADF;
         return;
     }
-    io_private_t *io_ptr = ptr;
+
     io_ptr->operation = IO_LZMA;
     io_ptr->lzma_init = false;
+
     return;
 }
 
 extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l)
 {
-    if (!f)
+    io_private_t *io_ptr = f;
+    if (!io_ptr)
     {
         errno = EBADF;
         return -1;
     }
-    io_private_t *io_ptr = f;
+
+    if (io_ptr->cipher_init)
+        gcry_md_write(io_ptr->hash_handle, d, l);
+
     switch (io_ptr->operation)
     {
         case IO_LZMA:
@@ -308,6 +324,7 @@ extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l)
 
         case IO_DEFAULT:
             return write(io_ptr->fd, d, l);
+
     }
     errno = EINVAL;
     return -1;
@@ -315,43 +332,58 @@ extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l)
 
 extern ssize_t io_read(IO_HANDLE f, void *d, size_t l)
 {
-    if (!f)
+    io_private_t *io_ptr = f;
+    if (!io_ptr)
     {
         errno = EBADF;
         return -1;
     }
-    io_private_t *io_ptr = f;
+
+    ssize_t r = 0;
     switch (io_ptr->operation)
     {
         case IO_LZMA:
             if (!io_ptr->lzma_init)
                 io_do_decompress(io_ptr);
-            return lzma_read(io_ptr, d, l);
+            r = lzma_read(io_ptr, d, l);
+            break;
 
         case IO_ENCRYPT:
-            return enc_read(io_ptr, d, l);
+            r = enc_read(io_ptr, d, l);
+            break;
 
         case IO_DEFAULT:
-            return read(io_ptr->fd, d, l);
+            r = read(io_ptr->fd, d, l);
+            break;
+
+        default:
+            errno = EINVAL;
+            r = -1;
+            break;
     }
-    errno = EINVAL;
-    return -1;
+
+    if (r >= 0 && io_ptr->cipher_init)
+        gcry_md_write(io_ptr->hash_handle, d, r);
+
+    return r;
 }
 
 extern int io_sync(IO_HANDLE ptr)
 {
-    if (!ptr)
+    io_private_t *io_ptr = ptr;
+    if (!io_ptr)
     {
         errno = EBADF;
         return -1;
     }
-    io_private_t *io_ptr = ptr;
+
     switch (io_ptr->operation)
     {
         case IO_LZMA:
             return lzma_sync(io_ptr);
 
         case IO_ENCRYPT:
+            return enc_sync(io_ptr);
 
         case IO_DEFAULT:
             return fsync(io_ptr->fd);
@@ -362,12 +394,13 @@ extern int io_sync(IO_HANDLE ptr)
 
 extern off_t io_seek(IO_HANDLE ptr, off_t o, int w)
 {
-    if (!ptr)
+    io_private_t *io_ptr = ptr;
+    if (!io_ptr)
     {
         errno = EBADF;
         return -1;
     }
-    io_private_t *io_ptr = ptr;
+
     return lseek(io_ptr->fd, o, w);
 }
 
@@ -412,16 +445,13 @@ static ssize_t lzma_write(io_private_t *c, const void *d, size_t l)
 static ssize_t lzma_read(io_private_t *c, void *d, size_t l)
 {
     lzma_action a = LZMA_RUN;
-    static eof_e eof = EOF_NO;
-
-    static uint8_t buf = 0x00;
 
     c->lzma_handle.next_out = d;
     c->lzma_handle.avail_out = l;
 
-    if (eof == EOF_YES)
+    if (c->eof == EOF_YES)
         return 0;
-    else if (eof == EOF_MAYBE)
+    else if (c->eof == EOF_MAYBE)
     {
         a = LZMA_FINISH;
         goto proc_remain;
@@ -431,8 +461,8 @@ static ssize_t lzma_read(io_private_t *c, void *d, size_t l)
     {
         if (c->lzma_handle.avail_in == 0)
         {
-            c->lzma_handle.next_in = &buf;
-            switch (enc_read(c, &buf, sizeof buf))
+            c->lzma_handle.next_in = &c->byte;
+            switch (enc_read(c, &c->byte, sizeof c->byte))
             {
                 case 0:
                     a = LZMA_FINISH;
@@ -450,7 +480,7 @@ proc_remain:;
         switch (e)
         {
             case LZMA_STREAM_END:
-                eof = EOF_MAYBE;
+                c->eof = EOF_MAYBE;
             case LZMA_OK:
                 break;
             default:
@@ -458,7 +488,7 @@ proc_remain:;
                 return -1;
         }
 
-        if (c->lzma_handle.avail_out == 0 || eof != EOF_NO)
+        if (c->lzma_handle.avail_out == 0 || c->eof != EOF_NO)
             return l - c->lzma_handle.avail_out;
     }
 }
@@ -469,127 +499,92 @@ static int lzma_sync(io_private_t *c)
     return enc_sync(c);
 }
 
-static ssize_t enc_write(io_private_t *c, const void *d, size_t l)
+static ssize_t enc_write(io_private_t *f, const void *d, size_t l)
 {
-    return write(c->fd, d, l);
-}
-
-static ssize_t enc_read(io_private_t *c, void *d, size_t l)
-{
-    return read(c->fd, d, l);
-}
-
-static int enc_sync(io_private_t *c)
-{
-    return fsync(c->fd);
-}
-
-#if 0
-extern ssize_t enc_write(int64_t f, const void *d, size_t l, io_private_t *c)
-{
-    static uint8_t *stream = NULL;
-    static size_t block = 0;
-    static off_t offset[2] = { 0, 0 }; /* 0: length of data buffered so far (in stream); 1: length of data processed (from d) */
-    if (!block)
-        gcry_cipher_algo_info(c->algorithm, GCRYCTL_GET_BLKLEN, NULL, &block);
-    if (!stream)
-        if (!(stream = calloc(block, sizeof( uint8_t ))))
-            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, block * sizeof( uint8_t ));
-
-    size_t remainder[2] = { l, block - offset[0] }; /* 0: length of data yet to buffer (from d); 1: available space in output buffer (stream) */
+    size_t remainder[2] = { l, f->buffer->block - f->buffer->offset[0] }; /* 0: length of data yet to buffer (from d); 1: available space in output buffer (stream) */
     if (!d && !l)
     {
 #ifdef __DEBUG__
-        memset(stream + offset[0], 0x00, remainder[1]);
+        memset(f->buffer->stream + f->buffer->offset[0], 0x00, remainder[1]);
 #else
-        gcry_create_nonce(stream + offset[0], remainder[1]);
-        gcry_cipher_encrypt(c->cipher, stream, block, NULL, 0);
+        gcry_create_nonce(f->buffer->stream + f->buffer->offset[0], remainder[1]);
+        gcry_cipher_encrypt(f->cipher_handle, f->buffer->stream, f->buffer->block, NULL, 0);
 #endif
-        ssize_t e = write(f, stream, block);
-        fsync(f);
-        block = 0;
-        free(stream);
-        stream = NULL;
-        memset(offset, 0x00, sizeof offset);
+        ssize_t e = write(f->fd, f->buffer->stream, f->buffer->block);
+        fsync(f->fd);
+        f->buffer->block = 0;
+        free(f->buffer->stream);
+        f->buffer->stream = NULL;
+        memset(f->buffer->offset, 0x00, sizeof f->buffer->offset);
         return e;
     }
 
-    offset[1] = 0;
+    f->buffer->offset[1] = 0;
     while (remainder[0])
     {
         if (remainder[0] < remainder[1])
         {
-            memcpy(stream + offset[0], d + offset[1], remainder[0]);
-            offset[0] += remainder[0];
+            memcpy(f->buffer->stream + f->buffer->offset[0], d + f->buffer->offset[1], remainder[0]);
+            f->buffer->offset[0] += remainder[0];
             return l;
         }
-        memcpy(stream + offset[0], d + offset[1], remainder[1]);
+        memcpy(f->buffer->stream + f->buffer->offset[0], d + f->buffer->offset[1], remainder[1]);
 #ifndef __DEBUG__
-        gcry_cipher_encrypt(c->cipher, stream, block, NULL, 0);
+        gcry_cipher_encrypt(f->cipher_handle, f->buffer->stream, f->buffer->block, NULL, 0);
 #endif
         ssize_t e = EXIT_SUCCESS;
-        if ((e = write(f, stream, block)) < 0)
+        if ((e = write(f->fd, f->buffer->stream, f->buffer->block)) < 0)
             return e;
-        offset[0] = 0;
-        memset(stream, 0x00, block);
-        offset[1] += remainder[1];
+        f->buffer->offset[0] = 0;
+        memset(f->buffer->stream, 0x00, f->buffer->block);
+        f->buffer->offset[1] += remainder[1];
         remainder[0] -= remainder[1];
-        remainder[1] = block - offset[0];
+        remainder[1] = f->buffer->block - f->buffer->offset[0];
     }
     return l;
 }
 
-extern ssize_t enc_read(int64_t f, void *d, size_t l, io_private_t *c)
+static ssize_t enc_read(io_private_t *f, void *d, size_t l)
 {
-    static uint8_t *stream = NULL;
-    static size_t block = 0;
-    static size_t offset[3] = { 0, 0, 0 }; /* 0: length of available data in input buffer (stream); 1: available space in read buffer (d); 2: next available memory location for data (from d) */
-    if (!block)
-        gcry_cipher_algo_info(c->algorithm, GCRYCTL_GET_BLKLEN, NULL, &block);
-    if (!stream)
-        if (!(stream = calloc(block, sizeof( uint8_t ))))
-            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, block * sizeof( uint8_t ));
-
-    offset[1] = l;
-    offset[2] = 0;
+    f->buffer->offset[1] = l;
+    f->buffer->offset[2] = 0;
     while (true)
     {
-        if (offset[0] >= offset[1])
+        if (f->buffer->offset[0] >= f->buffer->offset[1])
         {
-            memcpy(d + offset[2], stream, offset[1]);
-            offset[0] -= offset[1];
-            uint8_t *x = calloc(block, sizeof( uint8_t ));
+            memcpy(d + f->buffer->offset[2], f->buffer->stream, f->buffer->offset[1]);
+            f->buffer->offset[0] -= f->buffer->offset[1];
+            uint8_t *x = calloc(f->buffer->block, sizeof( uint8_t ));
             if (!x)
-                die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, block * sizeof( uint8_t ));
-            memcpy(x, stream + offset[1], offset[0]);
-            memset(stream, 0x00, block);
-            memcpy(stream, x, offset[0]);
+                die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, f->buffer->block * sizeof( uint8_t ));
+            memcpy(x, f->buffer->stream + f->buffer->offset[1], f->buffer->offset[0]);
+            memset(f->buffer->stream, 0x00, f->buffer->block);
+            memcpy(f->buffer->stream, x, f->buffer->offset[0]);
             free(x);
             x = NULL;
             return l;
         }
 
-        memcpy(d + offset[2], stream, offset[0]);
-        offset[2] += offset[0];
-        offset[1] -= offset[0];
-        offset[0] = 0;
+        memcpy(d + f->buffer->offset[2], f->buffer->stream, f->buffer->offset[0]);
+        f->buffer->offset[2] += f->buffer->offset[0];
+        f->buffer->offset[1] -= f->buffer->offset[0];
+        f->buffer->offset[0] = 0;
 
         ssize_t e = EXIT_SUCCESS;
-        if ((e = read(f, stream, block)) < 0)
+        if ((e = read(f->fd, f->buffer->stream, f->buffer->block)) < 0)
             return e;
 #ifndef __DEBUG__
-        gcry_cipher_decrypt(c->cipher, stream, block, NULL, 0);
+        gcry_cipher_decrypt(f->cipher_handle, f->buffer->stream, f->buffer->block, NULL, 0);
 #endif
-        offset[0] = block;
+        f->buffer->offset[0] = f->buffer->block;
     }
 }
 
-extern int enc_sync(int64_t f, io_private_t *c)
+static int enc_sync(io_private_t *f)
 {
-    enc_write(f, NULL, 0, c);
+    enc_write(f, NULL, 0);
     return 0;
 }
-#endif
 
 static void io_do_compress(io_private_t *io_ptr)
 {
@@ -617,7 +612,7 @@ static void io_do_decompress(io_private_t *io_ptr)
     lzma_stream l = LZMA_STREAM_INIT;
     io_ptr->lzma_handle = l;
 
-    if (lzma_stream_decoder(&io_ptr->lzma_handle, UINT64_MAX, LZMA_CONCATENATED) != LZMA_OK)
+    if (lzma_stream_decoder(&io_ptr->lzma_handle, UINT64_MAX, 0/*LZMA_CONCATENATED*/) != LZMA_OK)
     {
         log_message(LOG_ERROR, "Could not setup liblzma for decompression!");
         return;

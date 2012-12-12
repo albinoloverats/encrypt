@@ -178,6 +178,23 @@ extern args_t init(int argc, char **argv)
     return a;
 }
 
+extern void init_deinit(args_t args)
+{
+    if (args.cipher)
+        free(args.cipher);
+    if (args.hash)
+        free(args.hash);
+    if (args.key)
+        free(args.key);
+    if (args.password)
+        free(args.password);
+    if (args.source)
+        free(args.source);
+    if (args.output)
+        free(args.output);
+    return;
+}
+
 extern void update_config(char *o, char *v)
 {
     if (!o || !v)

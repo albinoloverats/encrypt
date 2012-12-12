@@ -44,7 +44,6 @@
 static int algorithm_compare(const void *, const void *);
 
 static char *correct_sha1(const char * const restrict);
-static char *correct_tiger192(const char * const restrict);
 static char *correct_aes_rijndael(const char * const restrict);
 static char *correct_blowfish128(const char * const restrict);
 static char *correct_twofish256(const char * const restrict);
@@ -140,9 +139,7 @@ extern char **list_of_ciphers(void)
     for (int i = 0; i < len; i++)
     {
         const char *n = gcry_cipher_algo_name(lid[i]);
-        if (algorithm_is_duplicate(n))
-            continue;
-        else if (!strncasecmp(n, NAME_AES, strlen(NAME_AES)))
+        if (!strncasecmp(n, NAME_AES, strlen(NAME_AES)))
             l[j] = correct_aes_rijndael(n);
         else if (!strcasecmp(n, NAME_BLOWFISH))
             l[j] = correct_blowfish128(n);
@@ -177,8 +174,6 @@ extern char **list_of_hashes(void)
         const char *n = gcry_md_algo_name(lid[i]);
         if (algorithm_is_duplicate(n))
             continue;
-        else if (!strcasecmp(n, NAME_TIGER192))
-            l[j] = correct_tiger192(n);
         else if (!strncasecmp(n, NAME_SHA1, strlen(NAME_SHA1) - 1))
             l[j] = correct_sha1(n);
         else
@@ -236,6 +231,7 @@ extern int hash_id_from_name(const char * const restrict n)
     for (int i = 0; i < len; i++)
     {
         const char *x = gcry_md_algo_name(list[i]);
+        log_message(LOG_DEBUG, "[%s:%zu] [%s:%zu] [%s:%zu] [%s:%zu]", n, strlen(n), NAME_TIGER, strlen(NAME_TIGER), NAME_TIGER192, strlen(NAME_TIGER192), x, strlen(x));
         if (algorithm_is_duplicate(x))
             continue;
         char *y = NULL;
@@ -288,17 +284,6 @@ static char *correct_sha1(const char * const restrict n)
     if (strcasecmp(n, NAME_SHA1))
         return strdup(n);
     return strdup(NAME_SHA160);
-}
-
-static char *correct_tiger192(const char * const restrict n)
-{
-#ifndef _WIN32
-    return strndup(n, strlen(NAME_TIGER));
-#else
-    char *x = calloc(strlen(NAME_TIGER) + 1, sizeof( char ));
-    memcpy(x, n, strlen(NAME_TIGER));
-        return x;
-#endif
 }
 
 static char *correct_aes_rijndael(const char * const restrict n)

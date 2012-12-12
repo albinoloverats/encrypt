@@ -28,12 +28,15 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
+#include <ctype.h>
 #include <inttypes.h> // used instead of stdint as this defines the PRI… format placeholders (include <stdint.h> itself)
 #include <stdbool.h>
 #include <string.h>
 
 #include <time.h>
 #include <netinet/in.h>
+
+#include <gcrypt.h>
 
 #include "common/common.h"
 #include "common/error.h"
@@ -166,6 +169,9 @@ static void *process(void *ptr)
      * all data written from here on is encrypted
      */
     io_encryption_init(c->output, c->cipher, c->hash, c->key, c->length);
+    free(c->cipher);
+    free(c->hash);
+    free(c->key);
 
     write_random_data(c);
     write_verification_sum(c);
@@ -235,8 +241,20 @@ static inline void write_header(crypto_t *c)
     uint64_t head[3] = { htonll(HEADER_0), htonll(HEADER_1), htonll(HEADER_2) };
     io_write(c->output, head, sizeof head);
     char *algos = NULL;
-    if (!asprintf(&algos, "%s/%s", c->cipher, c->hash))
+    char *u_cipher = strdup(c->cipher);
+    if (!u_cipher)
+        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(c->cipher) + sizeof( byte_t ));
+    char *u_hash = strdup(c->hash);
+    if (!u_hash)
+        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(c->hash) + sizeof( byte_t ));
+    for (size_t i = 0; i < strlen(u_cipher); i++)
+        u_cipher[i] = toupper(u_cipher[i]);
+    for (size_t i = 0; i < strlen(u_hash); i++)
+        u_hash[i] = toupper(u_hash[i]);
+    if (!asprintf(&algos, "%s/%s", u_cipher, u_hash))
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(c->cipher) + strlen(c->hash) + 2);
+    free(u_cipher);
+    free(u_hash);
     uint8_t h = (uint8_t)strlen(algos);
     io_write(c->output, &h, sizeof h);
     io_write(c->output, algos, h);
@@ -251,10 +269,10 @@ static inline void write_verification_sum(crypto_t *c)
      * write simple addition (x ^ y = z) where x, y are random
      * 64bit signed integers
      */
-    // TODO use gcrypt random number generator
-    uint64_t x = 0x5555555555555555llu;
-    //gcry_create_nonce(&x, sizeof x);
-    uint64_t y = 0x9999999999999999llu;
+    int64_t x;
+    gcry_create_nonce(&x, sizeof x);
+    uint64_t y;
+    gcry_create_nonce(&y, sizeof y);
     uint64_t z = x ^ y;
     log_message(LOG_VERBOSE, "x = %" PRIx64 " ; y = %" PRIx64 " ; z = %" PRIx64, x, y, z);
     x = htonll(x);
@@ -313,21 +331,15 @@ static inline void write_metadata(crypto_t *c)
 
 static inline void write_random_data(crypto_t *c)
 {
-#if 1
-    (void)c;
-#else
-    uint8_t l = (uint8_t)(lrand48() & 0x000000FF);
+    uint8_t l;
+    gcry_create_nonce(&l, sizeof l);
     uint8_t *b = malloc(l);
     if (!b)
         die(_("Out of memory @ %s:%d:%s [%hhu]"), __FILE__, __LINE__, __func__, l);
-    // TODO use gcrypt random number generator
-    //gcry_create_nonce(b, l);
-    for (uint8_t i = 0; i < l; i++)
-        b[i] = (uint8_t)(lrand48() & 0x000000FF);
+    gcry_create_nonce(b, l);
     io_write(c->output, &l, sizeof l);
     io_write(c->output, b, l);
     free(b);
-#endif
     return;
 }
 

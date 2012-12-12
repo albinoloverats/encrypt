@@ -73,6 +73,8 @@ args_t;
  */
 extern args_t init(int argc, char **argv);
 
+extern void init_deinit(args_t args);
+
 /*!
  * \brief         Update configuration file
  * \param[in]  o  Option to update
