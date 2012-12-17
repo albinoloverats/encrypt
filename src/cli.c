@@ -141,8 +141,8 @@ static void cli_display_bar(float total, float current, bool single, float bps)
 
 static void cli_sigwinch(int s)
 {
-    struct winsize ws;                                                                                                                                                          
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);                                                                                                                                      
+    struct winsize ws;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
     cli_width = ws.ws_col;
     signal(SIGWINCH, cli_sigwinch);
 }
