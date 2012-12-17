@@ -29,9 +29,6 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include <time.h>
-#include <math.h>
-
 #include <pthread.h>
 #include <sys/stat.h>
 #include <libgen.h>
@@ -49,6 +46,8 @@
 #include "init.h"
 #include "main.h"
 
+#include "cli.h"
+
 #include "crypto.h"
 #include "encrypt.h"
 #include "decrypt.h"
@@ -60,17 +59,13 @@
 extern char *gtk_file_hack_cipher;
 extern char *gtk_file_hack_hash;
 
-static void cli_display(crypto_t *);
-static void cli_print_line(const char * const restrict s, ...) __attribute__((format(printf, 1, 2)));
-static void cli_append_bps(float);
-
 static bool list_ciphers(void);
 static bool list_hashes(void);
 
 int main(int argc, char **argv)
 {
 #ifdef __DEBUG__
-    cli_print_line(_("\n**** DEBUG BUILD ****\n"));
+    fprintf(stderr, _("\n**** DEBUG BUILD ****\n\n"));
 #endif
 
 #ifdef _WIN32
@@ -257,106 +252,13 @@ eop:
 #endif
 
     if (new_version_available)
-        cli_print_line(_(NEW_VERSION_OF_AVAILABLE), program_invocation_short_name);
+        fprintf(stderr, _(NEW_VERSION_OF_AVAILABLE_LINE), program_invocation_short_name);
 
 #ifdef __DEBUG__
-    cli_print_line(_("\n**** DEBUG BUILD ****\n"));
+    fprintf(stderr, _("\n**** DEBUG BUILD ****\n\n"));
 #endif
 
     return EXIT_SUCCESS;
-}
-
-static void cli_display(crypto_t *c)
-{
-    struct stat t;
-    fstat(STDOUT_FILENO, &t);
-    bool ui = isatty(STDERR_FILENO) && (c->output || S_ISREG(t.st_mode));
-
-    while (c->status == INIT || c->status == RUNNING)
-    {
-        if (ui)
-        {
-            /*
-             * display percent complete
-             */
-            float pc = (100.0 * c->total.offset + 100.0 * c->current.offset / c->current.size) / c->total.size;
-            if (c->total.offset == c->total.size)
-                pc = 100.0 * c->total.offset / c->total.size;
-            fprintf(stderr, "\r%3.0f%% ", pc);
-            /*
-             * display progress bar (currently hardcoded for 80 columns)
-             */
-            fprintf(stderr, "[");
-            int pb = c->total.size == 1 ? 62 : 27;
-            for (int i = 0; i < pb; i++)
-            {
-                if (i < pb * pc / 100)
-                    fprintf(stderr, "=");
-                else
-                    fprintf(stderr, " ");
-            }
-            if (c->total.size > 1)
-            {
-                fprintf(stderr, "] %3.0f%% [", 100.0 * c->current.offset / c->current.size);
-                for (int i = 0; i < pb; i++)
-                {
-                    if (i < (int)((float)pb * c->current.offset / c->current.size))
-                        fprintf(stderr, "=");
-                    else
-                        fprintf(stderr, " ");
-                }
-            }
-            fprintf(stderr, "] ");
-            /*
-             * display bytes/second (prefixed as necessary)
-             */
-            cli_append_bps((float)c->current.offset / (time(NULL) - c->current.started));
-        }
-
-        struct timespec s = { 0, MILLION };
-        nanosleep(&s, NULL);
-    }
-
-    if (ui)
-    {
-        if (c->status == SUCCESS)
-        {
-            if (c->total.size == 1)
-                fprintf(stderr, "\r100%% [==============================================================] ");
-            else
-                fprintf(stderr, "\r100%% [===========================] 100%% [===========================] ");
-            cli_append_bps((float)c->total.total / (time(NULL) - c->total.started));
-        }
-        fprintf(stderr, "\n");
-    }
-    return;
-}
-
-static void cli_print_line(const char * const restrict s, ...)
-{
-    va_list ap;
-    va_start(ap, s);
-    vfprintf(stderr, s, ap);
-    fprintf(stderr, "\n");
-    va_end(ap);
-}
-
-static void cli_append_bps(float bps)
-{
-    if (isnan(bps))
-        fprintf(stderr, " ---.- B/s");
-    else
-    {
-        if (bps < 1000)
-            fprintf(stderr, " %5.1f B/s", bps);
-        else if (bps < MILLION)
-            fprintf(stderr, "%5.1f KB/s", bps / KILOBYTE);
-        else if (bps < THOUSAND_MILLION)
-            fprintf(stderr, "%5.1f MB/s", bps / MEGABYTE);
-        else if (bps < MILLION_MILLION)
-            fprintf(stderr, "%5.1f GB/s", bps / GIGABYTE);
-    }
-    return;
 }
 
 static bool list_ciphers(void)

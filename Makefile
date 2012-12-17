@@ -2,7 +2,7 @@
 
 APP      = encrypt
 
-SOURCE   = src/main.c src/init.c src/crypto.c src/encrypt.c src/decrypt.c src/io.c
+SOURCE   = src/main.c src/cli.c src/init.c src/crypto.c src/encrypt.c src/decrypt.c src/io.c
 GUI      = src/gui-gtk.c
 COMMON   = src/common/error.c src/common/logging.c src/common/tlv.c src/common/version.c
 
