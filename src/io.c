@@ -120,8 +120,13 @@ extern int io_close(IO_HANDLE ptr)
         return -1;
     }
     int64_t fd = io_ptr->fd;
-    free(io_ptr->buffer->stream);
-    free(io_ptr->buffer);
+
+    if (io_ptr->buffer)
+    {
+        if (io_ptr->buffer->stream)
+            free(io_ptr->buffer->stream);
+        free(io_ptr->buffer);
+    }
 
     if (io_ptr->cipher_init)
     {
@@ -271,16 +276,18 @@ extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l)
         return;
     }
 
-    if (io_ptr->cipher_init)
+    if (!io_ptr->cipher_init)
     {
         *l = 0;
         return;
     }
+
     *l = gcry_md_get_algo_dlen(gcry_md_get_algo(io_ptr->hash_handle));
     uint8_t *x = realloc(*b, *l);
     if (!x)
         die(_("Out of memyyory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, *l);
     *b = x;
+    memcpy(*b, gcry_md_read(io_ptr->hash_handle, gcry_md_get_algo(io_ptr->hash_handle)), *l);
 
     return;
 }
