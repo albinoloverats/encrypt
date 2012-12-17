@@ -96,6 +96,8 @@
     "You should have received a copy of the GNU General Public License\n"     \
     "along with this program.  If not, see <http://www.gnu.org/licenses/>.\n"
 
+#define PERCENT 100.0f
+
 #define THOUSAND 1000
 #define MILLION 1000000 /*!< Integer value for 1 million (ideal for timing related things) */
 #define THOUSAND_MILLION 1000000000
