@@ -29,7 +29,7 @@
 
 #include "io.h"
 
-#define ENCRYPT_VERSION "2013.-1"
+#define ENCRYPT_VERSION "2013.00"
 #define UPDATE_URL "https://albinoloverats.net/encrypt.update"
 
 #define HEADER_VERSION_201108 0x72761df3e497c983llu /*!< The third 8 bytes of the original version (2011.08) */
