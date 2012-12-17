@@ -74,6 +74,14 @@ int main(int argc, char **argv)
     args_t args = init(argc, argv);
 
     /*
+     * start background thread to check for newer version of encrypt
+     *
+     * NB If (When) encrypt makes it into a package manager for some
+     * distro this can/should be removed as it will be unnecessary
+     */
+    version_check_for_update(ENCRYPT_VERSION, UPDATE_URL);
+
+    /*
      * list available algorithms if asked to (possibly both hash and crypto)
      */
     bool la = false;
@@ -154,8 +162,6 @@ int main(int argc, char **argv)
         g_object_unref(G_OBJECT(builder));
         gtk_widget_show(widgets->main_window);
 
-        version_check_for_update(widgets);
-
 #ifndef _WIN32
         /*
          * TODO find a way to select and display file to encrypt
@@ -192,14 +198,6 @@ int main(int argc, char **argv)
 #endif /* we couldn't create the gui, so revert back to command line */
 
 #ifndef _WIN32 /* it's GUI or nothing */
-    /*
-     * start background thread to check for newer version of encrypt
-     *
-     * NB If (When) encrypt makes it into a package manager for some
-     * distro this can/should be removed as it will be unnecessary
-     */
-    version_check_for_update(ENCRYPT_VERSION, UPDATE_URL);
-
     /*
      * get raw key data in form of password/phrase, key file
      */

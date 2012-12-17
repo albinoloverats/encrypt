@@ -37,21 +37,20 @@
 #include "common/common.h"
 #include "common/error.h"
 #include "common/logging.h"
+#include "common/version.h"
 
 #ifdef _WIN32
     #include "common/win32_ext.h"
 #endif
 
 #include "init.h"
-#include "main.h"
+#include "crypto.h"
 #include "encrypt.h"
-#include "version.h"
+#include "decrypt.h"
 
 #define _filename_utf8(A) g_filename_to_utf8(A, -1, NULL, NULL, NULL)
 
 #define NONE_SELECTED "(None)"
-
-extern char *FAILED_MESSAGE[];
 
 /*
  * FIXME There has to be a way to make gtk_file_chooser_set_filename
@@ -60,11 +59,12 @@ extern char *FAILED_MESSAGE[];
 char *gtk_file_hack_cipher = NULL;
 char *gtk_file_hack_hash = NULL;
 
-static void *bg_thread_gui(void *n);
+static void gui_display(crypto_t *, gtk_widgets_t *);
 
 static gboolean files = false;
 static bool encrypting = true;
 static bool compress = true;
+static bool running = false;
 
 G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *data)
 {
@@ -140,20 +140,39 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
         /*
          * quickly see if the file is encrypted already
          */
-        int64_t f = open(open_file, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
-        if (f > 0)
+        struct stat s;
+        stat(open_file, &s);
+        if (S_ISREG(s.st_mode))
         {
+            int64_t f = open(open_file, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
+            if (f > 0)
+            {
+                gtk_label_set_text((GtkLabel *)data->open_file_label, basename(open_file));
+                gtk_widget_show(data->open_file_image);
+
+                /*
+                 * TODO get algorithms from this function
+                 */
+                char *c = NULL, *h = NULL;
+                if (file_encrypted(open_file))
+                {
+                    encrypting = false;
+                    auto_select_algorithms(data, c, h);
+                }
+                else
+                    encrypting = true;
+                close(f);
+                gtk_button_set_label((GtkButton *)data->encrypt_button, encrypting ? LABEL_ENCRYPT : LABEL_DECRYPT);
+            }
+            else
+                en = FALSE;
+        }
+        else if (S_ISDIR(s.st_mode))
+        {
+            encrypting = true;
             gtk_label_set_text((GtkLabel *)data->open_file_label, basename(open_file));
             gtk_widget_show(data->open_file_image);
-
-            char *c = NULL, *h = NULL;
-            if (file_encrypted(f))
-            {
-                encrypting = false;
-                auto_select_algorithms(data, c, h);
-            }
-            close(f);
-            gtk_button_set_label((GtkButton *)data->encrypt_button, encrypting ? LABEL_ENCRYPT : LABEL_DECRYPT);
+            gtk_button_set_label((GtkButton *)data->encrypt_button, LABEL_ENCRYPT);
         }
         else
             en = FALSE;
@@ -175,7 +194,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
         /*
          * if the destination exists, it has to be a regular file
          */
-        if (errno == ENOENT || S_ISREG(s.st_mode))
+        if (errno == ENOENT || S_ISREG(s.st_mode) || S_ISDIR(s.st_mode))
         {
             gtk_label_set_text((GtkLabel *)data->save_file_label, basename(save_file));
             gtk_widget_show(data->save_file_image);
@@ -203,7 +222,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
 
 extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash)
 {
-    char **ciphers = get_algorithms_crypt();
+    char **ciphers = list_of_ciphers();
     unsigned slctd_cipher = 0;
     for (unsigned i = 0; ; i++)
     {
@@ -224,7 +243,7 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
     gtk_combo_box_set_active((GtkComboBox *)data->crypto_combo, slctd_cipher);
     free(ciphers);
 
-    char **hashes = get_algorithms_hash();
+    char **hashes = list_of_hashes();
     unsigned slctd_hash = 0;
     for (unsigned  i = 0; ; i++)
     {
@@ -272,7 +291,7 @@ G_MODULE_EXPORT gboolean key_combo_callback(GtkComboBox *combo_box, gtk_widgets_
 {
     switch (gtk_combo_box_get_active((GtkComboBox *)data->key_combo))
     {
-        case KEYFILE:
+        case 0://KEYFILE:
             gtk_widget_set_sensitive(data->password_entry, FALSE);
             gtk_widget_set_sensitive(data->key_button, TRUE);
             gtk_widget_hide(data->password_entry);
@@ -280,7 +299,7 @@ G_MODULE_EXPORT gboolean key_combo_callback(GtkComboBox *combo_box, gtk_widgets_
             key_dialog_okay(NULL, data);
             break;
 
-        case PASSWORD:
+        case 1://PASSWORD:
             gtk_widget_set_sensitive(data->password_entry, TRUE);
             gtk_widget_set_sensitive(data->key_button, FALSE);
             gtk_widget_show(data->password_entry);
@@ -351,8 +370,6 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
     log_message(LOG_EVERYTHING, _("Show progress dialog"));
     gtk_widget_show(data->progress_dialog);
 
-    pthread_t bgt = bg_thread_initialise(bg_thread_gui, data);
-
     log_message(LOG_EVERYTHING, _("Reset cancel/close buttons"));
     gtk_widget_set_sensitive(data->progress_cancel_button, TRUE);
     gtk_widget_show(data->progress_cancel_button);
@@ -363,144 +380,52 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
     gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress_bar, 0.0);
     gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar, "");
 
-    uint64_t sz = 0;
+    char *source = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog));
+    char *output = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog));
 
-    log_message(LOG_EVERYTHING, _("Update progress bar in loop"));
-    status_e status = PREPROCESSING;
-    do
+    uint8_t *key;
+    size_t length;
+    switch (gtk_combo_box_get_active((GtkComboBox *)data->key_combo))
     {
-        if (!sz)
-            sz = get_decrypted_size();
-        else
-        {
-            uint64_t bp = get_bytes_processed();
-            gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress_bar, (double)bp / (double)sz);
-
-            char *prgs = NULL;
-            asprintf(&prgs, "%" PRIu64 " / %" PRIu64, bp, sz);
-            gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar, prgs);
-            free(prgs);
-        }
-        status = get_status();
-        gtk_main_iteration_do(FALSE);
-    }
-    while (status == RUNNING);
-
-
-    void *r = NULL;
-    pthread_join(bgt, &r);
-    memcpy(&status, r, sizeof status);
-    free(r);
-    log_message(LOG_VERBOSE, _("Background thread finished with status: %d"), status);
-
-    update_status_bar(data, status);
-
-    char *msg;
-    if (status == SUCCEEDED)
-    {
-        gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress_bar, 1.0);
-        msg = STATUS_DONE;
-    }
-    else
-        msg = FAILED_MESSAGE[status];
-    gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar, msg);;
-
-    gtk_widget_set_sensitive(data->progress_cancel_button, FALSE);
-    gtk_widget_hide(data->progress_cancel_button);
-    gtk_widget_set_sensitive(data->progress_close_button, TRUE);
-    gtk_widget_show(data->progress_close_button);
-
-    return TRUE;
-}
-
-G_MODULE_EXPORT gboolean on_cancel_button_clicked(GtkButton *button, gtk_widgets_t *data)
-{
-    log_message(LOG_DEBUG, _("Cancel background thread"));
-    stop_running();
-
-    return TRUE;
-}
-
-G_MODULE_EXPORT gboolean on_close_button_clicked(GtkButton *button, gtk_widgets_t *data)
-{
-    gtk_widget_hide(data->progress_dialog);
-
-    return TRUE;
-}
-
-extern void update_status_bar(gtk_widgets_t *data, int64_t status)
-{
-    static int ctx = -1;
-    if (ctx != -1)
-        gtk_statusbar_pop((GtkStatusbar *)data->status_bar, ctx);
-    char *msg;
-    if (status == -1)
-        msg = NEW_VERSION_AVAILABLE;
-    else
-        msg = FAILED_MESSAGE[status] ? : STATUS_READY;
-    ctx = gtk_statusbar_get_context_id((GtkStatusbar *)data->status_bar, msg);
-    gtk_statusbar_push((GtkStatusbar *)data->status_bar, ctx, msg);
-}
-
-static void *bg_thread_gui(void *n)
-{
-    /*
-     * TODO add error checking/reporting for file access
-     */
-    gtk_widgets_t *data = (gtk_widgets_t *)n;
-
-    char *open_file = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog));
-    int64_t source = open(open_file, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
-    g_free(open_file);
-
-    char *save_file = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog));
-    int64_t output = open(save_file, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY | F_WRLCK, S_IRUSR | S_IWUSR);
-    g_free(save_file);
-
-    status_e status = SUCCEEDED;
-    void *r = calloc(1, sizeof status);
-
-    int key_type = gtk_combo_box_get_active((GtkComboBox *)data->key_combo);
-    raw_key_t key = {NULL, 0, NULL, 0};
-    switch (key_type)
-    {
-        case KEYFILE:
+        case 0://KEYFILE:
             {
                 char *key_file = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog));
                 int64_t kf = open(key_file, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
                 g_free(key_file);
                 if (kf < 0)
                 {
-                    status = FAILED_OTHER;
-                    memcpy(r, &status, sizeof status);
-                    pthread_exit(r);
-                    return NULL;
+                    /*
+                     * TODO implement error handling
+                     */
+                    return FALSE;
                 }
-                key.p_length = lseek(kf, 0, SEEK_END);
-                key.p_data = malloc(key.p_length);
-                if (!key.p_data)
-                    die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, key.p_length);
-                read(kf, key.p_data, key.p_length);
+                length = lseek(kf, 0, SEEK_END);
+                lseek(kf, 0, SEEK_SET);
+                if (!(key = malloc(length)))
+                    die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, length);
+                read(kf, key, length);
                 close(kf);
             }
             break;
 
-        case PASSWORD:
-            key.p_data = (uint8_t *)gtk_entry_get_text((GtkEntry *)data->password_entry);
-            key.p_length = strlen((char *)key.p_data);
+        case 1://PASSWORD:
+            {
+                char *k = (char *)gtk_entry_get_text((GtkEntry *)data->password_entry);
+                key = (uint8_t *)strdup(k);
+                g_free(k);
+                length = strlen((char *)key);
+            }
             break;
     }
-    encrypt_t e_data = { NULL, NULL, key, true, compress };
 
+    crypto_t *x;
     if (encrypting)
     {
         int c = gtk_combo_box_get_active((GtkComboBox *)data->crypto_combo);
         int h = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
-        char **ciphers = get_algorithms_crypt();
-        char **hashes = get_algorithms_hash();
-        e_data.cipher = ciphers[c - 1]; /* subtract 1 to get algorithm offset from combobox */
-        e_data.hash = hashes[h - 1];    /* combobox item 0 is the 'select...' text */
-        status = main_encrypt(source, output, e_data);
+        char **ciphers = list_of_ciphers();
+        char **hashes = list_of_hashes();
+        x = encrypt_init(source, output, ciphers[c - 1], hashes[h - 1], key, length, compress);
         for (int i = 0; ; i++)
             if (!ciphers[i])
                 break;
@@ -515,20 +440,72 @@ static void *bg_thread_gui(void *n)
         free(hashes);
     }
     else
-        status = main_decrypt(source, output, e_data);
+        x = decrypt_init(source, output, key, length);
 
-    close(source);
-    close(output);
+    running = true;
 
-    if (key_type == PASSWORD)
-        g_free(key.p_data);
-    else
-        free(key.p_data);
+    g_free(source);
+    g_free(output);
+    free(key);
 
-    memcpy(r, &status, sizeof status);
-    pthread_exit(r);
+    execute(x);
 
-    return r;
+    gui_display(x, data);
+
+    deinit(&x);
+
+    gtk_widget_set_sensitive(data->progress_cancel_button, FALSE);
+    gtk_widget_hide(data->progress_cancel_button);
+    gtk_widget_set_sensitive(data->progress_close_button, TRUE);
+    gtk_widget_show(data->progress_close_button);
+
+    return TRUE;
+}
+
+G_MODULE_EXPORT gboolean on_cancel_button_clicked(GtkButton *button, gtk_widgets_t *data)
+{
+    log_message(LOG_DEBUG, _("Cancel background thread"));
+    running = false;
+
+    return TRUE;
+}
+
+G_MODULE_EXPORT gboolean on_close_button_clicked(GtkButton *button, gtk_widgets_t *data)
+{
+    gtk_widget_hide(data->progress_dialog);
+
+    return TRUE;
+}
+
+static void gui_display(crypto_t *c, gtk_widgets_t *data)
+{
+    log_message(LOG_EVERYTHING, _("Update progress bar in loop"));
+
+    while (c->status == INIT || c->status == RUNNING)
+    {
+        if (!running)
+            c->status = CANCELLED;
+
+        struct timespec s = { 0, MILLION };
+        nanosleep(&s, NULL);
+
+        if (c->status == INIT)
+            continue;
+
+        gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress_bar, (double)c->total.offset / (double)c->total.size);
+        gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress_bar, (double)c->total.offset / (double)c->total.size);
+
+//        char *prgs = NULL;
+//        asprintf(&prgs, "%" PRIu64 " / %" PRIu64, bp, sz);
+//        gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar, prgs);
+//        free(prgs);
+
+        gtk_main_iteration_do(FALSE);
+    }
+
+    gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar, status(c));;
+
+    return;
 }
 
 G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_t *data)
