@@ -223,6 +223,7 @@ static void *process(void *ptr)
     size_t cl = 0;
     io_encryption_checksum(c->output, &cs, &cl);
     io_write(c->output, cs, cl);
+    free(cs);
 
     write_random_data(c);
 
