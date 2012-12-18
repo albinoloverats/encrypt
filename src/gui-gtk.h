@@ -37,9 +37,6 @@
     #define GLADE_UI_FILE "utils\\encrypt_w32.glade"
 #endif
 
-#define LABEL_ENCRYPT "Encrypt"
-#define LABEL_DECRYPT "Decrypt"
-
 typedef struct gtk_widgets_t
 {
     GtkWidget *main_window;
@@ -91,6 +88,8 @@ G_MODULE_EXPORT gboolean on_close_button_clicked(GtkButton *button, gtk_widgets_
 G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_t *data);
 
 G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *widget, gtk_widgets_t *data);
+
+extern void update_status_bar(GtkStatusbar *status_bar, const char *status);
 
 extern char *gtk_file_hack_cipher;
 extern char *gtk_file_hack_hash;

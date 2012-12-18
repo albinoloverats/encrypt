@@ -34,6 +34,7 @@
 #include <pthread.h>
 #include <libgen.h>
 
+#include "gui.h"
 #include "gui-gtk.h"
 
 #include "common/common.h"
@@ -483,6 +484,16 @@ G_MODULE_EXPORT gboolean on_close_button_clicked(GtkButton *button, gtk_widgets_
     return TRUE;
 }
 
+extern void update_status_bar(GtkStatusbar *status_bar, const char *status)
+{
+    static int ctx = -1;
+    if (ctx != -1)
+        gtk_statusbar_pop(status_bar, ctx);
+    ctx = gtk_statusbar_get_context_id(status_bar, status);
+    gtk_statusbar_push(status_bar, ctx, status);
+    return;
+}
+
 static void gui_display(crypto_t *c, gtk_widgets_t *data)
 {
     log_message(LOG_EVERYTHING, _("Update progress bar in loop"));
@@ -523,7 +534,7 @@ static void gui_display(crypto_t *c, gtk_widgets_t *data)
         float bps = (float)c->current.offset / (time(NULL) - c->current.started);
         char *bps_label = NULL;
         if (isnan(bps))
-            asprintf(&bps_label, "----.- B/s");
+            asprintf(&bps_label, "---.- B/s");
         else
         {
             if (bps < THOUSAND)
@@ -541,6 +552,7 @@ static void gui_display(crypto_t *c, gtk_widgets_t *data)
     }
 
     gtk_label_set_text((GtkLabel *)data->progress_label, status(c));
+    update_status_bar((GtkStatusbar *)data->status_bar, status(c));
 
     return;
 }
