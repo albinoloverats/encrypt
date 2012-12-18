@@ -62,10 +62,13 @@ typedef struct gtk_widgets_t
     GtkWidget *encrypt_button;
     GtkWidget *status_bar;
     GtkWidget *progress_dialog;
-    GtkWidget *progress_bar;
+    GtkWidget *progress_bar_total;
+    GtkWidget *progress_bar_current;
+    GtkWidget *progress_label;
     GtkWidget *progress_cancel_button;
     GtkWidget *progress_close_button;
     GtkWidget *about_dialog;
+    GtkWidget *about_new_version_label;
     GtkWidget *compress_menu_item;
 }
 gtk_widgets_t;

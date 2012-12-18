@@ -64,7 +64,16 @@ http://www.everaldo.com/</property>
           </packing>
         </child>
         <child>
-          <placeholder/>
+          <object class="GtkLabel" id="about_new_version_label">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="justify">center</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
         </child>
       </object>
     </child>
@@ -736,7 +745,7 @@ http://www.everaldo.com/</property>
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="progress_label">
+              <object class="GtkLabel" id="progress_dialog_label">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Please wait while encrypt
@@ -750,16 +759,44 @@ processes your file</property>
               </packing>
             </child>
             <child>
-              <object class="GtkProgressBar" id="progress_bar">
+              <object class="GtkProgressBar" id="progress_bar_total">
                 <property name="visible">True</property>
                 <property name="app_paintable">True</property>
                 <property name="can_focus">False</property>
+                <property name="text" translatable="yes">0 %</property>
                 <property name="show_text">True</property>
               </object>
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">False</property>
                 <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkProgressBar" id="progress_bar_current">
+                <property name="visible">True</property>
+                <property name="app_paintable">True</property>
+                <property name="can_focus">False</property>
+                <property name="text" translatable="yes">0 %</property>
+                <property name="show_text">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">False</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="progress_label">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">----.- B/s</property>
+                <property name="justify">center</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">4</property>
               </packing>
             </child>
           </object>

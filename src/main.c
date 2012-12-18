@@ -152,10 +152,13 @@ int main(int argc, char **argv)
         CH_GET_WIDGET(builder, encrypt_button, widgets);
         CH_GET_WIDGET(builder, status_bar, widgets);
         CH_GET_WIDGET(builder, progress_dialog, widgets);
-        CH_GET_WIDGET(builder, progress_bar, widgets);
+        CH_GET_WIDGET(builder, progress_bar_total, widgets);
+        CH_GET_WIDGET(builder, progress_bar_current, widgets);
+        CH_GET_WIDGET(builder, progress_label, widgets);
         CH_GET_WIDGET(builder, progress_cancel_button, widgets);
         CH_GET_WIDGET(builder, progress_close_button, widgets);
         CH_GET_WIDGET(builder, about_dialog, widgets);
+        CH_GET_WIDGET(builder, about_new_version_label, widgets);
         CH_GET_WIDGET(builder, compress_menu_item, widgets);
 
         gtk_builder_connect_signals(builder, widgets);

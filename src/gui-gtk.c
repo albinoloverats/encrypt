@@ -28,6 +28,8 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
+#include <time.h>
+#include <math.h>
 #include <sys/stat.h>
 #include <pthread.h>
 #include <libgen.h>
@@ -59,7 +61,7 @@
 char *gtk_file_hack_cipher = NULL;
 char *gtk_file_hack_hash = NULL;
 
-static void gui_display(crypto_t *, gtk_widgets_t *);
+static void gui_display(crypto_t *, gtk_widgets_t *, const bool);
 
 static gboolean files = false;
 static bool encrypting = true;
@@ -291,7 +293,7 @@ G_MODULE_EXPORT gboolean key_combo_callback(GtkComboBox *combo_box, gtk_widgets_
 {
     switch (gtk_combo_box_get_active((GtkComboBox *)data->key_combo))
     {
-        case 0://KEYFILE:
+        case 1://KEYFILE:
             gtk_widget_set_sensitive(data->password_entry, FALSE);
             gtk_widget_set_sensitive(data->key_button, TRUE);
             gtk_widget_hide(data->password_entry);
@@ -299,7 +301,7 @@ G_MODULE_EXPORT gboolean key_combo_callback(GtkComboBox *combo_box, gtk_widgets_
             key_dialog_okay(NULL, data);
             break;
 
-        case 1://PASSWORD:
+        case 2://PASSWORD:
             gtk_widget_set_sensitive(data->password_entry, TRUE);
             gtk_widget_set_sensitive(data->key_button, FALSE);
             gtk_widget_show(data->password_entry);
@@ -367,19 +369,7 @@ G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widge
 
 G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widgets_t *data)
 {
-    log_message(LOG_EVERYTHING, _("Show progress dialog"));
-    gtk_widget_show(data->progress_dialog);
-
-    log_message(LOG_EVERYTHING, _("Reset cancel/close buttons"));
-    gtk_widget_set_sensitive(data->progress_cancel_button, TRUE);
-    gtk_widget_show(data->progress_cancel_button);
-    gtk_widget_set_sensitive(data->progress_close_button, FALSE);
-    gtk_widget_hide(data->progress_close_button);
-
-    log_message(LOG_EVERYTHING, _("Reset progress bar"));
-    gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress_bar, 0.0);
-    gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar, "");
-
+    log_message(LOG_EVERYTHING, _("Initialise crypto routine"));
     char *source = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog));
     char *output = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog));
 
@@ -387,7 +377,7 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
     size_t length;
     switch (gtk_combo_box_get_active((GtkComboBox *)data->key_combo))
     {
-        case 0://KEYFILE:
+        case 1://KEYFILE:
             {
                 char *key_file = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog));
                 int64_t kf = open(key_file, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
@@ -408,7 +398,7 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
             }
             break;
 
-        case 1://PASSWORD:
+        case 2://PASSWORD:
             {
                 char *k = (char *)gtk_entry_get_text((GtkEntry *)data->password_entry);
                 key = (uint8_t *)strdup(k);
@@ -448,9 +438,33 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
     g_free(output);
     free(key);
 
+    log_message(LOG_EVERYTHING, _("Show progress dialog"));
+    gtk_widget_show(data->progress_dialog);
+
+    log_message(LOG_EVERYTHING, _("Reset cancel/close buttons"));
+    gtk_widget_set_sensitive(data->progress_cancel_button, TRUE);
+    gtk_widget_show(data->progress_cancel_button);
+    gtk_widget_set_sensitive(data->progress_close_button, FALSE);
+    gtk_widget_hide(data->progress_close_button);
+
+    log_message(LOG_EVERYTHING, _("Reset progress bar"));
+    gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress_bar_total, 0.0);
+    gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar_total, "");
+    gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress_bar_current, 0.0);
+    gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar_current, "");
+
+    bool single = false;
+    if (x->total.size == 1)
+    {
+        single = true;
+        gtk_widget_hide(data->progress_bar_current);
+    }
+    else
+        gtk_widget_show(data->progress_bar_current);
+
     execute(x);
 
-    gui_display(x, data);
+    gui_display(x, data, single);
 
     deinit(&x);
 
@@ -477,7 +491,7 @@ G_MODULE_EXPORT gboolean on_close_button_clicked(GtkButton *button, gtk_widgets_
     return TRUE;
 }
 
-static void gui_display(crypto_t *c, gtk_widgets_t *data)
+static void gui_display(crypto_t *c, gtk_widgets_t *data, const bool single)
 {
     log_message(LOG_EVERYTHING, _("Update progress bar in loop"));
 
@@ -492,24 +506,60 @@ static void gui_display(crypto_t *c, gtk_widgets_t *data)
         if (c->status == INIT)
             continue;
 
-        gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress_bar, (double)c->total.offset / (double)c->total.size);
-        gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress_bar, (double)c->total.offset / (double)c->total.size);
+        float pc = (PERCENT * c->total.offset + PERCENT * c->current.offset / c->current.size) / c->total.size;
+        if (c->total.offset == c->total.size)
+            pc = PERCENT * c->total.offset / c->total.size;
 
-//        char *prgs = NULL;
-//        asprintf(&prgs, "%" PRIu64 " / %" PRIu64, bp, sz);
-//        gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar, prgs);
-//        free(prgs);
+        gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress_bar_total, (double)pc / PERCENT);
+        char *tpc = NULL;
+        asprintf(&tpc, "%3.0f %%", pc);
+        gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar_total, tpc);
+        free(tpc);
+
+        if (!single)
+        {
+            float cp = PERCENT * c->current.offset / c->current.size;
+            gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress_bar_current, (double)cp / PERCENT);
+            char *cpc = NULL;
+            asprintf(&cpc, "%3.0f %%", cp);
+            gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar_current, cpc);
+            free(cpc);
+        }
+
+        float bps = (float)c->current.offset / (time(NULL) - c->current.started);
+        char *bps_label = NULL;
+        if (isnan(bps))
+            asprintf(&bps_label, "----.- B/s");
+        else
+        {
+            if (bps < THOUSAND)
+                asprintf(&bps_label, "%5.1f B/s", bps);
+            else if (bps < MILLION)
+                asprintf(&bps_label, "%5.1f KB/s", bps / KILOBYTE);
+            else if (bps < THOUSAND_MILLION)
+                asprintf(&bps_label, "%5.1f MB/s", bps / MEGABYTE);
+            else if (bps < MILLION_MILLION)
+                asprintf(&bps_label, "%5.1f GB/s", bps / GIGABYTE);
+        }
+        gtk_label_set_text((GtkLabel *)data->progress_label, bps_label);
 
         gtk_main_iteration_do(FALSE);
     }
 
-    gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar, status(c));;
+    gtk_label_set_text((GtkLabel *)data->progress_label, status(c));
 
     return;
 }
 
 G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_t *data)
 {
+    if (new_version_available)
+    {
+        char *text = NULL;
+        asprintf(&text, NEW_VERSION_OF_AVAILABLE, APP_NAME);
+        gtk_label_set_text((GtkLabel *)data->about_new_version_label, text);
+        free(text);
+    }
     gtk_dialog_run((GtkDialog *)data->about_dialog);
     gtk_widget_hide(data->about_dialog);
 
