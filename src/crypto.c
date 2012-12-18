@@ -56,6 +56,7 @@ static const char *STATUS_MESSAGE[] =
     "Initialisation",
     "Running",
     "Cancelled",
+    "Failed: Invalid initialisation parameters!",
     "Failed: Unsupported Version!",
     "Failed: Unsupported Algorithm!",
     "Failed: Decryption Failure!",

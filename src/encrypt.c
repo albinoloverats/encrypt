@@ -121,6 +121,12 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
     z->cipher = strdup(c);
     z->hash = strdup(h);
 
+    if (!k)
+    {
+        log_message(LOG_ERROR, _("Invalid key data"));
+        z->status = FAILED_INIT;
+        goto end;
+    }
     if (l)
     {
         if (!(z->key = malloc(l)))

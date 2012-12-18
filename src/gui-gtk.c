@@ -374,8 +374,8 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
     char *source = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog));
     char *output = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog));
 
-    uint8_t *key;
-    size_t length;
+    uint8_t *key = NULL;
+    size_t length = 0;
     switch (gtk_combo_box_get_active((GtkComboBox *)data->key_combo))
     {
         case 1://KEYFILE:

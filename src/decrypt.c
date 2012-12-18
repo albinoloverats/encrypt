@@ -139,6 +139,12 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
         c->output = io_use_stdout();
     }
 
+    if (!k)
+    {
+        log_message(LOG_ERROR, _("Invalid key data"));
+        c->status = FAILED_INIT;
+        goto end;
+    }
     if (l)
     {
         if (!(c->key = malloc(l)))

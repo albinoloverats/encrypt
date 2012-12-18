@@ -66,6 +66,7 @@ typedef enum
     INIT,                    /*!< Initialisation in progress or complete */
     RUNNING,                 /*!< Execution is in progress */
     CANCELLED,               /*!< User cancelled the operation */
+    FAILED_INIT,             /*!< Error during initialisation */
     FAILED_UNKNOWN_VERSION,  /*!< Failed due to unknown/unsupported encrypt data stream version */
     FAILED_UNKNOWN_ALGORITH, /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
     FAILED_DECRYPTION,       /*!< Failed decryption verification (likely wrong password) */

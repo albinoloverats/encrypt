@@ -206,8 +206,8 @@ int main(int argc, char **argv)
     /*
      * get raw key data in form of password/phrase, key file
      */
-    uint8_t *key;
-    size_t length;
+    uint8_t *key = NULL;
+    size_t length = 0;
     if (args.key)
     {
         key = (uint8_t *)args.key;
