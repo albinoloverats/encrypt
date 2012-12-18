@@ -59,7 +59,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
 {
     init_crypto();
 
-    crypto_t *c = malloc(sizeof( crypto_t ));
+    crypto_t *c = calloc(1, sizeof( crypto_t ));
     if (!c)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( crypto_t ));
 

@@ -61,7 +61,7 @@
 char *gtk_file_hack_cipher = NULL;
 char *gtk_file_hack_hash = NULL;
 
-static void gui_display(crypto_t *, gtk_widgets_t *, const bool);
+static void gui_display(crypto_t *, gtk_widgets_t *);
 
 static gboolean files = false;
 static bool encrypting = true;
@@ -452,19 +452,11 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
     gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar_total, "");
     gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress_bar_current, 0.0);
     gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar_current, "");
-
-    bool single = false;
-    if (x->total.size == 1)
-    {
-        single = true;
-        gtk_widget_hide(data->progress_bar_current);
-    }
-    else
-        gtk_widget_show(data->progress_bar_current);
+    gtk_widget_show(data->progress_bar_current);
 
     execute(x);
 
-    gui_display(x, data, single);
+    gui_display(x, data);
 
     deinit(&x);
 
@@ -491,7 +483,7 @@ G_MODULE_EXPORT gboolean on_close_button_clicked(GtkButton *button, gtk_widgets_
     return TRUE;
 }
 
-static void gui_display(crypto_t *c, gtk_widgets_t *data, const bool single)
+static void gui_display(crypto_t *c, gtk_widgets_t *data)
 {
     log_message(LOG_EVERYTHING, _("Update progress bar in loop"));
 
@@ -516,7 +508,9 @@ static void gui_display(crypto_t *c, gtk_widgets_t *data, const bool single)
         gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar_total, tpc);
         free(tpc);
 
-        if (!single)
+        if (c->total.size == 1)
+            gtk_widget_hide(data->progress_bar_current);
+        else
         {
             float cp = PERCENT * c->current.offset / c->current.size;
             gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress_bar_current, (double)cp / PERCENT);
