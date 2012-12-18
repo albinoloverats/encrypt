@@ -433,8 +433,6 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
     else
         x = decrypt_init(source, output, key, length);
 
-    running = true;
-
     g_free(source);
     g_free(output);
     free(key);
@@ -455,9 +453,15 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
     gtk_progress_bar_set_text((GtkProgressBar *)data->progress_bar_current, "");
     gtk_widget_show(data->progress_bar_current);
 
-    execute(x);
+    if (x->status == INIT)
+    {
+        running = true;
+        execute(x);
+    }
 
     gui_display(x, data);
+
+    update_status_bar((GtkStatusbar *)data->status_bar, status(c));
 
     deinit(&x);
 
@@ -552,7 +556,6 @@ static void gui_display(crypto_t *c, gtk_widgets_t *data)
     }
 
     gtk_label_set_text((GtkLabel *)data->progress_label, status(c));
-    update_status_bar((GtkStatusbar *)data->status_bar, status(c));
 
     return;
 }

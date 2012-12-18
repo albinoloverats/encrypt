@@ -238,13 +238,18 @@ int main(int argc, char **argv)
 
     init_deinit(args);
 
-    execute(c);
+    if (c->status == INIT)
+    {
+        execute(c);
+        /*
+         * only display the UI if not outputing to stdout (and if stderr is
+         * a terminal)
+         */
+        cli_display(c);
+    }
 
-    /*
-     * only display the UI if not outputing to stdout (and if stderr is
-     * a terminal)
-     */
-    cli_display(c);
+    if (c->status != SUCCESS)
+        fprintf(stderr, "%s\n", status(c));
 
     deinit(&c);
 

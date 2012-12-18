@@ -128,7 +128,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
             {
                 log_message(LOG_ERROR, _("Unsupported destination file type"));
                 c->output = NULL;
-                c->status = FAILED_IO;
+                c->status = FAILED_OUTPUT_MISMATCH;
                 goto end;
             }
         }
@@ -412,21 +412,43 @@ static bool read_metadata(crypto_t *c)
 
     if (tlv_has_tag(tlv, TAG_DIRECTORY))
         c->directory = *tlv_value_of(tlv, TAG_DIRECTORY);
-    if (c->directory && !c->output)
+    else
+        c->directory = false;
+    if (c->directory)
     {
-        log_message(LOG_DEBUG, _("Output is to a directory"));
-        mkdir(c->path, S_IRUSR | S_IWUSR | S_IXUSR);
+        struct stat s;
+        stat(c->path, &s);
+        if ((errno == ENOENT || S_ISDIR(s.st_mode)) && !c->output)
+        {
+            log_message(LOG_DEBUG, _("Output is to a directory"));
+            mkdir(c->path, S_IRUSR | S_IWUSR | S_IXUSR);
+        }
+        else
+        {
+            log_message(LOG_ERROR, _("Output requires a directory, not a file"));
+            c->status = FAILED_OUTPUT_MISMATCH;
+        }
     }
     else if (!c->directory)
     {
-        log_message(LOG_DEBUG, _("Output is to a file"));
         if (!c->output)
-            c->output = io_open(c->path, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK, S_IRUSR | S_IWUSR);
-    }
-    else
-    {
-        log_message(LOG_ERROR, _("Output requires a directory, not a file"));
-        c->status = FAILED_OUTPUT_MISMATCH;
+        {
+            struct stat s;
+            stat(c->path, &s);
+            if (errno == ENOENT || S_ISREG(s.st_mode))
+            {
+                if (!(c->output = io_open(c->path, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK, S_IRUSR | S_IWUSR)))
+                {
+                    log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
+                    c->status = FAILED_IO;
+                }
+            }
+            else
+            {
+                log_message(LOG_ERROR, _("Output requires a file, not a directory"));
+                c->status = FAILED_OUTPUT_MISMATCH;
+            }
+        }
     }
 
     tlv_deinit(&tlv);

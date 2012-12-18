@@ -106,7 +106,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
         if (!(z->output = io_open(o, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK, S_IRUSR | S_IWUSR)))
         {
             log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
-            z->status = FAILED_IO;
+            z->status = FAILED_OUTPUT_MISMATCH;
             goto end;
         }
     }
