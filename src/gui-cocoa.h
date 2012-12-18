@@ -67,8 +67,11 @@
 
 @property (strong, nonatomic) IBOutlet NSButton *cancelButton;
 @property (strong, nonatomic) IBOutlet NSButton *closeButton;
-@property (strong, nonatomic) IBOutlet NSProgressIndicator *progress;
-@property (strong, nonatomic) IBOutlet NSTextField *raito;
+@property (strong, nonatomic) IBOutlet NSProgressIndicator *progress_total;
+@property (strong, nonatomic) IBOutlet NSTextField *percent_total;
+@property (strong, nonatomic) IBOutlet NSProgressIndicator *progress_current;
+@property (strong, nonatomic) IBOutlet NSTextField *percent_current;
+@property (strong, nonatomic) IBOutlet NSTextField *progress_label;
 
 /*
  * callbacks
@@ -84,9 +87,6 @@
 - (IBAction)cancelButtonPushed:(id)pId;
 - (IBAction)closeButtonPushed:(id)pId;
 
-- (void)fg_thread_gui:(id)pId;
-- (void)bg_thread_gui:(id)pId;
-
-- (void)new_version_wrap:(id)pId;
+- (void)display_gui:(id)pId;
 
 @end

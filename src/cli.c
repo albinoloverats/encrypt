@@ -121,7 +121,7 @@ static void cli_display_bar(float total, float current, bool single, float bps)
     asprintf(&prog_bar, "%s]", prog_bar);
 
     if (isnan(bps))
-        asprintf(&prog_bar, "%s ----.- B/s", prog_bar);
+        asprintf(&prog_bar, "%s  ---.- B/s", prog_bar);
     else
     {
         if (bps < THOUSAND)

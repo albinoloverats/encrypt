@@ -26,7 +26,11 @@
 #include <curl/curl.h>
 #include <pthread.h>
 
-#include "common/version.h"
+#ifndef __APPLE__
+    #include "common/version.h"
+#else
+    #include "version.h"
+#endif
 
 static void *version_check(void *);
 static size_t version_verify(void *, size_t, size_t, void *);

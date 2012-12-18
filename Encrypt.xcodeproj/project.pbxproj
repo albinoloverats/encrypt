@@ -12,11 +12,14 @@
 		2E3922E0164D0F970028986B /* init.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E3922DE164D0F970028986B /* init.c */; };
 		2E49602716662B5A00026B7C /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E49602616662B5A00026B7C /* liblzma.5.dylib */; };
 		2E49602A16662BD300026B7C /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E49602916662BD300026B7C /* libcurl.dylib */; };
+		2E63273E1680B599002A0CB5 /* tlv.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E63273A1680B599002A0CB5 /* tlv.c */; };
+		2E63273F1680B599002A0CB5 /* version.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E63273C1680B599002A0CB5 /* version.c */; };
+		2E6327441680B5A8002A0CB5 /* crypto.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E6327401680B5A8002A0CB5 /* crypto.c */; };
+		2E6327451680B5A8002A0CB5 /* decrypt.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E6327421680B5A8002A0CB5 /* decrypt.c */; };
 		2E96E2D9164129B200C50460 /* error.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E96E2D1164129B200C50460 /* error.c */; };
 		2E96E2DA164129B200C50460 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E96E2D3164129B200C50460 /* logging.c */; };
 		2E96E2DB164129B200C50460 /* encrypt.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E96E2D5164129B200C50460 /* encrypt.c */; };
 		2E96E2DC164129B200C50460 /* io.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E96E2D7164129B200C50460 /* io.c */; };
-		2E99B58D164D0ABF009F1655 /* version.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E99B58B164D0ABF009F1655 /* version.c */; };
 		2E9BB30D1642C7BC00FF52DB /* Encrypt-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2EA92F67161DDC58008DFF9B /* Encrypt-Info.plist */; };
 		2EA92F60161DDC58008DFF9B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2EA92F5F161DDC58008DFF9B /* Cocoa.framework */; };
 		2EA92F6A161DDC58008DFF9B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2EA92F68161DDC58008DFF9B /* InfoPlist.strings */; };
@@ -47,12 +50,18 @@
 		2E3922DF164D0F970028986B /* init.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = init.h; sourceTree = "<group>"; };
 		2E49602616662B5A00026B7C /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = /usr/local/lib/liblzma.5.dylib; sourceTree = "<absolute>"; };
 		2E49602916662BD300026B7C /* libcurl.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.dylib; path = usr/lib/libcurl.dylib; sourceTree = SDKROOT; };
+		2E63273A1680B599002A0CB5 /* tlv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tlv.c; sourceTree = "<group>"; };
+		2E63273B1680B599002A0CB5 /* tlv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tlv.h; sourceTree = "<group>"; };
+		2E63273C1680B599002A0CB5 /* version.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = version.c; sourceTree = "<group>"; };
+		2E63273D1680B599002A0CB5 /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
+		2E6327401680B5A8002A0CB5 /* crypto.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = crypto.c; sourceTree = "<group>"; };
+		2E6327411680B5A8002A0CB5 /* crypto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = crypto.h; sourceTree = "<group>"; };
+		2E6327421680B5A8002A0CB5 /* decrypt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = decrypt.c; sourceTree = "<group>"; };
+		2E6327431680B5A8002A0CB5 /* decrypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = decrypt.h; sourceTree = "<group>"; };
 		2E96E2D1164129B200C50460 /* error.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = error.c; sourceTree = "<group>"; };
 		2E96E2D3164129B200C50460 /* logging.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = logging.c; sourceTree = "<group>"; };
 		2E96E2D5164129B200C50460 /* encrypt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = encrypt.c; sourceTree = "<group>"; };
 		2E96E2D7164129B200C50460 /* io.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = io.c; sourceTree = "<group>"; };
-		2E99B58B164D0ABF009F1655 /* version.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = version.c; sourceTree = "<group>"; };
-		2E99B58C164D0ABF009F1655 /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
 		2E9BB30E1642CC1600FF52DB /* encrypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = encrypt.h; sourceTree = "<group>"; };
 		2E9BB30F1642CC1600FF52DB /* io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = io.h; sourceTree = "<group>"; };
 		2E9BB3101642CC2700FF52DB /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
@@ -158,10 +167,12 @@
 		2EA92F65161DDC58008DFF9B /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2E6327401680B5A8002A0CB5 /* crypto.c */,
+				2E6327411680B5A8002A0CB5 /* crypto.h */,
+				2E6327421680B5A8002A0CB5 /* decrypt.c */,
+				2E6327431680B5A8002A0CB5 /* decrypt.h */,
 				2E3922DE164D0F970028986B /* init.c */,
 				2E3922DF164D0F970028986B /* init.h */,
-				2E99B58B164D0ABF009F1655 /* version.c */,
-				2E99B58C164D0ABF009F1655 /* version.h */,
 				2EA92F71161DDC58008DFF9B /* gui-cocoa.h */,
 				2EA92F72161DDC58008DFF9B /* gui-cocoa.m */,
 				2E96E2D5164129B200C50460 /* encrypt.c */,
@@ -177,6 +188,10 @@
 		2EA92F66161DDC58008DFF9B /* common */ = {
 			isa = PBXGroup;
 			children = (
+				2E63273A1680B599002A0CB5 /* tlv.c */,
+				2E63273B1680B599002A0CB5 /* tlv.h */,
+				2E63273C1680B599002A0CB5 /* version.c */,
+				2E63273D1680B599002A0CB5 /* version.h */,
 				2E9BB3101642CC2700FF52DB /* common.h */,
 				2E96E2D1164129B200C50460 /* error.c */,
 				2E9BB3111642CC2700FF52DB /* error.h */,
@@ -277,8 +292,11 @@
 				2E96E2DA164129B200C50460 /* logging.c in Sources */,
 				2E96E2DB164129B200C50460 /* encrypt.c in Sources */,
 				2E96E2DC164129B200C50460 /* io.c in Sources */,
-				2E99B58D164D0ABF009F1655 /* version.c in Sources */,
 				2E3922E0164D0F970028986B /* init.c in Sources */,
+				2E63273E1680B599002A0CB5 /* tlv.c in Sources */,
+				2E63273F1680B599002A0CB5 /* version.c in Sources */,
+				2E6327441680B5A8002A0CB5 /* crypto.c in Sources */,
+				2E6327451680B5A8002A0CB5 /* decrypt.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

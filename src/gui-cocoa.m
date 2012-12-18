@@ -20,31 +20,33 @@
 
 #import <sys/stat.h>
 
+#import <math.h>
+
+#import "gui.h"
 #import "gui-cocoa.h"
 
 #import "common.h"
-#import "error.h"
-#import "encrypt.h"
 #import "version.h"
+#import "error.h"
+
+#import "crypto.h"
+#import "encrypt.h"
+#import "decrypt.h"
 #import "init.h"
 
 @implementation AppDelegate
 
-extern char *FAILED_MESSAGE[];
-
-static void *bg_thread_gui(void *arg);
-
 static bool encrypted = true;
 static bool compress = true;
-static status_e status = PREPROCESSING;
+static bool running = false;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    [self performSelectorInBackground:@selector(new_version_wrap:) withObject:nil];
+    version_check_for_update(ENCRYPT_VERSION, UPDATE_URL);
 
     args_t args = init(0, NULL);
 
-    char **ciphers = get_algorithms_crypt();
+    char **ciphers = list_of_ciphers();
     unsigned slctd_cipher = 0;
     for (unsigned i = 0; ; i++)
     {
@@ -61,7 +63,7 @@ static status_e status = PREPROCESSING;
     [_cipherCombo selectItemAtIndex:slctd_cipher];
     free(ciphers);
 
-    char **hashes = get_algorithms_hash();
+    char **hashes = list_of_hashes();
     unsigned slctd_hash = 0;
     for (unsigned  i = 0; ; i++)
     {
@@ -140,7 +142,7 @@ static status_e status = PREPROCESSING;
 
     [_compress setState:args.compress];
 
-    [_statusBar setStringValue:@STATUS_READY];
+    [_statusBar setStringValue:@STATUS_BAR_READY];
 
     return;
 }
@@ -169,13 +171,8 @@ static status_e status = PREPROCESSING;
     /*
      * check if the file is encrypted or not
      */
-    int f = open(open_file, O_RDONLY, S_IRUSR | S_IWUSR);
-    free(open_file);
-    if (f < 0)
-        goto clean_up;
-    encrypted = file_encrypted(f);
+    encrypted = file_encrypted(open_file);
     [_encryptButton setTitle: encrypted ? @LABEL_DECRYPT : @LABEL_ENCRYPT];
-    close(f);
 
     if (!save_link || !strlen(save_link))
         goto clean_up;
@@ -191,7 +188,7 @@ static status_e status = PREPROCESSING;
     struct stat s;
     stat(save_file, &s);
     free(save_file);
-    if (errno != ENOENT && !S_ISREG(s.st_mode))
+    if (errno != ENOENT && !(S_ISREG(s.st_mode) || S_ISDIR(s.st_mode)))
         goto clean_up;
 
     en = TRUE;
@@ -283,48 +280,13 @@ clean_up:
 - (IBAction)encryptButtonPushed:(id)pId
 {
     [_popup setIsVisible:TRUE];
-    [self performSelectorInBackground:@selector(bg_thread_gui:) withObject:nil];
-    [self performSelectorInBackground:@selector(fg_thread_gui:) withObject:nil];
+    [_progress_current setHidden:FALSE];
+    [_percent_current setHidden:FALSE];
+
+    [self performSelectorInBackground:@selector(display_gui:) withObject:nil];
 }
 
--( void)fg_thread_gui:(id)pId
-{
-    uint64_t sz = 0;
-
-    do
-    {
-        if (!sz)
-            sz = get_decrypted_size();
-        else
-        {
-            uint64_t bp = get_bytes_processed();
-            [_progress setDoubleValue:100 * bp / sz];
-            char *prgs = NULL;
-            asprintf(&prgs, "%" PRIu64 " / %" PRIu64, bp, sz);
-            [_raito setStringValue:[NSString stringWithUTF8String:prgs]];
-            free(prgs);
-        }
-        status = get_status();
-    }
-    while (status == RUNNING);
-
-    char *msg = NULL;
-
-    if (status == SUCCEEDED)
-    {
-        [_progress setDoubleValue:100.0];
-        msg = STATUS_DONE;
-    }
-    else
-        msg = FAILED_MESSAGE[status];
-
-    [_statusBar setStringValue:[NSString stringWithUTF8String:msg]];
-    [_raito setStringValue:[NSString stringWithUTF8String:msg]];
-    [_closeButton setHidden:FALSE];
-    [_cancelButton setHidden:TRUE];
-}
-
-- (void)bg_thread_gui:(id)pId
+- (void)display_gui:(id)pId
 {
     /*
      * open files
@@ -344,16 +306,11 @@ clean_up:
     else
         save_file = strdup(save_link);
 
-    int64_t source = open(open_file, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
-    int64_t output = open(save_file, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY | F_WRLCK, S_IRUSR | S_IWUSR);
-
-    free(open_file);
-    free(save_file);
-
     /*
      * get raw key data
      */
-    raw_key_t key = {NULL, 0, NULL, 0};
+    uint8_t *key;
+    size_t length;
     if ([[[_keyCombo selectedItem] title] isEqualToString:@KEY_FILE])
     {
         const char *key_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@SOURCE_FILE] UTF8String];
@@ -368,58 +325,111 @@ clean_up:
         free(key_file);
         if (kf < 0)
         {
-            status = FAILED_OTHER;
+            /*
+             * TODO implement some error handling
+             */
             return;
         }
-        key.p_length = lseek(kf, 0, SEEK_END);
-        key.p_data = malloc(key.p_length);
-        if (!key.p_data)
-            die("Out of memory @ %s:%d:%s [%" PRIu64 "]", __FILE__, __LINE__, __func__, key.p_length);
-        read(kf, key.p_data, key.p_length);
+        length = lseek(kf, 0, SEEK_END);
+        lseek(kf, 0, SEEK_SET);
+        if (!(key = malloc(length)))
+            die("Out of memory @ %s:%d:%s [%" PRIu64 "]", __FILE__, __LINE__, __func__, length);
+        read(kf, key, length);
         close(kf);
-
     }
     else
     {
-        key.p_data = (uint8_t *)strdup([[_passwordField stringValue] UTF8String]);
-        key.p_length = strlen((char *)key.p_data);
+        key = (uint8_t *)strdup([[_passwordField stringValue] UTF8String]);
+        length = strlen((char *)key);
     }
 
-    encrypt_t e_data = { NULL, NULL, key, true, compress };
-
+    crypto_t *c;
     if (!encrypted)
-    {
-        e_data.cipher = (char *)[[[_cipherCombo selectedItem] title] UTF8String];
-        e_data.hash = (char *)[[[_hashCombo selectedItem] title] UTF8String];
-
-        status = main_encrypt(source, output, e_data);
-    }
+        c = encrypt_init(open_file, save_file, (char *)[[[_cipherCombo selectedItem] title] UTF8String], (char *)[[[_hashCombo selectedItem] title] UTF8String], key, length, compress);
     else
-        status = main_decrypt(source, output, e_data);
+        c = decrypt_init(open_file, save_file, key, length);
 
-    close(source);
-    close(output);
+    free(open_file);
+    free(save_file);
+    free(key);
 
-    free(key.p_data);
+    running = true;
+
+    execute(c);
+
+    while (c->status == INIT || c->status == RUNNING)
+    {
+        if (!running)
+            c->status = CANCELLED;
+
+        struct timespec s = { 0, MILLION };
+        nanosleep(&s, NULL);
+
+        if (c->status == INIT)
+            continue;
+
+        float pc = (PERCENT * c->total.offset + PERCENT * c->current.offset / c->current.size) / c->total.size;
+        if (c->total.offset == c->total.size)
+            pc = PERCENT * c->total.offset / c->total.size;
+
+        [_progress_total setDoubleValue:pc];
+        char *tpc = NULL;
+        asprintf(&tpc, "%3.0f %%", pc);
+        [_percent_total setStringValue:[NSString stringWithUTF8String:tpc]];
+        free(tpc);
+
+        if (c->total.size == 1)
+        {
+            [_progress_current setHidden:TRUE];
+            [_percent_current setHidden:TRUE];
+        }
+        else
+        {
+            float cp = PERCENT * c->current.offset / c->current.size;
+            [_progress_current setDoubleValue:cp];
+            char *cpc = NULL;
+            asprintf(&cpc, "%3.0f %%", cp);
+            [_percent_current setStringValue:[NSString stringWithUTF8String:cpc]];
+            free(cpc);
+        }
+
+        float bps = (float)c->current.offset / (time(NULL) - c->current.started);
+        char *bps_label = NULL;
+        if (isnan(bps))
+            asprintf(&bps_label, "---.- B/s");
+        else
+        {
+            if (bps < THOUSAND)
+                asprintf(&bps_label, "%5.1f B/s", bps);
+            else if (bps < MILLION)
+                asprintf(&bps_label, "%5.1f KB/s", bps / KILOBYTE);
+            else if (bps < THOUSAND_MILLION)
+                asprintf(&bps_label, "%5.1f MB/s", bps / MEGABYTE);
+            else if (bps < MILLION_MILLION)
+                asprintf(&bps_label, "%5.1f GB/s", bps / GIGABYTE);
+        }
+        if (bps_label)
+            [_progress_label setStringValue:[NSString stringWithUTF8String:bps_label]];
+    }
+
+    [_progress_label setStringValue:[NSString stringWithUTF8String:status(c)]];
+    [_statusBar setStringValue:[NSString stringWithUTF8String:status(c)]];
+    [_closeButton setHidden:FALSE];
+    [_cancelButton setHidden:TRUE];
+
+    deinit(&c);
 
     return;
 }
 
 - (IBAction)cancelButtonPushed:(id)pId
 {
-    stop_running();
+    running = false;
 }
 
 - (IBAction)closeButtonPushed:(id)pId
 {
     [_popup setIsVisible:FALSE];
-}
-
-- (void)new_version_wrap:(id)pId
-{
-    check_new_version(NULL);
-    if (new_version_available)
-        [_statusBar setStringValue:@NEW_VERSION_AVAILABLE];
 }
 
 @end

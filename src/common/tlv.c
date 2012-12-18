@@ -26,8 +26,13 @@
 
 #include <netinet/in.h>
 
-#include "common/common.h"
-#include "common/tlv.h"
+#ifndef __APPLE__
+    #include "common/common.h"
+    #include "common/tlv.h"
+#else
+    #include "common.h"
+    #include "tlv.h"
+#endif
 
 typedef struct
 {
