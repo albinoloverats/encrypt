@@ -461,7 +461,7 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
 
     gui_display(x, data);
 
-    update_status_bar((GtkStatusbar *)data->status_bar, status(c));
+    update_status_bar((GtkStatusbar *)data->status_bar, status(x));
 
     deinit(&x);
 
