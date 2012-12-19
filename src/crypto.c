@@ -140,7 +140,9 @@ extern char **list_of_ciphers(void)
     for (int i = 0; i < len; i++)
     {
         const char *n = gcry_cipher_algo_name(lid[i]);
-        if (!strncasecmp(n, NAME_AES, strlen(NAME_AES)))
+        if (!n)
+            continue;
+        else if (!strncasecmp(n, NAME_AES, strlen(NAME_AES)))
             l[j] = correct_aes_rijndael(n);
         else if (!strcasecmp(n, NAME_BLOWFISH))
             l[j] = correct_blowfish128(n);
@@ -173,7 +175,7 @@ extern char **list_of_hashes(void)
     for (int i = 0; i < len; i++)
     {
         const char *n = gcry_md_algo_name(lid[i]);
-        if (algorithm_is_duplicate(n))
+        if (!n || algorithm_is_duplicate(n))
             continue;
         else if (!strncasecmp(n, NAME_SHA1, strlen(NAME_SHA1) - 1))
             l[j] = correct_sha1(n);
@@ -201,7 +203,9 @@ extern int cipher_id_from_name(const char * const restrict n)
         {
             const char *x = gcry_cipher_algo_name(list[i]);
             char *y = NULL;
-            if (!strncasecmp(x, NAME_AES, strlen(NAME_AES)))
+            if (!x)
+                continue;
+            else if (!strncasecmp(x, NAME_AES, strlen(NAME_AES)))
                 y = correct_aes_rijndael(x);
             else if (!strcasecmp(x, NAME_BLOWFISH))
                 y = correct_blowfish128(x);
@@ -232,8 +236,7 @@ extern int hash_id_from_name(const char * const restrict n)
     for (int i = 0; i < len; i++)
     {
         const char *x = gcry_md_algo_name(list[i]);
-        log_message(LOG_DEBUG, "[%s:%zu] [%s:%zu] [%s:%zu] [%s:%zu]", n, strlen(n), NAME_TIGER, strlen(NAME_TIGER), NAME_TIGER192, strlen(NAME_TIGER192), x, strlen(x));
-        if (algorithm_is_duplicate(x))
+        if (!x || algorithm_is_duplicate(x))
             continue;
         char *y = NULL;
         if (!strncasecmp(x, NAME_SHA1, strlen(NAME_SHA1) - 1))
