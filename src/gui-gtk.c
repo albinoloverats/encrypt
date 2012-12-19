@@ -382,7 +382,6 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
             {
                 char *key_file = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog));
                 int64_t kf = open(key_file, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
-                g_free(key_file);
                 if (kf < 0)
                 {
                     /*
@@ -403,7 +402,6 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
             {
                 char *k = (char *)gtk_entry_get_text((GtkEntry *)data->password_entry);
                 key = (uint8_t *)strdup(k);
-                g_free(k);
                 length = strlen((char *)key);
             }
             break;
@@ -433,8 +431,6 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
     else
         x = decrypt_init(source, output, key, length);
 
-    g_free(source);
-    g_free(output);
     free(key);
 
     log_message(LOG_EVERYTHING, _("Show progress dialog"));
