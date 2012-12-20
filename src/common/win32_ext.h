@@ -23,8 +23,10 @@
 #ifndef _WIN32_EXT_H_
 #define _WIN32_EXT_H_
 
+#include <windows.h>
 #include <sys/stat.h>
 #include <stdio.h>
+#include <dirent.h>
 
 #define srand48 srand  /*!< Quietly alias srand48 to be srand on Windows */
 #define lrand48 rand   /*!< Quietly alias lrand48 to be rand on Windows */
@@ -62,10 +64,13 @@
 
 #define fsync(fd) _commit(fd)
 #define ftruncate(fd, sz) _chsize(fd, sz)
+#define alphasort NULL
 
 extern int asprintf(char **buffer, char *fmt, ...);
 
 extern ssize_t getline(char **lineptr, size_t *n, FILE *stream);
+
+extern int scandir(const char *path, struct dirent ***res, int (*sel)(const struct dirent *), int (*cmp)(const struct dirent **, const struct dirent **));
 
 #endif /* _WIN32_EXT_H_ */
 

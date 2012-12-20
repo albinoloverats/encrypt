@@ -58,9 +58,9 @@
 
 typedef enum
 {
-    NONE,
+    KEY_NONE,
     KEY_FILE,
-    PASSWORD;
+    KEY_PASSWORD
 }
 key_type_e;
 
@@ -315,7 +315,7 @@ G_MODULE_EXPORT gboolean key_combo_callback(GtkComboBox *combo_box, gtk_widgets_
             key_dialog_okay(NULL, data);
             break;
 
-        case PASSWORD:
+        case KEY_PASSWORD:
             gtk_widget_set_sensitive(data->password_entry, TRUE);
             gtk_widget_set_sensitive(data->key_button, FALSE);
             gtk_widget_show(data->password_entry);
@@ -495,7 +495,7 @@ static void *gui_process(void *d)
             }
             break;
 
-        case PASSWORD:
+        case KEY_PASSWORD:
             {
                 char *k = (char *)gtk_entry_get_text((GtkEntry *)data->password_entry);
                 key = (uint8_t *)strdup(k);
@@ -565,8 +565,12 @@ inline static void gui_display(crypto_t *c, gtk_widgets_t *data)
     {
         gtk_main_iteration_do(FALSE);
 
+#ifndef _WIN32
         struct timespec s = { 0, MILLION };
         nanosleep(&s, NULL);
+#else
+        Sleep(1);
+#endif
 
         if (c->status == STATUS_INIT)
             continue;

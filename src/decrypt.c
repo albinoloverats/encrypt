@@ -32,12 +32,18 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include <netinet/in.h>
+#ifndef _WIN32
+    #include <netinet/in.h>
+#endif
 
 #include "common/common.h"
 #include "common/error.h"
 #include "common/logging.h"
 #include "common/tlv.h"
+
+#ifdef _WIN32
+    #include "common/win32_ext.h"
+#endif
 
 #include "crypto.h"
 #include "decrypt.h"
@@ -426,7 +432,11 @@ static bool read_metadata(crypto_t *c)
         if ((errno == ENOENT || S_ISDIR(s.st_mode)) && !c->output)
         {
             log_message(LOG_DEBUG, _("Output is to a directory"));
+#ifndef _WIN32
             mkdir(c->path, S_IRUSR | S_IWUSR | S_IXUSR);
+#else
+            mkdir(c->path);
+#endif
         }
         else
         {
@@ -496,7 +506,11 @@ static void decrypt_directory(crypto_t *c, const char *dir)
         {
             case FILE_DIRECTORY:
                 log_message(LOG_VERBOSE, _("Creating directory : %s"), nm);
+#ifndef _WIN32
                 mkdir(nm, S_IRUSR | S_IWUSR | S_IXUSR);
+#else
+                mkdir(nm);
+#endif
                 break;
 
             case FILE_REGULAR:

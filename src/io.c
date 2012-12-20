@@ -20,6 +20,7 @@
 
 #include <errno.h>
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -34,6 +35,10 @@
 #include "common/common.h"
 #include "common/logging.h"
 #include "common/error.h"
+
+#ifdef _WIN32
+    #include "common/win32_ext.h"
+#endif
 
 #include "io.h"
 #include "crypto.h"

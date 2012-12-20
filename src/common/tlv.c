@@ -24,7 +24,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <netinet/in.h>
+#ifndef _WIN32
+    #include <netinet/in.h>
+#endif
 
 #ifndef __APPLE__
     #include "common/common.h"
@@ -32,6 +34,10 @@
 #else
     #include "common.h"
     #include "tlv.h"
+#endif
+
+#ifdef _WIN32
+    #include "common/win32_ext.h"
 #endif
 
 typedef struct

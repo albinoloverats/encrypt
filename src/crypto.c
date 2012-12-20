@@ -38,6 +38,10 @@
 #include "common/logging.h"
 #include "common/error.h"
 
+#ifdef _WIN32
+    #include "common/win32_ext.h"
+#endif
+
 #include "crypto.h"
 #include "io.h"
 

@@ -28,8 +28,11 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <math.h>
-#include <termios.h>
-#include <sys/ioctl.h>
+
+#ifndef _WIN32
+    #include <termios.h>
+    #include <sys/ioctl.h>
+#endif
 
 #include "common/common.h"
 
@@ -40,12 +43,36 @@
 #define CLI_SINGLE 18
 #define CLI_DOUBLE 13
 
-static void cli_display_bar(float, float, bool, bps_t *);
-static void cli_sigwinch(int);
-static int cli_bps_sort(const void *, const void *);
-
+#ifndef _WIN32
 static int cli_width = CLI_DEFAULT;
 
+static void cli_display_bar(float, float, bool, bps_t *);
+static void cli_sigwinch(int);
+#endif
+
+static int cli_bps_sort(const void *, const void *);
+
+extern float cli_calc_bps(bps_t *bps)
+{
+    bps_t copy[BPS];
+    for (int i = 0; i < BPS; i++)
+    {
+        copy[i].time = bps[i].time;
+        copy[i].bytes = bps[i].bytes;
+    }
+    qsort(copy, BPS, sizeof( bps_t ), cli_bps_sort);
+    float avg[BPS - 1] = { 0.0f };
+    for (int i = 0; i < BPS - 1; i++)
+        /* requires scale factor of MILLION as time is in microseconds not seconds (millions of bytes / micros of seconds, so to speak) */
+        avg[i] = MILLION * (float)(copy[i + 1].bytes - copy[i].bytes) / (float)(copy[i + 1].time - copy[i].time);
+    float val = 0.0;
+    for (int i = 0; i < BPS - 1; i++)
+        val += avg[i];
+    val /= BPS - 1;
+    return val;
+}
+
+#ifndef _WIN32
 extern void cli_display(crypto_t *c)
 {
     cli_sigwinch(SIGWINCH);
@@ -91,26 +118,6 @@ extern void cli_display(crypto_t *c)
             sleep(1);
 
     return;
-}
-
-extern float cli_calc_bps(bps_t *bps)
-{
-    bps_t copy[BPS];
-    for (int i = 0; i < BPS; i++)
-    {
-        copy[i].time = bps[i].time;
-        copy[i].bytes = bps[i].bytes;
-    }
-    qsort(copy, BPS, sizeof( bps_t ), cli_bps_sort);
-    float avg[BPS - 1] = { 0.0f };
-    for (int i = 0; i < BPS - 1; i++)
-        /* requires scale factor of MILLION as time is in microseconds not seconds (millions of bytes / micros of seconds, so to speak) */
-        avg[i] = MILLION * (float)(copy[i + 1].bytes - copy[i].bytes) / (float)(copy[i + 1].time - copy[i].time);
-    float val = 0.0;
-    for (int i = 0; i < BPS - 1; i++)
-        val += avg[i];
-    val /= BPS - 1;
-    return val;
 }
 
 static void cli_display_bar(float total, float current, bool single, bps_t *bps)
@@ -183,6 +190,7 @@ static void cli_sigwinch(int s)
     cli_width = ws.ws_col;
     signal(SIGWINCH, cli_sigwinch);
 }
+#endif
 
 static int cli_bps_sort(const void *a, const void *b)
 {

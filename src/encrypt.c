@@ -33,7 +33,9 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include <netinet/in.h>
+#ifndef _WIN32
+    #include <netinet/in.h>
+#endif
 
 #include <gcrypt.h>
 
@@ -41,6 +43,10 @@
 #include "common/error.h"
 #include "common/logging.h"
 #include "common/tlv.h"
+
+#ifdef _WIN32
+    #include "common/win32_ext.h"
+#endif
 
 #include "crypto.h"
 #include "encrypt.h"
@@ -412,7 +418,9 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                 tp = FILE_REGULAR;
             else
             {
+#ifdef _DIRENT_HAVE_D_TYPE
                 log_message(LOG_EVERYTHING, _("Ignoring unsupported file type [%d] : %s"), eps[i]->d_type, nm);
+#endif
                 free(nm);
                 continue;
             }
