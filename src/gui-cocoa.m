@@ -19,6 +19,7 @@
  */
 
 #import <sys/stat.h>
+#import <sys/time.h>
 
 #import <math.h>
 
@@ -33,6 +34,7 @@
 #import "encrypt.h"
 #import "decrypt.h"
 #import "init.h"
+#import "cli.h"
 
 @implementation AppDelegate
 
@@ -357,15 +359,19 @@ clean_up:
 
     execute(c);
 
-    while (c->status == INIT || c->status == RUNNING)
+    bps_t bps[BPS];
+    memset(bps, 0x00, BPS * sizeof( bps_t ));
+    int b = 0;
+
+    while (c->status == STATUS_INIT || c->status == STATUS_RUNNING)
     {
         if (!running)
-            c->status = CANCELLED;
+            c->status = STATUS_CANCELLED;
 
         struct timespec s = { 0, MILLION };
         nanosleep(&s, NULL);
 
-        if (c->status == INIT)
+        if (c->status == STATUS_INIT)
             continue;
 
         float pc = (PERCENT * c->total.offset + PERCENT * c->current.offset / c->current.size) / c->total.size;
@@ -393,20 +399,30 @@ clean_up:
             free(cpc);
         }
 
-        float bps = (float)c->current.offset / (time(NULL) - c->current.started);
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        bps[b].time = tv.tv_sec * MILLION + tv.tv_usec;
+        bps[b].bytes = c->current.offset;
+        float val = cli_calc_bps(bps);
+        b++;
+        if (b >= BPS)
+            b = 0;
+
         char *bps_label = NULL;
-        if (isnan(bps))
+        if (isnan(val))
             asprintf(&bps_label, "---.- B/s");
         else
         {
-            if (bps < THOUSAND)
-                asprintf(&bps_label, "%5.1f B/s", bps);
-            else if (bps < MILLION)
-                asprintf(&bps_label, "%5.1f KB/s", bps / KILOBYTE);
-            else if (bps < THOUSAND_MILLION)
-                asprintf(&bps_label, "%5.1f MB/s", bps / MEGABYTE);
-            else if (bps < MILLION_MILLION)
-                asprintf(&bps_label, "%5.1f GB/s", bps / GIGABYTE);
+            if (val < THOUSAND)
+                asprintf(&bps_label, "%5.1f B/s", val);
+            else if (val < MILLION)
+                asprintf(&bps_label, "%5.1f KB/s", val / KILOBYTE);
+            else if (val < THOUSAND_MILLION)
+                asprintf(&bps_label, "%5.1f MB/s", val / MEGABYTE);
+            else if (val < BILLION)
+                asprintf(&bps_label, "%5.1f GB/s", val / GIGABYTE);
+            else
+                asprintf(&bps_label, "%5.1f TB/s", val / TERABYTE);
         }
         if (bps_label)
             [_progress_label setStringValue:[NSString stringWithUTF8String:bps_label]];

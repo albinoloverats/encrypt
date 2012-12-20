@@ -23,6 +23,16 @@
 
 #include "crypto.h"
 
+#define BPS 128
+
+typedef struct
+{
+    uint64_t time;
+    uint64_t bytes;
+}
+bps_t;
+
 extern void cli_display(crypto_t *);
+extern float cli_calc_bps(bps_t *);
 
 #endif /* _ENCRYPT_CLI_H_ */

@@ -28,7 +28,7 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
-#include <time.h>
+#include <sys/time.h>
 #include <math.h>
 #include <sys/stat.h>
 #include <pthread.h>
@@ -50,10 +50,19 @@
 #include "crypto.h"
 #include "encrypt.h"
 #include "decrypt.h"
+#include "cli.h"
 
 #define _filename_utf8(A) g_filename_to_utf8(A, -1, NULL, NULL, NULL)
 
 #define NONE_SELECTED "(None)"
+
+typedef enum
+{
+    NONE,
+    KEY_FILE,
+    PASSWORD;
+}
+key_type_e;
 
 /*
  * FIXME There has to be a way to make gtk_file_chooser_set_filename
@@ -298,7 +307,7 @@ G_MODULE_EXPORT gboolean key_combo_callback(GtkComboBox *combo_box, gtk_widgets_
 {
     switch (gtk_combo_box_get_active((GtkComboBox *)data->key_combo))
     {
-        case 1://KEYFILE:
+        case KEY_FILE:
             gtk_widget_set_sensitive(data->password_entry, FALSE);
             gtk_widget_set_sensitive(data->key_button, TRUE);
             gtk_widget_hide(data->password_entry);
@@ -306,7 +315,7 @@ G_MODULE_EXPORT gboolean key_combo_callback(GtkComboBox *combo_box, gtk_widgets_
             key_dialog_okay(NULL, data);
             break;
 
-        case 2://PASSWORD:
+        case PASSWORD:
             gtk_widget_set_sensitive(data->password_entry, TRUE);
             gtk_widget_set_sensitive(data->key_button, FALSE);
             gtk_widget_show(data->password_entry);
@@ -374,7 +383,7 @@ G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widge
 
 G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widgets_t *data)
 {
-    gtk_widget_show_all(data->progress_dialog);
+    gtk_widget_show(data->progress_dialog);
 
     set_progress_button((GtkButton *)data->progress_cancel_button, true);
     set_progress_button((GtkButton *)data->progress_close_button, false);
@@ -382,12 +391,7 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
     set_progress_bar((GtkProgressBar *)data->progress_bar_current, 0.0f);
     gtk_widget_show(data->progress_bar_current);
 
-    pthread_t t;
-    pthread_attr_t a;
-    pthread_attr_init(&a);
-    pthread_attr_setdetachstate(&a, PTHREAD_CREATE_DETACHED);
-    pthread_create(&t, &a, gui_process, data);
-    pthread_attr_destroy(&a);
+    gui_process(data);
 
     return TRUE;
 }
@@ -471,7 +475,7 @@ static void *gui_process(void *d)
     size_t length = 0;
     switch (gtk_combo_box_get_active((GtkComboBox *)data->key_combo))
     {
-        case 1://KEYFILE:
+        case KEY_FILE:
             {
                 char *key_file = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog));
                 int64_t kf = open(key_file, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
@@ -491,7 +495,7 @@ static void *gui_process(void *d)
             }
             break;
 
-        case 2://PASSWORD:
+        case PASSWORD:
             {
                 char *k = (char *)gtk_entry_get_text((GtkEntry *)data->password_entry);
                 key = (uint8_t *)strdup(k);
@@ -553,10 +557,12 @@ inline static void gui_display(crypto_t *c, gtk_widgets_t *data)
 {
     log_message(LOG_EVERYTHING, _("Update progress bar in loop"));
 
+    bps_t bps[BPS];
+    memset(bps, 0x00, BPS * sizeof( bps_t ));
+    int b = 0;
+
     while (c->status == STATUS_INIT || c->status == STATUS_RUNNING)
     {
-//        while (gtk_events_pending())
-//            gtk_main_iteration();
         gtk_main_iteration_do(FALSE);
 
         struct timespec s = { 0, MILLION };
@@ -575,23 +581,33 @@ inline static void gui_display(crypto_t *c, gtk_widgets_t *data)
         else
             set_progress_bar((GtkProgressBar *)data->progress_bar_current, PERCENT * c->current.offset / c->current.size);
 
-        float bps = 0.0f;//(float)c->current.offset / (time(NULL) - c->current.started);
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        bps[b].time = tv.tv_sec * MILLION + tv.tv_usec;
+        bps[b].bytes = c->current.offset;
+        float val = cli_calc_bps(bps);
+        b++;
+        if (b >= BPS)
+            b = 0;
+
         char *bps_label = NULL;
-        if (isnan(bps))
+        if (isnan(val))
             asprintf(&bps_label, "---.- B/s");
         else
         {
-            if (bps < THOUSAND)
-                asprintf(&bps_label, "%5.1f B/s", bps);
-            else if (bps < MILLION)
-                asprintf(&bps_label, "%5.1f KB/s", bps / KILOBYTE);
-            else if (bps < THOUSAND_MILLION)
-                asprintf(&bps_label, "%5.1f MB/s", bps / MEGABYTE);
-            else if (bps < MILLION_MILLION)
-                asprintf(&bps_label, "%5.1f GB/s", bps / GIGABYTE);
+            if (val < THOUSAND)
+                asprintf(&bps_label, "%5.1f B/s", val);
+            else if (val < MILLION)
+                asprintf(&bps_label, "%5.1f KB/s", val / KILOBYTE);
+            else if (val < THOUSAND_MILLION)
+                asprintf(&bps_label, "%5.1f MB/s", val / MEGABYTE);
+            else if (val < BILLION)
+                asprintf(&bps_label, "%5.1f GB/s", val / GIGABYTE);
+            else
+                asprintf(&bps_label, "%5.1f TB/s", val / TERABYTE);
         }
         fprintf(stderr, "\r%s", bps_label);
-        //gtk_label_set_text((GtkLabel *)data->progress_label, bps_label);
+        gtk_label_set_text((GtkLabel *)data->progress_label, bps_label);
         free(bps_label);
     }
 

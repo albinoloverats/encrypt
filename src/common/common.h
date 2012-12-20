@@ -60,8 +60,6 @@
        | (((x) & 0x0000000000ff0000ull) << 24) \
        | (((x) & 0x000000000000ff00ull) << 40) \
        | (((x) & 0x00000000000000ffull) << 56))
-#else
-    #error "Here we are!"
 #endif
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN || BYTE_ORDER == LITTLE_ENDIAN || _WIN32
@@ -96,16 +94,17 @@
     "You should have received a copy of the GNU General Public License\n"     \
     "along with this program.  If not, see <http://www.gnu.org/licenses/>.\n"
 
-#define PERCENT 100.0f
+#define PERCENT 100.0f /*<! Floating point 100% */
 
-#define THOUSAND 1000
-#define MILLION 1000000 /*!< Integer value for 1 million (ideal for timing related things) */
-#define THOUSAND_MILLION 1000000000
-#define MILLION_MILLION 1000000000000
+#define THOUSAND                   1000 /*!< Integer value for 1 thousand */
+#define MILLION                 1000000 /*!< Integer value for 1 million (ideal for timing related things) */
+#define THOUSAND_MILLION     1000000000 /*!< Integer value for 1000 million */
+#define BILLION           1000000000000 /*!< Integer value for 1 billion (ideal for timing in nanoseconds) */
 
-#define KILOBYTE 1024
-#define MEGABYTE 1048576
-#define GIGABYTE 1073741824
+#define KILOBYTE                   1024 /*!< Bytes in a kilobyte */
+#define MEGABYTE                1048576 /*!< Bytes in a megabyte */
+#define GIGABYTE             1073741824 /*!< Bytes in a gigabyte */
+#define TERABYTE          1099511627776 /*!< Bytes in a terabyte */
 
 #define RANDOM_SEED_SIZE 3 /*!< Size of random seed value in bytes */
 

@@ -26,7 +26,7 @@
 #include <signal.h>
 
 #include <sys/stat.h>
-#include <time.h>
+#include <sys/time.h>
 #include <math.h>
 #include <termios.h>
 #include <sys/ioctl.h>
@@ -40,9 +40,9 @@
 #define CLI_SINGLE 18
 #define CLI_DOUBLE 13
 
+static void cli_display_bar(float, float, bool, bps_t *);
 static void cli_sigwinch(int);
-
-static void cli_display_bar(float, float, bool, float);
+static int cli_bps_sort(const void *, const void *);
 
 static int cli_width = CLI_DEFAULT;
 
@@ -56,6 +56,10 @@ extern void cli_display(crypto_t *c)
 
     if (ui)
     {
+        bps_t bps[BPS];
+        memset(bps, 0x00, BPS * sizeof( bps_t ));
+        int b = 0;
+
         while (c->status == STATUS_INIT || c->status == STATUS_RUNNING)
         {
             struct timespec s = { 0, MILLION };
@@ -68,10 +72,18 @@ extern void cli_display(crypto_t *c)
             if (c->total.offset == c->total.size)
                 pc = PERCENT * c->total.offset / c->total.size;
 
-            cli_display_bar(pc, PERCENT * c->current.offset / c->current.size, c->total.size == 1, 0.0f);//(float)c->current.offset / (time(NULL) - c->current.started));
+            struct timeval tv;
+            gettimeofday(&tv, NULL);
+            bps[b].time = tv.tv_sec * MILLION + tv.tv_usec;
+            bps[b].bytes = c->current.offset;
+            b++;
+            if (b >= BPS)
+                b = 0;
+
+            cli_display_bar(pc, PERCENT * c->current.offset / c->current.size, c->total.size == 1, bps);
         }
         if (c->status == STATUS_SUCCESS)
-            cli_display_bar(PERCENT, PERCENT, c->total.size == 1, 0.0f);//(float)c->current.offset / (time(NULL) - c->current.started));
+            cli_display_bar(PERCENT, PERCENT, c->total.size == 1, bps);
         fprintf(stderr, "\n");
     }
     else
@@ -81,7 +93,27 @@ extern void cli_display(crypto_t *c)
     return;
 }
 
-static void cli_display_bar(float total, float current, bool single, float bps)
+extern float cli_calc_bps(bps_t *bps)
+{
+    bps_t copy[BPS];
+    for (int i = 0; i < BPS; i++)
+    {
+        copy[i].time = bps[i].time;
+        copy[i].bytes = bps[i].bytes;
+    }
+    qsort(copy, BPS, sizeof( bps_t ), cli_bps_sort);
+    float avg[BPS - 1] = { 0.0f };
+    for (int i = 0; i < BPS - 1; i++)
+        /* requires scale factor of MILLION as time is in microseconds not seconds (millions of bytes / micros of seconds, so to speak) */
+        avg[i] = MILLION * (float)(copy[i + 1].bytes - copy[i].bytes) / (float)(copy[i + 1].time - copy[i].time);
+    float val = 0.0;
+    for (int i = 0; i < BPS - 1; i++)
+        val += avg[i];
+    val /= BPS - 1;
+    return val;
+}
+
+static void cli_display_bar(float total, float current, bool single, bps_t *bps)
 {
     char *prog_bar = NULL;
 
@@ -119,19 +151,24 @@ static void cli_display_bar(float total, float current, bool single, float bps)
         }
     }
     asprintf(&prog_bar, "%s]", prog_bar);
-
-    if (isnan(bps))
+    /*
+     * calculate B/s
+     */
+    float val = cli_calc_bps(bps);
+    if (isnan(val))
         asprintf(&prog_bar, "%s  ---.- B/s", prog_bar);
     else
     {
-        if (bps < THOUSAND)
-            asprintf(&prog_bar, "%s  %5.1f B/s", prog_bar, bps);
-        else if (bps < MILLION)
-            asprintf(&prog_bar, "%s %5.1f KB/s", prog_bar, bps / KILOBYTE);
-        else if (bps < THOUSAND_MILLION)
-            asprintf(&prog_bar, "%s %5.1f MB/s", prog_bar, bps / MEGABYTE);
-        else if (bps < MILLION_MILLION)
-            asprintf(&prog_bar, "%s %5.1f GB/s", prog_bar, bps / GIGABYTE);
+        if (val < THOUSAND)
+            asprintf(&prog_bar, "%s  %5.1f B/s", prog_bar, val);
+        else if (val < MILLION)
+            asprintf(&prog_bar, "%s %5.1f KB/s", prog_bar, val / KILOBYTE);
+        else if (val < THOUSAND_MILLION)
+            asprintf(&prog_bar, "%s %5.1f MB/s", prog_bar, val / MEGABYTE);
+        else if (val < BILLION)
+            asprintf(&prog_bar, "%s %5.1f GB/s", prog_bar, val / GIGABYTE);
+        else /* if you're getting these kinds of speeds please, please can I have your machine ;-) */
+            asprintf(&prog_bar, "%s %5.1f TB/s", prog_bar, val / TERABYTE);
     }
 
     fprintf(stderr, "\r%s", prog_bar);
@@ -145,4 +182,11 @@ static void cli_sigwinch(int s)
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
     cli_width = ws.ws_col;
     signal(SIGWINCH, cli_sigwinch);
+}
+
+static int cli_bps_sort(const void *a, const void *b)
+{
+    const bps_t *ba = (const bps_t *)a;
+    const bps_t *bb = (const bps_t *)b;
+    return (ba->time > bb->time) - (ba->time < bb->time);
 }
