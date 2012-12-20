@@ -32,7 +32,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include <time.h>
 #include <netinet/in.h>
 
 #include "common/common.h"
@@ -63,7 +62,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
     if (!c)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( crypto_t ));
 
-    c->status = INIT;
+    c->status = STATUS_INIT;
 
     if (i)
     {
@@ -71,7 +70,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
         if (!(c->source = io_open(i, O_RDONLY | F_RDLCK, S_IRUSR | S_IWUSR)))
         {
             log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
-            c->status = FAILED_IO;
+            c->status = STATUS_FAILED_IO;
             goto end;
         }
     }
@@ -94,7 +93,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
             if (errno != ENOENT)
             {
                 log_message(LOG_ERROR, _("Unexpected error looking up destination"));
-                c->status = FAILED_IO;
+                c->status = STATUS_FAILED_IO;
                 goto end;
             }
             log_message(LOG_VERBOSE, _("Not sure whether %s will be a file or directory"), o);
@@ -120,7 +119,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
                 if (!(c->output = io_open(o, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK, S_IRUSR | S_IWUSR)))
                 {
                     log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
-                    c->status = FAILED_IO;
+                    c->status = STATUS_FAILED_IO;
                     goto end;
                 }
             }
@@ -128,7 +127,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
             {
                 log_message(LOG_ERROR, _("Unsupported destination file type"));
                 c->output = NULL;
-                c->status = FAILED_OUTPUT_MISMATCH;
+                c->status = STATUS_FAILED_OUTPUT_MISMATCH;
                 goto end;
             }
         }
@@ -142,7 +141,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
     if (!k)
     {
         log_message(LOG_ERROR, _("Invalid key data"));
-        c->status = FAILED_INIT;
+        c->status = STATUS_FAILED_INIT;
         goto end;
     }
     if (l)
@@ -158,7 +157,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
         if (kf < 0)
         {
             log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
-            c->status = FAILED_IO;
+            c->status = STATUS_FAILED_IO;
             goto end;
         }
         c->length = lseek(kf, 0, SEEK_END);
@@ -179,20 +178,20 @@ static void *process(void *ptr)
 {
     crypto_t *c = (crypto_t *)ptr;
 
-    if (!c || c->status != INIT)
+    if (!c || c->status != STATUS_INIT)
     {
         log_message(LOG_ERROR, _("Invalid cryptographic object!"));
         return NULL;
     }
 
-    c->status = RUNNING;
-    time(&c->total.started);
+    c->status = STATUS_RUNNING;
     /*
      * read encrypt file header
      */
     uint64_t version = read_version(c);
+    /* version_read() already handles setting the status and displaying an error */
     if (!version)
-        return NULL;
+        goto end;
 
     io_encryption_init(c->source, c->cipher, c->hash, c->key, c->length);
     free(c->cipher);
@@ -214,10 +213,10 @@ static void *process(void *ptr)
     if (!skip_some_random)
         skip_random_data(c);
     if (!read_verification_sum(c))
-        return NULL;
+        goto end;
     skip_random_data(c);
     if (!read_metadata(c))
-        return NULL;
+        goto end;
     if (!skip_some_random)
         skip_random_data(c);
 
@@ -256,7 +255,7 @@ static void *process(void *ptr)
             decrypt_file(c);
     }
 
-    if (c->status != RUNNING)
+    if (c->status != STATUS_RUNNING)
         goto end;
 
     c->current.offset = c->current.size;
@@ -275,7 +274,7 @@ static void *process(void *ptr)
         if (memcmp(b, cs, cl))
         {
             log_message(LOG_ERROR, _("Checksum verification failed"));
-            c->status = FAILED_CHECKSUM;
+            c->status = STATUS_FAILED_CHECKSUM;
         }
         free(b);
     }
@@ -286,9 +285,9 @@ static void *process(void *ptr)
      * done
      */
     io_sync(c->output);
-    c->status = SUCCESS;
+    c->status = STATUS_SUCCESS;
 end:
-    return c;
+    return (void *)c->status;
 }
 
 static uint64_t read_version(crypto_t *c)
@@ -365,7 +364,7 @@ static bool read_verification_sum(crypto_t *c)
     if ((x ^ y) != z)
     {
         log_message(LOG_ERROR, _("Failed decryption verification"));
-        c->status = FAILED_DECRYPTION;
+        c->status = STATUS_FAILED_DECRYPTION;
         return false;
     }
     return true;
@@ -432,7 +431,7 @@ static bool read_metadata(crypto_t *c)
         else
         {
             log_message(LOG_ERROR, _("Output requires a directory, not a file"));
-            c->status = FAILED_OUTPUT_MISMATCH;
+            c->status = STATUS_FAILED_OUTPUT_MISMATCH;
         }
     }
     else if (!c->directory)
@@ -446,19 +445,19 @@ static bool read_metadata(crypto_t *c)
                 if (!(c->output = io_open(c->path, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK, S_IRUSR | S_IWUSR)))
                 {
                     log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
-                    c->status = FAILED_IO;
+                    c->status = STATUS_FAILED_IO;
                 }
             }
             else
             {
                 log_message(LOG_ERROR, _("Output requires a file, not a directory"));
-                c->status = FAILED_OUTPUT_MISMATCH;
+                c->status = STATUS_FAILED_OUTPUT_MISMATCH;
             }
         }
     }
 
     tlv_deinit(&tlv);
-    return c->status == RUNNING;
+    return c->status == STATUS_RUNNING;
 }
 
 static void skip_random_data(crypto_t *c)
@@ -478,7 +477,7 @@ static void decrypt_directory(crypto_t *c, const char *dir)
     log_message(LOG_INFO, _("Decrypting %" PRIu64 " entries into %s"), c->total.size, dir);
     for (c->total.offset = 0; c->total.offset < c->total.size; c->total.offset++)
     {
-        if (c->status != RUNNING)
+        if (c->status != STATUS_RUNNING)
             break;
 
         file_type_e tp;
@@ -519,21 +518,20 @@ static void decrypt_directory(crypto_t *c, const char *dir)
 
 static void decrypt_stream(crypto_t *c)
 {
-    time(&c->current.started);
     bool b = true;
     uint8_t *buffer;
     if (!(buffer = malloc(c->blocksize + sizeof b)))
         die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, c->blocksize + sizeof b);
     while (b)
     {
-        if (c->status == CANCELLED)
+        if (c->status == STATUS_CANCELLED)
             break;
         errno = EXIT_SUCCESS;
         int64_t r = io_read(c->source, buffer, c->blocksize + sizeof b);
         if (r < 0)
         {
             log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
-            c->status = FAILED_IO;
+            c->status = STATUS_FAILED_IO;
             break;
         }
         memcpy(&b, buffer, sizeof b);
@@ -548,17 +546,15 @@ static void decrypt_stream(crypto_t *c)
         c->current.offset += r;
     }
     free(buffer);
-    c->total.total += c->current.size;
     return;
 }
 
 static void decrypt_file(crypto_t *c)
 {
-    time(&c->current.started);
     uint8_t buffer[BLOCK_SIZE];
     for (c->current.offset = 0; c->current.offset < c->current.size; c->current.offset += BLOCK_SIZE)
     {
-        if (c->status == CANCELLED)
+        if (c->status == STATUS_CANCELLED)
             break;
         errno = EXIT_SUCCESS;
         size_t l = BLOCK_SIZE;
@@ -568,11 +564,10 @@ static void decrypt_file(crypto_t *c)
         if (r < 0)
         {
             log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
-            c->status = FAILED_IO;
+            c->status = STATUS_FAILED_IO;
             break;
         }
         io_write(c->output, buffer, r);
     }
-    c->total.total += c->current.size;
     return;
 }

@@ -62,19 +62,19 @@
  */
 typedef enum
 {
-    SUCCESS,                 /*!< Success */
-    INIT,                    /*!< Initialisation in progress or complete */
-    RUNNING,                 /*!< Execution is in progress */
-    CANCELLED,               /*!< User cancelled the operation */
-    FAILED_INIT,             /*!< Error during initialisation */
-    FAILED_UNKNOWN_VERSION,  /*!< Failed due to unknown/unsupported encrypt data stream version */
-    FAILED_UNKNOWN_ALGORITH, /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
-    FAILED_DECRYPTION,       /*!< Failed decryption verification (likely wrong password) */
-    FAILED_UNKNOWN_TAG,      /*!< Failed due to unknown tag */
-    FAILED_CHECKSUM,         /*!< Data checksum was invalid, possible data corruption */
-    FAILED_IO,               /*!< Read/write error */
-    FAILED_OUTPUT_MISMATCH,  /*!< Tried to write directory into a file or vice-versa */
-    FAILED_OTHER             /*!< Unknown error */
+    STATUS_SUCCESS,                 /*!< Success */
+    STATUS_INIT,                    /*!< Initialisation in progress or complete */
+    STATUS_RUNNING,                 /*!< Execution is in progress */
+    STATUS_CANCELLED,               /*!< User cancelled the operation */
+    STATUS_FAILED_INIT,             /*!< Error during initialisation */
+    STATUS_FAILED_UNKNOWN_VERSION,  /*!< Failed due to unknown/unsupported encrypt data stream version */
+    STATUS_FAILED_UNKNOWN_ALGORITH, /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
+    STATUS_FAILED_DECRYPTION,       /*!< Failed decryption verification (likely wrong password) */
+    STATUS_FAILED_UNKNOWN_TAG,      /*!< Failed due to unknown tag */
+    STATUS_FAILED_CHECKSUM,         /*!< Data checksum was invalid, possible data corruption */
+    STATUS_FAILED_IO,               /*!< Read/write error */
+    STATUS_FAILED_OUTPUT_MISMATCH,  /*!< Tried to write directory into a file or vice-versa */
+    STATUS_FAILED_OTHER             /*!< Unknown error */
 }
 crypto_status_e;
 
@@ -117,10 +117,8 @@ stream_tags_e;
  */
 typedef struct
 {
-    time_t started;  /*!< Start time */
     uint64_t offset; /*!< Progress */
     uint64_t size;   /*!< Maximum */
-    uint64_t total;  /*<! Total bytes processed */
 }
 progress_t;
 
@@ -142,6 +140,7 @@ typedef struct
     uint8_t *key;
     size_t length;
 
+    pthread_t *thread;        /*!< Execution thread */
     void *(*process)(void *); /*!< Main processing function; used by execute() */
     crypto_status_e status;   /*!< Current status */
     progress_t current;       /*!< Progress of current file */
@@ -158,14 +157,13 @@ extern void init_crypto(void);
 /*!
  * \brief          Execute crypto routine
  * \params[in]  c  Cryptographic instance
- * \return         A thread instance
  *
- * Launches a background thread (which is returned and can then be
- * controlled) that performs the desired cryptographic action setup by
- * either encrypt_init() or decrypt_init(). The task is backgrounded to
- * allow the foreground to keep the UI updated (if necessary).
+ * Launches a background thread that performs the desired cryptographic
+ * action setup by either encrypt_init() or decrypt_init(). The task is
+ * backgrounded to allow the foreground to keep the UI updated (if
+ * necessary).
  */
-extern pthread_t execute(crypto_t *c);
+extern void execute(crypto_t *c);
 
 /*!
  * \brief         Get a meaningful status message

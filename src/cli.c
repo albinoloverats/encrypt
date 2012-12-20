@@ -56,26 +56,26 @@ extern void cli_display(crypto_t *c)
 
     if (ui)
     {
-        while (c->status == INIT || c->status == RUNNING)
+        while (c->status == STATUS_INIT || c->status == STATUS_RUNNING)
         {
             struct timespec s = { 0, MILLION };
             nanosleep(&s, NULL);
 
-            if (c->status == INIT)
+            if (c->status == STATUS_INIT)
                 continue;
 
             float pc = (PERCENT * c->total.offset + PERCENT * c->current.offset / c->current.size) / c->total.size;
             if (c->total.offset == c->total.size)
                 pc = PERCENT * c->total.offset / c->total.size;
 
-            cli_display_bar(pc, PERCENT * c->current.offset / c->current.size, c->total.size == 1, (float)c->current.offset / (time(NULL) - c->current.started));
+            cli_display_bar(pc, PERCENT * c->current.offset / c->current.size, c->total.size == 1, 0.0f);//(float)c->current.offset / (time(NULL) - c->current.started));
         }
-        if (c->status == SUCCESS)
-            cli_display_bar(PERCENT, PERCENT, c->total.size == 1, (float)c->current.offset / (time(NULL) - c->current.started));
+        if (c->status == STATUS_SUCCESS)
+            cli_display_bar(PERCENT, PERCENT, c->total.size == 1, 0.0f);//(float)c->current.offset / (time(NULL) - c->current.started));
         fprintf(stderr, "\n");
     }
     else
-        while (c->status == INIT || c->status == RUNNING)
+        while (c->status == STATUS_INIT || c->status == STATUS_RUNNING)
             sleep(1);
 
     return;

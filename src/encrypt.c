@@ -33,7 +33,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include <time.h>
 #include <netinet/in.h>
 
 #include <gcrypt.h>
@@ -68,7 +67,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
     if (!z)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( crypto_t ));
 
-    z->status = INIT;
+    z->status = STATUS_INIT;
 
     z->path = NULL;
     z->directory = false;
@@ -89,7 +88,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
             if (!(z->source = io_open(i, O_RDONLY | F_RDLCK, S_IRUSR | S_IWUSR)))
             {
                 log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
-                z->status = FAILED_IO;
+                z->status = STATUS_FAILED_IO;
                 goto end;
             }
         }
@@ -106,7 +105,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
         if (!(z->output = io_open(o, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK, S_IRUSR | S_IWUSR)))
         {
             log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
-            z->status = FAILED_OUTPUT_MISMATCH;
+            z->status = STATUS_FAILED_OUTPUT_MISMATCH;
             goto end;
         }
     }
@@ -124,7 +123,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
     if (!k)
     {
         log_message(LOG_ERROR, _("Invalid key data"));
-        z->status = FAILED_INIT;
+        z->status = STATUS_FAILED_INIT;
         goto end;
     }
     if (l)
@@ -140,7 +139,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
         if (kf < 0)
         {
             log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
-            z->status = FAILED_IO;
+            z->status = STATUS_FAILED_IO;
             goto end;
         }
         z->length = lseek(kf, 0, SEEK_END);
@@ -162,14 +161,13 @@ static void *process(void *ptr)
 {
     crypto_t *c = (crypto_t *)ptr;
 
-    if (!c || c->status != INIT)
+    if (!c || c->status != STATUS_INIT)
     {
         log_message(LOG_ERROR, _("Invalid cryptographic object!"));
         return NULL;
     }
 
-    c->status = RUNNING;
-    time(&c->total.started);
+    c->status = STATUS_RUNNING;
     write_header(c);
     /*
      * all data written from here on is encrypted
@@ -216,7 +214,7 @@ static void *process(void *ptr)
             encrypt_file(c);
     }
 
-    if (c->status != RUNNING)
+    if (c->status != STATUS_RUNNING)
         goto end;
 
     c->current.offset = c->current.size;
@@ -237,9 +235,9 @@ static void *process(void *ptr)
      * done
      */
     io_sync(c->output);
-    c->status = SUCCESS;
+    c->status = STATUS_SUCCESS;
 end:
-    return c;
+    return (void *)c->status;
 }
 
 static inline void write_header(crypto_t *c)
@@ -393,7 +391,7 @@ static void encrypt_directory(crypto_t *c, const char *dir)
 
         for (int i = 0; i < n; ++i)
         {
-            if (c->status != RUNNING)
+            if (c->status != STATUS_RUNNING)
                 break;
 
             char *nm = strdup(eps[i]->d_name);
@@ -462,14 +460,13 @@ static void encrypt_directory(crypto_t *c, const char *dir)
 
 static void encrypt_stream(crypto_t *c)
 {
-    time(&c->current.started);
     bool b = true;
     uint8_t *buffer;
     if (!(buffer = malloc(c->blocksize + sizeof b)))
         die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, c->blocksize + sizeof b);
     do
     {
-        if (c->status == CANCELLED)
+        if (c->status == STATUS_CANCELLED)
             break;
         errno = EXIT_SUCCESS;
         /*
@@ -480,7 +477,7 @@ static void encrypt_stream(crypto_t *c)
         if (r < 0)
         {
             log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
-            c->status = FAILED_IO;
+            c->status = STATUS_FAILED_IO;
             break;
         }
         else if ((uint64_t)r != c->blocksize)
@@ -496,17 +493,15 @@ static void encrypt_stream(crypto_t *c)
     }
     while (b);
     free(buffer);
-    c->total.total += c->current.size;
     return;
 }
 
 static void encrypt_file(crypto_t *c)
 {
-    time(&c->current.started);
     uint8_t buffer[BLOCK_SIZE];
     for (c->current.offset = 0; c->current.offset < c->current.size; c->current.offset += BLOCK_SIZE)
     {
-        if (c->status == CANCELLED)
+        if (c->status == STATUS_CANCELLED)
             break;
         errno = EXIT_SUCCESS;
         /*
@@ -516,11 +511,10 @@ static void encrypt_file(crypto_t *c)
         if (r < 0)
         {
             log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
-            c->status = FAILED_IO;
+            c->status = STATUS_FAILED_IO;
             break;
         }
         io_write(c->output, buffer, r);
     }
-    c->total.total += c->current.size;
     return;
 }

@@ -70,10 +70,10 @@ typedef struct gtk_widgets_t
 }
 gtk_widgets_t;
 
+extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash);
+
 G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *data);
 G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data);
-
-extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash);
 
 G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_widgets_t *data);
 
@@ -82,14 +82,13 @@ G_MODULE_EXPORT gboolean password_entry_callback(GtkComboBox *password_entry, gt
 G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widgets_t *data);
 
 G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widgets_t *data);
-G_MODULE_EXPORT gboolean on_cancel_button_clicked(GtkButton *button, gtk_widgets_t *data);
-G_MODULE_EXPORT gboolean on_close_button_clicked(GtkButton *button, gtk_widgets_t *data);
+G_MODULE_EXPORT gboolean on_progress_button_clicked(GtkButton *button, gtk_widgets_t *data);
 
 G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_t *data);
 
 G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *widget, gtk_widgets_t *data);
 
-extern void update_status_bar(GtkStatusbar *status_bar, const char *status);
+extern void set_status_bar(GtkStatusbar *status_bar, const char *status);
 
 extern char *gtk_file_hack_cipher;
 extern char *gtk_file_hack_hash;

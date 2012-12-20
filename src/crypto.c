@@ -83,21 +83,23 @@ extern void init_crypto(void)
     done = true;
 }
 
-extern pthread_t execute(crypto_t *c)
+extern void execute(crypto_t *c)
 {
-    if (!c || c->status != INIT)
+    if (!c || c->status != STATUS_INIT)
     {
         log_message(LOG_ERROR, _("Invalid cryptographic object!"));
-        return (pthread_t)NULL;
+        return;
     }
     log_message(LOG_VERBOSE, _("Executing crypto instance %p in background"), c);
-    pthread_t t;
+    pthread_t *t = calloc(1, sizeof( pthread_t ));
     pthread_attr_t a;
     pthread_attr_init(&a);
     pthread_attr_setdetachstate(&a, PTHREAD_CREATE_JOINABLE);
-    pthread_create(&t, &a, c->process, c);
+    pthread_create(t, &a, c->process, c);
+    c->thread = t;
     pthread_attr_destroy(&a);
-    return t;
+
+    return;
 }
 
 extern const char *status(const crypto_t * const restrict c)
@@ -114,6 +116,9 @@ extern void deinit(crypto_t **c)
         return;
     crypto_t *z = *c;
     log_message(LOG_VERBOSE, _("Deleting crypto instance %p, and freeing resources "), z);
+
+    z->status = STATUS_CANCELLED;
+    pthread_join(*z->thread, NULL);
 
     if (z->source)
         io_close(z->source);

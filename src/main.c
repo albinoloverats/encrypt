@@ -190,7 +190,7 @@ int main(int argc, char **argv)
         auto_select_algorithms(widgets, args.cipher, args.hash);
         gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->compress_menu_item, args.compress);
         gtk_combo_box_set_active((GtkComboBox *)widgets->key_combo, 0);
-        update_status_bar((GtkStatusbar *)widgets->status_bar, STATUS_BAR_READY);
+        set_status_bar((GtkStatusbar *)widgets->status_bar, STATUS_BAR_READY);
 
         gtk_main();
 
@@ -238,7 +238,7 @@ int main(int argc, char **argv)
 
     init_deinit(args);
 
-    if (c->status == INIT)
+    if (c->status == STATUS_INIT)
     {
         execute(c);
         /*
@@ -248,7 +248,7 @@ int main(int argc, char **argv)
         cli_display(c);
     }
 
-    if (c->status != SUCCESS)
+    if (c->status != STATUS_SUCCESS)
         fprintf(stderr, "%s\n", status(c));
 
     deinit(&c);

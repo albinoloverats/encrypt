@@ -64,7 +64,16 @@ http://www.everaldo.com/</property>
           </packing>
         </child>
         <child>
-          <placeholder/>
+          <object class="GtkLabel" id="about_new_version_label">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="justify">center</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
         </child>
       </object>
     </child>
@@ -162,6 +171,7 @@ http://www.everaldo.com/</property>
     <property name="default_height">480</property>
     <property name="icon">C:\Program Files\encrypt\pixmaps\encrypt.png</property>
     <property name="gravity">center</property>
+    <property name="has_resize_grip">False</property>
     <signal name="destroy" handler="gtk_main_quit" swapped="no"/>
     <child>
       <object class="GtkVBox" id="outer_box">
@@ -692,7 +702,7 @@ http://www.everaldo.com/</property>
       <action-widget response="0">open_dialog_okay</action-widget>
     </action-widgets>
   </object>
-  <object class="GtkDialog" id="progress_dialog">
+  <object class="GtkWindow" id="progress_dialog">
     <property name="width_request">320</property>
     <property name="height_request">240</property>
     <property name="can_focus">False</property>
@@ -705,16 +715,14 @@ http://www.everaldo.com/</property>
     <property name="default_height">240</property>
     <property name="destroy_with_parent">True</property>
     <property name="icon_name">dialog-warning</property>
-    <property name="type_hint">dialog</property>
     <property name="skip_taskbar_hint">True</property>
     <property name="skip_pager_hint">True</property>
     <property name="deletable">False</property>
     <property name="gravity">center</property>
     <property name="has_resize_grip">False</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkVBox" id="outer_progress_dialog_vbox">
         <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
           <object class="GtkVBox" id="inner_progress_vbox">
@@ -736,7 +744,7 @@ http://www.everaldo.com/</property>
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="progress_label">
+              <object class="GtkLabel" id="progress_dialog_label">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Please wait while encrypt
@@ -750,16 +758,44 @@ processes your file</property>
               </packing>
             </child>
             <child>
-              <object class="GtkProgressBar" id="progress_bar">
+              <object class="GtkProgressBar" id="progress_bar_total">
                 <property name="visible">True</property>
                 <property name="app_paintable">True</property>
                 <property name="can_focus">False</property>
+                <property name="text" translatable="yes">0 %</property>
                 <property name="show_text">True</property>
               </object>
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">False</property>
                 <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkProgressBar" id="progress_bar_current">
+                <property name="visible">True</property>
+                <property name="app_paintable">True</property>
+                <property name="can_focus">False</property>
+                <property name="text" translatable="yes">0 %</property>
+                <property name="show_text">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">False</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="progress_label">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">---.- B/s</property>
+                <property name="justify">center</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">4</property>
               </packing>
             </child>
           </object>
@@ -769,7 +805,7 @@ processes your file</property>
             <property name="position">0</property>
           </packing>
         </child>
-        <child internal-child="action_area">
+        <child>
           <object class="GtkButtonBox" id="progress_dialog_action_area">
             <property name="can_focus">False</property>
             <property name="layout_style">center</property>
@@ -782,7 +818,7 @@ processes your file</property>
                 <property name="halign">center</property>
                 <property name="valign">center</property>
                 <property name="use_stock">True</property>
-                <signal name="clicked" handler="on_cancel_button_clicked" swapped="no"/>
+                <signal name="clicked" handler="on_progress_button_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -799,7 +835,7 @@ processes your file</property>
                 <property name="halign">center</property>
                 <property name="valign">center</property>
                 <property name="use_stock">True</property>
-                <signal name="clicked" handler="on_close_button_clicked" swapped="no"/>
+                <signal name="clicked" handler="on_progress_button_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -817,10 +853,6 @@ processes your file</property>
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="0">progress_cancel_button</action-widget>
-      <action-widget response="0">progress_close_button</action-widget>
-    </action-widgets>
   </object>
   <object class="GtkFileChooserDialog" id="save_dialog">
     <property name="width_request">640</property>
