@@ -178,7 +178,7 @@ static void *process(void *ptr)
     /*
      * all data written from here on is encrypted
      */
-    io_encryption_init(c->output, c->cipher, c->hash, c->key, c->length);
+    io_encryption_init(c->output, c->cipher, c->hash, c->key, c->length, false);
     free(c->cipher);
     free(c->hash);
     free(c->key);

@@ -95,7 +95,7 @@ extern int io_sync(IO_HANDLE f);
 
 extern off_t io_seek(IO_HANDLE f, off_t, int);
 
-extern void io_encryption_init(IO_HANDLE f, const char *c, const char *h, const uint8_t *k, size_t l);
+extern void io_encryption_init(IO_HANDLE f, const char *c, const char *h, const uint8_t *k, size_t l, bool g);
 extern void io_compression_init(IO_HANDLE f);
 extern void io_encryption_checksum_init(IO_HANDLE f);
 extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l);

@@ -199,7 +199,9 @@ static void *process(void *ptr)
     if (!version)
         goto end;
 
-    io_encryption_init(c->source, c->cipher, c->hash, c->key, c->length);
+    /* the 2011.* versions (incorrectly) used key length instead of block length */
+    io_encryption_init(c->source, c->cipher, c->hash, c->key, c->length,
+            version == HEADER_VERSION_201108 || version == HEADER_VERSION_201110);
     free(c->cipher);
     free(c->hash);
     free(c->key);
@@ -280,6 +282,8 @@ static void *process(void *ptr)
         if (memcmp(b, cs, cl))
         {
             log_message(LOG_ERROR, _("Checksum verification failed"));
+            log_binary(LOG_VERBOSE, b, cl);
+            log_binary(LOG_VERBOSE, cs, cl);
             c->status = STATUS_FAILED_CHECKSUM;
         }
         free(b);
