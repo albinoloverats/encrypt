@@ -448,7 +448,7 @@ static bool read_metadata(crypto_t *c)
             c->status = STATUS_FAILED_OUTPUT_MISMATCH;
         }
     }
-    else if (!c->directory)
+    else
     {
         if (!c->output)
         {
