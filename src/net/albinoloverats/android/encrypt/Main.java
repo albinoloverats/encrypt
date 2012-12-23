@@ -20,12 +20,15 @@
 
 package net.albinoloverats.android.encrypt;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 
-import net.albinoloverats.android.encrypt.Encrypt.Status;
-import net.albinoloverats.android.encrypt.utils.AlgorithmNames;
+import net.albinoloverats.android.encrypt.crypt.Crypto;
+import net.albinoloverats.android.encrypt.crypt.Decrypt;
+import net.albinoloverats.android.encrypt.crypt.Encrypt;
+import net.albinoloverats.android.encrypt.crypt.Status;
+import net.albinoloverats.android.encrypt.crypt.Utils;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -167,8 +170,8 @@ public class Main extends Activity
         });
         hSpinner.setEnabled(false);
 
-        cipherNames = AlgorithmNames.getCipherAlgorithmNames();
-        hashNames = AlgorithmNames.getHashAlgorithmNames();
+        cipherNames = Utils.getCipherAlgorithmNames();
+        hashNames = Utils.getHashAlgorithmNames();
         cipherSpinAdapter.add(getString(R.string.choose_cipher));
         for (final String s : cipherNames)
             cipherSpinAdapter.add(s);
@@ -285,25 +288,34 @@ public class Main extends Activity
 
                 final Button encButton = (Button)findViewById(R.id.button_go);
 
-                if (Encrypt.fileEncrypted(new File(filenameIn)) > 0)
+                try
                 {
-                    encrypting = false;
-                    encButton.setText(R.string.decrypt);
-                    hSpinner.setEnabled(false);
-                    cSpinner.setEnabled(false);
+                    if (Crypto.fileEncrypted(filenameIn))
+                    {
+                        encrypting = false;
+                        encButton.setText(R.string.decrypt);
+                        hSpinner.setEnabled(false);
+                        cSpinner.setEnabled(false);
+                    }
+                    else
+                    {
+                        encrypting = true;
+                        encButton.setText(R.string.encrypt);
+                        hSpinner.setEnabled(true);
+                        cSpinner.setEnabled(true);
+                        hSpinner.requestFocus();
+                    }
                 }
-                else
+                catch (final IOException e)
                 {
-                    encrypting = true;
-                    encButton.setText(R.string.encrypt);
-                    hSpinner.setEnabled(true);
-                    cSpinner.setEnabled(true);
-                    hSpinner.requestFocus();
+                    e.printStackTrace();
                 }
             }
         }
         else if (resultCode == Activity.RESULT_CANCELED)
+        {
             ; // do nothing
+        }
     }
 
     @Override
@@ -346,15 +358,20 @@ public class Main extends Activity
         @Override
         public void handleMessage(final Message msg)
         {
-            if (msg.arg1 > 0)
+            switch (msg.what)
             {
-                progressDialog.setMax(msg.arg1);
-                progressDialog.setProgress(msg.arg2);
-            }
-            else if (msg.arg1 < 0)
-            {
-                dismissDialog(PROGRESS_DIALOG);
-                Toast.makeText(getApplicationContext(), (String)msg.obj, Toast.LENGTH_LONG).show();
+                case 0:
+                    dismissDialog(PROGRESS_DIALOG);
+                    Toast.makeText(getApplicationContext(), (String)msg.obj, Toast.LENGTH_LONG).show();
+                    break;
+                case 1:
+                    progressDialog.setMax(msg.arg1);
+                    progressDialog.setProgress(msg.arg2);
+                    break;
+                case 2:
+                    // progressDialog.set
+                    progressDialog.setSecondaryProgress(msg.arg2);
+                    break;
             }
         }
     };
@@ -362,9 +379,13 @@ public class Main extends Activity
     private void checkEnableEncryptButton()
     {
         if (encrypting && hash != null && cipher != null && password != null || !encrypting && password != null)
+        {
             findViewById(R.id.button_go).setEnabled(true);
+        }
         else
+        {
             findViewById(R.id.button_go).setEnabled(false);
+        }
     }
 
     private class ProgressThread extends Thread
@@ -379,65 +400,86 @@ public class Main extends Activity
         @Override
         public void run()
         {
-            final Encrypt encryptProcess;
-            if (encrypting)
-                encryptProcess = new Encrypt(new File(filenameIn), new File(filenameOut), password.getBytes(), hash, cipher, compress);
-            else
-                encryptProcess = new Decrypt(new File(filenameIn), new File(filenameOut), password.getBytes());
-
-            encryptProcess.start();
-
-            Status status = null;
-            do
+            Status s = null;
+            Crypto c = null;
+            try
             {
-                try
+                if (encrypting)
+                {
+                    c = new Encrypt(filenameIn, filenameOut, cipher, hash, password.getBytes(), compress);
+                }
+                else
+                {
+                    c = new Decrypt(filenameIn, filenameOut, password.getBytes());
+                }
+                c.start();
+
+                do
                 {
                     sleep(10);
-                }
-                catch (final InterruptedException e)
-                {
-                    encryptProcess.interrupt();
-                }
-                mHandler.sendMessage(mHandler.obtainMessage(0, (int)encryptProcess.getDecryptedSize(), (int)encryptProcess.getBytesProcessed()));
 
-                status = encryptProcess.getStatus();
+                    if (isInterrupted())
+                    {
+                        c.status = Status.CANCELLED;
+                    }
+
+                    mHandler.sendMessage(mHandler.obtainMessage(1, (int)c.current.size, (int)c.current.offset));
+                    mHandler.sendMessage(mHandler.obtainMessage(2, (int)c.total.size, (int)c.total.offset));
+                }
+                while (c.status == Status.INIT || c.status == Status.RUNNING);
             }
-            while (status == Status.NOT_STARTED || status == Status.RUNNING);
-            final String finished;
-            switch (status)
+            catch (final InterruptedException e)
             {
+                c.status = Status.CANCELLED;
+            }
+            catch (final Exception e)
+            {
+                s = c.status = Status.FAILED_OTHER;
+            }
+
+            if (c != null)
+            {
+                s = c.status;
+            }
+
+            String msg = null;
+            switch (s)
+            {
+                case SUCCESS:
+                    msg = getString(encrypting ? R.string.encryption_succeeded : R.string.decryption_succeeded);
+                    break;
                 case CANCELLED:
-                    finished = getString(R.string.cancelled);
+                    msg = getString(R.string.cancelled);
                     break;
-                case FAILED_UNKNOWN:
-                    finished = getString(R.string.failed_unknown);
+                case FAILED_INIT:
+                    msg = getString(R.string.failed_init);
                     break;
-                case FAILED_IO:
-                    finished = getString(R.string.failed_io);
+                case FAILED_UNKNOWN_VERSION:
+                    msg = getString(R.string.failed_unknown_version);
                     break;
-                case FAILED_ALGORITHM:
-                    finished = getString(R.string.failed_algorithm) + " : " + status.getAdditional();
-                    break;
-                case FAILED_KEY:
-                    finished = getString(R.string.failed_key);
+                case FAILED_UNKNOWN_ALGORITH:
+                    msg = getString(R.string.failed_algorithm);
                     break;
                 case FAILED_DECRYPTION:
-                    finished = getString(R.string.failed_decryption);
+                    msg = getString(R.string.failed_decryption);
                     break;
                 case FAILED_UNKNOWN_TAG:
-                    finished = getString(R.string.failed_unknown_tag);
+                    msg = getString(R.string.failed_unknown_tag);
                     break;
                 case FAILED_CHECKSUM:
-                    finished = getString(R.string.failed_checksum);
+                    msg = getString(R.string.failed_checksum);
                     break;
-                case FAILED_MEMORY:
-                    finished = getString(R.string.failed_memory);
+                case FAILED_IO:
+                    msg = getString(R.string.failed_io);
+                    break;
+                case FAILED_OUTPUT_MISMATCH:
+                    msg = getString(R.string.failed_output_mismatch);
                     break;
                 default:
-                    finished = getString(encrypting ? R.string.encryption_succeeded : R.string.decryption_succeeded);
-                    break;
+                    msg = getString(R.string.failed_unknown);
+
             }
-            mHandler.sendMessage(mHandler.obtainMessage(0, -1, -1, finished));
+            mHandler.sendMessage(mHandler.obtainMessage(0, msg));
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * encrypt ~ a simple, modular, (multi-OS,) encryption utility
+ * encrypt ~ a simple, modular, (multi-OS) encryption utility
  * Copyright © 2005-2012, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
@@ -18,14 +18,27 @@
  *
  */
 
-package net.albinoloverats.android.encrypt;
+package net.albinoloverats.android.encrypt.crypt;
 
-import java.io.File;
-
-public class Decrypt extends Encrypt
+public enum Tag
 {
-    public Decrypt(final File sourceFile, final File outputFile, final byte[] keyData)
+    SIZE(0),
+    BLOCKED(1),
+    COMPRESSED(2),
+    DIRECTORY(3);
+
+    final public int value;
+
+    private Tag(final int value)
     {
-        super(sourceFile, outputFile, keyData, false);
+        this.value = value;
+    }
+
+    public static Tag fromValue(final int value) throws Exception
+    {
+        for (final Tag tag : Tag.values())
+            if (tag.value == value)
+                return tag;
+        throw new Exception(Status.FAILED_UNKNOWN_TAG);
     }
 }

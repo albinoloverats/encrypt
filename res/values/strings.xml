@@ -21,13 +21,15 @@
     <string name="decryption_succeeded">Decryption succeeded</string>
 
     <string name="cancelled">User cancelled operation</string>
-    <string name="failed_unknown">An unknown error has occurred!</string>
-    <string name="failed_io">Failed with IO error!</string>
-    <string name="failed_algorithm">Unsupported algorithm!</string>
-    <string name="failed_key">Invalid key data!</string>
-    <string name="failed_decryption">Decryption verification failed!</string>
-    <string name="failed_unknown_tag">Unsupported container feature!</string>
+    <string name="failed_init">Failed: Invalid initialisation parameters!</string>
+    <string name="failed_unknown_version">Failed: Unsupported version!</string>
+    <string name="failed_algorithm">Failed: Unsupported algorithm!</string>
+    <string name="failed_decryption">Failed: Decryption failure!</string>
+    <string name="failed_unknown_tag">Failed: nsupported container feature!</string>
     <string name="failed_checksum">Finished but with possible file corruption!</string>
+    <string name="failed_io">Failed: Read/Write error!</string>
+    <string name="failed_output_mismatch">Failed: Invalid target file type!</string>
+    <string name="failed_unknown">An unknown error has occurred!</string>
     <string name="failed_memory">Out of memory!\nTry turning off compression</string>
 
     <string name="choose_file">Choose File</string>

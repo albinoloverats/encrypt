@@ -18,7 +18,7 @@
  *
  */
 
-package net.albinoloverats.android.encrypt.utils;
+package net.albinoloverats.android.encrypt.misc;
 
 public abstract class Convert
 {

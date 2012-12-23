@@ -18,7 +18,7 @@
  *
  */
 
-package net.albinoloverats.android.encrypt.utils;
+package net.albinoloverats.android.encrypt.crypt;
 
 import gnu.crypto.cipher.CipherFactory;
 import gnu.crypto.cipher.IBlockCipher;
@@ -31,7 +31,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-public abstract class AlgorithmNames
+public abstract class Utils
 {
     private static final String NAME_TRIPLE_DES = "TRIPLEDES";
     private static final String NAME_3DES = "3DES";

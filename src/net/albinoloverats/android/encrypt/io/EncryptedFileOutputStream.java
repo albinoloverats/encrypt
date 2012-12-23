@@ -1,5 +1,5 @@
 /*
- * encrypt ~ a simple, modular, (multi-OS,) encryption utility
+ * encrypt ~ a simple, modular, (multi-OS) encryption utility
  * Copyright © 2005-2012, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
@@ -20,7 +20,10 @@
 
 package net.albinoloverats.android.encrypt.io;
 
+import gnu.crypto.cipher.IBlockCipher;
+import gnu.crypto.hash.IMessageDigest;
 import gnu.crypto.mode.IMode;
+import gnu.crypto.mode.ModeFactory;
 import gnu.crypto.util.PRNG;
 
 import java.io.File;
@@ -28,16 +31,23 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 
-import net.albinoloverats.android.encrypt.utils.Convert;
+import net.albinoloverats.android.encrypt.crypt.Utils;
+import net.albinoloverats.android.encrypt.misc.Convert;
 
 public class EncryptedFileOutputStream extends FileOutputStream
 {
     private final FileOutputStream stream;
+
     private IMode cipher;
+    
     private byte[] buffer = null;
-    private int block = 0;
-    private int[] offset = { 0, 0, 0 };
+    private int blocksize = 0;
+    private int[] offset = { 0, 0 };
 
     public EncryptedFileOutputStream(final File file) throws FileNotFoundException
     {
@@ -45,24 +55,48 @@ public class EncryptedFileOutputStream extends FileOutputStream
         stream = new FileOutputStream(file);
     }
 
-    public void setCipher(final IMode cipher)
+    public IMessageDigest encryptionInit(final String cipher, final String hash, final byte[] key) throws NoSuchAlgorithmException, InvalidKeyException
     {
-        this.cipher = cipher;
+        IMessageDigest h = Utils.getHashAlgorithm(hash);
+        final IBlockCipher c = Utils.getCipherAlgorithm(cipher);
+        blocksize = c.defaultBlockSize();
+        this.cipher = ModeFactory.getInstance("CBC", c, blocksize);
+        h.update(key, 0, key.length);
+        final byte[] keySource = h.digest();
+        final Map<String, Object> attributes = new HashMap<String, Object>();
+        final int keyLength = Utils.getCipherAlgorithmKeySize(cipher) / Byte.SIZE;
+        final byte[] keyOutput = new byte[keyLength];
+        System.arraycopy(keySource, 0, keyOutput, 0, keyLength < keySource.length ? keyLength : keySource.length);
+        attributes.put(IBlockCipher.KEY_MATERIAL, keyOutput);
+        attributes.put(IBlockCipher.CIPHER_BLOCK_SIZE, Integer.valueOf(blocksize));
+        attributes.put(IMode.STATE, Integer.valueOf(IMode.ENCRYPTION));
+        h.reset();
+        h.update(keySource, 0, keySource.length);
+        final byte[] iv = h.digest();
+        final byte[] correctedIV = new byte[blocksize];
+        System.arraycopy(iv, 0, correctedIV, 0, blocksize < iv.length ? blocksize : iv.length);
+        attributes.put(IMode.IV, correctedIV);
+        this.cipher.init(attributes);
+        buffer = new byte[blocksize];
+        return h;
     }
-
+    
     @Override
     public void close() throws IOException
     {
-        final int[] remainder = { 0, block - offset[0] };
-        final byte[] x = new byte[remainder[1]];
-        PRNG.nextBytes(x);
-        System.arraycopy(x, 0, buffer, offset[0], remainder[1]);
-        final byte[] eBytes = new byte[block];
-        cipher.update(buffer, 0, eBytes, 0);
-        stream.write(eBytes);
-        block = 0;
-        buffer = null;
-        offset = new int[3];
+        if (cipher != null)
+        {
+            final int[] remainder = { 0, blocksize - offset[0] };
+            final byte[] x = new byte[remainder[1]];
+            PRNG.nextBytes(x);
+            System.arraycopy(x, 0, buffer, offset[0], remainder[1]);
+            final byte[] eBytes = new byte[blocksize];
+            cipher.update(buffer, 0, eBytes, 0);
+            stream.write(eBytes);
+            blocksize = 0;
+            buffer = null;
+            offset = new int[2];
+        }
         stream.flush();
         stream.close();
     }
@@ -87,11 +121,7 @@ public class EncryptedFileOutputStream extends FileOutputStream
             stream.write(bytes);
             return;
         }
-        if (block == 0)
-            block = cipher.defaultBlockSize();
-        if (buffer == null)
-            buffer = new byte[block];
-        final int[] remainder = { bytes.length, block - offset[0] };
+        final int[] remainder = { bytes.length, blocksize - offset[0] };
         offset[1] = 0;
         while (remainder[0] > 0)
         {
@@ -102,14 +132,14 @@ public class EncryptedFileOutputStream extends FileOutputStream
                 return;
             }
             System.arraycopy(bytes, offset[1], buffer, offset[0], remainder[1]);
-            final byte[] eBytes = new byte[block];
+            final byte[] eBytes = new byte[blocksize];
             cipher.update(buffer, 0, eBytes, 0);
             stream.write(eBytes);
             offset[0] = 0;
-            buffer = new byte[block];
+            buffer = new byte[blocksize];
             offset[1] += remainder[1];
             remainder[0] -= remainder[1];
-            remainder[1] = block - offset[0];
+            remainder[1] = blocksize - offset[0];
         }
         return;
     }
