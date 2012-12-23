@@ -80,6 +80,8 @@ typedef struct
 
     bool cipher_init;
     gcry_cipher_hd_t cipher_handle;
+
+    bool hash_init;
     gcry_md_hd_t hash_handle;
 
     buffer_t *buffer;
@@ -134,10 +136,10 @@ extern int io_close(IO_HANDLE ptr)
     }
 
     if (io_ptr->cipher_init)
-    {
         gcry_cipher_close(io_ptr->cipher_handle);
+
+    if (io_ptr->hash_init)
         gcry_md_close(io_ptr->hash_handle);
-    }
 
     if (io_ptr->lzma_init)
         lzma_end(&io_ptr->lzma_handle);
@@ -212,9 +214,9 @@ extern void io_encryption_init(IO_HANDLE ptr, const char *c, const char *h, cons
     /*
      * set the key as the hash of supplied data
      */
-     size_t key_length = 0;
-     gcry_cipher_algo_info(cipher_id_from_name(c), GCRYCTL_GET_KEYLEN, NULL, &key_length);
-     uint8_t *key = calloc(key_length, sizeof( byte_t ));
+    size_t key_length = 0;
+    gcry_cipher_algo_info(cipher_id_from_name(c), GCRYCTL_GET_KEYLEN, NULL, &key_length);
+    uint8_t *key = calloc(key_length, sizeof( byte_t ));
     if (!key)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, key_length);
     memcpy(key, hash, key_length < hash_length ? key_length : hash_length);
@@ -252,12 +254,13 @@ extern void io_encryption_init(IO_HANDLE ptr, const char *c, const char *h, cons
         io_ptr->buffer->offset[i] = 0;
 
     io_ptr->cipher_init = true;
+    io_ptr->hash_init = true;
     io_ptr->operation = IO_ENCRYPT;
 
     return;
 }
 
-extern void io_encryption_checksum_init(IO_HANDLE ptr)
+extern void io_encryption_checksum_init(IO_HANDLE ptr, char *h)
 {
     io_private_t *io_ptr = ptr;
     if (!io_ptr)
@@ -266,9 +269,10 @@ extern void io_encryption_checksum_init(IO_HANDLE ptr)
         return;
     }
 
-    if (io_ptr->cipher_init)
-        return;
-    gcry_md_reset(io_ptr->hash_handle);
+    if (io_ptr->hash_init)
+        gcry_md_reset(io_ptr->hash_handle);
+    else
+        gcry_md_open(&io_ptr->hash_handle, hash_id_from_name(h), GCRY_MD_FLAG_SECURE);
 
     return;
 }
@@ -374,7 +378,6 @@ extern ssize_t io_read(IO_HANDLE f, void *d, size_t l)
             r = -1;
             break;
     }
-
     if (r >= 0 && io_ptr->cipher_init)
         gcry_md_write(io_ptr->hash_handle, d, r);
 

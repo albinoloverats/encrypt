@@ -203,7 +203,6 @@ static void *process(void *ptr)
     io_encryption_init(c->source, c->cipher, c->hash, c->key, c->length,
             version == HEADER_VERSION_201108 || version == HEADER_VERSION_201110);
     free(c->cipher);
-    free(c->hash);
     free(c->key);
 
     bool skip_some_random = false;
@@ -249,7 +248,8 @@ static void *process(void *ptr)
      *    it was only to allow pipe to give us data where we didn't know
      *    ahead of time the total size
      */
-    io_encryption_checksum_init(c->source);
+    io_encryption_checksum_init(c->output, c->hash);
+    free(c->hash);
 
     if (c->directory)
         decrypt_directory(c, c->path);
@@ -276,7 +276,7 @@ static void *process(void *ptr)
          */
         uint8_t *cs = NULL;
         size_t cl = 0;
-        io_encryption_checksum(c->source, &cs, &cl);
+        io_encryption_checksum(c->output, &cs, &cl);
         uint8_t *b = malloc(cl);
         io_read(c->source, b, cl);
         if (memcmp(b, cs, cl))
