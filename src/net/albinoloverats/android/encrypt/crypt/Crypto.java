@@ -22,6 +22,7 @@ package net.albinoloverats.android.encrypt.crypt;
 
 import gnu.crypto.hash.IMessageDigest;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,10 +75,14 @@ public abstract class Crypto extends Thread implements Runnable
 
     public static boolean fileEncrypted(final String path) throws IOException
     {
+        final File f = new File(path);
+        if (f.isDirectory())
+            return false;
+        
         FileInputStream in = null;
         try
         {
-            in = new FileInputStream(path);
+            in = new FileInputStream(f);
             final byte[] header = new byte[Long.SIZE / Byte.SIZE];
             for (int i = 0; i < 1; i++)
             {

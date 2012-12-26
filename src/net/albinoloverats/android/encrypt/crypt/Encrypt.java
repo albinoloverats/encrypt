@@ -37,6 +37,8 @@ import org.tukaani.xz.XZOutputStream;
 
 public class Encrypt extends Crypto
 {
+    private String root = "";
+    
     public Encrypt(final String source, final String output, final String cipher, final String hash, final byte[] key, final boolean compress) throws Exception
     {
         super();
@@ -99,17 +101,23 @@ public class Encrypt extends Crypto
 
             if (directory)
             {
+                final File d = new File(path);
+                root = d.getParent();
                 output.write(Convert.toBytes((byte)FileType.DIRECTORY.value));
-                output.write(Convert.toBytes((long)path.length()));
-                output.write(path.getBytes());
+                output.write(Convert.toBytes((long)d.getName().length()));
+                output.write(d.getName().getBytes());
                 total.offset = 1;
                 encryptDirectory(path);
+                total.offset = total.size;
+                current.offset = current.size;
             }
             else
             {
                 current.size = total.size;
                 total.size = 1;
                 encryptFile();
+                current.offset = current.size;
+                total.offset = total.size;
             }
 
             output.write(checksum.digest());
@@ -228,12 +236,13 @@ public class Encrypt extends Crypto
                 continue;
 
             output.write(Convert.toBytes((byte)(file.isDirectory() ? FileType.DIRECTORY.value : FileType.REGULAR.value)));
-            final String nm = dir + File.separator + file.getName();
+            final String name = dir + File.separator + file.getName();
+            final String nm = name.substring(root.length() + 1);
             output.write(Convert.toBytes((long)nm.length()));
             output.write(nm.getBytes());
 
             if (file.isDirectory())
-                encryptDirectory(nm);
+                encryptDirectory(name);
             else
             {
                 source = new FileInputStream(file);

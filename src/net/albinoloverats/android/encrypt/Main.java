@@ -31,7 +31,6 @@ import net.albinoloverats.android.encrypt.crypt.Status;
 import net.albinoloverats.android.encrypt.crypt.Utils;
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
@@ -57,16 +56,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lamerman.FileDialog;
+import com.simaomata.DoubleProgressDialog;
 
 public class Main extends Activity
 {
-    private static final int PROGRESS_DIALOG = 0;
+    private static final int DOUBLE_PROGRESS_DIALOG = 1;
     private static final String SHARED_PREFERENCES = "encrypt_preferences";
 
     private Set<String> cipherNames;
     private Set<String> hashNames;
 
-    private ProgressDialog progressDialog;
+    private DoubleProgressDialog dProgressDialog;
     private ProgressThread progressThread;
 
     private boolean encrypting = true;
@@ -92,7 +92,8 @@ public class Main extends Activity
             {
                 final Intent intent = new Intent(Main.this.getBaseContext(), FileDialog.class);
                 intent.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory().getPath());
-                Main.this.startActivityForResult(intent, FileDialog.REQUEST_LOAD);
+                intent.putExtra(FileDialog.CAN_SELECT_DIR, true);
+                Main.this.startActivityForResult(intent, FileAction.LOAD.value);
             }
         });
 
@@ -105,7 +106,8 @@ public class Main extends Activity
             {
                 final Intent intent = new Intent(Main.this.getBaseContext(), FileDialog.class);
                 intent.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory().getPath());
-                Main.this.startActivityForResult(intent, FileDialog.REQUEST_SAVE);
+                intent.putExtra(FileDialog.CAN_SELECT_DIR, true);
+                Main.this.startActivityForResult(intent, FileAction.SAVE.value);
             }
         });
 
@@ -204,7 +206,7 @@ public class Main extends Activity
             @Override
             public void onClick(final View v)
             {
-                showDialog(PROGRESS_DIALOG);
+                showDialog(DOUBLE_PROGRESS_DIALOG);
             }
         });
         encutton.setEnabled(false);
@@ -268,13 +270,14 @@ public class Main extends Activity
     {
         if (resultCode == Activity.RESULT_OK)
         {
-            switch (requestCode)
+            final FileAction action = FileAction.fromValue(requestCode);
+            switch (action)
             {
-                case FileDialog.REQUEST_LOAD:
+                case LOAD:
                     filenameIn = data.getStringExtra(FileDialog.RESULT_PATH);
                     ((Button)findViewById(R.id.button_file)).setText(filenameIn);
                     break;
-                case FileDialog.REQUEST_SAVE:
+                case SAVE:
                     filenameOut = data.getStringExtra(FileDialog.RESULT_PATH);
                     ((Button)findViewById(R.id.button_output)).setText(filenameOut);
                     break;
@@ -313,9 +316,7 @@ public class Main extends Activity
             }
         }
         else if (resultCode == Activity.RESULT_CANCELED)
-        {
             ; // do nothing
-        }
     }
 
     @Override
@@ -323,11 +324,10 @@ public class Main extends Activity
     {
         switch (id)
         {
-            case PROGRESS_DIALOG:
-                progressDialog = new ProgressDialog(Main.this);
-                progressDialog.setMessage(getString(R.string.please_wait));
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                progressDialog.setOnCancelListener(new OnCancelListener()
+            case DOUBLE_PROGRESS_DIALOG:
+                dProgressDialog = new DoubleProgressDialog(Main.this);
+                dProgressDialog.setMessage(getString(R.string.please_wait));
+                dProgressDialog.setOnCancelListener(new OnCancelListener()
                 {
                     @Override
                     public void onCancel(final DialogInterface dialog)
@@ -335,7 +335,7 @@ public class Main extends Activity
                         progressThread.interrupt();
                     }
                 });
-                return progressDialog;
+                return dProgressDialog;
             default:
                 return null;
         }
@@ -346,8 +346,11 @@ public class Main extends Activity
     {
         switch (id)
         {
-            case PROGRESS_DIALOG:
-                progressDialog.setProgress(0);
+            case DOUBLE_PROGRESS_DIALOG:
+                dProgressDialog.setMax(1);
+                dProgressDialog.setProgress(0);
+                dProgressDialog.setSecondaryMax(1);
+                dProgressDialog.setSecondaryProgress(0);
                 progressThread = new ProgressThread(handler);
                 progressThread.start();
         }
@@ -358,19 +361,26 @@ public class Main extends Activity
         @Override
         public void handleMessage(final Message msg)
         {
-            switch (msg.what)
+            final ProgressUpdate p = ProgressUpdate.fromValue(msg.what);
+            switch (p)
             {
-                case 0:
-                    dismissDialog(PROGRESS_DIALOG);
+                case DONE:
+                    dismissDialog(DOUBLE_PROGRESS_DIALOG);
                     Toast.makeText(getApplicationContext(), (String)msg.obj, Toast.LENGTH_LONG).show();
                     break;
-                case 1:
-                    progressDialog.setMax(msg.arg1);
-                    progressDialog.setProgress(msg.arg2);
+                case CURRENT:
+                    dProgressDialog.setMax(msg.arg1);
+                    dProgressDialog.setProgress(msg.arg2);
                     break;
-                case 2:
-                    // progressDialog.set
-                    progressDialog.setSecondaryProgress(msg.arg2);
+                case TOTAL:
+                    if (msg.arg1 < 0 || msg.arg2 < 0)
+                        dProgressDialog.hideSecondaryProgress();
+                    else
+                    {
+                        dProgressDialog.showSecondaryProgress();
+                        dProgressDialog.setSecondaryMax(msg.arg1);
+                        dProgressDialog.setSecondaryProgress(msg.arg2);
+                    }
                     break;
             }
         }
@@ -379,13 +389,9 @@ public class Main extends Activity
     private void checkEnableEncryptButton()
     {
         if (encrypting && hash != null && cipher != null && password != null || !encrypting && password != null)
-        {
             findViewById(R.id.button_go).setEnabled(true);
-        }
         else
-        {
             findViewById(R.id.button_go).setEnabled(false);
-        }
     }
 
     private class ProgressThread extends Thread
@@ -405,26 +411,26 @@ public class Main extends Activity
             try
             {
                 if (encrypting)
-                {
                     c = new Encrypt(filenameIn, filenameOut, cipher, hash, password.getBytes(), compress);
-                }
                 else
-                {
                     c = new Decrypt(filenameIn, filenameOut, password.getBytes());
-                }
                 c.start();
 
                 do
                 {
-                    sleep(10);
+                    sleep(1);
 
                     if (isInterrupted())
-                    {
                         c.status = Status.CANCELLED;
-                    }
+                    
+                    if (c.status == Status.INIT)
+                        continue;
 
-                    mHandler.sendMessage(mHandler.obtainMessage(1, (int)c.current.size, (int)c.current.offset));
-                    mHandler.sendMessage(mHandler.obtainMessage(2, (int)c.total.size, (int)c.total.offset));
+                    mHandler.sendMessage(mHandler.obtainMessage(ProgressUpdate.CURRENT.value, (int)c.current.size, (int)c.current.offset));
+                    if (c.total.size != c.current.size && c.total.size > 1)
+                        mHandler.sendMessage(mHandler.obtainMessage(ProgressUpdate.TOTAL.value, (int)c.total.size, (int)c.total.offset));
+                    else
+                        mHandler.sendMessage(mHandler.obtainMessage(ProgressUpdate.TOTAL.value, -1, -1));
                 }
                 while (c.status == Status.INIT || c.status == Status.RUNNING);
             }
@@ -438,9 +444,7 @@ public class Main extends Activity
             }
 
             if (c != null)
-            {
                 s = c.status;
-            }
 
             String msg = null;
             switch (s)
@@ -479,7 +483,7 @@ public class Main extends Activity
                     msg = getString(R.string.failed_unknown);
 
             }
-            mHandler.sendMessage(mHandler.obtainMessage(0, msg));
+            mHandler.sendMessage(mHandler.obtainMessage(ProgressUpdate.DONE.value, msg));
         }
     }
 }

@@ -43,7 +43,8 @@
     <string name="select">Select</string>
     <string name="file_name">File name:</string>
     <string name="cancel">Cancel</string>
-    <string name="create">Create</string>
+    <string name="create">Save</string>
     <string name="no_data">No Data</string>
     <color name="gray">#ffff0000</color>
+    <string name="err">Error</string>
 </resources>
