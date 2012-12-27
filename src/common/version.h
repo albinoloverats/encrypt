@@ -1,7 +1,7 @@
 /*
- * encrypt ~ a simple, modular, (multi-OS,) encryption utility
- * Copyright © 2005-2012, albinoloverats ~ Software Development
- * email: encrypt@albinoloverats.net
+ * Version checking functions (non-applications specific)
+ * Copyright © 2005-2013, albinoloverats ~ Software Development
+ * email: webmaster@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

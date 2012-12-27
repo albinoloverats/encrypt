@@ -1,6 +1,6 @@
 /*
- * encrypt ~ a simple, modular, (multi-OS,) encryption utility
- * Copyright © 2005-2012, albinoloverats ~ Software Development
+ * encrypt ~ a simple, modular, (multi-OS) encryption utility
+ * Copyright © 2005-2013, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,16 +29,18 @@
 
 #include "io.h"
 
-#define ENCRYPT_VERSION "2013.00"
+#define ENCRYPT_VERSION "2013.02α"
 #define UPDATE_URL "https://albinoloverats.net/encrypt.release"
 
 #define HEADER_VERSION_201108 0x72761df3e497c983llu /*!< The third 8 bytes of the original version (2011.08) */
 #define HEADER_VERSION_201110 0xbb116f7d00201110llu /*!< The third 8 bytes of the second release (2011.10) */
-#define HEADER_VERSION_201211 0x51d28245e1216c45llu /*!< The third 8 bytes of the current release (2012.11) */
-#define HEADER_VERSION_NEXT   0xa5a5a5a5a5a5a5a5llu /*!< The third 8 bytes of the current development version */
+#define HEADER_VERSION_201211 0x51d28245e1216c45llu /*!< The third 8 bytes of the 2012.11 release */
+#define HEADER_VERSION_201302 0x5b7132ab5abb3c47llu /*!< We're aiming for a February release :-) */
+#define HEADER_VERSION_LATEST HEADER_VERSION_201302 /*!< The third 8 bytes of the current development version */
+
 #define HEADER_0 0x3697de5d96fca0fallu              /*!< The first 8 bytes of an encrypted file */
 #define HEADER_1 0xc845c2fa95e2f52dllu              /*!< The second 8 bytes of an encrypted file */
-#define HEADER_2 HEADER_VERSION_NEXT                /*!< The third 8 bytes of an encrypted file (version indicator) */
+#define HEADER_2 HEADER_VERSION_LATEST              /*!< The third 8 bytes of an encrypted file (version indicator) */
 
 #define BLOCK_SIZE 1024 /*!< Default IO block size */
 

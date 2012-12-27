@@ -1,6 +1,6 @@
 /*
- * encrypt ~ a simple, modular, (multi-OS,) encryption utility
- * Copyright © 2005-2012, albinoloverats ~ Software Development
+ * encrypt ~ a simple, modular, (multi-OS) encryption utility
+ * Copyright © 2005-2013, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -418,7 +418,7 @@ public class Main extends Activity
 
                 do
                 {
-                    sleep(1);
+                    sleep(10);
 
                     if (isInterrupted())
                         c.status = Status.CANCELLED;

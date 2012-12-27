@@ -1,6 +1,6 @@
 /*
- * encrypt ~ a simple, modular, (multi-OS,) encryption utility
- * Copyright © 2005-2012, albinoloverats ~ Software Development
+ * encrypt ~ a simple, modular, (multi-OS) encryption utility
+ * Copyright © 2005-2013, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,8 +24,8 @@
 /*!
  * \file    decrypt.h
  * \author  Ashley M Anderson
- * \date    2009-2012
- * \brief   Main encryption routine
+ * \date    2009-2013
+ * \brief   Main decryption routine
  *
  * The main decryption routine; the only visible function is for the
  * initialisation, which produces a crypto instance that can be executed
