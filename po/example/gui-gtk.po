@@ -1,47 +1,22 @@
-#: src/gui.c:207
+#: src/gui-gtk.c:96
 #| Selected %d is algorithm: %s
 msgid "Selected %d is algorithm: %s"
 msgstr ""
 
-#: src/gui.c:224
-#| Selected %d is hash: %d
-msgid "Selected %d is hash: %d"
+#: src/gui-gtk.c:117
+#| Selected %d is hash: %s
+msgid "Selected %d is hash: %s"
 msgstr ""
 
-#: src/gui.c:330
-#| Show progress dialog
-msgid "Show progress dialog"
+#: src/gui-gtk.c:470
+#| Initialise crypto routine
+msgid "Initialise crypto routine"
 msgstr ""
 
-#: src/gui.c:335
-#| Reset cancel/close buttons
-msgid "Reset cancel/close buttons"
-msgstr ""
+#: src/gui-gtk.c:492
+#. See common/common.po for the definitive "Out of memory" translation
 
-#: src/gui.c:341
-#| Reset progress bar
-msgid "Reset progress bar"
-msgstr ""
-
-#: src/gui.c:347
+#: src/gui-gtk.c:558
 #| Update progress bar in loop
 msgid "Update progress bar in loop"
-msgstr ""
-
-#: src/gui.c:377
-#| Background thread finished with status: %d
-msgid "Background thread finished with status: %d"
-msgstr ""
-
-#: src/gui.c:401
-#| Cancel background thread
-msgid "Cancel background thread"
-msgstr ""
-
-#. See common/common.po for the definitive "Out of memory" translation
-#: src/gui.c:465
-
-#: src/gui.c:528
-#| Compression is now %s
-msgid "Compression is now %s"
 msgstr ""

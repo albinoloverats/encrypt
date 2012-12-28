@@ -1,0 +1,199 @@
+#: src/decrypt.c:69
+#. See common/common.po for the definitive "Out of memory" translation
+
+#: src/decrypt.c:75
+#| Decrypting file : %s
+msgid "Decrypting file : %s"
+msgstr ""
+
+#: src/decrypt.c:78
+#. See src/io.po for "IO error" translation
+
+#: src/decrypt.c:85
+#| Decrypting stream from stdin
+msgid "Decrypting stream from stdin"
+msgstr ""
+
+#: src/decrypt.c:101
+#| Unexpected error looking up destination
+msgid "Unexpected error looking up destination"
+msgstr ""
+
+#: src/decrypt.c:105
+#| Not sure whether %s will be a file or directory
+msgid "Not sure whether %s will be a file or directory"
+msgstr ""
+
+#: src/decrypt.c:117
+#| Decrypting to directory : %s
+msgid "Decrypting to directory : %s"
+msgstr ""
+
+#: src/decrypt.c:124
+#| Decrypting to file : %s
+msgid "Decrypting to file : %s"
+msgstr ""
+
+#: src/decrypt.c:127
+#. See src/io.po for "IO error" translation
+
+#: src/decrypt.c:134
+#| Unsupported destination file type
+msgid "Unsupported destination file type"
+msgstr ""
+
+#: src/decrypt.c:143
+#| Decrypting to stdout
+msgid "Decrypting to stdout"
+msgstr ""
+
+#: src/decrypt.c:149
+#| Invalid key data
+msgid "Invalid key data"
+msgstr ""
+
+#: src/decrypt.c:156
+#. See common/common.po for the definitive "Out of memory" translation
+
+#: src/decrypt.c:165
+#. See src/io.po for "IO error" translation
+
+#: src/decrypt.c:172
+#. See common/common.po for the definitive "Out of memory" translation
+
+#: src/decrypt.c:189
+#| Invalid cryptographic object!
+msgid "Invalid cryptographic object!"
+msgstr ""
+
+#: src/decrypt.c:235
+#| Starting decryption process
+msgid "Starting decryption process"
+msgstr ""
+
+#: src/decrypt.c:284
+#| Checksum verification failed
+msgid "Checksum verification failed"
+msgstr ""
+
+#: src/decrypt.c:305
+#| Checking for file header
+msgid "Checking for file header"
+msgstr ""
+
+#: src/decrypt.c:310
+#. See src/io.po for "IO error" translation
+
+#: src/decrypt.c:315
+#| Data not encrypted
+msgid "Data not encrypted"
+msgstr ""
+
+#: src/decrypt.c:335
+#| File encrypted with version 2011.08
+msgid "File encrypted with version 2011.08"
+msgstr ""
+
+#: src/decrypt.c:339
+#| File encrypted with version 2011.10
+msgid "File encrypted with version 2011.10"
+msgstr ""
+
+#: src/decrypt.c:343
+#| File encrypted with version 2012.11
+msgid "File encrypted with version 2012.11"
+msgstr ""
+
+#: src/decrypt.c:347
+#| File encrypted with development version
+msgid "File encrypted with development version"
+msgstr ""
+
+#: src/decrypt.c:351
+#| File encrypted with unknown, or more recent release of encrypt
+msgid "File encrypted with unknown, or more recent release of encrypt"
+msgstr ""
+
+#: src/decrypt.c:358
+#| Reading verification sum
+msgid "Reading verification sum"
+msgstr ""
+
+#: src/decrypt.c:368
+#| Verifying x ^ y = z
+msgid "Verifying x ^ y = z"
+msgstr ""
+
+#: src/decrypt.c:376
+#| Failed decryption verification
+msgid "Failed decryption verification"
+msgstr ""
+
+#: src/decrypt.c:385
+#| Reading metadata
+msgid "Reading metadata"
+msgstr ""
+
+#: src/decrypt.c:399
+#. See common/common.po for the definitive "Out of memory" translation
+
+#: src/decrypt.c:420
+#| Encrypted stream is %sblock delimited: "…is block…" or "…is not block…"
+msgid "Encrypted stream is %sblock delimited"
+msgstr ""
+
+#: src/decrypt.c:426
+#| Encrypted stream is %scompressed: "…is compressed" or "…is not compressed"
+msgid "Encrypted stream is %scompressed"
+msgstr ""
+
+#: src/decrypt.c:438
+#| Output is to a directory
+msgid "Output is to a directory"
+msgstr ""
+
+#: src/decrypt.c:447
+#| Output requires a directory, not a file
+msgid "Output requires a directory, not a file"
+msgstr ""
+
+#: src/decrypt.c:461
+#. See src/io.po for "IO error" translation
+
+#: src/decrypt.c:467
+#| Output requires a file, not a directory
+msgid "Output requires a file, not a directory"
+msgstr ""
+
+#: src/decrypt.c:483
+#. See common/common.po for the definitive "Out of memory" translation
+
+#: src/decrypt.c:491
+#| Decrypting %" PRIu64 " entries into %s
+msgid "Decrypting %" PRIu64 " entries into %s"
+msgstr ""
+
+#: src/decrypt.c:505
+#. See common/common.po for the definitive "Out of memory" translation
+
+#: src/decrypt.c:508
+#. See common/common.po for the definitive "Out of memory" translation
+
+#: src/decrypt.c:512
+#| Creating directory : %s
+msgid "Creating directory : %s"
+msgstr ""
+
+#: src/decrypt.c:524
+#| Decrypting file : %s
+msgid "Decrypting file : %s"
+msgstr ""
+
+#: src/decrypt.c:542
+#. See common/common.po for the definitive "Out of memory" translation
+
+#: src/decrypt.c:551
+#. See src/io.po for "IO error" translation
+
+#: src/decrypt.c:584
+#. See src/io.po for "IO error" translation

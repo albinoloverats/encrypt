@@ -1,179 +1,132 @@
-#: src/encrypt.c:83
-#| Checking for file header
-msgid "Checking for file header"
-msgstr ""
-
-#: src/encrypt.c:141
-#| File encrypted with more recent release of encrypt
-msgid "File encrypted with more recent release of encrypt"
-msgstr ""
-
-#: src/encrypt.c:146
-#| Checking for known algorithms
-msgid "Checking for known algorithms"
-msgstr ""
-
-#: src/encrypt.c:159
-#| File encrypted using algorithm: %s
-msgid "File encrypted using algorithm: %s"
-msgstr ""
-
-#: src/encrypt.c:160
-#| Encryption key generated using hash: %s
-msgid "Encryption key generated using hash: %s"
-msgstr ""
-
-#: src/encrypt.c:171
-#| Encrypting...
-msgid "Encrypting..."
-msgstr ""
-
-#: src/encrypt.c:180
-#| Searching for known algorithms
-msgid "Searching for known algorithms"
-msgstr ""
-
-#: src/encrypt.c:195
-#| Writing standard header
-msgid "Writing standard header"
-msgstr ""
-
-#: src/encrypt.c:215
+#: src/encrypt.c:74
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:230
+#: src/encrypt.c:86
+#| Encrypting directory tree : %s
+msgid "Encrypting directory tree : %s"
+msgstr ""
+
+#: src/encrypt.c:93
+#| Encrypting file : %s
+msgid "Encrypting file : %s"
+msgstr ""
+
+#: src/encrypt.c:96
+#. See src/io.po for "IO error" translation
+
+#: src/encrypt.c:104
+#| Encrypting stream from stdin
+msgid "Encrypting stream from stdin"
+msgstr ""
+
+#: src/encrypt.c:110
+#| Encrypting to file : %s
+msgid "Encrypting to file : %s"
+msgstr ""
+
+#: src/encrypt.c:113
+#. See src/io.po for "IO error" translation
+
+#: src/encrypt.c:120
+#| Encrypting to stdout
+msgid "Encrypting to stdout"
+msgstr ""
+
+#: src/encrypt.c:131
+#| Invalid key data
+msgid "Invalid key data"
+msgstr ""
+
+#: src/encrypt.c:138
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:244
-#| Writing source file info
-msgid "Writing source file info"
+#: src/encrypt.c:147
+#. See src/io.po for "IO error" translation
+
+#: src/encrypt.c:154
+#. See common/common.po for the definitive "Out of memory" translation
+#| Out of memory @ %s:%d:%s [%zu]
+msgid "Out of memory @ %s:%d:%s [%zu]"
 msgstr ""
 
-#: src/encrypt.c:293
-#| Initialising xz compression
-msgid "Initialising xz compression"
+#: src/encrypt.c:172
+#| Invalid cryptographic object!
+msgid "Invalid cryptographic object!"
 msgstr ""
 
-#: src/encrypt.c:344
+#: src/encrypt.c:197
 #| Starting encryption process
 msgid "Starting encryption process"
 msgstr ""
 
-#: src/encrypt.c:380
-#| Writing data checksum
-msgid "Writing data checksum"
+#: src/encrypt.c:204
+#| Directory tree contains %" PRIi64 " entries
+msgid "Directory tree contains %" PRIi64 " entries"
 msgstr ""
 
-#: src/encrypt.c:387
-#| Appending file random data
-msgid "Appending file random data"
+#: src/encrypt.c:251
+#| Writing standard header
+msgid "Writing standard header"
 msgstr ""
 
-#: src/encrypt.c:410
-#| Decrypting...
-msgid "Decrypting..."
-msgstr ""
-
-#: src/encrypt.c:439
+#: src/encrypt.c:257
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:452
+#: src/encrypt.c:260
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:472
-#| Reading source file info
-msgid "Reading source file info"
-msgstr ""
-
-#: src/encrypt.c:482
-#| Verifying x ^ y = z
-msgid "Verifying x ^ y = z"
-msgstr ""
-
-#: src/encrypt.c:490
-#| Failed decryption attempt
-msgid "Failed decryption attempt"
-msgstr ""
-
-#: src/encrypt.c:517
+#: src/encrypt.c:266
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:536
-#| Data stream is compressed
-msgid "Data stream is compressed"
+#: src/encrypt.c:278
+#| Writing verification sum
+msgid "Writing verification sum"
 msgstr ""
 
-#: src/encrypt.c:538
-#| Expecting compressed data but could not setup liblzma
-msgid "Expecting compressed data but could not setup liblzma"
+#: src/encrypt.c:301
+#| Writing metadata
+msgid "Writing metadata"
 msgstr ""
 
-#: src/encrypt.c:544
-#| Data stream is not compressed
-msgid "Data stream is not compressed"
-msgstr ""
-
-#: src/encrypt.c:549
-#| Encountered unknown tlv tag: %hhx
-msgid "Encountered unknown tlv tag: %hhx"
-msgstr ""
-
-#: src/encrypt.c:561
-#| Starting decryption process
-msgid "Starting decryption process"
-msgstr ""
-
-#: src/encrypt.c:616
-#| Verifying checksum
-msgid "Verifying checksum"
-msgstr ""
-
-#: src/encrypt.c:621
-#| Checksum verification failed
-msgid "Checksum verification failed"
-msgstr ""
-
-#: src/encrypt.c:666
+#: src/encrypt.c:349
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:682
+#: src/encrypt.c:362
+#| Scanning directory : %s
+msgid "Scanning directory : %s"
+msgstr ""
+
+#: src/encrypt.c:376
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:699
+#: src/encrypt.c:396
+#| Found %i entries in %s
+msgid "Found %i entries in %s"
+msgstr ""
+
+#: src/encrypt.c:411
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:717
+#: src/encrypt.c:422
+#| Ignoring unsupported file type [%d] : %s
+msgid "Ignoring unsupported file type [%d] : %s"
+msgstr ""
+
+#: src/encrypt.c:438
+#| Storing directory : %s
+msgid "Storing directory : %s"
+msgstr ""
+
+#: src/encrypt.c:445
+#| Encrypting file : %s
+msgid "Encrypting file : %s"
+msgstr ""
+
+#: src/encrypt.c:474
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:735
-#| Initialising GNU Crypt library
-msgid "Initialising GNU Crypt library"
-msgstr ""
+#: src/encrypt.c:487
+#. See src/io.po for "IO error" translation
 
-#: src/encrypt.c:737
-#| Could not find GNU Crypt library
-msgid "Could not find GNU Crypt library"
-msgstr ""
-
-#: src/encrypt.c:763
-#| Found requested hash: %s
-msgid "Found requested hash: %s"
-msgstr ""
-
-#: src/encrypt.c:768
-#| Could not find requested hash: %s
-msgid "Could not find requested hash: %s"
-msgstr ""
-
-#: src/encrypt.c:793
-#| Found requested encryption algorithm: %s
-msgid "Found requested encryption algorithm: %s"
-msgstr ""
-
-#: src/encrypt.c:799
-#| Could not find requested encryption algorithm: %s
-msgid "Could not find requested encryption algorithm: %s"
-msgstr ""
-
-#: src/encrypt.c:851
-#. See common/common.po for the definitive "Out of memory" translation
+#: src/encrypt.c:521
+#. See src/io.po for "IO error" translation
