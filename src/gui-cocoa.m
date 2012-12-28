@@ -322,22 +322,9 @@ clean_up:
             asprintf(&key_file, "%s/%s", getenv("HOME"), key_link + 1);
         else
             key_file = strdup(key_link);
-
-        int64_t kf = open(key_file, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
+        key = (uint8_t *)strdup(key_file);
         free(key_file);
-        if (kf < 0)
-        {
-            /*
-             * TODO implement some error handling
-             */
-            return;
-        }
-        length = lseek(kf, 0, SEEK_END);
-        lseek(kf, 0, SEEK_SET);
-        if (!(key = malloc(length)))
-            die("Out of memory @ %s:%d:%s [%" PRIu64 "]", __FILE__, __LINE__, __func__, length);
-        read(kf, key, length);
-        close(kf);
+        length = 0;
     }
     else
     {

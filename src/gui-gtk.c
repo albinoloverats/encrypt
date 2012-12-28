@@ -476,31 +476,13 @@ static void *gui_process(void *d)
     switch (gtk_combo_box_get_active((GtkComboBox *)data->key_combo))
     {
         case KEY_FILE:
-            {
-                char *key_file = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog));
-                int64_t kf = open(key_file, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
-                if (kf < 0)
-                {
-                    /*
-                     * TODO implement error handling
-                     */
-                    return NULL;//FALSE;
-                }
-                length = lseek(kf, 0, SEEK_END);
-                lseek(kf, 0, SEEK_SET);
-                if (!(key = malloc(length)))
-                    die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, length);
-                read(kf, key, length);
-                close(kf);
-            }
+            key = (uint8_t *)strdup(_filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog)));
+            length = 0;
             break;
 
         case KEY_PASSWORD:
-            {
-                char *k = (char *)gtk_entry_get_text((GtkEntry *)data->password_entry);
-                key = (uint8_t *)strdup(k);
-                length = strlen((char *)key);
-            }
+            key = (uint8_t *)strdup(gtk_entry_get_text((GtkEntry *)data->password_entry));
+            length = strlen((char *)key);
             break;
     }
 
