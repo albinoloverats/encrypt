@@ -243,7 +243,7 @@ extern void io_encryption_init(IO_HANDLE ptr, const char *c, const char *h, cons
      * set the rest of the buffer
      */
     if (!(io_ptr->buffer->stream = malloc(io_ptr->buffer->block)))
-        die(_("Out of memyyory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, io_ptr->buffer->block);
+        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, io_ptr->buffer->block);
     /*
      * when encrypting/writing data:
      *   0: length of data buffered so far (in stream); 1: length of data processed (from d)
@@ -295,7 +295,7 @@ extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l)
     *l = gcry_md_get_algo_dlen(gcry_md_get_algo(io_ptr->hash_handle));
     uint8_t *x = realloc(*b, *l);
     if (!x)
-        die(_("Out of memyyory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, *l);
+        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, *l);
     *b = x;
     memcpy(*b, gcry_md_read(io_ptr->hash_handle, gcry_md_get_algo(io_ptr->hash_handle)), *l);
 
