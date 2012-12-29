@@ -1,26 +1,15 @@
-encrypt - 2012.11                                          19th Nov 2012
+encrypt - 2013.02                                 (sometime in) Feb 2013
 =================
 
-A little over a year since the previous release but we're back with many
-significant changes:  first and foremost is the capability to compress a
-file (or data stream) before it is encrypted.  Before you ask, yes we're
-intending to support encrypting multiple files in an upcoming (maybe the
-next) version.
+Hot off the heals of our last release, we've another. This brings a well
+needed, and requested, feature addition:  recursive encryption.  You can
+now select and encrypt directories as well as files. The has resulted in
+an update/enhancement of the user interface to show the current progress
+and overall progress of the encryption/decryption.
 
-The other major improvement is the ability to set default algorithms for
-both the key hashing and encryption itself.  On Unix-like systems create
-the file ~/.encryptrc or copy the example from utils/_encryptrc.  If you
-are running MS Windows,  the file is %Program Files%\encrypt\_encryptrc.
-
-The UI of the desktop edition has also been simplified;  the output file
-is selected as you would expect, instead of having to select a directory
-and then type in the file name.  In addition, there is a new menu option
-"Options". Currently the only option is to toggle compression on or off.
-
-Finally, looking to the future again, we've started working on a port of
-encrypt to Apple's OS X (native obviously).  However, it is dependent on
-Homebrew to provide libgcrypt, xzm and curl; once we've figured this out
-we will provide an easy way to install here too. See INSTALL for details
-on how to do this yourself.
+The native OS X port is still (slowly) being worked on; everything still
+works, and it is compatible with all the other versions of encrypt. Alas
+we're still having some issues packaging it up for easy distribution and
+installation.
 
 The encrypt Development Team
