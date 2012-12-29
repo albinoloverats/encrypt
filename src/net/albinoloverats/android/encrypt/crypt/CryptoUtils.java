@@ -31,7 +31,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-public abstract class Utils
+public abstract class CryptoUtils
 {
     private static final String NAME_TRIPLE_DES = "TRIPLEDES";
     private static final String NAME_3DES = "3DES";

@@ -13,6 +13,10 @@
     
     <string name="options">Options</string>
     <string name="compress">Compression</string>
+    <string name="key_file">Key File</string>
+
+    <string name="use_key_file">Using Key File</string>
+    <string name="use_password">Using Password</string>
 
     <string name="on">On</string>
     <string name="off">Off</string>
@@ -32,10 +36,11 @@
     <string name="failed_unknown">An unknown error has occurred!</string>
     <string name="failed_memory">Out of memory!\nTry turning off compression</string>
 
-    <string name="choose_file">Choose File</string>
+    <string name="choose_source">Choose Source</string>
     <string name="choose_cipher">Choose Cipher</string>
     <string name="choose_hash">Choose Hash</string>
-    <string name="choose_output">Choose Destination</string>
+    <string name="choose_output">Choose Output</string>
+    <string name="choose_key">Choose Key</string>
 
     <string name="location">Location</string>
     <string name="cant_read_folder">folder can\'t be read!</string>

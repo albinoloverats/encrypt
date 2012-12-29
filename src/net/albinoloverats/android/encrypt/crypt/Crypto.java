@@ -36,7 +36,7 @@ public abstract class Crypto extends Thread implements Runnable
     protected static final long HEADER_VERSION_201110 = 0xbb116f7d00201110L;
     protected static final long HEADER_VERSION_201211 = 0x51d28245e1216c45L;
     protected static final long HEADER_VERSION_201302 = 0x5b7132ab5abb3c47L;
-    protected static final long HEADER_VERSION_LATEST = 0xa5a5a5a5a5a5a5a5L;
+    protected static final long HEADER_VERSION_LATEST = HEADER_VERSION_201302;
     protected static final long[] HEADER = { 0x3697de5d96fca0faL, 0xc845c2fa95e2f52dL, HEADER_VERSION_LATEST };
 
     protected static final int BLOCK_SIZE = 1024;
@@ -99,5 +99,4 @@ public abstract class Crypto extends Thread implements Runnable
                 in.close();
         }
     }
-
 }

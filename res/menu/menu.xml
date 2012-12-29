@@ -5,6 +5,7 @@
         <menu>
             <group android:checkableBehavior="all">
                 <item android:id="@+id/menu_item_compress" android:title="@string/compress" android:checked="true"/>
+                <item android:id="@+id/menu_item_key_file" android:title="@string/key_file" android:checked="false"/>
             </group>
         </menu>
     </item>

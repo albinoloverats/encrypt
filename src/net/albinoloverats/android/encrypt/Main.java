@@ -25,10 +25,11 @@ import java.util.Iterator;
 import java.util.Set;
 
 import net.albinoloverats.android.encrypt.crypt.Crypto;
+import net.albinoloverats.android.encrypt.crypt.CryptoUtils;
 import net.albinoloverats.android.encrypt.crypt.Decrypt;
 import net.albinoloverats.android.encrypt.crypt.Encrypt;
 import net.albinoloverats.android.encrypt.crypt.Status;
-import net.albinoloverats.android.encrypt.crypt.Utils;
+import net.albinoloverats.android.encrypt.misc.Utils;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -71,6 +72,8 @@ public class Main extends Activity
 
     private boolean encrypting = true;
     private boolean compress = true;
+    private boolean key_file = false;
+
     private String filenameIn;
     private String filenameOut;
     private String hash;
@@ -131,7 +134,7 @@ public class Main extends Activity
                             cipher = null;
                         iterator.next();
                     }
-                checkEnableEncryptButton();
+                checkEnableButtons();
             }
 
             @Override
@@ -161,7 +164,7 @@ public class Main extends Activity
                             hash = null;
                         iterator.next();
                     }
-                checkEnableEncryptButton();
+                checkEnableButtons();
             }
 
             @Override
@@ -172,8 +175,8 @@ public class Main extends Activity
         });
         hSpinner.setEnabled(false);
 
-        cipherNames = Utils.getCipherAlgorithmNames();
-        hashNames = Utils.getHashAlgorithmNames();
+        cipherNames = CryptoUtils.getCipherAlgorithmNames();
+        hashNames = CryptoUtils.getHashAlgorithmNames();
         cipherSpinAdapter.add(getString(R.string.choose_cipher));
         for (final String s : cipherNames)
             cipherSpinAdapter.add(s);
@@ -193,11 +196,26 @@ public class Main extends Activity
                     password = null;
                 else
                     password = p;
-                checkEnableEncryptButton();
+                checkEnableButtons();
                 return false;
             }
         });
         pEntry.setEnabled(false);
+
+        // select key file button
+        final Button keyButton = (Button)findViewById(R.id.button_key);
+        keyButton.setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(final View v)
+            {
+                final Intent intent = new Intent(Main.this.getBaseContext(), FileDialog.class);
+                intent.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory().getPath());
+                intent.putExtra(FileDialog.CAN_SELECT_DIR, false);
+                Main.this.startActivityForResult(intent, FileAction.KEY.value);
+            }
+        });
+        keyButton.setEnabled(false);
 
         // get reference to encrypt/decrypt button
         final Button encutton = (Button)findViewById(R.id.button_go);
@@ -215,6 +233,8 @@ public class Main extends Activity
 
         final SharedPreferences settings = getSharedPreferences(SHARED_PREFERENCES, 0);
         compress = settings.getBoolean("compress", true);
+        key_file = settings.getBoolean("key", false);
+        toggleKeySource();
     }
 
     @Override
@@ -224,6 +244,7 @@ public class Main extends Activity
 
         final SharedPreferences.Editor editor = getSharedPreferences(SHARED_PREFERENCES, 0).edit();
         editor.putBoolean("compress", compress);
+        editor.putBoolean("key", key_file);
         editor.commit();
     }
 
@@ -232,6 +253,7 @@ public class Main extends Activity
     {
         getMenuInflater().inflate(R.menu.menu, menu);
         menu.findItem(R.id.menu_item_compress).setChecked(compress);
+        menu.findItem(R.id.menu_item_key_file).setChecked(key_file);
         return true;
     }
 
@@ -248,8 +270,34 @@ public class Main extends Activity
                 item.setChecked(compress);
                 Toast.makeText(getApplicationContext(), getString(R.string.compress) + ": " + (compress ? getString(R.string.on) : getString(R.string.off)), Toast.LENGTH_SHORT).show();
                 break;
+            case R.id.menu_item_key_file:
+                key_file = !item.isChecked();
+                item.setChecked(key_file);
+                Toast.makeText(getApplicationContext(), key_file ? getString(R.string.use_key_file) : getString(R.string.use_password), Toast.LENGTH_SHORT).show();
+                toggleKeySource();
+                break;
         }
         return true;
+    }
+
+    private void toggleKeySource()
+    {
+        final View pass = findViewById(R.id.text_password);
+        final Button key = (Button)findViewById(R.id.button_key);
+
+        password = null;
+        key.setText(getString(R.string.choose_key));
+        
+        if (key_file)
+        {
+            pass.setVisibility(View.GONE);
+            key.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            pass.setVisibility(View.VISIBLE);
+            key.setVisibility(View.GONE);
+        }
     }
 
     /*
@@ -270,50 +318,23 @@ public class Main extends Activity
     {
         if (resultCode == Activity.RESULT_OK)
         {
-            final FileAction action = FileAction.fromValue(requestCode);
-            switch (action)
+            final String filename = data.getStringExtra(FileDialog.RESULT_PATH);
+            switch (FileAction.fromValue(requestCode))
             {
                 case LOAD:
-                    filenameIn = data.getStringExtra(FileDialog.RESULT_PATH);
+                    filenameIn = filename;
                     ((Button)findViewById(R.id.button_file)).setText(filenameIn);
                     break;
                 case SAVE:
-                    filenameOut = data.getStringExtra(FileDialog.RESULT_PATH);
+                    filenameOut = filename;
                     ((Button)findViewById(R.id.button_output)).setText(filenameOut);
                     break;
+                case KEY:
+                    ((Button)findViewById(R.id.button_key)).setText(filename);
+                    password = filename != null ? Utils.readFileAsString(filename) : null;
+                    break;
             }
-            if (filenameIn != null && filenameOut != null)
-            {
-                ((EditText)findViewById(R.id.text_password)).setEnabled(true);
-
-                final Spinner cSpinner = (Spinner)findViewById(R.id.spin_crypto);
-                final Spinner hSpinner = (Spinner)findViewById(R.id.spin_hash);
-
-                final Button encButton = (Button)findViewById(R.id.button_go);
-
-                try
-                {
-                    if (Crypto.fileEncrypted(filenameIn))
-                    {
-                        encrypting = false;
-                        encButton.setText(R.string.decrypt);
-                        hSpinner.setEnabled(false);
-                        cSpinner.setEnabled(false);
-                    }
-                    else
-                    {
-                        encrypting = true;
-                        encButton.setText(R.string.encrypt);
-                        hSpinner.setEnabled(true);
-                        cSpinner.setEnabled(true);
-                        hSpinner.requestFocus();
-                    }
-                }
-                catch (final IOException e)
-                {
-                    e.printStackTrace();
-                }
-            }
+            checkEnableButtons();
         }
         else if (resultCode == Activity.RESULT_CANCELED)
             ; // do nothing
@@ -361,8 +382,7 @@ public class Main extends Activity
         @Override
         public void handleMessage(final Message msg)
         {
-            final ProgressUpdate p = ProgressUpdate.fromValue(msg.what);
-            switch (p)
+            switch (ProgressUpdate.fromValue(msg.what))
             {
                 case DONE:
                     dismissDialog(DOUBLE_PROGRESS_DIALOG);
@@ -386,12 +406,57 @@ public class Main extends Activity
         }
     };
 
-    private void checkEnableEncryptButton()
+    private void checkEnableButtons()
     {
-        if (encrypting && hash != null && cipher != null && password != null || !encrypting && password != null)
-            findViewById(R.id.button_go).setEnabled(true);
+        final Spinner cSpinner = (Spinner)findViewById(R.id.spin_crypto);
+        final Spinner hSpinner = (Spinner)findViewById(R.id.spin_hash);
+        final EditText passwd = (EditText)findViewById(R.id.text_password);
+        final Button keyButton = (Button)findViewById(R.id.button_key);
+        final Button encButton = (Button)findViewById(R.id.button_go);
+
+        hSpinner.setEnabled(false);
+        cSpinner.setEnabled(false);
+        passwd.setEnabled(false);
+        keyButton.setEnabled(false);
+        encButton.setEnabled(false);
+
+        // update encryption button text
+        if (filenameIn != null)
+            try
+            {
+                encrypting = !Crypto.fileEncrypted(filenameIn);
+            }
+            catch (final IOException e)
+            {
+                ;
+            }
+        if (encrypting)
+        {
+            encButton.setText(R.string.encrypt);
+            if (filenameIn != null && filenameOut != null)
+            {
+                hSpinner.setEnabled(true);
+                cSpinner.setEnabled(true);
+            }
+            if (cipher != null && hash != null)
+            {
+                passwd.setEnabled(true);
+                keyButton.setEnabled(true);
+            }
+            if (password != null)
+                encButton.setEnabled(true);
+        }
         else
-            findViewById(R.id.button_go).setEnabled(false);
+        {
+            encButton.setText(R.string.decrypt);
+            if (filenameIn != null && filenameOut != null)
+            {
+                passwd.setEnabled(true);
+                keyButton.setEnabled(true);
+            }
+            if (password != null)
+                encButton.setEnabled(true);
+        }
     }
 
     private class ProgressThread extends Thread

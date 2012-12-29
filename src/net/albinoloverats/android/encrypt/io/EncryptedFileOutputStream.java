@@ -36,7 +36,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.albinoloverats.android.encrypt.crypt.Utils;
+import net.albinoloverats.android.encrypt.crypt.CryptoUtils;
 import net.albinoloverats.android.encrypt.misc.Convert;
 
 public class EncryptedFileOutputStream extends FileOutputStream
@@ -49,6 +49,8 @@ public class EncryptedFileOutputStream extends FileOutputStream
     private int blocksize = 0;
     private int[] offset = { 0, 0 };
 
+    private boolean open = true;
+
     public EncryptedFileOutputStream(final File file) throws FileNotFoundException
     {
         super(file);
@@ -57,14 +59,14 @@ public class EncryptedFileOutputStream extends FileOutputStream
 
     public IMessageDigest encryptionInit(final String cipher, final String hash, final byte[] key) throws NoSuchAlgorithmException, InvalidKeyException
     {
-        IMessageDigest h = Utils.getHashAlgorithm(hash);
-        final IBlockCipher c = Utils.getCipherAlgorithm(cipher);
+        IMessageDigest h = CryptoUtils.getHashAlgorithm(hash);
+        final IBlockCipher c = CryptoUtils.getCipherAlgorithm(cipher);
         blocksize = c.defaultBlockSize();
         this.cipher = ModeFactory.getInstance("CBC", c, blocksize);
         h.update(key, 0, key.length);
         final byte[] keySource = h.digest();
         final Map<String, Object> attributes = new HashMap<String, Object>();
-        final int keyLength = Utils.getCipherAlgorithmKeySize(cipher) / Byte.SIZE;
+        final int keyLength = CryptoUtils.getCipherAlgorithmKeySize(cipher) / Byte.SIZE;
         final byte[] keyOutput = new byte[keyLength];
         System.arraycopy(keySource, 0, keyOutput, 0, keyLength < keySource.length ? keyLength : keySource.length);
         attributes.put(IBlockCipher.KEY_MATERIAL, keyOutput);
@@ -84,6 +86,9 @@ public class EncryptedFileOutputStream extends FileOutputStream
     @Override
     public void close() throws IOException
     {
+        if (!open)
+            return;
+
         if (cipher != null)
         {
             final int[] remainder = { 0, blocksize - offset[0] };
@@ -93,12 +98,10 @@ public class EncryptedFileOutputStream extends FileOutputStream
             final byte[] eBytes = new byte[blocksize];
             cipher.update(buffer, 0, eBytes, 0);
             stream.write(eBytes);
-            blocksize = 0;
-            buffer = null;
-            offset = new int[2];
         }
         stream.flush();
         stream.close();
+        open = false;
     }
 
     @Override

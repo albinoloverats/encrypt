@@ -23,7 +23,8 @@ package net.albinoloverats.android.encrypt;
 public enum FileAction
 {
     LOAD(0),
-    SAVE(1);
+    SAVE(1),
+    KEY(2);
 
     public int value;
 

@@ -35,7 +35,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.albinoloverats.android.encrypt.crypt.Utils;
+import net.albinoloverats.android.encrypt.crypt.CryptoUtils;
 import net.albinoloverats.android.encrypt.misc.Convert;
 
 public class EncryptedFileInputStream extends FileInputStream
@@ -56,14 +56,14 @@ public class EncryptedFileInputStream extends FileInputStream
     
     public IMessageDigest encryptionInit(final String cipher, final String hash, final byte[] key, final boolean legacy) throws NoSuchAlgorithmException, InvalidKeyException
     {
-        IMessageDigest h = Utils.getHashAlgorithm(hash);
-        final IBlockCipher c = Utils.getCipherAlgorithm(cipher);
+        IMessageDigest h = CryptoUtils.getHashAlgorithm(hash);
+        final IBlockCipher c = CryptoUtils.getCipherAlgorithm(cipher);
         blocksize = c.defaultBlockSize();
         this.cipher = ModeFactory.getInstance("CBC", c, blocksize);
         h.update(key, 0, key.length);
         final byte[] keySource = h.digest();
         final Map<String, Object> attributes = new HashMap<String, Object>();
-        final int keyLength = Utils.getCipherAlgorithmKeySize(cipher) / Byte.SIZE;
+        final int keyLength = CryptoUtils.getCipherAlgorithmKeySize(cipher) / Byte.SIZE;
         final byte[] keyOutput = new byte[keyLength];
         System.arraycopy(keySource, 0, keyOutput, 0, keyLength < keySource.length ? keyLength : keySource.length);
         attributes.put(IBlockCipher.KEY_MATERIAL, keyOutput);

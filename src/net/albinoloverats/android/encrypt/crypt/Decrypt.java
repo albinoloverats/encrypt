@@ -165,7 +165,7 @@ public class Decrypt extends Crypto
         if (version == HEADER_VERSION_201108 ||
             version == HEADER_VERSION_201110 ||
             version == HEADER_VERSION_201211 ||
-            version == HEADER_VERSION_NEXT)
+            version == HEADER_VERSION_LATEST)
             return version;
         else
             throw new Exception(Status.FAILED_UNKNOWN_VERSION);
