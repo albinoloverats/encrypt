@@ -29,6 +29,10 @@
 		2EA92F73161DDC58008DFF9B /* gui-cocoa.m in Sources */ = {isa = PBXBuildFile; fileRef = 2EA92F72161DDC58008DFF9B /* gui-cocoa.m */; };
 		2EA92F76161DDC59008DFF9B /* Encrypt.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2EA92F74161DDC59008DFF9B /* Encrypt.xib */; };
 		2EA92F7F161DDCFE008DFF9B /* encrypt.icns in Resources */ = {isa = PBXBuildFile; fileRef = 2EA92F7E161DDCFE008DFF9B /* encrypt.icns */; };
+		2EB536E5168F76D000A915C1 /* libgcrypt.11.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2EB536E4168F76D000A915C1 /* libgcrypt.11.dylib */; };
+		2EB536E7168F76FF00A915C1 /* libgpg-error.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2EB536E6168F76FF00A915C1 /* libgpg-error.0.dylib */; };
+		2EB536E9168F772200A915C1 /* liblzma.5.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2EB536E8168F772200A915C1 /* liblzma.5.dylib */; };
+		2EB536EB168F773E00A915C1 /* libcurl.4.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2EB536EA168F773E00A915C1 /* libcurl.4.dylib */; };
 		2EBF1C70165674B20072AA5A /* Automator.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2EBF1C6F165674B20072AA5A /* Automator.framework */; };
 /* End PBXBuildFile section */
 
@@ -39,6 +43,10 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				2EB536EB168F773E00A915C1 /* libcurl.4.dylib in CopyFiles */,
+				2EB536E9168F772200A915C1 /* liblzma.5.dylib in CopyFiles */,
+				2EB536E7168F76FF00A915C1 /* libgpg-error.0.dylib in CopyFiles */,
+				2EB536E5168F76D000A915C1 /* libgcrypt.11.dylib in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,6 +93,10 @@
 		2EA92F75161DDC59008DFF9B /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/Encrypt.xib; sourceTree = "<group>"; };
 		2EA92F7E161DDCFE008DFF9B /* encrypt.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = encrypt.icns; sourceTree = "<group>"; };
 		2EA92F80161DDE94008DFF9B /* Encrypt.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Encrypt.entitlements; sourceTree = "<group>"; };
+		2EB536E4168F76D000A915C1 /* libgcrypt.11.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgcrypt.11.dylib; path = ../../../../../usr/local/Cellar/libgcrypt/1.5.0/lib/libgcrypt.11.dylib; sourceTree = "<group>"; };
+		2EB536E6168F76FF00A915C1 /* libgpg-error.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libgpg-error.0.dylib"; path = "../../../../../usr/local/Cellar/libgpg-error/1.10/lib/libgpg-error.0.dylib"; sourceTree = "<group>"; };
+		2EB536E8168F772200A915C1 /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = ../../../../../usr/local/Cellar/xz/5.0.4/lib/liblzma.5.dylib; sourceTree = "<group>"; };
+		2EB536EA168F773E00A915C1 /* libcurl.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.4.dylib; path = ../../../../../usr/lib/libcurl.4.dylib; sourceTree = "<group>"; };
 		2EBF1C6F165674B20072AA5A /* Automator.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Automator.framework; path = System/Library/Frameworks/Automator.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -94,11 +106,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				2E49602A16662BD300026B7C /* libcurl.dylib in Frameworks */,
-				2E49602716662B5A00026B7C /* liblzma.5.dylib in Frameworks */,
 				2EA92F60161DDC58008DFF9B /* Cocoa.framework in Frameworks */,
 				2EBF1C70165674B20072AA5A /* Automator.framework in Frameworks */,
 				2E305358164C1420002300E8 /* libgcrypt.11.dylib in Frameworks */,
 				2E305359164C1420002300E8 /* libgpg-error.0.dylib in Frameworks */,
+				2E49602716662B5A00026B7C /* liblzma.5.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -126,6 +138,10 @@
 		2EA92F50161DDC58008DFF9B = {
 			isa = PBXGroup;
 			children = (
+				2EB536EA168F773E00A915C1 /* libcurl.4.dylib */,
+				2EB536E8168F772200A915C1 /* liblzma.5.dylib */,
+				2EB536E6168F76FF00A915C1 /* libgpg-error.0.dylib */,
+				2EB536E4168F76D000A915C1 /* libgcrypt.11.dylib */,
 				2EA92F67161DDC58008DFF9B /* Encrypt-Info.plist */,
 				2EA92F80161DDE94008DFF9B /* Encrypt.entitlements */,
 				2E9BB30C1642C62A00FF52DB /* po */,

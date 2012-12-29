@@ -54,9 +54,6 @@ static bool running = false;
     {
         if (!ciphers[i])
             break;
-        /*
-         * TODO check rc file for default/preset algorithms
-         */
         else if (args.cipher && !strcasecmp(ciphers[i], args.cipher))
             slctd_cipher = i + 1;
         [_cipherCombo addItemWithTitle:[NSString stringWithUTF8String:ciphers[i]]];
@@ -71,9 +68,6 @@ static bool running = false;
     {
         if (!hashes[i])
             break;
-        /*
-         * ditto above
-         */
         else if (args.hash && !strcasecmp(hashes[i], args.hash))
             slctd_hash = i + 1;
         [_hashCombo addItemWithTitle:[NSString stringWithUTF8String:hashes[i]]];
@@ -142,6 +136,7 @@ static bool running = false;
         k--;
     }
 
+    compress = args.compress;
     [_compress setState:args.compress];
 
     [_statusBar setStringValue:@STATUS_BAR_READY];
@@ -396,7 +391,7 @@ clean_up:
             b = 0;
 
         char *bps_label = NULL;
-        if (isnan(val))
+        if (isnan(val) || val >= BILLION)
             asprintf(&bps_label, "---.- B/s");
         else
         {
@@ -408,8 +403,8 @@ clean_up:
                 asprintf(&bps_label, "%5.1f MB/s", val / MEGABYTE);
             else if (val < BILLION)
                 asprintf(&bps_label, "%5.1f GB/s", val / GIGABYTE);
-            else
-                asprintf(&bps_label, "%5.1f TB/s", val / TERABYTE);
+//            else
+//                asprintf(&bps_label, "%5.1f TB/s", val / TERABYTE);
         }
         if (bps_label)
             [_progress_label setStringValue:[NSString stringWithUTF8String:bps_label]];
