@@ -79,6 +79,7 @@ public class Main extends Activity
     private String hash;
     private String cipher;
     private String password;
+    private String key;
 
     @Override
     public void onCreate(final Bundle savedInstanceState)
@@ -282,12 +283,9 @@ public class Main extends Activity
 
     private void toggleKeySource()
     {
-        final View pass = findViewById(R.id.text_password);
+        final EditText pass = (EditText)findViewById(R.id.text_password);
         final Button key = (Button)findViewById(R.id.button_key);
 
-        password = null;
-        key.setText(getString(R.string.choose_key));
-        
         if (key_file)
         {
             pass.setVisibility(View.GONE);
@@ -331,7 +329,7 @@ public class Main extends Activity
                     break;
                 case KEY:
                     ((Button)findViewById(R.id.button_key)).setText(filename);
-                    password = filename != null ? Utils.readFileAsString(filename) : null;
+                    key = filename;
                     break;
             }
             checkEnableButtons();
@@ -443,7 +441,7 @@ public class Main extends Activity
                 passwd.setEnabled(true);
                 keyButton.setEnabled(true);
             }
-            if (password != null)
+            if (password != null || key != null)
                 encButton.setEnabled(true);
         }
         else
@@ -454,7 +452,7 @@ public class Main extends Activity
                 passwd.setEnabled(true);
                 keyButton.setEnabled(true);
             }
-            if (password != null)
+            if (password != null || key != null)
                 encButton.setEnabled(true);
         }
     }
@@ -475,10 +473,12 @@ public class Main extends Activity
             Crypto c = null;
             try
             {
+                final byte[] k = key_file ? Utils.readFileAsString(key).getBytes() : password.getBytes();
+
                 if (encrypting)
-                    c = new Encrypt(filenameIn, filenameOut, cipher, hash, password.getBytes(), compress);
+                    c = new Encrypt(filenameIn, filenameOut, cipher, hash, k, compress);
                 else
-                    c = new Decrypt(filenameIn, filenameOut, password.getBytes());
+                    c = new Decrypt(filenameIn, filenameOut, k);
                 c.start();
 
                 do
