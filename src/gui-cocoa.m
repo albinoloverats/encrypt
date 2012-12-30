@@ -194,6 +194,8 @@ clean_up:
 
     [_cipherCombo setEnabled:(en)];
     [_hashCombo setEnabled:(en)];
+
+    [self cipherHashSelected:pId];
 }
 
 - (IBAction)cipherHashSelected:(id)pId

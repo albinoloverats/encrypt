@@ -260,7 +260,7 @@
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="_AMVariablePopUpButtonCell" key="NSCell" id="121886443">
-								<int key="NSCellFlags">-2076049856</int>
+								<int key="NSCellFlags">-2079719872</int>
 								<int key="NSCellFlags2">2048</int>
 								<object class="NSFont" key="NSSupport" id="572825351">
 									<string key="NSName">LucidaGrande</string>
@@ -269,7 +269,7 @@
 								</object>
 								<string key="NSCellIdentifier">_NS:9</string>
 								<reference key="NSControlView" ref="383303525"/>
-								<int key="NSButtonFlags">109199360</int>
+								<int key="NSButtonFlags">-2035138560</int>
 								<int key="NSButtonFlags2">1</int>
 								<object class="NSFont" key="NSAlternateImage" id="1039881971">
 									<string key="NSName">LucidaGrande</string>
@@ -281,10 +281,11 @@
 								<int key="NSPeriodicDelay">400</int>
 								<int key="NSPeriodicInterval">75</int>
 								<object class="NSMenuItem" key="NSMenuItem">
-									<string key="NSTitle">Select File…</string>
+									<string key="NSTitle"/>
 									<string key="NSKeyEquiv"/>
 									<int key="NSKeyEquivModMask">1048576</int>
 									<int key="NSMnemonicLoc">2147483647</int>
+									<int key="NSState">1</int>
 									<reference key="NSOnImage" ref="35465992"/>
 									<reference key="NSMixedImage" ref="502551668"/>
 									<string key="NSAction">choosePlaceholder:</string>
@@ -295,10 +296,11 @@
 								<object class="NSMenu" key="NSMenu" id="886714788">
 									<string key="NSTitle">OtherViews</string>
 									<array class="NSMutableArray" key="NSMenuItems"/>
-									<bool key="NSNoAutoenable">YES</bool>
 								</object>
+								<int key="NSSelectedIndex">-1</int>
 								<int key="NSPreferredEdge">3</int>
 								<bool key="NSUsesItemFromMenu">YES</bool>
+								<bool key="NSAltersState">YES</bool>
 								<int key="NSArrowPosition">1</int>
 							</object>
 							<bool key="AMCanChooseNewPaths">NO</bool>
@@ -327,12 +329,12 @@
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="_AMVariablePopUpButtonCell" key="NSCell" id="992411046">
-								<int key="NSCellFlags">-2076049856</int>
+								<int key="NSCellFlags">67763776</int>
 								<int key="NSCellFlags2">2048</int>
 								<reference key="NSSupport" ref="572825351"/>
 								<string key="NSCellIdentifier">_NS:9</string>
 								<reference key="NSControlView" ref="82871881"/>
-								<int key="NSButtonFlags">109199360</int>
+								<int key="NSButtonFlags">-2038284288</int>
 								<int key="NSButtonFlags2">1</int>
 								<reference key="NSAlternateImage" ref="1039881971"/>
 								<string key="NSAlternateContents"/>
@@ -340,10 +342,11 @@
 								<int key="NSPeriodicDelay">400</int>
 								<int key="NSPeriodicInterval">75</int>
 								<object class="NSMenuItem" key="NSMenuItem">
-									<string key="NSTitle">Select File…</string>
+									<string key="NSTitle"/>
 									<string key="NSKeyEquiv"/>
 									<int key="NSKeyEquivModMask">1048576</int>
 									<int key="NSMnemonicLoc">2147483647</int>
+									<int key="NSState">1</int>
 									<reference key="NSOnImage" ref="35465992"/>
 									<reference key="NSMixedImage" ref="502551668"/>
 									<string key="NSAction">choosePlaceholder:</string>
@@ -354,10 +357,11 @@
 								<object class="NSMenu" key="NSMenu" id="170950375">
 									<string key="NSTitle">OtherViews</string>
 									<array class="NSMutableArray" key="NSMenuItems"/>
-									<bool key="NSNoAutoenable">YES</bool>
 								</object>
+								<int key="NSSelectedIndex">-1</int>
 								<int key="NSPreferredEdge">3</int>
 								<bool key="NSUsesItemFromMenu">YES</bool>
+								<bool key="NSAltersState">YES</bool>
 								<int key="NSArrowPosition">1</int>
 							</object>
 							<bool key="AMCanChooseNewPaths">YES</bool>
@@ -382,13 +386,14 @@
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSPopUpButtonCell" key="NSCell" id="831483151">
-								<int key="NSCellFlags">-1539178944</int>
+								<int key="NSCellFlags">-1543373248</int>
 								<int key="NSCellFlags2">2048</int>
 								<reference key="NSSupport" ref="572825351"/>
 								<string key="NSCellIdentifier">_NS:9</string>
 								<reference key="NSControlView" ref="213973897"/>
-								<int key="NSButtonFlags">109199360</int>
+								<int key="NSButtonFlags">-2038284288</int>
 								<int key="NSButtonFlags2">129</int>
+								<reference key="NSAlternateImage" ref="572825351"/>
 								<string key="NSAlternateContents"/>
 								<string key="NSKeyEquivalent"/>
 								<int key="NSPeriodicDelay">400</int>
@@ -413,7 +418,6 @@
 									</array>
 									<reference key="NSMenuFont" ref="572825351"/>
 								</object>
-								<int key="NSSelectedIndex">-1</int>
 								<int key="NSPreferredEdge">1</int>
 								<bool key="NSUsesItemFromMenu">YES</bool>
 								<bool key="NSAltersState">YES</bool>
@@ -462,7 +466,6 @@
 									</array>
 									<reference key="NSMenuFont" ref="572825351"/>
 								</object>
-								<int key="NSSelectedIndex">-1</int>
 								<int key="NSPreferredEdge">1</int>
 								<bool key="NSUsesItemFromMenu">YES</bool>
 								<bool key="NSAltersState">YES</bool>
@@ -533,7 +536,6 @@
 									</array>
 									<reference key="NSMenuFont" ref="572825351"/>
 								</object>
-								<int key="NSSelectedIndex">-1</int>
 								<int key="NSPreferredEdge">1</int>
 								<bool key="NSUsesItemFromMenu">YES</bool>
 								<bool key="NSAltersState">YES</bool>
@@ -555,12 +557,12 @@
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="_AMVariablePopUpButtonCell" key="NSCell" id="24434351">
-								<int key="NSCellFlags">-1539178944</int>
+								<int key="NSCellFlags">-2079719872</int>
 								<int key="NSCellFlags2">2048</int>
 								<reference key="NSSupport" ref="572825351"/>
 								<string key="NSCellIdentifier">_NS:9</string>
 								<reference key="NSControlView" ref="295516593"/>
-								<int key="NSButtonFlags">109199360</int>
+								<int key="NSButtonFlags">-2038284288</int>
 								<int key="NSButtonFlags2">1</int>
 								<reference key="NSAlternateImage" ref="1039881971"/>
 								<string key="NSAlternateContents"/>
@@ -568,7 +570,7 @@
 								<int key="NSPeriodicDelay">400</int>
 								<int key="NSPeriodicInterval">75</int>
 								<object class="NSMenuItem" key="NSMenuItem">
-									<string key="NSTitle">Select Key…</string>
+									<string key="NSTitle"/>
 									<string key="NSKeyEquiv"/>
 									<int key="NSKeyEquivModMask">1048576</int>
 									<int key="NSMnemonicLoc">2147483647</int>
@@ -584,6 +586,7 @@
 									<string key="NSTitle">OtherViews</string>
 									<array class="NSMutableArray" key="NSMenuItems"/>
 								</object>
+								<int key="NSSelectedIndex">-1</int>
 								<int key="NSPreferredEdge">3</int>
 								<bool key="NSUsesItemFromMenu">YES</bool>
 								<bool key="NSAltersState">YES</bool>
@@ -1145,22 +1148,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">ioFileChoosen:</string>
-						<reference key="source" ref="976324537"/>
-						<reference key="destination" ref="383303525"/>
-					</object>
-					<int key="connectionID">744</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">ioFileChoosen:</string>
-						<reference key="source" ref="976324537"/>
-						<reference key="destination" ref="82871881"/>
-					</object>
-					<int key="connectionID">745</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
 						<string key="label">cancelButtonPushed:</string>
 						<reference key="source" ref="976324537"/>
 						<reference key="destination" ref="531397740"/>
@@ -1264,6 +1251,14 @@
 					<int key="connectionID">792</int>
 				</object>
 				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">ioFileChoosen:</string>
+						<reference key="source" ref="976324537"/>
+						<reference key="destination" ref="383303525"/>
+					</object>
+					<int key="connectionID">809</int>
+				</object>
+				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
 						<string key="label">path: values.sourceFile</string>
 						<reference key="source" ref="383303525"/>
@@ -1277,7 +1272,7 @@
 							<int key="NSNibBindingConnectorVersion">2</int>
 						</object>
 					</object>
-					<int key="connectionID">739</int>
+					<int key="connectionID">805</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
@@ -1463,14 +1458,14 @@
 						<reference key="object" ref="439893737"/>
 						<array class="NSMutableArray" key="children">
 							<reference ref="1003282134"/>
-							<reference ref="383303525"/>
-							<reference ref="82871881"/>
-							<reference ref="213973897"/>
 							<reference ref="225905324"/>
-							<reference ref="249065210"/>
 							<reference ref="295516593"/>
 							<reference ref="1054957314"/>
 							<reference ref="830942972"/>
+							<reference ref="249065210"/>
+							<reference ref="213973897"/>
+							<reference ref="82871881"/>
+							<reference ref="383303525"/>
 						</array>
 						<reference key="parent" ref="972006081"/>
 					</object>
@@ -2035,7 +2030,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">794</int>
+			<int key="maxID">810</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
