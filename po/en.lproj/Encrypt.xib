@@ -252,7 +252,7 @@
 								<string>AutomatorVariables</string>
 								<string>NSFilenamesPboardType</string>
 							</set>
-							<string key="NSFrame">{{73, 315}, {174, 26}}</string>
+							<string key="NSFrame">{{73, 327}, {174, 26}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="82871881"/>
@@ -297,7 +297,6 @@
 									<array class="NSMutableArray" key="NSMenuItems"/>
 									<bool key="NSNoAutoenable">YES</bool>
 								</object>
-								<int key="NSSelectedIndex">-1</int>
 								<int key="NSPreferredEdge">3</int>
 								<bool key="NSUsesItemFromMenu">YES</bool>
 								<int key="NSArrowPosition">1</int>
@@ -320,7 +319,7 @@
 								<string>AutomatorVariables</string>
 								<string>NSFilenamesPboardType</string>
 							</set>
-							<string key="NSFrame">{{73, 285}, {174, 26}}</string>
+							<string key="NSFrame">{{73, 297}, {174, 26}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="213973897"/>
@@ -357,7 +356,6 @@
 									<array class="NSMutableArray" key="NSMenuItems"/>
 									<bool key="NSNoAutoenable">YES</bool>
 								</object>
-								<int key="NSSelectedIndex">-1</int>
 								<int key="NSPreferredEdge">3</int>
 								<bool key="NSUsesItemFromMenu">YES</bool>
 								<int key="NSArrowPosition">1</int>
@@ -376,7 +374,7 @@
 						<object class="NSPopUpButton" id="213973897">
 							<reference key="NSNextResponder" ref="439893737"/>
 							<int key="NSvFlags">301</int>
-							<string key="NSFrame">{{73, 255}, {174, 26}}</string>
+							<string key="NSFrame">{{73, 267}, {174, 26}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="225905324"/>
@@ -425,7 +423,7 @@
 						<object class="NSPopUpButton" id="225905324">
 							<reference key="NSNextResponder" ref="439893737"/>
 							<int key="NSvFlags">301</int>
-							<string key="NSFrame">{{73, 225}, {174, 26}}</string>
+							<string key="NSFrame">{{73, 237}, {174, 26}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="249065210"/>
@@ -474,7 +472,7 @@
 						<object class="NSPopUpButton" id="249065210">
 							<reference key="NSNextResponder" ref="439893737"/>
 							<int key="NSvFlags">301</int>
-							<string key="NSFrame">{{73, 195}, {174, 26}}</string>
+							<string key="NSFrame">{{73, 207}, {174, 26}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="295516593"/>
@@ -549,7 +547,7 @@
 								<string>AutomatorVariables</string>
 								<string>NSFilenamesPboardType</string>
 							</set>
-							<string key="NSFrame">{{73, 169}, {174, 22}}</string>
+							<string key="NSFrame">{{73, 181}, {174, 22}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="1054957314"/>
@@ -605,7 +603,7 @@
 						<object class="NSSecureTextField" id="1054957314">
 							<reference key="NSNextResponder" ref="439893737"/>
 							<int key="NSvFlags">301</int>
-							<string key="NSFrame">{{76, 170}, {168, 22}}</string>
+							<string key="NSFrame">{{76, 182}, {168, 22}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="830942972"/>
@@ -646,7 +644,7 @@
 						<object class="NSButton" id="830942972">
 							<reference key="NSNextResponder" ref="439893737"/>
 							<int key="NSvFlags">301</int>
-							<string key="NSFrame">{{70, 134}, {180, 32}}</string>
+							<string key="NSFrame">{{70, 146}, {180, 32}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="1003282134"/>
@@ -678,7 +676,6 @@
 							<string key="NSFrameSize">{320, 22}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView"/>
 							<int key="NSViewLayerContentsRedrawPolicy">2</int>
 							<string key="NSReuseIdentifierKey">_NS:1535</string>
 							<bool key="NSEnabled">YES</bool>
@@ -715,7 +712,7 @@
 					<bool key="NSViewIsLayerTreeHost">YES</bool>
 					<int key="NSViewLayerContentsRedrawPolicy">2</int>
 				</object>
-				<string key="NSScreenRect">{{0, 0}, {1920, 1178}}</string>
+				<string key="NSScreenRect">{{0, 0}, {1440, 900}}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
 				<bool key="NSWindowIsRestorable">YES</bool>
 			</object>
@@ -775,7 +772,6 @@
 							<string key="NSFrame">{{113, 15}, {94, 32}}</string>
 							<reference key="NSSuperview" ref="187226907"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="548849692">
@@ -940,7 +936,7 @@
 					<reference key="NSNextKeyView" ref="602322456"/>
 					<string key="NSReuseIdentifierKey">_NS:21</string>
 				</object>
-				<string key="NSScreenRect">{{1920, 108}, {1440, 900}}</string>
+				<string key="NSScreenRect">{{0, 0}, {1440, 900}}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
 				<bool key="NSWindowIsRestorable">YES</bool>
 			</object>
@@ -1466,15 +1462,15 @@
 						<int key="objectID">372</int>
 						<reference key="object" ref="439893737"/>
 						<array class="NSMutableArray" key="children">
+							<reference ref="1003282134"/>
+							<reference ref="383303525"/>
 							<reference ref="82871881"/>
+							<reference ref="213973897"/>
 							<reference ref="225905324"/>
+							<reference ref="249065210"/>
 							<reference ref="295516593"/>
 							<reference ref="1054957314"/>
 							<reference ref="830942972"/>
-							<reference ref="249065210"/>
-							<reference ref="383303525"/>
-							<reference ref="1003282134"/>
-							<reference ref="213973897"/>
 						</array>
 						<reference key="parent" ref="972006081"/>
 					</object>
@@ -2039,7 +2035,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">792</int>
+			<int key="maxID">794</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -2048,22 +2044,16 @@
 					<string key="superclassName">NSObject</string>
 					<dictionary class="NSMutableDictionary" key="actions">
 						<string key="cancelButtonPushed:">id</string>
-						<string key="cipherHashSelected:">id</string>
 						<string key="closeButtonPushed:">id</string>
 						<string key="compressionToggle:">id</string>
 						<string key="encryptButtonPushed:">id</string>
 						<string key="ioFileChoosen:">id</string>
 						<string key="keyFileChoosen:">id</string>
-						<string key="keySourceSelected:">id</string>
 						<string key="passwordFieldUpdated:">id</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
 						<object class="IBActionInfo" key="cancelButtonPushed:">
 							<string key="name">cancelButtonPushed:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="cipherHashSelected:">
-							<string key="name">cipherHashSelected:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="closeButtonPushed:">
@@ -2084,10 +2074,6 @@
 						</object>
 						<object class="IBActionInfo" key="keyFileChoosen:">
 							<string key="name">keyFileChoosen:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="keySourceSelected:">
-							<string key="name">keySourceSelected:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="passwordFieldUpdated:">
