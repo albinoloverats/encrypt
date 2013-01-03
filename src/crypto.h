@@ -21,16 +21,24 @@
 #ifndef _ENCRYPT_CRYPTO_H_
 #define _ENCRYPT_CRYPTO_H_
 
-#include <stdint.h> /*!< Necessary include as c99 standard integer types are referenced in this header */
+/*!
+ * \file    crypto.h
+ * \author  Ashley M Anderson
+ * \date    2009-2013
+ * \brief   Main crypto header file
+ *
+ * What is essentially the parent class for enc/decryption routines.
+ * Many of the constants, wrapper functions exist here.
+ */
+
+#include <stdint.h>  /*!< Necessary include as c99 standard integer types are referenced in this header */
 #include <stdbool.h> /*!< Necessary include as c99 standard boolean type is referenced in this header */
-
-#include <time.h> /*!< Necessary include as time_t type is referenced in this header */
+#include <time.h>    /*!< Necessary include as time_t type is referenced in this header */
 #include <pthread.h> /*!< Necessary include as pthread handle is referenced in this header */
+#include "io.h"      /*!< Necessary as IO_HANDLE type is referenced in this header */
 
-#include "io.h"
-
-#define ENCRYPT_VERSION "2013.02α"
-#define UPDATE_URL "https://albinoloverats.net/encrypt.release"
+#define ENCRYPT_VERSION "2013.02α" /*!< Current version of encrypt application */
+#define UPDATE_URL "https://albinoloverats.net/encrypt.release" /*!< URI to check for updates */
 
 #define HEADER_VERSION_201108 0x72761df3e497c983llu /*!< The third 8 bytes of the original version (2011.08) */
 #define HEADER_VERSION_201110 0xbb116f7d00201110llu /*!< The third 8 bytes of the second release (2011.10) */
@@ -43,18 +51,6 @@
 #define HEADER_2 HEADER_VERSION_LATEST              /*!< The third 8 bytes of an encrypted file (version indicator) */
 
 #define BLOCK_SIZE 1024 /*!< Default IO block size */
-
-#define NAME_SHA1 "SHA1"
-#define NAME_SHA160 "SHA160"
-#define NAME_TIGER "TIGER"
-#define NAME_TIGER192 "TIGER192"
-
-#define NAME_AES "AES"
-#define NAME_RIJNDAEL "RIJNDAEL"
-#define NAME_BLOWFISH "BLOWFISH"
-#define NAME_BLOWFISH128 "BLOWFISH128"
-#define NAME_TWOFISH "TWOFISH"
-#define NAME_TWOFISH256 "TWOFISH256"
 
 /*!
  * \brief  Encryption status
@@ -186,12 +182,49 @@ extern const char *status(const crypto_t * const restrict c);
  */
 extern void deinit(crypto_t **c);
 
+/*!
+ * \brief         Get list of usable ciphers
+ * \return        An array of char* of cipher names
+ *
+ * Get an array of strings which lists the names of usable cipher
+ * algorithms. NB: The array and its elements should be freed after use!
+ */
 extern char **list_of_ciphers(void);
+
+/*!
+ * \brief         Get list of usable hashes
+ * \return        An array of char* of hash names
+ *
+ * Get an array of strings which lists the names of usable hash
+ * algorithms. NB: The array and its elements should be freed after use!
+ */
 extern char **list_of_hashes(void);
 
+/*!
+ * \brief         Get cipher ID, given its name
+ * \param[in]  n  Cipher name
+ * \return        The ID used by libgcrypt
+ *
+ * Get the ID used internally by libgcrypt for the given cipher name.
+ */
 extern int cipher_id_from_name(const char * const restrict n);
+
+/*!
+ * \brief         Get hash ID, given its name
+ * \param[in]  n  Hash name
+ * \return        The ID used by libgcrypt
+ *
+ * Get the ID used internally by libgcrypt for the given hash name.
+ */
 extern int hash_id_from_name(const char * const restrict n);
 
+/*!
+ * \brief         Determine if a file is encrypted
+ * \param[in]  n  The file path/name
+ * \return        Whether the file is encrypted
+ *
+ * Returns true if the file is encrytped, false otherwise.
+ */
 extern bool file_encrypted(const char *n);
 
 #endif /* ! _ENCRYPT_CRYPTO_H */
