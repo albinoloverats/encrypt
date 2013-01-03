@@ -83,7 +83,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
     else
     {
         log_message(LOG_VERBOSE, _("Decrypting stream from stdin"));
-        c->source = io_use_stdin();
+        c->source = IO_STDIN_FILENO;
     }
 
     c->path = NULL;
@@ -141,7 +141,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
     else
     {
         log_message(LOG_VERBOSE, _("Decrypting to stdout"));
-        c->output = io_use_stdout();
+        c->output = IO_STDOUT_FILENO;
     }
 
     if (!k)
@@ -200,8 +200,8 @@ static void *process(void *ptr)
         goto end;
 
     /* the 2011.* versions (incorrectly) used key length instead of block length */
-    io_encryption_init(c->source, c->cipher, c->hash, c->key, c->length,
-            version == HEADER_VERSION_201108 || version == HEADER_VERSION_201110);
+    io_extra_t iox = { version == HEADER_VERSION_201108 || version == HEADER_VERSION_201110, 1 };
+    io_encryption_init(c->source, c->cipher, c->hash, c->key, c->length, iox);
     free(c->cipher);
     free(c->key);
 

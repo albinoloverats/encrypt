@@ -102,7 +102,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
     else
     {
         log_message(LOG_VERBOSE, _("Encrypting stream from stdin"));
-        z->source = io_use_stdin();
+        z->source = IO_STDIN_FILENO;
     }
 
     if (o)
@@ -118,7 +118,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
     else
     {
         log_message(LOG_VERBOSE, _("Encrypting to stdout"));
-        z->output = io_use_stdout();
+        z->output = IO_STDOUT_FILENO;
     }
 
     z->process = process;
@@ -178,7 +178,8 @@ static void *process(void *ptr)
     /*
      * all data written from here on is encrypted
      */
-    io_encryption_init(c->output, c->cipher, c->hash, c->key, c->length, false);
+    io_extra_t iox = { false, 1 };
+    io_encryption_init(c->output, c->cipher, c->hash, c->key, c->length, iox);
     free(c->cipher);
     free(c->key);
 
