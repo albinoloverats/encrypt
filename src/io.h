@@ -33,7 +33,25 @@
 
 #include <stdint.h> /*!< Necessary include as c99 standard integer types are referenced in this header */
 
+#define IO_STDIN_FILENO io_use_stdin() /*!< Macro wrapper for io_use_stdin() */
+#define IO_STDOUT_FILENO io_use_stdout() /*!< Macro wrapper for io_use_stdout() */
+
 typedef void * IO_HANDLE; /*<! Handle type for IO functions */
+
+/*!
+ * \brief  Extra options passed to IO crypto init
+ *
+ * A structure for any additional options necessary to revert to an
+ * older setup for encryption/decryption. As things are imporved going
+ * forward, it is still necessary to keep backwards compatibility with
+ * previous versions.
+ */
+typedef struct
+{
+    bool x_iv:1; /*!< Whether to use the older (less correct) IV generation */
+    unsigned int x_hz:15; /*!< The number of iterations for key/IV generation */
+}
+io_extra_t;
 
 /*!
  * \brief         Open a file
@@ -54,10 +72,39 @@ extern IO_HANDLE io_open(const char *n, int f, mode_t m);
  */
 extern int io_close(IO_HANDLE h);
 
+/*!
+ * \brief         Get IO instance for STDIN
+ * \return        An IO instance for STDIN
+ *
+ * Get an IO_HANDLE instance for STDIN stream.
+ * instead.
+ */
 extern IO_HANDLE io_use_stdin(void);
+
+/*!
+ * \brief         Get IO instance for STDOUT
+ * \return        An IO instance for STDOUT
+ *
+ * Get an IO_HANDLE instance for STDOUT stream.
+ */
 extern IO_HANDLE io_use_stdout(void);
 
+/*!
+ * \brief         Check if IO instance is STDIN
+ * \param[in]  h  An IO instance
+ * \return        Whether IO instance is STDIN
+ *
+ * Returns true if IO_HANDLE instance is STDIN stream.
+ */
 extern bool io_is_stdin(IO_HANDLE h);
+
+/*!
+ * \brief         Check if IO instance is STDOUT
+ * \param[in]  h  An IO instance
+ * \return        Whether IO instance is STDOUT
+ *
+ * Returns true if IO_HANDLE instance is STDOUT stream.
+ */
 extern bool io_is_stdout(IO_HANDLE h);
 
 /*!
@@ -93,11 +140,56 @@ extern ssize_t io_read(IO_HANDLE f, void *d, size_t l);
  */
 extern int io_sync(IO_HANDLE f);
 
-extern off_t io_seek(IO_HANDLE f, off_t, int);
+/*!
+ * \brief         Seek to position in file
+ * \param[in]  f  An IO instance
+ * \param[in]  o  The offset set position
+ * \param[in]  w  From whence the fofset should be measured
+ * \return        The new offset within the file
+ *
+ * This function is the same as lseek(), in both the accepted values
+ * for the offset and whence, as well as the return value.
+ */
+extern off_t io_seek(IO_HANDLE f, off_t o, int w);
 
-extern void io_encryption_init(IO_HANDLE f, const char *c, const char *h, const uint8_t *k, size_t l, bool g);
+/*
+ * \brief         Encryption/Decryption initialisation
+ * \param[in]  f  An IO instance
+ * \param[in]  c  The name of the cipher to use
+ * \param[in]  h  The name of the hash to use for key generation
+ * \param[in]  k  Raw key data
+ * \param[in]  l  The length of the key data
+ * \param[in]  x  Any extra modifing options
+ *
+ * Initialise encryption/decryption of data read/written. This is then
+ * active for the rest of the life of the IO_HANDLE.
+ */
+extern void io_encryption_init(IO_HANDLE f, const char *c, const char *h, const uint8_t *k, size_t l, io_extra_t x);
+
+/*
+ * \brief         Compression initialisation
+ * \param[in]  f  An IO instance
+ *
+ * Turn on compression/decompression for the rest of the life of this
+ * handle.
+ */
 extern void io_compression_init(IO_HANDLE f);
+
+/*
+ * \brief         Read/Write data checksum initialisation
+ * \param[in]  f  An IO instance
+ *
+ * For all subsequent data that is read/written feed it through a hash
+ * function as a way of generating a checksum to detect errors.
+ */
 extern void io_encryption_checksum_init(IO_HANDLE f, char *h);
+
+/*
+ * \brief         Read/Write data checksum generation
+ * \param[in]  f  An IO instance
+ *
+ * Retrieve the hash checksum of all data read/written so far.
+ */
 extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l);
 
 #endif /* ! _ENCRYPT_IO_H_ */

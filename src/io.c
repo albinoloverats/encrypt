@@ -186,7 +186,7 @@ extern bool io_is_stdout(IO_HANDLE ptr)
     return io_ptr->fd == STDOUT_FILENO;
 }
 
-extern void io_encryption_init(IO_HANDLE ptr, const char *c, const char *h, const uint8_t *k, size_t l, bool g)
+extern void io_encryption_init(IO_HANDLE ptr, const char *c, const char *h, const uint8_t *k, size_t l, io_extra_t x)
 {
     io_private_t *io_ptr = ptr;
     if (!io_ptr)
@@ -232,7 +232,7 @@ extern void io_encryption_init(IO_HANDLE ptr, const char *c, const char *h, cons
     free(hash);
     gcry_cipher_algo_info(cipher_id_from_name(c), GCRYCTL_GET_BLKLEN, NULL, &io_ptr->buffer->block);
     /* the 2011.* versions (incorrectly) used key length instead of block length */
-    uint8_t *iv = calloc(g ? key_length : io_ptr->buffer->block, sizeof( byte_t ));
+    uint8_t *iv = calloc(x.x_iv ? key_length : io_ptr->buffer->block, sizeof( byte_t ));
     if (!iv)
        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, io_ptr->buffer->block);
     memcpy(iv, iv_hash, io_ptr->buffer->block < hash_length ? io_ptr->buffer->block : hash_length);
