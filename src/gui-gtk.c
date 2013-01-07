@@ -577,7 +577,7 @@ inline static void gui_display(crypto_t *c, gtk_widgets_t *data)
             b = 0;
 
         char *bps_label = NULL;
-        if (isnan(val))
+        if (isnan(val) || val == 0.0f)
             asprintf(&bps_label, "---.- B/s");
         else
         {

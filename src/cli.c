@@ -162,7 +162,7 @@ static void cli_display_bar(float total, float current, bool single, bps_t *bps)
      * calculate B/s
      */
     float val = cli_calc_bps(bps);
-    if (isnan(val))
+    if (isnan(val) || val == 0.0f)
         asprintf(&prog_bar, "%s  ---.- B/s", prog_bar);
     else
     {

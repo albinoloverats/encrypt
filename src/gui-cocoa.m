@@ -393,7 +393,7 @@ clean_up:
             b = 0;
 
         char *bps_label = NULL;
-        if (isnan(val) || val >= BILLION)
+        if (isnan(val) || val == 0.0f || val >= BILLION)
             asprintf(&bps_label, "---.- B/s");
         else
         {
@@ -405,6 +405,7 @@ clean_up:
                 asprintf(&bps_label, "%5.1f MB/s", val / MEGABYTE);
             else if (val < BILLION)
                 asprintf(&bps_label, "%5.1f GB/s", val / GIGABYTE);
+            // we were getting some erratic values because of this
 //            else
 //                asprintf(&bps_label, "%5.1f TB/s", val / TERABYTE);
         }
