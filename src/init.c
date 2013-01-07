@@ -148,6 +148,12 @@ extern args_t init(int argc, char **argv)
                     a.password = strdup(optarg);
                     break;
                 case 'x':
+                    /*
+                     * Could possibly use:
+                     *     a.compress = !a.compress;
+                     * if we wanted to turn compression on even if it
+                     * was turned off in the config file
+                     */
                     a.compress = false;
                     break;
 
