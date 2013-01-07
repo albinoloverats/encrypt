@@ -273,6 +273,7 @@ extern void io_encryption_checksum_init(IO_HANDLE ptr, char *h)
         gcry_md_reset(io_ptr->hash_handle);
     else
         gcry_md_open(&io_ptr->hash_handle, hash_id_from_name(h), GCRY_MD_FLAG_SECURE);
+    io_ptr->hash_init = true;
 
     return;
 }
@@ -286,7 +287,7 @@ extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l)
         return;
     }
 
-    if (!io_ptr->cipher_init)
+    if (!io_ptr->hash_init)
     {
         *l = 0;
         return;
@@ -326,7 +327,7 @@ extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l)
         return -1;
     }
 
-    if (io_ptr->cipher_init)
+    if (io_ptr->hash_init)
         gcry_md_write(io_ptr->hash_handle, d, l);
 
     switch (io_ptr->operation)
@@ -378,7 +379,7 @@ extern ssize_t io_read(IO_HANDLE f, void *d, size_t l)
             r = -1;
             break;
     }
-    if (r >= 0 && io_ptr->cipher_init)
+    if (r >= 0 && io_ptr->hash_init)
         gcry_md_write(io_ptr->hash_handle, d, r);
 
     return r;
