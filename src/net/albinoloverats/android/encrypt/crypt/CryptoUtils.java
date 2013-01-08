@@ -61,8 +61,10 @@ public abstract class CryptoUtils
         return h;
     }
 
-    public static IMessageDigest getHashAlgorithm(final String name) throws NoSuchAlgorithmException
+    public static IMessageDigest getHashAlgorithm(String name) throws NoSuchAlgorithmException
     {
+        if (name.equals(NAME_WHIRLPOOL_T))
+            name = NAME_WHIRLPOOL;
         final Set<?> s = HashFactory.getNames();
         for (final Object o : s)
             if (name.equals(((String)o).replace("-", "").toUpperCase()))
