@@ -268,7 +268,7 @@ http://www.everaldo.com/</property>
             <property name="can_focus">False</property>
             <property name="halign">center</property>
             <property name="valign">center</property>
-            <property name="border_width">64</property>
+            <property name="border_width">88</property>
             <child>
               <object class="GtkButton" id="open_button">
                 <property name="width_request">160</property>

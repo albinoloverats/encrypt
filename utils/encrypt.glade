@@ -100,6 +100,7 @@ http://www.everaldo.com/</property>
     <property name="type_hint">dialog</property>
     <property name="skip_taskbar_hint">True</property>
     <property name="skip_pager_hint">True</property>
+    <property name="create_folders">False</property>
     <property name="do_overwrite_confirmation">True</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="filechooserdialog-vbox5">
@@ -641,6 +642,7 @@ http://www.everaldo.com/</property>
     <property name="type_hint">dialog</property>
     <property name="skip_taskbar_hint">True</property>
     <property name="skip_pager_hint">True</property>
+    <property name="create_folders">False</property>
     <property name="do_overwrite_confirmation">True</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="filechooserdialog-vbox3">
