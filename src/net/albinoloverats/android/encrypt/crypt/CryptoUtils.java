@@ -42,6 +42,9 @@ public abstract class CryptoUtils
     private static final String NAME_CAST5 = "CAST5";
     private static final int KEY_SIZE_CAST5 = 128;
 
+    private static final String NAME_WHIRLPOOL = "WHIRLPOOL";
+    private static final String NAME_WHIRLPOOL_T = "WHIRLPOOL-T";
+
     private static final int KEY_SIZE_MINIMUM = 128;
 
     public static Set<String> getHashAlgorithmNames()
@@ -49,7 +52,12 @@ public abstract class CryptoUtils
         final Set<?> s = HashFactory.getNames();
         final Set<String> h = new TreeSet<String>();
         for (final Object o : s)
-            h.add(((String)o).replace("-", "").toUpperCase());
+        {
+            String n = ((String)o).replace("-", "").toUpperCase();
+            if (n.equals(NAME_WHIRLPOOL))
+                n = NAME_WHIRLPOOL_T;
+            h.add(n);
+        }
         return h;
     }
 
