@@ -79,7 +79,7 @@ extern void cli_display(crypto_t *c)
 
     struct stat t;
     fstat(STDOUT_FILENO, &t);
-    bool ui = isatty(STDERR_FILENO) && (c->output || c->path || S_ISREG(t.st_mode));
+    bool ui = isatty(STDERR_FILENO) && (!io_is_stdout(c->output) || c->path || S_ISREG(t.st_mode));
 
     if (ui)
     {
