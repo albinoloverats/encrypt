@@ -306,9 +306,7 @@ static int algorithm_compare(const void *a, const void *b)
 
 static char *correct_sha1(const char * const restrict n)
 {
-    if (strcasecmp(n, NAME_SHA1))
-        return strdup(n);
-    return strdup(NAME_SHA160);
+    return strcasecmp(n, NAME_SHA1) ? strdup(n) : strdup(NAME_SHA160);
 }
 
 static char *correct_aes_rijndael(const char * const restrict n)
@@ -338,7 +336,5 @@ static char *correct_twofish256(const char * const restrict n)
 
 static bool algorithm_is_duplicate(const char * const restrict n)
 {
-    if (!strcmp(NAME_TIGER192, n))
-        return true;
-    return false;
+    return !strcmp(NAME_TIGER192, n);
 }

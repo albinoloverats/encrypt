@@ -241,11 +241,8 @@ public class Decrypt extends Crypto
 
     private void decryptDirectory(final String dir) throws Exception, IOException
     {
-        for (total.offset = 0; total.offset < total.size; total.offset++)
+        for (total.offset = 0; total.offset < total.size && status == Status.RUNNING; total.offset++)
         {
-            if (status != Status.RUNNING)
-                break;
-
             final FileType t = FileType.fromID(source.read());
             byte[] b = new byte[Long.SIZE / Byte.SIZE];
             source.read(b);
@@ -278,10 +275,8 @@ public class Decrypt extends Crypto
     {
         boolean b = true;
         byte[] buffer = new byte[blocksize];
-        while (b)
+        while (b && status == Status.RUNNING)
         {
-            if (status == Status.CANCELLED)
-                break;
             b = source.read() == 1;
             source.read(buffer);
             int r = blocksize;
@@ -305,10 +300,8 @@ public class Decrypt extends Crypto
     private void decryptFile() throws IOException
     {
         final byte[] buffer = new byte[BLOCK_SIZE];
-        for (current.offset = 0; current.offset < current.size; current.offset += BLOCK_SIZE)
+        for (current.offset = 0; current.offset < current.size && status == Status.RUNNING; current.offset += BLOCK_SIZE)
         {
-            if (status == Status.CANCELLED)
-                break;
             int j = BLOCK_SIZE;
             if (current.offset + BLOCK_SIZE > current.size)
                 j = (int)(BLOCK_SIZE - (current.offset + BLOCK_SIZE - current.size));

@@ -77,7 +77,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
         {
             log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
             c->status = STATUS_FAILED_IO;
-            goto end;
+            return c;
         }
     }
     else
@@ -100,7 +100,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
             {
                 log_message(LOG_ERROR, _("Unexpected error looking up destination"));
                 c->status = STATUS_FAILED_IO;
-                goto end;
+                return c;
             }
             log_message(LOG_VERBOSE, _("Not sure whether %s will be a file or directory"), o);
             /*
@@ -126,7 +126,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
                 {
                     log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
                     c->status = STATUS_FAILED_IO;
-                    goto end;
+                    return c;
                 }
             }
             else
@@ -134,7 +134,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
                 log_message(LOG_ERROR, _("Unsupported destination file type"));
                 c->output = NULL;
                 c->status = STATUS_FAILED_OUTPUT_MISMATCH;
-                goto end;
+                return c;
             }
         }
     }
@@ -148,7 +148,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
     {
         log_message(LOG_ERROR, _("Invalid key data"));
         c->status = STATUS_FAILED_INIT;
-        goto end;
+        return c;
     }
     if (l)
     {
@@ -164,7 +164,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
         {
             log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
             c->status = STATUS_FAILED_IO;
-            goto end;
+            return c;
         }
         c->length = lseek(kf, 0, SEEK_END);
         lseek(kf, 0, SEEK_SET);
@@ -176,7 +176,6 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
 
     c->process = process;
 
-end:
     return c;
 }
 
@@ -197,7 +196,7 @@ static void *process(void *ptr)
     uint64_t version = read_version(c);
     /* version_read() already handles setting the status and displaying an error */
     if (!version)
-        goto end;
+        return (void *)c->status;
 
     /* the 2011.* versions (incorrectly) used key length instead of block length */
     io_extra_t iox = { version == HEADER_VERSION_201108 || version == HEADER_VERSION_201110, 1 };
@@ -219,11 +218,15 @@ static void *process(void *ptr)
     }
     if (!skip_some_random)
         skip_random_data(c);
+
     if (!read_verification_sum(c))
-        goto end;
+        return (void *)c->status;
+
     skip_random_data(c);
+
     if (!read_metadata(c))
-        goto end;
+        return (void *)c->status;
+
     if (!skip_some_random)
         skip_random_data(c);
 
@@ -264,7 +267,7 @@ static void *process(void *ptr)
     }
 
     if (c->status != STATUS_RUNNING)
-        goto end;
+        return (void *)c->status;
 
     c->current.offset = c->current.size;
     c->total.offset = c->total.size;
@@ -296,7 +299,7 @@ static void *process(void *ptr)
      */
     io_sync(c->output);
     c->status = STATUS_SUCCESS;
-end:
+
     return (void *)c->status;
 }
 
@@ -489,11 +492,8 @@ static void skip_random_data(crypto_t *c)
 static void decrypt_directory(crypto_t *c, const char *dir)
 {
     log_message(LOG_INFO, _("Decrypting %" PRIu64 " entries into %s"), c->total.size, dir);
-    for (c->total.offset = 0; c->total.offset < c->total.size; c->total.offset++)
+    for (c->total.offset = 0; c->total.offset < c->total.size && c->status == STATUS_RUNNING; c->total.offset++)
     {
-        if (c->status != STATUS_RUNNING)
-            break;
-
         file_type_e tp;
         io_read(c->source, &tp, sizeof( byte_t ));
 
@@ -540,10 +540,8 @@ static void decrypt_stream(crypto_t *c)
     uint8_t *buffer;
     if (!(buffer = malloc(c->blocksize + sizeof b)))
         die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, c->blocksize + sizeof b);
-    while (b)
+    while (b && c->status == STATUS_RUNNING)
     {
-        if (c->status == STATUS_CANCELLED)
-            break;
         errno = EXIT_SUCCESS;
         int64_t r = io_read(c->source, buffer, c->blocksize + sizeof b);
         if (r < 0)
@@ -570,10 +568,8 @@ static void decrypt_stream(crypto_t *c)
 static void decrypt_file(crypto_t *c)
 {
     uint8_t buffer[BLOCK_SIZE];
-    for (c->current.offset = 0; c->current.offset < c->current.size; c->current.offset += BLOCK_SIZE)
+    for (c->current.offset = 0; c->current.offset < c->current.size && c->status == STATUS_RUNNING; c->current.offset += BLOCK_SIZE)
     {
-        if (c->status == STATUS_CANCELLED)
-            break;
         errno = EXIT_SUCCESS;
         size_t l = BLOCK_SIZE;
         if (c->current.offset + BLOCK_SIZE > c->current.size)

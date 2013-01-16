@@ -95,7 +95,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
             {
                 log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
                 z->status = STATUS_FAILED_IO;
-                goto end;
+                return z;
             }
         }
     }
@@ -112,7 +112,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
         {
             log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
             z->status = STATUS_FAILED_OUTPUT_MISMATCH;
-            goto end;
+            return z;
         }
     }
     else
@@ -121,16 +121,11 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
         z->output = IO_STDOUT_FILENO;
     }
 
-    z->process = process;
-
-    z->cipher = strdup(c);
-    z->hash = strdup(h);
-
     if (!k)
     {
         log_message(LOG_ERROR, _("Invalid key data"));
         z->status = STATUS_FAILED_INIT;
-        goto end;
+        return z;
     }
     if (l)
     {
@@ -146,7 +141,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
         {
             log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
             z->status = STATUS_FAILED_IO;
-            goto end;
+            return z;
         }
         z->length = lseek(kf, 0, SEEK_END);
         lseek(kf, 0, SEEK_SET);
@@ -156,10 +151,14 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
         close(kf);
     }
 
+    z->process = process;
+
+    z->cipher = strdup(c);
+    z->hash = strdup(h);
+
     z->blocksize = BLOCK_SIZE;
     z->compressed = x;
 
-end:
     return z;
 }
 
@@ -222,7 +221,7 @@ static void *process(void *ptr)
     }
 
     if (c->status != STATUS_RUNNING)
-        goto end;
+        return (void *)c->status;
 
     c->current.offset = c->current.size;
     c->total.offset = c->total.size;
@@ -243,7 +242,7 @@ static void *process(void *ptr)
      */
     io_sync(c->output);
     c->status = STATUS_SUCCESS;
-end:
+
     return (void *)c->status;
 }
 
@@ -396,11 +395,8 @@ static void encrypt_directory(crypto_t *c, const char *dir)
     {
         log_message(LOG_DEBUG, _("Found %i entries in %s"), n - 2, dir); /* subtract 2 for . and .. */
 
-        for (int i = 0; i < n; ++i)
+        for (int i = 0; i < n && c->status == STATUS_RUNNING; ++i)
         {
-            if (c->status != STATUS_RUNNING)
-                break;
-
             char *nm = strdup(eps[i]->d_name);
             if (!strcmp(".", nm) || !strcmp("..", nm))
             {
@@ -475,8 +471,6 @@ static void encrypt_stream(crypto_t *c)
         die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, c->blocksize + sizeof b);
     do
     {
-        if (c->status == STATUS_CANCELLED)
-            break;
         errno = EXIT_SUCCESS;
         /*
          * read plaintext file, write encrypted data
@@ -500,7 +494,7 @@ static void encrypt_stream(crypto_t *c)
         }
         c->current.offset += c->blocksize;
     }
-    while (b);
+    while (b && c->status == STATUS_RUNNING);
     free(buffer);
     return;
 }
@@ -508,10 +502,8 @@ static void encrypt_stream(crypto_t *c)
 static void encrypt_file(crypto_t *c)
 {
     uint8_t buffer[BLOCK_SIZE];
-    for (c->current.offset = 0; c->current.offset < c->current.size; c->current.offset += BLOCK_SIZE)
+    for (c->current.offset = 0; c->current.offset < c->current.size && c->status == STATUS_RUNNING; c->current.offset += BLOCK_SIZE)
     {
-        if (c->status == STATUS_CANCELLED)
-            break;
         errno = EXIT_SUCCESS;
         /*
          * read plaintext file, write encrypted data

@@ -35,10 +35,8 @@ public enum FileType
     public static FileType fromID(final int value) throws Exception
     {
         for (final FileType type : FileType.values())
-        {
             if (value == type.value)
                 return type;
-        }
         throw new Exception(Status.FAILED_UNKNOWN_TAG);
     }
 }

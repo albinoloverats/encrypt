@@ -110,9 +110,7 @@ public abstract class CryptoUtils
         for (final Object o : s)
         {
             final String n = ((String)o).replace("-", "").toUpperCase();
-            if (n.equals("NULL"))
-                continue;
-            if (n.length() > name.length())
+            if (n.equals("NULL") || n.length() > name.length())
                 continue;
             if (name.substring(0, n.length()).equals(n))
             {
@@ -141,9 +139,7 @@ public abstract class CryptoUtils
         for (final Object o : s)
         {
             final String n = ((String)o).replace("-", "").toUpperCase();
-            if (n.equals("NULL"))
-                continue;
-            if (n.length() > name.length())
+            if (n.equals("NULL") || n.length() > name.length())
                 continue;
             if (name.substring(0, n.length()).equals(n))
             {
@@ -157,9 +153,7 @@ public abstract class CryptoUtils
                     return KEY_SIZE_CAST5;
                 else
                     for (final Integer i : keySizes)
-                        if (i.intValue() * Byte.SIZE < KEY_SIZE_MINIMUM)
-                            continue;
-                        else if (name.equals(n + i.intValue() * Byte.SIZE))
+                        if (name.equals(n + i.intValue() * Byte.SIZE))
                             return i.intValue() * Byte.SIZE;
             }
         }

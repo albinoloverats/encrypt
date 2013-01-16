@@ -324,18 +324,14 @@ static char *parse_config_tail(const char *c, const char *l)
     if (!x)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(l) - strlen(c) + 1);
     size_t i = 0;
-    for (i = 0; i < strlen(x); i++)
-        if (!isspace(x[i]))
-            break;
+    for (i = 0; i < strlen(x) && isspace(x[i]); i++)
+        ;
     char *y = strdup(x + i);
     if (!y)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(x) - i + 1);
     free(x);
-    for (i = strlen(y) - 1; i > 0; i--)
-        if (isspace(y[i]))
-            y[i] = '\0';
-        else
-            break;
+    for (i = strlen(y) - 1; i > 0 && isspace(y[i]); i--)
+        y[i] = '\0';
     char *tail = strdup(y);
     free(y);
     return tail;

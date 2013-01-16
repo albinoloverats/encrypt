@@ -63,14 +63,10 @@ extern void log_redirect(const char * const restrict f)
 
 extern log_e log_parse_level(const char * const restrict l)
 {
-    log_e e = LOG_DEFAULT;
     for (uint8_t i = 0; i < LOG_LEVEL_COUNT; i++)
         if (!strcasecmp(l, LOG_LEVELS[i]))
-        {
-            e = i;
-            break;
-        }
-    return e;
+            return (log_e)i;
+    return LOG_DEFAULT;
 }
 
 extern void log_relevel(log_e l)

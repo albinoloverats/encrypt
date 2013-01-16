@@ -94,9 +94,7 @@ extern void tlv_append(TLV_HANDLE *ptr, tlv_t tlv)
 
 extern bool tlv_has_tag(TLV_HANDLE ptr, uint8_t tag)
 {
-    if (!ptr)
-        return false;
-    return tlv_value_of(ptr, tag) != NULL;
+    return ptr ? tlv_value_of(ptr, tag) != NULL : false;
 }
 
 extern uint8_t *tlv_value_of(TLV_HANDLE ptr, uint8_t tag)
@@ -105,11 +103,8 @@ extern uint8_t *tlv_value_of(TLV_HANDLE ptr, uint8_t tag)
     if (!tlv_ptr)
         return NULL;
     for (unsigned i = 0; i < tlv_ptr->tags; i++)
-    {
-        tlv_t tlv = tlv_ptr->buffer[i];
-        if (tlv.tag == tag)
-            return tlv.value;
-    }
+        if (tlv_ptr->buffer[i].tag == tag)
+            return tlv_ptr->buffer[i].value;
     return NULL;
 }
 
@@ -139,9 +134,7 @@ extern uint8_t *tlv_export_aux(TLV_HANDLE ptr, bool nbo)
 
 extern uint16_t tlv_count(TLV_HANDLE ptr)
 {
-    if (!ptr)
-        return 0;
-    return ((tlv_private_t *)ptr)->tags;
+    return ptr ? ((tlv_private_t *)ptr)->tags : 0;
 }
 
 extern size_t tlv_size(TLV_HANDLE ptr)

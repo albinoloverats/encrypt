@@ -76,8 +76,7 @@ public abstract class Convert
 
     public static short shortFromBytes(final byte[] b)
     {
-        final short s = (short)((b[0] & 0x00FF) << 8);
-        return (short)(s | (short)(b[1] & 0x00FF));
+        return (short)((short)((b[0] & 0x00FF) << 8) | (short)(b[1] & 0x00FF));
     }
 
     public static byte[] toBytes(final byte x)
@@ -99,6 +98,6 @@ public abstract class Convert
 
     public static boolean booleanFromBytes(final byte[] b)
     {
-        return (b[0] & 0x000000FF) == 1 ? true : false;
+        return (b[0] & 0x000000FF) != 0;
     }
 }

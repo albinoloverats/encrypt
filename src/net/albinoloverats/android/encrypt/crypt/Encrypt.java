@@ -262,10 +262,8 @@ public class Encrypt extends Crypto
     private void encryptFile() throws IOException
     {
         final byte[] buffer = new byte[BLOCK_SIZE];
-        for (current.offset = 0; current.offset < current.size; current.offset += BLOCK_SIZE)
+        for (current.offset = 0; current.offset < current.size && status == Status.RUNNING; current.offset += BLOCK_SIZE)
         {
-            if (status == Status.CANCELLED)
-                break;
             final int r = source.read(buffer, 0, BLOCK_SIZE);
             checksum.update(buffer, 0, r);
             output.write(buffer, 0, r);

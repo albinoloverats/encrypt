@@ -272,11 +272,9 @@ eop:
 static bool list_ciphers(void)
 {
     char **l = list_of_ciphers();
-    for (int i = 0; ; i++)
+    for (int i = 0; l[i] ; i++)
     {
-        if (!l[i])
-            break;
-        else if (strlen(l[i]))
+        if (strlen(l[i]))
             fprintf(stderr, "%s\n", l[i]);
         free(l[i]);
     }
@@ -287,11 +285,9 @@ static bool list_ciphers(void)
 static bool list_hashes(void)
 {
     char **l = list_of_hashes();
-    for (int i = 0; ; i++)
+    for (int i = 0; l[i]; i++)
     {
-        if (!l[i])
-            break;
-        else if (strlen(l[i]))
+        if (strlen(l[i]))
             fprintf(stderr, "%s\n", l[i]);
         free(l[i]);
     }

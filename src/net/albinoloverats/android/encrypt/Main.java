@@ -192,11 +192,9 @@ public class Main extends Activity
             @Override
             public boolean onKey(final View v, final int keyCode, final KeyEvent event)
             {
-                final String p = ((EditText)findViewById(R.id.text_password)).getText().toString();
-                if (p.length() == 0)
+                password = ((EditText)findViewById(R.id.text_password)).getText().toString();
+                if (password.length() == 0)
                     password = null;
-                else
-                    password = p;
                 checkEnableButtons();
                 return false;
             }
@@ -475,10 +473,7 @@ public class Main extends Activity
             {
                 final byte[] k = key_file ? Utils.readFileAsString(key).getBytes() : password.getBytes();
 
-                if (encrypting)
-                    c = new Encrypt(filenameIn, filenameOut, cipher, hash, k, compress);
-                else
-                    c = new Decrypt(filenameIn, filenameOut, k);
+                c = encrypting ? new Encrypt(filenameIn, filenameOut, cipher, hash, k, compress) : new Decrypt(filenameIn, filenameOut, k);
                 c.start();
 
                 do
