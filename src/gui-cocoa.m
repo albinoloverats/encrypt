@@ -50,11 +50,9 @@ static bool running = false;
 
     char **ciphers = list_of_ciphers();
     unsigned slctd_cipher = 0;
-    for (unsigned i = 0; ; i++)
+    for (unsigned i = 0; ciphers[i]; i++)
     {
-        if (!ciphers[i])
-            break;
-        else if (args.cipher && !strcasecmp(ciphers[i], args.cipher))
+        if (args.cipher && !strcasecmp(ciphers[i], args.cipher))
             slctd_cipher = i + 1;
         [_cipherCombo addItemWithTitle:[NSString stringWithUTF8String:ciphers[i]]];
         free(ciphers[i]);
@@ -64,11 +62,9 @@ static bool running = false;
 
     char **hashes = list_of_hashes();
     unsigned slctd_hash = 0;
-    for (unsigned  i = 0; ; i++)
+    for (unsigned  i = 0; hashes[i]; i++)
     {
-        if (!hashes[i])
-            break;
-        else if (args.hash && !strcasecmp(hashes[i], args.hash))
+        if (args.hash && !strcasecmp(hashes[i], args.hash))
             slctd_hash = i + 1;
         [_hashCombo addItemWithTitle:[NSString stringWithUTF8String:hashes[i]]];
         free(hashes[i]);
@@ -82,15 +78,13 @@ static bool running = false;
     {
         const char *t = [[_sourceFileChooser itemTitleAtIndex:k] UTF8String];
         
-        if (!strcmp(t, SELECT_FILE))
+        if (!strcmp(t, SELECT_FILE) || !strcmp(t, SELECT_OTHER))
             continue;
         else if (z && !strcmp(t, ""))
         {
             z = false;
             continue;
         }
-        else if (!strcmp(t, SELECT_OTHER))
-            continue;
         [_sourceFileChooser removeItemAtIndex:k];
         k--;
     }
@@ -101,18 +95,13 @@ static bool running = false;
     {
         const char *t = [[_outputFileChooser itemTitleAtIndex:k] UTF8String];
 
-        if (!strcmp(t, SELECT_FILE))
+        if (!strcmp(t, SELECT_FILE) || !strcmp(t, SELECT_NEW) || !strcmp(t, SELECT_OTHER))
             continue;
         else if (z && !strcmp(t, ""))
         {
             z = false;
             continue;
         }
-        else if (!strcmp(t, SELECT_NEW))
-            continue;
-
-        else if (!strcmp(t, SELECT_OTHER))
-            continue;
         [_outputFileChooser removeItemAtIndex:k];
         k--;
     }
@@ -123,15 +112,13 @@ static bool running = false;
     {
         const char *t = [[_keyFileChooser itemTitleAtIndex:k] UTF8String];
 
-        if (!strcmp(t, SELECT_KEY))
+        if (!strcmp(t, SELECT_KEY) || !strcmp(t, SELECT_OTHER))
             continue;
         else if (z && !strcmp(t, ""))
         {
             z = false;
             continue;
         }
-        else if (!strcmp(t, SELECT_OTHER))
-            continue;
         [_keyFileChooser removeItemAtIndex:k];
         k--;
     }

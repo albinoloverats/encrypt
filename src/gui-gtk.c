@@ -86,11 +86,9 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 {
     char **ciphers = list_of_ciphers();
     unsigned slctd_cipher = 0;
-    for (unsigned i = 0; ; i++)
+    for (unsigned i = 0; ciphers[i]; i++)
     {
-        if (!ciphers[i])
-            break;
-        else if (cipher && !strcasecmp(ciphers[i], cipher))
+        if (cipher && !strcasecmp(ciphers[i], cipher))
         {
             slctd_cipher = i + 1;
             log_message(LOG_VERBOSE, _("Selected %d is algorithm: %s"), slctd_cipher, cipher);
@@ -107,11 +105,9 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 
     char **hashes = list_of_hashes();
     unsigned slctd_hash = 0;
-    for (unsigned  i = 0; ; i++)
+    for (unsigned  i = 0; hashes[i]; i++)
     {
-        if (!hashes[i])
-            break;
-        else if (hash && !strcasecmp(hashes[i], hash))
+        if (hash && !strcasecmp(hashes[i], hash))
         {
             slctd_hash = i + 1;
             log_message(LOG_VERBOSE, _("Selected %d is hash: %s"), slctd_hash, hash);
@@ -194,7 +190,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
     char *open_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog);
     if (!open_file)
         open_file = gtk_file_hack_cipher;
-    if (open_file)
+    if (open_file) /* if at first you don't succeed, try, try again */
         open_file = _filename_utf8(open_file);
     if (!open_file || !strlen(open_file))
         en = FALSE;
@@ -217,13 +213,8 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
                  * TODO get algorithms from this function
                  */
                 char *c = NULL, *h = NULL;
-                if (file_encrypted(open_file))
-                {
-                    _encrypting = false;
+                if (!(_ encrypting = file_encrypted(open_file)))
                     auto_select_algorithms(data, c, h);
-                }
-                else
-                    _encrypting = true;
                 close(f);
                 gtk_button_set_label((GtkButton *)data->encrypt_button, _encrypting ? LABEL_ENCRYPT : LABEL_DECRYPT);
             }
@@ -494,17 +485,11 @@ static void *gui_process(void *d)
         char **ciphers = list_of_ciphers();
         char **hashes = list_of_hashes();
         x = encrypt_init(source, output, ciphers[c - 1], hashes[h - 1], key, length, _compress);
-        for (int i = 0; ; i++)
-            if (!ciphers[i])
-                break;
-            else
-                free(ciphers[i]);
+        for (int i = 0; ciphers[i]; i++)
+            free(ciphers[i]);
         free(ciphers);
-        for (int i = 0; ; i++)
-            if (!hashes[i])
-                break;
-            else
-                free(hashes[i]);
+        for (int i = 0; hashes[i]; i++)
+            free(hashes[i]);
         free(hashes);
     }
     else
