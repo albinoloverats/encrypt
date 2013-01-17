@@ -7,8 +7,29 @@ A history of what happened before, and a taste of what's to come…
 Planned changes
 ---------------
 
-A taste of what's to come:
-* Properly finish off OS X build
+* Allow the latest version to create encrypted files that older versions
+  can decrypt
+
+
+encrypt - 2013.02                                 (sometime in) Feb 2013
+-----------------
+
+Hot off the heals of our last release we're here with another. It brings
+the much needed and hugely requested new feature: encrypted directories.
+You can now select and encrypt directories in addition to files. The has
+resulted in an update to the user interface to show the current progress
+and overall progress of the encryption/decryption.
+
+The other significant update is for Android version: key file support is
+now available. Use the menu to toggle between entering a password or se-
+lecting a file to for key generation.
+
+There has also been a couple of changes to the internal structure of the 
+encrypted files; though as always, the latest version is able to decrypt
+your previously encrypted data.
+
+The native OS X port is now here too! So that's now GNU/Linux, Microsoft
+Windows, Android and of course Apple's OS X!
 
 
 encrypt - 2012.11                                          19th Nov 2012
@@ -20,10 +41,10 @@ file (or data stream) before it is encrypted.  Before you ask, yes we're
 intending to support encrypting multiple files in an upcoming (maybe the
 next) version.
 
-The other major improvement is the ability to set default al8gorithms for
+The other major improvement is the ability to set default algorithms for
 both the key hashing and encryption itself.  On Unix-like systems create
 the file ~/.encryptrc or copy the example from utils/_encryptrc.  If you
-are running MS Windows,  the file is %Program Files%\encrypt8\_encryptrc.
+are running MS Windows,  the file is %Program Files%\encrypt\_encryptrc.
 
 The UI of the desktop edition has also been simplified;  the output file
 is selected as you would expect, instead of having to select a directory

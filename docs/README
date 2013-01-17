@@ -1,15 +1,21 @@
 encrypt - 2013.02                                 (sometime in) Feb 2013
 =================
 
-Hot off the heals of our last release, we've another. This brings a well
-needed, and requested, feature addition:  recursive encryption.  You can
-now select and encrypt directories as well as files. The has resulted in
-an update/enhancement of the user interface to show the current progress
+Hot off the heals of our last release we're here with another. It brings
+the much needed and hugely requested new feature: encrypted directories.
+You can now select and encrypt directories in addition to files. The has
+resulted in an update to the user interface to show the current progress
 and overall progress of the encryption/decryption.
 
-The native OS X port is still (slowly) being worked on; everything still
-works, and it is compatible with all the other versions of encrypt. Alas
-we're still having some issues packaging it up for easy distribution and
-installation.
+The other significant update is for Android version: key file support is
+now available. Use the menu to toggle between entering a password or se-
+lecting a file to for key generation.
+
+There has also been a couple of changes to the internal structure of the 
+encrypted files; though as always, the latest version is able to decrypt
+your previously encrypted data.
+
+The native OS X port is now here too! So that's now GNU/Linux, Microsoft
+Windows, Android and of course Apple's OS X!
 
 The encrypt Development Team
