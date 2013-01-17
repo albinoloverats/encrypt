@@ -5,84 +5,84 @@
 #: src/init.c:56
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/init.c:205
+#: src/init.c:211
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/init.c:261
+#: src/init.c:267
 #| %s version : %s\n%*s built on: %s %s\n
 msgid "%s version : %s\n%*s built on: %s %s\n"
 msgstr ""
 
-#: src/init.c:269
+#: src/init.c:275
 #| Usage:\n  %s %s\n\n
 msgid "Usage:\n  %s %s\n\n"
 msgstr ""
 
-#: src/init.c:277
+#: src/init.c:283
 #| Options:\n
 msgid "Options:\n"
 msgstr ""
 
-#: src/init.c:278
+#: src/init.c:284
 #|   -h, --help                 Display this message\n
 msgid "  -h, --help                 Display this message\n"
 msgstr ""
 
-#: src/init.c:279
+#: src/init.c:285
 #|   -l, --licence              Display GNU GPL v3 licence header\n
 msgid "  -l, --licence              Display GNU GPL v3 licence header\n"
 msgstr ""
 
-#: src/init.c:280
+#: src/init.c:286
 #|   -v, --version              Display application version\n
 msgid "  -v, --version              Display application version\n"
 msgstr ""
 
-#: src/init.c:281
+#: src/init.c:287
 #|   -d, --debug [log level]    Turn on debugging [to specified level]\n
 msgid "  -d, --debug [log level]    Turn on debugging [to specified level]\n"
 msgstr ""
 
-#: src/init.c:282
+#: src/init.c:288
 #|   -q, --quiet                Turn off all but serious error messages\n
 msgid "  -q, --quiet                Turn off all but serious error messages\n"
 msgstr ""
 
-#: src/init.c:285
+#: src/init.c:291
 #|   -c, --cipher=<algorithm>   Algorithm to use to encrypt data\n
 msgid "  -c, --cipher=<algorithm>   Algorithm to use to encrypt data\n"
 msgstr ""
 
-#: src/init.c:286
+#: src/init.c:292
 #|   -s, --hash=<algorithm>     Hash algorithm to generate key\n
 msgid "  -s, --hash=<algorithm>     Hash algorithm to generate key\n"
 msgstr ""
 
-#: src/init.c:288
+#: src/init.c:294
 #|   -k, --key=<key file>       File whose data will be used to generate the key\n
 msgid "  -k, --key=<key file>       File whose data will be used to generate the key\n"
 msgstr ""
 
-#: src/init.c:289
+#: src/init.c:295
 #|   -p, --password=<password>  Password used to generate the key\n
 msgid "  -p, --password=<password>  Password used to generate the key\n"
 msgstr ""
 
-#: src/init.c:291
+#: src/init.c:297
 #|   -x, --no-compress          Do not compress the plaintext using the xz algorithm\n
 msgid "  -x, --no-compress          Do not compress the plaintext using the xz algorithm\n"
 msgstr ""
 
-#: src/init.c:292
+#: src/init.c:298
 #| \nNote: If you do not supply a key or password, you will be prompted for one.\n
 msgid "\nNote: If you do not supply a key or password, you will be prompted for one.\n"
 msgstr ""
 
-#: src/init.c:299
+#: src/init.c:305
 #. The GNU GPLv3 header is translated as part of common/common.po
 
-#: src/init.c:319
+#: src/init.c:325
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/init.c:326
+#: src/init.c:331
 #. See common/common.po for the definitive "Out of memory" translation

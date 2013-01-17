@@ -1,22 +1,19 @@
-#: src/gui-gtk.c:96
+#: src/gui-gtk.c:94
 #| Selected %d is algorithm: %s
 msgid "Selected %d is algorithm: %s"
 msgstr ""
 
-#: src/gui-gtk.c:117
+#: src/gui-gtk.c:113
 #| Selected %d is hash: %s
 msgid "Selected %d is hash: %s"
 msgstr ""
 
-#: src/gui-gtk.c:470
+#: src/gui-gtk.c:461
 #| Initialise crypto routine
 msgid "Initialise crypto routine"
 msgstr ""
 
-#: src/gui-gtk.c:492
-#. See common/common.po for the definitive "Out of memory" translation
-
-#: src/gui-gtk.c:558
+#: src/gui-gtk.c:525
 #| Update progress bar in loop
 msgid "Update progress bar in loop"
 msgstr ""

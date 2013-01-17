@@ -7,7 +7,7 @@ msgstr ""
 #. This is a GTK error; not translated here. If the GTK translations are
 #. installed the message should be translated.
 #  msgid "%s"
-#  msgstr ""
+# msgstr ""
 
 #: src/main.c:202
 #| Could not create GUI - falling back to command line\n

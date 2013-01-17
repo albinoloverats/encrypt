@@ -56,119 +56,119 @@ msgstr ""
 #. See common/common.po for the definitive "Out of memory" translation
 
 #: src/decrypt.c:165
-#. See src/io.po for "IO error" translation
+#. See common/common.po for the definitive "Out of memory" translation
 
 #: src/decrypt.c:172
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/decrypt.c:189
+#: src/decrypt.c:188
 #| Invalid cryptographic object!
 msgid "Invalid cryptographic object!"
 msgstr ""
 
-#: src/decrypt.c:235
+#: src/decrypt.c:238
 #| Starting decryption process
 msgid "Starting decryption process"
 msgstr ""
 
-#: src/decrypt.c:284
+#: src/decrypt.c:287
 #| Checksum verification failed
 msgid "Checksum verification failed"
 msgstr ""
 
-#: src/decrypt.c:305
+#: src/decrypt.c:308
 #| Checking for file header
 msgid "Checking for file header"
 msgstr ""
 
-#: src/decrypt.c:310
+#: src/decrypt.c:313
 #. See src/io.po for "IO error" translation
 
-#: src/decrypt.c:315
+#: src/decrypt.c:318
 #| Data not encrypted
 msgid "Data not encrypted"
 msgstr ""
 
-#: src/decrypt.c:335
+#: src/decrypt.c:338
 #| File encrypted with version 2011.08
 msgid "File encrypted with version 2011.08"
 msgstr ""
 
-#: src/decrypt.c:339
+#: src/decrypt.c:342
 #| File encrypted with version 2011.10
 msgid "File encrypted with version 2011.10"
 msgstr ""
 
-#: src/decrypt.c:343
+#: src/decrypt.c:346
 #| File encrypted with version 2012.11
 msgid "File encrypted with version 2012.11"
 msgstr ""
 
-#: src/decrypt.c:347
-#| File encrypted with development version
-msgid "File encrypted with development version"
+#: src/decrypt.c:350
+#| File encrypted with version 2013.02
+msgid "File encrypted with version 2013.02"
 msgstr ""
 
-#: src/decrypt.c:351
+#: src/decrypt.c:354
 #| File encrypted with unknown, or more recent release of encrypt
 msgid "File encrypted with unknown, or more recent release of encrypt"
 msgstr ""
 
-#: src/decrypt.c:358
+#: src/decrypt.c:361
 #| Reading verification sum
 msgid "Reading verification sum"
 msgstr ""
 
-#: src/decrypt.c:368
+#: src/decrypt.c:371
 #| Verifying x ^ y = z
 msgid "Verifying x ^ y = z"
 msgstr ""
 
-#: src/decrypt.c:376
+#: src/decrypt.c:379
 #| Failed decryption verification
 msgid "Failed decryption verification"
 msgstr ""
 
-#: src/decrypt.c:385
+#: src/decrypt.c:388
 #| Reading metadata
 msgid "Reading metadata"
 msgstr ""
 
-#: src/decrypt.c:399
+#: src/decrypt.c:402
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/decrypt.c:420
+#: src/decrypt.c:423
 #| Encrypted stream is %sblock delimited: "…is block…" or "…is not block…"
 msgid "Encrypted stream is %sblock delimited"
 msgstr ""
 
-#: src/decrypt.c:426
+#: src/decrypt.c:429
 #| Encrypted stream is %scompressed: "…is compressed" or "…is not compressed"
 msgid "Encrypted stream is %scompressed"
 msgstr ""
 
-#: src/decrypt.c:438
+#: src/decrypt.c:441
 #| Output is to a directory
 msgid "Output is to a directory"
 msgstr ""
 
-#: src/decrypt.c:447
+#: src/decrypt.c:450
 #| Output requires a directory, not a file
 msgid "Output requires a directory, not a file"
 msgstr ""
 
-#: src/decrypt.c:461
+#: src/decrypt.c:464
 #. See src/io.po for "IO error" translation
 
-#: src/decrypt.c:467
+#: src/decrypt.c:470
 #| Output requires a file, not a directory
 msgid "Output requires a file, not a directory"
 msgstr ""
 
-#: src/decrypt.c:483
+#: src/decrypt.c:486
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/decrypt.c:491
+#: src/decrypt.c:494
 #| Decrypting %" PRIu64 " entries into %s
 msgid "Decrypting %" PRIu64 " entries into %s"
 msgstr ""
@@ -192,8 +192,8 @@ msgstr ""
 #: src/decrypt.c:542
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/decrypt.c:551
+#: src/decrypt.c:549
 #. See src/io.po for "IO error" translation
 
-#: src/decrypt.c:584
+#: src/decrypt.c:580
 #. See src/io.po for "IO error" translation

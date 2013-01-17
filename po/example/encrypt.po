@@ -32,101 +32,98 @@ msgstr ""
 msgid "Encrypting to stdout"
 msgstr ""
 
-#: src/encrypt.c:131
+#: src/encrypt.c:126
 #| Invalid key data
 msgid "Invalid key data"
 msgstr ""
 
-#: src/encrypt.c:138
+#: src/encrypt.c:133
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:147
+#: src/encrypt.c:142
 #. See src/io.po for "IO error" translation
 
-#: src/encrypt.c:154
+#: src/encrypt.c:149
 #. See common/common.po for the definitive "Out of memory" translation
-#| Out of memory @ %s:%d:%s [%zu]
-msgid "Out of memory @ %s:%d:%s [%zu]"
-msgstr ""
 
-#: src/encrypt.c:172
+#: src/encrypt.c:171
 #| Invalid cryptographic object!
 msgid "Invalid cryptographic object!"
 msgstr ""
 
-#: src/encrypt.c:198
+#: src/encrypt.c:197
 #| Starting encryption process
 msgid "Starting encryption process"
 msgstr ""
 
-#: src/encrypt.c:205
+#: src/encrypt.c:204
 #| Directory tree contains %" PRIi64 " entries
 msgid "Directory tree contains %" PRIi64 " entries"
 msgstr ""
 
-#: src/encrypt.c:252
+#: src/encrypt.c:251
 #| Writing standard header
 msgid "Writing standard header"
 msgstr ""
 
-#: src/encrypt.c:258
+#: src/encrypt.c:257
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:261
+#: src/encrypt.c:260
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:267
+#: src/encrypt.c:266
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:279
+#: src/encrypt.c:278
 #| Writing verification sum
 msgid "Writing verification sum"
 msgstr ""
 
-#: src/encrypt.c:302
+#: src/encrypt.c:301
 #| Writing metadata
 msgid "Writing metadata"
 msgstr ""
 
-#: src/encrypt.c:350
+#: src/encrypt.c:349
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:363
+#: src/encrypt.c:362
 #| Scanning directory : %s
 msgid "Scanning directory : %s"
 msgstr ""
 
-#: src/encrypt.c:377
+#: src/encrypt.c:376
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:397
+#: src/encrypt.c:396
 #| Found %i entries in %s
 msgid "Found %i entries in %s"
 msgstr ""
 
-#: src/encrypt.c:412
+#: src/encrypt.c:408
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:423
+#: src/encrypt.c:419
 #| Ignoring unsupported file type [%d] : %s
 msgid "Ignoring unsupported file type [%d] : %s"
 msgstr ""
 
-#: src/encrypt.c:439
+#: src/encrypt.c:435
 #| Storing directory : %s
 msgid "Storing directory : %s"
 msgstr ""
 
-#: src/encrypt.c:446
+#: src/encrypt.c:442
 #| Encrypting file : %s
 msgid "Encrypting file : %s"
 msgstr ""
 
-#: src/encrypt.c:475
+#: src/encrypt.c:471
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/encrypt.c:488
+#: src/encrypt.c:482
 #. See src/io.po for "IO error" translation
 
-#: src/encrypt.c:522
+#: src/encrypt.c:514
 #. See src/io.po for "IO error" translation
