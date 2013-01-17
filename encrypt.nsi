@@ -86,9 +86,9 @@ Section "encrypt" SEC01
   File "pixmaps\encrypt.png"
   File "pixmaps\encrypt_button.png"
 
-  SetOutPath "$INSTDIR\utils"
-  File "utils\encrypt_w32.glade"
-  File "utils\_encryptrc"
+  SetOutPath "$INSTDIR\etc"
+  File "etc\encrypt_w32.glade"
+  File "etc\_encryptrc"
 
   SetOutPath "$INSTDIR"
   CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
@@ -164,8 +164,8 @@ Section Uninstall
   Delete "$INSTDIR\pixmaps\encrypt_button.png"
   Delete "$INSTDIR\pixmaps\encrypt.png"
 
-  Delete "$INSTDIR\utils\encrypt_w32.glade"
-  Delete "$INSTDIR\utils\_encryptrc"
+  Delete "$INSTDIR\etc\encrypt_w32.glade"
+  Delete "$INSTDIR\etc\_encryptrc"
 
   Delete "$INSTDIR\uninst.exe"
 
@@ -177,7 +177,7 @@ Section Uninstall
   RMDir "$SMPROGRAMS\encrypt"
   RMDir "$INSTDIR\docs"
   RMDIR "$INSTDIR\pixmaps"
-  RMDIR "$INSTDIR\utils"
+  RMDIR "$INSTDIR\etc"
   RMDir "$INSTDIR"
 
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"

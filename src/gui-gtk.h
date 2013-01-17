@@ -29,12 +29,12 @@
 
 #ifndef _WIN32
     #if defined __DEBUG__ || defined __DEBUG_GUI__
-        #define GLADE_UI_FILE "utils/encrypt.glade"
+        #define GLADE_UI_FILE "etc/encrypt.glade"
     #else
         #define GLADE_UI_FILE "/usr/share/encrypt/" "encrypt.glade"
     #endif
 #else
-    #define GLADE_UI_FILE "utils\\encrypt_w32.glade"
+    #define GLADE_UI_FILE "etc\\encrypt_w32.glade"
 #endif
 
 typedef struct gtk_widgets_t
