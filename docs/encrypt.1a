@@ -2,7 +2,7 @@
 .SH NAME
 encrypt \- A simple, cross platform, file encryption application
 .SH SYNOPSIS
-encrypt [\fI\-c\fR \fBalgorithm\fR] [\fI\-s\fR \fBalgorithm\fR] [\fI\-k/\-p\fR \fBpassword source\fR] [\fBsource file\fR] [\fBdestination file\fR]
+encrypt [\fI\-c\fR \fBalgorithm\fR] [\fI\-s\fR \fBalgorithm\fR] [\fI\-k\fR \fBkey\fR/\fI\-p\fR \fBpassword\fR] [\fBsource\fR] [\fBdestination\fR]
 .SH DESCRIPTION
 \fBencrypt\fR is a simple, cross platform, file encryption application---suitable for any modern desktop or mobile operating system. The GUI, either GTK or native, has been desigen to be common across systems and intuitive to use, whilst still providing command-line capabilities for power-users.
 .SH OPTIONS
@@ -27,7 +27,9 @@ encrypt [\fI\-c\fR \fBalgorithm\fR] [\fI\-s\fR \fBalgorithm\fR] [\fI\-k/\-p\fR \
 .TP
 \fI\-x\fR, \fI\-\-no-compress\fR \fBFILE\fR Do not compress the plaintext using the xz algorithm
 .PP
-If either the source file or destination file are omitted then stdin/stdout are used. When encrypting, both \fB\-s\fR and \fB\-c\fR are required to specify the algorithms you wish to use; when decrypting the algorithms originally used are read from the encrypted file.
+If either the source file or destination file are omitted then stdin/stdout are used. When encrypting, both \fB\-s\fR and \fB\-c\fR are required\fI*\fR to specify the algorithms you wish to use; when decrypting the algorithms originally used are read from the encrypted file.
+.PP
+\fI* You can omit the algorithm options if you can configured defaults in ~/.encryptrc\fR
 .PP
 If you do not specify either a key or a password, you will be prompted to enter a password. This will then be used to generate a key to encrypt the data with (using the specified hash).
 .SH AUTHOR

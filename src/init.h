@@ -24,7 +24,7 @@
 #define APP_NAME "encrypt"
 #define ALT_NAME "decrypt"
 
-#define APP_USAGE "[-c algorithm] [-s algorithm] [-k key/-p password] [-x] [input] [output]"
+#define APP_USAGE "[-c algorithm] [-s algorithm] [-k key/-p password] [-x] [source] [destination]"
 #define ALT_USAGE "[-k key/-p password] [input] [output]"
 
 #ifndef _WIN32
