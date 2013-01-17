@@ -346,8 +346,8 @@ static uint64_t read_version(crypto_t *c)
             log_message(LOG_INFO, _("File encrypted with version 2012.11"));
             return HEADER_VERSION_201211;
 
-        case HEADER_VERSION_LATEST:
-            log_message(LOG_INFO, _("File encrypted with development version"));
+        case HEADER_VERSION_201302:
+            log_message(LOG_INFO, _("File encrypted with version 2013.02"));
             return HEADER_VERSION_LATEST;
 
         default:
