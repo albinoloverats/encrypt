@@ -213,7 +213,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
                  * TODO get algorithms from this function
                  */
                 char *c = NULL, *h = NULL;
-                if (!(_ encrypting = file_encrypted(open_file)))
+                if (!(_encrypting = file_encrypted(open_file)))
                     auto_select_algorithms(data, c, h);
                 close(f);
                 gtk_button_set_label((GtkButton *)data->encrypt_button, _encrypting ? LABEL_ENCRYPT : LABEL_DECRYPT);
