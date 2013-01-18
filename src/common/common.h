@@ -45,11 +45,6 @@
     #define F_WRLCK NOTSET /*!< Set value to NOTSET */
 #endif
 
-#ifdef __FreeBSD__
-    #define S_IRUSR NOTSET /*!< Unsupported on FreeBSD */
-    #define S_IWUSR NOTSET /*!< Unsupported on FreeBSD */
-#endif
-
 #ifndef __bswap_64
     #define __bswap_64(x) /*!< Define ourselves a 8-byte swap macro */ \
         ((((x) & 0xff00000000000000ull) >> 56) \
