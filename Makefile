@@ -8,7 +8,7 @@ COMMON   = src/common/error.c src/common/logging.c src/common/tlv.c src/common/v
 
 CFLAGS   = -Wall -Wextra -Werror -Wno-unused-parameter -std=gnu99 `libgcrypt-config --cflags` -pipe -O2
 CPPFLAGS = -Isrc -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DLOG_DEFAULT=LOG_ERROR
-GUIFLAGS = -DBUILD_GUI `pkg-config --cflags gtk+-3.0 gmodule-2.0` -D__DEBUG_GUI__
+GUIFLAGS = -DBUILD_GUI `pkg-config --cflags gtk+-3.0 gmodule-2.0`
 
 LIBS     = `libgcrypt-config --libs` -lpthread -lcurl -llzma
 GUILIBS  = `pkg-config --libs gtk+-3.0 gmodule-2.0`
