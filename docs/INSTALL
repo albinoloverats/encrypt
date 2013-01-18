@@ -44,8 +44,6 @@ For non-GNU/Linux
   - Install libgcrypt, xz and curl
   - Use Xcode to build a native OS X application: Encrypt.app
 
-There is currently no Mac OS X installer because of the Homebrew issue.
-
 * Android
   - gnu-crypto.jar
   - xz-1.0.jar
