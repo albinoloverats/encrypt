@@ -84,7 +84,7 @@ static crypto_status_e *_status = NULL;
 
 extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash)
 {
-    char **ciphers = list_of_ciphers();
+    const char **ciphers = list_of_ciphers();
     unsigned slctd_cipher = 0;
     for (unsigned i = 0; ciphers[i]; i++)
     {
@@ -98,12 +98,10 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 #else
         gtk_combo_box_append_text((GtkComboBox *)data->crypto_combo, ciphers[i]);
 #endif
-        free(ciphers[i]);
     }
     gtk_combo_box_set_active((GtkComboBox *)data->crypto_combo, slctd_cipher);
-    free(ciphers);
 
-    char **hashes = list_of_hashes();
+    const char **hashes = list_of_hashes();
     unsigned slctd_hash = 0;
     for (unsigned  i = 0; hashes[i]; i++)
     {
@@ -117,10 +115,8 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 #else
         gtk_combo_box_append_text((GtkComboBox *)data->hash_combo, hashes[i]);
 #endif
-        free(hashes[i]);
     }
     gtk_combo_box_set_active((GtkComboBox *)data->hash_combo, slctd_hash);
-    free(hashes);
 
     return;
 }
@@ -482,15 +478,9 @@ static void *gui_process(void *d)
     {
         int c = gtk_combo_box_get_active((GtkComboBox *)data->crypto_combo);
         int h = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
-        char **ciphers = list_of_ciphers();
-        char **hashes = list_of_hashes();
+        const char **ciphers = list_of_ciphers();
+        const char **hashes = list_of_hashes();
         x = encrypt_init(source, output, ciphers[c - 1], hashes[h - 1], key, length, _compress);
-        for (int i = 0; ciphers[i]; i++)
-            free(ciphers[i]);
-        free(ciphers);
-        for (int i = 0; hashes[i]; i++)
-            free(hashes[i]);
-        free(hashes);
     }
     else
         x = decrypt_init(source, output, key, length);

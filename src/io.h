@@ -62,7 +62,7 @@ io_extra_t;
  * Open a file. Using these IO functions wraps the typical IO functions
  * with encryption and compression support.
  */
-extern IO_HANDLE io_open(const char *n, int f, mode_t m);
+extern IO_HANDLE io_open(const char *n, int f, mode_t m) __attribute__((malloc, nonnull(1)));
 
 /*!
  * \brief         Destroy an IO instance
@@ -70,7 +70,7 @@ extern IO_HANDLE io_open(const char *n, int f, mode_t m);
  *
  * Close's the file and free resources when no longer needed.
  */
-extern int io_close(IO_HANDLE h);
+extern int io_close(IO_HANDLE h) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Get IO instance for STDIN
@@ -96,7 +96,7 @@ extern IO_HANDLE io_use_stdout(void);
  *
  * Returns true if IO_HANDLE instance is STDIN stream.
  */
-extern bool io_is_stdin(IO_HANDLE h);
+extern bool io_is_stdin(IO_HANDLE h) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Check if IO instance is STDOUT
@@ -105,7 +105,7 @@ extern bool io_is_stdin(IO_HANDLE h);
  *
  * Returns true if IO_HANDLE instance is STDOUT stream.
  */
-extern bool io_is_stdout(IO_HANDLE h);
+extern bool io_is_stdout(IO_HANDLE h) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Write data
@@ -118,7 +118,7 @@ extern bool io_is_stdout(IO_HANDLE h);
  * necessary operations before it is actually written. Returns the
  * number of bytes actually written.
  */
-extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l);
+extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l) __attribute__((nonnull(1, 2)));
 
 /*!
  * \brief         Read data
@@ -130,7 +130,7 @@ extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l);
  * Read the specified number of bytes from the given file descriptor,
  * performing any necessary operations before it's returned.
  */
-extern ssize_t io_read(IO_HANDLE f, void *d, size_t l);
+extern ssize_t io_read(IO_HANDLE f, void *d, size_t l) __attribute__((nonnull(1, 2)));
 
 /*!
  * \brief         Sync data waiting to be written
@@ -138,7 +138,7 @@ extern ssize_t io_read(IO_HANDLE f, void *d, size_t l);
  *
  * Performs a sync of all outstanding data to be written.
  */
-extern int io_sync(IO_HANDLE f);
+extern int io_sync(IO_HANDLE f) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Seek to position in file
@@ -150,7 +150,7 @@ extern int io_sync(IO_HANDLE f);
  * This function is the same as lseek(), in both the accepted values
  * for the offset and whence, as well as the return value.
  */
-extern off_t io_seek(IO_HANDLE f, off_t o, int w);
+extern off_t io_seek(IO_HANDLE f, off_t o, int w) __attribute__((nonnull(1)));
 
 /*
  * \brief         Encryption/Decryption initialisation
@@ -164,7 +164,7 @@ extern off_t io_seek(IO_HANDLE f, off_t o, int w);
  * Initialise encryption/decryption of data read/written. This is then
  * active for the rest of the life of the IO_HANDLE.
  */
-extern void io_encryption_init(IO_HANDLE f, const char *c, const char *h, const uint8_t *k, size_t l, io_extra_t x);
+extern void io_encryption_init(IO_HANDLE f, const char *c, const char *h, const uint8_t *k, size_t l, io_extra_t x) __attribute__((nonnull(1, 2, 3, 4)));
 
 /*
  * \brief         Compression initialisation
@@ -173,23 +173,26 @@ extern void io_encryption_init(IO_HANDLE f, const char *c, const char *h, const 
  * Turn on compression/decompression for the rest of the life of this
  * handle.
  */
-extern void io_compression_init(IO_HANDLE f);
+extern void io_compression_init(IO_HANDLE f) __attribute__((nonnull(1)));
 
 /*
  * \brief         Read/Write data checksum initialisation
  * \param[in]  f  An IO instance
+ * \param[in]  h  Name of hash to use for checksum calculations
  *
  * For all subsequent data that is read/written feed it through a hash
  * function as a way of generating a checksum to detect errors.
  */
-extern void io_encryption_checksum_init(IO_HANDLE f, char *h);
+extern void io_encryption_checksum_init(IO_HANDLE f, char *h) __attribute__((nonnull(1, 2)));
 
 /*
  * \brief         Read/Write data checksum generation
  * \param[in]  f  An IO instance
+ * \param[out] b  A pointer to the calculated checksum
+ * \param[out] h  The length of the checksum
  *
  * Retrieve the hash checksum of all data read/written so far.
  */
-extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l);
+extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l) __attribute__((nonnull(1)));
 
 #endif /* ! _ENCRYPT_IO_H_ */

@@ -71,7 +71,7 @@ args_t;
  * options where set. Removes a lot of the cruft from the legacy common
  * code that used to exist here.
  */
-extern args_t init(int argc, char **argv);
+extern args_t init(int argc, char **argv) __attribute__((nonnull(2)));
 
 extern void init_deinit(args_t args);
 
@@ -82,7 +82,7 @@ extern void init_deinit(args_t args);
  *
  * Set or update the given configuration option with the given value.
  */
-extern void update_config(char *o, char *v);
+extern void update_config(char *o, char *v) __attribute__((nonnull(1, 2)));
 
 /*!
  * \brief         Show list of command line options

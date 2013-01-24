@@ -53,29 +53,25 @@ static bool running = false;
 
     args_t args = init(0, NULL);
 
-    char **ciphers = list_of_ciphers();
+    const char **ciphers = list_of_ciphers();
     unsigned slctd_cipher = 0;
     for (unsigned i = 0; ciphers[i]; i++)
     {
         if (args.cipher && !strcasecmp(ciphers[i], args.cipher))
             slctd_cipher = i + 1;
         [_cipherCombo addItemWithTitle:[NSString stringWithUTF8String:ciphers[i]]];
-        free(ciphers[i]);
     }
     [_cipherCombo selectItemAtIndex:slctd_cipher];
-    free(ciphers);
 
-    char **hashes = list_of_hashes();
+    const char **hashes = list_of_hashes();
     unsigned slctd_hash = 0;
     for (unsigned  i = 0; hashes[i]; i++)
     {
         if (args.hash && !strcasecmp(hashes[i], args.hash))
             slctd_hash = i + 1;
         [_hashCombo addItemWithTitle:[NSString stringWithUTF8String:hashes[i]]];
-        free(hashes[i]);
     }
     [_hashCombo selectItemAtIndex:slctd_hash];
-    free(hashes);
 
     long i = [_sourceFileChooser numberOfItems];
     bool z = true;

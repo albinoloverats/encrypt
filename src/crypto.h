@@ -161,7 +161,7 @@ extern void init_crypto(void);
  * backgrounded to allow the foreground to keep the UI updated (if
  * necessary).
  */
-extern void execute(crypto_t *c);
+extern void execute(crypto_t *c) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Get a meaningful status message
@@ -171,7 +171,7 @@ extern void execute(crypto_t *c);
  * Get a meaningful status message which corresponds to the current
  * status of the crypto instance.
  */
-extern const char *status(const crypto_t * const restrict c);
+extern const char *status(const crypto_t * const restrict c) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Deinitialise a cryptographic instance
@@ -180,25 +180,27 @@ extern const char *status(const crypto_t * const restrict c);
  * Free's the resources used by the crypto instance after it is no
  * longer needed.
  */
-extern void deinit(crypto_t **c);
+extern void deinit(crypto_t **c) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Get list of usable ciphers
  * \return        An array of char* of cipher names
  *
  * Get an array of strings which lists the names of usable cipher
- * algorithms. NB: The array and its elements should be freed after use!
+ * algorithms. NB: The array is allocated statically and SHOULD NOT be
+ * free'd (or otherwise altered).
  */
-extern char **list_of_ciphers(void);
+extern const char **list_of_ciphers(void) __attribute__((pure));
 
 /*!
  * \brief         Get list of usable hashes
  * \return        An array of char* of hash names
  *
  * Get an array of strings which lists the names of usable hash
- * algorithms. NB: The array and its elements should be freed after use!
+ * algorithms. NB: The array is allocated statically and SHOULD NOT be
+ * free'd (or otherwise altered).
  */
-extern char **list_of_hashes(void);
+extern const char **list_of_hashes(void) __attribute__((pure));
 
 /*!
  * \brief         Get cipher ID, given its name
@@ -207,7 +209,7 @@ extern char **list_of_hashes(void);
  *
  * Get the ID used internally by libgcrypt for the given cipher name.
  */
-extern int cipher_id_from_name(const char * const restrict n);
+extern int cipher_id_from_name(const char * const restrict n) __attribute__((pure, nonnull(1)));
 
 /*!
  * \brief         Get hash ID, given its name
@@ -216,7 +218,7 @@ extern int cipher_id_from_name(const char * const restrict n);
  *
  * Get the ID used internally by libgcrypt for the given hash name.
  */
-extern int hash_id_from_name(const char * const restrict n);
+extern int hash_id_from_name(const char * const restrict n) __attribute__((pure, nonnull(1)));
 
 /*!
  * \brief         Determine if a file is encrypted
@@ -225,6 +227,6 @@ extern int hash_id_from_name(const char * const restrict n);
  *
  * Returns true if the file is encrytped, false otherwise.
  */
-extern bool file_encrypted(const char *n);
+extern bool file_encrypted(const char *n) __attribute__((nonnull(1)));
 
 #endif /* ! _ENCRYPT_CRYPTO_H */

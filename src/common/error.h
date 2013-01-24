@@ -40,6 +40,6 @@
  * Display the given error message and bail out - mostly for 'out of memory'
  * errors which cannot be recovered from.
  */
-extern void die(const char * const restrict s, ...) __attribute__((noreturn, format(printf, 1, 2)));
+extern void die(const char * const restrict s, ...) __attribute__((noreturn, nonnull(1), format(printf, 1, 2)));
 
 #endif /* _COMMON_ERROR_H_ */

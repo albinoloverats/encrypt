@@ -114,6 +114,6 @@ extern void log_binary(log_e l, const void * const restrict v, uint64_t s) __att
  * Trace out a text message to either a logfile or stderr, using the
  * given log level value.
  */
-extern void log_message(log_e l, const char * const restrict s, ...) __attribute__((format(printf, 2, 3)));
+extern void log_message(log_e l, const char * const restrict s, ...) __attribute__((nonnull(2), format(printf, 2, 3)));
 
 #endif /* _COMMON_LOG_H_ */

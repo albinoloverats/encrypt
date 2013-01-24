@@ -32,7 +32,7 @@ typedef struct
 }
 bps_t;
 
-extern void cli_display(crypto_t *);
-extern float cli_calc_bps(bps_t *);
+extern void cli_display(crypto_t *) __attribute__((nonnull(1)));
+extern float cli_calc_bps(bps_t *) __attribute__((nonnull(1)));
 
 #endif /* _ENCRYPT_CLI_H_ */

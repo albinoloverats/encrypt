@@ -64,7 +64,7 @@ tlv_t;
  * Create a new TLV array instance; all further operations are then
  * performed against this handle. Returns NULL on error.
  */
-extern TLV_HANDLE tlv_init(void);
+extern TLV_HANDLE tlv_init(void) __attribute__((malloc));
 
 /*!
  * \brief         Destroy a TLV array
