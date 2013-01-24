@@ -57,8 +57,8 @@
     #include "gui-gtk.h"
 #endif
 
-extern char *gtk_file_hack_cipher;
-extern char *gtk_file_hack_hash;
+extern char *gui_file_hack_source;
+extern char *gui_file_hack_output;
 
 static bool list_ciphers(void);
 static bool list_hashes(void);
@@ -173,15 +173,15 @@ int main(int argc, char **argv)
         if (args.source)
         {
             char *cwd = getcwd(NULL, 0);
-            asprintf(&gtk_file_hack_cipher, "%s/%s", cwd, args.source);
-            gtk_file_chooser_set_filename((GtkFileChooser *)widgets->open_dialog, gtk_file_hack_cipher);
+            asprintf(&gui_file_hack_source, "%s/%s", cwd, args.source);
+            gtk_file_chooser_set_filename((GtkFileChooser *)widgets->open_dialog, gui_file_hack_source);
             free(cwd);
         }
         if (args.output)
         {
             char *cwd = getcwd(NULL, 0);
-            asprintf(&gtk_file_hack_hash, "%s/%s", cwd, args.output);
-            gtk_file_chooser_set_filename((GtkFileChooser *)widgets->save_dialog, gtk_file_hack_hash);
+            asprintf(&gui_file_hack_output, "%s/%s", cwd, args.output);
+            gtk_file_chooser_set_filename((GtkFileChooser *)widgets->save_dialog, gui_file_hack_output);
             free(cwd);
         }
 

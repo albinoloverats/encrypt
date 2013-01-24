@@ -90,7 +90,4 @@ G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *widget, gtk_widgets_t *da
 
 extern void set_status_bar(GtkStatusbar *status_bar, const char *status);
 
-extern char *gtk_file_hack_cipher;
-extern char *gtk_file_hack_hash;
-
 #endif /* _ENCRYPT_GUI_GTK_H_ */

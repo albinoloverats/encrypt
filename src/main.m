@@ -22,5 +22,11 @@
 
 int main(int argc, char *argv[])
 {
+#if 0
+    fprintf(stderr, "%d :", argc);
+    for (int i = 0; argv[i]; i++)
+        fprintf(stderr, " %s", argv[i]);
+    fprintf(stderr, "\n");
+#endif
     return NSApplicationMain(argc, (const char **)argv);
 }

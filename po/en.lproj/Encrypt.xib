@@ -1257,6 +1257,14 @@
 					<object class="IBActionConnection" key="connection">
 						<string key="label">ioFileChoosen:</string>
 						<reference key="source" ref="976324537"/>
+						<reference key="destination" ref="82871881"/>
+					</object>
+					<int key="connectionID">812</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">ioFileChoosen:</string>
+						<reference key="source" ref="976324537"/>
 						<reference key="destination" ref="383303525"/>
 					</object>
 					<int key="connectionID">809</int>

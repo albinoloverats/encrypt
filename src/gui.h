@@ -26,4 +26,7 @@
 #define LABEL_ENCRYPT "Encrypt"
 #define LABEL_DECRYPT "Decrypt"
 
+extern char *gui_file_hack_source;
+extern char *gui_file_hack_output;
+
 #endif /* _ENCRYPT_GUI_H_ */

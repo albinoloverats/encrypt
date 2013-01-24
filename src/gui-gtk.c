@@ -68,8 +68,8 @@ key_type_e;
  * FIXME There has to be a way to make gtk_file_chooser_set_filename
  * work correctly
  */
-char *gtk_file_hack_cipher = NULL;
-char *gtk_file_hack_hash = NULL;
+char *gui_file_hack_source = NULL;
+char *gui_file_hack_output = NULL;
 
 inline static void set_progress_bar(GtkProgressBar *, float);
 inline static void set_progress_button(GtkButton *, bool);
@@ -189,7 +189,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
      */
     char *open_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog);
     if (!open_file)
-        open_file = gtk_file_hack_cipher;
+        open_file = gui_file_hack_source;
     if (open_file) /* if at first you don't succeed, try, try again */
         open_file = _filename_utf8(open_file);
     if (!open_file || !strlen(open_file))
@@ -236,7 +236,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
 
     char *save_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog);
     if (!save_file)
-        save_file = gtk_file_hack_hash;
+        save_file = gui_file_hack_output;
     if (save_file)
         save_file = _filename_utf8(save_file);
     if (!save_file || !strlen(save_file))

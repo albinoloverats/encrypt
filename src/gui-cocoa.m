@@ -20,7 +20,7 @@
 
 #import <sys/stat.h>
 #import <sys/time.h>
-
+#import <string.h>
 #import <math.h>
 
 #import "gui.h"
@@ -37,6 +37,11 @@
 #import "cli.h"
 
 @implementation AppDelegate
+
+#if 0
+char *gui_file_hack_source = NULL;
+char *gui_file_hack_output = NULL;
+#endif
 
 static bool encrypted = true;
 static bool compress = true;
@@ -88,6 +93,13 @@ static bool running = false;
         [_sourceFileChooser removeItemAtIndex:k];
         k--;
     }
+#if 0
+    if (gui_file_hack_source)
+    {
+        [_sourceFileChooser addItemWithTitle:[NSString stringWithUTF8String:basename(gui_file_hack_source)]];
+        [NSUserDefaults.standardUserDefaults setValue:[NSUserDefaults.standardUserDefaults valueForKeyPath:@SOURCE_FILE] forKeyPath:[NSString stringWithUTF8String:gui_file_hack_source]];
+    }
+#endif
 
     i = [_outputFileChooser numberOfItems];
     z = true;
@@ -105,6 +117,13 @@ static bool running = false;
         [_outputFileChooser removeItemAtIndex:k];
         k--;
     }
+#if 0
+    if (gui_file_hack_output)
+    {
+        [_outputFileChooser addItemWithTitle:[NSString stringWithUTF8String:gui_file_hack_output]];
+        [NSUserDefaults.standardUserDefaults setValue:[NSUserDefaults.standardUserDefaults valueForKeyPath:@OUTPUT_FILE] forKeyPath:[NSString stringWithUTF8String:gui_file_hack_output]];
+    }
+#endif
 
     i = [_keyFileChooser numberOfItems];
     z = true;
