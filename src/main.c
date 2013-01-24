@@ -44,10 +44,7 @@
 #endif
 
 #include "init.h"
-#include "main.h"
-
 #include "cli.h"
-
 #include "crypto.h"
 #include "encrypt.h"
 #include "decrypt.h"
@@ -271,26 +268,22 @@ eop:
 
 static bool list_ciphers(void)
 {
-    char **l = list_of_ciphers();
+    const char **l = list_of_ciphers();
     for (int i = 0; l[i] ; i++)
     {
         if (strlen(l[i]))
             fprintf(stderr, "%s\n", l[i]);
-        free(l[i]);
     }
-    free(l);
     return true;
 }
 
 static bool list_hashes(void)
 {
-    char **l = list_of_hashes();
+    const char **l = list_of_hashes();
     for (int i = 0; l[i]; i++)
     {
         if (strlen(l[i]))
             fprintf(stderr, "%s\n", l[i]);
-        free(l[i]);
     }
-    free(l);
     return true;
 }

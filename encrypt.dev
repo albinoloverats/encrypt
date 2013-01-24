@@ -208,16 +208,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit17]
-FileName=src\main.h
-CompileCpp=0
-Folder=src
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit18]
 FileName=src\common\version.h
 CompileCpp=0
 Folder=src/common
@@ -227,7 +217,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit19]
+[Unit18]
 FileName=src\common\tlv.c
 CompileCpp=0
 Folder=src/common
@@ -237,7 +227,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit20]
+[Unit19]
 FileName=src\common\tlv.h
 CompileCpp=0
 Folder=src/common
@@ -247,7 +237,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit21]
+[Unit20]
 FileName=src\common\version.c
 CompileCpp=0
 Folder=src/common
@@ -257,7 +247,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit23]
+[Unit22]
 FileName=src\crypto.c
 CompileCpp=0
 Folder=src
@@ -267,7 +257,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit24]
+[Unit23]
 FileName=src\crypto.h
 CompileCpp=0
 Folder=src
@@ -277,7 +267,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit25]
+[Unit24]
 FileName=src\decrypt.c
 CompileCpp=0
 Folder=src
@@ -287,7 +277,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit26]
+[Unit25]
 FileName=src\decrypt.h
 CompileCpp=0
 Folder=src
@@ -297,7 +287,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit27]
+[Unit26]
 FileName=src\gui.h
 CompileCpp=0
 Folder=src
@@ -307,7 +297,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit28]
+[Unit27]
 FileName=src\cli.c
 CompileCpp=0
 Folder=src
@@ -317,7 +307,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit22]
+[Unit21]
 FileName=src\cli.h
 CompileCpp=0
 Folder=src
