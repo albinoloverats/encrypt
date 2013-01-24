@@ -147,70 +147,76 @@ extern void deinit(crypto_t **c)
     return;
 }
 
-extern char **list_of_ciphers(void)
+extern const char **list_of_ciphers(void)
 {
     init_crypto();
 
     int lid[0xff] = { 0x00 };
     int len = sizeof lid;
     gcry_cipher_list(lid, &len);
-    char **l = malloc(sizeof( char * ));
+    static char **l = NULL;
     if (!l)
-        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
-    int j = 0;
-    for (int i = 0; i < len; i++)
     {
-        const char *n = gcry_cipher_algo_name(lid[i]);
-        if (!n)
-            continue;
-        else if (!strncasecmp(n, NAME_AES, strlen(NAME_AES)))
-            l[j] = correct_aes_rijndael(n);
-        else if (!strcasecmp(n, NAME_BLOWFISH))
-            l[j] = correct_blowfish128(n);
-        else if (!strcasecmp(n, NAME_TWOFISH))
-            l[j] = correct_twofish256(n);
-        else
-            l[j] = strdup(n);
-        j++;
-        char **x = realloc(l, (j + 1) * sizeof( char * ));
-        if (!x)
-            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, (j + 1) * sizeof( char * ));
-        l = x;
+        if (!(l = malloc(sizeof( char * ))))
+            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
+        int j = 0;
+        for (int i = 0; i < len; i++)
+        {
+            const char *n = gcry_cipher_algo_name(lid[i]);
+            if (!n)
+                continue;
+            else if (!strncasecmp(n, NAME_AES, strlen(NAME_AES)))
+                l[j] = correct_aes_rijndael(n);
+            else if (!strcasecmp(n, NAME_BLOWFISH))
+                l[j] = correct_blowfish128(n);
+            else if (!strcasecmp(n, NAME_TWOFISH))
+                l[j] = correct_twofish256(n);
+            else
+                l[j] = strdup(n);
+            j++;
+            char **x = realloc(l, (j + 1) * sizeof( char * ));
+            if (!x)
+                die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, (j + 1) * sizeof( char * ));
+            l = x;
+        }
+        l[j] = NULL;
+        qsort(l, j, sizeof( char * ), algorithm_compare);
     }
-    l[j] = NULL;
-    qsort(l, j, sizeof( char * ), algorithm_compare);
-    return l;
+    return (const char **)l;
 }
 
-extern char **list_of_hashes(void)
+extern const char **list_of_hashes(void)
 {
     init_crypto();
 
     int lid[0xff] = { 0x00 };
     int len = sizeof lid;
     gcry_md_list(lid, &len);
-    char **l = malloc(sizeof( char * ));
+    static char **l = NULL;
     if (!l)
-        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
-    int j = 0;
-    for (int i = 0; i < len; i++)
     {
-        const char *n = gcry_md_algo_name(lid[i]);
-        if (!n || algorithm_is_duplicate(n))
-            continue;
-        else if (!strncasecmp(n, NAME_SHA1, strlen(NAME_SHA1) - 1))
-            l[j] = correct_sha1(n);
-        else
-            l[j] = strdup(n);
-        j++;
-        char **x = realloc(l, (j + 1) * sizeof( char * ));
-        if (!x)
-            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, (j + 1) * sizeof( char * ));
-        l = x;
+        if (!(l = malloc(sizeof( char * ))))
+            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
+        int j = 0;
+        for (int i = 0; i < len; i++)
+        {
+            const char *n = gcry_md_algo_name(lid[i]);
+            if (!n || algorithm_is_duplicate(n))
+                continue;
+            else if (!strncasecmp(n, NAME_SHA1, strlen(NAME_SHA1) - 1))
+                l[j] = correct_sha1(n);
+            else
+                l[j] = strdup(n);
+            j++;
+            char **x = realloc(l, (j + 1) * sizeof( char * ));
+            if (!x)
+                die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, (j + 1) * sizeof( char * ));
+            l = x;
+        }
+        l[j] = NULL;
+        qsort(l, j, sizeof( char * ), algorithm_compare);
     }
-    l[j] = NULL;
-    qsort(l, j, sizeof( char * ), algorithm_compare);
-    return l;
+    return (const char **)l;
 }
 
 extern int cipher_id_from_name(const char * const restrict n)
