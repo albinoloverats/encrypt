@@ -78,7 +78,7 @@ static void *gui_process(void *);
 inline static void gui_display(crypto_t *, gtk_widgets_t *);
 
 static gboolean _files = false;
-static bool _encrypting = true;
+static bool _encrypted = false;
 static bool _compress = true;
 static crypto_status_e *_status = NULL;
 
@@ -192,37 +192,20 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
         en = FALSE;
     else
     {
-        /*
-         * quickly see if the file is encrypted already
-         */
         struct stat s;
         stat(open_file, &s);
-        if (S_ISREG(s.st_mode))
+        if (S_ISREG(s.st_mode) || S_ISDIR(s.st_mode))
         {
-            int64_t f = open(open_file, O_RDONLY | O_BINARY | F_RDLCK, S_IRUSR | S_IWUSR);
-            if (f > 0)
-            {
-                gtk_label_set_text((GtkLabel *)data->open_file_label, basename(open_file));
-                gtk_widget_show(data->open_file_image);
-
-                /*
-                 * TODO get algorithms from this function
-                 */
-                char *c = NULL, *h = NULL;
-                if (!(_encrypting = file_encrypted(open_file)))
-                    auto_select_algorithms(data, c, h);
-                close(f);
-                gtk_button_set_label((GtkButton *)data->encrypt_button, _encrypting ? LABEL_ENCRYPT : LABEL_DECRYPT);
-            }
-            else
-                en = FALSE;
-        }
-        else if (S_ISDIR(s.st_mode))
-        {
-            _encrypting = true;
             gtk_label_set_text((GtkLabel *)data->open_file_label, basename(open_file));
             gtk_widget_show(data->open_file_image);
-            gtk_button_set_label((GtkButton *)data->encrypt_button, LABEL_ENCRYPT);
+            /*
+             * quickly see if the file is encrypted already
+             */
+            char *c = NULL, *h = NULL;
+            if ((_encrypted = file_encrypted(open_file, &c, &h)))
+                auto_select_algorithms(data, c, h);
+            gtk_button_set_label((GtkButton *)data->encrypt_button, _encrypted ? LABEL_DECRYPT : LABEL_ENCRYPT);
+            en = TRUE;
         }
         else
             en = FALSE;
@@ -257,15 +240,15 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
 
     _files = en;
 
-    if (_encrypting)
+    if (_encrypted)
+        gtk_widget_set_sensitive(data->key_combo, en);
+    else
     {
         gtk_widget_set_sensitive(data->crypto_combo, en);
         gtk_widget_set_sensitive(data->hash_combo, en);
         if (en)
             algorithm_combo_callback(NULL, data);
     }
-    else
-        gtk_widget_set_sensitive(data->key_combo, en);
 
     return TRUE;
 }
@@ -474,7 +457,9 @@ static void *gui_process(void *d)
     }
 
     crypto_t *x;
-    if (_encrypting)
+    if (_encrypted)
+        x = decrypt_init(source, output, key, length);
+    else
     {
         int c = gtk_combo_box_get_active((GtkComboBox *)data->crypto_combo);
         int h = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
@@ -482,8 +467,6 @@ static void *gui_process(void *d)
         const char **hashes = list_of_hashes();
         x = encrypt_init(source, output, ciphers[c - 1], hashes[h - 1], key, length, _compress);
     }
-    else
-        x = decrypt_init(source, output, key, length);
 
     _status = &x->status;
 

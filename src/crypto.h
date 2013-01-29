@@ -220,13 +220,25 @@ extern int cipher_id_from_name(const char * const restrict n) __attribute__((pur
  */
 extern int hash_id_from_name(const char * const restrict n) __attribute__((pure, nonnull(1)));
 
+
+#define IS_ENCRYPTED_ARGS_COUNT(...) IS_ENCRYPTED_ARGS_COUNT2(__VA_ARGS__, 3, 2, 1)
+#define IS_ENCRYPTED_ARGS_COUNT2(_1, _2, _3, _, ...) _
+
+#define file_encrypted_1(A)        file_encrypted_aux(false, A, NULL, NULL)
+#define file_encrypted_3(A, B, C)  file_encrypted_aux(true, A, B, C)
+#define file_encrypted(...) CONCAT(file_encrypted_, IS_ENCRYPTED_ARGS_COUNT(__VA_ARGS__))(__VA_ARGS__)
+
 /*!
  * \brief         Determine if a file is encrypted
+ * \param[in]  b  Whether passing in 3 arguments or not
  * \param[in]  n  The file path/name
- * \return        Whether the file is encrypted
+ * \param[out] c  Pointer to cipher (free when no longer needed)
+ * \param[out] h  Pointer to hash (free when no longer needed)
+ * \return        The version of encrypted used
  *
- * Returns true if the file is encrytped, false otherwise.
+ * Returns the version of encrypt used to encrypt the file, or 0 if it's
+ * not encrypted.
  */
-extern bool file_encrypted(const char *n) __attribute__((nonnull(1)));
+extern uint64_t file_encrypted_aux(bool b, const char *n, char **c, char **h) __attribute__((nonnull(2)));
 
 #endif /* ! _ENCRYPT_CRYPTO_H */

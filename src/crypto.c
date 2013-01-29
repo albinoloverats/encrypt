@@ -282,27 +282,69 @@ extern int hash_id_from_name(const char * const restrict n)
     return 0;
 }
 
-extern bool file_encrypted(const char *n)
+extern uint64_t file_encrypted_aux(bool b, const char *n, char **c, char **h)
 {
     struct stat s;
     stat(n, &s);
     if (S_ISDIR(s.st_mode))
-        return false;
+        return 0;
     int64_t f = open(n, O_RDONLY | F_RDLCK, S_IRUSR | S_IWUSR);
     if (f < 0)
     {
         log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
-        return false;
+        return 0;
     }
-    uint64_t head[2] = { 0x0 };
+    uint64_t head[3] = { 0x0 };
     if ((read(f, head, sizeof head)) < 0)
     {
         log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
         close(f);
-        return false;
+        return 0;
+    }
+    if (head[0] != htonll(HEADER_0) && head[1] != htonll(HEADER_1))
+    {
+        log_message(LOG_ERROR, _("Data not encrypted"));
+        close(f);
+        return 0;
+    }
+
+    if (b)
+    {
+        uint8_t l;
+        read(f, &l, sizeof l);
+        char *a = calloc(l + sizeof( char ), sizeof( char ));
+        read(f, a, l);
+        char *s = strchr(a, '/');
+        *s = '\0';
+        s++;
+        asprintf(c, "%s", a);
+        asprintf(h, "%s", s);
+        free(a);
     }
     close(f);
-    return head[0] == htonll(HEADER_0) && head[1] == htonll(HEADER_1); /* with the first 16 bytes correct we can be certain enough the file is decryptable */
+
+    switch (ntohll(head[2]))
+    {
+        case HEADER_VERSION_201108: /* original release 2011.08 */
+            log_message(LOG_INFO, _("File encrypted with version 2011.08"));
+            return HEADER_VERSION_201108;
+
+        case HEADER_VERSION_201110:
+            log_message(LOG_INFO, _("File encrypted with version 2011.10"));
+            return HEADER_VERSION_201110;
+
+        case HEADER_VERSION_201211:
+            log_message(LOG_INFO, _("File encrypted with version 2012.11"));
+            return HEADER_VERSION_201211;
+
+        case HEADER_VERSION_201302:
+            log_message(LOG_INFO, _("File encrypted with version 2013.02"));
+            return HEADER_VERSION_201302;
+
+        default:
+            log_message(LOG_ERROR, _("File encrypted with unknown, or more recent release of encrypt"));
+            return 0;
+    }
 }
 
 static int algorithm_compare(const void *a, const void *b)

@@ -101,7 +101,15 @@ int main(int argc, char **argv)
 
     bool fe = false;
     if (args.source)
-        fe = file_encrypted(args.source);
+    {
+        char *c = NULL;
+        char *h = NULL;
+        if ((fe = file_encrypted(args.source, &c, &h)))
+        {
+            args.cipher = c;
+            args.hash = h;
+        }
+    }
 #ifndef _WIN32
     struct stat n;
     fstat(STDIN_FILENO, &n);
