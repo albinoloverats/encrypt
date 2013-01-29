@@ -87,6 +87,4 @@
 - (IBAction)cancelButtonPushed:(id)pId;
 - (IBAction)closeButtonPushed:(id)pId;
 
-- (void)display_gui:(id)pId;
-
 @end

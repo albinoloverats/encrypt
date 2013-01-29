@@ -71,7 +71,7 @@ args_t;
  * options where set. Removes a lot of the cruft from the legacy common
  * code that used to exist here.
  */
-extern args_t init(int argc, char **argv) __attribute__((nonnull(2)));
+extern args_t init(int argc, char **argv);
 
 extern void init_deinit(args_t args);
 

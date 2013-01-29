@@ -53,25 +53,7 @@ static bool running = false;
 
     args_t args = init(0, NULL);
 
-    const char **ciphers = list_of_ciphers();
-    unsigned slctd_cipher = 0;
-    for (unsigned i = 0; ciphers[i]; i++)
-    {
-        if (args.cipher && !strcasecmp(ciphers[i], args.cipher))
-            slctd_cipher = i + 1;
-        [_cipherCombo addItemWithTitle:[NSString stringWithUTF8String:ciphers[i]]];
-    }
-    [_cipherCombo selectItemAtIndex:slctd_cipher];
-
-    const char **hashes = list_of_hashes();
-    unsigned slctd_hash = 0;
-    for (unsigned  i = 0; hashes[i]; i++)
-    {
-        if (args.hash && !strcasecmp(hashes[i], args.hash))
-            slctd_hash = i + 1;
-        [_hashCombo addItemWithTitle:[NSString stringWithUTF8String:hashes[i]]];
-    }
-    [_hashCombo selectItemAtIndex:slctd_hash];
+    [self auto_select_algorithms:args.cipher:args.hash];
 
     long i = [_sourceFileChooser numberOfItems];
     bool z = true;
@@ -170,7 +152,10 @@ static bool running = false;
     /*
      * check if the file is encrypted or not
      */
-    encrypted = file_encrypted(open_file);
+    char *c = NULL;
+    char *h = NULL;
+    if ((encrypted = file_encrypted(open_file, &c, &h)))
+        [self auto_select_algorithms:c:h];
     [_encryptButton setTitle: encrypted ? @LABEL_DECRYPT : @LABEL_ENCRYPT];
 
     if (!save_link || !strlen(save_link))
@@ -433,6 +418,29 @@ clean_up:
 - (IBAction)closeButtonPushed:(id)pId
 {
     [_popup setIsVisible:FALSE];
+}
+
+- (void)auto_select_algorithms:(char *)c:(char *)h
+{
+    const char **ciphers = list_of_ciphers();
+    unsigned slctd_cipher = 0;
+    for (unsigned i = 0; ciphers[i]; i++)
+    {
+        if (c && !strcasecmp(ciphers[i], c))
+            slctd_cipher = i + 1;
+        [_cipherCombo addItemWithTitle:[NSString stringWithUTF8String:ciphers[i]]];
+    }
+    [_cipherCombo selectItemAtIndex:slctd_cipher];
+
+    const char **hashes = list_of_hashes();
+    unsigned slctd_hash = 0;
+    for (unsigned  i = 0; hashes[i]; i++)
+    {
+        if (h && !strcasecmp(hashes[i], h))
+            slctd_hash = i + 1;
+        [_hashCombo addItemWithTitle:[NSString stringWithUTF8String:hashes[i]]];
+    }
+    [_hashCombo selectItemAtIndex:slctd_hash];
 }
 
 @end
