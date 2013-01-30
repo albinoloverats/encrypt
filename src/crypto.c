@@ -303,7 +303,6 @@ extern uint64_t file_encrypted_aux(bool b, const char *n, char **c, char **h)
     }
     if (head[0] != htonll(HEADER_0) && head[1] != htonll(HEADER_1))
     {
-        log_message(LOG_ERROR, _("Data not encrypted"));
         close(f);
         return 0;
     }
