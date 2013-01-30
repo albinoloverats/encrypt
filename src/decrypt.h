@@ -46,6 +46,6 @@
  * ready to be executed. Any other status is a failure. If the input and
  * output file names are NULL, stdin/stdout will be used instead.
  */
-extern crypto_t *decrypt_init(const char * const restrict i, const char * const restrict o, const void * const restrict k, size_t l) __attribute__((nonnull(1, 2, 3)));
+extern crypto_t *decrypt_init(const char * const restrict i, const char * const restrict o, const void * const restrict k, size_t l) __attribute__((nonnull(3)));
 
 #endif /* ! _ENCRYPT_DECRYPT_H_ */
