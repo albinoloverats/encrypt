@@ -138,8 +138,8 @@ static bool running = false;
 - (IBAction)ioFileChoosen:(id)pId
 {
     Boolean en = FALSE;
-    const char *open_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@"sourceFile"] UTF8String];
-    const char *save_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@"outputFile"] UTF8String];
+    const char *open_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@SOURCE_FILE] UTF8String];
+    const char *save_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@OUTPUT_FILE] UTF8String];
 
     if (!open_link || !strlen(open_link))
         goto clean_up;
@@ -179,8 +179,11 @@ static bool running = false;
 
 clean_up:
 
-    [_cipherCombo setEnabled:(en)];
-    [_hashCombo setEnabled:(en)];
+    if (!encrypted)
+    {
+        [_cipherCombo setEnabled:(en)];
+        [_hashCombo setEnabled:(en)];
+    }
 
     [self cipherHashSelected:pId];
 }
@@ -228,7 +231,7 @@ clean_up:
 
 - (IBAction)keyFileChoosen:(id)pId
 {
-    const char *key_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@SOURCE_FILE] UTF8String];
+    const char *key_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@KEYSRC_FILE] UTF8String];
     BOOL en = FALSE;
 
     if (!key_link || !strlen(key_link))
@@ -299,7 +302,7 @@ clean_up:
     size_t length;
     if ([[[_keyCombo selectedItem] title] isEqualToString:@KEY_FILE])
     {
-        const char *key_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@SOURCE_FILE] UTF8String];
+        const char *key_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@KEYSRC_FILE] UTF8String];
 
         char *key_file = NULL;
         if (key_link[0] == '~')

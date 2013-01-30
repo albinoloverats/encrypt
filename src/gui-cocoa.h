@@ -36,6 +36,7 @@
 
 #define SOURCE_FILE "sourceFile"
 #define OUTPUT_FILE "outputFile"
+#define KEYSRC_FILE "keyFile"
 
 /*
  * main window
