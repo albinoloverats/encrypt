@@ -91,7 +91,7 @@ int main(int argc, char **argv)
         return EXIT_SUCCESS;
 
     bool dode = false;
-    if (!strcmp(argv[0], ALT_NAME))
+    if (!strcmp(basename(argv[0]), ALT_NAME))
         dode = true;
 
 #ifdef BUILD_GUI
