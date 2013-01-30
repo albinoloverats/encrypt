@@ -5,7 +5,7 @@ pkgver=2013.02
 pkgrel=1
 pkgdesc="A simple, cross platform, file encryption application---suitable for any modern desktop or mobile operating system. The GUI, either GTK or native, has been desigen to be common across systems and intuitive to use, whilst still providing command-line capabilities for power-users."
 url="https://albinoloverats.net/projects/encrypt"
-arch=('i686' 'x64_64' 'arm')
+arch=('i686' 'x86_64' 'arm')
 license=('GPLv3')
 depends=('libgcrypt' 'gtk3' 'curl' 'xz')
 optdepends=()
@@ -14,7 +14,7 @@ conflicts=()
 replaces=()
 backup=()
 install=''
-source=("https://albinoloverats.net/downloads/encrypt.tar.xz")
+source=()
 md5sums=()
 
 build() {
