@@ -52,8 +52,8 @@ install: man
 	 @install -c -m 644 -D -T etc/encrypt.desktop $(PREFIX)/usr/share/applications/encrypt.desktop
 	-@echo "installed \`etc/encrypt.desktop' --> \`$(PREFIX)/usr/share/applications/encrypt.desktop'"
 ## and the magic pattern
-#	 @install -c -m 644 -D -T etc/magic $(PREFIX)/usr/share/file/magic/encrypt
-#	-@echo "installed \`etc/magic' --> \`$(PREFIX)/usr/share/file/magic/encrypt'"
+#	 @install -c -m 644 -D -T etc/encrypt.mgc $(PREFIX)/usr/share/file/magic/encrypt
+#	-@echo "installed \`etc/encrypt.mgc' --> \`$(PREFIX)/usr/share/file/magic/encrypt'"
 #	 @file -C && mv magic.mgc /usr/share/file/magic.mgc
 #	-@echo "compiled updated magic pattern file"
 # and finally the auto-complete scripts
