@@ -30,7 +30,7 @@
 #ifndef _WIN32
     #define ENCRYPTRC ".encryptrc"
 #else
-    #define ENCRYPTRC "_encryptrc"
+    #define ENCRYPTRC "etc\\_encryptrc"
 #endif
 #define CONF_COMPRESS "compress"
 #define CONF_CIPHER "cipher"
