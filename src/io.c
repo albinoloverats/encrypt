@@ -109,7 +109,7 @@ static void io_do_decompress(io_private_t *);
 
 extern IO_HANDLE io_open(const char *n, int f, mode_t m)
 {
-    int64_t fd = open(n, f, m);
+    int64_t fd = open(n, f | O_BINARY, m);
     if (fd < 0)
         return NULL;
     io_private_t *io_ptr = calloc(1, sizeof( io_private_t ));
