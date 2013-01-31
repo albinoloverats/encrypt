@@ -12,7 +12,7 @@ INCS =  -I"C:/Dev-Cpp/include"  -I"src"  -I"C:/extra/include"
 CXXINCS =  -I"C:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Dev-Cpp/include/c++/3.4.2"  -I"C:/Dev-Cpp/include"  -I"src"  -I"C:/extra/include" 
 BIN  = encrypt.exe
 CXXFLAGS = $(CXXINCS)  
-CFLAGS = $(INCS) -DBUILD_GUI -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -std=gnu99 -mms-bitfields -I"C:\extra\gtk\include" -I"C:\extra\gtk\include\gtk-2.0"  -I"C:\extra\gtk\include\atk-1.0"  -I"C:\extra\gtk\include\pango-1.0"  -I"C:\extra\gtk\include\glib-2.0"  -I"C:\extra\gtk\lib\gtk-2.0\include"  -I"C:\extra\gtk\lib\glib-2.0\include"  -I"C:\extra\gtk\include\freetype2" -I"C:\extra\gtk\include\gail-1.0" -I"C:\extra\gtk\include\gdk-pixbuf-2.0" -I"C:\extra\gtk\include\gio-win32-2.0" -I"C:\extra\gtk\include\cairo"  
+CFLAGS = $(INCS) -DBUILD_GUI -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DLOG_DEFAULT=LOG_ERROR -std=gnu99 -mms-bitfields -I"C:\extra\gtk\include" -I"C:\extra\gtk\include\gtk-2.0"  -I"C:\extra\gtk\include\atk-1.0"  -I"C:\extra\gtk\include\pango-1.0"  -I"C:\extra\gtk\include\glib-2.0"  -I"C:\extra\gtk\lib\gtk-2.0\include"  -I"C:\extra\gtk\lib\glib-2.0\include"  -I"C:\extra\gtk\include\freetype2" -I"C:\extra\gtk\include\gail-1.0" -I"C:\extra\gtk\include\gdk-pixbuf-2.0" -I"C:\extra\gtk\include\gio-win32-2.0" -I"C:\extra\gtk\include\cairo"  
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom

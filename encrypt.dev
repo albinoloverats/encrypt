@@ -1,7 +1,7 @@
 [Project]
 FileName=encrypt.dev
 Name=encrypt
-UnitCount=28
+UnitCount=27
 Type=0
 Ver=1
 ObjFiles=
@@ -10,7 +10,7 @@ Libs=C:\extra\lib
 PrivateResource=src\encrypt_private.rc
 ResourceIncludes=
 MakeIncludes=
-Compiler=-DBUILD_GUI_@@_-D_GNU_SOURCE_@@_-D_FILE_OFFSET_BITS=64_@@_-std=gnu99_@@_-mms-bitfields_@@_-I"C:\extra\gtk\include"_@@_-I"C:\extra\gtk\include\gtk-2.0" _@@_-I"C:\extra\gtk\include\atk-1.0" _@@_-I"C:\extra\gtk\include\pango-1.0" _@@_-I"C:\extra\gtk\include\glib-2.0" _@@_-I"C:\extra\gtk\lib\gtk-2.0\include" _@@_-I"C:\extra\gtk\lib\glib-2.0\include" _@@_-I"C:\extra\gtk\include\freetype2"_@@_-I"C:\extra\gtk\include\gail-1.0"_@@_-I"C:\extra\gtk\include\gdk-pixbuf-2.0"_@@_-I"C:\extra\gtk\include\gio-win32-2.0"_@@_-I"C:\extra\gtk\include\cairo"_@@_
+Compiler=-DBUILD_GUI_@@_-D_GNU_SOURCE_@@_-D_FILE_OFFSET_BITS=64_@@_-DLOG_DEFAULT=LOG_ERROR_@@_-std=gnu99_@@_-mms-bitfields_@@_-I"C:\extra\gtk\include"_@@_-I"C:\extra\gtk\include\gtk-2.0" _@@_-I"C:\extra\gtk\include\atk-1.0" _@@_-I"C:\extra\gtk\include\pango-1.0" _@@_-I"C:\extra\gtk\include\glib-2.0" _@@_-I"C:\extra\gtk\lib\gtk-2.0\include" _@@_-I"C:\extra\gtk\lib\glib-2.0\include" _@@_-I"C:\extra\gtk\include\freetype2"_@@_-I"C:\extra\gtk\include\gail-1.0"_@@_-I"C:\extra\gtk\include\gdk-pixbuf-2.0"_@@_-I"C:\extra\gtk\include\gio-win32-2.0"_@@_-I"C:\extra\gtk\include\cairo"_@@_
 CppCompiler=
 Linker=-lgtk-win32-2.0 _@@_-lgdk-win32-2.0 _@@_-latk-1.0 _@@_-lgdk_pixbuf-2.0 _@@_-lpangowin32-1.0 _@@_-lgdi32 _@@_-lpango-1.0 _@@_-lgobject-2.0 _@@_-lgmodule-2.0 _@@_-lglib-2.0_@@_-lgladeui-1_@@_-lpthread_@@_-lcurldll_@@_-lgcrypt_@@_-lgpg-error_@@_-llzma_@@_
 IsCpp=0
