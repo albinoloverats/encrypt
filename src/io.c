@@ -121,12 +121,32 @@ extern IO_HANDLE io_open(const char *n, int f, mode_t m)
 extern int io_close(IO_HANDLE ptr)
 {
     io_private_t *io_ptr = ptr;
-    if (!io_ptr)
+    if (!io_ptr || io_ptr->fd < 0)
     {
         errno = EBADF;
         return -1;
     }
     int64_t fd = io_ptr->fd;
+    io_release(ptr);
+    return close(fd);
+}
+
+extern IO_HANDLE io_dummy_handle(void)
+{
+
+    io_private_t *io_ptr = calloc(1, sizeof( io_private_t ));
+    io_ptr->fd = -1;
+    return io_ptr;
+}
+
+extern void io_release(IO_HANDLE ptr)
+{
+    io_private_t *io_ptr = ptr;
+    if (!io_ptr)
+    {
+        errno = EBADF;
+        return;
+    }
 
     if (io_ptr->buffer)
     {
@@ -147,7 +167,7 @@ extern int io_close(IO_HANDLE ptr)
     free(io_ptr);
     io_ptr = NULL;
 
-    return close(fd);
+    return;
 }
 
 extern IO_HANDLE io_use_stdin(void)
@@ -164,10 +184,16 @@ extern IO_HANDLE io_use_stdout(void)
     return io_ptr;
 }
 
+extern bool io_is_initialised(IO_HANDLE ptr)
+{
+    io_private_t *io_ptr = ptr;
+    return io_ptr && io_ptr->fd >= 0 ? true : false;
+}
+
 extern bool io_is_stdin(IO_HANDLE ptr)
 {
     io_private_t *io_ptr = ptr;
-    if (!io_ptr)
+    if (!io_ptr || io_ptr->fd < 0)
     {
         errno = EBADF;
         return false;
@@ -178,7 +204,7 @@ extern bool io_is_stdin(IO_HANDLE ptr)
 extern bool io_is_stdout(IO_HANDLE ptr)
 {
     io_private_t *io_ptr = ptr;
-    if (!io_ptr)
+    if (!io_ptr || io_ptr->fd < 0)
     {
         errno = EBADF;
         return false;
@@ -189,7 +215,7 @@ extern bool io_is_stdout(IO_HANDLE ptr)
 extern void io_encryption_init(IO_HANDLE ptr, const char *c, const char *h, const uint8_t *k, size_t l, io_extra_t x)
 {
     io_private_t *io_ptr = ptr;
-    if (!io_ptr)
+    if (!io_ptr || io_ptr->fd < 0)
     {
         errno = EBADF;
         return;
@@ -263,7 +289,7 @@ extern void io_encryption_init(IO_HANDLE ptr, const char *c, const char *h, cons
 extern void io_encryption_checksum_init(IO_HANDLE ptr, char *h)
 {
     io_private_t *io_ptr = ptr;
-    if (!io_ptr)
+    if (!io_ptr || io_ptr->fd < 0)
     {
         errno = EBADF;
         return;
@@ -281,7 +307,7 @@ extern void io_encryption_checksum_init(IO_HANDLE ptr, char *h)
 extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l)
 {
     io_private_t *io_ptr = ptr;
-    if (!io_ptr)
+    if (!io_ptr || io_ptr->fd < 0)
     {
         errno = EBADF;
         return;
@@ -306,7 +332,7 @@ extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l)
 extern void io_compression_init(IO_HANDLE ptr)
 {
     io_private_t *io_ptr = ptr;
-    if (!io_ptr)
+    if (!io_ptr || io_ptr->fd < 0)
     {
         errno = EBADF;
         return;
@@ -321,7 +347,7 @@ extern void io_compression_init(IO_HANDLE ptr)
 extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l)
 {
     io_private_t *io_ptr = f;
-    if (!io_ptr)
+    if (!io_ptr || io_ptr->fd < 0)
     {
         errno = EBADF;
         return -1;
@@ -351,7 +377,7 @@ extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l)
 extern ssize_t io_read(IO_HANDLE f, void *d, size_t l)
 {
     io_private_t *io_ptr = f;
-    if (!io_ptr)
+    if (!io_ptr || io_ptr->fd < 0)
     {
         errno = EBADF;
         return -1;
@@ -388,7 +414,7 @@ extern ssize_t io_read(IO_HANDLE f, void *d, size_t l)
 extern int io_sync(IO_HANDLE ptr)
 {
     io_private_t *io_ptr = ptr;
-    if (!io_ptr)
+    if (!io_ptr || io_ptr->fd < 0)
     {
         errno = EBADF;
         return -1;
@@ -412,7 +438,7 @@ extern int io_sync(IO_HANDLE ptr)
 extern off_t io_seek(IO_HANDLE ptr, off_t o, int w)
 {
     io_private_t *io_ptr = ptr;
-    if (!io_ptr)
+    if (!io_ptr || io_ptr->fd < 0)
     {
         errno = EBADF;
         return -1;

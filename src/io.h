@@ -35,6 +35,7 @@
 
 #define IO_STDIN_FILENO io_use_stdin() /*!< Macro wrapper for io_use_stdin() */
 #define IO_STDOUT_FILENO io_use_stdout() /*!< Macro wrapper for io_use_stdout() */
+#define IO_UNINITIALISED io_dummy_handle() /*!< Macro wrapper for io_dummy_handle() */
 
 typedef void * IO_HANDLE; /*<! Handle type for IO functions */
 
@@ -58,6 +59,7 @@ io_extra_t;
  * \param[in]  n  The file name
  * \param[in]  f  File open flags
  * \param[in]  m  File open mode
+ * \return        A new IO instance for the specified file
  *
  * Open a file. Using these IO functions wraps the typical IO functions
  * with encryption and compression support.
@@ -73,11 +75,35 @@ extern IO_HANDLE io_open(const char *n, int f, mode_t m) __attribute__((malloc, 
 extern int io_close(IO_HANDLE h) __attribute__((nonnull(1)));
 
 /*!
+ * \brief         Release an IO instance
+ * \param[in]  h  An IO instance to destroy
+ *
+ * Free the memory of an IO instance [automatically called by
+ * io_close()], the only other use is for destroying an invalid IO
+ * instance.
+ */
+extern void io_release(IO_HANDLE ptr) __attribute__((nonnull(1)));
+
+/*!
+ * \brief         Creates a dummy file handle
+ * \returns       An uninitialised file handle
+ *
+ * Creates a dummy, uninitialised, file handle. Useful in situations
+ * where a IO instance is needed but not yet ready to be initialised
+ * or opened.
+ *
+ * NB: Use IO_UNINITIALISED instead.
+ */
+extern IO_HANDLE io_dummy_handle(void);
+
+/*!
  * \brief         Get IO instance for STDIN
  * \return        An IO instance for STDIN
  *
  * Get an IO_HANDLE instance for STDIN stream.
  * instead.
+ *
+ * NB: Use IO_STDIN_FILENO instead.
  */
 extern IO_HANDLE io_use_stdin(void);
 
@@ -86,8 +112,19 @@ extern IO_HANDLE io_use_stdin(void);
  * \return        An IO instance for STDOUT
  *
  * Get an IO_HANDLE instance for STDOUT stream.
+ *
+ * NB: Use IO_STDOUT_FILENO instead.
  */
 extern IO_HANDLE io_use_stdout(void);
+
+/*!
+ * \brief         Check if IO instance is initialised
+ * \param[in]  h  An IO instance
+ * \return        Whether IO instance is initialised
+ *
+ * Returns true if IO_HANDLE instance is a valid stream.
+ */
+extern bool io_is_initialised(IO_HANDLE) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Check if IO instance is STDIN

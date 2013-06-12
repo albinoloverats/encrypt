@@ -107,7 +107,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
              * we've got a name, but don't yet know if it will be a file
              * or a directory
              */
-            c->output = NULL;
+            c->output = IO_UNINITIALISED;
             c->path = strdup(o);
         }
         else
@@ -115,7 +115,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
             if (S_ISDIR(s.st_mode))
             {
                 log_message(LOG_VERBOSE, _("Decrypting to directory : %s"), o);
-                c->output = NULL;
+                c->output = IO_UNINITIALISED;
                 c->path = strdup(o);
                 c->directory = true;
             }
@@ -132,7 +132,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
             else
             {
                 log_message(LOG_ERROR, _("Unsupported destination file type"));
-                c->output = NULL;
+                c->output = NULL; /* failure, doesn't matter what the handle is */
                 c->status = STATUS_FAILED_OUTPUT_MISMATCH;
                 return c;
             }
@@ -436,7 +436,7 @@ static bool read_metadata(crypto_t *c)
     {
         struct stat s;
         stat(c->path, &s);
-        if ((errno == ENOENT || S_ISDIR(s.st_mode)) && !c->output)
+        if ((errno == ENOENT || S_ISDIR(s.st_mode)) && !io_is_initialised(c->output))
         {
             log_message(LOG_DEBUG, _("Output is to a directory"));
 #ifndef _WIN32
@@ -453,8 +453,9 @@ static bool read_metadata(crypto_t *c)
     }
     else
     {
-        if (!c->output)
+        if (!io_is_initialised(c->output))
         {
+            io_release(c->output);
             struct stat s;
             stat(c->path, &s);
             if (errno == ENOENT || S_ISREG(s.st_mode))
