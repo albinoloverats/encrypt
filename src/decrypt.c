@@ -251,7 +251,7 @@ static void *process(void *ptr)
      *    it was only to allow pipe to give us data where we didn't know
      *    ahead of time the total size
      */
-    io_encryption_checksum_init(c->output, c->hash);
+    io_encryption_checksum_init(c->source, c->hash);
     free(c->hash);
 
     if (c->directory)
@@ -279,7 +279,7 @@ static void *process(void *ptr)
          */
         uint8_t *cs = NULL;
         size_t cl = 0;
-        io_encryption_checksum(c->output, &cs, &cl);
+        io_encryption_checksum(c->source, &cs, &cl);
         uint8_t *b = malloc(cl);
         io_read(c->source, b, cl);
         if (memcmp(b, cs, cl))

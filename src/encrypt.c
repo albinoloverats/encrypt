@@ -84,7 +84,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
         if (S_ISDIR(s.st_mode))
         {
             log_message(LOG_VERBOSE, _("Encrypting directory tree : %s"), i);
-            z->source = NULL;
+            z->source = IO_UNINITIALISED;
             z->path = strdup(i);
             z->directory = true;
         }
@@ -196,7 +196,7 @@ static void *process(void *ptr)
         io_compression_init(c->output);
     log_message(LOG_INFO, _("Starting encryption process"));
 
-    io_encryption_checksum_init(c->source, c->hash);
+    io_encryption_checksum_init(c->output, c->hash);
     free(c->hash);
 
     if (c->directory)
@@ -231,7 +231,7 @@ static void *process(void *ptr)
      */
     uint8_t *cs = NULL;
     size_t cl = 0;
-    io_encryption_checksum(c->source, &cs, &cl);
+    io_encryption_checksum(c->output, &cs, &cl);
     io_write(c->output, cs, cl);
     free(cs);
 
