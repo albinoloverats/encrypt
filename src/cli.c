@@ -174,8 +174,12 @@ static void cli_display_bar(float total, float current, bool single, bps_t *bps)
             asprintf(&prog_bar, "%s %5.1f MB/s", prog_bar, val / MEGABYTE);
         else if (val < BILLION)
             asprintf(&prog_bar, "%s %5.1f GB/s", prog_bar, val / GIGABYTE);
+        else
+            asprintf(&prog_bar, "%s", prog_bar);
+#if 0
         else /* if you're getting these kinds of speeds please, please can I have your machine ;-) */
             asprintf(&prog_bar, "%s %5.1f TB/s", prog_bar, val / TERABYTE);
+#endif
     }
 
     fprintf(stderr, "\r%s", prog_bar);
