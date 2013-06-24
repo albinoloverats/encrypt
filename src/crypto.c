@@ -322,7 +322,12 @@ extern uint64_t file_encrypted_aux(bool b, const char *n, char **c, char **h)
     }
     close(f);
 
-    switch (ntohll(head[2]))
+    return file_encrypted_version(ntohll(head[2]));
+}
+
+extern uint64_t file_encrypted_version(uint64_t m)
+{
+    switch (m)
     {
         case HEADER_VERSION_201108: /* original release 2011.08 */
             log_message(LOG_INFO, _("File encrypted with version 2011.08"));
@@ -339,6 +344,10 @@ extern uint64_t file_encrypted_aux(bool b, const char *n, char **c, char **h)
         case HEADER_VERSION_201302:
             log_message(LOG_INFO, _("File encrypted with version 2013.02"));
             return HEADER_VERSION_201302;
+
+        case HEADER_VERSION_LATEST:
+            log_message(LOG_INFO, _("File encrypted with development version of encrypt"));
+            return HEADER_VERSION_LATEST;
 
         default:
             log_message(LOG_ERROR, _("File encrypted with unknown, or more recent release of encrypt"));

@@ -332,28 +332,7 @@ static uint64_t read_version(crypto_t *c)
     h = NULL;
     free(a);
 
-    switch (ntohll(head[2]))
-    {
-        case HEADER_VERSION_201108: /* original release 2011.08 */
-            log_message(LOG_INFO, _("File encrypted with version 2011.08"));
-            return HEADER_VERSION_201108;
-
-        case HEADER_VERSION_201110:
-            log_message(LOG_INFO, _("File encrypted with version 2011.10"));
-            return HEADER_VERSION_201110;
-
-        case HEADER_VERSION_201211:
-            log_message(LOG_INFO, _("File encrypted with version 2012.11"));
-            return HEADER_VERSION_201211;
-
-        case HEADER_VERSION_201302:
-            log_message(LOG_INFO, _("File encrypted with version 2013.02"));
-            return HEADER_VERSION_201302;
-
-        default:
-            log_message(LOG_ERROR, _("File encrypted with unknown, or more recent release of encrypt"));
-            return 0;
-    }
+    return file_encrypted_version(ntohll(head[2]));
 }
 
 static bool read_verification_sum(crypto_t *c)

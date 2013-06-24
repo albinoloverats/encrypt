@@ -37,14 +37,18 @@
 #include <pthread.h> /*!< Necessary include as pthread handle is referenced in this header */
 #include "io.h"      /*!< Necessary as IO_HANDLE type is referenced in this header */
 
-#define ENCRYPT_VERSION "2013.02" /*!< Current version of encrypt application */
+#define ENCRYPT_VERSION "2013.xx" /*!< Current version of encrypt application */
 #define UPDATE_URL "https://albinoloverats.net/encrypt.release" /*!< URI to check for updates */
 
 #define HEADER_VERSION_201108 0x72761df3e497c983llu /*!< The third 8 bytes of the original version (2011.08) */
 #define HEADER_VERSION_201110 0xbb116f7d00201110llu /*!< The third 8 bytes of the second release (2011.10) */
 #define HEADER_VERSION_201211 0x51d28245e1216c45llu /*!< The third 8 bytes of the 2012.11 release */
-#define HEADER_VERSION_201302 0x5b7132ab5abb3c47llu /*!< We're aiming for a February release :-) */
-#define HEADER_VERSION_LATEST HEADER_VERSION_201302 /*!< The third 8 bytes of the current development version */
+#define HEADER_VERSION_201302 0x5b7132ab5abb3c47llu /*!< The third 8 bytes of the 2013.02 release */
+
+/* TODO consider whether bug fixes should break backwards compatibility */
+
+#define HEADER_VERSION_2013XX 0xf1f68e5f2a43aa5fllu /*!< The final 8 bytes of the next release */
+#define HEADER_VERSION_LATEST HEADER_VERSION_2013XX /*!< The third 8 bytes of the current development version */
 
 #define HEADER_0 0x3697de5d96fca0fallu              /*!< The first 8 bytes of an encrypted file */
 #define HEADER_1 0xc845c2fa95e2f52dllu              /*!< The second 8 bytes of an encrypted file */
@@ -240,5 +244,16 @@ extern int hash_id_from_name(const char * const restrict n) __attribute__((pure,
  * not encrypted.
  */
 extern uint64_t file_encrypted_aux(bool b, const char *n, char **c, char **h) __attribute__((nonnull(2)));
+
+/*!
+ * \brief         Log which version the file is encrytped with
+ * \param[in]  m  The bytes read from the file
+ * \return        The version; 0 if unknown
+ *
+ * Logs which version of encrypted a file was encrytped with; the actual
+ * return value is the same as parameter m. This function (more than
+ * anything) removes duplicated code.
+ */
+extern uint64_t file_encrypted_version(uint64_t m);
 
 #endif /* ! _ENCRYPT_CRYPTO_H */
