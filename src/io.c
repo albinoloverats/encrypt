@@ -461,14 +461,15 @@ static ssize_t lzma_write(io_private_t *c, const void *d, size_t l)
     do
     {
         bool lzf = false;
-        switch (lzma_code(&c->lzma_handle, x))
+        lzma_ret lr;
+        switch ((lr = lzma_code(&c->lzma_handle, x)))
         {
             case LZMA_STREAM_END:
                 lzf = true;
             case LZMA_OK:
                 break;
             default:
-                log_message(LOG_ERROR, _("Unexpected error during compression"));
+                log_message(LOG_ERROR, _("Unexpected error during compression : %d"), lr);
                 return -1;
         }
         if (c->lzma_handle.avail_out == 0)
@@ -519,15 +520,15 @@ static ssize_t lzma_read(io_private_t *c, void *d, size_t l)
             }
         }
 proc_remain:;
-        lzma_ret e = lzma_code(&c->lzma_handle, a);
-        switch (e)
+        lzma_ret lr;
+        switch ((lr = lzma_code(&c->lzma_handle, a)))
         {
             case LZMA_STREAM_END:
                 c->eof = EOF_MAYBE;
             case LZMA_OK:
                 break;
             default:
-                log_message(LOG_ERROR, _("Unexpected error during decompression : %d"), e);
+                log_message(LOG_ERROR, _("Unexpected error during decompression : %d"), lr);
                 return -1;
         }
 
