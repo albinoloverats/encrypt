@@ -15,3 +15,6 @@ compress true
 
 # Set the default hash to use for key generation
 #hash sha256
+
+# Set the level of backwards compatibility, by version number
+#version 2013.xx

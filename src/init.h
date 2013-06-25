@@ -24,7 +24,7 @@
 #define APP_NAME "encrypt"
 #define ALT_NAME "decrypt"
 
-#define APP_USAGE "[-c algorithm] [-s algorithm] [-k key/-p password] [-x] [source] [destination]"
+#define APP_USAGE "[source] [destination] [-c algorithm] [-s algorithm] [-k key/-p password] [-x] [-b version]"
 #define ALT_USAGE "[-k key/-p password] [input] [output]"
 
 #ifndef _WIN32
@@ -32,9 +32,11 @@
 #else
     #define ENCRYPTRC "etc\\_encryptrc"
 #endif
+
 #define CONF_COMPRESS "compress"
 #define CONF_CIPHER "cipher"
 #define CONF_HASH "hash"
+#define CONF_VERSION "version"
 
 #define CONF_TRUE     "true"
 #define CONF_ON       "on"
@@ -57,6 +59,7 @@ typedef struct args_t
     char *password;  /*!< The password for key generation */
     char *source;    /*!< The input file/stream */
     char *output;    /*!< The output file/stream */
+    char *version;   /*!< The container version to use */
     bool compress:1; /*!< Compress the file (with xz) before encrypting */
 }
 args_t;

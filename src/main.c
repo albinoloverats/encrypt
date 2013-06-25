@@ -104,7 +104,7 @@ int main(int argc, char **argv)
     {
         char *c = NULL;
         char *h = NULL;
-        if ((fe = file_encrypted(args.source, &c, &h)))
+        if ((fe = is_encrypted(args.source, &c, &h)))
         {
             args.cipher = c;
             args.hash = h;
@@ -236,10 +236,10 @@ int main(int argc, char **argv)
      */
     crypto_t *c;
     
-    if (dode || (args.source && file_encrypted(args.source)))
+    if (dode || (args.source && is_encrypted(args.source)))
         c = decrypt_init(args.source, args.output, key, length);
     else
-        c = encrypt_init(args.source, args.output, args.cipher, args.hash, key, length, args.compress);
+        c = encrypt_init(args.source, args.output, args.cipher, args.hash, key, length, args.compress, parse_version(args.version));
 
     init_deinit(args);
 
@@ -247,7 +247,7 @@ int main(int argc, char **argv)
     {
         execute(c);
         /*
-         * only display the UI if not outputing to stdout (and if stderr is
+         * only display the UI if not outputting to stdout (and if stderr is
          * a terminal)
          */
         cli_display(c);

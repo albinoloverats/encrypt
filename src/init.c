@@ -46,7 +46,7 @@ static void print_usage(void);
 
 extern args_t init(int argc, char **argv)
 {
-    args_t a = { NULL, NULL, NULL, NULL, NULL, NULL, true };
+    args_t a = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, true };
 
     /*
      * check for options in rc file (~/.encryptrc)
@@ -81,6 +81,8 @@ extern args_t init(int argc, char **argv)
                 a.cipher = parse_config_tail(CONF_CIPHER, line);
             else if (!strncmp(CONF_HASH, line, strlen(CONF_HASH)) && isspace(line[strlen(CONF_HASH)]))
                 a.hash = parse_config_tail(CONF_HASH, line);
+            else if (!strncmp(CONF_VERSION, line, strlen(CONF_VERSION)) && isspace(line[strlen(CONF_VERSION)]))
+                a.version = parse_config_tail(CONF_VERSION, line);
 
             free(line);
             line = NULL;
@@ -108,13 +110,14 @@ extern args_t init(int argc, char **argv)
             { "key",         required_argument, 0, 'k' },
             { "password",    required_argument, 0, 'p' },
             { "no-compress", no_argument,       0, 'x' },
+            { "back-compat", required_argument, 0, 'b' },
             { NULL,          0,                 0,  0  }
         };
 
         while (true)
         {
             int index = 0;
-            int c = getopt_long(argc, argv, "hvld::qc:s:k:p:x", options, &index);
+            int c = getopt_long(argc, argv, "hvld::qc:s:k:p:xb:", options, &index);
             if (c == -1)
                 break;
             switch (c)
@@ -155,6 +158,9 @@ extern args_t init(int argc, char **argv)
                      * was turned off in the config file
                      */
                     a.compress = false;
+                    break;
+                case 'b':
+                    a.version = strdup(optarg);
                     break;
 
                 case '?':
@@ -198,6 +204,8 @@ extern void init_deinit(args_t args)
         free(args.source);
     if (args.output)
         free(args.output);
+    if (args.version)
+        free(args.version);
     return;
 }
 
@@ -281,20 +289,23 @@ extern void show_help(void)
     print_version();
     print_usage();
     fprintf(stderr, _("Options:\n"));
-    fprintf(stderr, _("  -h, --help                 Display this message\n"));
-    fprintf(stderr, _("  -l, --licence              Display GNU GPL v3 licence header\n"));
-    fprintf(stderr, _("  -v, --version              Display application version\n"));
-    fprintf(stderr, _("  -d, --debug [log level]    Turn on debugging [to specified level]\n"));
-    fprintf(stderr, _("  -q, --quiet                Turn off all but serious error messages\n"));
+    fprintf(stderr, _("  -h, --help                   Display this message\n"));
+    fprintf(stderr, _("  -l, --licence                Display GNU GPL v3 licence header\n"));
+    fprintf(stderr, _("  -v, --version                Display application version\n"));
+    fprintf(stderr, _("  -d, --debug [log level]      Turn on debugging [to specified level]\n"));
+    fprintf(stderr, _("  -q, --quiet                  Turn off all but serious error messages\n"));
     if (!strcmp(program_invocation_short_name, APP_NAME))
     {
-        fprintf(stderr, _("  -c, --cipher=<algorithm>   Algorithm to use to encrypt data\n"));
-        fprintf(stderr, _("  -s, --hash=<algorithm>     Hash algorithm to generate key\n"));
+        fprintf(stderr, _("  -c, --cipher=<algorithm>     Algorithm to use to encrypt data\n"));
+        fprintf(stderr, _("  -s, --hash=<algorithm>       Hash algorithm to generate key\n"));
     }
-    fprintf(stderr, _("  -k, --key=<key file>       File whose data will be used to generate the key\n"));
-    fprintf(stderr, _("  -p, --password=<password>  Password used to generate the key\n"));
+    fprintf(stderr, _("  -k, --key=<key file>         File whose data will be used to generate the key\n"));
+    fprintf(stderr, _("  -p, --password=<password>    Password used to generate the key\n"));
     if (!strcmp(program_invocation_short_name, APP_NAME))
-        fprintf(stderr, _("  -x, --no-compress          Do not compress the plaintext using the xz algorithm\n"));
+    {
+        fprintf(stderr, _("  -x, --no-compress            Do not compress the plaintext using the xz algorithm\n"));
+        fprintf(stderr, _("  -b, --back-compat=<version>  Create an encrypted file that is backwards compatible\n"));
+    }
     fprintf(stderr, _("\nNote: If you do not supply a key or password, you will be prompted for one.\n"));
     fprintf(stderr, "\n");
     exit(EXIT_SUCCESS);

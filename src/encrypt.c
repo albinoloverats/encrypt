@@ -65,7 +65,7 @@ static void encrypt_directory(crypto_t *, const char *);
 static void encrypt_stream(crypto_t *);
 static void encrypt_file(crypto_t *);
 
-extern crypto_t *encrypt_init(const char * const restrict i, const char * const restrict o, const char * const restrict c, const char * const restrict h, const void * const restrict k, size_t l, bool x)
+extern crypto_t *encrypt_init(const char * const restrict i, const char * const restrict o, const char * const restrict c, const char * const restrict h, const void * const restrict k, size_t l, bool x, version_e v)
 {
     init_crypto();
 
@@ -159,6 +159,43 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
     z->blocksize = BLOCK_SIZE;
     z->compressed = x;
 
+    z->version = v ? : VERSION_CURRENT;
+    /*
+     * determine which settings are valid for the given version
+     */
+    switch (z->version)
+    {
+        case VERSION_2011_08:
+        case VERSION_2011_10:
+            /*
+             * single file only; if we don't split the plaintext into
+             * then both versions are identical :)
+             */
+            z->version = VERSION_2011_08;
+            z->compressed = false;
+            /* allow fall-through to check for directories */
+        case VERSION_2012_11:
+            /* allow compression, but not directories */
+            if (z->source == IO_UNINITIALISED)
+                die(_("Compatibility with version %s does not allow encrypting directories"), get_version(z->version));
+            /* if not compressing, fallback even more */
+            if (!z->compressed)
+                z->version = VERSION_2011_08;
+            break;
+
+        case VERSION_2013_02:
+        case VERSION_CURRENT:
+            /*
+             * do nothing, all options are available; not falling back
+             * allows extra padding at beginning of file
+             */
+            break;
+
+        default:
+            die(_("We've reached an unreachable location in the code @ %s:%d:%s"), __FILE__, __LINE__, __func__);
+    }
+    log_message(LOG_VERBOSE, _("Encrypted file compatible with versions %s and later"), get_version(z->version));
+
     return z;
 }
 
@@ -182,11 +219,31 @@ static void *process(void *ptr)
     free(c->cipher);
     free(c->key);
 
-    write_random_data(c);
+    bool pre_random = true;
+    switch (c->version)
+    {
+        case VERSION_2011_08:
+        case VERSION_2011_10:
+        case VERSION_2012_11:
+            /*
+             * these versions didn't have random data preceeding the verification sum
+             */
+            pre_random = false;
+            break;
+
+        default:
+            /* all subsequent versions */
+            break;
+    }
+    if (pre_random)
+        write_random_data(c);
+
     write_verification_sum(c);
     write_random_data(c);
     write_metadata(c);
-    write_random_data(c);
+
+    if (pre_random)
+        write_random_data(c);
 
     /*
      * main encryption loop; if we're compressing the output then everything
@@ -249,7 +306,7 @@ static void *process(void *ptr)
 static inline void write_header(crypto_t *c)
 {
     log_message(LOG_INFO, _("Writing standard header"));
-    uint64_t head[3] = { htonll(HEADER_0), htonll(HEADER_1), htonll(HEADER_2) };
+    uint64_t head[3] = { htonll(HEADER_0), htonll(HEADER_1), htonll(c->version) };
     io_write(c->output, head, sizeof head);
     char *algos = NULL;
     char *u_cipher = strdup(c->cipher);

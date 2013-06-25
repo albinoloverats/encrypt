@@ -43,12 +43,13 @@
  * \param[in]  k  Key data
  * \param[in]  l  Size of key data
  * \param[in]  x  Compress data before encryption
+ * \param[in]  v  Backwards compatibility version
  * \return        A new encryption instance
  *
  * Create a new encryption instance, which if the status is INIT, is
  * ready to be executed. Any other status is a failure. If the input and
  * output file names are NULL, stdin/stdout will be used instead.
  */
-extern crypto_t *encrypt_init(const char * const restrict i, const char * const restrict o, const char * const restrict c, const char * const restrict h, const void * const restrict k, size_t l, bool x) __attribute__((nonnull(3, 4, 5)));
+extern crypto_t *encrypt_init(const char * const restrict i, const char * const restrict o, const char * const restrict c, const char * const restrict h, const void * const restrict k, size_t l, bool x, version_e v) __attribute__((nonnull(3, 4, 5)));
 
 #endif /* ! _ENCRYPT_ENCRYPT_H */
