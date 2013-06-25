@@ -90,7 +90,7 @@ static const char *VERSION_STRING[] =
     "2011.10",
     "2012.11",
     "2013.02",
-    "2013.xx"
+    "2013.09"
 };
 
 extern void init_crypto(void)
@@ -403,7 +403,7 @@ extern version_e parse_version(char *v)
     else if (!strcmp(v, VERSION_STRING[4]))
         return VERSION_2013_02;
     else if (!strcmp(v, VERSION_STRING[5]))
-        return VERSION_2013_XX;
+        return VERSION_2013_09;
     else
         return VERSION_UNKNOWN;
 }

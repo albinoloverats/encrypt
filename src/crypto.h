@@ -37,7 +37,7 @@
 #include <pthread.h> /*!< Necessary include as pthread handle is referenced in this header */
 #include "io.h"      /*!< Necessary as IO_HANDLE type is referenced in this header */
 
-#define ENCRYPT_VERSION "2013.xx" /*!< Current version of encrypt application */
+#define ENCRYPT_VERSION "2013.09" /*!< Current version of encrypt application */
 #define UPDATE_URL "https://albinoloverats.net/encrypt.release" /*!< URI to check for updates */
 
 #define HEADER_VERSION_201108 0x72761df3e497c983llu /*!< The third 8 bytes of the original version (2011.08) */
@@ -47,8 +47,8 @@
 
 /* TODO consider whether bug fixes should break backwards compatibility */
 
-#define HEADER_VERSION_2013XX 0xf1f68e5f2a43aa5fllu /*!< The final 8 bytes of the next release */
-#define HEADER_VERSION_LATEST HEADER_VERSION_2013XX /*!< The third 8 bytes of the current development version */
+#define HEADER_VERSION_201309 0xf1f68e5f2a43aa5fllu /*!< The final 8 bytes of the next release */
+#define HEADER_VERSION_LATEST HEADER_VERSION_201309 /*!< The third 8 bytes of the current development version */
 
 #define HEADER_0 0x3697de5d96fca0fallu              /*!< The first 8 bytes of an encrypted file */
 #define HEADER_1 0xc845c2fa95e2f52dllu              /*!< The second 8 bytes of an encrypted file */
@@ -107,7 +107,7 @@ typedef enum
     VERSION_2011_10 = HEADER_VERSION_201110, /*!< Version 2011.10 */
     VERSION_2012_11 = HEADER_VERSION_201211, /*!< Version 2012.11 */
     VERSION_2013_02 = HEADER_VERSION_201302, /*!< Version 2013.02 */
-    VERSION_2013_XX = HEADER_VERSION_2013XX, /*!< Version 2013.xx (current development version) */
+    VERSION_2013_09 = HEADER_VERSION_201309, /*!< Version 2013.0 (current development version) */
     VERSION_CURRENT = HEADER_VERSION_LATEST  /*!< Next release / current development version */
 }
 version_e;
@@ -124,6 +124,9 @@ typedef enum
     TAG_BLOCKED,    /*!< Data is split into blocks (of given size) */
     TAG_COMPRESSED, /*!< Data is compressed */
     TAG_DIRECTORY   /*!< Data is a directory hierarchy */
+        /*
+         * TODO add tags for stat data (mode, atime, ctime, mtime)
+         */
 } __attribute__((packed))
 stream_tags_e;
 
@@ -170,6 +173,7 @@ typedef struct
     uint64_t blocksize;       /*!< Whether data is split into blocks, and thus their size */
     bool compressed:1;        /*!< Whether data stream is compress */
     bool directory:1;         /*!< Whether data stream is a directory hierarchy */
+    bool follow_links:1;      /*!< Whether encrypt should follow symlinks (true: store the file it points to; false: store the link itself */
 }
 crypto_t;
 
