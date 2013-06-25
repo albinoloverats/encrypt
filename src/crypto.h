@@ -95,6 +95,24 @@ typedef enum
 file_type_e;
 
 /*!
+ * \brief  File container version
+ *
+ * An enum of the encrypted file container version. The values
+ * correspond to the #defined values.
+ */
+typedef enum
+{
+    VERSION_UNKNOWN = 0,                     /*!< Unknown version, or not encrypted  */
+    VERSION_2011_08 = HEADER_VERSION_201108, /*!< Version 2011.08 */
+    VERSION_2011_10 = HEADER_VERSION_201110, /*!< Version 2011.10 */
+    VERSION_2012_11 = HEADER_VERSION_201211, /*!< Version 2012.11 */
+    VERSION_2013_02 = HEADER_VERSION_201302, /*!< Version 2013.02 */
+    VERSION_2013_XX = HEADER_VERSION_2013XX, /*!< Version 2013.xx (current development version) */
+    VERSION_CURRENT = HEADER_VERSION_LATEST  /*!< Next release / current development version */
+}
+version_e;
+
+/*!
  * \brief  Stream metadata tags
  *
  * Tag values used to provide metadata capabilities to the encrypted
@@ -148,12 +166,19 @@ typedef struct
     progress_t current;       /*!< Progress of current file */
     progress_t total;         /*!< Overall progress (all files) */
 
+    version_e version;        /*!< Version of the encrypted file container */
     uint64_t blocksize;       /*!< Whether data is split into blocks, and thus their size */
     bool compressed:1;        /*!< Whether data stream is compress */
     bool directory:1;         /*!< Whether data stream is a directory hierarchy */
 }
 crypto_t;
 
+/*!
+ * \brief          Initialise libgcrypt library
+ *
+ * Initialise the libgcrypt library. Subsequent calls to the function
+ * are ignored.
+ */
 extern void init_crypto(void);
 
 /*!
@@ -228,9 +253,9 @@ extern int hash_id_from_name(const char * const restrict n) __attribute__((pure,
 #define IS_ENCRYPTED_ARGS_COUNT(...) IS_ENCRYPTED_ARGS_COUNT2(__VA_ARGS__, 3, 2, 1)
 #define IS_ENCRYPTED_ARGS_COUNT2(_1, _2, _3, _, ...) _
 
-#define file_encrypted_1(A)        file_encrypted_aux(false, A, NULL, NULL)
-#define file_encrypted_3(A, B, C)  file_encrypted_aux(true, A, B, C)
-#define file_encrypted(...) CONCAT(file_encrypted_, IS_ENCRYPTED_ARGS_COUNT(__VA_ARGS__))(__VA_ARGS__)
+#define is_encrypted_1(A)        is_encrypted_aux(false, A, NULL, NULL)
+#define is_encrypted_3(A, B, C)  is_encrypted_aux(true, A, B, C)
+#define is_encrypted(...) CONCAT(is_encrypted_, IS_ENCRYPTED_ARGS_COUNT(__VA_ARGS__))(__VA_ARGS__)
 
 /*!
  * \brief         Determine if a file is encrypted
@@ -243,17 +268,35 @@ extern int hash_id_from_name(const char * const restrict n) __attribute__((pure,
  * Returns the version of encrypt used to encrypt the file, or 0 if it's
  * not encrypted.
  */
-extern uint64_t file_encrypted_aux(bool b, const char *n, char **c, char **h) __attribute__((nonnull(2)));
+extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h) __attribute__((nonnull(2)));
 
 /*!
- * \brief         Log which version the file is encrytped with
+ * \brief         Log which version the file is encrypted with
  * \param[in]  m  The bytes read from the file
  * \return        The version; 0 if unknown
  *
- * Logs which version of encrypted a file was encrytped with; the actual
+ * Logs which version of encrypted a file was encrypted with; the actual
  * return value is the same as parameter m. This function (more than
  * anything) removes duplicated code.
  */
-extern uint64_t file_encrypted_version(uint64_t m);
+extern version_e check_version(uint64_t m);
+
+/*!
+ * \brief         Get the version as a string
+ * \param[in]  v  The version
+ * \return        The version as a string
+ *
+ * Get the version string which corresponds to the version enum.
+ */
+extern const char *get_version(version_e v);
+
+/*!
+ * \brief         Parse the version from a string
+ * \param[in]  v  The version as a string
+ * \return        The version
+ *
+ * Parse the version string and return the corresponds version enum.
+ */
+extern version_e parse_version(char *v);
 
 #endif /* ! _ENCRYPT_CRYPTO_H */

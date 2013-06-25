@@ -83,6 +83,16 @@ static const char *STATUS_MESSAGE[] =
     "Failed: Unknown Problem!"
 };
 
+static const char *VERSION_STRING[] =
+{
+    "Unknown",
+    "2011.08",
+    "2011.10",
+    "2012.11",
+    "2013.02",
+    "2013.xx"
+};
+
 extern void init_crypto(void)
 {
     static bool done = false;
@@ -282,29 +292,29 @@ extern int hash_id_from_name(const char * const restrict n)
     return 0;
 }
 
-extern uint64_t file_encrypted_aux(bool b, const char *n, char **c, char **h)
+extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h)
 {
     struct stat s;
     stat(n, &s);
     if (S_ISDIR(s.st_mode))
-        return 0;
+        return VERSION_UNKNOWN;
     int64_t f = open(n, O_RDONLY | F_RDLCK, S_IRUSR | S_IWUSR);
     if (f < 0)
     {
         log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
-        return 0;
+        return VERSION_UNKNOWN;
     }
     uint64_t head[3] = { 0x0 };
     if ((read(f, head, sizeof head)) < 0)
     {
         log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
         close(f);
-        return 0;
+        return VERSION_UNKNOWN;
     }
     if (head[0] != htonll(HEADER_0) && head[1] != htonll(HEADER_1))
     {
         close(f);
-        return 0;
+        return VERSION_UNKNOWN;
     }
 
     if (b)
@@ -322,37 +332,80 @@ extern uint64_t file_encrypted_aux(bool b, const char *n, char **c, char **h)
     }
     close(f);
 
-    return file_encrypted_version(ntohll(head[2]));
+    return check_version(ntohll(head[2]));
 }
 
-extern uint64_t file_encrypted_version(uint64_t m)
+extern version_e check_version(uint64_t m)
 {
     switch (m)
     {
         case HEADER_VERSION_201108: /* original release 2011.08 */
             log_message(LOG_INFO, _("File encrypted with version 2011.08"));
-            return HEADER_VERSION_201108;
+            return VERSION_2011_08;
 
         case HEADER_VERSION_201110:
             log_message(LOG_INFO, _("File encrypted with version 2011.10"));
-            return HEADER_VERSION_201110;
+            return VERSION_2011_10;
 
         case HEADER_VERSION_201211:
             log_message(LOG_INFO, _("File encrypted with version 2012.11"));
-            return HEADER_VERSION_201211;
+            return VERSION_2012_11;
 
         case HEADER_VERSION_201302:
             log_message(LOG_INFO, _("File encrypted with version 2013.02"));
-            return HEADER_VERSION_201302;
+            return VERSION_2013_02;
 
         case HEADER_VERSION_LATEST:
             log_message(LOG_INFO, _("File encrypted with development version of encrypt"));
-            return HEADER_VERSION_LATEST;
+            return VERSION_CURRENT;
 
         default:
             log_message(LOG_ERROR, _("File encrypted with unknown, or more recent release of encrypt"));
-            return 0;
+            return VERSION_UNKNOWN;
     }
+}
+
+extern const char *get_version(version_e v)
+{
+    switch (v)
+    {
+        case VERSION_2011_08:
+            return VERSION_STRING[1];
+
+        case VERSION_2011_10:
+            return VERSION_STRING[2];
+
+        case VERSION_2012_11:
+            return VERSION_STRING[3];
+
+        case VERSION_2013_02:
+            return VERSION_STRING[4];
+
+        case VERSION_CURRENT:
+            return VERSION_STRING[5];
+
+        default:
+            return VERSION_STRING[0];
+    }
+}
+
+extern version_e parse_version(char *v)
+{
+    if (!v)
+        return VERSION_UNKNOWN;
+
+    if (!strcmp(v, VERSION_STRING[1]))
+        return VERSION_2011_08;
+    else if (!strcmp(v, VERSION_STRING[2]))
+        return VERSION_2011_10;
+    else if (!strcmp(v, VERSION_STRING[3]))
+        return VERSION_2012_11;
+    else if (!strcmp(v, VERSION_STRING[4]))
+        return VERSION_2013_02;
+    else if (!strcmp(v, VERSION_STRING[5]))
+        return VERSION_2013_XX;
+    else
+        return VERSION_UNKNOWN;
 }
 
 static int algorithm_compare(const void *a, const void *b)
