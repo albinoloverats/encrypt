@@ -1,4 +1,4 @@
-.TH encrypt "1" "February 2013" "encrypt" "encrypt"
+.TH encrypt "1" "February 2013"
 .SH NAME
 encrypt \- A simple, cross platform, file encryption application
 .SH SYNOPSIS
