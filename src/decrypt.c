@@ -193,27 +193,33 @@ static void *process(void *ptr)
     /*
      * read encrypt file header
      */
-    uint64_t version = read_version(c);
+    c->version = read_version(c);
     /* version_read() already handles setting the status and displaying an error */
-    if (!version)
+    if (!c->version)
         return (void *)c->status;
 
     /* the 2011.* versions (incorrectly) used key length instead of block length */
-    io_extra_t iox = { version == HEADER_VERSION_201108 || version == HEADER_VERSION_201110, 1 };
+    io_extra_t iox = { c->version == VERSION_2011_08 || c->version == VERSION_2011_10, 1 };
     io_encryption_init(c->source, c->cipher, c->hash, c->key, c->length, iox);
     free(c->cipher);
     free(c->key);
 
     bool skip_some_random = false;
-    switch (version)
+    switch (c->version)
     {
-        case HEADER_VERSION_201108:
-        case HEADER_VERSION_201110:
-        case HEADER_VERSION_201211:
+        case VERSION_2011_08:
+        case VERSION_2011_10:
+        case VERSION_2012_11:
             /*
              * these versions only had random data after the verification sum
              */
             skip_some_random = true;
+            break;
+
+        default:
+            /*
+             * this will catch the all more recent versions (unknown is detected above)
+             */
             break;
     }
     if (!skip_some_random)
@@ -272,7 +278,7 @@ static void *process(void *ptr)
     c->current.offset = c->current.size;
     c->total.offset = c->total.size;
 
-    if (version != HEADER_VERSION_201108)
+    if (c->version != VERSION_2011_08)
     {
         /*
          * verify checksum (on versions which calculated it correctly)
@@ -332,7 +338,7 @@ static uint64_t read_version(crypto_t *c)
     h = NULL;
     free(a);
 
-    return file_encrypted_version(ntohll(head[2]));
+    return check_version(ntohll(head[2]));
 }
 
 static bool read_verification_sum(crypto_t *c)
