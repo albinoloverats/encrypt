@@ -24,7 +24,7 @@
 #define APP_NAME "encrypt"
 #define ALT_NAME "decrypt"
 
-#define APP_USAGE "[source] [destination] [-c algorithm] [-s algorithm] [-k key/-p password] [-x] [-b version]"
+#define APP_USAGE "[source] [destination] [-c algorithm] [-s algorithm] [-k key/-p password] [-x] [-f] [-b version]"
 #define ALT_USAGE "[-k key/-p password] [input] [output]"
 
 #ifndef _WIN32
@@ -61,6 +61,7 @@ typedef struct args_t
     char *output;    /*!< The output file/stream */
     char *version;   /*!< The container version to use */
     bool compress:1; /*!< Compress the file (with xz) before encrypting */
+    bool follow:1;   /*!< Follow symlinks or not */
 }
 args_t;
 

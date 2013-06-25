@@ -239,7 +239,7 @@ int main(int argc, char **argv)
     if (dode || (args.source && is_encrypted(args.source)))
         c = decrypt_init(args.source, args.output, key, length);
     else
-        c = encrypt_init(args.source, args.output, args.cipher, args.hash, key, length, args.compress, parse_version(args.version));
+        c = encrypt_init(args.source, args.output, args.cipher, args.hash, key, length, args.compress, args.follow, parse_version(args.version));
 
     init_deinit(args);
 

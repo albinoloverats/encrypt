@@ -46,7 +46,7 @@ static void print_usage(void);
 
 extern args_t init(int argc, char **argv)
 {
-    args_t a = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, true };
+    args_t a = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, true, true };
 
     /*
      * check for options in rc file (~/.encryptrc)
@@ -111,13 +111,14 @@ extern args_t init(int argc, char **argv)
             { "password",    required_argument, 0, 'p' },
             { "no-compress", no_argument,       0, 'x' },
             { "back-compat", required_argument, 0, 'b' },
+            { "no-follow",   no_argument,       0, 'f' },
             { NULL,          0,                 0,  0  }
         };
 
         while (true)
         {
             int index = 0;
-            int c = getopt_long(argc, argv, "hvld::qc:s:k:p:xb:", options, &index);
+            int c = getopt_long(argc, argv, "hvld::qc:s:k:p:xfb:", options, &index);
             if (c == -1)
                 break;
             switch (c)
@@ -158,6 +159,9 @@ extern args_t init(int argc, char **argv)
                      * was turned off in the config file
                      */
                     a.compress = false;
+                    break;
+                case 'f':
+                    a.follow = false;
                     break;
                 case 'b':
                     a.version = strdup(optarg);
@@ -304,6 +308,7 @@ extern void show_help(void)
     if (!strcmp(program_invocation_short_name, APP_NAME))
     {
         fprintf(stderr, _("  -x, --no-compress            Do not compress the plaintext using the xz algorithm\n"));
+        fprintf(stderr, _("  -f, --no-follow              Do not follow symlinks, store the link itself\n"));
         fprintf(stderr, _("  -b, --back-compat=<version>  Create an encrypted file that is backwards compatible\n"));
     }
     fprintf(stderr, _("\nNote: If you do not supply a key or password, you will be prompted for one.\n"));
