@@ -25,7 +25,11 @@ encrypt [\fI\-c\fR \fBalgorithm\fR] [\fI\-s\fR \fBalgorithm\fR] [\fI\-k\fR \fBke
 .TP
 \fI\-p\fR, \fI\-\-password\fR \fBPASSWORD\fR Password used to generate the key
 .TP
-\fI\-x\fR, \fI\-\-no-compress\fR \fBFILE\fR Do not compress the plaintext using the xz algorithm
+\fI\-x\fR, \fI\-\-no-compress\fR Do not compress the plaintext using the xz algorithm
+.TP
+\fI\-f\fR, \fI\-\-no-follow\fR Do not follow symlinks, store the link itself 
+.TP
+\fI\-b\fR, \fI\-\-back\-compat\fR \fBVERSION\fR Create an encrypted file that is backwards compatible
 .PP
 If either the source file or destination file are omitted then stdin/stdout are used. When encrypting, both \fB\-s\fR and \fB\-c\fR are required\fI*\fR to specify the algorithms you wish to use; when decrypting the algorithms originally used are read from the encrypted file.
 .PP
