@@ -40,6 +40,7 @@
 #include "common/error.h"
 #include "common/logging.h"
 #include "common/tlv.h"
+#include "common/fs.h"
 
 #ifdef _WIN32
     #include "common/win32_ext.h"
@@ -295,7 +296,8 @@ static void *process(void *ptr)
     /*
      * done
      */
-    io_sync(c->output);
+    if (c->output)
+        io_sync(c->output);
     c->status = STATUS_SUCCESS;
 
     return (void *)c->status;
@@ -403,11 +405,7 @@ static bool read_metadata(crypto_t *c)
         if ((errno == ENOENT || S_ISDIR(s.st_mode)) && !io_is_initialised(c->output))
         {
             log_message(LOG_DEBUG, _("Output is to a directory"));
-#ifndef _WIN32
-            mkdir(c->path, S_IRUSR | S_IWUSR | S_IXUSR);
-#else
-            mkdir(c->path);
-#endif
+            _mkdir(c->path, S_IRUSR | S_IWUSR | S_IXUSR);
         }
         else
         {
@@ -477,7 +475,7 @@ static void decrypt_directory(crypto_t *c, const char *dir)
         {
             case FILE_DIRECTORY:
                 log_message(LOG_VERBOSE, _("Creating directory : %s"), filename);
-                mkdir(filename, S_IRUSR | S_IWUSR | S_IXUSR);
+                _mkdir(filename, S_IRUSR | S_IWUSR | S_IXUSR);
                 break;
             case FILE_SYMLINK:
             case FILE_LINK:
