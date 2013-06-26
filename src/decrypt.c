@@ -173,9 +173,7 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
         read(kf, c->key, c->length);
         close(kf);
     }
-
     c->process = process;
-
     return c;
 }
 
@@ -184,10 +182,7 @@ static void *process(void *ptr)
     crypto_t *c = (crypto_t *)ptr;
 
     if (!c || c->status != STATUS_INIT)
-    {
-        log_message(LOG_ERROR, _("Invalid cryptographic object!"));
-        return NULL;
-    }
+        return log_message(LOG_ERROR, _("Invalid cryptographic object!")) , NULL;
 
     c->status = STATUS_RUNNING;
     /*
@@ -266,10 +261,7 @@ static void *process(void *ptr)
     {
         c->current.size = c->total.size;
         c->total.size = 1;
-        if (c->blocksize)
-            decrypt_stream(c);
-        else
-            decrypt_file(c);
+        c->blocksize ? decrypt_stream(c) : decrypt_file(c);
     }
 
     if (c->status != STATUS_RUNNING)
@@ -315,15 +307,9 @@ static uint64_t read_version(crypto_t *c)
 
     uint64_t head[3] = { 0x0 };
     if ((io_read(c->source, head, sizeof head)) < 0)
-    {
-        log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
-        return 0;
-    }
+        return log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno)) , 0;
     if (head[0] != htonll(HEADER_0) || head[1] != htonll(HEADER_1))
-    {
-        log_message(LOG_ERROR, _("Data not encrypted"));
-        return 0;
-    }
+        return log_message(LOG_ERROR, _("Data not encrypted")) , 0;
     uint8_t l;
     io_read(c->source, &l, sizeof l);
     char *a = calloc(l + sizeof( char ), sizeof( char ));
@@ -337,7 +323,6 @@ static uint64_t read_version(crypto_t *c)
     *h = '/'; /* probably not necessary, but doesn't harm anyone */
     h = NULL;
     free(a);
-
     return check_version(ntohll(head[2]));
 }
 
@@ -407,16 +392,10 @@ static bool read_metadata(crypto_t *c)
         c->blocksize = 0;
     log_message(LOG_DEBUG, _("Encrypted stream is %sblock delimited"), c->blocksize ? "" : "not ");
 
-    if (tlv_has_tag(tlv, TAG_COMPRESSED))
-        c->compressed = *tlv_value_of(tlv, TAG_COMPRESSED);
-    else
-        c->compressed = false;
+    c->compressed = tlv_has_tag(tlv, TAG_COMPRESSED) ? *tlv_value_of(tlv, TAG_COMPRESSED) : false;
     log_message(LOG_DEBUG, _("Encrypted stream is %scompressed"), c->compressed ? "" : "not ");
 
-    if (tlv_has_tag(tlv, TAG_DIRECTORY))
-        c->directory = *tlv_value_of(tlv, TAG_DIRECTORY);
-    else
-        c->directory = false;
+    c->directory = tlv_has_tag(tlv, TAG_DIRECTORY) ? *tlv_value_of(tlv, TAG_DIRECTORY) : false;
     if (c->directory)
     {
         struct stat s;
@@ -465,6 +444,7 @@ static bool read_metadata(crypto_t *c)
 
 static void skip_random_data(crypto_t *c)
 {
+#ifndef __DEBUG__
     uint8_t l;
     io_read(c->source, &l, sizeof l);
     uint8_t *b = malloc(l);
@@ -472,6 +452,7 @@ static void skip_random_data(crypto_t *c)
         die(_("Out of memory @ %s:%d:%s [%hhu]"), __FILE__, __LINE__, __func__, l);
     io_read(c->source, b, l);
     free(b);
+#endif
     return;
 }
 
@@ -483,39 +464,56 @@ static void decrypt_directory(crypto_t *c, const char *dir)
         file_type_e tp;
         io_read(c->source, &tp, sizeof( byte_t ));
 
-        char *nm;
+        char *filename;
         uint64_t l;
         io_read(c->source, &l, sizeof l);
         l = ntohll(l);
-        if (!(nm = calloc(l + sizeof( byte_t ), sizeof( char ))))
+        if (!(filename = calloc(l + sizeof( byte_t ), sizeof( char ))))
             die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, l + sizeof( byte_t ));
-        io_read(c->source, nm, l);
-        if (!asprintf(&nm, "%s/%s", dir, nm))
+        io_read(c->source, filename, l);
+        if (!asprintf(&filename, "%s/%s", dir, filename))
             die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, strlen(dir) + l + 2 * sizeof( byte_t ));
         switch (tp)
         {
             case FILE_DIRECTORY:
-                log_message(LOG_VERBOSE, _("Creating directory : %s"), nm);
-#ifndef _WIN32
-                mkdir(nm, S_IRUSR | S_IWUSR | S_IXUSR);
-#else
-                mkdir(nm);
-#endif
+                log_message(LOG_VERBOSE, _("Creating directory : %s"), filename);
+                mkdir(filename, S_IRUSR | S_IWUSR | S_IXUSR);
                 break;
-
+            case FILE_SYMLINK:
+            case FILE_LINK:
+                io_read(c->source, &l, sizeof l);
+                l = ntohl(l);
+                char *lnk = calloc(l + sizeof( byte_t ), sizeof( byte_t ));
+                if (!lnk)
+                    die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, l + sizeof( byte_t ));
+                io_read(c->source, lnk, l);
+                if (tp == FILE_SYMLINK)
+                {
+                    log_message(LOG_VERBOSE, _("Creating soft link : %s -> %s"), filename, lnk);
+                    symlink(lnk, filename);
+                }
+                else
+                {
+                    log_message(LOG_VERBOSE, _("Creating link : %s -> %s/%s"), filename, dir, lnk);
+                    char *hl = NULL;
+                    if (!asprintf(&hl, "%s/%s", dir, lnk))
+                        die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, strlen(dir) + strlen(lnk) + 2);
+                    link(hl, filename);
+                }
+                break;
             case FILE_REGULAR:
                 c->current.offset = 0;
                 io_read(c->source, &c->current.size, sizeof c->current.size);
                 c->current.size = ntohll(c->current.size);
-                log_message(LOG_VERBOSE, _("Decrypting file : %s"), nm);
-                c->output = io_open(nm, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK, S_IRUSR | S_IWUSR);
+                log_message(LOG_VERBOSE, _("Decrypting file : %s"), filename);
+                c->output = io_open(filename, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK, S_IRUSR | S_IWUSR);
                 decrypt_file(c);
                 io_close(c->output);
                 c->output = NULL;
                 c->current.offset = c->total.size;
                 break;
         }
-        free(nm);
+        free(filename);
     }
     return;
 }

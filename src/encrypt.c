@@ -59,13 +59,22 @@ static inline void write_verification_sum(crypto_t *);
 static inline void write_metadata(crypto_t *);
 static inline void write_random_data(crypto_t *);
 
-static int64_t count_entries(const char *);
+static int64_t count_entries(crypto_t *, const char *);
 
 static void encrypt_directory(crypto_t *, const char *);
+static char *encrypt_link(crypto_t *, char *, struct stat);
 static void encrypt_stream(crypto_t *);
 static void encrypt_file(crypto_t *);
 
-extern crypto_t *encrypt_init(const char * const restrict i, const char * const restrict o, const char * const restrict c, const char * const restrict h, const void * const restrict k, size_t l, bool x, version_e v)
+typedef struct
+{
+    dev_t dev;
+    ino_t inode;
+    char *path;
+}
+link_count_t;
+
+extern crypto_t *encrypt_init(const char * const restrict i, const char * const restrict o, const char * const restrict c, const char * const restrict h, const void * const restrict k, size_t l, bool x, bool f, version_e v)
 {
     init_crypto();
 
@@ -158,6 +167,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
 
     z->blocksize = BLOCK_SIZE;
     z->compressed = x;
+    z->follow_links = f;
 
     z->version = v ? : VERSION_CURRENT;
     /*
@@ -184,6 +194,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
             break;
 
         case VERSION_2013_02:
+            z->follow_links = true;
         case VERSION_CURRENT:
             /*
              * do nothing, all options are available; not falling back
@@ -195,7 +206,6 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
             die(_("We've reached an unreachable location in the code @ %s:%d:%s"), __FILE__, __LINE__, __func__);
     }
     log_message(LOG_VERBOSE, _("Encrypted file compatible with versions %s and later"), get_version(z->version));
-
     return z;
 }
 
@@ -204,10 +214,7 @@ static void *process(void *ptr)
     crypto_t *c = (crypto_t *)ptr;
 
     if (!c || c->status != STATUS_INIT)
-    {
-        log_message(LOG_ERROR, _("Invalid cryptographic object!"));
-        return NULL;
-    }
+        return log_message(LOG_ERROR, _("Invalid cryptographic object!")) , NULL;
 
     c->status = STATUS_RUNNING;
     write_header(c);
@@ -265,16 +272,19 @@ static void *process(void *ptr)
         io_write(c->output, &l, sizeof l);
         io_write(c->output, c->path, strlen(c->path));
         c->total.offset = 1;
+        if (!(c->misc = calloc(c->total.size, sizeof( link_count_t ))))
+            die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, c->total.size * sizeof( link_count_t ));
         encrypt_directory(c, c->path);
+        for (uint64_t i = 0; i < c->total.size; i++)
+            if (((link_count_t *)c->misc)[i].path)
+                free(((link_count_t *)c->misc)[i].path);
+        free(c->misc);
     }
     else
     {
         c->current.size = c->total.size;
         c->total.size = 1;
-        if (c->blocksize)
-            encrypt_stream(c);
-        else
-            encrypt_file(c);
+        c->blocksize ? encrypt_stream(c) : encrypt_file(c);
     }
 
     if (c->status != STATUS_RUNNING)
@@ -357,7 +367,7 @@ static inline void write_metadata(crypto_t *c)
 {
     log_message(LOG_INFO, _("Writing metadata"));
     if (c->directory)
-        c->total.size = count_entries(c->path);
+        c->total.size = count_entries(c, c->path);
     else
     {
         c->total.size = io_seek(c->source, 0, SEEK_END);
@@ -399,6 +409,7 @@ static inline void write_metadata(crypto_t *c)
 
 static inline void write_random_data(crypto_t *c)
 {
+#ifndef __DEBUG__
     uint8_t l;
     gcry_create_nonce(&l, sizeof l);
     uint8_t *b = malloc(l);
@@ -408,10 +419,11 @@ static inline void write_random_data(crypto_t *c)
     io_write(c->output, &l, sizeof l);
     io_write(c->output, b, l);
     free(b);
+#endif
     return;
 }
 
-static int64_t count_entries(const char *dir)
+static int64_t count_entries(crypto_t *c, const char *dir)
 {
     struct dirent **eps = NULL;
     int n = 0;
@@ -422,22 +434,24 @@ static int64_t count_entries(const char *dir)
     {
         for (int i = 0; i < n; ++i)
         {
-            char *nm = strdup(eps[i]->d_name);
-            if (!strcmp(".", nm) || !strcmp("..", nm))
+            char *filename = strdup(eps[i]->d_name);
+            if (!strcmp(".", filename) || !strcmp("..", filename))
             {
-                free(nm);
+                free(filename);
                 continue;
             }
-            size_t l = strlen(nm);
-            if (!asprintf(&nm, "%s/%s", dir, nm))
+            size_t l = strlen(filename);
+            if (!asprintf(&filename, "%s/%s", dir, filename))
                 die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(dir) + l + 2);
             struct stat s;
-            stat(nm, &s);
+            c->follow_links ? stat(filename, &s) : lstat(filename, &s);
             if (S_ISDIR(s.st_mode))
-                e += count_entries(nm);
+                e += count_entries(c, filename);
             else if (S_ISREG(s.st_mode))
                 e++;
-            free(nm);
+            else if (!c->follow_links && S_ISLNK(s.st_mode))
+                e++;
+            free(filename);
         }
     }
     free(eps);
@@ -451,53 +465,86 @@ static void encrypt_directory(crypto_t *c, const char *dir)
     if ((n = scandir(dir, &eps, NULL, alphasort)))
     {
         log_message(LOG_DEBUG, _("Found %i entries in %s"), n - 2, dir); /* subtract 2 for . and .. */
-
         for (int i = 0; i < n && c->status == STATUS_RUNNING; ++i)
         {
-            char *nm = strdup(eps[i]->d_name);
-            if (!strcmp(".", nm) || !strcmp("..", nm))
+            char *filename = strdup(eps[i]->d_name);
+            if (!strcmp(".", filename) || !strcmp("..", filename))
             {
-                free(nm);
+                free(filename);
                 continue;
             }
-            uint64_t l = strlen(nm);
-            if (!asprintf(&nm, "%s/%s", dir, nm))
+            uint64_t l = strlen(filename);
+            if (!asprintf(&filename, "%s/%s", dir, filename))
                 die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, strlen(dir) + l + 2);
             file_type_e tp;
             struct stat s;
-            stat(nm, &s);
-            if (S_ISDIR(s.st_mode))
-                tp = FILE_DIRECTORY;
-            else if (S_ISREG(s.st_mode))
-                tp = FILE_REGULAR;
-            else
+            c->follow_links ? stat(filename, &s) : lstat(filename, &s);
+            char *hl = NULL;
+            switch (s.st_mode & S_IFMT)
             {
-#ifdef _DIRENT_HAVE_D_TYPE
-                log_message(LOG_EVERYTHING, _("Ignoring unsupported file type [%d] : %s"), eps[i]->d_type, nm);
-#endif
-                free(nm);
-                continue;
+                case S_IFDIR:
+                    tp = FILE_DIRECTORY;
+                    break;
+                case S_IFLNK:
+                    tp = (hl = encrypt_link(c, filename, s)) ? FILE_LINK : FILE_SYMLINK;
+                    break;
+                case S_IFREG:
+                    tp = (hl = encrypt_link(c, filename, s)) ? FILE_LINK : FILE_REGULAR;
+                    break;
+                default:
+                    log_message(LOG_EVERYTHING, _("Ignoring unsupported file type for : %s"), filename);
+                    free(filename);
+                    continue;
             }
             io_write(c->output, &tp, sizeof( byte_t ));
-            l = htonll(strlen(nm));
+            l = htonll(strlen(filename));
             io_write(c->output, &l, sizeof l);
-            io_write(c->output, nm, strlen(nm));
-
+            io_write(c->output, filename, strlen(filename));
             switch (tp)
             {
                 case FILE_DIRECTORY:
                     /*
                      * recurse into each directory as necessary
                      */
-                    log_message(LOG_VERBOSE, _("Storing directory : %s"), nm);
-                    encrypt_directory(c, nm);
+                    log_message(LOG_VERBOSE, _("Storing directory : %s"), filename);
+                    encrypt_directory(c, filename);
                     break;
+                case FILE_SYMLINK:
+                    /*
+                     * store the link instead of the file/directory it points to
+                     */
+                    log_message(LOG_VERBOSE, _("Storing soft link : %s"), filename);
+                    char *lnk = NULL;
+                    for (l = BLOCK_SIZE; ; l += BLOCK_SIZE)
+                    {
+                        char *x = realloc(lnk, l + sizeof( byte_t ));
+                        if (!x)
+                            die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, l + sizeof( byte_t ) );
+                        lnk = x;
+                        if (readlink(filename, lnk, BLOCK_SIZE + l) < (int64_t)l)
+                            break;
+                    }
+                    l = htonl(strlen(lnk));
+                    io_write(c->output, &l, sizeof l);
+                    io_write(c->output, lnk, strlen(lnk));
+                    break;
+                case FILE_LINK:
+                    /*
+                     * store a hard link; it's basically the same as a symlink
+                     * at this point, but will be handled differently upon
+                     * decryption
+                     */
+                    log_message(LOG_VERBOSE, _("Storing link : %s"), filename);
+                    l = htonl(strlen(hl));
+                    io_write(c->output, &l, sizeof l);
+                    // FIXME store the link, not itself :-p
+                    io_write(c->output, hl, strlen(hl));
                 case FILE_REGULAR:
                     /*
                      * when we have a file:
                      */
-                    log_message(LOG_VERBOSE, _("Encrypting file : %s"), nm);
-                    c->source = io_open(nm, O_RDONLY | F_RDLCK, S_IRUSR | S_IWUSR);
+                    log_message(LOG_VERBOSE, _("Encrypting file : %s"), filename);
+                    c->source = io_open(filename, O_RDONLY | F_RDLCK, S_IRUSR | S_IWUSR);
                     c->current.offset = 0;
                     c->current.size = io_seek(c->source, 0, SEEK_END);
                     uint64_t z = htonll(c->current.size);
@@ -509,7 +556,7 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                     c->source = NULL;
                     break;
             }
-            free(nm);
+            free(filename);
             c->total.offset++;
         }
         /*
@@ -518,6 +565,18 @@ static void encrypt_directory(crypto_t *c, const char *dir)
     }
     free(eps);
     return;
+}
+
+static char *encrypt_link(crypto_t *c, char *filename, struct stat s)
+{
+    link_count_t *ln = (link_count_t *)c->misc;
+    for (uint64_t i = 0; i < c->total.offset; i++)
+        if (ln[i].dev == s.st_dev && ln[i].inode == s.st_ino)
+            return log_message(LOG_EVERYTHING, _("File %s is a duplicate of %ju:%ju"), filename, s.st_dev, s.st_ino) , ln[i].path;
+    ln[c->total.offset].dev = s.st_dev;
+    ln[c->total.offset].inode = s.st_ino;
+    ln[c->total.offset].path = strdup(filename);
+    return NULL;
 }
 
 static void encrypt_stream(crypto_t *c)
