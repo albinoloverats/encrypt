@@ -46,7 +46,7 @@ static void print_usage(void);
 
 extern args_t init(int argc, char **argv)
 {
-    args_t a = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, true, true };
+    args_t a = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, true, false };
 
     /*
      * check for options in rc file (~/.encryptrc)
@@ -111,7 +111,7 @@ extern args_t init(int argc, char **argv)
             { "password",    required_argument, 0, 'p' },
             { "no-compress", no_argument,       0, 'x' },
             { "back-compat", required_argument, 0, 'b' },
-            { "no-follow",   no_argument,       0, 'f' },
+            { "follow",      no_argument,       0, 'f' },
             { NULL,          0,                 0,  0  }
         };
 
@@ -158,7 +158,7 @@ extern args_t init(int argc, char **argv)
                     a.compress = false;
                     break;
                 case 'f':
-                    a.follow = false;
+                    a.follow = true;
                     break;
                 case 'b':
                     a.version = strdup(optarg);
@@ -297,7 +297,7 @@ extern void show_help(void)
     if (!strcmp(program_invocation_short_name, APP_NAME))
     {
         fprintf(stderr, _("  -x, --no-compress            Do not compress the plaintext using the xz algorithm\n"));
-        fprintf(stderr, _("  -f, --no-follow              Do not follow symlinks, store the link itself\n"));
+        fprintf(stderr, _("  -f, --follow                 Follow symlinks, the default is to store the link itself\n"));
         fprintf(stderr, _("  -b, --back-compat=<version>  Create an encrypted file that is backwards compatible\n"));
     }
     fprintf(stderr, _("\nNote: If you do not supply a key or password, you will be prompted for one.\n"));
