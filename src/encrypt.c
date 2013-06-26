@@ -539,6 +539,7 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                     io_write(c->output, &l, sizeof l);
                     // FIXME store the link, not itself :-p
                     io_write(c->output, hl, strlen(hl));
+                    break;
                 case FILE_REGULAR:
                     /*
                      * when we have a file:
