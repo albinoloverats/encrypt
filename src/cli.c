@@ -124,38 +124,22 @@ static void cli_display_bar(float total, float current, bool single, bps_t *bps)
 {
     char *prog_bar = NULL;
 
-    if (isnan(total))
-        asprintf(&prog_bar, "  0%%");
-    else
-        asprintf(&prog_bar, "%3.0f%%", total);
+    isnan(total) ? asprintf(&prog_bar, "  0%%") : asprintf(&prog_bar, "%3.0f%%", total);
     /*
      * display progress bar (currently hardcoded for 80 columns)
      */
     asprintf(&prog_bar, "%s [", prog_bar);
     int pb = single ? cli_width - CLI_SINGLE : cli_width / 2 - CLI_DOUBLE;
     for (int i = 0; i < pb; i++)
-    {
-        if (i < pb * total / PERCENT)
-            asprintf(&prog_bar, "%s=", prog_bar);
-        else
-            asprintf(&prog_bar, "%s ", prog_bar);
-    }
+        i < pb * total / PERCENT ? asprintf(&prog_bar, "%s=", prog_bar) : asprintf(&prog_bar, "%s ", prog_bar);
     /*
      * current (if necessary)
      */
     if (!single)
     {
-        if (isnan(total))
-            asprintf(&prog_bar, "%s]   0%% [", prog_bar);
-        else
-            asprintf(&prog_bar, "%s] %3.0f%% [", prog_bar, current);
+        isnan(total) ? asprintf(&prog_bar, "%s]   0%% [", prog_bar) : asprintf(&prog_bar, "%s] %3.0f%% [", prog_bar, current);
         for (int i = 0; i < pb; i++)
-        {
-            if (i < pb * current / PERCENT)
-                asprintf(&prog_bar, "%s=", prog_bar);
-            else
-                asprintf(&prog_bar, "%s ", prog_bar);
-        }
+            i < pb * current / PERCENT ? asprintf(&prog_bar, "%s=", prog_bar) : asprintf(&prog_bar, "%s ", prog_bar);
     }
     asprintf(&prog_bar, "%s]", prog_bar);
     /*

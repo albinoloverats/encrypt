@@ -74,9 +74,7 @@ extern int asprintf(char **buffer, char *fmt, ...)
         nchars = vsnprintf(*buffer, size, fmt, ap);
         va_end(ap);
     }
-    if (nchars < 0)
-        return nchars;
-    return size;
+    return nchars < 0 ? nchars : size;
 }
 
 extern ssize_t getline(char **lineptr, size_t *n, FILE *stream)

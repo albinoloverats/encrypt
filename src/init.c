@@ -131,10 +131,7 @@ extern args_t init(int argc, char **argv)
                     show_licence();
 
                 case 'd':
-                    if (optarg)
-                        log_relevel(log_parse_level(optarg));
-                    else
-                        log_relevel(LOG_DEFAULT);
+                    optarg ? log_relevel(log_parse_level(optarg)) : log_relevel(LOG_DEFAULT);
                     break;
                 case 'q':
                     log_relevel(LOG_ERROR);
@@ -181,16 +178,9 @@ extern args_t init(int argc, char **argv)
                 optind++;
     }
     if (a.source && !strcmp(a.source, "-"))
-    {
-        free(a.source);
-        a.source = NULL;
-    }
+        free(a.source) , a.source = NULL;
     if (a.output && !strcmp(a.output, "-"))
-    {
-        free(a.output);
-        a.output = NULL;
-    }
-
+        free(a.output) , a.output = NULL;
     return a;
 }
 
@@ -269,7 +259,6 @@ extern void update_config(char *o, char *v)
         fclose(t);
     }
     free(rc);
- 
     return;
 }
 

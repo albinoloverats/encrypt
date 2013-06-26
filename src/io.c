@@ -122,10 +122,7 @@ extern int io_close(IO_HANDLE ptr)
 {
     io_private_t *io_ptr = ptr;
     if (!io_ptr || io_ptr->fd < 0)
-    {
-        errno = EBADF;
-        return -1;
-    }
+        return (errno = EBADF , -1);
     int64_t fd = io_ptr->fd;
     io_release(ptr);
     return close(fd);
@@ -143,30 +140,21 @@ extern void io_release(IO_HANDLE ptr)
 {
     io_private_t *io_ptr = ptr;
     if (!io_ptr)
-    {
-        errno = EBADF;
-        return;
-    }
-
+        return (errno = EBADF , (void)NULL);
     if (io_ptr->buffer)
     {
         if (io_ptr->buffer->stream)
             free(io_ptr->buffer->stream);
         free(io_ptr->buffer);
     }
-
     if (io_ptr->cipher_init)
         gcry_cipher_close(io_ptr->cipher_handle);
-
     if (io_ptr->hash_init)
         gcry_md_close(io_ptr->hash_handle);
-
     if (io_ptr->lzma_init)
         lzma_end(&io_ptr->lzma_handle);
-
     free(io_ptr);
     io_ptr = NULL;
-
     return;
 }
 
@@ -187,17 +175,14 @@ extern IO_HANDLE io_use_stdout(void)
 extern bool io_is_initialised(IO_HANDLE ptr)
 {
     io_private_t *io_ptr = ptr;
-    return io_ptr && io_ptr->fd >= 0 ? true : false;
+    return io_ptr && io_ptr->fd >= 0;
 }
 
 extern bool io_is_stdin(IO_HANDLE ptr)
 {
     io_private_t *io_ptr = ptr;
     if (!io_ptr || io_ptr->fd < 0)
-    {
-        errno = EBADF;
-        return false;
-    }
+        return (errno = EBADF , false);
     return io_ptr->fd == STDIN_FILENO;
 }
 
@@ -205,10 +190,7 @@ extern bool io_is_stdout(IO_HANDLE ptr)
 {
     io_private_t *io_ptr = ptr;
     if (!io_ptr || io_ptr->fd < 0)
-    {
-        errno = EBADF;
-        return false;
-    }
+        return (errno = EBADF , false);
     return io_ptr->fd == STDOUT_FILENO;
 }
 
@@ -216,11 +198,7 @@ extern void io_encryption_init(IO_HANDLE ptr, const char *c, const char *h, cons
 {
     io_private_t *io_ptr = ptr;
     if (!io_ptr || io_ptr->fd < 0)
-    {
-        errno = EBADF;
-        return;
-    }
-
+        return (errno = EBADF , (void)NULL);
     /*
      * start setting up the encryption buffer
      */
@@ -278,11 +256,9 @@ extern void io_encryption_init(IO_HANDLE ptr, const char *c, const char *h, cons
      */
     for (unsigned i = 0; i < OFFSET_SLOTS; i++)
         io_ptr->buffer->offset[i] = 0;
-
     io_ptr->cipher_init = true;
     io_ptr->hash_init = true;
     io_ptr->operation = IO_ENCRYPT;
-
     return;
 }
 
@@ -290,17 +266,9 @@ extern void io_encryption_checksum_init(IO_HANDLE ptr, char *h)
 {
     io_private_t *io_ptr = ptr;
     if (!io_ptr || io_ptr->fd < 0)
-    {
-        errno = EBADF;
-        return;
-    }
-
-    if (io_ptr->hash_init)
-        gcry_md_reset(io_ptr->hash_handle);
-    else
-        gcry_md_open(&io_ptr->hash_handle, hash_id_from_name(h), GCRY_MD_FLAG_SECURE);
+        return (errno = EBADF , (void)NULL);
+    io_ptr->hash_init ? gcry_md_reset(io_ptr->hash_handle) : gcry_md_open(&io_ptr->hash_handle, hash_id_from_name(h), GCRY_MD_FLAG_SECURE);
     io_ptr->hash_init = true;
-
     return;
 }
 
@@ -308,24 +276,15 @@ extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l)
 {
     io_private_t *io_ptr = ptr;
     if (!io_ptr || io_ptr->fd < 0)
-    {
-        errno = EBADF;
-        return;
-    }
-
+        return (errno = EBADF , (void)NULL);
     if (!io_ptr->hash_init)
-    {
-        *l = 0;
-        return;
-    }
-
+        return (*l = 0 , (void)NULL);
     *l = gcry_md_get_algo_dlen(gcry_md_get_algo(io_ptr->hash_handle));
     uint8_t *x = realloc(*b, *l);
     if (!x)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, *l);
     *b = x;
     memcpy(*b, gcry_md_read(io_ptr->hash_handle, gcry_md_get_algo(io_ptr->hash_handle)), *l);
-
     return;
 }
 
@@ -333,14 +292,9 @@ extern void io_compression_init(IO_HANDLE ptr)
 {
     io_private_t *io_ptr = ptr;
     if (!io_ptr || io_ptr->fd < 0)
-    {
-        errno = EBADF;
-        return;
-    }
-
+        return (errno = EBADF , (void)NULL);
     io_ptr->operation = IO_LZMA;
     io_ptr->lzma_init = false;
-
     return;
 }
 
@@ -348,10 +302,7 @@ extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l)
 {
     io_private_t *io_ptr = f;
     if (!io_ptr || io_ptr->fd < 0)
-    {
-        errno = EBADF;
-        return -1;
-    }
+        return (errno = EBADF , -1);
 
     if (io_ptr->hash_init)
         gcry_md_write(io_ptr->hash_handle, d, l);
@@ -378,10 +329,7 @@ extern ssize_t io_read(IO_HANDLE f, void *d, size_t l)
 {
     io_private_t *io_ptr = f;
     if (!io_ptr || io_ptr->fd < 0)
-    {
-        errno = EBADF;
-        return -1;
-    }
+        return (errno = EBADF , -1);
 
     ssize_t r = 0;
     switch (io_ptr->operation)
@@ -407,7 +355,6 @@ extern ssize_t io_read(IO_HANDLE f, void *d, size_t l)
     }
     if (r >= 0 && io_ptr->hash_init)
         gcry_md_write(io_ptr->hash_handle, d, r);
-
     return r;
 }
 
@@ -415,10 +362,7 @@ extern int io_sync(IO_HANDLE ptr)
 {
     io_private_t *io_ptr = ptr;
     if (!io_ptr || io_ptr->fd < 0)
-    {
-        errno = EBADF;
-        return -1;
-    }
+        return (errno = EBADF , -1);
 
     switch (io_ptr->operation)
     {
@@ -431,19 +375,14 @@ extern int io_sync(IO_HANDLE ptr)
         case IO_DEFAULT:
             return fsync(io_ptr->fd);
     }
-    errno = EINVAL;
-    return -1;
+    return (errno = EINVAL , -1);
 }
 
 extern off_t io_seek(IO_HANDLE ptr, off_t o, int w)
 {
     io_private_t *io_ptr = ptr;
     if (!io_ptr || io_ptr->fd < 0)
-    {
-        errno = EBADF;
-        return -1;
-    }
-
+        return (errno = EBADF , -1);
     return lseek(io_ptr->fd, o, w);
 }
 
@@ -469,8 +408,7 @@ static ssize_t lzma_write(io_private_t *c, const void *d, size_t l)
             case LZMA_OK:
                 break;
             default:
-                log_message(LOG_ERROR, _("Unexpected error during compression : %d"), lr);
-                return -1;
+                return (log_message(LOG_ERROR, _("Unexpected error during compression : %d"), lr) , -1);
         }
         if (c->lzma_handle.avail_out == 0)
         {
@@ -515,8 +453,7 @@ static ssize_t lzma_read(io_private_t *c, void *d, size_t l)
                     c->lzma_handle.avail_in = 1;
                     break;
                 default:
-                    log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
-                    return -1;
+                    return (log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno)) , -1);
             }
         }
 proc_remain:;
@@ -528,8 +465,7 @@ proc_remain:;
             case LZMA_OK:
                 break;
             default:
-                log_message(LOG_ERROR, _("Unexpected error during decompression : %d"), lr);
-                return -1;
+                return (log_message(LOG_ERROR, _("Unexpected error during decompression : %d"), lr) , -1);
         }
 
         if (c->lzma_handle.avail_out == 0 || c->eof != EOF_NO)
@@ -539,8 +475,7 @@ proc_remain:;
 
 static int lzma_sync(io_private_t *c)
 {
-    lzma_write(c, NULL, 0);
-    return enc_sync(c);
+    return (lzma_write(c, NULL, 0) , enc_sync(c));
 }
 
 static ssize_t enc_write(io_private_t *f, const void *d, size_t l)
@@ -626,8 +561,7 @@ static ssize_t enc_read(io_private_t *f, void *d, size_t l)
 
 static int enc_sync(io_private_t *f)
 {
-    enc_write(f, NULL, 0);
-    return 0;
+    return (enc_write(f, NULL, 0) , 0);
 }
 
 static void io_do_compress(io_private_t *io_ptr)
@@ -642,11 +576,7 @@ static void io_do_compress(io_private_t *io_ptr)
     lzf[0].options = &lzo;
     lzf[1].id = LZMA_VLI_UNKNOWN;
     if (lzma_stream_encoder(&io_ptr->lzma_handle, lzf, LZMA_CHECK_NONE) != LZMA_OK)
-    {
-        log_message(LOG_ERROR, "Could not setup liblzma for compression!");
-        return;
-    }
-
+        return (log_message(LOG_ERROR, "Could not setup liblzma for compression!") , (void)NULL);
     io_ptr->lzma_init = true;
     return;
 }
@@ -657,10 +587,7 @@ static void io_do_decompress(io_private_t *io_ptr)
     io_ptr->lzma_handle = l;
 
     if (lzma_stream_decoder(&io_ptr->lzma_handle, UINT64_MAX, 0/*LZMA_CONCATENATED*/) != LZMA_OK)
-    {
-        log_message(LOG_ERROR, "Could not setup liblzma for decompression!");
-        return;
-    }
+        return (log_message(LOG_ERROR, "Could not setup liblzma for decompression!") , (void)NULL);
 
     io_ptr->lzma_init = true;
     return;

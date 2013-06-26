@@ -112,10 +112,7 @@ extern void init_crypto(void)
 extern void execute(crypto_t *c)
 {
     if (!c || c->status != STATUS_INIT)
-    {
-        log_message(LOG_ERROR, _("Invalid cryptographic object!"));
-        return;
-    }
+        return (log_message(LOG_ERROR, _("Invalid cryptographic object!")) , (void)NULL);
     log_message(LOG_VERBOSE, _("Executing crypto instance %p in background"), c);
     pthread_t *t = calloc(1, sizeof( pthread_t ));
     pthread_attr_t a;
@@ -124,7 +121,6 @@ extern void execute(crypto_t *c)
     pthread_create(t, &a, c->process, c);
     c->thread = t;
     pthread_attr_destroy(&a);
-
     return;
 }
 
@@ -275,11 +271,7 @@ extern int hash_id_from_name(const char * const restrict n)
         const char *x = gcry_md_algo_name(list[i]);
         if (!x || algorithm_is_duplicate(x))
             continue;
-        char *y = NULL;
-        if (!strncasecmp(x, NAME_SHA1, strlen(NAME_SHA1) - 1))
-            y = correct_sha1(x);
-        else
-            y = strdup(x);
+        char *y = !strncasecmp(x, NAME_SHA1, strlen(NAME_SHA1) - 1) ? correct_sha1(x) : strdup(x);
         if (!strcasecmp(y, n))
         {
             free(y);
@@ -300,10 +292,7 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h)
         return VERSION_UNKNOWN;
     int64_t f = open(n, O_RDONLY | F_RDLCK, S_IRUSR | S_IWUSR);
     if (f < 0)
-    {
-        log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
-        return VERSION_UNKNOWN;
-    }
+        return (log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno)) , VERSION_UNKNOWN);
     uint64_t head[3] = { 0x0 };
     if ((read(f, head, sizeof head)) < 0)
     {
@@ -312,10 +301,7 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h)
         return VERSION_UNKNOWN;
     }
     if (head[0] != htonll(HEADER_0) && head[1] != htonll(HEADER_1))
-    {
-        close(f);
-        return VERSION_UNKNOWN;
-    }
+        return (close(f) , VERSION_UNKNOWN);
 
     if (b)
     {
@@ -340,28 +326,22 @@ extern version_e check_version(uint64_t m)
     switch (m)
     {
         case HEADER_VERSION_201108: /* original release 2011.08 */
-            log_message(LOG_INFO, _("File encrypted with version 2011.08"));
-            return VERSION_2011_08;
+            return (log_message(LOG_INFO, _("File encrypted with version 2011.08")) , VERSION_2011_08);
 
         case HEADER_VERSION_201110:
-            log_message(LOG_INFO, _("File encrypted with version 2011.10"));
-            return VERSION_2011_10;
+            return (log_message(LOG_INFO, _("File encrypted with version 2011.10")) , VERSION_2011_10);
 
         case HEADER_VERSION_201211:
-            log_message(LOG_INFO, _("File encrypted with version 2012.11"));
-            return VERSION_2012_11;
+            return (log_message(LOG_INFO, _("File encrypted with version 2012.11")) , VERSION_2012_11);
 
         case HEADER_VERSION_201302:
-            log_message(LOG_INFO, _("File encrypted with version 2013.02"));
-            return VERSION_2013_02;
+            return (log_message(LOG_INFO, _("File encrypted with version 2013.02")) , VERSION_2013_02);
 
         case HEADER_VERSION_LATEST:
-            log_message(LOG_INFO, _("File encrypted with development version of encrypt"));
-            return VERSION_CURRENT;
+            return (log_message(LOG_INFO, _("File encrypted with development version of encrypt")) , VERSION_CURRENT);
 
         default:
-            log_message(LOG_ERROR, _("File encrypted with unknown, or more recent release of encrypt"));
-            return VERSION_UNKNOWN;
+            return (log_message(LOG_ERROR, _("File encrypted with unknown, or more recent release of encrypt")) , VERSION_UNKNOWN);
     }
 }
 
@@ -433,14 +413,12 @@ static char *correct_aes_rijndael(const char * const restrict n)
 
 static char *correct_blowfish128(const char * const restrict n)
 {
-    (void)n;
-    return strdup(NAME_BLOWFISH128);
+    return ((void)n , strdup(NAME_BLOWFISH128));
 }
 
 static char *correct_twofish256(const char * const restrict n)
 {
-    (void)n;
-    return strdup(NAME_TWOFISH256);
+    return ((void)n , strdup(NAME_TWOFISH256));
 }
 
 static bool algorithm_is_duplicate(const char * const restrict n)
