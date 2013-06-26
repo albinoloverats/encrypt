@@ -90,7 +90,9 @@ crypto_status_e;
 typedef enum
 {
     FILE_DIRECTORY, /*!< File is a directory */
-    FILE_REGULAR    /*!< File is a file */
+    FILE_REGULAR,   /*!< File is a file */
+    FILE_SYMLINK,   /*!, File is a soft link */
+    FILE_LINK       /*!, File is a hard link */
 } __attribute__((packed))
 file_type_e;
 
@@ -168,6 +170,8 @@ typedef struct
     crypto_status_e status;   /*!< Current status */
     progress_t current;       /*!< Progress of current file */
     progress_t total;         /*!< Overall progress (all files) */
+
+    void *misc;               /*!< Miscellaneous data, specific to either encryption or decryption only */
 
     version_e version;        /*!< Version of the encrypted file container */
     uint64_t blocksize;       /*!< Whether data is split into blocks, and thus their size */
