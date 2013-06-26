@@ -497,7 +497,7 @@ static void decrypt_directory(crypto_t *c, const char *dir)
                     log_message(LOG_VERBOSE, _("Creating link : %s -> %s/%s"), filename, dir, lnk);
                     char *hl = NULL;
                     if (!asprintf(&hl, "%s/%s", dir, lnk))
-                        die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, strlen(dir) + strlen(lnk) + 2);
+                        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(dir) + strlen(lnk) + 2);
                     link(hl, filename);
                 }
                 break;

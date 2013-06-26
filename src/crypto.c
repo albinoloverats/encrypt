@@ -327,19 +327,14 @@ extern version_e check_version(uint64_t m)
     {
         case HEADER_VERSION_201108: /* original release 2011.08 */
             return (log_message(LOG_INFO, _("File encrypted with version 2011.08")) , VERSION_2011_08);
-
         case HEADER_VERSION_201110:
             return (log_message(LOG_INFO, _("File encrypted with version 2011.10")) , VERSION_2011_10);
-
         case HEADER_VERSION_201211:
             return (log_message(LOG_INFO, _("File encrypted with version 2012.11")) , VERSION_2012_11);
-
         case HEADER_VERSION_201302:
             return (log_message(LOG_INFO, _("File encrypted with version 2013.02")) , VERSION_2013_02);
-
         case HEADER_VERSION_LATEST:
             return (log_message(LOG_INFO, _("File encrypted with development version of encrypt")) , VERSION_CURRENT);
-
         default:
             return (log_message(LOG_ERROR, _("File encrypted with unknown, or more recent release of encrypt")) , VERSION_UNKNOWN);
     }
@@ -351,19 +346,14 @@ extern const char *get_version(version_e v)
     {
         case VERSION_2011_08:
             return VERSION_STRING[1];
-
         case VERSION_2011_10:
             return VERSION_STRING[2];
-
         case VERSION_2012_11:
             return VERSION_STRING[3];
-
         case VERSION_2013_02:
             return VERSION_STRING[4];
-
         case VERSION_CURRENT:
             return VERSION_STRING[5];
-
         default:
             return VERSION_STRING[0];
     }
@@ -372,7 +362,7 @@ extern const char *get_version(version_e v)
 extern version_e parse_version(char *v)
 {
     if (!v)
-        return VERSION_UNKNOWN;
+        return VERSION_2013_09;
 
     if (!strcmp(v, VERSION_STRING[1]))
         return VERSION_2011_08;
@@ -382,10 +372,8 @@ extern version_e parse_version(char *v)
         return VERSION_2012_11;
     else if (!strcmp(v, VERSION_STRING[4]))
         return VERSION_2013_02;
-    else if (!strcmp(v, VERSION_STRING[5]))
-        return VERSION_2013_09;
     else
-        return VERSION_UNKNOWN;
+        return VERSION_2013_09;
 }
 
 static int algorithm_compare(const void *a, const void *b)

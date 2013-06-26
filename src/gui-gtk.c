@@ -80,6 +80,8 @@ inline static void gui_display(crypto_t *, gtk_widgets_t *);
 static gboolean _files = false;
 static bool _encrypted = false;
 static bool _compress = true;
+static bool _follow = false;
+static char *_version = NULL;
 static crypto_status_e *_status = NULL;
 
 extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash)
@@ -202,7 +204,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
              * quickly see if the file is encrypted already
              */
             char *c = NULL, *h = NULL;
-            if ((_encrypted = file_encrypted(open_file, &c, &h)))
+            if ((_encrypted = is_encrypted(open_file, &c, &h)))
                 auto_select_algorithms(data, c, h);
             gtk_button_set_label((GtkButton *)data->encrypt_button, _encrypted ? LABEL_DECRYPT : LABEL_ENCRYPT);
             en = TRUE;
@@ -465,7 +467,7 @@ static void *gui_process(void *d)
         int h = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
         const char **ciphers = list_of_ciphers();
         const char **hashes = list_of_hashes();
-        x = encrypt_init(source, output, ciphers[c - 1], hashes[h - 1], key, length, _compress);
+        x = encrypt_init(source, output, ciphers[c - 1], hashes[h - 1], key, length, _compress, _follow, parse_version(_version));
     }
 
     _status = &x->status;
