@@ -65,6 +65,7 @@
 #define fsync(fd) _commit(fd)
 #define ftruncate(fd, sz) _chsize(fd, sz)
 #define alphasort NULL
+#define mkdir(A, B) mkdir(A)
 
 extern int asprintf(char **buffer, char *fmt, ...) __attribute__((nonnull(2), format(printf, 2, 3)));
 
