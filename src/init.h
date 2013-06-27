@@ -34,6 +34,7 @@
 #endif
 
 #define CONF_COMPRESS "compress"
+#define CONF_FOLLOW "follow"
 #define CONF_CIPHER "cipher"
 #define CONF_HASH "hash"
 #define CONF_VERSION "version"

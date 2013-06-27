@@ -1,4 +1,4 @@
-# encrypt configuration file
+# (Example) encrypt configuration file
 # 
 # Copy to ~/.encryptrc on Unix systems and %INSTALL_DIR%\etc\_encryptrc
 # on MS Windows.
@@ -7,14 +7,18 @@
 # and free text should match command line options.
 
 # Enable/disable compression of data prior to encryption. The default is
-# enabled
-compress true
+# enabled.
+#compress true
 
-# Set the default cipher to use for encryption
+# Follow soft links and store the file or directory they point to. The
+# default is not to follow links but store the link itself.
+#follow false
+
+# Set the default cipher to use for encryption.
 #cipher aes
 
-# Set the default hash to use for key generation
+# Set the default hash to use for key generation.
 #hash sha256
 
-# Set the level of backwards compatibility, by version number
+# Set the level of backwards compatibility, by version number.
 #version 2013.09

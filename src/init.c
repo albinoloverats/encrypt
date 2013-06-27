@@ -40,7 +40,9 @@
 #include "init.h"
 #include "crypto.h"
 
-static char *parse_config_tail(const char *c, const char *l);
+static bool parse_config_boolean(const char *, const char *, bool);
+static char *parse_config_tail(const char *, const char *);
+
 static void print_version(void);
 static void print_usage(void);
 
@@ -64,19 +66,12 @@ extern args_t init(int argc, char **argv)
         while (getline(&line, &len, f) >= 0)
         {
             if (line[0] == '#' || len == 0)
-                continue;
+                goto fl;
 
             if (!strncmp(CONF_COMPRESS, line, strlen(CONF_COMPRESS)) && isspace(line[strlen(CONF_COMPRESS)]))
-            {
-                char *tail = parse_config_tail(CONF_COMPRESS, line);
-                if (!strcasecmp(CONF_TRUE, tail) || !strcasecmp(CONF_ON, tail) || !strcasecmp(CONF_ENABLED, tail))
-                    a.compress = true;
-                else if (!strcasecmp(CONF_FALSE, tail) || !strcasecmp(CONF_OFF, tail) || !strcasecmp(CONF_DISABLED, tail))
-                    a.compress = false;
-                else
-                    log_message(LOG_WARNING, "Unknown value %s for %s in config file", tail, CONF_COMPRESS);
-                free(tail);
-            }
+                a.compress = parse_config_boolean(CONF_COMPRESS, line, a.compress);
+            else if (!strncmp(CONF_FOLLOW, line, strlen(CONF_FOLLOW)) && isspace(line[strlen(CONF_FOLLOW)]))
+                a.follow = parse_config_boolean(CONF_FOLLOW, line, a.follow);
             else if (!strncmp(CONF_CIPHER, line, strlen(CONF_CIPHER)) && isspace(line[strlen(CONF_CIPHER)]))
                 a.cipher = parse_config_tail(CONF_CIPHER, line);
             else if (!strncmp(CONF_HASH, line, strlen(CONF_HASH)) && isspace(line[strlen(CONF_HASH)]))
@@ -84,6 +79,7 @@ extern args_t init(int argc, char **argv)
             else if (!strncmp(CONF_VERSION, line, strlen(CONF_VERSION)) && isspace(line[strlen(CONF_VERSION)]))
                 a.version = parse_config_tail(CONF_VERSION, line);
 
+fl:
             free(line);
             line = NULL;
             len = 0;
@@ -321,6 +317,20 @@ extern void show_version(void)
 {
     print_version();
     exit(EXIT_SUCCESS);
+}
+
+static bool parse_config_boolean(const char *c, const char *l, bool d)
+{
+    bool r = d;
+    char *v = parse_config_tail(c, l);
+    if (!strcasecmp(CONF_TRUE, v) || !strcasecmp(CONF_ON, v) || !strcasecmp(CONF_ENABLED, v))
+        r = true;
+    else if (!strcasecmp(CONF_FALSE, v) || !strcasecmp(CONF_OFF, v) || !strcasecmp(CONF_DISABLED, v))
+        r = false;
+    else
+        log_message(LOG_WARNING, "Unknown value %s for %s in config file; using default : %s", v, c, d ? "true" : "false");
+    free(v);
+    return r;
 }
 
 static char *parse_config_tail(const char *c, const char *l)
