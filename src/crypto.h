@@ -305,6 +305,6 @@ extern const char *get_version(version_e v);
  *
  * Parse the version string and return the corresponds version enum.
  */
-extern version_e parse_version(char *v);
+extern version_e parse_version(const char *v);
 
 #endif /* ! _ENCRYPT_CRYPTO_H */

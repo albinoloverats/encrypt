@@ -359,7 +359,7 @@ extern const char *get_version(version_e v)
     }
 }
 
-extern version_e parse_version(char *v)
+extern version_e parse_version(const char *v)
 {
     if (!v)
         return VERSION_2013_09;
