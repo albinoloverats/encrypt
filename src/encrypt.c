@@ -268,6 +268,23 @@ static void *process(void *ptr)
         log_message(LOG_INFO, _("Directory tree contains %" PRIi64 " entries"), c->total.size);
         file_type_e tp = FILE_DIRECTORY;
         io_write(c->output, &tp, sizeof( byte_t ));
+        /*
+         * strip leading directories and trailing /
+         */
+        char ps = c->path[strlen(c->path) - 1];
+        if (ps == '/')
+            ps = '\0';
+        char *cwd = NULL;
+        char *dir = strrchr(c->path, '/');
+        if (dir)
+        {
+            *dir = '\0';
+            dir++;
+            cwd = getcwd(NULL, 0);
+            chdir(c->path);
+            if (!(asprintf(&c->path, "%s", dir)))
+                die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(dir));
+        }
         uint64_t l = htonll(strlen(c->path));
         io_write(c->output, &l, sizeof l);
         io_write(c->output, c->path, strlen(c->path));
@@ -279,6 +296,11 @@ static void *process(void *ptr)
             if (((link_count_t *)c->misc)[i].path)
                 free(((link_count_t *)c->misc)[i].path);
         free(c->misc);
+        if (cwd)
+        {
+            chdir(cwd);
+            free(cwd);
+        }
     }
     else
     {
@@ -573,7 +595,7 @@ static char *encrypt_link(crypto_t *c, char *filename, struct stat s)
     link_count_t *ln = (link_count_t *)c->misc;
     for (uint64_t i = 0; i < c->total.offset; i++)
         if (ln[i].dev == s.st_dev && ln[i].inode == s.st_ino)
-            return log_message(LOG_EVERYTHING, _("File %s is a duplicate of %ju:%ju"), filename, s.st_dev, s.st_ino) , ln[i].path;
+            return log_message(LOG_EVERYTHING, _("File %s is a duplicate of %ju:%ju"), filename, (intmax_t)s.st_dev, (intmax_t)s.st_ino) , ln[i].path;
     ln[c->total.offset].dev = s.st_dev;
     ln[c->total.offset].inode = s.st_ino;
     ln[c->total.offset].path = strdup(filename);
