@@ -45,7 +45,9 @@ char *gui_file_hack_output = NULL;
 
 static bool encrypted = true;
 static bool compress = true;
+static bool follow = false;
 static bool running = false;
+static version_e version = VERSION_CURRENT;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
@@ -55,22 +57,20 @@ static bool running = false;
 
     [self auto_select_algorithms:args.cipher:args.hash];
 
-    long i = [_sourceFileChooser numberOfItems];
     bool z = true;
-    for (int j = 0, k = 0; j < i; j++, k++)
+    for (NSMenuItem *m in [_sourceFileChooser itemArray])
     {
-        const char *t = [[_sourceFileChooser itemTitleAtIndex:k] UTF8String];
-        
+        const char *t = [[m title] UTF8String];
         if (!strcmp(t, SELECT_FILE) || !strcmp(t, SELECT_OTHER))
             continue;
-        else if (z && !strcmp(t, ""))
+        else if (z && !strlen(t))
         {
             z = false;
             continue;
         }
-        [_sourceFileChooser removeItemAtIndex:k];
-        k--;
+        [_sourceFileChooser removeItemWithTitle:[NSString stringWithUTF8String:t]];
     }
+
 #if 0
     if (gui_file_hack_source)
     {
@@ -79,22 +79,20 @@ static bool running = false;
     }
 #endif
 
-    i = [_outputFileChooser numberOfItems];
     z = true;
-    for (int j = 0, k = 0; j < i; j++, k++)
+    for (NSMenuItem *m in [_outputFileChooser itemArray])
     {
-        const char *t = [[_outputFileChooser itemTitleAtIndex:k] UTF8String];
-
+        const char *t = [[m title] UTF8String];
         if (!strcmp(t, SELECT_FILE) || !strcmp(t, SELECT_NEW) || !strcmp(t, SELECT_OTHER))
             continue;
-        else if (z && !strcmp(t, ""))
+        else if (z && !strlen(t))
         {
             z = false;
             continue;
         }
-        [_outputFileChooser removeItemAtIndex:k];
-        k--;
+        [_outputFileChooser removeItemWithTitle:[NSString stringWithUTF8String:t]];
     }
+    
 #if 0
     if (gui_file_hack_output)
     {
@@ -103,25 +101,29 @@ static bool running = false;
     }
 #endif
 
-    i = [_keyFileChooser numberOfItems];
     z = true;
-    for (int j = 0, k = 0; j < i; j++, k++)
+    for (NSMenuItem *m in [_keyFileChooser itemArray])
     {
-        const char *t = [[_keyFileChooser itemTitleAtIndex:k] UTF8String];
-
+        const char *t = [[m title] UTF8String];
         if (!strcmp(t, SELECT_KEY) || !strcmp(t, SELECT_OTHER))
             continue;
-        else if (z && !strcmp(t, ""))
+        else if (z && !strlen(t))
         {
             z = false;
             continue;
         }
-        [_keyFileChooser removeItemAtIndex:k];
-        k--;
+        [_keyFileChooser removeItemWithTitle:[NSString stringWithUTF8String:t]];
     }
 
+    /* set menu options based of config settings */
     compress = args.compress;
     [_compress setState:args.compress];
+    follow = args.follow;
+    [_follow setState:args.follow];
+    version = parse_version(args.version);
+    const char *v = get_version(version);
+    for (NSMenuItem *m in [_version itemArray])
+        [m setState:strcmp([[m title] UTF8String], v) ? FALSE : TRUE];
 
     [_statusBar setStringValue:@STATUS_BAR_READY];
 
@@ -133,6 +135,24 @@ static bool running = false;
     compress = !(bool)[_compress state];
     [_compress setState:compress];
     update_config(CONF_COMPRESS, compress ? CONF_TRUE : CONF_FALSE);
+}
+
+- (IBAction)followToggle:(id)pId
+{
+    follow = !(bool)[_follow state];
+    [_follow setState:follow];
+    update_config(CONF_FOLLOW, follow ? CONF_TRUE : CONF_FALSE);
+}
+
+- (IBAction)versionToggle:(id)pId
+{
+    NSMenuItem *i = [_version highlightedItem];
+    const char *v = [[i title] UTF8String];
+    version = parse_version(v);
+    for (NSMenuItem *m in [_version itemArray])
+        [m setState:false];
+    [i setState:true];
+    update_config(CONF_VERSION, (char*)get_version(version));
 }
 
 - (IBAction)ioFileChoosen:(id)pId
@@ -154,9 +174,9 @@ static bool running = false;
      */
     char *c = NULL;
     char *h = NULL;
-    if ((encrypted = file_encrypted(open_file, &c, &h)))
+    if ((encrypted = is_encrypted(open_file, &c, &h)))
         [self auto_select_algorithms:c:h];
-    [_encryptButton setTitle: encrypted ? @LABEL_DECRYPT : @LABEL_ENCRYPT];
+    [_encryptButton setTitle:encrypted ? @LABEL_DECRYPT : @LABEL_ENCRYPT];
 
     if (!save_link || !strlen(save_link))
         goto clean_up;
@@ -181,8 +201,8 @@ clean_up:
 
     if (!encrypted)
     {
-        [_cipherCombo setEnabled:(en)];
-        [_hashCombo setEnabled:(en)];
+        [_cipherCombo setEnabled:en];
+        [_hashCombo setEnabled:en];
     }
 
     [self cipherHashSelected:pId];
@@ -194,15 +214,15 @@ clean_up:
         || ([[[_hashCombo selectedItem] title] isEqualTo:@SELECT_HASH]))
     {
         // Unselected either cipher/hash, disable all options below
-        [_keyCombo setEnabled:(FALSE)];
-        [_keyFileChooser setEnabled:(FALSE)];
-        [_passwordField setEnabled:(FALSE)];
-        [_encryptButton setEnabled:(FALSE)];
+        [_keyCombo setEnabled:FALSE];
+        [_keyFileChooser setEnabled:FALSE];
+        [_passwordField setEnabled:FALSE];
+        [_encryptButton setEnabled:FALSE];
     }
     else
     {
-        [_keyCombo setEnabled:(TRUE)];
-        [self keySourceSelected:(pId)];
+        [_keyCombo setEnabled:TRUE];
+        [self keySourceSelected:pId];
     }
 }
 
@@ -212,21 +232,21 @@ clean_up:
     Boolean p = FALSE;
     Boolean h = TRUE;
     if ([[[_keyCombo selectedItem] title] isEqualToString:@KEY_FILE])
-        k = TRUE, h = FALSE;
+        k = TRUE , h = FALSE;
     else if([[[_keyCombo selectedItem] title] isEqualToString:@PASSPHRASE])
-        p = TRUE, h = FALSE;
+        p = TRUE , h = FALSE;
     // Enable/disable as necessary; show/hide too (keep most recent visible)
-    [_keyFileChooser setEnabled:(k)];
-    [_keyFileChooserButton setHidden:(!k)];
-    [_passwordField setEnabled:(p)];
-    [_passwordField setHidden:(!p ^ h)];
+    [_keyFileChooser setEnabled:k];
+    [_keyFileChooserButton setHidden:!k];
+    [_passwordField setEnabled:p];
+    [_passwordField setHidden:!p ^ h];
     // See if the action button needs changing
     if (k)
         ;//[self keyFileChoosen:(pId)];
     else if (p)
-        [self passwordFieldUpdated:(pId)];
+        [self passwordFieldUpdated:pId];
     else
-        [_encryptButton setEnabled:(FALSE)];
+        [_encryptButton setEnabled:FALSE];
 }
 
 - (IBAction)keyFileChoosen:(id)pId
@@ -253,16 +273,13 @@ clean_up:
     
 clean_up:
     
-    [_encryptButton setEnabled:(en)];
+    [_encryptButton setEnabled:en];
 }
 
 - (IBAction)passwordFieldUpdated:(id)pId
 {
     // Toggle encrypt/decrypt button based on passphrase length
-    if ([[_passwordField stringValue] length] > 0)
-        [_encryptButton setEnabled:(TRUE)];
-    else
-        [_encryptButton setEnabled:(FALSE)];
+    [_encryptButton setEnabled:([[_passwordField stringValue] length] > 0)];
 }
 
 
@@ -271,8 +288,7 @@ clean_up:
     [_popup setIsVisible:TRUE];
     [_progress_current setHidden:FALSE];
     [_percent_current setHidden:FALSE];
-
-    [self performSelectorInBackground:@selector(display_gui:) withObject:nil];
+    [self performSelectorInBackground:@selector(display_gui:)withObject:nil];
 }
 
 - (void)display_gui:(id)pId
@@ -321,7 +337,7 @@ clean_up:
 
     crypto_t *c;
     if (!encrypted)
-        c = encrypt_init(open_file, save_file, (char *)[[[_cipherCombo selectedItem] title] UTF8String], (char *)[[[_hashCombo selectedItem] title] UTF8String], key, length, compress);
+        c = encrypt_init(open_file, save_file, (char *)[[[_cipherCombo selectedItem] title] UTF8String], (char *)[[[_hashCombo selectedItem] title] UTF8String], key, length, compress, follow, version);
     else
         c = decrypt_init(open_file, save_file, key, length);
 

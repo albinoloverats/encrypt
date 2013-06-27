@@ -29,6 +29,7 @@
 		2EA92F73161DDC58008DFF9B /* gui-cocoa.m in Sources */ = {isa = PBXBuildFile; fileRef = 2EA92F72161DDC58008DFF9B /* gui-cocoa.m */; };
 		2EA92F76161DDC59008DFF9B /* Encrypt.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2EA92F74161DDC59008DFF9B /* Encrypt.xib */; };
 		2EA92F7F161DDCFE008DFF9B /* encrypt.icns in Resources */ = {isa = PBXBuildFile; fileRef = 2EA92F7E161DDCFE008DFF9B /* encrypt.icns */; };
+		2EAD2143177C35AC0091EA3C /* fs.c in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD2141177C35AC0091EA3C /* fs.c */; };
 		2EB536E5168F76D000A915C1 /* libgcrypt.11.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2EB536E4168F76D000A915C1 /* libgcrypt.11.dylib */; };
 		2EB536E7168F76FF00A915C1 /* libgpg-error.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2EB536E6168F76FF00A915C1 /* libgpg-error.0.dylib */; };
 		2EB536E9168F772200A915C1 /* liblzma.5.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2EB536E8168F772200A915C1 /* liblzma.5.dylib */; };
@@ -39,7 +40,7 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		2E76DE4B165A86BE000DD9DF /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
@@ -93,6 +94,8 @@
 		2EA92F75161DDC59008DFF9B /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/Encrypt.xib; sourceTree = "<group>"; };
 		2EA92F7E161DDCFE008DFF9B /* encrypt.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = encrypt.icns; sourceTree = "<group>"; };
 		2EA92F80161DDE94008DFF9B /* Encrypt.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Encrypt.entitlements; sourceTree = "<group>"; };
+		2EAD2141177C35AC0091EA3C /* fs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fs.c; sourceTree = "<group>"; };
+		2EAD2142177C35AC0091EA3C /* fs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fs.h; sourceTree = "<group>"; };
 		2EB536E4168F76D000A915C1 /* libgcrypt.11.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgcrypt.11.dylib; path = ../../../../../usr/local/Cellar/libgcrypt/1.5.0/lib/libgcrypt.11.dylib; sourceTree = "<group>"; };
 		2EB536E6168F76FF00A915C1 /* libgpg-error.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libgpg-error.0.dylib"; path = "../../../../../usr/local/Cellar/libgpg-error/1.10/lib/libgpg-error.0.dylib"; sourceTree = "<group>"; };
 		2EB536E8168F772200A915C1 /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = ../../../../../usr/local/Cellar/xz/5.0.4/lib/liblzma.5.dylib; sourceTree = "<group>"; };
@@ -211,6 +214,8 @@
 		2EA92F66161DDC58008DFF9B /* common */ = {
 			isa = PBXGroup;
 			children = (
+				2EAD2141177C35AC0091EA3C /* fs.c */,
+				2EAD2142177C35AC0091EA3C /* fs.h */,
 				2E63273A1680B599002A0CB5 /* tlv.c */,
 				2E63273B1680B599002A0CB5 /* tlv.h */,
 				2E63273C1680B599002A0CB5 /* version.c */,
@@ -291,7 +296,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		2E76DE64165A8AFA000DD9DF /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			files = (
 			);
 			inputPaths = (
@@ -301,7 +306,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "install_name_tool -id @executable_path/../Frameworks/libcurl.4.dylib      ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libcurl.4.dylib\ninstall_name_tool -id @executable_path/../Frameworks/libgcrypt.11.dylib   ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgcrypt.11.dylib\ninstall_name_tool -id @executable_path/../Frameworks/libgpg-error.0.dylib ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgpg-error.0.dylib\ninstall_name_tool -id @executable_path/../Frameworks/liblzma.5.dylib      ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/liblzma.5.dylib\n\ninstall_name_tool -change /usr/lib/libcurl.4.dylib            @executable_path/../Frameworks/libcurl.4.dylib      ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/MacOS/Encrypt\ninstall_name_tool -change /usr/local/lib/libgcrypt.11.dylib   @executable_path/../Frameworks/libgcrypt.11.dylib   ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/MacOS/Encrypt\ninstall_name_tool -change /usr/local/lib/libgpg-error.0.dylib @executable_path/../Frameworks/libgpg-error.0.dylib ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/MacOS/Encrypt\ninstall_name_tool -change /usr/local/lib/liblzma.5.dylib      @executable_path/../Frameworks/liblzma.5.dylib      ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/MacOS/Encrypt\ninstall_name_tool -change /usr/local/lib/libgpg-error.0.dylib @executable_path/../Frameworks/libgpg-error.0.dylib ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgcrypt.11.dylib\n";\n\n
+			shellScript = "install_name_tool -id @executable_path/../Frameworks/libcurl.4.dylib      ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libcurl.4.dylib\ninstall_name_tool -id @executable_path/../Frameworks/libgcrypt.11.dylib   ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgcrypt.11.dylib\ninstall_name_tool -id @executable_path/../Frameworks/libgpg-error.0.dylib ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgpg-error.0.dylib\ninstall_name_tool -id @executable_path/../Frameworks/liblzma.5.dylib      ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/liblzma.5.dylib\n\ninstall_name_tool -change /usr/lib/libcurl.4.dylib            @executable_path/../Frameworks/libcurl.4.dylib      ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/MacOS/Encrypt\ninstall_name_tool -change /usr/local/lib/libgcrypt.11.dylib   @executable_path/../Frameworks/libgcrypt.11.dylib   ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/MacOS/Encrypt\ninstall_name_tool -change /usr/local/lib/libgpg-error.0.dylib @executable_path/../Frameworks/libgpg-error.0.dylib ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/MacOS/Encrypt\ninstall_name_tool -change /usr/local/lib/liblzma.5.dylib      @executable_path/../Frameworks/liblzma.5.dylib      ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/MacOS/Encrypt\ninstall_name_tool -change /usr/local/lib/libgpg-error.0.dylib @executable_path/../Frameworks/libgpg-error.0.dylib ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgcrypt.11.dylib\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -322,6 +327,7 @@
 				2E6327441680B5A8002A0CB5 /* crypto.c in Sources */,
 				2E6327451680B5A8002A0CB5 /* decrypt.c in Sources */,
 				2E79E87D16831ED700F73B01 /* cli.c in Sources */,
+				2EAD2143177C35AC0091EA3C /* fs.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

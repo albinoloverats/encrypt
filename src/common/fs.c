@@ -26,8 +26,13 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#ifndef __APPLE__
 #include "common/common.h"
 #include "common/logging.h"
+#else
+#include "common.h"
+#include "logging.h"
+#endif
 
 /*
  * Taken from http://nion.modprobe.de/tmp/mkdir.c

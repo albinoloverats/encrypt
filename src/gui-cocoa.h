@@ -44,6 +44,8 @@
 @property (assign) IBOutlet NSWindow *window;
 
 @property (strong, nonatomic) IBOutlet NSMenuItem *compress;
+@property (strong, nonatomic) IBOutlet NSMenuItem *follow;
+@property (strong, nonatomic) IBOutlet NSMenu *version;
 
 @property (strong, nonatomic) IBOutlet NSPopUpButtonCell *sourceFileChooser;
 @property (strong, nonatomic) IBOutlet NSPopUpButtonCell *outputFileChooser;
@@ -79,6 +81,9 @@
  */
 
 - (IBAction)compressionToggle:(id)pId;
+- (IBAction)followToggle:(id)pId;
+- (IBAction)versionToggle:(id)pId;
+
 
 - (IBAction)ioFileChoosen:(id)pId;
 - (IBAction)keyFileChoosen:(id)pId;
