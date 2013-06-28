@@ -166,6 +166,8 @@ int main(int argc, char **argv)
         CH_GET_WIDGET(builder, about_dialog, widgets);
         CH_GET_WIDGET(builder, about_new_version_label, widgets);
         CH_GET_WIDGET(builder, compress_menu_item, widgets);
+        CH_GET_WIDGET(builder, follow_menu_item, widgets);
+        CH_GET_WIDGET(builder, compat_menu, widgets);
 
         gtk_builder_connect_signals(builder, widgets);
         g_object_unref(G_OBJECT(builder));
@@ -193,7 +195,10 @@ int main(int argc, char **argv)
         file_dialog_okay(NULL, widgets);
 #endif
         auto_select_algorithms(widgets, args.cipher, args.hash);
+        set_compatibility_menu(widgets, args.version);
+
         gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->compress_menu_item, args.compress);
+        gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->follow_menu_item, args.follow);
         gtk_combo_box_set_active((GtkComboBox *)widgets->key_combo, 0);
         set_status_bar((GtkStatusbar *)widgets->status_bar, STATUS_BAR_READY);
 
