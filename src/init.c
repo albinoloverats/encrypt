@@ -199,7 +199,7 @@ extern void init_deinit(args_t args)
     return;
 }
 
-extern void update_config(char *o, char *v)
+extern void update_config(const char * const restrict o, const char * const restrict v)
 {
     if (!o || !v)
         return;
@@ -248,7 +248,10 @@ extern void update_config(char *o, char *v)
         }
 
         if (!found)
+        {
+            fseek(f, 0, SEEK_END);
             fprintf(f, "\n%s %s\n", o, v);
+        }
 
         fclose(f);
         free(line);

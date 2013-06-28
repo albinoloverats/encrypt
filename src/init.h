@@ -87,7 +87,7 @@ extern void init_deinit(args_t args);
  *
  * Set or update the given configuration option with the given value.
  */
-extern void update_config(char *o, char *v) __attribute__((nonnull(1, 2)));
+extern void update_config(const char * const restrict o, const char * const restrict v) __attribute__((nonnull(1, 2)));
 
 /*!
  * \brief         Show list of command line options
