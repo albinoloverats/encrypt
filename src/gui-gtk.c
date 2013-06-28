@@ -81,7 +81,7 @@ static gboolean _files = false;
 static bool _encrypted = false;
 static bool _compress = true;
 static bool _follow = false;
-static char *_version = NULL;
+static version_e _version = VERSION_CURRENT;
 static crypto_status_e *_status = NULL;
 
 extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash)
@@ -119,6 +119,30 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 #endif
     }
     gtk_combo_box_set_active((GtkComboBox *)data->hash_combo, slctd_hash);
+
+    return;
+}
+
+extern void set_compatibility_menu(gtk_widgets_t *data, char *version)
+{
+    GSList *g = NULL;
+    version_e v = parse_version(version);
+    for (version_e i = VERSION_CURRENT; i > VERSION_UNKNOWN; i--)
+    {
+        const char *t = get_version(i);
+        GtkWidget *m = gtk_radio_menu_item_new_with_label(g, t);
+        g = gtk_radio_menu_item_get_group((GtkRadioMenuItem *)m);
+        gtk_menu_shell_append((GtkMenuShell *)data->compat_menu, m);
+        g_signal_connect(G_OBJECT(m), "toggled", G_CALLBACK(on_compatibility_change), data);
+        gtk_widget_show(m);
+        if (i == v || i == VERSION_CURRENT)
+        {
+            gtk_check_menu_item_set_active((GtkCheckMenuItem *)m, TRUE);
+            _version = i;
+            if (i != VERSION_CURRENT)
+                log_message(LOG_VERBOSE, _("Compatibility version: %s"), t);
+        }
+    }
 
     return;
 }
@@ -396,8 +420,23 @@ G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_t *data)
 G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *widget, gtk_widgets_t *data)
 {
     _compress = gtk_check_menu_item_get_active((GtkCheckMenuItem *)data->compress_menu_item);
-
     update_config(CONF_COMPRESS, _compress ? CONF_TRUE : CONF_FALSE);
+
+    return TRUE;
+}
+
+G_MODULE_EXPORT gboolean on_follow_toggle(GtkWidget *widget, gtk_widgets_t *data)
+{
+    _follow = gtk_check_menu_item_get_active((GtkCheckMenuItem *)data->follow_menu_item);
+    update_config(CONF_FOLLOW, _follow ? CONF_TRUE : CONF_FALSE);
+
+    return TRUE;
+}
+
+G_MODULE_EXPORT gboolean on_compatibility_change(GtkWidget *widget, gtk_widgets_t *data)
+{
+    _version = parse_version(gtk_menu_item_get_label((GtkMenuItem *)widget));
+    update_config(CONF_VERSION, get_version(_version));
 
     return TRUE;
 }
@@ -467,7 +506,7 @@ static void *gui_process(void *d)
         int h = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
         const char **ciphers = list_of_ciphers();
         const char **hashes = list_of_hashes();
-        x = encrypt_init(source, output, ciphers[c - 1], hashes[h - 1], key, length, _compress, _follow, parse_version(_version));
+        x = encrypt_init(source, output, ciphers[c - 1], hashes[h - 1], key, length, _compress, _follow, _version);
     }
 
     _status = &x->status;

@@ -67,10 +67,13 @@ typedef struct gtk_widgets_t
     GtkWidget *about_dialog;
     GtkWidget *about_new_version_label;
     GtkWidget *compress_menu_item;
+    GtkWidget *follow_menu_item;
+    GtkWidget *compat_menu;
 }
 gtk_widgets_t;
 
 extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash);
+extern void set_compatibility_menu(gtk_widgets_t *data, char *version);
 
 G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *data);
 G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data);
@@ -87,6 +90,8 @@ G_MODULE_EXPORT gboolean on_progress_button_clicked(GtkButton *button, gtk_widge
 G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_t *data);
 
 G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *widget, gtk_widgets_t *data);
+G_MODULE_EXPORT gboolean on_follow_toggle(GtkWidget *widget, gtk_widgets_t *data);
+G_MODULE_EXPORT gboolean on_compatibility_change(GtkWidget *widget, gtk_widgets_t *data);
 
 extern void set_status_bar(GtkStatusbar *status_bar, const char *status);
 
