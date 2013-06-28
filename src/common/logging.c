@@ -71,6 +71,10 @@ extern log_e log_parse_level(const char * const restrict l)
 
 extern void log_relevel(log_e l)
 {
+    if (l < LOG_EVERYTHING)
+        l = LOG_EVERYTHING;
+    else if (l > LOG_FATAL)
+        l = LOG_FATAL;
     log_current_level = l;
 }
 
@@ -98,6 +102,10 @@ extern void log_message(log_e l, const char * const restrict s, ...)
 {
     if (!s)
     {
+        /*
+         * NULL value for s causes error message based on errno to be
+         * displayed at log level error
+         */
         if (errno)
         {
             char * const restrict e = strdup(strerror(errno));
@@ -108,23 +116,22 @@ extern void log_message(log_e l, const char * const restrict s, ...)
         }
         return;
     }
+    if (l < log_current_level)
+        return;
     va_list ap;
     va_start(ap, s);
-    if (l >= log_current_level)
-    {
-        FILE *f = log_destination ? : stderr;
-        flockfile(f);
-        if (f == stderr)
-            fprintf(f, "\r%s: ", program_invocation_short_name);
-        char dtm[20];
-        time_t tm = time(NULL);
-        strftime(dtm, sizeof dtm, "%Y-%m-%d %T", localtime(&tm));
-        fprintf(f, "[%s] (%d) [%s] ", dtm, getpid(), l < LOG_LEVEL_COUNT ? LOG_LEVELS[l] : "(unknown)");
-        vfprintf(f, s, ap);
-        fprintf(f, "\n");
-        fflush(f);
-        funlockfile(f);
-    }
+    FILE *f = log_destination ? : stderr;
+    flockfile(f);
+    if (f == stderr)
+        fprintf(f, "\r%s: ", program_invocation_short_name);
+    char dtm[20];
+    time_t tm = time(NULL);
+    strftime(dtm, sizeof dtm, "%Y-%m-%d %T", localtime(&tm));
+    fprintf(f, "[%s] (%d) [%s] ", dtm, getpid(), l < LOG_LEVEL_COUNT ? LOG_LEVELS[l] : "(unknown)");
+    vfprintf(f, s, ap);
+    fprintf(f, "\n");
+    fflush(f);
+    funlockfile(f);
     va_end(ap);
     return;
 }
