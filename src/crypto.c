@@ -83,14 +83,22 @@ static const char *STATUS_MESSAGE[] =
     "Failed: Unknown Problem!"
 };
 
-static const char *VERSION_STRING[] =
+typedef struct
 {
-    "Unknown",
-    "2011.08",
-    "2011.10",
-    "2012.11",
-    "2013.02",
-    "2013.09"
+    const char string[8];
+    uint64_t id;
+}
+version_t;
+
+static const version_t VERSIONS[] =
+{
+    { "Unknown", 0 },
+    { "2011.08", 0x72761df3e497c983llu },
+    { "2011.10", 0xbb116f7d00201110llu },
+    { "2012.11", 0x51d28245e1216c45llu },
+    { "2013.02", 0x5b7132ab5abb3c47llu },
+    { "2013.09", 0xf1f68e5f2a43aa5fllu },
+    { "current", 0xf1f68e5f2a43aa5fllu } /* same as above */
 };
 
 extern void init_crypto(void)
@@ -323,57 +331,27 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h)
 
 extern version_e check_version(uint64_t m)
 {
-    switch (m)
-    {
-        case HEADER_VERSION_201108: /* original release 2011.08 */
-            return (log_message(LOG_INFO, _("File encrypted with version 2011.08")) , VERSION_2011_08);
-        case HEADER_VERSION_201110:
-            return (log_message(LOG_INFO, _("File encrypted with version 2011.10")) , VERSION_2011_10);
-        case HEADER_VERSION_201211:
-            return (log_message(LOG_INFO, _("File encrypted with version 2012.11")) , VERSION_2012_11);
-        case HEADER_VERSION_201302:
-            return (log_message(LOG_INFO, _("File encrypted with version 2013.02")) , VERSION_2013_02);
-        case HEADER_VERSION_LATEST:
-            return (log_message(LOG_INFO, _("File encrypted with development version of encrypt")) , VERSION_CURRENT);
-        default:
-            return (log_message(LOG_ERROR, _("File encrypted with unknown, or more recent release of encrypt")) , VERSION_UNKNOWN);
-    }
+    for (version_e v = VERSION_CURRENT; v > VERSION_UNKNOWN; v--)
+        if (m == VERSIONS[v].id)
+            return (log_message(LOG_INFO, _("File encrypted with version %s"), VERSIONS[v].string) , v);
+    log_message(LOG_ERROR, _("File encrypted with unknown, or more recent release of encrypt"));
+    return VERSION_UNKNOWN;
 }
 
 extern const char *get_version(version_e v)
 {
-    switch (v)
-    {
-        case VERSION_2011_08:
-            return VERSION_STRING[1];
-        case VERSION_2011_10:
-            return VERSION_STRING[2];
-        case VERSION_2012_11:
-            return VERSION_STRING[3];
-        case VERSION_2013_02:
-            return VERSION_STRING[4];
-        case VERSION_CURRENT:
-            return VERSION_STRING[5];
-        default:
-            return VERSION_STRING[0];
-    }
+    return VERSIONS[v].string;
 }
 
 extern version_e parse_version(const char *v)
 {
     if (!v)
-        return VERSION_2013_09;
-
-    if (!strcmp(v, VERSION_STRING[1]))
-        return VERSION_2011_08;
-    else if (!strcmp(v, VERSION_STRING[2]))
-        return VERSION_2011_10;
-    else if (!strcmp(v, VERSION_STRING[3]))
-        return VERSION_2012_11;
-    else if (!strcmp(v, VERSION_STRING[4]))
-        return VERSION_2013_02;
-    else
-        return VERSION_2013_09;
+        return VERSION_CURRENT;
+    for (version_e i = VERSION_CURRENT; i > VERSION_UNKNOWN; i--)
+        if (!strcmp(v, VERSIONS[i].string))
+            return i;
+    log_message(LOG_ERROR, _("Unknown version, defaulting to current : %s"), VERSIONS[VERSION_CURRENT].string);
+    return VERSION_CURRENT;
 }
 
 static int algorithm_compare(const void *a, const void *b)

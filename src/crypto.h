@@ -40,19 +40,8 @@
 #define ENCRYPT_VERSION "2013.09" /*!< Current version of encrypt application */
 #define UPDATE_URL "https://albinoloverats.net/encrypt.release" /*!< URI to check for updates */
 
-#define HEADER_VERSION_201108 0x72761df3e497c983llu /*!< The third 8 bytes of the original version (2011.08) */
-#define HEADER_VERSION_201110 0xbb116f7d00201110llu /*!< The third 8 bytes of the second release (2011.10) */
-#define HEADER_VERSION_201211 0x51d28245e1216c45llu /*!< The third 8 bytes of the 2012.11 release */
-#define HEADER_VERSION_201302 0x5b7132ab5abb3c47llu /*!< The third 8 bytes of the 2013.02 release */
-
-/* TODO consider whether bug fixes should break backwards compatibility */
-
-#define HEADER_VERSION_201309 0xf1f68e5f2a43aa5fllu /*!< The final 8 bytes of the next release */
-#define HEADER_VERSION_LATEST HEADER_VERSION_201309 /*!< The third 8 bytes of the current development version */
-
 #define HEADER_0 0x3697de5d96fca0fallu              /*!< The first 8 bytes of an encrypted file */
 #define HEADER_1 0xc845c2fa95e2f52dllu              /*!< The second 8 bytes of an encrypted file */
-#define HEADER_2 HEADER_VERSION_LATEST              /*!< The third 8 bytes of an encrypted file (version indicator) */
 
 #define BLOCK_SIZE 1024 /*!< Default IO block size */
 
@@ -104,13 +93,13 @@ file_type_e;
  */
 typedef enum
 {
-    VERSION_UNKNOWN = 0,                     /*!< Unknown version, or not encrypted  */
-    VERSION_2011_08 = HEADER_VERSION_201108, /*!< Version 2011.08 */
-    VERSION_2011_10 = HEADER_VERSION_201110, /*!< Version 2011.10 */
-    VERSION_2012_11 = HEADER_VERSION_201211, /*!< Version 2012.11 */
-    VERSION_2013_02 = HEADER_VERSION_201302, /*!< Version 2013.02 */
-    VERSION_2013_09 = HEADER_VERSION_201309, /*!< Version 2013.0 (current development version) */
-    VERSION_CURRENT = HEADER_VERSION_LATEST  /*!< Next release / current development version */
+    VERSION_UNKNOWN = 0,              /*!< Unknown version, or not encrypted  */
+    VERSION_2011_08,                  /*!< Version 2011.08 */
+    VERSION_2011_10,                  /*!< Version 2011.10 */
+    VERSION_2012_11,                  /*!< Version 2012.11 */
+    VERSION_2013_02,                  /*!< Version 2013.02 */
+    VERSION_2013_09,                  /*!< Version 2013.09 (current development version) */
+    VERSION_CURRENT = VERSION_2013_09 /*!< Next release / current development version */
 }
 version_e;
 
@@ -283,9 +272,7 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h) __a
  * \param[in]  m  The bytes read from the file
  * \return        The version; 0 if unknown
  *
- * Logs which version of encrypted a file was encrypted with; the actual
- * return value is the same as parameter m. This function (more than
- * anything) removes duplicated code.
+ * Check which version of encrypt a file was encrypted with.
  */
 extern version_e check_version(uint64_t m);
 
