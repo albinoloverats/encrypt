@@ -55,6 +55,8 @@ static const char *LOG_LEVELS[] =
     "FATAL"
 };
 
+static int levenshtein(const char * const restrict, const char * const restrict);
+
 extern void log_redirect(const char * const restrict f)
 {
     if (f)
@@ -64,16 +66,14 @@ extern void log_redirect(const char * const restrict f)
 extern log_e log_parse_level(const char * const restrict l)
 {
     for (uint8_t i = 0; i < LOG_LEVEL_COUNT; i++)
-        if (!strcasecmp(l, LOG_LEVELS[i]))
+        if (!strcasecmp(l, LOG_LEVELS[i]) || levenshtein(l, LOG_LEVELS[i]) < 5)
             return (log_e)i;
     return LOG_DEFAULT;
 }
 
 extern void log_relevel(log_e l)
 {
-    if (l < LOG_EVERYTHING)
-        l = LOG_EVERYTHING;
-    else if (l > LOG_FATAL)
+    if (l > LOG_FATAL)
         l = LOG_FATAL;
     log_current_level = l;
 }
@@ -134,4 +134,32 @@ extern void log_message(log_e l, const char * const restrict s, ...)
     funlockfile(f);
     va_end(ap);
     return;
+}
+
+static int levenshtein(const char * const restrict s, const char * const restrict t)
+{
+    const int len_s = strlen(s);
+    const int len_t = strlen(t);
+    if (!len_s)
+        return len_t;
+    if (!len_t)
+        return len_s;
+
+    char *s1 = strndup(s, len_s - 1);
+    const int a = levenshtein(s1, t) + 1;
+
+    char *t1 = strndup(t, len_t - 1);
+    const int b = levenshtein(s, t1) + 1;
+
+    int c = levenshtein(s1, t1);
+    free(s1);
+    free(t1);
+    if (tolower(s[len_s - 1]) != tolower(t[len_t - 1]))
+        c++;
+
+    if (c > b)
+        c = b;
+    if (c > a)
+        c = a;
+    return c;
 }
