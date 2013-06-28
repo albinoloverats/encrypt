@@ -141,6 +141,10 @@ static version_e version = VERSION_CURRENT;
     return;
 }
 
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication {
+    return YES;
+}
+
 - (IBAction)compressionToggle:(id)pId
 {
     compress = !(bool)[_compress state];
