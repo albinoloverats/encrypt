@@ -471,8 +471,10 @@ static int64_t count_entries(crypto_t *c, const char *dir)
                 e += count_entries(c, filename);
             else if (S_ISREG(s.st_mode))
                 e++;
+#ifndef _WIN32
             else if (!c->follow_links && S_ISLNK(s.st_mode))
                 e++;
+#endif
             free(filename);
         }
     }
@@ -507,9 +509,11 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                 case S_IFDIR:
                     tp = FILE_DIRECTORY;
                     break;
+#ifndef _WIN32
                 case S_IFLNK:
                     tp = (hl = encrypt_link(c, filename, s)) ? FILE_LINK : FILE_SYMLINK;
                     break;
+#endif
                 case S_IFREG:
                     tp = (hl = encrypt_link(c, filename, s)) ? FILE_LINK : FILE_REGULAR;
                     break;
@@ -532,6 +536,7 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                     encrypt_directory(c, filename);
                     break;
                 case FILE_SYMLINK:
+#ifndef _WIN32
                     /*
                      * store the link instead of the file/directory it points to
                      */
@@ -549,8 +554,10 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                     l = htonl(strlen(lnk));
                     io_write(c->output, &l, sizeof l);
                     io_write(c->output, lnk, strlen(lnk));
+#endif
                     break;
                 case FILE_LINK:
+#ifndef _WIN32
                     /*
                      * store a hard link; it's basically the same as a symlink
                      * at this point, but will be handled differently upon
@@ -561,6 +568,7 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                     io_write(c->output, &l, sizeof l);
                     // FIXME store the link, not itself :-p
                     io_write(c->output, hl, strlen(hl));
+#endif
                     break;
                 case FILE_REGULAR:
                     /*

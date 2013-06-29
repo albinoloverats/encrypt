@@ -37,6 +37,6 @@
  *
  * Creates a new directory, recursively, for the given path.
  */
-extern void _mkdir(const char *p, mode_t m) __attribute__((nonnull(1)));
+extern void recursive_mkdir(const char *p, mode_t m) __attribute__((nonnull(1)));
 
 #endif /* _COMMON_FS_H_ */

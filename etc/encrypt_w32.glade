@@ -17,7 +17,7 @@
     <property name="skip_pager_hint">True</property>
     <property name="has_resize_grip">False</property>
     <property name="program_name">encrypt</property>
-    <property name="version">2013.02</property>
+    <property name="version">2013.09</property>
     <property name="copyright" translatable="yes">Copyright © 2004-2013, albinoloverats ~ Software Development</property>
     <property name="website">https://albinoloverats.net/projects/encrypt</property>
     <property name="website_label" translatable="yes">https://albinoloverats.net/projects/encrypt</property>

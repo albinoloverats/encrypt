@@ -111,6 +111,18 @@ extern ssize_t getline(char **lineptr, size_t *n, FILE *stream)
     return e ? -1 : r;
 }
 
+extern char *strndup(const char *s, size_t l)
+{
+    size_t z = strlen(s);
+    if (z > l)
+        z = l;
+    z++;
+    char *r = malloc(z);
+    memmove(r, s, z);
+    r[z - 1] = '\0';
+    return r;
+}
+
 /*
  * Copyright © 2005-2012 Rich Felker, http://www.musl-libc.org/
  *

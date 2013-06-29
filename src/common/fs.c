@@ -34,10 +34,14 @@
 #include "logging.h"
 #endif
 
+#ifdef _WIN32
+    #include "common/win32_ext.h"
+#endif
+
 /*
  * Taken from http://nion.modprobe.de/tmp/mkdir.c
  */
-extern void _mkdir(const char *path, mode_t mode)
+extern void recursive_mkdir(const char *path, mode_t mode)
 {
     char *opath = strdup(path);
     size_t len = strlen(opath);

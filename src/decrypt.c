@@ -405,7 +405,7 @@ static bool read_metadata(crypto_t *c)
         if ((errno == ENOENT || S_ISDIR(s.st_mode)) && !io_is_initialised(c->output))
         {
             log_message(LOG_DEBUG, _("Output is to a directory"));
-            _mkdir(c->path, S_IRUSR | S_IWUSR | S_IXUSR);
+            recursive_mkdir(c->path, S_IRUSR | S_IWUSR | S_IXUSR);
         }
         else
         {
@@ -475,10 +475,11 @@ static void decrypt_directory(crypto_t *c, const char *dir)
         {
             case FILE_DIRECTORY:
                 log_message(LOG_VERBOSE, _("Creating directory : %s"), filename);
-                _mkdir(filename, S_IRUSR | S_IWUSR | S_IXUSR);
+                recursive_mkdir(filename, S_IRUSR | S_IWUSR | S_IXUSR);
                 break;
             case FILE_SYMLINK:
             case FILE_LINK:
+#ifndef _WIN32
                 io_read(c->source, &l, sizeof l);
                 l = ntohl(l);
                 char *lnk = calloc(l + sizeof( byte_t ), sizeof( byte_t ));
@@ -498,6 +499,9 @@ static void decrypt_directory(crypto_t *c, const char *dir)
                         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(dir) + strlen(lnk) + 2);
                     link(hl, filename);
                 }
+#else
+                log_message(LOG_WARNING, _("Windows does not support links!"));
+#endif
                 break;
             case FILE_REGULAR:
                 c->current.offset = 0;

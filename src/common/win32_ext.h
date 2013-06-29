@@ -65,11 +65,14 @@
 #define fsync(fd) _commit(fd)
 #define ftruncate(fd, sz) _chsize(fd, sz)
 #define alphasort NULL
-#define mkdir(A, B) mkdir(A)
+#define mkdir(dir, attr) _mkdir(dir)
+#define lstat(path, st) stat(path, st)
 
 extern int asprintf(char **buffer, char *fmt, ...) __attribute__((nonnull(2), format(printf, 2, 3)));
 
 extern ssize_t getline(char **lineptr, size_t *n, FILE *stream) __attribute__((nonnull(3)));
+
+extern char *strndup(const char *s, size_t l) __attribute__((nonnull(1)));
 
 extern int scandir(const char *path, struct dirent ***res, int (*sel)(const struct dirent *), int (*cmp)(const struct dirent **, const struct dirent **)) __attribute__((nonnull(1, 2)));
 

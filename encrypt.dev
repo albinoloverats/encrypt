@@ -1,7 +1,7 @@
 [Project]
 FileName=encrypt.dev
 Name=encrypt
-UnitCount=27
+UnitCount=29
 Type=0
 Ver=1
 ObjFiles=
@@ -41,20 +41,20 @@ BuildCmd=
 
 [VersionInfo]
 Major=2013
-Minor=2
+Minor=9
 Release=0
 Build=0
 LanguageID=2057
 CharsetID=1252
 CompanyName=albinoloverats ~ Software Development
-FileVersion=2013.02
+FileVersion=2013.09
 FileDescription=encrypt is a simple, cross platform utility for securing your personal files
 InternalName=encrypt
 LegalCopyright=Copyright (c) 2004-2013, albinoloverats ~ Software Development
 LegalTrademarks=
 OriginalFilename=encrypt.exe
 ProductName=encrypt
-ProductVersion=2013.02
+ProductVersion=2013.09
 AutoIncBuildNr=0
 
 [Unit2]
@@ -311,6 +311,26 @@ BuildCmd=
 FileName=src\cli.h
 CompileCpp=0
 Folder=src
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit28]
+FileName=src\common\fs.h
+CompileCpp=0
+Folder=src/common
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit29]
+FileName=src\common\fs.c
+CompileCpp=0
+Folder=src/common
 Compile=1
 Link=1
 Priority=1000
