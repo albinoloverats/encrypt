@@ -479,13 +479,13 @@ static void decrypt_directory(crypto_t *c, const char *dir)
                 break;
             case FILE_SYMLINK:
             case FILE_LINK:
-#ifndef _WIN32
                 io_read(c->source, &l, sizeof l);
                 l = ntohl(l);
                 char *lnk = calloc(l + sizeof( byte_t ), sizeof( byte_t ));
                 if (!lnk)
                     die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, l + sizeof( byte_t ));
                 io_read(c->source, lnk, l);
+#ifndef _WIN32
                 if (tp == FILE_SYMLINK)
                 {
                     log_message(LOG_VERBOSE, _("Creating soft link : %s -> %s"), filename, lnk);
