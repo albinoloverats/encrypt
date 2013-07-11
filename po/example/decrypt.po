@@ -1,77 +1,77 @@
-#: src/decrypt.c:69
+#: src/decrypt.c:70
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/decrypt.c:75
+#: src/decrypt.c:76
 #| Decrypting file : %s
 msgid "Decrypting file : %s"
 msgstr ""
 
-#: src/decrypt.c:78
+#: src/decrypt.c:79
 #. See src/io.po for "IO error" translation
 
-#: src/decrypt.c:85
+#: src/decrypt.c:86
 #| Decrypting stream from stdin
 msgid "Decrypting stream from stdin"
 msgstr ""
 
-#: src/decrypt.c:101
+#: src/decrypt.c:102
 #| Unexpected error looking up destination
 msgid "Unexpected error looking up destination"
 msgstr ""
 
-#: src/decrypt.c:105
+#: src/decrypt.c:106
 #| Not sure whether %s will be a file or directory
 msgid "Not sure whether %s will be a file or directory"
 msgstr ""
 
-#: src/decrypt.c:117
+#: src/decrypt.c:118
 #| Decrypting to directory : %s
 msgid "Decrypting to directory : %s"
 msgstr ""
 
-#: src/decrypt.c:124
+#: src/decrypt.c:125
 #| Decrypting to file : %s
 msgid "Decrypting to file : %s"
 msgstr ""
 
-#: src/decrypt.c:127
+#: src/decrypt.c:128
 #. See src/io.po for "IO error" translation
 
-#: src/decrypt.c:134
+#: src/decrypt.c:135
 #| Unsupported destination file type
 msgid "Unsupported destination file type"
 msgstr ""
 
-#: src/decrypt.c:143
+#: src/decrypt.c:144
 #| Decrypting to stdout
 msgid "Decrypting to stdout"
 msgstr ""
 
-#: src/decrypt.c:149
+#: src/decrypt.c:150
 #| Invalid key data
 msgid "Invalid key data"
 msgstr ""
 
-#: src/decrypt.c:156
+#: src/decrypt.c:157
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/decrypt.c:165
+#: src/decrypt.c:166
+#. See src/io.po for "IO error" translation
+
+#: src/decrypt.c:173
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/decrypt.c:172
-#. See common/common.po for the definitive "Out of memory" translation
-
-#: src/decrypt.c:188
+#: src/decrypt.c:186
 #| Invalid cryptographic object!
 msgid "Invalid cryptographic object!"
 msgstr ""
 
-#: src/decrypt.c:238
+#: src/decrypt.c:240
 #| Starting decryption process
 msgid "Starting decryption process"
 msgstr ""
 
-#: src/decrypt.c:287
+#: src/decrypt.c:286
 #| Checksum verification failed
 msgid "Checksum verification failed"
 msgstr ""
@@ -81,119 +81,119 @@ msgstr ""
 msgid "Checking for file header"
 msgstr ""
 
-#: src/decrypt.c:313
+#: src/decrypt.c:312
 #. See src/io.po for "IO error" translation
 
-#: src/decrypt.c:318
+#: src/decrypt.c:314
 #| Data not encrypted
 msgid "Data not encrypted"
 msgstr ""
 
-#: src/decrypt.c:338
-#| File encrypted with version 2011.08
-msgid "File encrypted with version 2011.08"
-msgstr ""
-
-#: src/decrypt.c:342
-#| File encrypted with version 2011.10
-msgid "File encrypted with version 2011.10"
-msgstr ""
-
-#: src/decrypt.c:346
-#| File encrypted with version 2012.11
-msgid "File encrypted with version 2012.11"
-msgstr ""
-
-#: src/decrypt.c:350
-#| File encrypted with version 2013.02
-msgid "File encrypted with version 2013.02"
-msgstr ""
-
-#: src/decrypt.c:354
-#| File encrypted with unknown, or more recent release of encrypt
-msgid "File encrypted with unknown, or more recent release of encrypt"
-msgstr ""
-
-#: src/decrypt.c:361
+#: src/decrypt.c:333
 #| Reading verification sum
 msgid "Reading verification sum"
 msgstr ""
 
-#: src/decrypt.c:371
+#: src/decrypt.c:343
 #| Verifying x ^ y = z
 msgid "Verifying x ^ y = z"
 msgstr ""
 
-#: src/decrypt.c:379
+#: src/decrypt.c:351
 #| Failed decryption verification
 msgid "Failed decryption verification"
 msgstr ""
 
-#: src/decrypt.c:388
+#: src/decrypt.c:360
 #| Reading metadata
 msgid "Reading metadata"
 msgstr ""
 
-#: src/decrypt.c:402
+#: src/decrypt.c:374
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/decrypt.c:423
+#: src/decrypt.c:384
+#| Encrypted stream has size of %" PRIu64
+msgid "Encrypted stream has size of %" PRIu64
+
+#: src/decrypt.c:395
 #| Encrypted stream is %sblock delimited: "…is block…" or "…is not block…"
 msgid "Encrypted stream is %sblock delimited"
 msgstr ""
 
-#: src/decrypt.c:429
+#: src/decrypt.c:398
 #| Encrypted stream is %scompressed: "…is compressed" or "…is not compressed"
 msgid "Encrypted stream is %scompressed"
 msgstr ""
 
-#: src/decrypt.c:441
+#: src/decrypt.c:407
 #| Output is to a directory
 msgid "Output is to a directory"
 msgstr ""
 
-#: src/decrypt.c:450
+#: src/decrypt.c:412
 #| Output requires a directory, not a file
 msgid "Output requires a directory, not a file"
 msgstr ""
 
-#: src/decrypt.c:464
+#: src/decrypt.c:427
 #. See src/io.po for "IO error" translation
 
-#: src/decrypt.c:470
+#: src/decrypt.c:433
 #| Output requires a file, not a directory
 msgid "Output requires a file, not a directory"
+msgstr ""
+
+#: src/decrypt.c:450
+#. See common/common.po for the definitive "Out of memory" translation
+
+#: src/decrypt.c:459
+#| Decrypting %" PRIu64 " entries into %s
+msgid "Decrypting %" PRIu64 " entries into %s"
+msgstr ""
+
+#: src/decrypt.c:470
+#. See common/common.po for the definitive "Out of memory" translation
+
+#: src/decrypt.c:473
+#. See common/common.po for the definitive "Out of memory" translation
+
+#: src/decrypt.c:477
+#| Creating directory : %s
+msgid "Creating directory : %s"
 msgstr ""
 
 #: src/decrypt.c:486
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/decrypt.c:494
-#| Decrypting %" PRIu64 " entries into %s
-msgid "Decrypting %" PRIu64 " entries into %s"
+#: src/decrypt.c:491
+#| Creating soft link : %s -> %s
+msgid "Creating soft link : %s -> %s"
 msgstr ""
 
-#: src/decrypt.c:505
-#. See common/common.po for the definitive "Out of memory" translation
-
-#: src/decrypt.c:508
-#. See common/common.po for the definitive "Out of memory" translation
-
-#: src/decrypt.c:512
-#| Creating directory : %s
-msgid "Creating directory : %s"
+#: src/decrypt.c:496
+#| Creating link : %s -> %s/%s
+msgid "Creating link : %s -> %s/%s"
 msgstr ""
 
-#: src/decrypt.c:524
+#: src/decrypt.c:499
+#. See common/common.po for the definitive "Out of memory" translation
+
+#: src/decrypt.c:503
+#| Windows does not support links!
+msgid "Windows does not support links!"
+msgstr ""
+
+#: src/decrypt.c:510
 #| Decrypting file : %s
 msgid "Decrypting file : %s"
 msgstr ""
 
-#: src/decrypt.c:542
+#: src/decrypt.c:528
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/decrypt.c:549
+#: src/decrypt.c:535
 #. See src/io.po for "IO error" translation
 
-#: src/decrypt.c:580
+#: src/decrypt.c:566
 #. See src/io.po for "IO error" translation

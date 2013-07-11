@@ -1,23 +1,23 @@
-#: src/main.c:69
+#: src/main.c:66
 #| \n**** DEBUG BUILD ****\n\n
 msgid "\n**** DEBUG BUILD ****\n\n"
 msgstr ""
 
-#: src/main.c:128
+#: src/main.c:133
 #. This is a GTK error; not translated here. If the GTK translations are
 #. installed the message should be translated.
 #  msgid "%s"
 # msgstr ""
 
-#: src/main.c:202
+#: src/main.c:212
 #| Could not create GUI - falling back to command line\n
 msgid "Could not create GUI - falling back to command line\n"
 msgstr ""
 
-#: src/main.c:223
+#: src/main.c:233
 #| Please enter a password: 
 msgid "Please enter a password: "
 msgstr ""
 
-#: src/main.c:266
+#: src/main.c:276
 #. See translation above

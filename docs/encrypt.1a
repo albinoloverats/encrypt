@@ -29,13 +29,15 @@ encrypt [\fI\-c\fR \fBalgorithm\fR] [\fI\-s\fR \fBalgorithm\fR] [\fI\-k\fR \fBke
 .TP
 \fI\-f\fR, \fI\-\--follow\fR Follow symlinks, the default is to store the link itself 
 .TP
-\fI\-b\fR, \fI\-\-back\-compat\fR \fBVERSION\fR Create an encrypted file that is backwards compatible
+\fI\-b\fR, \fI\-\-back\-compat\fR \fBVERSION\fR Create an encrypted file that is backwards compatible with earlier versions of encrypt
 .PP
 If either the source file or destination file are omitted then stdin/stdout are used. When encrypting, both \fB\-s\fR and \fB\-c\fR are required\fI*\fR to specify the algorithms you wish to use; when decrypting the algorithms originally used are read from the encrypted file.
 .PP
-\fI* You can omit the algorithm options if you can configured defaults in ~/.encryptrc\fR
+\fI* You can omit the algorithm options if you have configured defaults in ~/.encryptrc\fR
 .PP
 If you do not specify either a key or a password, you will be prompted to enter a password. This will then be used to generate a key to encrypt the data with (using the specified hash).
+.PP
+You can toggle compression and how symbolic links are handled in the configuration file ~/.encryptrc
 .SH AUTHOR
 Written by Ashley Morgan Anderson
 .SH BUGS

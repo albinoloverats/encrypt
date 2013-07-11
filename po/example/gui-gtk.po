@@ -1,4 +1,4 @@
-#: src/gui-gtk.c:94
+#: src/gui-gtk.c:96
 #| Selected %d is algorithm: %s
 msgid "Selected %d is algorithm: %s"
 msgstr ""
@@ -8,12 +8,17 @@ msgstr ""
 msgid "Selected %d is hash: %s"
 msgstr ""
 
-#: src/gui-gtk.c:461
+#: src/gui-gtk.c:143
+#| Compatibility version: %s
+msgid "Compatibility version: %s"
+msgstr ""
+
+#: src/gui-gtk.c:481
 #| Initialise crypto routine
 msgid "Initialise crypto routine"
 msgstr ""
 
-#: src/gui-gtk.c:525
+#: src/gui-gtk.c:539
 #| Update progress bar in loop
 msgid "Update progress bar in loop"
 msgstr ""

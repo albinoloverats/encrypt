@@ -145,7 +145,7 @@ extern void deinit(crypto_t **c)
     if (!c)
         return;
     crypto_t *z = *c;
-    log_message(LOG_VERBOSE, _("Deleting crypto instance %p, and freeing resources "), z);
+    log_message(LOG_VERBOSE, _("Deleting crypto instance %p, and freeing resources"), z);
 
     z->status = STATUS_CANCELLED;
     pthread_join(*z->thread, NULL);
