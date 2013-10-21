@@ -20,26 +20,33 @@
 
 package net.albinoloverats.android.encrypt.crypt;
 
+import net.albinoloverats.android.encrypt.Main;
+import net.albinoloverats.android.encrypt.R;
+
 public enum Status
 {
-    SUCCESS("Success"),
-    INIT("Initialisation"),
-    RUNNING("Running"),
-    CANCELLED("Cancelled"),
-    FAILED_INIT("Failed: Invalid initialisation parameters!"),
-    FAILED_UNKNOWN_VERSION("Failed: Unsupported Version!"),
-    FAILED_UNKNOWN_ALGORITH("Failed: Unsupported Algorithm!"),
-    FAILED_DECRYPTION("Failed: Decryption Failure!"),
-    FAILED_UNKNOWN_TAG("Failed: Unknown Tag!"),
-    FAILED_CHECKSUM("Failed: Bad Checksum! (Possible data corruption.)"),
-    FAILED_IO("Failed: Read/Write Error!"),
-    FAILED_OUTPUT_MISMATCH("Failed: Target file type mismatch!"),
-    FAILED_OTHER("Failed: Unknown Problem!");
+    /* success and running states */
+    SUCCESS(R.string.success),
+    INIT(R.string.init),
+    RUNNING(R.string.running),
+    CANCELLED(R.string.cancelled),
+    /* failures - decryption did not complete */
+    FAILED_INIT(R.string.failed_init),
+    FAILED_UNKNOWN_VERSION(R.string.failed_unknown_version),
+    FAILED_UNKNOWN_ALGORITH(R.string.failed_unknown_algorithm),
+    FAILED_DECRYPTION(R.string.failed_decryption),
+    FAILED_UNKNOWN_TAG(R.string.failed_unknown_tag),
+    FAILED_IO(R.string.failed_io),
+    FAILED_OUTPUT_MISMATCH(R.string.failed_output_mismatch),
+    FAILED_OTHER(R.string.failed_other),
+    /* warnings - decryption finished but with possible errors */
+    WARNING_CHECKSUM(R.string.warning_checksum),
+    WARNING_LINK(R.string.warning_link);
 
     final public String message;
 
-    private Status(final String message)
+    private Status(final int message)
     {
-        this.message = message;
+        this.message = Main.getContext().getString(message);
     }
 }
