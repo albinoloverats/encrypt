@@ -21,6 +21,7 @@
 package net.albinoloverats.android.encrypt;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -29,9 +30,11 @@ import net.albinoloverats.android.encrypt.crypt.CryptoUtils;
 import net.albinoloverats.android.encrypt.crypt.Decrypt;
 import net.albinoloverats.android.encrypt.crypt.Encrypt;
 import net.albinoloverats.android.encrypt.crypt.Status;
+import net.albinoloverats.android.encrypt.crypt.Version;
 import net.albinoloverats.android.encrypt.misc.Utils;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
@@ -64,6 +67,8 @@ public class Main extends Activity
     private static final int DOUBLE_PROGRESS_DIALOG = 1;
     private static final String SHARED_PREFERENCES = "encrypt_preferences";
 
+    private static Context context;
+
     private Set<String> cipherNames;
     private Set<String> hashNames;
 
@@ -72,6 +77,7 @@ public class Main extends Activity
 
     private boolean encrypting = true;
     private boolean compress = true;
+    private boolean follow = false;
     private boolean key_file = false;
 
     private String filenameIn;
@@ -80,12 +86,15 @@ public class Main extends Activity
     private String cipher;
     private String password;
     private String key;
+    private Version version = Version.CURRENT;
 
     @Override
     public void onCreate(final Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        context = this;
 
         // setup the file chooser button
         final Button fChooser = (Button)findViewById(R.id.button_file);
@@ -283,17 +292,8 @@ public class Main extends Activity
     {
         final EditText pass = (EditText)findViewById(R.id.text_password);
         final Button key = (Button)findViewById(R.id.button_key);
-
-        if (key_file)
-        {
-            pass.setVisibility(View.GONE);
-            key.setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            pass.setVisibility(View.VISIBLE);
-            key.setVisibility(View.GONE);
-        }
+        pass.setVisibility(key_file ? View.GONE : View.VISIBLE);
+        key.setVisibility(key_file ? View.VISIBLE : View.GONE);
     }
 
     /*
@@ -361,46 +361,64 @@ public class Main extends Activity
     @Override
     protected void onPrepareDialog(final int id, final Dialog dialog)
     {
-        switch (id)
+        if (id == DOUBLE_PROGRESS_DIALOG)
         {
-            case DOUBLE_PROGRESS_DIALOG:
-                dProgressDialog.setMax(1);
-                dProgressDialog.setProgress(0);
-                dProgressDialog.setSecondaryMax(1);
-                dProgressDialog.setSecondaryProgress(0);
-                progressThread = new ProgressThread(handler);
-                progressThread.start();
+            dProgressDialog.setMax(1);
+            dProgressDialog.setProgress(0);
+            dProgressDialog.setSecondaryMax(1);
+            dProgressDialog.setSecondaryProgress(0);
+            progressThread = new ProgressThread(new StaticMessageHandler(this));
+            progressThread.start();
         }
     }
 
-    final Handler handler = new Handler()
+    public static Context getContext()
     {
+        return context;
+    }
+
+    private static class StaticMessageHandler extends Handler
+    {
+        private WeakReference<Main> reference;
+
+        public StaticMessageHandler(final Main service)
+        {
+            reference = new WeakReference<Main>(service);
+        }
+
         @Override
         public void handleMessage(final Message msg)
         {
-            switch (ProgressUpdate.fromValue(msg.what))
-            {
-                case DONE:
-                    dismissDialog(DOUBLE_PROGRESS_DIALOG);
-                    Toast.makeText(getApplicationContext(), (String)msg.obj, Toast.LENGTH_LONG).show();
-                    break;
-                case CURRENT:
-                    dProgressDialog.setMax(msg.arg1);
-                    dProgressDialog.setProgress(msg.arg2);
-                    break;
-                case TOTAL:
-                    if (msg.arg1 < 0 || msg.arg2 < 0)
-                        dProgressDialog.hideSecondaryProgress();
-                    else
-                    {
-                        dProgressDialog.showSecondaryProgress();
-                        dProgressDialog.setSecondaryMax(msg.arg1);
-                        dProgressDialog.setSecondaryProgress(msg.arg2);
-                    }
-                    break;
-            }
+             final Main service = reference.get();
+             if (service != null)
+                  service.handleMessage(msg);
         }
-    };
+    }
+
+    private void handleMessage(final Message msg)
+    {
+        switch (ProgressUpdate.fromValue(msg.what))
+        {
+            case DONE:
+                dismissDialog(DOUBLE_PROGRESS_DIALOG);
+                Toast.makeText(getApplicationContext(), (String)msg.obj, Toast.LENGTH_LONG).show();
+                break;
+            case CURRENT:
+                dProgressDialog.setMax(msg.arg1);
+                dProgressDialog.setProgress(msg.arg2);
+                break;
+            case TOTAL:
+                if (msg.arg1 < 0 || msg.arg2 < 0)
+                    dProgressDialog.hideSecondaryProgress();
+                else
+                {
+                    dProgressDialog.showSecondaryProgress();
+                    dProgressDialog.setSecondaryMax(msg.arg1);
+                    dProgressDialog.setSecondaryProgress(msg.arg2);
+                }
+                break;
+        }
+    }
 
     private void checkEnableButtons()
     {
@@ -473,7 +491,7 @@ public class Main extends Activity
             {
                 final byte[] k = key_file ? Utils.readFileAsString(key).getBytes() : password.getBytes();
 
-                c = encrypting ? new Encrypt(filenameIn, filenameOut, cipher, hash, k, compress) : new Decrypt(filenameIn, filenameOut, k);
+                c = encrypting ? new Encrypt(filenameIn, filenameOut, cipher, hash, k, compress, follow, version) : new Decrypt(filenameIn, filenameOut, k);
                 c.start();
 
                 do
@@ -506,44 +524,7 @@ public class Main extends Activity
             if (c != null)
                 s = c.status;
 
-            String msg = null;
-            switch (s)
-            {
-                case SUCCESS:
-                    msg = getString(encrypting ? R.string.encryption_succeeded : R.string.decryption_succeeded);
-                    break;
-                case CANCELLED:
-                    msg = getString(R.string.cancelled);
-                    break;
-                case FAILED_INIT:
-                    msg = getString(R.string.failed_init);
-                    break;
-                case FAILED_UNKNOWN_VERSION:
-                    msg = getString(R.string.failed_unknown_version);
-                    break;
-                case FAILED_UNKNOWN_ALGORITH:
-                    msg = getString(R.string.failed_algorithm);
-                    break;
-                case FAILED_DECRYPTION:
-                    msg = getString(R.string.failed_decryption);
-                    break;
-                case FAILED_UNKNOWN_TAG:
-                    msg = getString(R.string.failed_unknown_tag);
-                    break;
-                case FAILED_CHECKSUM:
-                    msg = getString(R.string.failed_checksum);
-                    break;
-                case FAILED_IO:
-                    msg = getString(R.string.failed_io);
-                    break;
-                case FAILED_OUTPUT_MISMATCH:
-                    msg = getString(R.string.failed_output_mismatch);
-                    break;
-                default:
-                    msg = getString(R.string.failed_unknown);
-
-            }
-            mHandler.sendMessage(mHandler.obtainMessage(ProgressUpdate.DONE.value, msg));
+            mHandler.sendMessage(mHandler.obtainMessage(ProgressUpdate.DONE.value, s.message));
         }
     }
 }
