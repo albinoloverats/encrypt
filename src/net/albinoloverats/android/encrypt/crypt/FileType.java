@@ -23,7 +23,9 @@ package net.albinoloverats.android.encrypt.crypt;
 public enum FileType
 {
     DIRECTORY(0),
-    REGULAR(1);
+    REGULAR(1),
+    SYMLINK(2),
+    LINK(3);
 
     final public int value;
 

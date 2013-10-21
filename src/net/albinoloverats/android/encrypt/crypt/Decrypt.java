@@ -71,16 +71,20 @@ public class Decrypt extends Crypto
         {
             status = Status.RUNNING;
 
-            final long version = readVersion();
-            checksum = ((EncryptedFileInputStream)source).encryptionInit(cipher, hash, key,
-                    version == HEADER_VERSION_201108 ||
-                    version == HEADER_VERSION_201110);
+            readVersion();
+            checksum = ((EncryptedFileInputStream)source).encryptionInit(cipher, hash, key, version == Version._201108 || version == Version._201110);
 
             boolean skipRandom = false;
-            if (version == HEADER_VERSION_201108 ||
-                version == HEADER_VERSION_201110 ||
-                version == HEADER_VERSION_201211)
-                skipRandom = true;
+            switch (version)
+            {
+                case _201108:
+                case _201110:
+                case _201211:
+                    skipRandom = true;
+                    break;
+                default:
+                    break;
+            }
 
             if (!skipRandom)
                 skipRandomData();
@@ -109,9 +113,10 @@ public class Decrypt extends Crypto
             final byte[] check = new byte[checksum.hashSize()];
             source.read(check);
             if (!Arrays.equals(check, checksum.digest()))
-                throw new Exception(Status.FAILED_CHECKSUM);
+                throw new Exception(Status.WARNING_CHECKSUM);
 
-            status = Status.SUCCESS;
+            if (status == Status.RUNNING)
+                status = Status.SUCCESS;
         }
         catch (final Exception e)
         {
@@ -148,7 +153,7 @@ public class Decrypt extends Crypto
         }
     }
 
-    private long readVersion() throws Exception, IOException
+    private void readVersion() throws Exception, IOException
     {
         final byte[] header = new byte[Long.SIZE / Byte.SIZE];
         for (int i = 0; i < 3; i++)
@@ -161,13 +166,8 @@ public class Decrypt extends Crypto
         cipher = a.substring(0, a.indexOf('/'));
         hash = a.substring(a.indexOf('/') + 1);
 
-        final long version = Convert.longFromBytes(header);
-        if (version == HEADER_VERSION_201108 ||
-            version == HEADER_VERSION_201110 ||
-            version == HEADER_VERSION_201211 ||
-            version == HEADER_VERSION_LATEST)
-            return version;
-        else
+        version = Version.parseMagicNumber(Convert.longFromBytes(header));
+        if (version == null)
             throw new Exception(Status.FAILED_UNKNOWN_VERSION);
     }
 
@@ -246,7 +246,7 @@ public class Decrypt extends Crypto
             final FileType t = FileType.fromID(source.read());
             byte[] b = new byte[Long.SIZE / Byte.SIZE];
             source.read(b);
-            final long l = Convert.longFromBytes(b);
+            long l = Convert.longFromBytes(b);
             b = new byte[(int)l];
             source.read(b);
             final String nm = dir + File.separator + new String(b);
@@ -265,6 +265,19 @@ public class Decrypt extends Crypto
                     current.offset = current.size;
                     output.close();
                     output = null;
+                    break;
+                case LINK:
+                case SYMLINK:
+                    /*
+                     * If, and when, Android supports Java7 NIO:
+                     * we will handle links (of both kinds)
+                     */
+                    b = new byte[Long.SIZE / Byte.SIZE];
+                    source.read(b);
+                    l = Convert.longFromBytes(b);
+                    b = new byte[(int)l];
+                    source.read(b);
+                    status = Status.WARNING_LINK;
                     break;
             }
         }

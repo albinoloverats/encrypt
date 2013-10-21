@@ -26,6 +26,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+/*
+ * If, and when, Android supports Java7 NIO:
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+ */
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -38,8 +47,13 @@ import org.tukaani.xz.XZOutputStream;
 public class Encrypt extends Crypto
 {
     private String root = "";
+    /*
+     * If, and when, Android supports Java7 NIO:
+    private boolean follow = false;
+    private Map<Long, Path> inodes = new HashMap<Long, Path>();
+     */
     
-    public Encrypt(final String source, final String output, final String cipher, final String hash, final byte[] key, final boolean compress) throws Exception
+    public Encrypt(final String source, final String output, final String cipher, final String hash, final byte[] key, final boolean compress, final boolean follow, final Version version) throws Exception
     {
         super();
 
@@ -74,6 +88,11 @@ public class Encrypt extends Crypto
             this.key = key;
 
         compressed = compress;
+        /*
+         * If, and when, Android supports Java7 NIO:
+        this.follow = follow;
+         */
+        this.version = version;
     }
 
     @Override
@@ -222,37 +241,91 @@ public class Encrypt extends Crypto
                 c += countEntries(dir + File.separator + file.getName());
             else if (file.isFile())
                 c++;
+        /*
+         *  If, and when, Android supports Java7 NIO:
+        final LinkOption linkOptions = follow ? null : LinkOption.NOFOLLOW_LINKS;
+        for (final File file : new File(dir).listFiles())
+        {
+            final Path p = FileSystems.getDefault().getPath(file.getPath());
+            if (Files.isDirectory(p, linkOptions))
+                c += countEntries(dir + File.separator + file.getName());
+            else if (Files.isRegularFile(p, linkOptions))
+                c++;
+            else if (Files.isSymbolicLink(p))
+                c++;
+        }
+         */
         return c;
     }
 
     private void encryptDirectory(final String dir) throws IOException
     {
+        /*
+         *  If, and when, Android supports Java7 NIO:
+        final LinkOption linkOptions = follow ? null : LinkOption.NOFOLLOW_LINKS;
+         */
         for (final File file : new File(dir).listFiles())
         {
             if (status != Status.RUNNING)
                 break;
 
-            if (!file.isDirectory() && !file.isFile())
+            final FileType ft;
+            if (file.isDirectory())
+                ft = FileType.DIRECTORY;
+            else if (file.isFile())
+                ft = FileType.REGULAR;
+            /*
+             *  If, and when, Android supports Java7 NIO:
+            final Path p = FileSystems.getDefault().getPath(file.getPath());
+            Path ln = null;
+            if (Files.isDirectory(p, linkOptions))
+                ft = FileType.DIRECTORY;
+            else if (Files.isRegularFile(p, linkOptions))
+            {
+                //Files.isSameFile(path, path2);
+                if (inodes.containsKey(0L))
+                {
+                    ft = FileType.LINK;
+                    ln = inodes.get(0L);
+                }
+                else
+                {
+                    ft = FileType.REGULAR;
+                    inodes.put(0L, p);
+                }
+            }
+            else if (Files.isSymbolicLink(p))
+            {
+                ft = FileType.SYMLINK;
+                ln = Files.readSymbolicLink(p);
+            }
+             */
+            else
                 continue;
 
-            output.write(Convert.toBytes((byte)(file.isDirectory() ? FileType.DIRECTORY.value : FileType.REGULAR.value)));
+            output.write(Convert.toBytes((byte)ft.value));
             final String name = dir + File.separator + file.getName();
             final String nm = name.substring(root.length() + 1);
             output.write(Convert.toBytes((long)nm.length()));
             output.write(nm.getBytes());
 
-            if (file.isDirectory())
-                encryptDirectory(name);
-            else
+            switch (ft)
             {
-                source = new FileInputStream(file);
-                current.offset = 0;
-                current.size = file.length();
-                output.write(Convert.toBytes(current.size));
-                encryptFile();
-                current.offset = current.size;
-                source.close();
-                source = null;
+                case DIRECTORY:
+                    encryptDirectory(name);
+                    break;
+                case SYMLINK:
+                case LINK:
+                case REGULAR:
+                    source = new FileInputStream(file);
+                    current.offset = 0;
+                    current.size = file.length();
+                    output.write(Convert.toBytes(current.size));
+                    encryptFile();
+                    current.offset = current.size;
+                    source.close();
+                    source = null;
+                    break;
             }
             total.offset++;
         }
@@ -270,5 +343,4 @@ public class Encrypt extends Crypto
         }
         return;
     }
-
 }
