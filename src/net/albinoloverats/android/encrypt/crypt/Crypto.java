@@ -32,12 +32,7 @@ import net.albinoloverats.android.encrypt.misc.Convert;
 
 public abstract class Crypto extends Thread implements Runnable
 {
-    protected static final long HEADER_VERSION_201108 = 0x72761df3e497c983L;
-    protected static final long HEADER_VERSION_201110 = 0xbb116f7d00201110L;
-    protected static final long HEADER_VERSION_201211 = 0x51d28245e1216c45L;
-    protected static final long HEADER_VERSION_201302 = 0x5b7132ab5abb3c47L;
-    protected static final long HEADER_VERSION_LATEST = HEADER_VERSION_201302;
-    protected static final long[] HEADER = { 0x3697de5d96fca0faL, 0xc845c2fa95e2f52dL, HEADER_VERSION_LATEST };
+    protected static final long[] HEADER = { 0x3697de5d96fca0faL, 0xc845c2fa95e2f52dL, Version.CURRENT.magicNumber };
 
     protected static final int BLOCK_SIZE = 1024;
 
@@ -56,6 +51,8 @@ public abstract class Crypto extends Thread implements Runnable
     protected int blocksize;
     protected boolean compressed = true;
     protected boolean directory = false;
+
+    protected Version version = Version.CURRENT;
 
     protected IMessageDigest checksum;
 
