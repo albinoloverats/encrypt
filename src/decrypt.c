@@ -286,7 +286,7 @@ static void *process(void *ptr)
             log_message(LOG_ERROR, _("Checksum verification failed"));
             log_binary(LOG_VERBOSE, b, cl);
             log_binary(LOG_VERBOSE, cs, cl);
-            c->status = STATUS_FAILED_CHECKSUM;
+            c->status = STATUS_WARNING_CHECKSUM;
         }
         free(b);
     }
@@ -298,7 +298,8 @@ static void *process(void *ptr)
      */
     if (c->output)
         io_sync(c->output);
-    c->status = STATUS_SUCCESS;
+    if (c->status == STATUS_RUNNING)
+        c->status = STATUS_SUCCESS;
 
     return (void *)c->status;
 }
@@ -501,6 +502,7 @@ static void decrypt_directory(crypto_t *c, const char *dir)
                 }
 #else
                 log_message(LOG_WARNING, _("Windows does not support links!"));
+                c->status = STATUS_WARNING_LINK;
 #endif
                 break;
             case FILE_REGULAR:

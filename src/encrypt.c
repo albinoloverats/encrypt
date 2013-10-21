@@ -503,7 +503,7 @@ static void encrypt_directory(crypto_t *c, const char *dir)
             file_type_e tp;
             struct stat s;
             c->follow_links ? stat(filename, &s) : lstat(filename, &s);
-            char *hl = NULL;
+            char *ln = NULL;
             switch (s.st_mode & S_IFMT)
             {
                 case S_IFDIR:
@@ -511,11 +511,11 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                     break;
 #ifndef _WIN32
                 case S_IFLNK:
-                    tp = (hl = encrypt_link(c, filename, s)) ? FILE_LINK : FILE_SYMLINK;
+                    tp = (ln = encrypt_link(c, filename, s)) ? FILE_LINK : FILE_SYMLINK;
                     break;
 #endif
                 case S_IFREG:
-                    tp = (hl = encrypt_link(c, filename, s)) ? FILE_LINK : FILE_REGULAR;
+                    tp = (ln = encrypt_link(c, filename, s)) ? FILE_LINK : FILE_REGULAR;
                     break;
                 default:
                     log_message(LOG_EVERYTHING, _("Ignoring unsupported file type for : %s"), filename);
@@ -541,19 +541,19 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                      * store the link instead of the file/directory it points to
                      */
                     log_message(LOG_VERBOSE, _("Storing soft link : %s"), filename);
-                    char *lnk = NULL;
+                    char *sl = NULL;
                     for (l = BLOCK_SIZE; ; l += BLOCK_SIZE)
                     {
-                        char *x = realloc(lnk, l + sizeof( byte_t ));
+                        char *x = realloc(sl, l + sizeof( byte_t ));
                         if (!x)
                             die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, l + sizeof( byte_t ) );
-                        lnk = x;
-                        if (readlink(filename, lnk, BLOCK_SIZE + l) < (int64_t)l)
+                        sl = x;
+                        if (readlink(filename, sl, BLOCK_SIZE + l) < (int64_t)l)
                             break;
                     }
-                    l = htonl(strlen(lnk));
+                    l = htonl(strlen(sl));
                     io_write(c->output, &l, sizeof l);
-                    io_write(c->output, lnk, strlen(lnk));
+                    io_write(c->output, sl, strlen(sl));
 #endif
                     break;
                 case FILE_LINK:
@@ -564,10 +564,10 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                      * decryption
                      */
                     log_message(LOG_VERBOSE, _("Storing link : %s"), filename);
-                    l = htonl(strlen(hl));
+                    l = htonl(strlen(ln));
                     io_write(c->output, &l, sizeof l);
                     // FIXME store the link, not itself :-p
-                    io_write(c->output, hl, strlen(hl));
+                    io_write(c->output, ln, strlen(ln));
 #endif
                     break;
                 case FILE_REGULAR:
@@ -601,9 +601,11 @@ static void encrypt_directory(crypto_t *c, const char *dir)
 static char *encrypt_link(crypto_t *c, char *filename, struct stat s)
 {
     link_count_t *ln = (link_count_t *)c->misc;
+#ifndef _WIN32
     for (uint64_t i = 0; i < c->total.offset; i++)
         if (ln[i].dev == s.st_dev && ln[i].inode == s.st_ino)
             return log_message(LOG_EVERYTHING, _("File %s is a duplicate of %ju:%ju"), filename, (intmax_t)s.st_dev, (intmax_t)s.st_ino) , ln[i].path;
+#endif
     ln[c->total.offset].dev = s.st_dev;
     ln[c->total.offset].inode = s.st_ino;
     ln[c->total.offset].path = strdup(filename);

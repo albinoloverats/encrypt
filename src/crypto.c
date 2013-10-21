@@ -68,19 +68,23 @@ static bool algorithm_is_duplicate(const char * const restrict);
 
 static const char *STATUS_MESSAGE[] =
 {
+    /* success and running states */
     "Success",
     "Initialisation",
     "Running",
     "Cancelled",
+    /* failures - decryption did not complete */
     "Failed: Invalid initialisation parameters!",
-    "Failed: Unsupported Version!",
-    "Failed: Unsupported Algorithm!",
-    "Failed: Decryption Failure!",
-    "Failed: Unknown Tag!",
-    "Failed: Bad Checksum! (Possible data corruption.)",
-    "Failed: Read/Write Error!",
-    "Failed: Target file type mismatch!",
-    "Failed: Unknown Problem!"
+    "Failed: Unsupported version!",
+    "Failed: Unsupported algorithm!",
+    "Failed: Decryption failure!",
+    "Failed: Unsupported feature!",
+    "Failed: Read/Write error!",
+    "Failed: Invalid target file type!",
+    "Failed: An unknown error has occurred!",
+    /* warnings - decryption finished but with possible errors */
+    "Warning: Bad checksum! (Possible data corruption)",
+    "Warning: Could not extract all files! (Links are unsupported)"
 };
 
 typedef struct
