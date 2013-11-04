@@ -21,7 +21,6 @@
 		2E96E2DA164129B200C50460 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E96E2D3164129B200C50460 /* logging.c */; };
 		2E96E2DB164129B200C50460 /* encrypt.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E96E2D5164129B200C50460 /* encrypt.c */; };
 		2E96E2DC164129B200C50460 /* io.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E96E2D7164129B200C50460 /* io.c */; };
-		2E9BB30D1642C7BC00FF52DB /* Encrypt-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2EA92F67161DDC58008DFF9B /* Encrypt-Info.plist */; };
 		2EA92F60161DDC58008DFF9B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2EA92F5F161DDC58008DFF9B /* Cocoa.framework */; };
 		2EA92F6A161DDC58008DFF9B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2EA92F68161DDC58008DFF9B /* InfoPlist.strings */; };
 		2EA92F6C161DDC58008DFF9B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2EA92F6B161DDC58008DFF9B /* main.m */; };
@@ -240,7 +239,6 @@
 				2EA92F58161DDC58008DFF9B /* Frameworks */,
 				2EA92F59161DDC58008DFF9B /* Resources */,
 				2E76DE4B165A86BE000DD9DF /* CopyFiles */,
-				2E76DE64165A8AFA000DD9DF /* Run Script */,
 			);
 			buildRules = (
 			);
@@ -258,7 +256,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = net.albinoloverats;
-				LastUpgradeCheck = 0450;
+				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "albinoloverats ~ Software Development";
 			};
 			buildConfigurationList = 2EA92F55161DDC58008DFF9B /* Build configuration list for PBXProject "Encrypt" */;
@@ -287,28 +285,10 @@
 				2EA92F70161DDC58008DFF9B /* Credits.rtf in Resources */,
 				2EA92F76161DDC59008DFF9B /* Encrypt.xib in Resources */,
 				2EA92F7F161DDCFE008DFF9B /* encrypt.icns in Resources */,
-				2E9BB30D1642C7BC00FF52DB /* Encrypt-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		2E76DE64165A8AFA000DD9DF /* Run Script */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 12;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Run Script";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "install_name_tool -id @executable_path/../Frameworks/libcurl.4.dylib      ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libcurl.4.dylib\ninstall_name_tool -id @executable_path/../Frameworks/libgcrypt.11.dylib   ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgcrypt.11.dylib\ninstall_name_tool -id @executable_path/../Frameworks/libgpg-error.0.dylib ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgpg-error.0.dylib\ninstall_name_tool -id @executable_path/../Frameworks/liblzma.5.dylib      ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/liblzma.5.dylib\n\ninstall_name_tool -change /usr/lib/libcurl.4.dylib            @executable_path/../Frameworks/libcurl.4.dylib      ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/MacOS/Encrypt\ninstall_name_tool -change /usr/local/lib/libgcrypt.11.dylib   @executable_path/../Frameworks/libgcrypt.11.dylib   ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/MacOS/Encrypt\ninstall_name_tool -change /usr/local/lib/libgpg-error.0.dylib @executable_path/../Frameworks/libgpg-error.0.dylib ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/MacOS/Encrypt\ninstall_name_tool -change /usr/local/lib/liblzma.5.dylib      @executable_path/../Frameworks/liblzma.5.dylib      ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/MacOS/Encrypt\nchmod 755 ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgcrypt.11.dylib\nchmod 755 ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgpg-error.0.dylib\nchmod 755 ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/liblzma.5.dylib\ninstall_name_tool -change /usr/local/lib/libgpg-error.0.dylib @executable_path/../Frameworks/libgpg-error.0.dylib ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgcrypt.11.dylib\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		2EA92F57161DDC58008DFF9B /* Sources */ = {
@@ -365,14 +345,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libstdc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2013.02;
+				CURRENT_PROJECT_VERSION = 2013.02.11;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -392,9 +371,9 @@
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				INFOPLIST_FILE = "Encrypt-Info.plist";
 				LIBRARY_SEARCH_PATHS = libs;
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx;
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 				VALID_ARCHS = x86_64;
 			};
@@ -404,14 +383,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libstdc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 2013.02;
+				CURRENT_PROJECT_VERSION = 2013.02.11;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -429,9 +407,9 @@
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				INFOPLIST_FILE = "Encrypt-Info.plist";
 				LIBRARY_SEARCH_PATHS = libs;
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx;
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 				VALID_ARCHS = x86_64;
 			};
@@ -441,7 +419,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2013.02;
+				CURRENT_PROJECT_VERSION = 2013.02.11;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
@@ -454,9 +432,9 @@
 					"/usr/local/Cellar/libgpg-error/1.10/lib",
 					/usr/local/lib,
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx;
 				STRINGS_FILE_OUTPUT_ENCODING = binary;
 				WRAPPER_EXTENSION = app;
 			};
@@ -466,7 +444,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2013.02;
+				CURRENT_PROJECT_VERSION = 2013.02.11;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 2;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
@@ -480,10 +458,10 @@
 					"/usr/local/Cellar/libgpg-error/1.10/lib",
 					/usr/local/lib,
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx;
 				STRINGS_FILE_OUTPUT_ENCODING = binary;
 				WRAPPER_EXTENSION = app;
 			};
