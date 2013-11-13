@@ -342,7 +342,12 @@ extern version_e check_version(uint64_t m)
     return VERSION_UNKNOWN;
 }
 
-extern const char *get_version(version_e v)
+extern uint64_t get_version(version_e v)
+{
+    return VERSIONS[v].id;
+}
+
+extern const char *get_version_string(version_e v)
 {
     return VERSIONS[v].string;
 }

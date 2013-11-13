@@ -281,13 +281,22 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h) __a
 extern version_e check_version(uint64_t m);
 
 /*!
+ * \brief         Get the version ID
+ * \param[in]  v  The version
+ * \return        The version ID
+ *
+ * Get the version magic number which corresponds to the version enum.
+ */
+extern uint64_t get_version(version_e v);
+
+/*!
  * \brief         Get the version as a string
  * \param[in]  v  The version
  * \return        The version as a string
  *
  * Get the version string which corresponds to the version enum.
  */
-extern const char *get_version(version_e v);
+extern const char *get_version_string(version_e v);
 
 /*!
  * \brief         Parse the version from a string
