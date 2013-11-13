@@ -187,7 +187,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
         case VERSION_2012_11:
             /* allow compression, but not directories */
             if (z->source == IO_UNINITIALISED)
-                die(_("Compatibility with version %s does not allow encrypting directories"), get_version(z->version));
+                die(_("Compatibility with version %s does not allow encrypting directories"), get_version_string(z->version));
             /* if not compressing, fallback even more */
             if (!z->compressed)
                 z->version = VERSION_2011_08;
@@ -205,7 +205,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
         default:
             die(_("We've reached an unreachable location in the code @ %s:%d:%s"), __FILE__, __LINE__, __func__);
     }
-    log_message(LOG_VERBOSE, _("Encrypted file compatible with versions %s and later"), get_version(z->version));
+    log_message(LOG_VERBOSE, _("Encrypted file compatible with versions %s and later"), get_version_string(z->version));
     return z;
 }
 
@@ -338,7 +338,7 @@ static void *process(void *ptr)
 static inline void write_header(crypto_t *c)
 {
     log_message(LOG_INFO, _("Writing standard header"));
-    uint64_t head[3] = { htonll(HEADER_0), htonll(HEADER_1), htonll(c->version) };
+    uint64_t head[3] = { htonll(HEADER_0), htonll(HEADER_1), htonll(get_version(c->version)) };
     io_write(c->output, head, sizeof head);
     char *algos = NULL;
     char *u_cipher = strdup(c->cipher);

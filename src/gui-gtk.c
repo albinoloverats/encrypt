@@ -129,7 +129,7 @@ extern void set_compatibility_menu(gtk_widgets_t *data, char *version)
     version_e v = parse_version(version);
     for (version_e i = VERSION_CURRENT; i > VERSION_UNKNOWN; i--)
     {
-        const char *t = get_version(i);
+        const char *t = get_version_string(i);
         GtkWidget *m = gtk_radio_menu_item_new_with_label(g, t);
         g = gtk_radio_menu_item_get_group((GtkRadioMenuItem *)m);
         gtk_menu_shell_append((GtkMenuShell *)data->compat_menu, m);
@@ -436,7 +436,7 @@ G_MODULE_EXPORT gboolean on_follow_toggle(GtkWidget *widget, gtk_widgets_t *data
 G_MODULE_EXPORT gboolean on_compatibility_change(GtkWidget *widget, gtk_widgets_t *data)
 {
     _version = parse_version(gtk_menu_item_get_label((GtkMenuItem *)widget));
-    update_config(CONF_VERSION, get_version(_version));
+    update_config(CONF_VERSION, get_version_string(_version));
 
     return TRUE;
 }
