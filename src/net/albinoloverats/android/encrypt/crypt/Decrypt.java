@@ -21,9 +21,11 @@
 package net.albinoloverats.android.encrypt.crypt;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -241,6 +243,7 @@ public class Decrypt extends Crypto
 
     private void decryptDirectory(final String dir) throws Exception, IOException
     {
+        boolean lnerr = false;
         for (total.offset = 0; total.offset < total.size && status == Status.RUNNING; total.offset++)
         {
             final FileType t = FileType.fromID(source.read());
@@ -268,19 +271,38 @@ public class Decrypt extends Crypto
                     break;
                 case LINK:
                 case SYMLINK:
-                    /*
-                     * If, and when, Android supports Java7 NIO:
-                     * we will handle links (of both kinds)
-                     */
+                    /* When, or rather if, Android supports Java7 NIO: we will handle links */
                     b = new byte[Long.SIZE / Byte.SIZE];
                     source.read(b);
                     l = Convert.longFromBytes(b);
                     b = new byte[(int)l];
                     source.read(b);
-                    status = Status.WARNING_LINK;
+                    if (t == FileType.LINK)
+                    {
+                        /* As with Windows, just copy the file */
+                        FileChannel sfc = null;
+                        FileChannel dfc = null;
+                        try
+                        {
+                            sfc = new FileInputStream(new File(new String(b))).getChannel();
+                            dfc = new FileOutputStream(new File(nm)).getChannel();
+                            dfc.transferFrom(sfc, 0, sfc.size());
+                        }
+                        finally
+                        {
+                            if (sfc != null)
+                                sfc.close();
+                            if (dfc != null)
+                                dfc.close();
+                        }
+                    }
+                    else
+                        lnerr = true;
                     break;
             }
         }
+        if (lnerr)
+            status = Status.WARNING_LINK;
         return;
     }
 
