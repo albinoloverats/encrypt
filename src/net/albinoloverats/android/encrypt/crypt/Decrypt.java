@@ -271,7 +271,10 @@ public class Decrypt extends Crypto
                     break;
                 case LINK:
                 case SYMLINK:
-                    /* When, or rather if, Android supports Java7 NIO: we will handle links */
+                    /*
+                     * When, or rather if, Android supports more
+                     * of Java NIO: we will handle links
+                     */
                     b = new byte[Long.SIZE / Byte.SIZE];
                     source.read(b);
                     l = Convert.longFromBytes(b);
