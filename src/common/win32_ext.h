@@ -67,6 +67,7 @@
 #define alphasort NULL
 #define mkdir(dir, attr) _mkdir(dir)
 #define lstat(path, st) stat(path, st)
+#define link(old, new) CopyFile(old, new, FALSE)
 
 extern int asprintf(char **buffer, char *fmt, ...) __attribute__((nonnull(2), format(printf, 2, 3)));
 

@@ -458,6 +458,7 @@ static void skip_random_data(crypto_t *c)
 static void decrypt_directory(crypto_t *c, const char *dir)
 {
     log_message(LOG_INFO, _("Decrypting %" PRIu64 " entries into %s"), c->total.size, dir);
+    bool lnerr = false;
     for (c->total.offset = 0; c->total.offset < c->total.size && c->status == STATUS_RUNNING; c->total.offset++)
     {
         file_type_e tp;
@@ -486,11 +487,15 @@ static void decrypt_directory(crypto_t *c, const char *dir)
                 if (!lnk)
                     die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, l + sizeof( byte_t ));
                 io_read(c->source, lnk, l);
-#ifndef _WIN32
                 if (tp == FILE_SYMLINK)
                 {
+#ifndef _WIN32
                     log_message(LOG_VERBOSE, _("Creating soft link : %s -> %s"), filename, lnk);
                     symlink(lnk, filename);
+#else
+                    log_message(LOG_WARNING, _("Windows does not support links!"));
+                    lnerr = true;
+#endif
                 }
                 else
                 {
@@ -498,12 +503,9 @@ static void decrypt_directory(crypto_t *c, const char *dir)
                     char *hl = NULL;
                     if (!asprintf(&hl, "%s/%s", dir, lnk))
                         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(dir) + strlen(lnk) + 2);
+                    /* NB: on Windows this is just a copy not a link */
                     link(hl, filename);
                 }
-#else
-                log_message(LOG_WARNING, _("Windows does not support links!"));
-                c->status = STATUS_WARNING_LINK;
-#endif
                 break;
             case FILE_REGULAR:
                 c->current.offset = 0;
@@ -519,6 +521,8 @@ static void decrypt_directory(crypto_t *c, const char *dir)
         }
         free(filename);
     }
+    if (lnerr)
+        c->status = STATUS_WARNING_LINK;
     return;
 }
 
