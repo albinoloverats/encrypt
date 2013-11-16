@@ -231,7 +231,7 @@ static void *process(void *ptr)
      */
     uint8_t *cs = NULL;
     size_t cl = 0;
-    io_encryption_checksum(c->source, &cs, &cl);
+    io_encryption_checksum(c->output, &cs, &cl);
     io_write(c->output, cs, cl);
     free(cs);
 

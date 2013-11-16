@@ -1,15 +1,11 @@
 Changelog
 =========
 
-A history of what happened before, and a taste of what's to come…
+encrypt - 2013.02.11                                       16th Nov 2013
+-----------------
 
-
-Planned changes
----------------
-
-* Allow the latest version to create encrypted files that older versions
-  can decrypt
-* Better desktop integration (context menu's and such like)
+Fix bug in encryption which when writing data checksum, which showed was
+visible on Windows yet present on all desktop builds.
 
 
 encrypt - 2013.02                                 (sometime in) Feb 2013

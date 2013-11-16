@@ -37,7 +37,7 @@
 #include <pthread.h> /*!< Necessary include as pthread handle is referenced in this header */
 #include "io.h"      /*!< Necessary as IO_HANDLE type is referenced in this header */
 
-#define ENCRYPT_VERSION "2013.02" /*!< Current version of encrypt application */
+#define ENCRYPT_VERSION "2013.02.11" /*!< Current version of encrypt application */
 #define UPDATE_URL "https://albinoloverats.net/encrypt.release" /*!< URI to check for updates */
 
 #define HEADER_VERSION_201108 0x72761df3e497c983llu /*!< The third 8 bytes of the original version (2011.08) */
