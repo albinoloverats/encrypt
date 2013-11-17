@@ -179,7 +179,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
         case VERSION_2011_10:
             /*
              * single file only; if we don't split the plaintext into
-             * then both versions are identical :)
+             * blocks or compress it then both versions are identical
              */
             z->version = VERSION_2011_08;
             z->compressed = false;
