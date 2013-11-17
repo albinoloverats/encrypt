@@ -275,7 +275,11 @@ static void *process(void *ptr)
         if (ps == '/')
             ps = '\0';
         char *cwd = NULL;
+#ifndef _WIN32
         char *dir = strrchr(c->path, '/');
+#else
+        char *dir = strrchr(c->path, '\\');
+#endif
         if (dir)
         {
             *dir = '\0';

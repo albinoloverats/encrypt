@@ -589,7 +589,8 @@ inline static void gui_display(crypto_t *c, gtk_widgets_t *data)
             else if (val < BILLION)
                 asprintf(&bps_label, "%5.1f GB/s", val / GIGABYTE);
             else
-                asprintf(&bps_label, "%5.1f TB/s", val / TERABYTE);
+                asprintf(&bps_label, "---.- B/s");
+                //asprintf(&bps_label, "%5.1f TB/s", val / TERABYTE);
         }
         fprintf(stderr, "\r%s", bps_label);
         gtk_label_set_text((GtkLabel *)data->progress_label, bps_label);
