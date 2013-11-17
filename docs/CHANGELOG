@@ -4,15 +4,39 @@ Changelog
 A history of what happened before, and a taste of what's to come…
 
 
-Planned changes
----------------
+Planned Future Enhancements
+---------------------------
 
-* Allow the latest version to create encrypted files that older versions
-  can decrypt
 * Better desktop integration (context menu's and such like)
+* Full (non-Homebrew) support on Apple's OS X
+* Support for file links on Android  (although this is dependant on full
+  Java NIO support)
+* Bug fixes as necessary ;-)
 
 
-encrypt - 2013.02                                 (sometime in) Feb 2013
+encrypt - 2013.11                                 (sometime in) Nov 2013
+-----------------
+
+A significant bug in regards to the encryption of directories on Windows
+has been fixed with the help of Mark Condic, so much thanks there!
+
+There has also been several significant changes on all platforms such as
+the more traditional (or expected) approach to file links:  on Unix-like
+systems the links themselves are stored by default (unlike before, where
+the files the links pointed to were stored); and on Windows and Android,
+obviously they don't have links to encrypt,  but during decryption links
+are handled in one of two ways: symbolic links are ignored, whereas hard
+links cause the file to be copied. Although this means the file is dupl-
+icated it's the closest approximation to the original as possible.
+
+The second major addition to encrypt's abilities is the option to create
+encrypted archives for previous versions of the application. NB This has
+had only limited testing and should't be relied upon!  You should really
+be using the latest version wherever possible! (But it's there for those
+who might find it useful from time-to-time.)
+
+
+encrypt - 2013.02                                           7th Feb 2013
 -----------------
 
 Hot off the heals of our last release we're here with another. It brings
