@@ -101,7 +101,7 @@ static const version_t VERSIONS[] =
     { "2011.10", 0xbb116f7d00201110llu },
     { "2012.11", 0x51d28245e1216c45llu },
     { "2013.02", 0x5b7132ab5abb3c47llu },
-    { "2013.09", 0xf1f68e5f2a43aa5fllu },
+    { "2013.11", 0xf1f68e5f2a43aa5fllu },
     { "current", 0xf1f68e5f2a43aa5fllu } /* same as above */
 };
 

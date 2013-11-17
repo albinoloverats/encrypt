@@ -10,6 +10,6 @@
 >16		bequad		0xbb116f7d00201110		(version 2011.10)
 >16		bequad		0x51d28245e1216c45		(version 2012.11)
 >16     bequad      0x5b7132ab5abb3c47      (version 2013.02)
->16     bequad      0xf1f68e5f2a43aa5f      (version 2013.09)
+>16     bequad      0xf1f68e5f2a43aa5f      (version 2013.11)
 >24		pstring		x		(algorithms: %s)
 !:mime	application/x-encrypt
