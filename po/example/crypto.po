@@ -1,24 +1,24 @@
-#: src/crypto.c:112
+#: src/crypto.c:116
 #| Initialising GNU Crypt library
 msgid "Initialising GNU Crypt library"
 msgstr ""
 
-#: src/crypto.c:114
+#: src/crypto.c:118
 #| Could not find GNU Crypt library
 msgid "Could not find GNU Crypt library"
 msgstr ""
 
-#: src/crypto.c:123
+#: src/crypto.c:127
 #| Invalid cryptographic object!
 msgid "Invalid cryptographic object!"
 msgstr ""
 
-#: src/crypto.c:124
+#: src/crypto.c:128
 #| Executing crypto instance %p in background
 msgid "Executing crypto instance %p in background"
 msgstr ""
 
-#: src/crypto.c:139
+#: src/crypto.c:143
 #| Status [%d] : %s
 #. The following strings need translating for this message: (although I'm not sure
 #. how to translate char arrays in the application yet…)
@@ -32,63 +32,63 @@ msgstr ""
 mmsgid "Status [%d] : %s"
 msgstr ""
 
-#: src/crypto.c:148
+#: src/crypto.c:152
 #| Deleting crypto instance %p, and freeing resources
 msgid "Deleting crypto instance %p, and freeing resources"
 msgstr ""
 
-#: src/crypto.c:175
+#: src/crypto.c:179
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/crypto.c:193
+#: src/crypto.c:197
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/crypto.c:213
+#: src/crypto.c:217
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/crypto.c:227
+#: src/crypto.c:231
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/crypto.c:259
+#: src/crypto.c:263
 #| Found requested encryption algorithm: %s
 msgid "Found requested encryption algorithm: %s"
 msgstr ""
 
-#: src/crypto.c:266
+#: src/crypto.c:270
 #| Could not find requested encryption algorithm: %s
 msgid "Could not find requested encryption algorithm: %s"
 msgstr ""
 
-#: src/crypto.c:286
+#: src/crypto.c:290
 #| Found requested hash: %s
 msgid "Found requested hash: %s"
 msgstr ""
 
-#: src/crypto.c:291
+#: src/crypto.c:295
 #| Could not find requested hash: %s
 msgid "Could not find requested hash: %s"
 msgstr ""
 
-#: src/crypto.c:303
-#. See src/io.po for "IO error" translation
-
 #: src/crypto.c:307
 #. See src/io.po for "IO error" translation
 
-#: src/crypto.c:336
+#: src/crypto.c:311
+#. See src/io.po for "IO error" translation
+
+#: src/crypto.c:340
 #| File encrypted with version %s
 msgid "File encrypted with version %s"
 msgstr ""
 
-#: src/crypto.c:337
+#: src/crypto.c:341
 #| File encrypted with unknown, or more recent release of encrypt
 msgid "File encrypted with unknown, or more recent release of encrypt"
 msgstr ""
 
-#: src/crypto.c:353
+#: src/crypto.c:362
 #| Unknown version, defaulting to current : %s
 msgid "Unknown version, defaulting to current : %s"
 msgstr ""
 
-#: src/crypto.c:376
+#: src/crypto.c:385
 #. See common/common.po for the definitive "Out of memory" translation

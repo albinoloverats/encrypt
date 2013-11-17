@@ -91,7 +91,7 @@ msgstr ""
 #: src/init.c:309
 #. The GNU GPLv3 header is translated as part of common/common.po
 
-#| Out of memory @ %s:%d:%s [%zu]
+#: src/init.c:343
 #. See common/common.po for the definitive "Out of memory" translation
 
 #: src/init.c:349
