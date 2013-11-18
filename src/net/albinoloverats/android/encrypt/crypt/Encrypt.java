@@ -88,11 +88,28 @@ public class Encrypt extends Crypto
             this.key = key;
 
         compressed = compress;
-        /*
-         * If, and when, Android supports Java7 NIO:
-        this.follow = follow;
-         */
+        follow_links = follow;
         this.version = version;
+
+        switch (this.version)
+        {
+            // see src/encrypt.c for information/comments
+            case _201108:
+            case _201110:
+                this.version = Version._201108;
+                compressed = false;
+            case _201211:
+                if (directory)
+                    throw new Exception(Status.FAILURE_COMPAT);
+                if (!compressed)
+                    this.version = Version._201108;
+                break;
+            case _201302:
+                follow_links = false;
+            case _201311:
+            case CURRENT:
+                break;
+        }
     }
 
     @Override
@@ -112,7 +129,7 @@ public class Encrypt extends Crypto
             writeRandomData();
 
             final LZMA2Options opts = new LZMA2Options(LZMA2Options.PRESET_DEFAULT);
-            opts.setDictSize(LZMA2Options.DICT_SIZE_MIN); // default dictionary size is 8MiB which is too large
+            opts.setDictSize(LZMA2Options.DICT_SIZE_MIN); // default dictionary size is 8MiB which is too large (on older devices)
 
             output = compressed ? new XZOutputStream(output, opts) : output;
 

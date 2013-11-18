@@ -46,6 +46,7 @@ import android.os.Message;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
@@ -185,6 +186,7 @@ public class Main extends Activity
         });
         hSpinner.setEnabled(false);
 
+        // populate algorithm spinners
         cipherNames = CryptoUtils.getCipherAlgorithmNames();
         hashNames = CryptoUtils.getHashAlgorithmNames();
         cipherSpinAdapter.add(getString(R.string.choose_cipher));
@@ -241,7 +243,9 @@ public class Main extends Activity
 
         final SharedPreferences settings = getSharedPreferences(SHARED_PREFERENCES, 0);
         compress = settings.getBoolean("compress", true);
+        follow = settings.getBoolean("compress", false);
         key_file = settings.getBoolean("key", false);
+        version = Version.parseMagicNumber(settings.getLong("version", Version.CURRENT.magicNumber));
         toggleKeySource();
     }
 
@@ -249,10 +253,16 @@ public class Main extends Activity
     protected void onStop()
     {
         super.onStop();
+        storePreferences();
+    }
 
+    private void storePreferences()
+    {
         final SharedPreferences.Editor editor = getSharedPreferences(SHARED_PREFERENCES, 0).edit();
         editor.putBoolean("compress", compress);
+        editor.putBoolean("follow", follow);
         editor.putBoolean("key", key_file);
+        editor.putLong("version", version.magicNumber);
         editor.commit();
     }
 
@@ -261,28 +271,66 @@ public class Main extends Activity
     {
         getMenuInflater().inflate(R.menu.menu, menu);
         menu.findItem(R.id.menu_item_compress).setChecked(compress);
+        menu.findItem(R.id.menu_item_follow).setChecked(follow);
         menu.findItem(R.id.menu_item_key_file).setChecked(key_file);
+
+        // populate version compatibility menu
+        final SubMenu compat = menu.findItem(R.id.menu_item_compatibility).getSubMenu();
+        int o = Version.values().length;
+        for (final Version v : Version.values())
+        {
+            if (v == Version.CURRENT) /* no need to duplicate the "current" */
+                continue;
+            compat.add(R.id.menu_group_compatibility, v.menu_id, o, v.display).setChecked(version.magicNumber == v.magicNumber);
+            o--;
+        }
+        compat.setGroupCheckable(R.id.menu_group_compatibility, true, true);
+
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item)
     {
-        switch (item.getItemId())
+        final int itemId = item.getItemId();
+        switch (itemId)
         {
             case R.id.menu_item_about:
                 aboutDialog();
+                break;
+//            case R.id.menu_item_compatibility:
+            case R.id.menu_item_options:
                 break;
             case R.id.menu_item_compress:
                 compress = !item.isChecked();
                 item.setChecked(compress);
                 Toast.makeText(getApplicationContext(), getString(R.string.compress) + ": " + (compress ? getString(R.string.on) : getString(R.string.off)), Toast.LENGTH_SHORT).show();
+                storePreferences();
+                break;
+            case R.id.menu_item_follow:
+                follow = !item.isChecked();
+                item.setChecked(follow);
+                Toast.makeText(getApplicationContext(), getString(R.string.follow) + ": " + (follow ? getString(R.string.on) : getString(R.string.off)), Toast.LENGTH_SHORT).show();
+                storePreferences();
                 break;
             case R.id.menu_item_key_file:
                 key_file = !item.isChecked();
                 item.setChecked(key_file);
                 Toast.makeText(getApplicationContext(), key_file ? getString(R.string.use_key_file) : getString(R.string.use_password), Toast.LENGTH_SHORT).show();
                 toggleKeySource();
+                storePreferences();
+                break;
+            default:
+                for (final Version v : Version.values())
+                {
+                    if (itemId == v.menu_id)
+                    {
+                        version = v;
+                        Toast.makeText(getApplicationContext(), getString(R.string.compatibility) + ": " + version.display, Toast.LENGTH_SHORT).show();
+                        item.setChecked(true);
+                        storePreferences();
+                    }
+                }
                 break;
         }
         return true;

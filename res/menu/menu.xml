@@ -5,8 +5,14 @@
         <menu>
             <group android:checkableBehavior="all">
                 <item android:id="@+id/menu_item_compress" android:title="@string/compress" android:checked="true"/>
+                <item android:id="@+id/menu_item_follow" android:title="@string/follow" android:checked="false" android:enabled="false"/>
                 <item android:id="@+id/menu_item_key_file" android:title="@string/key_file" android:checked="false"/>
             </group>
+        </menu>
+    </item>
+    <item android:id="@+id/menu_item_compatibility" android:title="@string/compatibility">
+        <menu>
+            <group android:id="@+id/menu_group_compatibility" android:checkableBehavior="single"/>
         </menu>
     </item>
 </menu>

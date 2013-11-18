@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">encrypt</string>
-    <string name="version">2013.02</string>
+    <string name="version">2013.11</string>
     <string name="encrypt">Encrypt</string>
     <string name="decrypt">Decrypt</string>
 
@@ -13,7 +13,10 @@
     
     <string name="options">Options</string>
     <string name="compress">Compression</string>
+    <string name="follow">Follow Symlinks</string>
     <string name="key_file">Key File</string>
+
+    <string name="compatibility">Compatibility</string>
 
     <string name="use_key_file">Using Key File</string>
     <string name="use_password">Using Password</string>
@@ -26,6 +29,8 @@
     <string name="init">Initialisation</string>
     <string name="cancelled">Cancelled</string>
     <string name="running">Running</string>
+    <!-- failure with compatibilty mode and directories -->
+    <string name="failed_compatibility">Failed: Compatibility mode cannot encrypt directories!</string>
     <!-- failures - decryption did not complete -->
     <string name="failed_init">Failed: Invalid initialisation parameters!</string>
     <string name="failed_unknown_version">Failed: Unsupported version!</string>

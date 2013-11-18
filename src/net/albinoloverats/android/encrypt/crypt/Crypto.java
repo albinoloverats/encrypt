@@ -51,6 +51,7 @@ public abstract class Crypto extends Thread implements Runnable
     protected int blocksize;
     protected boolean compressed = true;
     protected boolean directory = false;
+    protected boolean follow_links = false;
 
     protected Version version = Version.CURRENT;
 

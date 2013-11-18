@@ -30,6 +30,8 @@ public enum Status
     INIT(R.string.init),
     RUNNING(R.string.running),
     CANCELLED(R.string.cancelled),
+    /* failure with compatibilty mode and directories */
+    FAILURE_COMPAT(R.string.failed_compatibility),
     /* failures - decryption did not complete */
     FAILED_INIT(R.string.failed_init),
     FAILED_UNKNOWN_VERSION(R.string.failed_unknown_version),
