@@ -122,11 +122,26 @@ public class Encrypt extends Crypto
             writeHeader();
             checksum = ((EncryptedFileOutputStream)output).encryptionInit(cipher, hash, key);
 
-            writeRandomData();
+            boolean preRandom = true;
+            switch (version)
+            {
+                case _201108:
+                case _201110:
+                case _201211:
+                    preRandom = false;
+                    break;
+                default:
+                    break;
+            }
+            if (preRandom)
+                writeRandomData();
+
             writeVerificationSum();
             writeRandomData();
             writeMetadata();
-            writeRandomData();
+
+            if (preRandom)
+                writeRandomData();
 
             final LZMA2Options opts = new LZMA2Options(LZMA2Options.PRESET_DEFAULT);
             opts.setDictSize(LZMA2Options.DICT_SIZE_MIN); // default dictionary size is 8MiB which is too large (on older devices)
