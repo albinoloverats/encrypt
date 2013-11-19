@@ -196,7 +196,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
         case VERSION_2013_02:
             z->follow_links = true;
         case VERSION_2013_11:
-        case VERSION_CURRENT:
+        //case VERSION_CURRENT:
             /*
              * do nothing, all options are available; not falling back
              * allows extra padding at beginning of file
