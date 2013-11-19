@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Copied with a few minor tweaks from the Linux Glade file -->
 <interface>
   <!-- interface-requires gtk+ 3.0 -->
   <object class="GtkAboutDialog" id="about_dialog">
@@ -136,7 +137,6 @@ http://www.everaldo.com/</property>
                 <property name="has_default">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
-                <signal name="clicked" handler="key_dialog_okay" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -230,7 +230,6 @@ http://www.everaldo.com/</property>
                     <child>
                       <object class="GtkCheckMenuItem" id="follow_menu_item">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">False</property>
                         <property name="label">_Follow Symlinks</property>
                         <property name="use_underline">True</property>
@@ -317,7 +316,7 @@ http://www.everaldo.com/</property>
                       <object class="GtkImage" id="open_file_image">
                         <property name="can_focus">False</property>
                         <property name="stock">gtk-file</property>
-                        <property name="icon-size">1</property>
+                        <property name="icon_size">1</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -349,7 +348,7 @@ http://www.everaldo.com/</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">1</property>
                         <property name="stock">gtk-open</property>
-                        <property name="icon-size">1</property>
+                        <property name="icon_size">1</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -390,7 +389,7 @@ http://www.everaldo.com/</property>
                       <object class="GtkImage" id="save_file_image">
                         <property name="can_focus">False</property>
                         <property name="stock">gtk-file</property>
-                        <property name="icon-size">1</property>
+                        <property name="icon_size">1</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -422,7 +421,7 @@ http://www.everaldo.com/</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">1</property>
                         <property name="stock">gtk-save-as</property>
-                        <property name="icon-size">1</property>
+                        <property name="icon_size">1</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -522,7 +521,6 @@ http://www.everaldo.com/</property>
                 <property name="visibility">False</property>
                 <property name="invisible_char">•</property>
                 <property name="truncate_multiline">True</property>
-                <property name="invisible_char_set">True</property>
                 <property name="primary_icon_stock">gtk-dialog-authentication</property>
                 <signal name="changed" handler="password_entry_callback" swapped="no"/>
               </object>
@@ -554,7 +552,7 @@ http://www.everaldo.com/</property>
                       <object class="GtkImage" id="key_file_image">
                         <property name="can_focus">False</property>
                         <property name="stock">gtk-dialog-authentication</property>
-                        <property name="icon-size">1</property>
+                        <property name="icon_size">1</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -585,7 +583,7 @@ http://www.everaldo.com/</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">1</property>
                         <property name="stock">gtk-open</property>
-                        <property name="icon-size">1</property>
+                        <property name="icon_size">1</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -694,20 +692,92 @@ http://www.everaldo.com/</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="open_dialog_okay">
-                <property name="label">gtk-open</property>
+              <object class="GtkButton" id="open_dialog_file">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-                <signal name="clicked" handler="file_dialog_okay" swapped="no"/>
+                <child>
+                  <object class="GtkBox" id="box4">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="homogeneous">True</property>
+                    <child>
+                      <object class="GtkImage" id="open_dialog_image_file">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="stock">gtk-file</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="open_dialog_label_file">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">File</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="open_dialog_directory">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <child>
+                  <object class="GtkBox" id="box5">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="homogeneous">True</property>
+                    <child>
+                      <object class="GtkImage" id="open_dialog_image_directory">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="stock">gtk-open</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="open_dialog_label_directory">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Folder</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                </child>
+                <signal name="clicked" handler="file_dialog_okay" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
               </packing>
             </child>
           </object>
@@ -725,7 +795,7 @@ http://www.everaldo.com/</property>
     </child>
     <action-widgets>
       <action-widget response="-4">open_dialog_cancel</action-widget>
-      <action-widget response="-5">open_dialog_okay</action-widget>
+      <action-widget response="-5">open_dialog_file</action-widget>
     </action-widgets>
   </object>
   <object class="GtkWindow" id="progress_dialog">
@@ -758,7 +828,7 @@ http://www.everaldo.com/</property>
             <property name="halign">center</property>
             <property name="valign">center</property>
             <property name="stock">gtk-dialog-warning</property>
-            <property name="icon-size">6</property>
+            <property name="icon_size">6</property>
           </object>
           <packing>
             <property name="expand">True</property>
@@ -822,9 +892,9 @@ processes your file</property>
           </packing>
         </child>
         <child>
-          <object class="GtkButton" id="progress_cancel_button">
-            <property name="label">gtk-cancel</property>
-            <property name="visible">True</property>
+          <object class="GtkButton" id="progress_close_button">
+            <property name="label">gtk-close</property>
+            <property name="sensitive">False</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="halign">center</property>
@@ -839,9 +909,9 @@ processes your file</property>
           </packing>
         </child>
         <child>
-          <object class="GtkButton" id="progress_close_button">
-            <property name="label">gtk-close</property>
-            <property name="sensitive">False</property>
+          <object class="GtkButton" id="progress_cancel_button">
+            <property name="label">gtk-cancel</property>
+            <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="halign">center</property>
@@ -912,7 +982,6 @@ processes your file</property>
                 <property name="has_default">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
-                <signal name="clicked" handler="file_dialog_okay" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>

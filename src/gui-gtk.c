@@ -71,6 +71,8 @@ key_type_e;
 char *gui_file_hack_source = NULL;
 char *gui_file_hack_output = NULL;
 
+static void key_dialog_okay(gtk_widgets_t *data);
+
 inline static void set_progress_bar(GtkProgressBar *, float);
 inline static void set_progress_button(GtkButton *, bool);
 
@@ -180,19 +182,29 @@ G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *d
     if (!d || !l || !i)
         return FALSE;
 
-    if (gtk_dialog_run(d) == GTK_RESPONSE_DELETE_EVENT)
+    switch (gtk_dialog_run(d))
     {
-        gtk_label_set_text(l, NONE_SELECTED);
-        gtk_widget_hide(i);
+        case GTK_RESPONSE_DELETE_EVENT:
+            gtk_label_set_text(l, NONE_SELECTED);
+            gtk_widget_hide(i);
 
-        if (a)
-        {
-            gtk_widget_set_sensitive(data->crypto_combo, FALSE);
-            gtk_widget_set_sensitive(data->hash_combo, FALSE);
-            gtk_widget_set_sensitive(data->key_combo, FALSE);
-            gtk_widget_set_sensitive(data->key_button, FALSE);
-        }
-        gtk_widget_set_sensitive(data->encrypt_button, FALSE);
+            if (a)
+            {
+                gtk_widget_set_sensitive(data->crypto_combo, FALSE);
+                gtk_widget_set_sensitive(data->hash_combo, FALSE);
+                gtk_widget_set_sensitive(data->key_combo, FALSE);
+                gtk_widget_set_sensitive(data->key_button, FALSE);
+            }
+            gtk_widget_set_sensitive(data->encrypt_button, FALSE);
+            break;
+
+        case GTK_RESPONSE_ACCEPT:
+        case GTK_RESPONSE_OK:
+            if (a)
+                file_dialog_okay(button, data);
+            else
+                key_dialog_okay(data);
+            break;
     }
 
     gtk_widget_hide((GtkWidget *)d);
@@ -308,7 +320,7 @@ G_MODULE_EXPORT gboolean key_combo_callback(GtkComboBox *combo_box, gtk_widgets_
             gtk_widget_set_sensitive(data->key_button, TRUE);
             gtk_widget_hide(data->password_entry);
             gtk_widget_show(data->key_button);
-            key_dialog_okay(NULL, data);
+            key_dialog_okay(data);
             break;
 
         case KEY_PASSWORD:
@@ -343,21 +355,21 @@ G_MODULE_EXPORT gboolean password_entry_callback(GtkComboBox *password_entry, gt
     return TRUE;
 }
 
-G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widgets_t *data)
+static void key_dialog_okay(gtk_widgets_t *data)
 {
-    gboolean en = TRUE;
+    bool en = true;
 
     char *key_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog);
     if (key_file)
         key_file = _filename_utf8(key_file);
     if (!key_file || !strlen(key_file))
-        en = FALSE;
+        en = false;
     else
     {
         struct stat s;
         stat(key_file, &s);
         if (errno == ENOENT || !S_ISREG(s.st_mode))
-            en = FALSE;
+            en = false;
     }
 
     gtk_label_set_text((GtkLabel *)data->key_file_label, en ? basename(key_file) : NONE_SELECTED);
@@ -374,7 +386,7 @@ G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widge
     if (en)
         gtk_widget_grab_default(data->encrypt_button);
 
-    return TRUE;
+    return;
 }
 
 G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widgets_t *data)
