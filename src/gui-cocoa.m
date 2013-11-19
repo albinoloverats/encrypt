@@ -127,7 +127,7 @@ static version_e version = VERSION_CURRENT;
     version = parse_version(args.version);
     for (version_e v = VERSION_CURRENT; v > VERSION_UNKNOWN; v--)
     {
-        NSMenuItem *m = [[NSMenuItem alloc] initWithTitle:[NSString stringWithUTF8String:get_version(v)] action:@selector(versionToggle:) keyEquivalent:@""];
+        NSMenuItem *m = [[NSMenuItem alloc] initWithTitle:[NSString stringWithUTF8String:get_version_string(v)] action:@selector(versionToggle:) keyEquivalent:@""];
         [m setState:NSOffState];
         [m setEnabled:TRUE];
         [m setTarget:self];
@@ -167,7 +167,7 @@ static version_e version = VERSION_CURRENT;
     for (NSMenuItem *m in [_version itemArray])
         [m setState:NSOffState];
     [i setState:NSOnState];
-    update_config(CONF_VERSION, (char *)get_version(version));
+    update_config(CONF_VERSION, (char *)get_version_string(version));
 }
 
 - (IBAction)ioFileChoosen:(id)pId
