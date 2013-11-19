@@ -154,9 +154,9 @@ public class Encrypt extends Crypto
             {
                 final File d = new File(path);
                 root = d.getParent();
-                output.write(Convert.toBytes((byte)FileType.DIRECTORY.value));
-                output.write(Convert.toBytes((long)d.getName().length()));
-                output.write(d.getName().getBytes());
+                hashAndWrite(Convert.toBytes((byte)FileType.DIRECTORY.value));
+                hashAndWrite(Convert.toBytes((long)d.getName().length()));
+                hashAndWrite(d.getName().getBytes());
                 total.offset = 1;
                 encryptDirectory(path);
                 total.offset = total.size;
@@ -352,7 +352,7 @@ public class Encrypt extends Crypto
                     source = new FileInputStream(file);
                     current.offset = 0;
                     current.size = file.length();
-                    output.write(Convert.toBytes(current.size));
+                    hashAndWrite(Convert.toBytes(current.size));
                     encryptFile();
                     current.offset = current.size;
                     source.close();
