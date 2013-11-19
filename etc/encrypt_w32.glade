@@ -48,7 +48,7 @@ http://www.everaldo.com/</property>
     <property name="logo">C:\Program Files\encrypt\pixmaps\encrypt.png</property>
     <property name="license_type">gpl-3-0</property>
     <child internal-child="vbox">
-      <object class="GtkBox" id="about_dialog_vbox">
+      <object class="GtkHBox" id="about_dialog_vbox">
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -104,7 +104,7 @@ http://www.everaldo.com/</property>
     <property name="create_folders">False</property>
     <property name="do_overwrite_confirmation">True</property>
     <child internal-child="vbox">
-      <object class="GtkBox" id="filechooserdialog-vbox5">
+      <object class="GtkHBox" id="filechooserdialog-vbox5">
         <property name="width_request">640</property>
         <property name="height_request">440</property>
         <property name="can_focus">False</property>
@@ -230,6 +230,7 @@ http://www.everaldo.com/</property>
                     <child>
                       <object class="GtkCheckMenuItem" id="follow_menu_item">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can_focus">False</property>
                         <property name="label">_Follow Symlinks</property>
                         <property name="use_underline">True</property>
@@ -667,7 +668,7 @@ http://www.everaldo.com/</property>
     <property name="create_folders">False</property>
     <property name="do_overwrite_confirmation">True</property>
     <child internal-child="vbox">
-      <object class="GtkBox" id="filechooserdialog-vbox3">
+      <object class="GtkHBox" id="filechooserdialog-vbox3">
         <property name="width_request">640</property>
         <property name="height_request">440</property>
         <property name="can_focus">False</property>
@@ -699,7 +700,7 @@ http://www.everaldo.com/</property>
                 <property name="has_default">True</property>
                 <property name="receives_default">True</property>
                 <child>
-                  <object class="GtkBox" id="box4">
+                  <object class="GtkHBox" id="box4">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="homogeneous">True</property>
@@ -742,7 +743,7 @@ http://www.everaldo.com/</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <child>
-                  <object class="GtkBox" id="box5">
+                  <object class="GtkHBox" id="box5">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="homogeneous">True</property>
@@ -949,7 +950,7 @@ processes your file</property>
     <property name="do_overwrite_confirmation">True</property>
     <signal name="file-activated" handler="gtk_file_chooser_select_filename" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkBox" id="filechooserdialog-vbox1">
+      <object class="GtkHBox" id="filechooserdialog-vbox1">
         <property name="width_request">640</property>
         <property name="height_request">440</property>
         <property name="can_focus">False</property>
