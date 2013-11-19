@@ -34,11 +34,11 @@ public enum Tag
         this.value = value;
     }
 
-    public static Tag fromValue(final int value) throws Exception
+    public static Tag fromValue(final int value) throws CryptoProcessException
     {
         for (final Tag tag : Tag.values())
             if (tag.value == value)
                 return tag;
-        throw new Exception(Status.FAILED_UNKNOWN_TAG);
+        throw new CryptoProcessException(Status.FAILED_UNKNOWN_TAG);
     }
 }

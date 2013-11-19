@@ -34,11 +34,11 @@ public enum FileType
         this.value = value;
     }
 
-    public static FileType fromID(final int value) throws Exception
+    public static FileType fromID(final int value) throws CryptoProcessException
     {
         for (final FileType type : FileType.values())
             if (value == type.value)
                 return type;
-        throw new Exception(Status.FAILED_UNKNOWN_TAG);
+        throw new CryptoProcessException(Status.FAILED_UNKNOWN_TAG);
     }
 }

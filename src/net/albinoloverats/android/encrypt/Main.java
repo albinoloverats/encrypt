@@ -29,7 +29,7 @@ import net.albinoloverats.android.encrypt.crypt.Crypto;
 import net.albinoloverats.android.encrypt.crypt.CryptoUtils;
 import net.albinoloverats.android.encrypt.crypt.Decrypt;
 import net.albinoloverats.android.encrypt.crypt.Encrypt;
-import net.albinoloverats.android.encrypt.crypt.Exception;
+import net.albinoloverats.android.encrypt.crypt.CryptoProcessException;
 import net.albinoloverats.android.encrypt.crypt.Status;
 import net.albinoloverats.android.encrypt.crypt.Version;
 import net.albinoloverats.android.encrypt.misc.Utils;
@@ -565,7 +565,7 @@ public class Main extends Activity
             {
                 c.status = Status.CANCELLED;
             }
-            catch (final Exception e)
+            catch (final CryptoProcessException e)
             {
                 s = e.code;
             }

@@ -37,7 +37,7 @@ import org.tukaani.xz.XZInputStream;
 
 public class Decrypt extends Crypto
 {
-    public Decrypt(final String source, final String output, final byte[] key) throws Exception
+    public Decrypt(final String source, final String output, final byte[] key) throws CryptoProcessException
     {
         super();
 
@@ -57,17 +57,17 @@ public class Decrypt extends Crypto
         }
         catch (final FileNotFoundException e)
         {
-            throw new Exception(Status.FAILED_IO, e);
+            throw new CryptoProcessException(Status.FAILED_IO, e);
         }
 
         if (key == null)
-            throw new Exception(Status.FAILED_INIT);
+            throw new CryptoProcessException(Status.FAILED_INIT);
         else
             this.key = key;
     }
 
     @Override
-    protected void process() throws Exception
+    protected void process() throws CryptoProcessException
     {
         try
         {
@@ -112,15 +112,19 @@ public class Decrypt extends Crypto
                     decryptFile();
             }
 
-            final byte[] check = new byte[checksum.hashSize()];
-            source.read(check);
-            if (!Arrays.equals(check, checksum.digest()))
-                status = Status.WARNING_CHECKSUM;
+            if (version != Version._201108)
+            {
+                final byte[] check = new byte[checksum.hashSize()];
+                source.read(check);
+                final byte[] digest = checksum.digest();
+                if (!Arrays.equals(check, digest))
+                    status = Status.WARNING_CHECKSUM;
+            }
 
             if (status == Status.RUNNING)
                 status = Status.SUCCESS;
         }
-        catch (final Exception e)
+        catch (final CryptoProcessException e)
         {
             status = e.code;
             throw e;
@@ -128,17 +132,17 @@ public class Decrypt extends Crypto
         catch (final NoSuchAlgorithmException e)
         {
             status = Status.FAILED_UNKNOWN_ALGORITH;
-            throw new Exception(Status.FAILED_UNKNOWN_ALGORITH, e);
+            throw new CryptoProcessException(Status.FAILED_UNKNOWN_ALGORITH, e);
         }
         catch (final InvalidKeyException e)
         {
             status = Status.FAILED_OTHER;
-            throw new Exception(Status.FAILED_OTHER, e);
+            throw new CryptoProcessException(Status.FAILED_OTHER, e);
         }
         catch (final IOException e)
         {
             status = Status.FAILED_IO;
-            throw new Exception(Status.FAILED_IO, e);
+            throw new CryptoProcessException(Status.FAILED_IO, e);
         }
         finally
         {
@@ -155,7 +159,7 @@ public class Decrypt extends Crypto
         }
     }
 
-    private void readVersion() throws Exception, IOException
+    private void readVersion() throws CryptoProcessException, IOException
     {
         final byte[] header = new byte[Long.SIZE / Byte.SIZE];
         for (int i = 0; i < 3; i++)
@@ -170,10 +174,10 @@ public class Decrypt extends Crypto
 
         version = Version.parseMagicNumber(Convert.longFromBytes(header));
         if (version == null)
-            throw new Exception(Status.FAILED_UNKNOWN_VERSION);
+            throw new CryptoProcessException(Status.FAILED_UNKNOWN_VERSION);
     }
 
-    private void readVerificationSum() throws Exception, IOException
+    private void readVerificationSum() throws CryptoProcessException, IOException
     {
         final byte buffer[] = new byte[Long.SIZE / Byte.SIZE];
         source.read(buffer);
@@ -183,12 +187,13 @@ public class Decrypt extends Crypto
         source.read(buffer);
         final long z = Convert.longFromBytes(buffer);
         if ((x ^ y) != z)
-            throw new Exception(Status.FAILED_DECRYPTION);
+            throw new CryptoProcessException(Status.FAILED_DECRYPTION);
         return;
     }
 
-    private void readMetadata() throws Exception, IOException
+    private void readMetadata() throws CryptoProcessException, IOException
     {
+        final File f = new File(path);
         final int c = source.read();
         for (int i = 0; i < c; i++)
         {
@@ -212,24 +217,30 @@ public class Decrypt extends Crypto
                 case DIRECTORY:
                     {
                         directory = Convert.booleanFromBytes(v);
-                        final File f = new File(path);
                         if (directory)
                         {
                             if (!f.exists())
                                 f.mkdirs();
                             else if (!f.isDirectory())
-                                throw new Exception(Status.FAILED_OUTPUT_MISMATCH);
+                                throw new CryptoProcessException(Status.FAILED_OUTPUT_MISMATCH);
                         }
                         else
                         {
                             if (!f.exists())
                                 output = new FileOutputStream(f);
                             else if (!f.isFile())
-                                throw new Exception(Status.FAILED_OUTPUT_MISMATCH);
+                                throw new CryptoProcessException(Status.FAILED_OUTPUT_MISMATCH);
                         }
                     }
                     break;
             }
+        }
+        if (output == null && !directory)
+        {
+            if (!f.exists())
+                output = new FileOutputStream(f);
+            else if (!f.isFile())
+                throw new CryptoProcessException(Status.FAILED_OUTPUT_MISMATCH);
         }
         return;
     }
@@ -241,17 +252,19 @@ public class Decrypt extends Crypto
         return;
     }
 
-    private void decryptDirectory(final String dir) throws Exception, IOException
+    private void decryptDirectory(final String dir) throws CryptoProcessException, IOException
     {
         boolean lnerr = false;
         for (total.offset = 0; total.offset < total.size && status == Status.RUNNING; total.offset++)
         {
-            final FileType t = FileType.fromID(source.read());
-            byte[] b = new byte[Long.SIZE / Byte.SIZE];
-            source.read(b);
+            byte[] b = new byte[Byte.SIZE / Byte.SIZE];
+            readAndHash(b);
+            final FileType t = FileType.fromID((int)b[0]);
+            b = new byte[Long.SIZE / Byte.SIZE];
+            readAndHash(b);
             long l = Convert.longFromBytes(b);
             b = new byte[(int)l];
-            source.read(b);
+            readAndHash(b);
             final String nm = dir + File.separator + new String(b);
             switch (t)
             {
@@ -261,7 +274,7 @@ public class Decrypt extends Crypto
                 case REGULAR:
                     current.offset = 0;
                     b = new byte[Long.SIZE / Byte.SIZE];
-                    source.read(b);
+                    readAndHash(b);
                     current.size = Convert.longFromBytes(b);
                     output = new FileOutputStream(nm);
                     decryptFile();
@@ -276,10 +289,10 @@ public class Decrypt extends Crypto
                      * of Java NIO: we will handle links
                      */
                     b = new byte[Long.SIZE / Byte.SIZE];
-                    source.read(b);
+                    readAndHash(b);
                     l = Convert.longFromBytes(b);
                     b = new byte[(int)l];
-                    source.read(b);
+                    readAndHash(b);
                     final String ln = dir + File.separator + new String(b);
                     if (t == FileType.LINK)
                     {
@@ -344,10 +357,21 @@ public class Decrypt extends Crypto
             int j = BLOCK_SIZE;
             if (current.offset + BLOCK_SIZE > current.size)
                 j = (int)(BLOCK_SIZE - (current.offset + BLOCK_SIZE - current.size));
-            final int r = source.read(buffer, 0, j);
-            checksum.update(buffer, 0, r);
+            final int r = readAndHash(buffer, j);
             output.write(buffer, 0, r);
         }
         return;
+    }
+
+    private int readAndHash(final byte[] b) throws IOException
+    {
+        return readAndHash(b, b.length);
+    }
+
+    private int readAndHash(final byte[] b, final int l) throws IOException
+    {
+        final int r = source.read(b, 0, l);
+        checksum.update(b, 0, l);
+        return r;
     }
 }

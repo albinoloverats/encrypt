@@ -64,13 +64,13 @@ public abstract class Crypto extends Thread implements Runnable
         {
             process();
         }
-        catch (final Exception e)
+        catch (final CryptoProcessException e)
         {
             status = e.code;
         }
     }
 
-    abstract protected void process() throws Exception;
+    abstract protected void process() throws CryptoProcessException;
 
     public static boolean fileEncrypted(final String path) throws IOException
     {

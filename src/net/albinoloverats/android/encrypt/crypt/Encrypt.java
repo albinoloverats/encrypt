@@ -53,7 +53,7 @@ public class Encrypt extends Crypto
     private Map<Long, Path> inodes = new HashMap<Long, Path>();
      */
     
-    public Encrypt(final String source, final String output, final String cipher, final String hash, final byte[] key, final boolean compress, final boolean follow, final Version version) throws Exception
+    public Encrypt(final String source, final String output, final String cipher, final String hash, final byte[] key, final boolean compress, final boolean follow, final Version version) throws CryptoProcessException
     {
         super();
 
@@ -71,19 +71,19 @@ public class Encrypt extends Crypto
                 path = source;
             }
             else
-                throw new Exception(Status.FAILED_IO);
+                throw new CryptoProcessException(Status.FAILED_IO);
             this.output = new EncryptedFileOutputStream(new File(output));
         }
         catch (final FileNotFoundException e)
         {
-            throw new Exception(Status.FAILED_IO, e);
+            throw new CryptoProcessException(Status.FAILED_IO, e);
         }
 
         this.cipher = cipher;
         this.hash = hash;
 
         if (key == null)
-            throw new Exception(Status.FAILED_INIT);
+            throw new CryptoProcessException(Status.FAILED_INIT);
         else
             this.key = key;
 
@@ -100,7 +100,7 @@ public class Encrypt extends Crypto
                 compressed = false;
             case _201211:
                 if (directory)
-                    throw new Exception(Status.FAILURE_COMPAT);
+                    throw new CryptoProcessException(Status.FAILURE_COMPAT);
                 if (!compressed)
                     this.version = Version._201108;
                 break;
@@ -113,7 +113,7 @@ public class Encrypt extends Crypto
     }
 
     @Override
-    protected void process() throws Exception
+    protected void process() throws CryptoProcessException
     {
         try
         {
@@ -180,17 +180,17 @@ public class Encrypt extends Crypto
         catch (final NoSuchAlgorithmException e)
         {
             status = Status.FAILED_UNKNOWN_ALGORITH;
-            throw new Exception(Status.FAILED_UNKNOWN_ALGORITH, e);
+            throw new CryptoProcessException(Status.FAILED_UNKNOWN_ALGORITH, e);
         }
         catch (final InvalidKeyException e)
         {
             status = Status.FAILED_OTHER;
-            throw new Exception(Status.FAILED_OTHER, e);
+            throw new CryptoProcessException(Status.FAILED_OTHER, e);
         }
         catch (final IOException e)
         {
             status = Status.FAILED_IO;
-            throw new Exception(Status.FAILED_IO, e);
+            throw new CryptoProcessException(Status.FAILED_IO, e);
         }
         finally
         {
@@ -335,11 +335,11 @@ public class Encrypt extends Crypto
             else
                 continue;
 
-            output.write(Convert.toBytes((byte)ft.value));
+            hashAndWrite(Convert.toBytes((byte)ft.value));
             final String name = dir + File.separator + file.getName();
             final String nm = name.substring(root.length() + 1);
-            output.write(Convert.toBytes((long)nm.length()));
-            output.write(nm.getBytes());
+            hashAndWrite(Convert.toBytes((long)nm.length()));
+            hashAndWrite(nm.getBytes());
 
             switch (ft)
             {
@@ -370,9 +370,19 @@ public class Encrypt extends Crypto
         for (current.offset = 0; current.offset < current.size && status == Status.RUNNING; current.offset += BLOCK_SIZE)
         {
             final int r = source.read(buffer, 0, BLOCK_SIZE);
-            checksum.update(buffer, 0, r);
-            output.write(buffer, 0, r);
+            hashAndWrite(buffer, r);
         }
         return;
+    }
+
+    private void hashAndWrite(final byte[] b) throws IOException
+    {
+        hashAndWrite(b, b.length);
+    }
+
+    private void hashAndWrite(final byte[] b, final int l) throws IOException
+    {
+        checksum.update(b, 0, l);
+        output.write(b, 0, l);
     }
 }
