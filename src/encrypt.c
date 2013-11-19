@@ -542,23 +542,25 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                     break;
                 case FILE_SYMLINK:
 #ifndef _WIN32
-                    /*
-                     * store the link instead of the file/directory it points to
-                     */
-                    log_message(LOG_VERBOSE, _("Storing soft link : %s"), filename);
-                    char *sl = NULL;
-                    for (l = BLOCK_SIZE; ; l += BLOCK_SIZE)
                     {
-                        char *x = realloc(sl, l + sizeof( byte_t ));
-                        if (!x)
-                            die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, l + sizeof( byte_t ) );
-                        sl = x;
-                        if (readlink(filename, sl, BLOCK_SIZE + l) < (int64_t)l)
-                            break;
+                        /*
+                         * store the link instead of the file/directory it points to
+                         */
+                        char *sl = NULL;
+                        for (l = BLOCK_SIZE; ; l += BLOCK_SIZE)
+                        {
+                            char *x = realloc(sl, l + sizeof( byte_t ));
+                            if (!x)
+                                die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, l + sizeof( byte_t ) );
+                            sl = x;
+                            if (readlink(filename, sl, BLOCK_SIZE + l) < (int64_t)l)
+                                break;
+                        }
+                        log_message(LOG_VERBOSE, _("Storing soft link : %s -> %s"), sl, filename);
+                        l = htonll(strlen(sl));
+                        io_write(c->output, &l, sizeof l);
+                        io_write(c->output, sl, strlen(sl));
                     }
-                    l = htonl(strlen(sl));
-                    io_write(c->output, &l, sizeof l);
-                    io_write(c->output, sl, strlen(sl));
 #endif
                     break;
                 case FILE_LINK:
@@ -568,10 +570,9 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                      * at this point, but will be handled differently upon
                      * decryption
                      */
-                    log_message(LOG_VERBOSE, _("Storing link : %s"), filename);
-                    l = htonl(strlen(ln));
+                    log_message(LOG_VERBOSE, _("Storing link : %s -> %s"), ln, filename);
+                    l = htonll(strlen(ln));
                     io_write(c->output, &l, sizeof l);
-                    // FIXME store the link, not itself :-p
                     io_write(c->output, ln, strlen(ln));
 #endif
                     break;

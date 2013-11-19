@@ -115,7 +115,7 @@ public class Decrypt extends Crypto
             final byte[] check = new byte[checksum.hashSize()];
             source.read(check);
             if (!Arrays.equals(check, checksum.digest()))
-                throw new Exception(Status.WARNING_CHECKSUM);
+                status = Status.WARNING_CHECKSUM;
 
             if (status == Status.RUNNING)
                 status = Status.SUCCESS;
@@ -280,6 +280,7 @@ public class Decrypt extends Crypto
                     l = Convert.longFromBytes(b);
                     b = new byte[(int)l];
                     source.read(b);
+                    final String ln = dir + File.separator + new String(b);
                     if (t == FileType.LINK)
                     {
                         /* As with Windows, just copy the file */
@@ -287,7 +288,7 @@ public class Decrypt extends Crypto
                         FileChannel dfc = null;
                         try
                         {
-                            sfc = new FileInputStream(new File(new String(b))).getChannel();
+                            sfc = new FileInputStream(new File(new String(ln))).getChannel();
                             dfc = new FileOutputStream(new File(nm)).getChannel();
                             dfc.transferFrom(sfc, 0, sfc.size());
                         }

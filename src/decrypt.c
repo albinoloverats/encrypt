@@ -482,7 +482,7 @@ static void decrypt_directory(crypto_t *c, const char *dir)
             case FILE_SYMLINK:
             case FILE_LINK:
                 io_read(c->source, &l, sizeof l);
-                l = ntohl(l);
+                l = ntohll(l);
                 char *lnk = calloc(l + sizeof( byte_t ), sizeof( byte_t ));
                 if (!lnk)
                     die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, l + sizeof( byte_t ));
