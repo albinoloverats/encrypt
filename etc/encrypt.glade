@@ -159,7 +159,7 @@ http://www.everaldo.com/</property>
     </child>
     <action-widgets>
       <action-widget response="-4">key_dialog_cancel</action-widget>
-      <action-widget response="0">key_dialog_okay</action-widget>
+      <action-widget response="-5">key_dialog_okay</action-widget>
     </action-widgets>
   </object>
   <object class="GtkWindow" id="main_window">
@@ -724,7 +724,7 @@ http://www.everaldo.com/</property>
     </child>
     <action-widgets>
       <action-widget response="-4">open_dialog_cancel</action-widget>
-      <action-widget response="0">open_dialog_okay</action-widget>
+      <action-widget response="-5">open_dialog_okay</action-widget>
     </action-widgets>
   </object>
   <object class="GtkWindow" id="progress_dialog">
@@ -934,7 +934,7 @@ processes your file</property>
     </child>
     <action-widgets>
       <action-widget response="-4">save_dialog_cancel</action-widget>
-      <action-widget response="0">save_dialog_okay</action-widget>
+      <action-widget response="-5">save_dialog_okay</action-widget>
     </action-widgets>
   </object>
 </interface>
