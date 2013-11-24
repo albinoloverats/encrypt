@@ -70,8 +70,7 @@ key_type_e;
  */
 char *gui_file_hack_source = NULL;
 char *gui_file_hack_output = NULL;
-
-static void key_dialog_okay(gtk_widgets_t *data);
+static char *cwd = NULL;
 
 inline static void set_progress_bar(GtkProgressBar *, float);
 inline static void set_progress_button(GtkButton *, bool);
@@ -182,6 +181,10 @@ G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *d
     if (!d || !l || !i)
         return FALSE;
 
+    if (!cwd)
+        cwd = strdup(getenv("HOME"));
+    gtk_file_chooser_set_current_folder((GtkFileChooser *)d, cwd);
+
     switch (gtk_dialog_run(d))
     {
         case GTK_RESPONSE_DELETE_EVENT:
@@ -198,6 +201,7 @@ G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *d
             gtk_widget_set_sensitive(data->encrypt_button, FALSE);
             break;
 
+#if 0 /* not yet fully implemented (because I don't like the resulting workflow) */
         case GTK_RESPONSE_ACCEPT:
         case GTK_RESPONSE_OK:
             if (a)
@@ -205,6 +209,7 @@ G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *d
             else
                 key_dialog_okay(data);
             break;
+#endif
     }
 
     gtk_widget_hide((GtkWidget *)d);
@@ -244,6 +249,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
                 auto_select_algorithms(data, c, h);
             gtk_button_set_label((GtkButton *)data->encrypt_button, _encrypted ? LABEL_DECRYPT : LABEL_ENCRYPT);
             en = TRUE;
+            asprintf(&cwd, "%s", open_file);
         }
         else
             en = FALSE;
@@ -269,6 +275,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
         {
             gtk_label_set_text((GtkLabel *)data->save_file_label, basename(save_file));
             gtk_widget_show(data->save_file_image);
+            asprintf(&cwd, "%s", save_file);
         }
         else
             en = FALSE;
@@ -320,7 +327,7 @@ G_MODULE_EXPORT gboolean key_combo_callback(GtkComboBox *combo_box, gtk_widgets_
             gtk_widget_set_sensitive(data->key_button, TRUE);
             gtk_widget_hide(data->password_entry);
             gtk_widget_show(data->key_button);
-            key_dialog_okay(data);
+            key_dialog_okay(NULL, data);
             break;
 
         case KEY_PASSWORD:
@@ -355,21 +362,23 @@ G_MODULE_EXPORT gboolean password_entry_callback(GtkComboBox *password_entry, gt
     return TRUE;
 }
 
-static void key_dialog_okay(gtk_widgets_t *data)
+G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widgets_t *data)
 {
-    bool en = true;
+    gboolean en = TRUE;
 
     char *key_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog);
     if (key_file)
         key_file = _filename_utf8(key_file);
     if (!key_file || !strlen(key_file))
-        en = false;
+        en = FALSE;
     else
     {
         struct stat s;
         stat(key_file, &s);
         if (errno == ENOENT || !S_ISREG(s.st_mode))
-            en = false;
+            en = FALSE;
+        else
+            asprintf(&cwd, "%s", key_file);
     }
 
     gtk_label_set_text((GtkLabel *)data->key_file_label, en ? basename(key_file) : NONE_SELECTED);
@@ -386,7 +395,7 @@ static void key_dialog_okay(gtk_widgets_t *data)
     if (en)
         gtk_widget_grab_default(data->encrypt_button);
 
-    return;
+    return TRUE;
 }
 
 G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widgets_t *data)
@@ -604,7 +613,6 @@ inline static void gui_display(crypto_t *c, gtk_widgets_t *data)
                 asprintf(&bps_label, "---.- B/s");
                 //asprintf(&bps_label, "%5.1f TB/s", val / TERABYTE);
         }
-        fprintf(stderr, "\r%s", bps_label);
         gtk_label_set_text((GtkLabel *)data->progress_label, bps_label);
         free(bps_label);
     }
