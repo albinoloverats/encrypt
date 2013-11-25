@@ -26,7 +26,7 @@ import java.io.IOException;
 
 public abstract class Utils
 {
-    public static String readFileAsString(final String filename)
+    public static byte[] readFileBytes(final String filename)
     {
         FileInputStream f = null;
         try
@@ -35,7 +35,7 @@ public abstract class Utils
             f = new FileInputStream(file);
             final byte[] b = new byte[(int)file.length()];
             f.read(b);
-            return new String(b);
+            return b;
         }
         catch (final Exception e)
         {

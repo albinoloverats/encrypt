@@ -538,7 +538,7 @@ public class Main extends Activity
             Crypto c = null;
             try
             {
-                final byte[] k = key_file ? Utils.readFileAsString(key).getBytes() : password.getBytes();
+                final byte[] k = key_file ? Utils.readFileBytes(key) : password.getBytes();
 
                 c = encrypting ? new Encrypt(filenameIn, filenameOut, cipher, hash, k, compress, follow, version) : new Decrypt(filenameIn, filenameOut, k);
                 c.start();
