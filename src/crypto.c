@@ -170,8 +170,21 @@ extern const char **list_of_ciphers(void)
     init_crypto();
 
     int lid[0xff] = { 0x00 };
-    int len = sizeof lid;
+    int len = 0;//sizeof lid;
+#if 1
+    enum gcry_cipher_algos id = GCRY_CIPHER_NONE;
+    for (unsigned i = 0; i < sizeof lid; i++)
+    {
+        if (gcry_cipher_algo_info(id, GCRYCTL_TEST_ALGO, NULL, NULL) == 0)
+        {
+            lid[len] = id;
+            len++;
+        }
+        id++;
+    }
+#else
     gcry_cipher_list(lid, &len);
+#endif
     static char **l = NULL;
     if (!l)
     {
@@ -208,8 +221,21 @@ extern const char **list_of_hashes(void)
     init_crypto();
 
     int lid[0xff] = { 0x00 };
-    int len = sizeof lid;
+    int len = 0;//sizeof lid;
+#if 1
+    enum gcry_md_algos id = GCRY_MD_NONE;
+    for (unsigned i = 0; i < sizeof lid; i++)
+    {
+        if (gcry_md_test_algo(id) == 0)
+        {
+            lid[len] = id;
+            len++;
+        }
+        id++;
+    }
+#else
     gcry_md_list(lid, &len);
+#endif
     static char **l = NULL;
     if (!l)
     {
@@ -242,8 +268,21 @@ extern int cipher_id_from_name(const char * const restrict n)
     if (n)
     {
         int list[0xff] = { 0x00 };
-        int len = sizeof list;
+        int len = 0;//sizeof list;
+#if 1
+        enum gcry_cipher_algos id = GCRY_CIPHER_NONE;
+        for (unsigned i = 0; i < sizeof list; i++)
+        {
+            if (gcry_cipher_algo_info(id, GCRYCTL_TEST_ALGO, NULL, NULL) == 0)
+            {
+                list[len] = id;
+                len++;
+            }
+            id++;
+        }
+#else
         gcry_cipher_list(list, &len);
+#endif
         for (int i = 0; i < len; i++)
         {
             const char *x = gcry_cipher_algo_name(list[i]);
@@ -276,8 +315,21 @@ extern int hash_id_from_name(const char * const restrict n)
     if (!n)
         return 0;
     int list[0xff] = { 0x00 };
-    int len = sizeof list;
+    int len = 0;//sizeof list;
+#if 1
+    enum gcry_md_algos id = GCRY_MD_NONE;
+    for (unsigned i = 0; i < sizeof list; i++)
+    {
+        if (gcry_md_test_algo(id) == 0)
+        {
+            list[len] = id;
+            len++;
+        }
+        id++;
+    }
+#else
     gcry_md_list(list, &len);
+#endif
     for (int i = 0; i < len; i++)
     {
         const char *x = gcry_md_algo_name(list[i]);
