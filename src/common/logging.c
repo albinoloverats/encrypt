@@ -1,6 +1,6 @@
 /*
  * Common code for logging messages
- * Copyright © 2009-2013, albinoloverats ~ Software Development
+ * Copyright © 2009-2014, albinoloverats ~ Software Development
  * email: webmaster@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify

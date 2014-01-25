@@ -1,6 +1,6 @@
 /*
  * Common code for logging messages
- * Copyright © 2009-2013, albinoloverats ~ Software Development
+ * Copyright © 2009-2014, albinoloverats ~ Software Development
  * email: webmaster@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 /*!
  * \file    log.h
  * \author  albinoloverats ~ Software Development
- * \date    2009-2013
+ * \date    2009-2014
  * \brief   Common logging code shared between projects
  *
  * Common logging code; for outputing warnings and errors to the user or

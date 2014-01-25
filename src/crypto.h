@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS) encryption utility
- * Copyright © 2005-2013, albinoloverats ~ Software Development
+ * Copyright © 2005-2014, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 /*!
  * \file    crypto.h
  * \author  Ashley M Anderson
- * \date    2009-2013
+ * \date    2009-2014
  * \brief   Main crypto header file
  *
  * What is essentially the parent class for enc/decryption routines.
@@ -37,7 +37,7 @@
 #include <pthread.h> /*!< Necessary include as pthread handle is referenced in this header */
 #include "io.h"      /*!< Necessary as IO_HANDLE type is referenced in this header */
 
-#define ENCRYPT_VERSION "2013.11" /*!< Current version of encrypt application */
+#define ENCRYPT_VERSION "2013.11.01" /*!< Current (display) version of encrypt application */
 #define UPDATE_URL "https://albinoloverats.net/encrypt.release" /*!< URI to check for updates */
 
 #define HEADER_0 0x3697de5d96fca0fallu              /*!< The first 8 bytes of an encrypted file */
