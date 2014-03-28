@@ -5,7 +5,7 @@
 !define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall.ico"
 
 !define PRODUCT_NAME "encrypt"
-!define PRODUCT_VERSION "2013.11"
+!define PRODUCT_VERSION "2014.00"
 !define PRODUCT_PUBLISHER "albinoloverats ~ Software Development"
 !define PRODUCT_WEB_SITE "https://albinoloverats.net/projects/encrypt"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\encrypt.exe"
@@ -42,7 +42,7 @@ Function .onInit
   uninst:
   ClearErrors
   Exec $INSTDIR\uninst.exe
-  
+
   done:
 FunctionEnd
 

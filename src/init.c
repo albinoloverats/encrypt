@@ -48,7 +48,7 @@ static void print_usage(void);
 
 extern args_t init(int argc, char **argv)
 {
-    args_t a = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, true, false };
+    args_t a = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, true, false, false };
 
     /*
      * check for options in rc file (~/.encryptrc)
@@ -101,6 +101,7 @@ fl:
             { "licence",     no_argument,       0, 'l' },
             { "debug",       optional_argument, 0, 'd' },
             { "quiet",       no_argument,       0, 'q' },
+            { "nogui",       no_argument,       0, 'g' },
             { "cipher",      required_argument, 0, 'c' },
             { "hash",        required_argument, 0, 's' },
             { "key",         required_argument, 0, 'k' },
@@ -114,7 +115,7 @@ fl:
         while (true)
         {
             int index = 0;
-            int c = getopt_long(argc, argv, "hvld::qc:s:k:p:xfb:", options, &index);
+            int c = getopt_long(argc, argv, "hvld::qgc:s:k:p:xfb:", options, &index);
             if (c == -1)
                 break;
             switch (c)
@@ -131,6 +132,9 @@ fl:
                     break;
                 case 'q':
                     log_relevel(LOG_ERROR);
+                    break;
+                case 'g':
+                    a.nogui = true;
                     break;
                 case 'c':
                     a.cipher = strdup(optarg);
@@ -286,6 +290,7 @@ extern void show_help(void)
     fprintf(stderr, _("  -v, --version                Display application version\n"));
     fprintf(stderr, _("  -d, --debug [log level]      Turn on debugging [to specified level]\n"));
     fprintf(stderr, _("  -q, --quiet                  Turn off all but serious error messages\n"));
+    fprintf(stderr, _("  -g, --nogui                  Do not use the GUI, even if it's available\n"));
     if (!strcmp(program_invocation_short_name, APP_NAME))
     {
         fprintf(stderr, _("  -c, --cipher=<algorithm>     Algorithm to use to encrypt data\n"));

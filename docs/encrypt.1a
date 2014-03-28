@@ -17,6 +17,8 @@ encrypt [\fI\-c\fR \fBalgorithm\fR] [\fI\-s\fR \fBalgorithm\fR] [\fI\-k\fR \fBke
 .TP
 \fI\-q\fR, \fI\-\-quiet\fR Turn off all but serious error messages
 .TP
+\fI\-g\fR, \fI\-\-nogui\fR Do not use the GUI, even if it's available
+.TP
 \fI\-c\fR, \fI\-\-cipher\fR \fBALGORITHM\fR Algorithm to use to encrypt data
 .TP
 \fI\-s\fR, \fI\-\-hash\fR \fBALGORITHM\fR Hash algorithm to generate key
@@ -27,7 +29,7 @@ encrypt [\fI\-c\fR \fBalgorithm\fR] [\fI\-s\fR \fBalgorithm\fR] [\fI\-k\fR \fBke
 .TP
 \fI\-x\fR, \fI\-\-no-compress\fR Do not compress the plaintext using the xz algorithm
 .TP
-\fI\-f\fR, \fI\-\--follow\fR Follow symlinks, the default is to store the link itself 
+\fI\-f\fR, \fI\-\--follow\fR Follow symlinks, the default is to store the link itself
 .TP
 \fI\-b\fR, \fI\-\-back\-compat\fR \fBVERSION\fR Create an encrypted file that is backwards compatible with earlier versions of encrypt
 .PP
@@ -52,4 +54,3 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 .PP
 Note on spelling: As albinoloverats.net is a British company and "licence" is the correct spelling in its native language. However, the name of the licences, written in most cases in America, feature the American spelling of the word, license. As part of the title of the official licensing document it was thought inappropriate to alter the spelling. In British English, license is the verb, licence is the noun and licensee is the person who is granted a Licence.
-

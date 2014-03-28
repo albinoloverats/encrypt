@@ -63,6 +63,7 @@ typedef struct args_t
     char *version;   /*!< The container version to use */
     bool compress:1; /*!< Compress the file (with xz) before encrypting */
     bool follow:1;   /*!< Follow symlinks or not */
+    bool nogui:1;    /*!< Skip the GUI (if it's available) */
 }
 args_t;
 

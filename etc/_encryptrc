@@ -1,5 +1,5 @@
 # (Example) encrypt configuration file
-# 
+#
 # Copy to ~/.encryptrc on Unix systems and %INSTALL_DIR%\etc\_encryptrc
 # on MS Windows.
 #
@@ -21,4 +21,4 @@
 #hash sha256
 
 # Set the level of backwards compatibility, by version number.
-#version 2013.11
+#version 2014.00

@@ -116,7 +116,7 @@ int main(int argc, char **argv)
     struct stat t;
     fstat(STDOUT_FILENO, &t);
 
-    if (fe || (args.hash && args.cipher && (args.source || args.output)))
+    if (fe || (args.hash && args.cipher && (args.source || args.output)) || args.nogui)
         ; /* user has given enough arguments on command line that we'll skip the gui */
 #if 0 /* currently causing problems */
     else if (!isatty(STDIN_FILENO) && (S_ISREG(n.st_mode) || S_ISFIFO(n.st_mode)))
@@ -240,7 +240,7 @@ int main(int argc, char **argv)
      * here we go ...
      */
     crypto_t *c;
-    
+
     if (dode || (args.source && is_encrypted(args.source)))
         c = decrypt_init(args.source, args.output, key, length);
     else

@@ -1,29 +1,5 @@
-encrypt - 2013.11.01                                       25th Jan 2014
+encrypt - 2014.00                                                 ? 2014
 --------------------
 
-Update/Fix for libgcrypt version 1.6
-
-encrypt - 2013.11                                          24th Nov 2013
------------------
-
-A significant bug in regards to the encryption of directories on Windows
-has been fixed with the help of Mark Condic, so much thanks there!
-
-There has also been several significant changes on all platforms such as
-the more traditional (or expected) approach to file links:  on Unix-like
-systems the links themselves are stored by default (unlike before, where
-the files the links pointed to were stored); and on Windows and Android,
-obviously they don't have links to encrypt,  but during decryption links
-are handled in one of two ways: symbolic links are ignored, whereas hard
-links cause the file to be copied. Although this means the file is dupl-
-icated it's the closest approximation to the original as possible.
-
-The second major addition to encrypt's abilities is the option to create
-encrypted archives for previous versions of the application. NB This has
-only had limited testing and shouldn't be relied upon! You should really
-be using the latest version wherever possible! (But it's there for those
-who might find it useful from time-to-time.)
-
-The encrypt Development Team
-
-For more information see: https://albinoloverats.net/projects/encrypt
+Add option to not start up the GUI (I needed it so I can encrypt/decrypt
+on the fly with Vim).

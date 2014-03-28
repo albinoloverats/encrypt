@@ -52,7 +52,7 @@ public class Encrypt extends Crypto
     private boolean follow = false;
     private Map<Long, Path> inodes = new HashMap<Long, Path>();
      */
-    
+
     public Encrypt(final String source, final String output, final String cipher, final String hash, final byte[] key, final boolean compress, final boolean follow, final Version version) throws CryptoProcessException
     {
         super();
@@ -107,6 +107,7 @@ public class Encrypt extends Crypto
             case _201302:
                 follow_links = false;
             case _201311:
+            case _201400:
             case CURRENT:
                 break;
         }

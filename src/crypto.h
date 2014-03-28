@@ -37,7 +37,7 @@
 #include <pthread.h> /*!< Necessary include as pthread handle is referenced in this header */
 #include "io.h"      /*!< Necessary as IO_HANDLE type is referenced in this header */
 
-#define ENCRYPT_VERSION "2013.11.01" /*!< Current (display) version of encrypt application */
+#define ENCRYPT_VERSION "2014.00" /*!< Current (display) version of encrypt application */
 #define UPDATE_URL "https://albinoloverats.net/encrypt.release" /*!< URI to check for updates */
 
 #define HEADER_0 0x3697de5d96fca0fallu              /*!< The first 8 bytes of an encrypted file */
@@ -102,8 +102,9 @@ typedef enum
     VERSION_2011_10,                  /*!< Version 2011.10 */
     VERSION_2012_11,                  /*!< Version 2012.11 */
     VERSION_2013_02,                  /*!< Version 2013.02 */
-    VERSION_2013_11,                  /*!< Version 2013.11 (current development version) */
-    VERSION_CURRENT = VERSION_2013_11 /*!< Next release / current development version */
+    VERSION_2013_11,                  /*!< Version 2013.11 */
+    VERSION_2014_00,                  /*!< Version 2014.00 (current development version) */
+    VERSION_CURRENT = VERSION_2014_00 /*!< Next release / current development version */
 }
 version_e;
 

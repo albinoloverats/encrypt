@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">encrypt</string>
-    <string name="version">2013.11</string>
+    <string name="version">2014.00</string>
     <string name="encrypt">Encrypt</string>
     <string name="decrypt">Decrypt</string>
 
@@ -10,7 +10,7 @@
     <string name="shpeel">encrypt ~ a cross platform, symetric key, file encryption application</string>
     <string name="copyright">Copyright © 2004–2014, albinoloverats ~ Software Development</string>
     <string name="url">https://albinoloverats.net/projects/encrypt</string>
-    
+
     <string name="options">Options</string>
     <string name="compress">Compression</string>
     <string name="follow">Follow Symlinks</string>

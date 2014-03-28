@@ -1,6 +1,6 @@
 Summary: A simple, X-platform, encryption application
 Name: encrypt
-Version: 2013.11.01
+Version: 2014.00
 Release: 1
 Source: https://albinoloverats.net/downloads/%{name}.tar.xz
 URL: https://albinoloverats.net/projects/%{name}
@@ -14,7 +14,7 @@ A simple, cross platform, file encryption application---suitable for any
 modern desktop or mobile operating system. The GUI, either GTK or
 native, has been desigen to be common across systems and intuitive to
 use, whilst still providing command-line capabilities for power-users.
- 
+
 %prep
 %setup -q
 

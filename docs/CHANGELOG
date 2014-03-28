@@ -14,6 +14,13 @@ Planned Future Enhancements
 * Bug fixes as necessary ;-)
 
 
+encrypt - 2014.00                                                 ? 2014
+--------------------
+
+Add option to not start up the GUI (I needed it so I can encrypt/decrypt
+on the fly with Vim).
+
+
 encrypt - 2013.11.01                                       25th Jan 2014
 --------------------
 
@@ -55,7 +62,7 @@ The other significant update is for Android version: key file support is
 now available. Use the menu to toggle between entering a password or se-
 lecting a file to for key generation.
 
-There has also been a couple of changes to the internal structure of the 
+There has also been a couple of changes to the internal structure of the
 encrypted files; though as always, the latest version is able to decrypt
 your previously encrypted data.
 
