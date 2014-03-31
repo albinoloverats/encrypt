@@ -7,7 +7,7 @@ GUI      = src/gui-gtk.c
 COMMON   = src/common/error.c src/common/logging.c src/common/tlv.c src/common/version.c src/common/fs.c
 
 CFLAGS   = -Wall -Wextra -Werror -Wno-unused-parameter -std=gnu99 `libgcrypt-config --cflags` -pipe -O2
-CPPFLAGS = -Isrc -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DLOG_DEFAULT=LOG_ERROR
+CPPFLAGS = -Isrc -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DLOG_DEFAULT=LOG_ERROR -DGIT_COMMIT=\"`git log | head -n1 | cut -f2 -d' '`\"
 GUIFLAGS = -DBUILD_GUI `pkg-config --cflags gtk+-3.0 gmodule-2.0`
 
 LIBS     = `libgcrypt-config --libs` -lpthread -lcurl -llzma
@@ -39,12 +39,12 @@ install: man
 	-@echo "linked \`decrypt' --> \`encrypt'"
 # install the pixmaps
 	 @install -c -m 644 -D -T pixmaps/encrypt.svg $(PREFIX)/usr/share/pixmaps/encrypt.svg
-	-@echo "installed \`pixmaps/encrypt.svg' --> \`$(PREFIX)/usr/share/pixmaps/encrypt.svg'" 
+	-@echo "installed \`pixmaps/encrypt.svg' --> \`$(PREFIX)/usr/share/pixmaps/encrypt.svg'"
 	 @install -c -m 644 -D -T pixmaps/encrypt_button.svg $(PREFIX)/usr/share/pixmaps/encrypt_button.svg
-	-@echo "installed \`pixmaps/encrypt_button.svg' --> \`$(PREFIX)/usr/share/pixmaps/encrypt_button.svg'" 
+	-@echo "installed \`pixmaps/encrypt_button.svg' --> \`$(PREFIX)/usr/share/pixmaps/encrypt_button.svg'"
 # next encrypt.glade
 	 @install -c -m 644 -D -T etc/encrypt.glade $(PREFIX)/usr/share/encrypt/encrypt.glade
-	-@echo "installed \`etc/encrypt.glade' --> \`$(PREFIX)/usr/share/encrypt/encrypt.glade'" 
+	-@echo "installed \`etc/encrypt.glade' --> \`$(PREFIX)/usr/share/encrypt/encrypt.glade'"
 # ditto, but this time for the man page
 	 @install -c -m 644 -D -T encrypt.1a.gz $(PREFIX)/usr/share/man/man1/encrypt.1a.gz
 	-@echo "installed \`encrypt.1a.gz' --> \`$(PREFIX)/usr/share/man/man1/encrypt.1a.gz'"

@@ -268,7 +268,9 @@ extern void update_config(const char * const restrict o, const char * const rest
 static void print_version(void)
 {
     char *app_name = !strcmp(program_invocation_short_name, APP_NAME) ? APP_NAME : ALT_NAME;
-    fprintf(stderr, _("%s version : %s\n%*s built on: %s %s\n"), app_name, ENCRYPT_VERSION, (int)strlen(app_name), "", __DATE__, __TIME__);
+    char *git = strndup(GIT_COMMIT, GIT_COMMIT_LENGTH);
+    fprintf(stderr, _("%s version : %s\n%*s built on: %s %s\n      git commit: %s\n"), app_name, ENCRYPT_VERSION, (int)strlen(app_name), "", __DATE__, __TIME__, git);
+    free(git);
     return;
 }
 
@@ -276,14 +278,16 @@ static void print_usage(void)
 {
     char *app_name = !strcmp(program_invocation_short_name, APP_NAME) ? APP_NAME : ALT_NAME;
     char *app_usage = !strcmp(program_invocation_short_name, APP_NAME) ? APP_USAGE : ALT_USAGE;
-    fprintf(stderr, _("Usage:\n  %s %s\n\n"), app_name, app_usage);
+    fprintf(stderr, _("Usage:\n  %s %s\n"), app_name, app_usage);
     return;
 }
 
 extern void show_help(void)
 {
     print_version();
+    fprintf(stderr, "\n");
     print_usage();
+    fprintf(stderr, "\n");
     fprintf(stderr, _("Options:\n"));
     fprintf(stderr, _("  -h, --help                   Display this message\n"));
     fprintf(stderr, _("  -l, --licence                Display GNU GPL v3 licence header\n"));
@@ -305,7 +309,6 @@ extern void show_help(void)
         fprintf(stderr, _("  -b, --back-compat=<version>  Create an encrypted file that is backwards compatible\n"));
     }
     fprintf(stderr, _("\nNote: If you do not supply a key or password, you will be prompted for one.\n"));
-    fprintf(stderr, "\n");
     exit(EXIT_SUCCESS);
 }
 

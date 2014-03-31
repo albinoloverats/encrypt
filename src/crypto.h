@@ -45,6 +45,11 @@
 
 #define BLOCK_SIZE 1024 /*!< Default IO block size */
 
+#ifndef GIT_COMMIT
+    #define GIT_COMMIT "unknown"
+#endif
+#define GIT_COMMIT_LENGTH 7
+
 /*!
  * \brief  Encryption status
  *
