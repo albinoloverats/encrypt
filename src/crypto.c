@@ -77,9 +77,10 @@ static const char *STATUS_MESSAGE[] =
     "Failed: Invalid initialisation parameters!",
     "Failed: Unsupported version!",
     "Failed: Unsupported algorithm!",
-    "Failed: Decryption failure!",
+    "Failed: Decryption failure! (Invalid password)",
     "Failed: Unsupported feature!",
     "Failed: Read/Write error!",
+    "Failed: Key generation error!".
     "Failed: Invalid target file type!",
     "Failed: An unknown error has occurred!",
     /* warnings - decryption finished but with possible errors */
