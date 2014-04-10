@@ -32,7 +32,6 @@ import net.albinoloverats.android.encrypt.crypt.Encrypt;
 import net.albinoloverats.android.encrypt.crypt.CryptoProcessException;
 import net.albinoloverats.android.encrypt.crypt.Status;
 import net.albinoloverats.android.encrypt.crypt.Version;
-import net.albinoloverats.android.encrypt.misc.Utils;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
