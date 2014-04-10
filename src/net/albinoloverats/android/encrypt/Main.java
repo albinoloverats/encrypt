@@ -44,13 +44,13 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.view.KeyEvent;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnKeyListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -67,7 +67,6 @@ import com.simaomata.DoubleProgressDialog;
 public class Main extends Activity
 {
     private static final int DOUBLE_PROGRESS_DIALOG = 1;
-    private static final String SHARED_PREFERENCES = "encrypt_preferences";
 
     private static Context context;
 
@@ -199,18 +198,34 @@ public class Main extends Activity
 
         // get reference to password text box
         final EditText pEntry = (EditText)findViewById(R.id.text_password);
-        pEntry.setOnKeyListener(new OnKeyListener()
+        pEntry.addTextChangedListener(new TextWatcher()
         {
             @Override
-            public boolean onKey(final View v, final int keyCode, final KeyEvent event)
+            public void afterTextChanged(final Editable s)
             {
                 password = ((EditText)findViewById(R.id.text_password)).getText().toString();
-                if (password.length() == 0)
+                if (password == null || password.length() == 0)
+                {
                     password = null;
-                checkEnableButtons();
-                return false;
+                    checkEnableButtons();
+                }
+                else
+                    ((Button)findViewById(R.id.button_go)).setEnabled(true);
+            }
+
+            @Override
+            public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after)
+            {
+                ;
+            }
+
+            @Override
+            public void onTextChanged(final CharSequence s, final int start, final int before, final int count)
+            {
+                ;
             }
         });
+
         pEntry.setEnabled(false);
 
         // select key file button
@@ -229,8 +244,8 @@ public class Main extends Activity
         keyButton.setEnabled(false);
 
         // get reference to encrypt/decrypt button
-        final Button encutton = (Button)findViewById(R.id.button_go);
-        encutton.setOnClickListener(new OnClickListener()
+        final Button encButton = (Button)findViewById(R.id.button_go);
+        encButton.setOnClickListener(new OnClickListener()
         {
             @Override
             public void onClick(final View v)
@@ -238,15 +253,22 @@ public class Main extends Activity
                 showDialog(DOUBLE_PROGRESS_DIALOG);
             }
         });
-        encutton.setEnabled(false);
+        encButton.setEnabled(false);
 
         fChooser.requestFocus();
 
-        final SharedPreferences settings = getSharedPreferences(SHARED_PREFERENCES, 0);
-        compress = settings.getBoolean("compress", true);
-        follow = settings.getBoolean("compress", false);
-        key_file = settings.getBoolean("key", false);
-        version = Version.parseMagicNumber(settings.getLong("version", Version.CURRENT.magicNumber));
+        final SharedPreferences settings = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), 0);
+        compress = settings.getBoolean(Options.COMPRESS.toString(), true);
+        follow = settings.getBoolean(Options.FOLLOW.toString(), false);
+        key_file = settings.getBoolean(Options.KEY.toString(), false);
+        try
+        {
+            version = Version.parseMagicNumber(settings.getLong(Options.VERSION.toString(), Version.CURRENT.magicNumber));
+        }
+        catch (final CryptoProcessException e)
+        {
+            version = Version.CURRENT;
+        }
         toggleKeySource();
     }
 
@@ -259,11 +281,11 @@ public class Main extends Activity
 
     private void storePreferences()
     {
-        final SharedPreferences.Editor editor = getSharedPreferences(SHARED_PREFERENCES, 0).edit();
-        editor.putBoolean("compress", compress);
-        editor.putBoolean("follow", follow);
-        editor.putBoolean("key", key_file);
-        editor.putLong("version", version.magicNumber);
+        final SharedPreferences.Editor editor = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), 0).edit();
+        editor.putBoolean(Options.COMPRESS.toString(), compress);
+        editor.putBoolean(Options.FOLLOW.toString(), follow);
+        editor.putBoolean(Options.KEY.toString(), key_file);
+        editor.putLong(Options.VERSION.toString(), version.magicNumber);
         editor.commit();
     }
 
@@ -276,16 +298,16 @@ public class Main extends Activity
         menu.findItem(R.id.menu_item_key_file).setChecked(key_file);
 
         // populate version compatibility menu
-        final SubMenu compat = menu.findItem(R.id.menu_item_compatibility).getSubMenu();
+        final SubMenu compatibilityMenu = menu.findItem(R.id.menu_item_compatibility).getSubMenu();
         int o = Version.values().length;
         for (final Version v : Version.values())
         {
             if (v == Version.CURRENT) /* no need to duplicate the "current" */
                 continue;
-            compat.add(R.id.menu_group_compatibility, v.menu_id, o, v.display).setChecked(version.magicNumber == v.magicNumber);
+            compatibilityMenu.add(R.id.menu_group_compatibility, v.menu_id, o, v.display).setChecked(version.magicNumber == v.magicNumber);
             o--;
         }
-        compat.setGroupCheckable(R.id.menu_group_compatibility, true, true);
+        compatibilityMenu.setGroupCheckable(R.id.menu_group_compatibility, true, true);
 
         return true;
     }
@@ -381,8 +403,6 @@ public class Main extends Activity
             }
             checkEnableButtons();
         }
-        else if (resultCode == Activity.RESULT_CANCELED)
-            ; // do nothing
     }
 
     @Override
@@ -485,14 +505,7 @@ public class Main extends Activity
 
         // update encryption button text
         if (filenameIn != null)
-            try
-            {
-                encrypting = !Crypto.fileEncrypted(filenameIn);
-            }
-            catch (final IOException e)
-            {
-                ;
-            }
+            encrypting = !Crypto.fileEncrypted(filenameIn);
         if (encrypting)
         {
             encButton.setText(R.string.encrypt);
@@ -506,8 +519,6 @@ public class Main extends Activity
                 passwd.setEnabled(true);
                 keyButton.setEnabled(true);
             }
-            if (password != null || key != null)
-                encButton.setEnabled(true);
         }
         else
         {
@@ -517,9 +528,9 @@ public class Main extends Activity
                 passwd.setEnabled(true);
                 keyButton.setEnabled(true);
             }
-            if (password != null || key != null)
-                encButton.setEnabled(true);
         }
+        if (password != null || key != null)
+            encButton.setEnabled(true);
     }
 
     private class ProgressThread extends Thread
@@ -538,18 +549,15 @@ public class Main extends Activity
             Crypto c = null;
             try
             {
-                final byte[] k = key_file ? Utils.readFileBytes(key) : password.getBytes();
-
-                c = encrypting ? new Encrypt(filenameIn, filenameOut, cipher, hash, k, compress, follow, version) : new Decrypt(filenameIn, filenameOut, k);
+                c = encrypting ? new Encrypt(filenameIn, filenameOut, cipher, hash, compress, follow, version) : new Decrypt(filenameIn, filenameOut);
+                c.setKey(key_file ? new File(key) : password.getBytes());
                 c.start();
 
                 do
                 {
-                    sleep(10);
-
+                    sleep(2);
                     if (isInterrupted())
                         c.status = Status.CANCELLED;
-                    
                     if (c.status == Status.INIT)
                         continue;
 
@@ -571,7 +579,9 @@ public class Main extends Activity
             }
             catch (final Throwable t)
             {
-                s = c.status = Status.FAILED_OTHER;
+                s = Status.FAILED_OTHER;
+                if (c != null)
+                    c.status = s;
             }
 
             if (c != null)

@@ -37,7 +37,7 @@ import org.tukaani.xz.XZInputStream;
 
 public class Decrypt extends Crypto
 {
-    public Decrypt(final String source, final String output, final byte[] key) throws CryptoProcessException
+    public Decrypt(final String source, final String output) throws CryptoProcessException
     {
         super();
 
@@ -59,16 +59,13 @@ public class Decrypt extends Crypto
         {
             throw new CryptoProcessException(Status.FAILED_IO, e);
         }
-
-        if (key == null)
-            throw new CryptoProcessException(Status.FAILED_INIT);
-        else
-            this.key = key;
     }
 
     @Override
     protected void process() throws CryptoProcessException
     {
+        if (key == null)
+            throw new CryptoProcessException(Status.FAILED_KEY);
         try
         {
             status = Status.RUNNING;
@@ -106,7 +103,7 @@ public class Decrypt extends Crypto
             {
                 current.size = total.size;
                 total.size = 1;
-                if (blocksize > 0)
+                if (blockSize > 0)
                     decryptStream();
                 else
                     decryptFile();
@@ -115,9 +112,9 @@ public class Decrypt extends Crypto
             if (version != Version._201108)
             {
                 final byte[] check = new byte[checksum.hashSize()];
-                source.read(check);
+                int err = source.read(check);
                 final byte[] digest = checksum.digest();
-                if (!Arrays.equals(check, digest))
+                if (err < 0 || !Arrays.equals(check, digest))
                     status = Status.WARNING_CHECKSUM;
             }
 
@@ -131,8 +128,8 @@ public class Decrypt extends Crypto
         }
         catch (final NoSuchAlgorithmException e)
         {
-            status = Status.FAILED_UNKNOWN_ALGORITH;
-            throw new CryptoProcessException(Status.FAILED_UNKNOWN_ALGORITH, e);
+            status = Status.FAILED_UNKNOWN_ALGORITHM;
+            throw new CryptoProcessException(Status.FAILED_UNKNOWN_ALGORITHM, e);
         }
         catch (final InvalidKeyException e)
         {
@@ -146,16 +143,8 @@ public class Decrypt extends Crypto
         }
         finally
         {
-            try
-            {
-                if (output != null)
-                    output.close();
-                source.close();
-            }
-            catch (final IOException e)
-            {
-                ;
-            }
+            closeIgnoreException(source);
+            closeIgnoreException(output);
         }
     }
 
@@ -188,7 +177,6 @@ public class Decrypt extends Crypto
         final long z = Convert.longFromBytes(buffer);
         if ((x ^ y) != z)
             throw new CryptoProcessException(Status.FAILED_DECRYPTION);
-        return;
     }
 
     private void readMetadata() throws CryptoProcessException, IOException
@@ -209,7 +197,7 @@ public class Decrypt extends Crypto
                     total.size = Convert.longFromBytes(v);
                     break;
                 case BLOCKED:
-                    blocksize = (int)Convert.longFromBytes(v);
+                    blockSize = (int)Convert.longFromBytes(v);
                     break;
                 case COMPRESSED:
                     compressed = Convert.booleanFromBytes(v);
@@ -242,19 +230,17 @@ public class Decrypt extends Crypto
             else if (!f.isFile())
                 throw new CryptoProcessException(Status.FAILED_OUTPUT_MISMATCH);
         }
-        return;
     }
 
     private void skipRandomData() throws IOException
     {
         final byte[] b = new byte[source.read()];
         source.read(b);
-        return;
     }
 
     private void decryptDirectory(final String dir) throws CryptoProcessException, IOException
     {
-        boolean lnerr = false;
+        boolean linkError = false;
         for (total.offset = 0; total.offset < total.size && status == Status.RUNNING; total.offset++)
         {
             byte[] b = new byte[Byte.SIZE / Byte.SIZE];
@@ -301,7 +287,7 @@ public class Decrypt extends Crypto
                         FileChannel dfc = null;
                         try
                         {
-                            sfc = new FileInputStream(new File(new String(ln))).getChannel();
+                            sfc = new FileInputStream(new File(ln)).getChannel();
                             dfc = new FileOutputStream(new File(nm)).getChannel();
                             dfc.transferFrom(sfc, 0, sfc.size());
                         }
@@ -314,24 +300,23 @@ public class Decrypt extends Crypto
                         }
                     }
                     else
-                        lnerr = true;
+                        linkError = true;
                     break;
             }
         }
-        if (lnerr)
+        if (linkError)
             status = Status.WARNING_LINK;
-        return;
     }
 
     private void decryptStream() throws IOException
     {
         boolean b = true;
-        byte[] buffer = new byte[blocksize];
+        byte[] buffer = new byte[blockSize];
         while (b && status == Status.RUNNING)
         {
             b = source.read() == 1;
             source.read(buffer);
-            int r = blocksize;
+            int r = blockSize;
             if (!b)
             {
                 final byte[] l = new byte[Long.SIZE / Byte.SIZE];
@@ -346,7 +331,6 @@ public class Decrypt extends Crypto
             output.write(buffer);
             current.offset += r;
         }
-        return;
     }
 
     private void decryptFile() throws IOException
@@ -360,7 +344,6 @@ public class Decrypt extends Crypto
             final int r = readAndHash(buffer, j);
             output.write(buffer, 0, r);
         }
-        return;
     }
 
     private int readAndHash(final byte[] b) throws IOException

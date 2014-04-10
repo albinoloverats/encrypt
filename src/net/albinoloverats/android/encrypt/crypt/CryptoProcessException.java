@@ -20,12 +20,12 @@
 
 package net.albinoloverats.android.encrypt.crypt;
 
-public class CryptoProcessException extends java.lang.Exception
+public class CryptoProcessException extends Exception
 {
     private static final long serialVersionUID = 4714119489698420307L;
 
     final public Status code;
-    final public java.lang.Exception cause;
+    final public Exception cause;
 
     public CryptoProcessException(final Status code)
     {
@@ -33,9 +33,15 @@ public class CryptoProcessException extends java.lang.Exception
         cause = null;
     }
 
-    public CryptoProcessException(final Status code, final java.lang.Exception cause)
+    public CryptoProcessException(final Status code, final Exception cause)
     {
         this.code = code;
         this.cause = cause;
+    }
+
+    @Override
+    public String getMessage()
+    {
+        return code.message;
     }
 }

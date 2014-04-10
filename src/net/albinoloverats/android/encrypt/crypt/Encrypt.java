@@ -53,7 +53,7 @@ public class Encrypt extends Crypto
     private Map<Long, Path> inodes = new HashMap<Long, Path>();
      */
 
-    public Encrypt(final String source, final String output, final String cipher, final String hash, final byte[] key, final boolean compress, final boolean follow, final Version version) throws CryptoProcessException
+    public Encrypt(final String source, final String output, final String cipher, final String hash, final boolean compress, final boolean follow, final Version version) throws CryptoProcessException
     {
         super();
 
@@ -82,11 +82,6 @@ public class Encrypt extends Crypto
         this.cipher = cipher;
         this.hash = hash;
 
-        if (key == null)
-            throw new CryptoProcessException(Status.FAILED_INIT);
-        else
-            this.key = key;
-
         compressed = compress;
         follow_links = follow;
         this.version = version;
@@ -100,7 +95,7 @@ public class Encrypt extends Crypto
                 compressed = false;
             case _201211:
                 if (directory)
-                    throw new CryptoProcessException(Status.FAILURE_COMPAT);
+                    throw new CryptoProcessException(Status.FAILURE_COMPATIBILITY);
                 if (!compressed)
                     this.version = Version._201108;
                 break;
@@ -116,6 +111,8 @@ public class Encrypt extends Crypto
     @Override
     protected void process() throws CryptoProcessException
     {
+        if (key == null)
+            throw new CryptoProcessException(Status.FAILED_KEY);
         try
         {
             status = Status.RUNNING;
@@ -180,8 +177,8 @@ public class Encrypt extends Crypto
         }
         catch (final NoSuchAlgorithmException e)
         {
-            status = Status.FAILED_UNKNOWN_ALGORITH;
-            throw new CryptoProcessException(Status.FAILED_UNKNOWN_ALGORITH, e);
+            status = Status.FAILED_UNKNOWN_ALGORITHM;
+            throw new CryptoProcessException(Status.FAILED_UNKNOWN_ALGORITHM, e);
         }
         catch (final InvalidKeyException e)
         {
@@ -195,16 +192,8 @@ public class Encrypt extends Crypto
         }
         finally
         {
-            try
-            {
-                output.close();
-                if (source != null)
-                    source.close();
-            }
-            catch (final IOException e)
-            {
-                ;
-            }
+            closeIgnoreException(source);
+            closeIgnoreException(output);
         }
     }
 
@@ -213,10 +202,9 @@ public class Encrypt extends Crypto
         output.write(Convert.toBytes(HEADER[0]));
         output.write(Convert.toBytes(HEADER[1]));
         output.write(Convert.toBytes(HEADER[2]));
-        final String algos = cipher + "/" + hash;
-        output.write((byte)algos.length());
-        output.write(algos.getBytes());
-        return;
+        final String algorithms = cipher + "/" + hash;
+        output.write((byte)algorithms.length());
+        output.write(algorithms.getBytes());
     }
 
     private void writeVerificationSum() throws IOException
@@ -229,7 +217,6 @@ public class Encrypt extends Crypto
         output.write(Convert.toBytes(x));
         output.write(Convert.toBytes(y));
         output.write(Convert.toBytes(x ^ y));
-        return;
     }
 
     private void writeMetadata() throws IOException
@@ -250,8 +237,6 @@ public class Encrypt extends Crypto
         output.write(Convert.toBytes((byte)Tag.DIRECTORY.value));
         output.write(Convert.toBytes((short)(Byte.SIZE / Byte.SIZE)));
         output.write(Convert.toBytes(directory));
-
-        return;
     }
 
     private void writeRandomData() throws IOException
@@ -263,13 +248,15 @@ public class Encrypt extends Crypto
         PRNG.nextBytes(buffer);
         output.write(Convert.toBytes((byte)sr));
         output.write(buffer);
-        return;
     }
 
     private int countEntries(final String dir) throws IOException
     {
         int c = 0;
-        for (final File file : new File(dir).listFiles())
+        File[] files =  new File(dir).listFiles();
+        if (files == null)
+            return c;
+        for (final File file : files)
             if (file.isDirectory())
                 c += countEntries(dir + File.separator + file.getName());
             else if (file.isFile())
@@ -297,7 +284,10 @@ public class Encrypt extends Crypto
          *  If, and when, Android supports Java7 NIO:
         final LinkOption linkOptions = follow ? null : LinkOption.NOFOLLOW_LINKS;
          */
-        for (final File file : new File(dir).listFiles())
+        File[] files =  new File(dir).listFiles();
+        if (files == null)
+            return;
+        for (final File file : files)
         {
             if (status != Status.RUNNING)
                 break;
@@ -362,7 +352,6 @@ public class Encrypt extends Crypto
             }
             total.offset++;
         }
-        return;
     }
 
     private void encryptFile() throws IOException
@@ -373,7 +362,6 @@ public class Encrypt extends Crypto
             final int r = source.read(buffer, 0, BLOCK_SIZE);
             hashAndWrite(buffer, r);
         }
-        return;
     }
 
     private void hashAndWrite(final byte[] b) throws IOException

@@ -41,11 +41,11 @@ import net.albinoloverats.android.encrypt.misc.Convert;
 public class EncryptedFileInputStream extends FileInputStream
 {
     private final FileInputStream stream;
-    
+
     private IMode cipher;
-    
+
     private byte[] buffer = null;
-    private int blocksize = 0;
+    private int blockSize = 0;
     private final int[] offset = { 0, 0, 0 }; /* bytes available, requested, ready */
 
     public EncryptedFileInputStream(final File file) throws FileNotFoundException
@@ -53,13 +53,13 @@ public class EncryptedFileInputStream extends FileInputStream
         super(file);
         stream = new FileInputStream(file);
     }
-    
+
     public IMessageDigest encryptionInit(final String cipher, final String hash, final byte[] key, final boolean legacy) throws NoSuchAlgorithmException, InvalidKeyException
     {
         IMessageDigest h = CryptoUtils.getHashAlgorithm(hash);
         final IBlockCipher c = CryptoUtils.getCipherAlgorithm(cipher);
-        blocksize = c.defaultBlockSize();
-        this.cipher = ModeFactory.getInstance("CBC", c, blocksize);
+        blockSize = c.defaultBlockSize();
+        this.cipher = ModeFactory.getInstance("CBC", c, blockSize);
         h.update(key, 0, key.length);
         final byte[] keySource = h.digest();
         final Map<String, Object> attributes = new HashMap<String, Object>();
@@ -67,16 +67,16 @@ public class EncryptedFileInputStream extends FileInputStream
         final byte[] keyOutput = new byte[keyLength];
         System.arraycopy(keySource, 0, keyOutput, 0, keyLength < keySource.length ? keyLength : keySource.length);
         attributes.put(IBlockCipher.KEY_MATERIAL, keyOutput);
-        attributes.put(IBlockCipher.CIPHER_BLOCK_SIZE, Integer.valueOf(blocksize));
-        attributes.put(IMode.STATE, Integer.valueOf(IMode.DECRYPTION));
+        attributes.put(IBlockCipher.CIPHER_BLOCK_SIZE, blockSize);
+        attributes.put(IMode.STATE, IMode.DECRYPTION);
         h.reset();
         h.update(keySource, 0, keySource.length);
         final byte[] ivSource = h.digest();
-        final byte[] ivOutput = new byte[legacy ? keyLength : blocksize];
-        System.arraycopy(ivSource, 0, ivOutput, 0, blocksize < ivSource.length ? blocksize : ivSource.length);
+        final byte[] ivOutput = new byte[legacy ? keyLength : blockSize];
+        System.arraycopy(ivSource, 0, ivOutput, 0, blockSize < ivSource.length ? blockSize : ivSource.length);
         attributes.put(IMode.IV, ivOutput);
         this.cipher.init(attributes);
-        buffer = new byte[blocksize];
+        buffer = new byte[blockSize];
         return h;
     }
 
@@ -98,6 +98,7 @@ public class EncryptedFileInputStream extends FileInputStream
     protected void finalize() throws IOException
     {
         close();
+        super.finalize();
     }
 
     @Override
@@ -110,13 +111,14 @@ public class EncryptedFileInputStream extends FileInputStream
     public int read() throws IOException
     {
         final byte[] b = new byte[Integer.SIZE / Byte.SIZE];
-        read(b, 3, 1);
-        return Convert.intFromBytes(b);
+        int err = read(b, 3, 1);
+        return err < 0 ? err : Convert.intFromBytes(b);
     }
 
     @Override
     public int read(final byte[] bytes) throws IOException
     {
+        int err = 0;
         if (cipher == null)
             return stream.read(bytes);
         offset[1] = bytes.length;
@@ -127,20 +129,20 @@ public class EncryptedFileInputStream extends FileInputStream
             {
                 System.arraycopy(buffer, 0, bytes, offset[2], offset[1]);
                 offset[0] -= offset[1];
-                final byte[] x = new byte[blocksize];
+                final byte[] x = new byte[blockSize];
                 System.arraycopy(buffer, offset[1], x, 0, offset[0]);
-                buffer = new byte[blocksize];
+                buffer = new byte[blockSize];
                 System.arraycopy(x, 0, buffer, 0, offset[0]);
-                return offset[1] + offset[2];
+                return err < 0 ? err : offset[1] + offset[2];
             }
             System.arraycopy(buffer, 0, bytes, offset[2], offset[0]);
             offset[2] += offset[0];
             offset[1] -= offset[0];
             offset[0] = 0;
-            final byte[] eBytes = new byte[blocksize];
-            stream.read(eBytes);
+            final byte[] eBytes = new byte[blockSize];
+            err = stream.read(eBytes);
             cipher.update(eBytes, 0, buffer, 0);
-            offset[0] = blocksize;
+            offset[0] = blockSize;
         }
     }
 

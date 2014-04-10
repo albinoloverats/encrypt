@@ -37,6 +37,7 @@ import net.albinoloverats.android.encrypt.R;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -92,7 +93,7 @@ public class FileDialog extends ListActivity {
 	 * Parametro de entrada da Activity: tipo de selecao: pode criar novos paths
 	 * ou nao. Padrao: nao permite.
 	 * 
-	 * @see {@link SelectionMode}
+	 * @see {@link Selection}
 	 */
 	public static final String SELECTION_MODE = "SELECTION_MODE";
 
@@ -115,7 +116,7 @@ public class FileDialog extends ListActivity {
 	private String parentPath;
 	private String currentPath = ROOT;
 
-	private int selectionMode = SelectionMode.MODE_CREATE;
+	private Selection selection = Selection.CREATE;
 
 	private String[] formatFilter = null;
 
@@ -165,13 +166,13 @@ public class FileDialog extends ListActivity {
 			}
 		});
 
-		selectionMode = getIntent().getIntExtra(SELECTION_MODE, SelectionMode.MODE_CREATE);
+		selection = Selection.parseMode(getIntent().getIntExtra(SELECTION_MODE, Selection.CREATE.mode));
 
 		formatFilter = getIntent().getStringArrayExtra(FORMAT_FILTER);
 
 		canSelectDir = getIntent().getBooleanExtra(CAN_SELECT_DIR, false);
 
-		if (selectionMode == SelectionMode.MODE_OPEN) {
+		if (selection == Selection.OPEN) {
 			newButton.setEnabled(false);
 		}
 
@@ -258,6 +259,10 @@ public class FileDialog extends ListActivity {
 			addItem(ROOT, R.drawable.folder);
 			path.add(ROOT);
 
+            item.add("./");
+            addItem("./", R.drawable.folder);
+            path.add(f.getPath());
+
 			item.add("../");
 			addItem("../", R.drawable.folder);
 			path.add(f.getParent());
@@ -340,7 +345,10 @@ public class FileDialog extends ListActivity {
 
 		setSelectVisible(v);
 
-		if (file.isDirectory()) {
+        for (int i = 0; i < l.getChildCount(); i++)
+            l.getChildAt(i).setBackgroundColor(0);
+
+		if (file.isDirectory() && file.getPath() != currentPath) {
 			selectButton.setEnabled(false);
 			if (file.canRead()) {
 				lastPositions.put(currentPath, position);
@@ -364,6 +372,7 @@ public class FileDialog extends ListActivity {
 		} else {
 			selectedFile = file;
 			v.setSelected(true);
+            v.setBackgroundColor(Color.parseColor(getString(R.color.red)));
 			selectButton.setEnabled(true);
 		}
 	}

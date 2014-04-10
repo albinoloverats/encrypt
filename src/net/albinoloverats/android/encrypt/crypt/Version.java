@@ -41,19 +41,19 @@ public enum Version
         menu_id = i;
     }
 
-    public static Version parseMagicNumber(final long m)
+    public static Version parseMagicNumber(final long m) throws CryptoProcessException
     {
         for (final Version v : Version.values())
             if (v.magicNumber == m)
                 return v;
-        return null;
+        throw new CryptoProcessException(Status.FAILED_UNKNOWN_VERSION);
     }
 
-    public static Version parseDisplay(final String d)
+    public static Version parseDisplay(final String d) throws CryptoProcessException
     {
         for (final Version v : Version.values())
             if (v.display.equals(d))
                 return v;
-        return null;
+        throw new CryptoProcessException(Status.FAILED_UNKNOWN_VERSION);
     }
 }

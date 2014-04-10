@@ -90,12 +90,10 @@ public abstract class CryptoUtils
                 h.add(n);
             else
                 for (final Integer i : keySizes)
-                    if (i.intValue() * Byte.SIZE < KEY_SIZE_MINIMUM)
-                        continue;
-                    else if (NAME_RIJNDAEL128.equals(n + i.intValue() * Byte.SIZE))
+                    if (NAME_RIJNDAEL128.equals(n + i * Byte.SIZE))
                         h.add(NAME_AES);
-                    else
-                        h.add(n + i.intValue() * Byte.SIZE);
+                    else if (i * Byte.SIZE >= KEY_SIZE_MINIMUM)
+                        h.add(n + i * Byte.SIZE);
         }
         return h;
     }
@@ -122,7 +120,7 @@ public abstract class CryptoUtils
                     return cipher;
                 else
                     for (final Integer i : keySizes)
-                        if (name.equals(n + i.intValue() * Byte.SIZE))
+                        if (name.equals(n + i * Byte.SIZE))
                             return cipher;
             }
         }
@@ -153,8 +151,8 @@ public abstract class CryptoUtils
                     return KEY_SIZE_CAST5;
                 else
                     for (final Integer i : keySizes)
-                        if (name.equals(n + i.intValue() * Byte.SIZE))
-                            return i.intValue() * Byte.SIZE;
+                        if (name.equals(n + i * Byte.SIZE))
+                            return i * Byte.SIZE;
             }
         }
         return 0;

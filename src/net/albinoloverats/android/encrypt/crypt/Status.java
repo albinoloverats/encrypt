@@ -30,15 +30,16 @@ public enum Status
     INIT(R.string.init),
     RUNNING(R.string.running),
     CANCELLED(R.string.cancelled),
-    /* failure with compatibilty mode and directories */
-    FAILURE_COMPAT(R.string.failed_compatibility),
+    /* failure with compatibility mode and directories */
+    FAILURE_COMPATIBILITY(R.string.failed_compatibility),
     /* failures - decryption did not complete */
     FAILED_INIT(R.string.failed_init),
     FAILED_UNKNOWN_VERSION(R.string.failed_unknown_version),
-    FAILED_UNKNOWN_ALGORITH(R.string.failed_unknown_algorithm),
+    FAILED_UNKNOWN_ALGORITHM(R.string.failed_unknown_algorithm),
     FAILED_DECRYPTION(R.string.failed_decryption),
     FAILED_UNKNOWN_TAG(R.string.failed_unknown_tag),
     FAILED_IO(R.string.failed_io),
+    FAILED_KEY(R.string.failed_key),
     FAILED_OUTPUT_MISMATCH(R.string.failed_output_mismatch),
     FAILED_OTHER(R.string.failed_other),
     /* warnings - decryption finished but with possible errors */

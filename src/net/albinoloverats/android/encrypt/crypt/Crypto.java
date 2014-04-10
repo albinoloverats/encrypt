@@ -22,10 +22,13 @@ package net.albinoloverats.android.encrypt.crypt;
 
 import gnu.crypto.hash.IMessageDigest;
 
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
 import net.albinoloverats.android.encrypt.misc.Convert;
@@ -48,7 +51,7 @@ public abstract class Crypto extends Thread implements Runnable
     public Progress current = new Progress();
     public Progress total = new Progress();
 
-    protected int blocksize;
+    protected int blockSize;
     protected boolean compressed = true;
     protected boolean directory = false;
     protected boolean follow_links = false;
@@ -72,12 +75,12 @@ public abstract class Crypto extends Thread implements Runnable
 
     abstract protected void process() throws CryptoProcessException;
 
-    public static boolean fileEncrypted(final String path) throws IOException
+    public static boolean fileEncrypted(final String path)
     {
         final File f = new File(path);
         if (f.isDirectory())
             return false;
-        
+
         FileInputStream in = null;
         try
         {
@@ -85,16 +88,64 @@ public abstract class Crypto extends Thread implements Runnable
             final byte[] header = new byte[Long.SIZE / Byte.SIZE];
             for (int i = 0; i < 1; i++)
             {
-                in.read(header, 0, header.length);
-                if (Convert.longFromBytes(header) != HEADER[i])
+                int err = in.read(header, 0, header.length);
+                if (err < 0 || Convert.longFromBytes(header) != HEADER[i])
                     return false;
             }
             return true;
         }
+        catch (final IOException ignored)
+        {
+            return false; // either the file doesn't exists or we can't read it for decrypting
+        }
         finally
         {
-            if (in != null)
-                in.close();
+            closeIgnoreException(in);
+        }
+    }
+
+    public void setKey(final Object k) throws CryptoProcessException
+    {
+        FileInputStream f = null;
+        ByteArrayOutputStream b = new ByteArrayOutputStream();
+        try
+        {
+            if (k instanceof File)
+            {
+                File file = (File)k;
+                f = new FileInputStream(file);
+                key = new byte[(int)file.length()];
+                f.read(key);
+            }
+            else if (k instanceof byte[])
+            {
+                b.write((byte[])k);
+                key = b.toByteArray();
+            }
+            else
+                throw new CryptoProcessException(Status.FAILED_KEY);
+        }
+        catch (final IOException e)
+        {
+            throw new CryptoProcessException(Status.FAILED_KEY, e);
+        }
+        finally
+        {
+            closeIgnoreException(f);
+            closeIgnoreException(b);
+        }
+    }
+
+    protected static void closeIgnoreException(final Closeable o)
+    {
+        try
+        {
+            if (o != null)
+                o.close();
+        }
+        catch (final IOException ignored)
+        {
+            ;
         }
     }
 }

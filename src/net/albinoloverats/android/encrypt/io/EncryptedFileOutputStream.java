@@ -44,9 +44,9 @@ public class EncryptedFileOutputStream extends FileOutputStream
     private final FileOutputStream stream;
 
     private IMode cipher;
-    
+
     private byte[] buffer = null;
-    private int blocksize = 0;
+    private int blockSize = 0;
     private int[] offset = { 0, 0 };
 
     private boolean open = true;
@@ -61,8 +61,8 @@ public class EncryptedFileOutputStream extends FileOutputStream
     {
         IMessageDigest h = CryptoUtils.getHashAlgorithm(hash);
         final IBlockCipher c = CryptoUtils.getCipherAlgorithm(cipher);
-        blocksize = c.defaultBlockSize();
-        this.cipher = ModeFactory.getInstance("CBC", c, blocksize);
+        blockSize = c.defaultBlockSize();
+        this.cipher = ModeFactory.getInstance("CBC", c, blockSize);
         h.update(key, 0, key.length);
         final byte[] keySource = h.digest();
         final Map<String, Object> attributes = new HashMap<String, Object>();
@@ -70,19 +70,19 @@ public class EncryptedFileOutputStream extends FileOutputStream
         final byte[] keyOutput = new byte[keyLength];
         System.arraycopy(keySource, 0, keyOutput, 0, keyLength < keySource.length ? keyLength : keySource.length);
         attributes.put(IBlockCipher.KEY_MATERIAL, keyOutput);
-        attributes.put(IBlockCipher.CIPHER_BLOCK_SIZE, Integer.valueOf(blocksize));
-        attributes.put(IMode.STATE, Integer.valueOf(IMode.ENCRYPTION));
+        attributes.put(IBlockCipher.CIPHER_BLOCK_SIZE, blockSize);
+        attributes.put(IMode.STATE, IMode.ENCRYPTION);
         h.reset();
         h.update(keySource, 0, keySource.length);
         final byte[] iv = h.digest();
-        final byte[] correctedIV = new byte[blocksize];
-        System.arraycopy(iv, 0, correctedIV, 0, blocksize < iv.length ? blocksize : iv.length);
+        final byte[] correctedIV = new byte[blockSize];
+        System.arraycopy(iv, 0, correctedIV, 0, blockSize < iv.length ? blockSize : iv.length);
         attributes.put(IMode.IV, correctedIV);
         this.cipher.init(attributes);
-        buffer = new byte[blocksize];
+        buffer = new byte[blockSize];
         return h;
     }
-    
+
     @Override
     public void close() throws IOException
     {
@@ -91,11 +91,11 @@ public class EncryptedFileOutputStream extends FileOutputStream
 
         if (cipher != null)
         {
-            final int[] remainder = { 0, blocksize - offset[0] };
+            final int[] remainder = { 0, blockSize - offset[0] };
             final byte[] x = new byte[remainder[1]];
             PRNG.nextBytes(x);
             System.arraycopy(x, 0, buffer, offset[0], remainder[1]);
-            final byte[] eBytes = new byte[blocksize];
+            final byte[] eBytes = new byte[blockSize];
             cipher.update(buffer, 0, eBytes, 0);
             stream.write(eBytes);
         }
@@ -108,6 +108,7 @@ public class EncryptedFileOutputStream extends FileOutputStream
     protected void finalize() throws IOException
     {
         close();
+        super.finalize();
     }
 
     @Override
@@ -124,7 +125,7 @@ public class EncryptedFileOutputStream extends FileOutputStream
             stream.write(bytes);
             return;
         }
-        final int[] remainder = { bytes.length, blocksize - offset[0] };
+        final int[] remainder = { bytes.length, blockSize - offset[0] };
         offset[1] = 0;
         while (remainder[0] > 0)
         {
@@ -135,16 +136,15 @@ public class EncryptedFileOutputStream extends FileOutputStream
                 return;
             }
             System.arraycopy(bytes, offset[1], buffer, offset[0], remainder[1]);
-            final byte[] eBytes = new byte[blocksize];
+            final byte[] eBytes = new byte[blockSize];
             cipher.update(buffer, 0, eBytes, 0);
             stream.write(eBytes);
             offset[0] = 0;
-            buffer = new byte[blocksize];
+            buffer = new byte[blockSize];
             offset[1] += remainder[1];
             remainder[0] -= remainder[1];
-            remainder[1] = blocksize - offset[0];
+            remainder[1] = blockSize - offset[0];
         }
-        return;
     }
 
     @Override
