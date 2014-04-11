@@ -74,7 +74,16 @@ typedef struct
 }
 link_count_t;
 
-extern crypto_t *encrypt_init(const char * const restrict i, const char * const restrict o, const char * const restrict c, const char * const restrict h, const void * const restrict k, size_t l, bool x, bool f, version_e v)
+extern crypto_t *encrypt_init(const char * const restrict i,
+                              const char * const restrict o,
+                              const char * const restrict c,
+                              const char * const restrict h,
+                              const char * const restrict m,
+                              const void * const restrict k,
+                              size_t l,
+                              bool x,
+                              bool f,
+                              version_e v)
 {
     init_crypto();
 
@@ -100,7 +109,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
         else
         {
             log_message(LOG_VERBOSE, _("Encrypting file : %s"), i);
-            if (!(z->source = io_open(i, O_RDONLY | F_RDLCK, S_IRUSR | S_IWUSR)))
+            if (!(z->source = io_open(i, O_RDONLY | F_RDLCK, S_IRUSR | O_BINARY | S_IWUSR)))
             {
                 log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
                 z->status = STATUS_FAILED_IO;
@@ -117,7 +126,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
     if (o)
     {
         log_message(LOG_VERBOSE, _("Encrypting to file : %s"), o);
-        if (!(z->output = io_open(o, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK, S_IRUSR | S_IWUSR)))
+        if (!(z->output = io_open(o, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK | O_BINARY, S_IRUSR | S_IWUSR)))
         {
             log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
             z->status = STATUS_FAILED_OUTPUT_MISMATCH;
@@ -145,7 +154,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
     }
     else
     {
-        int64_t kf = open(k, O_RDONLY | F_RDLCK, S_IRUSR | S_IWUSR);
+        int64_t kf = open(k, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR);
         if (kf < 0)
         {
             log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
@@ -162,8 +171,9 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
 
     z->process = process;
 
-    z->cipher = strdup(c);
-    z->hash = strdup(h);
+    z->cipher = cipher_id_from_name(c);
+    z->hash = hash_id_from_name(h);
+    z->mode = mode_id_from_name(m);
 
     z->blocksize = BLOCK_SIZE;
     z->compressed = x;
@@ -191,12 +201,18 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
             /* if not compressing, fallback even more */
             if (!z->compressed)
                 z->version = VERSION_2011_08;
+            z->mode = mode_id_from_name("CBC");
             break;
 
         case VERSION_2013_02:
             z->follow_links = true;
         case VERSION_2013_11:
+            z->mode = mode_id_from_name("CBC");
+            break;
         case VERSION_2014_00:
+            /* fall back if using CBC */
+            if (z->mode == GCRY_CIPHER_MODE_CBC)
+                z->version = VERSION_2013_11;
         //case VERSION_CURRENT:
             /*
              * do nothing, all options are available; not falling back
@@ -224,8 +240,7 @@ static void *process(void *ptr)
      * all data written from here on is encrypted
      */
     io_extra_t iox = { false, 1 };
-    io_encryption_init(c->output, c->cipher, c->hash, c->key, c->length, iox);
-    free(c->cipher);
+    io_encryption_init(c->output, c->cipher, c->hash, c->mode, c->key, c->length, iox);
     free(c->key);
 
     bool pre_random = true;
@@ -263,7 +278,6 @@ static void *process(void *ptr)
     log_message(LOG_INFO, _("Starting encryption process"));
 
     io_encryption_checksum_init(c->output, c->hash);
-    free(c->hash);
 
     if (c->directory)
     {
@@ -347,20 +361,17 @@ static inline void write_header(crypto_t *c)
     uint64_t head[3] = { htonll(HEADER_0), htonll(HEADER_1), htonll(get_version(c->version)) };
     io_write(c->output, head, sizeof head);
     char *algos = NULL;
-    char *u_cipher = strdup(c->cipher);
-    if (!u_cipher)
-        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(c->cipher) + sizeof( byte_t ));
-    char *u_hash = strdup(c->hash);
-    if (!u_hash)
-        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(c->hash) + sizeof( byte_t ));
-    for (size_t i = 0; i < strlen(u_cipher); i++)
-        u_cipher[i] = toupper(u_cipher[i]);
-    for (size_t i = 0; i < strlen(u_hash); i++)
-        u_hash[i] = toupper(u_hash[i]);
-    if (!asprintf(&algos, "%s/%s", u_cipher, u_hash))
-        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(c->cipher) + strlen(c->hash) + 2);
-    free(u_cipher);
-    free(u_hash);
+    const char *u_cipher = gcry_cipher_algo_name(c->cipher);
+    const char *u_hash = gcry_md_algo_name(c->hash);
+    const char *u_mode = mode_name_from_id(c->mode);
+    if (c->version >= VERSION_2014_00)
+    {
+        if (!asprintf(&algos, "%s/%s/%s", u_cipher, u_hash, u_mode))
+            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(u_cipher) + strlen(u_hash) + strlen(u_mode) + 3);
+    }
+    else
+        if (!asprintf(&algos, "%s/%s", u_cipher, u_hash))
+            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(u_cipher) + strlen(u_hash) + 2);
     uint8_t h = (uint8_t)strlen(algos);
     io_write(c->output, &h, sizeof h);
     io_write(c->output, algos, h);
@@ -582,7 +593,7 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                      * when we have a file:
                      */
                     log_message(LOG_VERBOSE, _("Encrypting file : %s"), filename);
-                    c->source = io_open(filename, O_RDONLY | F_RDLCK, S_IRUSR | S_IWUSR);
+                    c->source = io_open(filename, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR);
                     c->current.offset = 0;
                     c->current.size = io_seek(c->source, 0, SEEK_END);
                     uint64_t z = htonll(c->current.size);

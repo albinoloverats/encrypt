@@ -177,6 +177,7 @@ static void cli_sigwinch(int s)
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
     cli_width = ws.ws_col;
     signal(SIGWINCH, cli_sigwinch);
+    (void)s;
 }
 #endif
 

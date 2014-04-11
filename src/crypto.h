@@ -35,6 +35,7 @@
 #include <stdbool.h> /*!< Necessary include as c99 standard boolean type is referenced in this header */
 #include <time.h>    /*!< Necessary include as time_t type is referenced in this header */
 #include <pthread.h> /*!< Necessary include as pthread handle is referenced in this header */
+#include <gcrypt.h>  /*!< Necessary include as encryption modes are referenced in this header */
 #include "io.h"      /*!< Necessary as IO_HANDLE type is referenced in this header */
 
 #define ENCRYPT_VERSION "2014.00" /*!< Current (display) version of encrypt application */
@@ -160,8 +161,9 @@ typedef struct
     IO_HANDLE output;         /*!< Where to put data to */
 
     char *path;
-    char *cipher;
-    char *hash;
+    enum gcry_cipher_algos cipher;
+    enum gcry_md_algos hash;
+    enum gcry_cipher_modes mode;
     uint8_t *key;
     size_t length;
 
@@ -240,13 +242,23 @@ extern const char **list_of_ciphers(void) __attribute__((pure));
 extern const char **list_of_hashes(void) __attribute__((pure));
 
 /*!
+ * \brief         Get list of available cipher modes
+ * \return        An array of char* of mode names
+ *
+ * Get an array of strings which lists the names of available cipher
+ * modes. NB: The array is allocated statically and SHOULD NOT be
+ * free'd (or otherwise altered).
+ */
+extern const char **list_of_modes(void) __attribute__((pure));
+
+/*!
  * \brief         Get cipher ID, given its name
  * \param[in]  n  Cipher name
  * \return        The ID used by libgcrypt
  *
  * Get the ID used internally by libgcrypt for the given cipher name.
  */
-extern int cipher_id_from_name(const char * const restrict n) __attribute__((pure, nonnull(1)));
+extern enum gcry_cipher_algos cipher_id_from_name(const char * const restrict n) __attribute__((pure, nonnull(1)));
 
 /*!
  * \brief         Get hash ID, given its name
@@ -255,14 +267,34 @@ extern int cipher_id_from_name(const char * const restrict n) __attribute__((pur
  *
  * Get the ID used internally by libgcrypt for the given hash name.
  */
-extern int hash_id_from_name(const char * const restrict n) __attribute__((pure, nonnull(1)));
+extern enum gcry_md_algos hash_id_from_name(const char * const restrict n) __attribute__((pure, nonnull(1)));
+
+/*!
+ * \brief         Get cipher mode ID, given its name
+ * \param[in]  n  Mode name
+ * \return        The ID used by libgcrypt
+ *
+ * Get the ID used internally by libgcrypt for the given mode name.
+ */
+extern enum gcry_cipher_modes mode_id_from_name(const char * const restrict n) __attribute__((pure, nonnull(1)));
+
+/*!
+ * \brief         Get cipher mode name, given its ID
+ * \param[in]  m  The libgcrypt mode enum
+ * \return        A string representation of the mode
+ *
+ * As this isn't provided by libgcrypt, in the same way that it is for
+ * algorithms, and the fact we're artificially limiting the choices,
+ * here's a function to get the name from the enum.
+ */
+extern const char *mode_name_from_id(enum gcry_cipher_modes m) __attribute__((pure));
 
 
-#define IS_ENCRYPTED_ARGS_COUNT(...) IS_ENCRYPTED_ARGS_COUNT2(__VA_ARGS__, 3, 2, 1)
-#define IS_ENCRYPTED_ARGS_COUNT2(_1, _2, _3, _, ...) _
+#define IS_ENCRYPTED_ARGS_COUNT(...) IS_ENCRYPTED_ARGS_COUNT2(__VA_ARGS__, 4, 3, 2, 1)
+#define IS_ENCRYPTED_ARGS_COUNT2(_1, _2, _3, _4, _, ...) _
 
-#define is_encrypted_1(A)        is_encrypted_aux(false, A, NULL, NULL)
-#define is_encrypted_3(A, B, C)  is_encrypted_aux(true, A, B, C)
+#define is_encrypted_1(A)           is_encrypted_aux(false, A, NULL, NULL, NULL)
+#define is_encrypted_4(A, B, C, D)  is_encrypted_aux(true, A, B, C, D)
 #define is_encrypted(...) CONCAT(is_encrypted_, IS_ENCRYPTED_ARGS_COUNT(__VA_ARGS__))(__VA_ARGS__)
 
 /*!
@@ -271,12 +303,13 @@ extern int hash_id_from_name(const char * const restrict n) __attribute__((pure,
  * \param[in]  n  The file path/name
  * \param[out] c  Pointer to cipher (free when no longer needed)
  * \param[out] h  Pointer to hash (free when no longer needed)
+ * \param[out] m  Pointer to mode (if available) (free when no longer needed)
  * \return        The version of encrypted used
  *
  * Returns the version of encrypt used to encrypt the file, or 0 if it's
  * not encrypted.
  */
-extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h) __attribute__((nonnull(2)));
+extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, char **m) __attribute__((nonnull(2)));
 
 /*!
  * \brief         Log which version the file is encrypted with

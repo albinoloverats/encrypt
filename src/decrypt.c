@@ -61,7 +61,10 @@ static void decrypt_directory(crypto_t *, const char *);
 static void decrypt_stream(crypto_t *);
 static void decrypt_file(crypto_t *);
 
-extern crypto_t *decrypt_init(const char * const restrict i, const char * const restrict o, const void * const restrict k, size_t l)
+extern crypto_t *decrypt_init(const char * const restrict i,
+                              const char * const restrict o,
+                              const void * const restrict k,
+                              size_t l)
 {
     init_crypto();
 
@@ -196,8 +199,7 @@ static void *process(void *ptr)
 
     /* the 2011.* versions (incorrectly) used key length instead of block length */
     io_extra_t iox = { c->version == VERSION_2011_08 || c->version == VERSION_2011_10, 1 };
-    io_encryption_init(c->source, c->cipher, c->hash, c->key, c->length, iox);
-    free(c->cipher);
+    io_encryption_init(c->source, c->cipher, c->hash, c->mode, c->key, c->length, iox);
     free(c->key);
 
     bool skip_some_random = false;
@@ -254,7 +256,6 @@ static void *process(void *ptr)
      *    ahead of time the total size
      */
     io_encryption_checksum_init(c->source, c->hash);
-    free(c->hash);
 
     if (c->directory)
         decrypt_directory(c, c->path);
@@ -320,11 +321,17 @@ static uint64_t read_version(crypto_t *c)
     char *h = strchr(a, '/');
     *h = '\0';
     h++;
-    c->cipher = strdup(a);
-    c->hash = strdup(h);
-    h--;
-    *h = '/'; /* probably not necessary, but doesn't harm anyone */
-    h = NULL;
+    char *m = strrchr(h, '/');
+    if (m)
+    {
+        *m = '\0';
+        m++;
+    }
+    else
+        m = "CBC";
+    c->cipher = cipher_id_from_name(a);
+    c->hash = hash_id_from_name(h);
+    c->mode = mode_id_from_name(m);
     free(a);
     return check_version(ntohll(head[2]));
 }

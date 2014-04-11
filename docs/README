@@ -1,5 +1,14 @@
 encrypt - 2014.00                                                 ? 2014
 --------------------
 
-Add option to not start up the GUI (I needed it so I can encrypt/decrypt
-on the fly with Vim).
+* Add option to not start up the GUI (needed it so I can encrypt/decrypt
+  on the fly with Vim).
+* Add ability to choose from various encrypt modes:
+  * ECB (Electronic Codebook)
+  * CBC (Cipher Block Chaining)
+  * CFB (Cipher Feedback)
+  * OFB (Output Feedback)
+  * CTR (Counter)
+* Add Encrypt/Decrypt option to Windows Explorer file context menu
+* Fix disappearing keyboard bug on Android
+* Choosing an algorithm (GUI) will leave it as the default for next time

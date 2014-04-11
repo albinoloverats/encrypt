@@ -109,7 +109,7 @@ static void io_do_decompress(io_private_t *);
 
 extern IO_HANDLE io_open(const char *n, int f, mode_t m)
 {
-    int64_t fd = open(n, f | O_BINARY, m);
+    int64_t fd = open(n, f, m);
     if (fd < 0)
         return NULL;
     io_private_t *io_ptr = calloc(1, sizeof( io_private_t ));
@@ -194,7 +194,13 @@ extern bool io_is_stdout(IO_HANDLE ptr)
     return io_ptr->fd == STDOUT_FILENO;
 }
 
-extern void io_encryption_init(IO_HANDLE ptr, const char *c, const char *h, const uint8_t *k, size_t l, io_extra_t x)
+extern void io_encryption_init(IO_HANDLE ptr,
+                               enum gcry_cipher_algos c,
+                               enum gcry_md_algos h,
+                               enum gcry_cipher_modes m,
+                               const uint8_t *k,
+                               size_t l,
+                               io_extra_t x)
 {
     io_private_t *io_ptr = ptr;
     if (!io_ptr || io_ptr->fd < 0)
@@ -205,8 +211,8 @@ extern void io_encryption_init(IO_HANDLE ptr, const char *c, const char *h, cons
     if (!(io_ptr->buffer = malloc(sizeof( buffer_t ))))
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( buffer_t ));
 
-    gcry_md_open(&io_ptr->hash_handle, hash_id_from_name(h), GCRY_MD_FLAG_SECURE);
-    gcry_cipher_open(&io_ptr->cipher_handle, cipher_id_from_name(c), GCRY_CIPHER_MODE_CBC, GCRY_CIPHER_SECURE);
+    gcry_md_open(&io_ptr->hash_handle, h, GCRY_MD_FLAG_SECURE);
+    gcry_cipher_open(&io_ptr->cipher_handle, c, m, GCRY_CIPHER_SECURE);
     /*
      * generate a hash of the supplied key data
      */
@@ -219,7 +225,7 @@ extern void io_encryption_init(IO_HANDLE ptr, const char *c, const char *h, cons
      * set the key as the hash of supplied data
      */
     size_t key_length = 0;
-    gcry_cipher_algo_info(cipher_id_from_name(c), GCRYCTL_GET_KEYLEN, NULL, &key_length);
+    gcry_cipher_algo_info(c, GCRYCTL_GET_KEYLEN, NULL, &key_length);
     uint8_t *key = calloc(key_length, sizeof( byte_t ));
     if (!key)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, key_length);
@@ -234,7 +240,7 @@ extern void io_encryption_init(IO_HANDLE ptr, const char *c, const char *h, cons
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, hash_length);
     gcry_md_hash_buffer(gcry_md_get_algo(io_ptr->hash_handle), iv_hash, hash, hash_length);
     free(hash);
-    gcry_cipher_algo_info(cipher_id_from_name(c), GCRYCTL_GET_BLKLEN, NULL, &io_ptr->buffer->block);
+    gcry_cipher_algo_info(c, GCRYCTL_GET_BLKLEN, NULL, &io_ptr->buffer->block);
     /* the 2011.* versions (incorrectly) used key length instead of block length */
     uint8_t *iv = calloc(x.x_iv ? key_length : io_ptr->buffer->block, sizeof( byte_t ));
     if (!iv)
@@ -262,12 +268,12 @@ extern void io_encryption_init(IO_HANDLE ptr, const char *c, const char *h, cons
     return;
 }
 
-extern void io_encryption_checksum_init(IO_HANDLE ptr, char *h)
+extern void io_encryption_checksum_init(IO_HANDLE ptr, enum gcry_md_algos h)
 {
     io_private_t *io_ptr = ptr;
     if (!io_ptr || io_ptr->fd < 0)
         return (errno = EBADF , (void)NULL);
-    io_ptr->hash_init ? gcry_md_reset(io_ptr->hash_handle) : gcry_md_open(&io_ptr->hash_handle, hash_id_from_name(h), GCRY_MD_FLAG_SECURE);
+    io_ptr->hash_init ? gcry_md_reset(io_ptr->hash_handle) : gcry_md_open(&io_ptr->hash_handle, h, GCRY_MD_FLAG_SECURE);
     io_ptr->hash_init = true;
     return;
 }

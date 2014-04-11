@@ -8,17 +8,20 @@
 
 # Enable/disable compression of data prior to encryption. The default is
 # enabled.
-#compress true
+compress true
 
 # Follow soft links and store the file or directory they point to. The
 # default is not to follow links but store the link itself.
-#follow false
+follow false
 
 # Set the default cipher to use for encryption.
-#cipher aes
+cipher aes
 
 # Set the default hash to use for key generation.
-#hash sha256
+hash sha256
+
+# Set the default mode to use for encryption
+mode cbc
 
 # Set the level of backwards compatibility, by version number.
-#version 2014.00
+version 2014.00

@@ -6,9 +6,11 @@ SOURCE   = src/main.c src/cli.c src/init.c src/crypto.c src/encrypt.c src/decryp
 GUI      = src/gui-gtk.c
 COMMON   = src/common/error.c src/common/logging.c src/common/tlv.c src/common/version.c src/common/fs.c
 
-CFLAGS   = -Wall -Wextra -Werror -Wno-unused-parameter -std=gnu99 `libgcrypt-config --cflags` -pipe -O2
+CFLAGS   = -Wall -Wextra -Werror -std=gnu99 `libgcrypt-config --cflags` -pipe -O2
 CPPFLAGS = -Isrc -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DLOG_DEFAULT=LOG_ERROR -DGIT_COMMIT=\"`git log | head -n1 | cut -f2 -d' '`\"
 GUIFLAGS = -DBUILD_GUI `pkg-config --cflags gtk+-3.0 gmodule-2.0`
+
+DEBUG   = -O0 -ggdb -D__DEBUG__ -D__DEBUG_GUI__
 
 LIBS     = `libgcrypt-config --libs` -lpthread -lcurl -llzma
 GUILIBS  = `pkg-config --libs gtk+-3.0 gmodule-2.0`
@@ -16,11 +18,18 @@ GUILIBS  = `pkg-config --libs gtk+-3.0 gmodule-2.0`
 all: gui language man
 
 cli:
-	@$(CC) $(LIBS) $(CFLAGS) $(CPPFLAGS) $(SOURCE) $(COMMON) -o $(APP)
+	@$(CC) $(LIBS) $(CFLAGS) $(CPPFLAGS) $(SOURCE) $(COMMON) $(LIBS) -o $(APP)
+	-@echo "built \`$(SOURCE) $(COMMON)' --> \`$(APP)'"
+
+debug:
+	@$(CC) $(LIBS) $(CFLAGS) $(CPPFLAGS) $(SOURCE) $(COMMON) $(LIBS) $(DEBUG) -o $(APP)
 	-@echo "built \`$(SOURCE) $(COMMON)' --> \`$(APP)'"
 
 gui:
 	@$(CC) $(CFLAGS) $(CPPFLAGS) $(GUIFLAGS) $(SOURCE) $(COMMON) $(GUI) $(LIBS) $(GUILIBS) -o $(APP)
+	-@echo "built \`$(SOURCE) $(COMMON) $(GUI)' --> \`$(APP)'"
+debug-gui:
+	@$(CC) $(CFLAGS) $(CPPFLAGS) $(GUIFLAGS) $(SOURCE) $(COMMON) $(GUI) $(LIBS) $(GUILIBS) $(DEBUGG) -o $(APP)
 	-@echo "built \`$(SOURCE) $(COMMON) $(GUI)' --> \`$(APP)'"
 
 language:

@@ -20,7 +20,7 @@
 
 package net.albinoloverats.android.encrypt;
 
-import java.io.IOException;
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Set;
@@ -75,18 +75,18 @@ public class Main extends Activity
     private DoubleProgressDialog dProgressDialog;
     private ProgressThread progressThread;
 
-    private boolean encrypting = true;
     private boolean compress = true;
     private boolean follow = false;
     private boolean key_file = false;
+    private Version version = Version.CURRENT;
 
     private String filenameIn;
     private String filenameOut;
+    private boolean encrypting = true;
     private String hash;
     private String cipher;
     private String password;
     private String key;
-    private Version version = Version.CURRENT;
 
     @Override
     public void onCreate(final Bundle savedInstanceState)

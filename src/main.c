@@ -59,6 +59,7 @@ extern char *gui_file_hack_output;
 
 static bool list_ciphers(void);
 static bool list_hashes(void);
+static bool list_modes(void);
 
 int main(int argc, char **argv)
 {
@@ -87,12 +88,14 @@ int main(int argc, char **argv)
         la = list_ciphers();
     if (args.hash && !strcasecmp(args.hash, "list"))
         la = list_hashes();
+    if (args.mode && !strcasecmp(args.mode, "list"))
+        la = list_modes();
     if (la)
         return EXIT_SUCCESS;
 
-    bool dode = false;
+    bool dude = false;
     if (!strcmp(basename(argv[0]), ALT_NAME))
-        dode = true;
+        dude = true;
 
 #ifdef BUILD_GUI
     gtk_widgets_t *widgets;
@@ -104,10 +107,12 @@ int main(int argc, char **argv)
     {
         char *c = NULL;
         char *h = NULL;
-        if ((fe = is_encrypted(args.source, &c, &h)))
+        char *m = NULL;
+        if ((fe = is_encrypted(args.source, &c, &h, &m)))
         {
             args.cipher = c;
             args.hash = h;
+            args.mode = m;
         }
     }
 #ifndef _WIN32
@@ -129,7 +134,13 @@ int main(int argc, char **argv)
     if (gtk_init_check(&argc, &argv))
     {
         builder = gtk_builder_new();
-        if (!gtk_builder_add_from_file(builder, GLADE_UI_FILE, &error))
+        char *glade_ui_file = GLADE_UI_FILE;
+#ifdef _WIN32
+        struct stat s;
+        if (stat(glade_ui_file, &s) != 0)
+            glade_ui_file = GLADE_2x_FILE;
+#endif
+        if (!gtk_builder_add_from_file(builder, glade_ui_file, &error))
             die(_("%s"), error->message);
         /*
          * allocate widgets structure
@@ -173,10 +184,6 @@ int main(int argc, char **argv)
         g_object_unref(G_OBJECT(builder));
         gtk_widget_show(widgets->main_window);
 
-#ifndef _WIN32
-        /*
-         * TODO find a way to select and display file to encrypt
-         */
         if (args.source)
         {
             char *cwd = getcwd(NULL, 0);
@@ -191,9 +198,8 @@ int main(int argc, char **argv)
             gtk_file_chooser_set_filename((GtkFileChooser *)widgets->save_dialog, gui_file_hack_output);
             free(cwd);
         }
-
         file_dialog_okay(NULL, widgets);
-#endif
+
         auto_select_algorithms(widgets, args.cipher, args.hash);
         set_compatibility_menu(widgets, args.version);
 
@@ -206,7 +212,7 @@ int main(int argc, char **argv)
 
         g_slice_free(gtk_widgets_t, widgets);
 
-        goto eop;
+        goto clean_up;
     }
     else
         fprintf(stderr, _("Could not create GUI - falling back to command line\n"));
@@ -241,10 +247,10 @@ int main(int argc, char **argv)
      */
     crypto_t *c;
 
-    if (dode || (args.source && is_encrypted(args.source)))
+    if (dude || (args.source && is_encrypted(args.source)))
         c = decrypt_init(args.source, args.output, key, length);
     else
-        c = encrypt_init(args.source, args.output, args.cipher, args.hash, key, length, args.compress, args.follow, parse_version(args.version));
+        c = encrypt_init(args.source, args.output, args.cipher, args.hash, args.mode, key, length, args.compress, args.follow, parse_version(args.version));
 
     init_deinit(args);
 
@@ -266,7 +272,7 @@ int main(int argc, char **argv)
 #endif /* ! _WIN32 */
 
 #ifdef BUILD_GUI
-eop:
+clean_up:
 #endif
 
     if (new_version_available)
@@ -291,6 +297,15 @@ static bool list_ciphers(void)
 static bool list_hashes(void)
 {
     const char **l = list_of_hashes();
+    for (int i = 0; l[i]; i++)
+        if (strlen(l[i]))
+            fprintf(stderr, "%s\n", l[i]);
+    return true;
+}
+
+static bool list_modes(void)
+{
+    const char **l = list_of_modes();
     for (int i = 0; l[i]; i++)
         if (strlen(l[i]))
             fprintf(stderr, "%s\n", l[i]);

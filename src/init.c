@@ -48,7 +48,7 @@ static void print_usage(void);
 
 extern args_t init(int argc, char **argv)
 {
-    args_t a = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, true, false, false };
+    args_t a = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, true, false, false };
 
     /*
      * check for options in rc file (~/.encryptrc)
@@ -76,6 +76,8 @@ extern args_t init(int argc, char **argv)
                 a.cipher = parse_config_tail(CONF_CIPHER, line);
             else if (!strncmp(CONF_HASH, line, strlen(CONF_HASH)) && isspace(line[strlen(CONF_HASH)]))
                 a.hash = parse_config_tail(CONF_HASH, line);
+            else if (!strncmp(CONF_MODE, line, strlen(CONF_MODE)) && isspace(line[strlen(CONF_MODE)]))
+                a.mode = parse_config_tail(CONF_MODE, line);
             else if (!strncmp(CONF_VERSION, line, strlen(CONF_VERSION)) && isspace(line[strlen(CONF_VERSION)]))
                 a.version = parse_config_tail(CONF_VERSION, line);
 
@@ -104,6 +106,7 @@ fl:
             { "nogui",       no_argument,       0, 'g' },
             { "cipher",      required_argument, 0, 'c' },
             { "hash",        required_argument, 0, 's' },
+            { "mode",        required_argument, 0, 'm' },
             { "key",         required_argument, 0, 'k' },
             { "password",    required_argument, 0, 'p' },
             { "no-compress", no_argument,       0, 'x' },
@@ -115,7 +118,7 @@ fl:
         while (true)
         {
             int index = 0;
-            int c = getopt_long(argc, argv, "hvld::qgc:s:k:p:xfb:", options, &index);
+            int c = getopt_long(argc, argv, "hvld::qgc:s:m:k:p:xfb:", options, &index);
             if (c == -1)
                 break;
             switch (c)
@@ -141,6 +144,9 @@ fl:
                     break;
                 case 's':
                     a.hash = strdup(optarg);
+                    break;
+                case 'm':
+                    a.mode = strdup(optarg);
                     break;
                 case 'k':
                     a.key = strdup(optarg);
@@ -299,6 +305,7 @@ extern void show_help(void)
     {
         fprintf(stderr, _("  -c, --cipher=<algorithm>     Algorithm to use to encrypt data\n"));
         fprintf(stderr, _("  -s, --hash=<algorithm>       Hash algorithm to generate key\n"));
+        fprintf(stderr, _("  -m, --mode=<mode>            The encryption mode to use\n"));
     }
     fprintf(stderr, _("  -k, --key=<key file>         File whose data will be used to generate the key\n"));
     fprintf(stderr, _("  -p, --password=<password>    Password used to generate the key\n"));
@@ -308,7 +315,11 @@ extern void show_help(void)
         fprintf(stderr, _("  -f, --follow                 Follow symlinks, the default is to store the link itself\n"));
         fprintf(stderr, _("  -b, --back-compat=<version>  Create an encrypted file that is backwards compatible\n"));
     }
-    fprintf(stderr, _("\nNote: If you do not supply a key or password, you will be prompted for one.\n"));
+    fprintf(stderr, _("\nNotes:\n  If you do not supply a key or password, you will be prompted for one.\n"));
+    if (!strcmp(program_invocation_short_name, APP_NAME))
+    {
+        fprintf(stderr, _("  To see a list of available algorithms or modes use list as the argument.\n"));
+    }
     exit(EXIT_SUCCESS);
 }
 

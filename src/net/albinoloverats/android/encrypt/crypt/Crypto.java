@@ -47,8 +47,8 @@ public abstract class Crypto extends Thread implements Runnable
     protected byte[] key;
 
     public Status status = Status.INIT;
-    public Progress current = new Progress();
-    public Progress total = new Progress();
+    public final Progress current = new Progress();
+    public final Progress total = new Progress();
 
     protected int blockSize;
     protected boolean compressed = true;

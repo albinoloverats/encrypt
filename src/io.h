@@ -192,8 +192,9 @@ extern off_t io_seek(IO_HANDLE f, off_t o, int w) __attribute__((nonnull(1)));
 /*
  * \brief         Encryption/Decryption initialisation
  * \param[in]  f  An IO instance
- * \param[in]  c  The name of the cipher to use
- * \param[in]  h  The name of the hash to use for key generation
+ * \param[in]  c  The ID of the cipher to use
+ * \param[in]  h  The ID of the hash to use for key generation
+ * \param[in]  m  The ID of the mode to use
  * \param[in]  k  Raw key data
  * \param[in]  l  The length of the key data
  * \param[in]  x  Any extra modifing options
@@ -201,7 +202,13 @@ extern off_t io_seek(IO_HANDLE f, off_t o, int w) __attribute__((nonnull(1)));
  * Initialise encryption/decryption of data read/written. This is then
  * active for the rest of the life of the IO_HANDLE.
  */
-extern void io_encryption_init(IO_HANDLE f, const char *c, const char *h, const uint8_t *k, size_t l, io_extra_t x) __attribute__((nonnull(1, 2, 3, 4)));
+extern void io_encryption_init(IO_HANDLE f,
+                               enum gcry_cipher_algos c,
+                               enum gcry_md_algos h,
+                               enum gcry_cipher_modes m,
+                               const uint8_t *k,
+                               size_t l,
+                               io_extra_t x) __attribute__((nonnull(1, 5)));
 
 /*
  * \brief         Compression initialisation
@@ -215,12 +222,12 @@ extern void io_compression_init(IO_HANDLE f) __attribute__((nonnull(1)));
 /*
  * \brief         Read/Write data checksum initialisation
  * \param[in]  f  An IO instance
- * \param[in]  h  Name of hash to use for checksum calculations
+ * \param[in]  h  The ID of the hash to use for checksum calculations
  *
  * For all subsequent data that is read/written feed it through a hash
  * function as a way of generating a checksum to detect errors.
  */
-extern void io_encryption_checksum_init(IO_HANDLE f, char *h) __attribute__((nonnull(1, 2)));
+extern void io_encryption_checksum_init(IO_HANDLE f, enum gcry_md_algos h) __attribute__((nonnull(1)));
 
 /*
  * \brief         Read/Write data checksum generation

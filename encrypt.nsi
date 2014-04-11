@@ -88,6 +88,7 @@ Section "encrypt" SEC01
 
   SetOutPath "$INSTDIR\etc"
   File "etc\encrypt_w32.glade"
+  File "etc\encrypt_w64.glade"
   File "etc\_encryptrc"
 
   SetOutPath "$INSTDIR"
@@ -165,6 +166,7 @@ Section Uninstall
   Delete "$INSTDIR\pixmaps\encrypt.png"
 
   Delete "$INSTDIR\etc\encrypt_w32.glade"
+  Delete "$INSTDIR\etc\encrypt_w64.glade"
   Delete "$INSTDIR\etc\_encryptrc"
 
   Delete "$INSTDIR\uninst.exe"

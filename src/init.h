@@ -24,7 +24,7 @@
 #define APP_NAME "encrypt"
 #define ALT_NAME "decrypt"
 
-#define APP_USAGE "[source] [destination] [-c algorithm] [-s algorithm] [-k key/-p password] [-x] [-f] [-b version]"
+#define APP_USAGE "[source] [destination] [-c algorithm] [-s algorithm] [-m mode] [-k key/-p password] [-x] [-f] [-b version]"
 #define ALT_USAGE "[-k key/-p password] [input] [output]"
 
 #ifndef _WIN32
@@ -37,6 +37,7 @@
 #define CONF_FOLLOW "follow"
 #define CONF_CIPHER "cipher"
 #define CONF_HASH "hash"
+#define CONF_MODE "mode"
 #define CONF_VERSION "version"
 
 #define CONF_TRUE     "true"
@@ -56,6 +57,7 @@ typedef struct args_t
 {
     char *cipher;    /*!< The cryptoraphic cipher selected by the user */
     char *hash;      /*!< The hash function selected by the user */
+    char *mode;      /*!< The encryption mode selected by the user */
     char *key;       /*!< The key file for key generation */
     char *password;  /*!< The password for key generation */
     char *source;    /*!< The input file/stream */

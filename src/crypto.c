@@ -80,7 +80,7 @@ static const char *STATUS_MESSAGE[] =
     "Failed: Decryption failure! (Invalid password)",
     "Failed: Unsupported feature!",
     "Failed: Read/Write error!",
-    "Failed: Key generation error!".
+    "Failed: Key generation error!",
     "Failed: Invalid target file type!",
     "Failed: An unknown error has occurred!",
     /* warnings - decryption finished but with possible errors */
@@ -105,6 +105,22 @@ static const version_t VERSIONS[] =
     { "2013.11", 0xf1f68e5f2a43aa5fllu },
     { "2014.00", 0x8819d19069fae6b4llu },
     { "current", 0x8819d19069fae6b4llu } /* same as above */
+};
+
+typedef struct
+{
+    enum gcry_cipher_modes id;
+    const char name[4];
+}
+block_mode_t;
+
+static const block_mode_t MODES[] =
+{
+    { GCRY_CIPHER_MODE_ECB, "ECB" },
+    { GCRY_CIPHER_MODE_CBC, "CBC" },
+    { GCRY_CIPHER_MODE_CFB, "CFB" },
+    { GCRY_CIPHER_MODE_OFB, "OFB" },
+    { GCRY_CIPHER_MODE_CTR, "CTR" },
 };
 
 extern void init_crypto(void)
@@ -172,8 +188,7 @@ extern const char **list_of_ciphers(void)
     init_crypto();
 
     int lid[0xff] = { 0x00 };
-    int len = 0;//sizeof lid;
-#if 1
+    int len = 0;
     enum gcry_cipher_algos id = GCRY_CIPHER_NONE;
     for (unsigned i = 0; i < sizeof lid; i++)
     {
@@ -184,9 +199,6 @@ extern const char **list_of_ciphers(void)
         }
         id++;
     }
-#else
-    gcry_cipher_list(lid, &len);
-#endif
     static char **l = NULL;
     if (!l)
     {
@@ -223,8 +235,7 @@ extern const char **list_of_hashes(void)
     init_crypto();
 
     int lid[0xff] = { 0x00 };
-    int len = 0;//sizeof lid;
-#if 1
+    int len = 0;
     enum gcry_md_algos id = GCRY_MD_NONE;
     for (unsigned i = 0; i < sizeof lid; i++)
     {
@@ -235,9 +246,6 @@ extern const char **list_of_hashes(void)
         }
         id++;
     }
-#else
-    gcry_md_list(lid, &len);
-#endif
     static char **l = NULL;
     if (!l)
     {
@@ -265,13 +273,26 @@ extern const char **list_of_hashes(void)
     return (const char **)l;
 }
 
-extern int cipher_id_from_name(const char * const restrict n)
+extern const char **list_of_modes(void)
+{
+    static const char **l = NULL;
+    if (!l)
+    {
+        unsigned m = sizeof MODES / sizeof( block_mode_t );
+        if (!(l = calloc(m + 1, sizeof( char * ))))
+            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
+        for (unsigned i = 0; i < m; i++)
+            l[i] = MODES[i].name;
+    }
+    return (const char **)l;
+}
+
+extern enum gcry_cipher_algos cipher_id_from_name(const char * const restrict n)
 {
     if (n)
     {
         int list[0xff] = { 0x00 };
-        int len = 0;//sizeof list;
-#if 1
+        int len = 0;
         enum gcry_cipher_algos id = GCRY_CIPHER_NONE;
         for (unsigned i = 0; i < sizeof list; i++)
         {
@@ -282,9 +303,6 @@ extern int cipher_id_from_name(const char * const restrict n)
             }
             id++;
         }
-#else
-        gcry_cipher_list(list, &len);
-#endif
         for (int i = 0; i < len; i++)
         {
             const char *x = gcry_cipher_algo_name(list[i]);
@@ -312,13 +330,12 @@ extern int cipher_id_from_name(const char * const restrict n)
     return 0;
 }
 
-extern int hash_id_from_name(const char * const restrict n)
+extern enum gcry_md_algos hash_id_from_name(const char * const restrict n)
 {
     if (!n)
         return 0;
     int list[0xff] = { 0x00 };
-    int len = 0;//sizeof list;
-#if 1
+    int len = 0;
     enum gcry_md_algos id = GCRY_MD_NONE;
     for (unsigned i = 0; i < sizeof list; i++)
     {
@@ -329,9 +346,6 @@ extern int hash_id_from_name(const char * const restrict n)
         }
         id++;
     }
-#else
-    gcry_md_list(list, &len);
-#endif
     for (int i = 0; i < len; i++)
     {
         const char *x = gcry_md_algo_name(list[i]);
@@ -350,13 +364,39 @@ extern int hash_id_from_name(const char * const restrict n)
     return 0;
 }
 
-extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h)
+extern enum gcry_cipher_modes mode_id_from_name(const char * const restrict n)
+{
+    if (!n)
+        return 0;
+    for (unsigned i = 0; i < sizeof MODES / sizeof( block_mode_t ); i++)
+        if (!strcasecmp(n, MODES[i].name))
+        {
+            log_message(LOG_DEBUG, _("Found requested mode: %s"), MODES[i].name);
+            return MODES[i].id;
+        }
+    log_message(LOG_ERROR, _("Could not find requested mode: %s"), n);
+    return 0;
+}
+
+extern const char *mode_name_from_id(enum gcry_cipher_modes m)
+{
+    for (unsigned i = 0; i < sizeof MODES / sizeof( block_mode_t ); i++)
+        if (MODES[i].id == m)
+        {
+            log_message(LOG_DEBUG, _("Found requested mode: %s"), MODES[i].name);
+            return MODES[i].name;
+        }
+    log_message(LOG_ERROR, _("Could not find requested mode: %d"), m);
+    return NULL;
+}
+
+extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, char **m)
 {
     struct stat s;
     stat(n, &s);
     if (S_ISDIR(s.st_mode))
         return VERSION_UNKNOWN;
-    int64_t f = open(n, O_RDONLY | F_RDLCK, S_IRUSR | S_IWUSR);
+    int64_t f = open(n, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR);
     if (f < 0)
         return (log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno)) , VERSION_UNKNOWN);
     uint64_t head[3] = { 0x0 };
@@ -378,8 +418,15 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h)
         char *s = strchr(a, '/');
         *s = '\0';
         s++;
+        char *d = strrchr(a, '/');
+        if (d)
+        {
+            *d = '\0';
+            d++;
+        }
         asprintf(c, "%s", a);
         asprintf(h, "%s", s);
+        asprintf(m ,"%s", d ? : "CBC");
         free(a);
     }
     close(f);
