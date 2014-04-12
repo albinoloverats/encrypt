@@ -135,12 +135,12 @@ public abstract class Crypto extends Thread implements Runnable
         }
     }
 
-    protected static void closeIgnoreException(final Closeable o)
+    protected static void closeIgnoreException(final Closeable c)
     {
         try
         {
-            if (o != null)
-                o.close();
+            if (c != null)
+                c.close();
         }
         catch (final IOException ignored)
         {
