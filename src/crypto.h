@@ -51,6 +51,10 @@
 #endif
 #define GIT_COMMIT_LENGTH 7
 
+#define DEFAULT_CIPHER "AES"
+#define DEFAULT_HASH "SHA256"
+#define DEFAULT_MODE "OFB"
+
 /*!
  * \brief  Encryption status
  *

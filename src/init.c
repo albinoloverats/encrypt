@@ -48,7 +48,17 @@ static void print_usage(void);
 
 extern args_t init(int argc, char **argv)
 {
-    args_t a = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, true, false, false };
+    args_t a = { DEFAULT_CIPHER,
+                 DEFAULT_HASH,
+                 DEFAULT_MODE,
+                 NULL, /* key file */
+                 NULL, /* password */
+                 NULL, /* source */
+                 NULL, /* output */
+                 ENCRYPT_VERSION,
+                 true,    /* compress */
+                 false,   /* follow links */
+                 false }; /* disable gui */
 
     /*
      * check for options in rc file (~/.encryptrc)
@@ -66,7 +76,7 @@ extern args_t init(int argc, char **argv)
         while (getline(&line, &len, f) >= 0)
         {
             if (line[0] == '#' || len == 0)
-                goto fl;
+                goto end_line;
 
             if (!strncmp(CONF_COMPRESS, line, strlen(CONF_COMPRESS)) && isspace(line[strlen(CONF_COMPRESS)]))
                 a.compress = parse_config_boolean(CONF_COMPRESS, line, a.compress);
@@ -80,8 +90,7 @@ extern args_t init(int argc, char **argv)
                 a.mode = parse_config_tail(CONF_MODE, line);
             else if (!strncmp(CONF_VERSION, line, strlen(CONF_VERSION)) && isspace(line[strlen(CONF_VERSION)]))
                 a.version = parse_config_tail(CONF_VERSION, line);
-
-fl:
+end_line:
             free(line);
             line = NULL;
             len = 0;
