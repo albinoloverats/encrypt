@@ -49,12 +49,14 @@
 #define CONF_DISABLED "disabled"
 
 /*!
- * TODO add comment
+ * \brief  Enum of available key sources
+ *
+ * Simple enum which indicates the source of the key material.
  */
 typedef enum
 {
-    KEY_SOURCE_FILE,
-    KEY_SOURCE_PASSWORD
+    KEY_SOURCE_FILE,    /*!< Key data comes from a file */
+    KEY_SOURCE_PASSWORD /*!< Key data comes from a password */
 }
 key_source_e;
 

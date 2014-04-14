@@ -314,9 +314,9 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
 
     if (!_encrypted)
     {
-        gtk_widget_set_sensitive(data->mode_combo, en);
         gtk_widget_set_sensitive(data->crypto_combo, en);
         gtk_widget_set_sensitive(data->hash_combo, en);
+        gtk_widget_set_sensitive(data->mode_combo, en);
         if (en)
             algorithm_combo_callback(NULL, data);
     }

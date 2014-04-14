@@ -161,29 +161,29 @@ progress_t;
  */
 typedef struct
 {
-    IO_HANDLE source;         /*!< Where to get data from */
-    IO_HANDLE output;         /*!< Where to put data to */
+    IO_HANDLE source;              /*!< Where to get data from */
+    IO_HANDLE output;              /*!< Where to put data to */
 
-    char *path;
-    enum gcry_cipher_algos cipher;
-    enum gcry_md_algos hash;
-    enum gcry_cipher_modes mode;
-    uint8_t *key;
-    size_t length;
+    char *path;                    /*!< Path to en/decrypted directory */
+    enum gcry_cipher_algos cipher; /*!< The chosen cipher algorithm */
+    enum gcry_md_algos hash;       /*!< The chosen key hash algorithm */
+    enum gcry_cipher_modes mode;   /*!< The chosen encryption mode */
+    uint8_t *key;                  /*!< Key data */
+    size_t length;                 /*!< Key data length */
 
-    pthread_t *thread;        /*!< Execution thread */
-    void *(*process)(void *); /*!< Main processing function; used by execute() */
-    crypto_status_e status;   /*!< Current status */
-    progress_t current;       /*!< Progress of current file */
-    progress_t total;         /*!< Overall progress (all files) */
+    pthread_t *thread;             /*!< Execution thread */
+    void *(*process)(void *);      /*!< Main processing function; used by execute() */
+    crypto_status_e status;        /*!< Current status */
+    progress_t current;            /*!< Progress of current file */
+    progress_t total;              /*!< Overall progress (all files) */
 
-    void *misc;               /*!< Miscellaneous data, specific to either encryption or decryption only */
+    void *misc;                    /*!< Miscellaneous data, specific to either encryption or decryption only */
 
-    version_e version;        /*!< Version of the encrypted file container */
-    uint64_t blocksize;       /*!< Whether data is split into blocks, and thus their size */
-    bool compressed:1;        /*!< Whether data stream is compress */
-    bool directory:1;         /*!< Whether data stream is a directory hierarchy */
-    bool follow_links:1;      /*!< Whether encrypt should follow symlinks (true: store the file it points to; false: store the link itself */
+    version_e version;             /*!< Version of the encrypted file container */
+    uint64_t blocksize;            /*!< Whether data is split into blocks, and thus their size */
+    bool compressed:1;             /*!< Whether data stream is compress */
+    bool directory:1;              /*!< Whether data stream is a directory hierarchy */
+    bool follow_links:1;           /*!< Whether encrypt should follow symlinks (true: store the file it points to; false: store the link itself */
 }
 crypto_t;
 
