@@ -46,6 +46,12 @@ static char *parse_config_tail(const char *, const char *);
 static void print_version(void);
 static void print_usage(void);
 
+char *KEY_SOURCE[] =
+{
+    "file",
+    "password"
+};
+
 extern args_t init(int argc, char **argv)
 {
     args_t a = { DEFAULT_CIPHER,
@@ -56,6 +62,7 @@ extern args_t init(int argc, char **argv)
                  NULL, /* source */
                  NULL, /* output */
                  ENCRYPT_VERSION,
+                 KEY_SOURCE_PASSWORD,
                  true,    /* compress */
                  false,   /* follow links */
                  false }; /* disable gui */
@@ -90,6 +97,15 @@ extern args_t init(int argc, char **argv)
                 a.mode = parse_config_tail(CONF_MODE, line);
             else if (!strncmp(CONF_VERSION, line, strlen(CONF_VERSION)) && isspace(line[strlen(CONF_VERSION)]))
                 a.version = parse_config_tail(CONF_VERSION, line);
+            else if (!strncmp(CONF_KEY, line, strlen(CONF_KEY)) && isspace(line[strlen(CONF_KEY)]))
+            {
+                char *k = parse_config_tail(CONF_KEY, line);
+                if (!strcasecmp(KEY_SOURCE[KEY_SOURCE_FILE], k))
+                    a.key_source = KEY_SOURCE_FILE;
+                else
+                    a.key_source = KEY_SOURCE_PASSWORD;
+                free(k);
+            }
 end_line:
             free(line);
             line = NULL;

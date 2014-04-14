@@ -34,11 +34,12 @@
 #endif
 
 #define CONF_COMPRESS "compress"
-#define CONF_FOLLOW "follow"
-#define CONF_CIPHER "cipher"
-#define CONF_HASH "hash"
-#define CONF_MODE "mode"
-#define CONF_VERSION "version"
+#define CONF_FOLLOW   "follow"
+#define CONF_KEY      "key"
+#define CONF_CIPHER   "cipher"
+#define CONF_HASH     "hash"
+#define CONF_MODE     "mode"
+#define CONF_VERSION  "version"
 
 #define CONF_TRUE     "true"
 #define CONF_ON       "on"
@@ -48,24 +49,37 @@
 #define CONF_DISABLED "disabled"
 
 /*!
+ * TODO add comment
+ */
+typedef enum
+{
+    KEY_SOURCE_FILE,
+    KEY_SOURCE_PASSWORD
+}
+key_source_e;
+
+extern char *KEY_SOURCE[];
+
+/*!
  * \brief  Structure of expected options
  *
  * Structure returned from init() with values for any expected
  * options.
  */
-typedef struct args_t
+typedef struct
 {
-    char *cipher;    /*!< The cryptoraphic cipher selected by the user */
-    char *hash;      /*!< The hash function selected by the user */
-    char *mode;      /*!< The encryption mode selected by the user */
-    char *key;       /*!< The key file for key generation */
-    char *password;  /*!< The password for key generation */
-    char *source;    /*!< The input file/stream */
-    char *output;    /*!< The output file/stream */
-    char *version;   /*!< The container version to use */
-    bool compress:1; /*!< Compress the file (with xz) before encrypting */
-    bool follow:1;   /*!< Follow symlinks or not */
-    bool nogui:1;    /*!< Skip the GUI (if it's available) */
+    char *cipher;            /*!< The cryptoraphic cipher selected by the user */
+    char *hash;              /*!< The hash function selected by the user */
+    char *mode;              /*!< The encryption mode selected by the user */
+    char *key;               /*!< The key file for key generation */
+    char *password;          /*!< The password for key generation */
+    char *source;            /*!< The input file/stream */
+    char *output;            /*!< The output file/stream */
+    char *version;           /*!< The container version to use */
+    key_source_e key_source; /*!< The expected key source (GUI only) */
+    bool compress:1;         /*!< Compress the file (with xz) before encrypting */
+    bool follow:1;           /*!< Follow symlinks or not */
+    bool nogui:1;            /*!< Skip the GUI (if it's available) */
 }
 args_t;
 

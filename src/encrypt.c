@@ -459,7 +459,7 @@ static inline void write_random_data(crypto_t *c)
     io_write(c->output, b, l);
     free(b);
 #endif
-    return;
+    return (void)c;
 }
 
 static int64_t count_entries(crypto_t *c, const char *dir)

@@ -56,14 +56,6 @@
 
 #define NONE_SELECTED "(None)"
 
-typedef enum
-{
-    KEY_NONE,
-    KEY_FILE,
-    KEY_PASSWORD
-}
-key_type_e;
-
 /*
  * FIXME There has to be a way to make gtk_file_chooser_set_filename
  * work correctly
@@ -82,10 +74,11 @@ static gboolean _files = false;
 static bool _encrypted = false;
 static bool _compress = true;
 static bool _follow = false;
+static key_source_e _key_source = KEY_SOURCE_PASSWORD;
 static version_e _version = VERSION_CURRENT;
 static crypto_status_e *_status = NULL;
 
-extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash)
+extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash, char *mode)
 {
     const char **ciphers = list_of_ciphers();
     unsigned slctd_cipher = 0;
@@ -121,6 +114,40 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
     }
     gtk_combo_box_set_active((GtkComboBox *)data->hash_combo, slctd_hash);
 
+    const char **modes = list_of_modes();
+    unsigned slctd_mode = 0;
+    for (unsigned i = 0; modes[i]; i++)
+    {
+        if (mode && !strcasecmp(modes[i], mode))
+        {
+            slctd_mode = i + 1;
+            log_message(LOG_VERBOSE, _("Selected %d is mode: %s"), slctd_mode, mode);
+        }
+#ifndef _WIN32
+        gtk_combo_box_text_append_text((GtkComboBoxText *)data->mode_combo, modes[i]);
+#else
+        gtk_combo_box_append_text((GtkComboBox *)data->mode_combo, modes[i]);
+#endif
+    }
+    gtk_combo_box_set_active((GtkComboBox *)data->mode_combo, slctd_mode);
+
+    return;
+}
+
+extern void set_key_source_menu(gtk_widgets_t *data, key_source_e source)
+{
+    switch (source)
+    {
+        case KEY_SOURCE_FILE:
+            gtk_check_menu_item_set_active((GtkCheckMenuItem *)data->key_file_menu_item, TRUE);
+            gtk_check_menu_item_set_active((GtkCheckMenuItem *)data->key_password_menu_item, FALSE);
+            break;
+        case KEY_SOURCE_PASSWORD:
+            gtk_check_menu_item_set_active((GtkCheckMenuItem *)data->key_file_menu_item, FALSE);
+            gtk_check_menu_item_set_active((GtkCheckMenuItem *)data->key_password_menu_item, TRUE);
+            break;
+    }
+    log_message(LOG_VERBOSE, _("Set key source: %s"), KEY_SOURCE[source]);
     return;
 }
 
@@ -195,7 +222,7 @@ G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *d
             {
                 gtk_widget_set_sensitive(data->crypto_combo, FALSE);
                 gtk_widget_set_sensitive(data->hash_combo, FALSE);
-                gtk_widget_set_sensitive(data->key_combo, FALSE);
+                gtk_widget_set_sensitive(data->mode_combo, FALSE);
                 gtk_widget_set_sensitive(data->key_button, FALSE);
             }
             gtk_widget_set_sensitive(data->encrypt_button, FALSE);
@@ -246,7 +273,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
              */
             char *c = NULL, *h = NULL, *m = NULL;
             if ((_encrypted = is_encrypted(open_file, &c, &h, &m)))
-                auto_select_algorithms(data, c, h);
+                auto_select_algorithms(data, c, h, m);
             gtk_button_set_label((GtkButton *)data->encrypt_button, _encrypted ? LABEL_DECRYPT : LABEL_ENCRYPT);
             en = TRUE;
             asprintf(&cwd, "%s", open_file);
@@ -285,10 +312,9 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
 
     _files = en;
 
-    if (_encrypted)
-        gtk_widget_set_sensitive(data->key_combo, en);
-    else
+    if (!_encrypted)
     {
+        gtk_widget_set_sensitive(data->mode_combo, en);
         gtk_widget_set_sensitive(data->crypto_combo, en);
         gtk_widget_set_sensitive(data->hash_combo, en);
         if (en)
@@ -302,58 +328,45 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_wi
 {
     int cipher = gtk_combo_box_get_active((GtkComboBox *)data->crypto_combo);
     int hash = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
+    int mode = gtk_combo_box_get_active((GtkComboBox *)data->mode_combo);
 
     gboolean en = _files;
 
-    if (cipher && hash)
+    if (cipher && hash && mode)
     {
         const char **ciphers = list_of_ciphers();
         const char **hashes = list_of_hashes();
+        const char **modes = list_of_modes();
 
         update_config(CONF_CIPHER, ciphers[cipher - 1]);
         update_config(CONF_HASH, hashes[hash - 1]);
+        update_config(CONF_MODE, modes[mode - 1]);
 
     }
     else
         en = FALSE;
 
-    gtk_widget_set_sensitive(data->key_combo, en);
     gtk_widget_set_sensitive(data->password_entry, en);
     gtk_widget_set_sensitive(data->key_button, en);
     gtk_widget_set_sensitive(data->encrypt_button, en);
-    if (en)
-        key_combo_callback(NULL, data);
 
     return (void)combo_box, TRUE;
 }
 
-G_MODULE_EXPORT gboolean key_combo_callback(GtkComboBox *combo_box, gtk_widgets_t *data)
+G_MODULE_EXPORT gboolean on_key_source_change(GtkWidget *widget, gtk_widgets_t *data)
 {
-    switch (gtk_combo_box_get_active(combo_box))
-    {
-        case KEY_FILE:
-            gtk_widget_set_sensitive(data->password_entry, FALSE);
-            gtk_widget_set_sensitive(data->key_button, TRUE);
-            gtk_widget_hide(data->password_entry);
-            gtk_widget_show(data->key_button);
-            key_dialog_okay(NULL, data);
-            break;
+    if (widget == data->key_file_menu_item)
+        _key_source = KEY_SOURCE_FILE;
+    else if (widget == data->key_password_menu_item)
+        _key_source = KEY_SOURCE_PASSWORD;
+    update_config(CONF_KEY, KEY_SOURCE[_key_source]);
 
-        case KEY_PASSWORD:
-            gtk_widget_set_sensitive(data->password_entry, TRUE);
-            gtk_widget_set_sensitive(data->key_button, FALSE);
-            gtk_widget_show(data->password_entry);
-            gtk_widget_hide(data->key_button);
-            password_entry_callback(NULL, data);
-            break;
+    gtk_widget_hide(_key_source == KEY_SOURCE_PASSWORD ? data->key_button : data->password_entry);
+    gtk_widget_show(_key_source == KEY_SOURCE_PASSWORD ? data->password_entry : data->key_button);
 
-        default:
-            gtk_widget_set_sensitive(data->password_entry, FALSE);
-            gtk_widget_set_sensitive(data->key_button, FALSE);
-            gtk_widget_set_sensitive(data->encrypt_button, FALSE);
-    }
+    log_message(LOG_EVERYTHING, _("Set key source: %s"), KEY_SOURCE[_key_source]);
 
-    return TRUE;
+    return (void)data, TRUE;
 }
 
 G_MODULE_EXPORT gboolean password_entry_callback(GtkComboBox *password_entry, gtk_widgets_t *data)
@@ -452,6 +465,8 @@ G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *widget, gtk_widgets_t *da
     _compress = gtk_check_menu_item_get_active((GtkCheckMenuItem *)widget);
     update_config(CONF_COMPRESS, _compress ? CONF_TRUE : CONF_FALSE);
 
+    log_message(LOG_EVERYTHING, _("Set compression: %s"), _compress ? _("on") : _("off"));
+
     return (void)data, TRUE;
 }
 
@@ -460,13 +475,18 @@ G_MODULE_EXPORT gboolean on_follow_toggle(GtkWidget *widget, gtk_widgets_t *data
     _follow = gtk_check_menu_item_get_active((GtkCheckMenuItem *)widget);
     update_config(CONF_FOLLOW, _follow ? CONF_TRUE : CONF_FALSE);
 
+    log_message(LOG_EVERYTHING, _("Set link traversal: %s"), _follow ? _("on") : _("off"));
+
     return (void)data, TRUE;
 }
 
 G_MODULE_EXPORT gboolean on_compatibility_change(GtkWidget *widget, gtk_widgets_t *data)
 {
     _version = parse_version(gtk_menu_item_get_label((GtkMenuItem *)widget));
-    update_config(CONF_VERSION, get_version_string(_version));
+    const char *v = get_version_string(_version);
+    update_config(CONF_VERSION, v);
+
+    log_message(LOG_EVERYTHING, _("Set link compatibility: %s"), v);
 
     return (void)data, TRUE;
 }
@@ -514,14 +534,14 @@ static void *gui_process(void *d)
 
     uint8_t *key = NULL;
     size_t length = 0;
-    switch (gtk_combo_box_get_active((GtkComboBox *)data->key_combo))
+    switch (_key_source)
     {
-        case KEY_FILE:
+        case KEY_SOURCE_FILE:
             key = (uint8_t *)strdup(_filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog)));
             length = 0;
             break;
 
-        case KEY_PASSWORD:
+        case KEY_SOURCE_PASSWORD:
             key = (uint8_t *)strdup(gtk_entry_get_text((GtkEntry *)data->password_entry));
             length = strlen((char *)key);
             break;
@@ -534,8 +554,7 @@ static void *gui_process(void *d)
     {
         int c = gtk_combo_box_get_active((GtkComboBox *)data->crypto_combo);
         int h = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
-        // FIXME add capability to gui
-        int m = 3;
+        int m = gtk_combo_box_get_active((GtkComboBox *)data->mode_combo);
         const char **ciphers = list_of_ciphers();
         const char **hashes = list_of_hashes();
         const char **modes = list_of_modes();

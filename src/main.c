@@ -160,7 +160,7 @@ int main(int argc, char **argv)
         CH_GET_WIDGET(builder, save_file_image, widgets);
         CH_GET_WIDGET(builder, crypto_combo, widgets);
         CH_GET_WIDGET(builder, hash_combo, widgets);
-        CH_GET_WIDGET(builder, key_combo, widgets);
+        CH_GET_WIDGET(builder, mode_combo, widgets);
         CH_GET_WIDGET(builder, password_entry, widgets);
         CH_GET_WIDGET(builder, key_button, widgets);
         CH_GET_WIDGET(builder, key_dialog, widgets);
@@ -179,6 +179,8 @@ int main(int argc, char **argv)
         CH_GET_WIDGET(builder, compress_menu_item, widgets);
         CH_GET_WIDGET(builder, follow_menu_item, widgets);
         CH_GET_WIDGET(builder, compat_menu, widgets);
+        CH_GET_WIDGET(builder, key_file_menu_item, widgets);
+        CH_GET_WIDGET(builder, key_password_menu_item, widgets);
 
         gtk_builder_connect_signals(builder, widgets);
         g_object_unref(G_OBJECT(builder));
@@ -200,12 +202,12 @@ int main(int argc, char **argv)
         }
         file_dialog_okay(NULL, widgets);
 
-        auto_select_algorithms(widgets, args.cipher, args.hash);
+        auto_select_algorithms(widgets, args.cipher, args.hash, args.mode);
         set_compatibility_menu(widgets, args.version);
+        set_key_source_menu(widgets, args.key_source);
 
         gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->compress_menu_item, args.compress);
         gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->follow_menu_item, args.follow);
-        gtk_combo_box_set_active((GtkComboBox *)widgets->key_combo, 0);
         set_status_bar((GtkStatusbar *)widgets->status_bar, STATUS_BAR_READY);
 
         gtk_main();

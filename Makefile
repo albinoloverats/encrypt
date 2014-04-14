@@ -29,7 +29,7 @@ gui:
 	@$(CC) $(CFLAGS) $(CPPFLAGS) $(GUIFLAGS) $(SOURCE) $(COMMON) $(GUI) $(LIBS) $(GUILIBS) -o $(APP)
 	-@echo "built \`$(SOURCE) $(COMMON) $(GUI)' --> \`$(APP)'"
 debug-gui:
-	@$(CC) $(CFLAGS) $(CPPFLAGS) $(GUIFLAGS) $(SOURCE) $(COMMON) $(GUI) $(LIBS) $(GUILIBS) $(DEBUGG) -o $(APP)
+	@$(CC) $(CFLAGS) $(CPPFLAGS) $(GUIFLAGS) $(SOURCE) $(COMMON) $(GUI) $(LIBS) $(GUILIBS) $(DEBUG) -o $(APP)
 	-@echo "built \`$(SOURCE) $(COMMON) $(GUI)' --> \`$(APP)'"
 
 language:

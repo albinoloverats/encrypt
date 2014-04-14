@@ -14,6 +14,9 @@ compress true
 # default is not to follow links but store the link itself.
 follow false
 
+# Default key source (GUI only). Either password or file.
+key password
+
 # Set the default cipher to use for encryption.
 cipher aes
 
@@ -21,7 +24,7 @@ cipher aes
 hash sha256
 
 # Set the default mode to use for encryption
-mode cbc
+mode ofb
 
 # Set the level of backwards compatibility, by version number.
 version 2014.00
