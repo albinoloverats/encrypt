@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copied with a few minor tweaks from the Linux Glade file -->
 <interface>
-  <!-- interface-requires gtk+ 3.0 -->
+  <!--<requires lib="gtk+" version="3.0"/>-->
   <object class="GtkAboutDialog" id="about_dialog">
     <property name="width_request">320</property>
     <property name="height_request">240</property>
@@ -45,7 +45,7 @@ libgcrypt is part of GNU
 http://www.gnu.org/software/libgcrypt/</property>
     <property name="artists">The logo is part of the Crystal Icon Theme by Everaldo Coelho
 http://www.everaldo.com/</property>
-    <property name="logo">C:\Program Files\encrypt\pixmaps\encrypt.png</property>
+    <property name="logo">C:\\Program Files\\encrypt\\pixmaps\\encrypt.png</property>
     <property name="license_type">gpl-3-0</property>
     <child internal-child="vbox">
       <object class="GtkHBox" id="about_dialog_vbox">
@@ -82,86 +82,7 @@ http://www.everaldo.com/</property>
   <object class="GtkImage" id="go_encrypt">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">C:\Program Files\encrypt\pixmaps\encrypt_button.png</property>
-  </object>
-  <object class="GtkFileChooserDialog" id="key_dialog">
-    <property name="width_request">640</property>
-    <property name="height_request">480</property>
-    <property name="can_focus">False</property>
-    <property name="border_width">5</property>
-    <property name="title" translatable="yes">Select Key ...</property>
-    <property name="role">GtkFileChooserDialog</property>
-    <property name="resizable">False</property>
-    <property name="modal">True</property>
-    <property name="window_position">center-on-parent</property>
-    <property name="default_width">640</property>
-    <property name="default_height">480</property>
-    <property name="destroy_with_parent">True</property>
-    <property name="icon_name">document-open</property>
-    <property name="type_hint">dialog</property>
-    <property name="skip_taskbar_hint">True</property>
-    <property name="skip_pager_hint">True</property>
-    <property name="create_folders">False</property>
-    <property name="do_overwrite_confirmation">True</property>
-    <child internal-child="vbox">
-      <object class="GtkHBox" id="filechooserdialog-vbox5">
-        <property name="width_request">640</property>
-        <property name="height_request">440</property>
-        <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox" id="filechooserdialog-action_area5">
-            <property name="can_focus">False</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="key_dialog_cancel">
-                <property name="label">gtk-cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="key_dialog_okay">
-                <property name="label">gtk-open</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="has_default">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-                <signal name="clicked" handler="key_dialog_okay" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-      </object>
-    </child>
-    <action-widgets>
-      <action-widget response="0">key_dialog_cancel</action-widget>
-      <action-widget response="0">key_dialog_okay</action-widget>
-    </action-widgets>
+    <property name="pixbuf">C:\\Program Files\\encrypt\\pixmaps\\encrypt_button.png</property>
   </object>
   <object class="GtkWindow" id="main_window">
     <property name="width_request">320</property>
@@ -171,7 +92,7 @@ http://www.everaldo.com/</property>
     <property name="resizable">False</property>
     <property name="default_width">320</property>
     <property name="default_height">480</property>
-    <property name="icon">C:\Program Files\encrypt\pixmaps\encrypt.png</property>
+    <property name="icon">C:\\Program Files\\encrypt\\pixmaps\\encrypt.png</property>
     <property name="gravity">center</property>
     <property name="has_resize_grip">False</property>
     <signal name="destroy" handler="gtk_main_quit" swapped="no"/>
@@ -200,8 +121,8 @@ http://www.everaldo.com/</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <accelerator key="q" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <signal name="activate" handler="gtk_main_quit" swapped="no"/>
+                        <accelerator key="q" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
                   </object>
@@ -231,11 +152,46 @@ http://www.everaldo.com/</property>
                     <child>
                       <object class="GtkCheckMenuItem" id="follow_menu_item">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">False</property>
                         <property name="label">_Follow Symlinks</property>
                         <property name="use_underline">True</property>
                         <signal name="toggled" handler="on_follow_toggle" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="key_menu_item">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">_Key Source</property>
+                        <property name="use_underline">True</property>
+                        <child type="submenu">
+                          <object class="GtkMenu" id="key_menu">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkRadioMenuItem" id="key_file_menu_item">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label">_Key File</property>
+                                <property name="use_underline">True</property>
+                                <property name="draw_as_radio">True</property>
+                                <property name="group">key_password_menu_item</property>
+                                <signal name="toggled" handler="on_key_source_change" swapped="no"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkRadioMenuItem" id="key_password_menu_item">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label">_Password</property>
+                                <property name="use_underline">True</property>
+                                <property name="draw_as_radio">True</property>
+                                <property name="group">key_file_menu_item</property>
+                                <signal name="toggled" handler="on_key_source_change" swapped="no"/>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
                       </object>
                     </child>
                   </object>
@@ -273,8 +229,8 @@ http://www.everaldo.com/</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <accelerator key="F1" signal="activate"/>
                         <signal name="activate" handler="on_about_open" swapped="no"/>
+                        <accelerator key="F1" signal="activate"/>
                       </object>
                     </child>
                   </object>
@@ -488,22 +444,20 @@ http://www.everaldo.com/</property>
               </packing>
             </child>
             <child>
-              <object class="GtkComboBoxText" id="key_combo">
+              <object class="GtkComboBoxText" id="mode_combo">
                 <property name="width_request">160</property>
                 <property name="height_request">24</property>
                 <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">False</property>
                 <property name="has_tooltip">True</property>
-                <property name="tooltip_markup" translatable="yes">Select Key Source</property>
-                <property name="tooltip_text" translatable="yes">Select Key Source</property>
+                <property name="tooltip_markup" translatable="yes">Select Cipher Mode</property>
+                <property name="tooltip_text" translatable="yes">Select Cipher Mode</property>
                 <property name="active">0</property>
                 <items>
-                  <item translatable="yes">Select Key Source</item>
-                  <item translatable="yes">Key File</item>
-                  <item translatable="yes">Passphrase</item>
+                  <item translatable="yes">Select Cipher Mode</item>
                 </items>
-                <signal name="changed" handler="key_combo_callback" swapped="no"/>
+                <signal name="changed" handler="algorithm_combo_callback" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -523,7 +477,6 @@ http://www.everaldo.com/</property>
                 <property name="visibility">False</property>
                 <property name="invisible_char">•</property>
                 <property name="truncate_multiline">True</property>
-                <property name="invisible_char_set">True</property>
                 <property name="primary_icon_stock">gtk-dialog-authentication</property>
                 <signal name="changed" handler="password_entry_callback" swapped="no"/>
               </object>
@@ -615,8 +568,8 @@ http://www.everaldo.com/</property>
                 <property name="has_default">True</property>
                 <property name="receives_default">True</property>
                 <property name="image">go_encrypt</property>
-                <accelerator key="Return" signal="clicked"/>
                 <signal name="clicked" handler="on_encrypt_button_clicked" swapped="no"/>
+                <accelerator key="Return" signal="clicked"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -649,6 +602,85 @@ http://www.everaldo.com/</property>
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkFileChooserDialog" id="key_dialog">
+    <property name="width_request">640</property>
+    <property name="height_request">480</property>
+    <property name="can_focus">False</property>
+    <property name="border_width">5</property>
+    <property name="title" translatable="yes">Select Key ...</property>
+    <property name="role">GtkFileChooserDialog</property>
+    <property name="resizable">False</property>
+    <property name="modal">True</property>
+    <property name="window_position">center-on-parent</property>
+    <property name="default_width">640</property>
+    <property name="default_height">480</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="icon_name">document-open</property>
+    <property name="type_hint">dialog</property>
+    <property name="skip_taskbar_hint">True</property>
+    <property name="skip_pager_hint">True</property>
+    <property name="create_folders">False</property>
+    <property name="do_overwrite_confirmation">True</property>
+    <child internal-child="vbox">
+      <object class="GtkHBox" id="filechooserdialog-vbox5">
+        <property name="width_request">640</property>
+        <property name="height_request">440</property>
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="filechooserdialog-action_area5">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="key_dialog_cancel">
+                <property name="label">gtk-cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="key_dialog_okay">
+                <property name="label">gtk-open</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="can_default">True</property>
+                <property name="has_default">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+                <signal name="clicked" handler="key_dialog_okay" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="0">key_dialog_cancel</action-widget>
+      <action-widget response="0">key_dialog_okay</action-widget>
+    </action-widgets>
   </object>
   <object class="GtkFileChooserDialog" id="open_dialog">
     <property name="width_request">640</property>
@@ -823,9 +855,9 @@ processes your file</property>
           </packing>
         </child>
         <child>
-          <object class="GtkButton" id="progress_close_button">
-            <property name="label">gtk-close</property>
-            <property name="sensitive">False</property>
+          <object class="GtkButton" id="progress_cancel_button">
+            <property name="label">gtk-cancel</property>
+            <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="halign">center</property>
@@ -840,9 +872,9 @@ processes your file</property>
           </packing>
         </child>
         <child>
-          <object class="GtkButton" id="progress_cancel_button">
-            <property name="label">gtk-cancel</property>
-            <property name="visible">True</property>
+          <object class="GtkButton" id="progress_close_button">
+            <property name="label">gtk-close</property>
+            <property name="sensitive">False</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="halign">center</property>
