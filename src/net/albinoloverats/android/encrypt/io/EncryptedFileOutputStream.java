@@ -57,12 +57,12 @@ public class EncryptedFileOutputStream extends FileOutputStream
         stream = new FileOutputStream(file);
     }
 
-    public IMessageDigest encryptionInit(final String cipher, final String hash, final byte[] key) throws NoSuchAlgorithmException, InvalidKeyException
+    public IMessageDigest encryptionInit(final String cipher, final String hash, final String mode, final byte[] key) throws NoSuchAlgorithmException, InvalidKeyException
     {
         IMessageDigest h = CryptoUtils.getHashAlgorithm(hash);
         final IBlockCipher c = CryptoUtils.getCipherAlgorithm(cipher);
         blockSize = c.defaultBlockSize();
-        this.cipher = ModeFactory.getInstance("CBC", c, blockSize);
+        this.cipher = ModeFactory.getInstance(mode, c, blockSize);
         h.update(key, 0, key.length);
         final byte[] keySource = h.digest();
         final Map<String, Object> attributes = new HashMap<String, Object>();

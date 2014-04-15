@@ -24,10 +24,12 @@ import gnu.crypto.cipher.CipherFactory;
 import gnu.crypto.cipher.IBlockCipher;
 import gnu.crypto.hash.HashFactory;
 import gnu.crypto.hash.IMessageDigest;
+import gnu.crypto.mode.ModeFactory;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -53,7 +55,7 @@ public abstract class CryptoUtils
         final Set<String> h = new TreeSet<String>();
         for (final Object o : s)
         {
-            String n = ((String)o).replace("-", "").toUpperCase();
+            String n = ((String)o).replace("-", "").toUpperCase(Locale.ENGLISH);
             if (n.equals(NAME_WHIRLPOOL))
                 n = NAME_WHIRLPOOL_T;
             h.add(n);
@@ -67,7 +69,7 @@ public abstract class CryptoUtils
             name = NAME_WHIRLPOOL;
         final Set<?> s = HashFactory.getNames();
         for (final Object o : s)
-            if (name.equals(((String)o).replace("-", "").toUpperCase()))
+            if (name.equals(((String)o).replace("-", "").toUpperCase(Locale.ENGLISH)))
                 return HashFactory.getInstance((String)o);
         throw new NoSuchAlgorithmException(name);
     }
@@ -78,7 +80,7 @@ public abstract class CryptoUtils
         final Set<String> h = new TreeSet<String>();
         for (final Object o : s)
         {
-            String n = ((String)o).replace("-", "").toUpperCase();
+            String n = ((String)o).replace("-", "").toUpperCase(Locale.ENGLISH);
             if (n.equals("NULL"))
                 continue;
             final Set<Integer> keySizes = new TreeSet<Integer>();
@@ -107,7 +109,7 @@ public abstract class CryptoUtils
         final Set<?> s = CipherFactory.getNames();
         for (final Object o : s)
         {
-            final String n = ((String)o).replace("-", "").toUpperCase();
+            final String n = ((String)o).replace("-", "").toUpperCase(Locale.ENGLISH);
             if (n.equals("NULL") || n.length() > name.length())
                 continue;
             if (name.substring(0, n.length()).equals(n))
@@ -136,7 +138,7 @@ public abstract class CryptoUtils
         final Set<?> s = CipherFactory.getNames();
         for (final Object o : s)
         {
-            final String n = ((String)o).replace("-", "").toUpperCase();
+            final String n = ((String)o).replace("-", "").toUpperCase(Locale.ENGLISH);
             if (n.equals("NULL") || n.length() > name.length())
                 continue;
             if (name.substring(0, n.length()).equals(n))
@@ -156,5 +158,16 @@ public abstract class CryptoUtils
             }
         }
         return 0;
+    }
+
+    public static Set<String> getCipherModeNames()
+    {
+        final Set<String> modes = new TreeSet<String>();
+        modes.add(ModeFactory.ECB_MODE);
+        modes.add(ModeFactory.CBC_MODE);
+        modes.add(ModeFactory.CFB_MODE);
+        modes.add(ModeFactory.OFB_MODE);
+        modes.add(ModeFactory.CTR_MODE);
+        return modes;
     }
 }

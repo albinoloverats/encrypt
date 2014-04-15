@@ -44,6 +44,7 @@ public abstract class Crypto extends Thread implements Runnable
     protected String path;
     protected String cipher;
     protected String hash;
+    protected String mode;
     protected byte[] key;
 
     public Status status = Status.INIT;

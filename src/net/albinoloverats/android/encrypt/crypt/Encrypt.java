@@ -20,6 +20,7 @@
 
 package net.albinoloverats.android.encrypt.crypt;
 
+import gnu.crypto.mode.ModeFactory;
 import gnu.crypto.util.PRNG;
 
 import java.io.File;
@@ -53,7 +54,7 @@ public class Encrypt extends Crypto
     private Map<Long, Path> inodes = new HashMap<Long, Path>();
      */
 
-    public Encrypt(final String source, final String output, final String cipher, final String hash, final boolean compress, final boolean follow, final Version version) throws CryptoProcessException
+    public Encrypt(final String source, final String output, final String cipher, final String hash, final String mode, final boolean compress, final boolean follow, final Version version) throws CryptoProcessException
     {
         super();
 
@@ -102,6 +103,8 @@ public class Encrypt extends Crypto
             case _201302:
                 follow_links = false;
             case _201311:
+                this.mode = ModeFactory.CBC_MODE;
+                break;
             case _201400:
             case CURRENT:
                 break;
@@ -118,19 +121,11 @@ public class Encrypt extends Crypto
             status = Status.RUNNING;
 
             writeHeader();
-            checksum = ((EncryptedFileOutputStream)output).encryptionInit(cipher, hash, key);
+            checksum = ((EncryptedFileOutputStream)output).encryptionInit(cipher, hash, mode, key);
 
             boolean preRandom = true;
-            switch (version)
-            {
-                case _201108:
-                case _201110:
-                case _201211:
-                    preRandom = false;
-                    break;
-                default:
-                    break;
-            }
+            if (version.compareTo(Version._201211) <= 0)
+                preRandom = false;
             if (preRandom)
                 writeRandomData();
 
@@ -202,7 +197,9 @@ public class Encrypt extends Crypto
         output.write(Convert.toBytes(HEADER[0]));
         output.write(Convert.toBytes(HEADER[1]));
         output.write(Convert.toBytes(HEADER[2]));
-        final String algorithms = cipher + "/" + hash;
+        String algorithms = cipher + "/" + hash;
+        if (version.compareTo(Version._201400) >= 0)
+            algorithms.concat("/" + mode);
         output.write((byte)algorithms.length());
         output.write(algorithms.getBytes());
     }

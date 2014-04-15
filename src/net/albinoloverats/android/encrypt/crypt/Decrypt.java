@@ -71,7 +71,7 @@ public class Decrypt extends Crypto
             status = Status.RUNNING;
 
             readVersion();
-            checksum = ((EncryptedFileInputStream)source).encryptionInit(cipher, hash, key, version == Version._201108 || version == Version._201110);
+            checksum = ((EncryptedFileInputStream)source).encryptionInit(cipher, hash, mode, key, version == Version._201108 || version == Version._201110);
 
             boolean skipRandom = false;
             switch (version)

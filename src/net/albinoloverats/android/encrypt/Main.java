@@ -71,6 +71,7 @@ public class Main extends Activity
 
     private Set<String> cipherNames;
     private Set<String> hashNames;
+    private Set<String> modeNames;
 
     private DoubleProgressDialog dProgressDialog;
     private ProgressThread progressThread;
@@ -85,6 +86,7 @@ public class Main extends Activity
     private boolean encrypting = true;
     private String hash;
     private String cipher;
+    private String mode;
     private String password;
     private String key;
 
@@ -185,14 +187,48 @@ public class Main extends Activity
         });
         hSpinner.setEnabled(false);
 
+        final Spinner mSpinner = (Spinner)findViewById(R.id.spin_crypto);
+        final ArrayAdapter<CharSequence> modeSpinAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
+        modeSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpinner.setAdapter(modeSpinAdapter);
+        mSpinner.setOnItemSelectedListener(new OnItemSelectedListener()
+        {
+            @Override
+            public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id)
+            {
+                int i = 0;
+                for (final Iterator<String> iterator = modeNames.iterator(); iterator.hasNext(); i++)
+                    if (position > 0 && i == position - 1)
+                        mode = iterator.next();
+                    else
+                    {
+                        if (position == 0)
+                            mode = null;
+                        iterator.next();
+                    }
+                checkEnableButtons();
+            }
+
+            @Override
+            public void onNothingSelected(final AdapterView<?> parent)
+            {
+                ;
+            }
+        });
+        mSpinner.setEnabled(false);
+
         // populate algorithm spinners
         cipherNames = CryptoUtils.getCipherAlgorithmNames();
         hashNames = CryptoUtils.getHashAlgorithmNames();
+        modeNames = CryptoUtils.getCipherModeNames();
         cipherSpinAdapter.add(getString(R.string.choose_cipher));
         for (final String s : cipherNames)
             cipherSpinAdapter.add(s);
         hashSpinAdapter.add(getString(R.string.choose_hash));
         for (final String s : hashNames)
+            hashSpinAdapter.add(s);
+        modeSpinAdapter.add(getString(R.string.choose_mode));
+        for (final String s : modeNames)
             hashSpinAdapter.add(s);
 
         // get reference to password text box
@@ -548,7 +584,7 @@ public class Main extends Activity
             Crypto c = null;
             try
             {
-                c = encrypting ? new Encrypt(filenameIn, filenameOut, cipher, hash, compress, follow, version) : new Decrypt(filenameIn, filenameOut);
+                c = encrypting ? new Encrypt(filenameIn, filenameOut, cipher, hash, mode, compress, follow, version) : new Decrypt(filenameIn, filenameOut);
                 c.setKey(key_file ? new File(key) : password.getBytes());
                 c.start();
 
