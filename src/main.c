@@ -291,8 +291,7 @@ static bool list_ciphers(void)
 {
     const char **l = list_of_ciphers();
     for (int i = 0; l[i] ; i++)
-        if (strlen(l[i]))
-            fprintf(stderr, "%s\n", l[i]);
+        fprintf(stderr, "%s\n", l[i]);
     return true;
 }
 
@@ -300,8 +299,7 @@ static bool list_hashes(void)
 {
     const char **l = list_of_hashes();
     for (int i = 0; l[i]; i++)
-        if (strlen(l[i]))
-            fprintf(stderr, "%s\n", l[i]);
+        fprintf(stderr, "%s\n", l[i]);
     return true;
 }
 
@@ -309,7 +307,6 @@ static bool list_modes(void)
 {
     const char **l = list_of_modes();
     for (int i = 0; l[i]; i++)
-        if (strlen(l[i]))
-            fprintf(stderr, "%s\n", l[i]);
+        fprintf(stderr, "%s\n", l[i]);
     return true;
 }

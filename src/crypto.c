@@ -187,7 +187,7 @@ extern const char **list_of_ciphers(void)
 {
     init_crypto();
 
-    int lid[0xff] = { 0x00 };
+    enum gcry_cipher_algos lid[0xff] = { GCRY_CIPHER_NONE };
     int len = 0;
     enum gcry_cipher_algos id = GCRY_CIPHER_NONE;
     for (unsigned i = 0; i < sizeof lid; i++)
@@ -202,7 +202,7 @@ extern const char **list_of_ciphers(void)
     static char **l = NULL;
     if (!l)
     {
-        if (!(l = malloc(sizeof( char * ))))
+        if (!(l = calloc(len, sizeof( char * ))))
             die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
         int j = 0;
         for (int i = 0; i < len; i++)
@@ -219,10 +219,6 @@ extern const char **list_of_ciphers(void)
             else
                 l[j] = strdup(n);
             j++;
-            char **x = realloc(l, (j + 1) * sizeof( char * ));
-            if (!x)
-                die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, (j + 1) * sizeof( char * ));
-            l = x;
         }
         l[j] = NULL;
         qsort(l, j, sizeof( char * ), algorithm_compare);
@@ -234,7 +230,7 @@ extern const char **list_of_hashes(void)
 {
     init_crypto();
 
-    int lid[0xff] = { 0x00 };
+    enum gcry_md_algos lid[0xff] = { GCRY_MD_NONE };
     int len = 0;
     enum gcry_md_algos id = GCRY_MD_NONE;
     for (unsigned i = 0; i < sizeof lid; i++)
@@ -249,7 +245,7 @@ extern const char **list_of_hashes(void)
     static char **l = NULL;
     if (!l)
     {
-        if (!(l = malloc(sizeof( char * ))))
+        if (!(l = calloc(len, sizeof( char * ))))
             die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
         int j = 0;
         for (int i = 0; i < len; i++)
@@ -262,10 +258,6 @@ extern const char **list_of_hashes(void)
             else
                 l[j] = strdup(n);
             j++;
-            char **x = realloc(l, (j + 1) * sizeof( char * ));
-            if (!x)
-                die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, (j + 1) * sizeof( char * ));
-            l = x;
         }
         l[j] = NULL;
         qsort(l, j, sizeof( char * ), algorithm_compare);

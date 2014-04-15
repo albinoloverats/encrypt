@@ -338,9 +338,12 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_wi
         const char **hashes = list_of_hashes();
         const char **modes = list_of_modes();
 
-        update_config(CONF_CIPHER, ciphers[cipher - 1]);
-        update_config(CONF_HASH, hashes[hash - 1]);
-        update_config(CONF_MODE, modes[mode - 1]);
+        if (cipher > 0)
+            update_config(CONF_CIPHER, ciphers[cipher - 1]);
+        if (hash > 0)
+            update_config(CONF_HASH, hashes[hash - 1]);
+        if (mode > 0)
+            update_config(CONF_MODE, modes[mode - 1]);
 
     }
     else
