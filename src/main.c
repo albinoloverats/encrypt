@@ -135,11 +135,6 @@ int main(int argc, char **argv)
     {
         builder = gtk_builder_new();
         char *glade_ui_file = GLADE_UI_FILE;
-#ifdef _WIN32
-        struct stat s;
-        if (stat(glade_ui_file, &s) != 0)
-            glade_ui_file = GLADE_2x_FILE;
-#endif
         if (!gtk_builder_add_from_file(builder, glade_ui_file, &error))
             die(_("%s"), error->message);
         /*
@@ -188,15 +183,23 @@ int main(int argc, char **argv)
 
         if (args.source)
         {
+#ifndef _WIN32
             char *cwd = getcwd(NULL, 0);
             asprintf(&gui_file_hack_source, "%s/%s", cwd, args.source);
+#else
+            asprintf(&gui_file_hack_source, "%s", args.source);
+#endif
             gtk_file_chooser_set_filename((GtkFileChooser *)widgets->open_dialog, gui_file_hack_source);
             free(cwd);
         }
         if (args.output)
         {
+#ifndef _WIN32
             char *cwd = getcwd(NULL, 0);
             asprintf(&gui_file_hack_output, "%s/%s", cwd, args.output);
+#else
+            asprintf(&gui_file_hack_output, "%s", args.output);
+#endif
             gtk_file_chooser_set_filename((GtkFileChooser *)widgets->save_dialog, gui_file_hack_output);
             free(cwd);
         }

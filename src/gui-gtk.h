@@ -36,8 +36,7 @@
         #define GLADE_UI_FILE "/usr/share/encrypt/" "encrypt.glade"
     #endif
 #else
-    #define GLADE_UI_FILE "etc\\encrypt_w32.glade"
-    #define GLADE_2x_FILE "etc\\encrypt_w64.glade"
+    #define GLADE_UI_FILE "etc\\encrypt_win.glade"
 #endif
 
 typedef struct gtk_widgets_t
