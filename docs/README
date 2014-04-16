@@ -1,5 +1,8 @@
 encrypt - 2014.00                                                 ? 2014
---------------------
+====================
+
+Done
+----
 
 * Add option to not start up the GUI (needed it so I can encrypt/decrypt
   on the fly with Vim).
@@ -12,3 +15,11 @@ encrypt - 2014.00                                                 ? 2014
 * Add Encrypt/Decrypt option to Windows Explorer file context menu
 * Fix disappearing keyboard bug on Android
 * Choosing an algorithm (GUI) will leave it as the default for next time
+
+TODO
+----
+
+* File context menu for
+  - Thunar
+  - Nautilus (or Files or whatever it's called now)
+  - Konqueror or Dolphin

@@ -17,8 +17,7 @@ Planned Future Enhancements
 encrypt - 2014.00                                                 ? 2014
 --------------------
 
-Add option to not start up the GUI (I needed it so I can encrypt/decrypt
-on the fly with Vim).
+See the README for new features/bug fixes…
 
 
 encrypt - 2013.11.01                                       25th Jan 2014
