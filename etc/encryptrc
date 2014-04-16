@@ -1,7 +1,7 @@
 # (Example) encrypt configuration file
 #
-# Copy to ~/.encryptrc on Unix systems and %INSTALL_DIR%\etc\_encryptrc
-# on MS Windows.
+# Copy to ~/.encryptrc on Unix systems and on MS Windows
+# %USER_HOME%\Local Settings\Application Data\_encryptrc
 #
 # Boolean options accept values of true/on/enabled or false/off/disabled
 # and free text should match command line options.
