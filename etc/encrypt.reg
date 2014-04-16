@@ -1,4 +1,0 @@
-REGEDIT4
-
-[HKEY_CLASSES_ROOT\*\shell\Encrypt/Decrypt\command]
-@="C:\\Program Files (x86)\\encrypt\\encrypt.exe \"%1\""
