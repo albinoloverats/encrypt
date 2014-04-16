@@ -33,6 +33,7 @@
 #include "common/logging.h"
 
 #ifdef _WIN32
+    #include <Shlobj.h>
     #include "common/win32_ext.h"
     extern char *program_invocation_short_name;
 #endif
@@ -71,9 +72,16 @@ extern args_t init(int argc, char **argv)
      * check for options in rc file (~/.encryptrc)
      */
     char *rc = NULL;
+#ifndef _WIN32
     if (!asprintf(&rc, "%s/%s", getenv("HOME") ? : ".", ENCRYPTRC))
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(getenv("HOME")) + strlen(ENCRYPTRC) + 2);
-
+#else
+    if (!(rc = calloc(MAX_PATH, sizeof( char ))))
+        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, MAX_PATH);
+    SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, rc);
+    strcat(rc, "\\");
+    strcat(rc, ENCRYPTRC);
+#endif
     FILE *f = fopen(rc, "rb");
     if (f)
     {
@@ -240,11 +248,18 @@ extern void update_config(const char * const restrict o, const char * const rest
         return;
 
     char *rc = NULL;
+#ifndef _WIN32
     if (!asprintf(&rc, "%s/%s", getenv("HOME") ? : ".", ENCRYPTRC))
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(getenv("HOME")) + strlen(ENCRYPTRC) + 2);
-
+#else
+    if (!(rc = calloc(MAX_PATH, sizeof( char ))))
+        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, MAX_PATH);
+    SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, rc);
+    strcat(rc, "\\");
+    strcat(rc, ENCRYPTRC);
+#endif
     FILE *f = fopen(rc, "rb+");
-    if (!f)
+    if (!f) /* file doesn't exist, so create it */
         f = fopen(rc, "wb+");
     if (f)
     {
@@ -254,8 +269,7 @@ extern void update_config(const char * const restrict o, const char * const rest
         bool found = false;
 
         for (int i = 0; i < 2; i++)
-        {
-            /*
+        {   /*
              * first iteration: read rc file and change the value
              * second iteration: read from tmpfile back into rc file
              */
@@ -264,7 +278,7 @@ extern void update_config(const char * const restrict o, const char * const rest
                 if (!i && (!strncmp(o, line, strlen(o)) && isspace(line[strlen(o)])))
                 {
                     asprintf(&line, "%s %s\n", o, v);
-                    log_message(LOG_VERBOSE, "Updated %s to %s in config file", o, v);
+                    log_message(LOG_VERBOSE, _("Updated %s to %s in config file"), o, v);
                     found = true;
                 }
                 fprintf(t, "%s", line);
@@ -298,7 +312,7 @@ extern void update_config(const char * const restrict o, const char * const rest
 
 static void print_version(void)
 {
-    char *app_name = !strcmp(program_invocation_short_name, APP_NAME) ? APP_NAME : ALT_NAME;
+    char *app_name = !strncasecmp(program_invocation_short_name, APP_NAME, strlen(APP_NAME)) ? APP_NAME : ALT_NAME;
     char *git = strndup(GIT_COMMIT, GIT_COMMIT_LENGTH);
     fprintf(stderr, _("%s version : %s\n%*s built on: %s %s\n      git commit: %s\n"), app_name, ENCRYPT_VERSION, (int)strlen(app_name), "", __DATE__, __TIME__, git);
     free(git);
@@ -307,8 +321,8 @@ static void print_version(void)
 
 static void print_usage(void)
 {
-    char *app_name = !strcmp(program_invocation_short_name, APP_NAME) ? APP_NAME : ALT_NAME;
-    char *app_usage = !strcmp(program_invocation_short_name, APP_NAME) ? APP_USAGE : ALT_USAGE;
+    char *app_name = !strncasecmp(program_invocation_short_name, APP_NAME, strlen(APP_NAME)) ? APP_NAME : ALT_NAME;
+    char *app_usage = !strncasecmp(program_invocation_short_name, APP_NAME, strlen(APP_NAME)) ? APP_USAGE : ALT_USAGE;
     fprintf(stderr, _("Usage:\n  %s %s\n"), app_name, app_usage);
     return;
 }
@@ -326,7 +340,7 @@ extern void show_help(void)
     fprintf(stderr, _("  -d, --debug [log level]      Turn on debugging [to specified level]\n"));
     fprintf(stderr, _("  -q, --quiet                  Turn off all but serious error messages\n"));
     fprintf(stderr, _("  -g, --nogui                  Do not use the GUI, even if it's available\n"));
-    if (!strcmp(program_invocation_short_name, APP_NAME))
+    if (!strncasecmp(program_invocation_short_name, APP_NAME, strlen(APP_NAME)))
     {
         fprintf(stderr, _("  -c, --cipher=<algorithm>     Algorithm to use to encrypt data\n"));
         fprintf(stderr, _("  -s, --hash=<algorithm>       Hash algorithm to generate key\n"));
@@ -334,14 +348,14 @@ extern void show_help(void)
     }
     fprintf(stderr, _("  -k, --key=<key file>         File whose data will be used to generate the key\n"));
     fprintf(stderr, _("  -p, --password=<password>    Password used to generate the key\n"));
-    if (!strcmp(program_invocation_short_name, APP_NAME))
+    if (!strncasecmp(program_invocation_short_name, APP_NAME, strlen(APP_NAME)))
     {
         fprintf(stderr, _("  -x, --no-compress            Do not compress the plaintext using the xz algorithm\n"));
         fprintf(stderr, _("  -f, --follow                 Follow symlinks, the default is to store the link itself\n"));
         fprintf(stderr, _("  -b, --back-compat=<version>  Create an encrypted file that is backwards compatible\n"));
     }
     fprintf(stderr, _("\nNotes:\n  If you do not supply a key or password, you will be prompted for one.\n"));
-    if (!strcmp(program_invocation_short_name, APP_NAME))
+    if (!strncasecmp(program_invocation_short_name, APP_NAME, strlen(APP_NAME)))
     {
         fprintf(stderr, _("  To see a list of available algorithms or modes use list as the argument.\n"));
     }
@@ -375,7 +389,7 @@ static bool parse_config_boolean(const char *c, const char *l, bool d)
     else if (!strcasecmp(CONF_FALSE, v) || !strcasecmp(CONF_OFF, v) || !strcasecmp(CONF_DISABLED, v))
         r = false;
     else
-        log_message(LOG_WARNING, "Unknown value %s for %s in config file; using default : %s", v, c, d ? "true" : "false");
+        log_message(LOG_WARNING, _("Unknown value %s for %s in config file; using default : %s"), v, c, d ? _("true") : _("false"));
     free(v);
     return r;
 }

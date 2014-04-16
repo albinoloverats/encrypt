@@ -582,7 +582,7 @@ static void io_do_compress(io_private_t *io_ptr)
     lzf[0].options = &lzo;
     lzf[1].id = LZMA_VLI_UNKNOWN;
     if (lzma_stream_encoder(&io_ptr->lzma_handle, lzf, LZMA_CHECK_NONE) != LZMA_OK)
-        return (log_message(LOG_ERROR, "Could not setup liblzma for compression!") , (void)NULL);
+        return (log_message(LOG_ERROR, _("Could not setup liblzma for compression!")) , (void)NULL);
     io_ptr->lzma_init = true;
     return;
 }
@@ -593,7 +593,7 @@ static void io_do_decompress(io_private_t *io_ptr)
     io_ptr->lzma_handle = l;
 
     if (lzma_stream_decoder(&io_ptr->lzma_handle, UINT64_MAX, 0/*LZMA_CONCATENATED*/) != LZMA_OK)
-        return (log_message(LOG_ERROR, "Could not setup liblzma for decompression!") , (void)NULL);
+        return (log_message(LOG_ERROR, _("Could not setup liblzma for decompression!")) , (void)NULL);
 
     io_ptr->lzma_init = true;
     return;

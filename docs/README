@@ -19,6 +19,7 @@ Done
 TODO
 ----
 
+* Store rc file in user home (Windows)
 * File context menu for
   - Thunar
   - Nautilus (or Files or whatever it's called now)

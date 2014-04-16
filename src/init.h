@@ -27,11 +27,7 @@
 #define APP_USAGE "[source] [destination] [-c algorithm] [-s algorithm] [-m mode] [-k key/-p password] [-x] [-f] [-b version]"
 #define ALT_USAGE "[-k key/-p password] [input] [output]"
 
-#ifndef _WIN32
-    #define ENCRYPTRC ".encryptrc"
-#else
-    #define ENCRYPTRC "etc\\_encryptrc"
-#endif
+#define ENCRYPTRC ".encryptrc"
 
 #define CONF_COMPRESS "compress"
 #define CONF_FOLLOW   "follow"

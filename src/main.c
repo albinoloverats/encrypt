@@ -68,6 +68,8 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef _WIN32
+    setbuf(stdout, NULL);
+    setbuf(stderr, NULL);
     program_invocation_short_name = strdup(argv[0]);
 #endif
     args_t args = init(argc, argv);
@@ -134,8 +136,7 @@ int main(int argc, char **argv)
     if (gtk_init_check(&argc, &argv))
     {
         builder = gtk_builder_new();
-        char *glade_ui_file = GLADE_UI_FILE;
-        if (!gtk_builder_add_from_file(builder, glade_ui_file, &error))
+        if (!gtk_builder_add_from_file(builder, GLADE_UI_FILE, &error))
             die(_("%s"), error->message);
         /*
          * allocate widgets structure
@@ -186,22 +187,22 @@ int main(int argc, char **argv)
 #ifndef _WIN32
             char *cwd = getcwd(NULL, 0);
             asprintf(&gui_file_hack_source, "%s/%s", cwd, args.source);
+            free(cwd);
 #else
             asprintf(&gui_file_hack_source, "%s", args.source);
 #endif
             gtk_file_chooser_set_filename((GtkFileChooser *)widgets->open_dialog, gui_file_hack_source);
-            free(cwd);
         }
         if (args.output)
         {
 #ifndef _WIN32
             char *cwd = getcwd(NULL, 0);
             asprintf(&gui_file_hack_output, "%s/%s", cwd, args.output);
+            free(cwd);
 #else
             asprintf(&gui_file_hack_output, "%s", args.output);
 #endif
             gtk_file_chooser_set_filename((GtkFileChooser *)widgets->save_dialog, gui_file_hack_output);
-            free(cwd);
         }
         file_dialog_okay(NULL, widgets);
 

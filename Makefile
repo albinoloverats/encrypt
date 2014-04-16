@@ -41,7 +41,7 @@ man:
 	-@echo "compressing \`docs/encrypt.1a' --> \`encrypt.1a.gz"
 
 install: man
-# install the main executible, also link decrypt
+# install the main executable, also link decrypt
 	 @install -c -m 755 -s -D -T encrypt $(PREFIX)/usr/bin/encrypt
 	-@echo "installed \`encrypt' --> \`$(PREFIX)/usr/bin/encrypt'"
 	 @ln -f ${PREFIX}/usr/bin/encrypt ${PREFIX}/usr/bin/decrypt
@@ -54,6 +54,9 @@ install: man
 # next encrypt.glade
 	 @install -c -m 644 -D -T etc/encrypt.glade $(PREFIX)/usr/share/encrypt/encrypt.glade
 	-@echo "installed \`etc/encrypt.glade' --> \`$(PREFIX)/usr/share/encrypt/encrypt.glade'"
+# and an example rc file
+	 @install -c -m 644 -D -T etc/_encryptrc $(PREFIX)/usr/share/encrypt/_encryptrc
+	-@echo "installed \`etc/_encryptrc' --> \`$(PREFIX)/usr/share/encrypt/_encryptrc'"
 # ditto, but this time for the man page
 	 @install -c -m 644 -D -T encrypt.1a.gz $(PREFIX)/usr/share/man/man1/encrypt.1a.gz
 	-@echo "installed \`encrypt.1a.gz' --> \`$(PREFIX)/usr/share/man/man1/encrypt.1a.gz'"
