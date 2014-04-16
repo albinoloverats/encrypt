@@ -26,10 +26,10 @@ import java.util.Iterator;
 import java.util.Set;
 
 import net.albinoloverats.android.encrypt.crypt.Crypto;
+import net.albinoloverats.android.encrypt.crypt.CryptoProcessException;
 import net.albinoloverats.android.encrypt.crypt.CryptoUtils;
 import net.albinoloverats.android.encrypt.crypt.Decrypt;
 import net.albinoloverats.android.encrypt.crypt.Encrypt;
-import net.albinoloverats.android.encrypt.crypt.CryptoProcessException;
 import net.albinoloverats.android.encrypt.crypt.Status;
 import net.albinoloverats.android.encrypt.crypt.Version;
 import android.app.Activity;
@@ -43,6 +43,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -84,8 +86,8 @@ public class Main extends Activity
     private String filenameIn;
     private String filenameOut;
     private boolean encrypting = true;
-    private String hash;
     private String cipher;
+    private String hash;
     private String mode;
     private String password;
     private String key;
@@ -97,6 +99,11 @@ public class Main extends Activity
         setContentView(R.layout.main);
 
         context = this;
+
+        final SharedPreferences settings = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), 0);
+        cipher = settings.getString(Options.CIPHER.toString(), null);
+        hash = settings.getString(Options.HASH.toString(), null);
+        mode = settings.getString(Options.MODE.toString(), null);
 
         // setup the file chooser button
         final Button fChooser = (Button)findViewById(R.id.button_file);
@@ -139,7 +146,10 @@ public class Main extends Activity
                 int i = 0;
                 for (final Iterator<String> iterator = cipherNames.iterator(); iterator.hasNext(); i++)
                     if (position > 0 && i == position - 1)
+                    {
                         cipher = iterator.next();
+                        storePreferences();
+                    }
                     else
                     {
                         if (position == 0)
@@ -169,7 +179,10 @@ public class Main extends Activity
                 int i = 0;
                 for (final Iterator<String> iterator = hashNames.iterator(); iterator.hasNext(); i++)
                     if (i > 0 && i == position - 1)
+                    {
                         hash = iterator.next();
+                        storePreferences();
+                    }
                     else
                     {
                         if (position == 0)
@@ -187,7 +200,7 @@ public class Main extends Activity
         });
         hSpinner.setEnabled(false);
 
-        final Spinner mSpinner = (Spinner)findViewById(R.id.spin_crypto);
+        final Spinner mSpinner = (Spinner)findViewById(R.id.spin_mode);
         final ArrayAdapter<CharSequence> modeSpinAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
         modeSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinner.setAdapter(modeSpinAdapter);
@@ -199,7 +212,10 @@ public class Main extends Activity
                 int i = 0;
                 for (final Iterator<String> iterator = modeNames.iterator(); iterator.hasNext(); i++)
                     if (position > 0 && i == position - 1)
+                    {
                         mode = iterator.next();
+                        storePreferences();
+                    }
                     else
                     {
                         if (position == 0)
@@ -222,14 +238,32 @@ public class Main extends Activity
         hashNames = CryptoUtils.getHashAlgorithmNames();
         modeNames = CryptoUtils.getCipherModeNames();
         cipherSpinAdapter.add(getString(R.string.choose_cipher));
+        int i = 1;
         for (final String s : cipherNames)
+        {
             cipherSpinAdapter.add(s);
+            if (s.equals(cipher))
+                cSpinner.setSelection(i);
+            i++;
+        }
         hashSpinAdapter.add(getString(R.string.choose_hash));
+        i = 1;
         for (final String s : hashNames)
+        {
             hashSpinAdapter.add(s);
+            if (s.equals(hash))
+                hSpinner.setSelection(i);
+            i++;
+        }
         modeSpinAdapter.add(getString(R.string.choose_mode));
+        i = 1;
         for (final String s : modeNames)
-            hashSpinAdapter.add(s);
+        {
+            modeSpinAdapter.add(s);
+            if (s.equals(mode))
+                mSpinner.setSelection(i);
+            i++;
+        }
 
         // get reference to password text box
         final EditText pEntry = (EditText)findViewById(R.id.text_password);
@@ -292,7 +326,6 @@ public class Main extends Activity
 
         fChooser.requestFocus();
 
-        final SharedPreferences settings = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), 0);
         compress = settings.getBoolean(Options.COMPRESS.toString(), true);
         follow = settings.getBoolean(Options.FOLLOW.toString(), false);
         key_file = settings.getBoolean(Options.KEY.toString(), false);
@@ -317,6 +350,9 @@ public class Main extends Activity
     private void storePreferences()
     {
         final SharedPreferences.Editor editor = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), 0).edit();
+        editor.putString(Options.CIPHER.toString(), cipher);
+        editor.putString(Options.HASH.toString(), hash);
+        editor.putString(Options.MODE.toString(), mode);
         editor.putBoolean(Options.COMPRESS.toString(), compress);
         editor.putBoolean(Options.FOLLOW.toString(), follow);
         editor.putBoolean(Options.KEY.toString(), key_file);
@@ -528,12 +564,14 @@ public class Main extends Activity
     {
         final Spinner cSpinner = (Spinner)findViewById(R.id.spin_crypto);
         final Spinner hSpinner = (Spinner)findViewById(R.id.spin_hash);
+        final Spinner mSpinner = (Spinner)findViewById(R.id.spin_mode);
         final EditText passwd = (EditText)findViewById(R.id.text_password);
         final Button keyButton = (Button)findViewById(R.id.button_key);
         final Button encButton = (Button)findViewById(R.id.button_go);
 
         hSpinner.setEnabled(false);
         cSpinner.setEnabled(false);
+        mSpinner.setEnabled(false);
         passwd.setEnabled(false);
         keyButton.setEnabled(false);
         encButton.setEnabled(false);
@@ -546,10 +584,11 @@ public class Main extends Activity
             encButton.setText(R.string.encrypt);
             if (filenameIn != null && filenameOut != null)
             {
-                hSpinner.setEnabled(true);
                 cSpinner.setEnabled(true);
+                hSpinner.setEnabled(true);
+                mSpinner.setEnabled(true);
             }
-            if (cipher != null && hash != null)
+            if (cipher != null && hash != null && mode != null)
             {
                 passwd.setEnabled(true);
                 keyButton.setEnabled(true);
@@ -582,6 +621,11 @@ public class Main extends Activity
         {
             Status s = null;
             Crypto c = null;
+
+            final PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+            final WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "encryptLock");
+            wakeLock.acquire();
+
             try
             {
                 c = encrypting ? new Encrypt(filenameIn, filenameOut, cipher, hash, mode, compress, follow, version) : new Decrypt(filenameIn, filenameOut);
@@ -617,6 +661,10 @@ public class Main extends Activity
                 s = Status.FAILED_OTHER;
                 if (c != null)
                     c.status = s;
+            }
+            finally
+            {
+                wakeLock.release();
             }
 
             if (c != null)

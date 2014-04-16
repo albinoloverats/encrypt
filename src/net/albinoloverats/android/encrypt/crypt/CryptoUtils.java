@@ -163,11 +163,11 @@ public abstract class CryptoUtils
     public static Set<String> getCipherModeNames()
     {
         final Set<String> modes = new TreeSet<String>();
-        modes.add(ModeFactory.ECB_MODE);
-        modes.add(ModeFactory.CBC_MODE);
-        modes.add(ModeFactory.CFB_MODE);
-        modes.add(ModeFactory.OFB_MODE);
-        modes.add(ModeFactory.CTR_MODE);
+        modes.add(ModeFactory.ECB_MODE.toUpperCase(Locale.ENGLISH));
+        modes.add(ModeFactory.CBC_MODE.toUpperCase(Locale.ENGLISH));
+        modes.add(ModeFactory.CFB_MODE.toUpperCase(Locale.ENGLISH));
+        modes.add(ModeFactory.OFB_MODE.toUpperCase(Locale.ENGLISH));
+        modes.add(ModeFactory.CTR_MODE.toUpperCase(Locale.ENGLISH));
         return modes;
     }
 }

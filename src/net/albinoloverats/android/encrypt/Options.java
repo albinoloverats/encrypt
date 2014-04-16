@@ -20,9 +20,14 @@
 
 package net.albinoloverats.android.encrypt;
 
+import java.util.Locale;
+
 public enum Options
 {
     ENCRYPT_PREFERENCES,
+    CIPHER,
+    HASH,
+    MODE,
     COMPRESS,
     FOLLOW,
     KEY,
@@ -31,6 +36,6 @@ public enum Options
     @Override
     public String toString()
     {
-        return name().toLowerCase();
+        return name().toLowerCase(Locale.ENGLISH);
     }
 }

@@ -20,6 +20,8 @@
 
 package net.albinoloverats.android.encrypt.crypt;
 
+import gnu.crypto.mode.ModeFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -160,6 +162,13 @@ public class Decrypt extends Crypto
         final String a = new String(b);
         cipher = a.substring(0, a.indexOf('/'));
         hash = a.substring(a.indexOf('/') + 1);
+        if (hash.contains("/"))
+        {
+            hash = a.substring(a.indexOf('/') + 1, a.lastIndexOf('/'));
+            mode = a.substring(a.lastIndexOf('/') + 1);
+        }
+        else
+            mode = ModeFactory.CBC_MODE;
 
         version = Version.parseMagicNumber(Convert.longFromBytes(header));
         if (version == null)

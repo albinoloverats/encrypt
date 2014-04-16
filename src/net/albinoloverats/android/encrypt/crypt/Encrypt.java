@@ -82,6 +82,7 @@ public class Encrypt extends Crypto
 
         this.cipher = cipher;
         this.hash = hash;
+        this.mode = mode;
 
         compressed = compress;
         follow_links = follow;
@@ -199,7 +200,7 @@ public class Encrypt extends Crypto
         output.write(Convert.toBytes(HEADER[2]));
         String algorithms = cipher + "/" + hash;
         if (version.compareTo(Version._201400) >= 0)
-            algorithms.concat("/" + mode);
+            algorithms = algorithms.concat("/" + mode);
         output.write((byte)algorithms.length());
         output.write(algorithms.getBytes());
     }

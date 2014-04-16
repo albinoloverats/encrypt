@@ -51,6 +51,7 @@
     <string name="choose_source">Choose Source</string>
     <string name="choose_cipher">Choose Cipher</string>
     <string name="choose_hash">Choose Hash</string>
+    <string name="choose_mode">Choose Mode</string>
     <string name="choose_output">Choose Output</string>
     <string name="choose_key">Choose Key</string>
 
