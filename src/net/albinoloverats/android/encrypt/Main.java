@@ -294,7 +294,6 @@ public class Main extends Activity
                 ;
             }
         });
-
         pEntry.setEnabled(false);
 
         // select key file button
@@ -587,11 +586,11 @@ public class Main extends Activity
                 cSpinner.setEnabled(true);
                 hSpinner.setEnabled(true);
                 mSpinner.setEnabled(true);
-            }
-            if (cipher != null && hash != null && mode != null)
-            {
-                passwd.setEnabled(true);
-                keyButton.setEnabled(true);
+                if (cipher != null && hash != null && mode != null)
+                {
+                    passwd.setEnabled(true);
+                    keyButton.setEnabled(true);
+                }
             }
         }
         else

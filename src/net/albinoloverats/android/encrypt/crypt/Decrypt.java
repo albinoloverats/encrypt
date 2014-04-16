@@ -47,15 +47,10 @@ public class Decrypt extends Crypto
         {
             this.source = new EncryptedFileInputStream(new File(source));
             final File out = new File(output);
-            if (out.exists() && out.isDirectory())
-            {
-                directory = true;
-                path = output;
-            }
-            else if (out.exists())
-                this.output = new FileOutputStream(output);
-            else
-                path = output;
+            if (out.exists())
+                if (!(directory = out.isDirectory()))
+                    this.output = new FileOutputStream(output);
+            path = output;
         }
         catch (final FileNotFoundException e)
         {
@@ -75,18 +70,7 @@ public class Decrypt extends Crypto
             readVersion();
             checksum = ((EncryptedFileInputStream)source).encryptionInit(cipher, hash, mode, key, version == Version._201108 || version == Version._201110);
 
-            boolean skipRandom = false;
-            switch (version)
-            {
-                case _201108:
-                case _201110:
-                case _201211:
-                    skipRandom = true;
-                    break;
-                default:
-                    break;
-            }
-
+            final boolean skipRandom = version.compareTo(Version._201211) <= 0;
             if (!skipRandom)
                 skipRandomData();
             readVerificationSum();
