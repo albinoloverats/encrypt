@@ -82,6 +82,7 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 {
     const char **ciphers = list_of_ciphers();
     unsigned slctd_cipher = 0;
+    gtk_combo_box_text_remove_all((GtkComboBoxText *)data->crypto_combo);
     for (unsigned i = 0; ciphers[i]; i++)
     {
         if (cipher && !strcasecmp(ciphers[i], cipher))
@@ -99,6 +100,7 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 
     const char **hashes = list_of_hashes();
     unsigned slctd_hash = 0;
+    gtk_combo_box_text_remove_all((GtkComboBoxText *)data->hash_combo);
     for (unsigned  i = 0; hashes[i]; i++)
     {
         if (hash && !strcasecmp(hashes[i], hash))
@@ -116,6 +118,7 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 
     const char **modes = list_of_modes();
     unsigned slctd_mode = 0;
+    gtk_combo_box_text_remove_all((GtkComboBoxText *)data->mode_combo);
     for (unsigned i = 0; modes[i]; i++)
     {
         if (mode && !strcasecmp(modes[i], mode))
@@ -273,7 +276,9 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
              */
             char *c = NULL, *h = NULL, *m = NULL;
             if ((_encrypted = is_encrypted(open_file, &c, &h, &m)))
+            {
                 auto_select_algorithms(data, c, h, m);
+            }
             gtk_button_set_label((GtkButton *)data->encrypt_button, _encrypted ? LABEL_DECRYPT : LABEL_ENCRYPT);
             en = TRUE;
             asprintf(&cwd, "%s", open_file);
@@ -312,7 +317,15 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
 
     _files = en;
 
-    if (!_encrypted)
+    if (_encrypted)
+    {
+        gtk_widget_set_sensitive(data->crypto_combo, FALSE);
+        gtk_widget_set_sensitive(data->hash_combo, FALSE);
+        gtk_widget_set_sensitive(data->mode_combo, FALSE);
+        gtk_widget_set_sensitive(data->password_entry, en);
+        gtk_widget_set_sensitive(data->key_button, en);
+    }
+    else
     {
         gtk_widget_set_sensitive(data->crypto_combo, en);
         gtk_widget_set_sensitive(data->hash_combo, en);
@@ -351,7 +364,6 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_wi
 
     gtk_widget_set_sensitive(data->password_entry, en);
     gtk_widget_set_sensitive(data->key_button, en);
-    gtk_widget_set_sensitive(data->encrypt_button, en);
 
     return (void)combo_box, TRUE;
 }

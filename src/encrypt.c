@@ -361,8 +361,8 @@ static inline void write_header(crypto_t *c)
     uint64_t head[3] = { htonll(HEADER_0), htonll(HEADER_1), htonll(get_version(c->version)) };
     io_write(c->output, head, sizeof head);
     char *algos = NULL;
-    const char *u_cipher = gcry_cipher_algo_name(c->cipher);
-    const char *u_hash = gcry_md_algo_name(c->hash);
+    const char *u_cipher = cipher_name_from_id(c->cipher);
+    const char *u_hash = hash_name_from_id(c->hash);
     const char *u_mode = mode_name_from_id(c->mode);
     if (c->version >= VERSION_2014_00)
     {

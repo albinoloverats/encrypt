@@ -39,6 +39,7 @@
 #include "common/version.h"
 
 #ifdef _WIN32
+    #include <Shlobj.h>
     #include "common/win32_ext.h"
     extern char *program_invocation_short_name;
 #endif
@@ -136,8 +137,21 @@ int main(int argc, char **argv)
     if (gtk_init_check(&argc, &argv))
     {
         builder = gtk_builder_new();
-        if (!gtk_builder_add_from_file(builder, GLADE_UI_FILE, &error))
+#ifndef _WIN32
+        const char *glade_ui_file = GLADE_UI_FILE;
+#else
+        char *glade_ui_file = calloc(MAX_PATH, sizeof( char ));
+        if (!glade_ui_file)
+            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, MAX_PATH);
+        SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL, 0, glade_ui_file);
+        strcat(glade_ui_file, "\\");
+        strcat(glade_ui_file, GLADE_UI_FILE);
+#endif
+        if (!gtk_builder_add_from_file(builder, glade_ui_file, &error))
             die(_("%s"), error->message);
+#ifdef _WIN32
+        free(glade_ui_file);
+#endif
         /*
          * allocate widgets structure
          */

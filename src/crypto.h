@@ -283,6 +283,37 @@ extern enum gcry_md_algos hash_id_from_name(const char * const restrict n) __att
 extern enum gcry_cipher_modes mode_id_from_name(const char * const restrict n) __attribute__((pure, nonnull(1)));
 
 /*!
+ * \brief         Get cipher name, given its ID
+ * \param[in]  c  The libgcrypt cipher enum
+ * \return        A string representation of the cipher
+ *
+ * "Correct" the name that libgcrypt gives us; this ensures
+ * compatibility with the Android version.
+ */
+extern const char *cipher_name_from_id(enum gcry_cipher_algos c) __attribute__((pure));
+
+/*!
+ * \brief         Get hash name, given its ID
+ * \param[in]  h  The libgcrypt hash enum
+ * \return        A string representation of the hash
+ *
+ * "Correct" the name that libgcrypt gives us; this ensures
+ * compatibility with the Android version.
+ */
+extern const char *hash_name_from_id(enum gcry_md_algos h) __attribute__((pure));
+
+/*!
+ * \brief         Get cipher mode name, given its ID
+ * \param[in]  m  The libgcrypt mode enum
+ * \return        A string representation of the mode
+ *
+ * As this isn't provided by libgcrypt, in the same way that it is for
+ * algorithms, and the fact we're artificially limiting the choices,
+ * here's a function to get the name from the enum.
+ */
+extern const char *mode_name_from_id(enum gcry_cipher_modes m) __attribute__((pure));
+
+/*!
  * \brief         Get cipher mode name, given its ID
  * \param[in]  m  The libgcrypt mode enum
  * \return        A string representation of the mode

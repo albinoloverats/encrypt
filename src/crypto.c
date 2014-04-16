@@ -59,10 +59,10 @@
 
 static int algorithm_compare(const void *, const void *);
 
-static char *correct_sha1(const char * const restrict);
-static char *correct_aes_rijndael(const char * const restrict);
-static char *correct_blowfish128(const char * const restrict);
-static char *correct_twofish256(const char * const restrict);
+static const char *correct_sha1(const char * const restrict);
+static const char *correct_aes_rijndael(const char * const restrict);
+static const char *correct_blowfish128(const char * const restrict);
+static const char *correct_twofish256(const char * const restrict);
 
 static bool algorithm_is_duplicate(const char * const restrict);
 
@@ -199,7 +199,7 @@ extern const char **list_of_ciphers(void)
         }
         id++;
     }
-    static char **l = NULL;
+    static const char **l = NULL;
     if (!l)
     {
         if (!(l = calloc(len, sizeof( char * ))))
@@ -207,17 +207,10 @@ extern const char **list_of_ciphers(void)
         int j = 0;
         for (int i = 0; i < len; i++)
         {
-            const char *n = gcry_cipher_algo_name(lid[i]);
+            const char *n = cipher_name_from_id(lid[i]);
             if (!n)
                 continue;
-            else if (!strncasecmp(n, NAME_AES, strlen(NAME_AES)))
-                l[j] = correct_aes_rijndael(n);
-            else if (!strcasecmp(n, NAME_BLOWFISH))
-                l[j] = correct_blowfish128(n);
-            else if (!strcasecmp(n, NAME_TWOFISH))
-                l[j] = correct_twofish256(n);
-            else
-                l[j] = strdup(n);
+            l[j] = strdup(n);
             j++;
         }
         l[j] = NULL;
@@ -242,7 +235,7 @@ extern const char **list_of_hashes(void)
         }
         id++;
     }
-    static char **l = NULL;
+    static const char **l = NULL;
     if (!l)
     {
         if (!(l = calloc(len, sizeof( char * ))))
@@ -250,13 +243,10 @@ extern const char **list_of_hashes(void)
         int j = 0;
         for (int i = 0; i < len; i++)
         {
-            const char *n = gcry_md_algo_name(lid[i]);
-            if (!n || algorithm_is_duplicate(n))
+            const char *n = hash_name_from_id(lid[i]);
+            if (!n)
                 continue;
-            else if (!strncasecmp(n, NAME_SHA1, strlen(NAME_SHA1) - 1))
-                l[j] = correct_sha1(n);
-            else
-                l[j] = strdup(n);
+            l[j] = strdup(n);
             j++;
         }
         l[j] = NULL;
@@ -297,25 +287,14 @@ extern enum gcry_cipher_algos cipher_id_from_name(const char * const restrict n)
         }
         for (int i = 0; i < len; i++)
         {
-            const char *x = gcry_cipher_algo_name(list[i]);
-            char *y = NULL;
+            const char *x = cipher_name_from_id(list[i]);
             if (!x)
                 continue;
-            else if (!strncasecmp(x, NAME_AES, strlen(NAME_AES)))
-                y = correct_aes_rijndael(x);
-            else if (!strcasecmp(x, NAME_BLOWFISH))
-                y = correct_blowfish128(x);
-            else if (!strcasecmp(x, NAME_TWOFISH))
-                y = correct_twofish256(x);
-            else
-                y = strdup(x);
-            if (!strcasecmp(y, n))
+            if (!strcasecmp(x, n))
             {
-                log_message(LOG_DEBUG, _("Found requested encryption algorithm: %s"), gcry_cipher_algo_name(list[i]));
-                free(y);
+                log_message(LOG_DEBUG, _("Found requested encryption algorithm: %s"), x);
                 return list[i];
             }
-            free(y);
         }
     }
     log_message(LOG_ERROR, _("Could not find requested encryption algorithm: %s"), n);
@@ -340,17 +319,14 @@ extern enum gcry_md_algos hash_id_from_name(const char * const restrict n)
     }
     for (int i = 0; i < len; i++)
     {
-        const char *x = gcry_md_algo_name(list[i]);
-        if (!x || algorithm_is_duplicate(x))
+        const char *x = hash_name_from_id(list[i]);
+        if (!x)
             continue;
-        char *y = !strncasecmp(x, NAME_SHA1, strlen(NAME_SHA1) - 1) ? correct_sha1(x) : strdup(x);
-        if (!strcasecmp(y, n))
+        if (!strcasecmp(x, n))
         {
-            free(y);
-            log_message(LOG_DEBUG, _("Found requested hash: %s"), gcry_md_algo_name(list[i]));
+            log_message(LOG_DEBUG, _("Found requested hash: %s"), x);
             return list[i];
         }
-        free(y);
     }
     log_message(LOG_ERROR, _("Could not find requested hash: %s"), n);
     return 0;
@@ -368,6 +344,28 @@ extern enum gcry_cipher_modes mode_id_from_name(const char * const restrict n)
         }
     log_message(LOG_ERROR, _("Could not find requested mode: %s"), n);
     return 0;
+}
+
+extern const char *cipher_name_from_id(enum gcry_cipher_algos c)
+{
+    const char *n = gcry_cipher_algo_name(c);
+    if (!strncasecmp(NAME_AES, n, strlen(NAME_AES)))
+        return correct_aes_rijndael(n);
+    else if (!strcasecmp(NAME_BLOWFISH, n))
+        return correct_blowfish128(n);
+    else if (!strcasecmp(NAME_TWOFISH, n))
+        return correct_twofish256(n);
+    return n;
+}
+
+extern const char *hash_name_from_id(enum gcry_md_algos h)
+{
+    const char *n = gcry_md_algo_name(h);
+    if (algorithm_is_duplicate(n))
+        return NULL;
+    else if (!strncasecmp(NAME_SHA1, n, strlen(NAME_SHA1) - 1))
+        return correct_sha1(n);
+    return strdup(n);
 }
 
 extern const char *mode_name_from_id(enum gcry_cipher_modes m)
@@ -461,32 +459,33 @@ static int algorithm_compare(const void *a, const void *b)
     return strcmp(*(char **)a, *(char **)b);
 }
 
-static char *correct_sha1(const char * const restrict n)
+static const char *correct_sha1(const char * const restrict n)
 {
-    return strcasecmp(n, NAME_SHA1) ? strdup(n) : strdup(NAME_SHA160);
+    return strcasecmp(n, NAME_SHA1) ? n : NAME_SHA160;
 }
 
-static char *correct_aes_rijndael(const char * const restrict n)
+static const char *correct_aes_rijndael(const char * const restrict n)
 {
     if (!strcasecmp(NAME_AES, n))
-        return strdup(n); /* use AES (bits/blocks/etc) */
+        return n; /* use AES (bits/blocks/etc) */
     /*
      * use rijndael instead of AES as that's the actual cipher name
      */
-    char *x = NULL;
-    if (!(asprintf(&x, "%s%s", NAME_RIJNDAEL, n + strlen(NAME_AES))))
-        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(NAME_RIJNDAEL) + strlen(n) - strlen(NAME_AES));
+    static char *x = NULL;
+    if (!x)
+        if (!(asprintf(&x, "%s%s", NAME_RIJNDAEL, n + strlen(NAME_AES))))
+            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(NAME_RIJNDAEL) + strlen(n) - strlen(NAME_AES));
     return x;
 }
 
-static char *correct_blowfish128(const char * const restrict n)
+static const char *correct_blowfish128(const char * const restrict n)
 {
-    return ((void)n , strdup(NAME_BLOWFISH128));
+    return ((void)n , NAME_BLOWFISH128);
 }
 
-static char *correct_twofish256(const char * const restrict n)
+static const char *correct_twofish256(const char * const restrict n)
 {
-    return ((void)n , strdup(NAME_TWOFISH256));
+    return ((void)n , NAME_TWOFISH256);
 }
 
 static bool algorithm_is_duplicate(const char * const restrict n)

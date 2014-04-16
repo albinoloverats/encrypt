@@ -39,7 +39,7 @@
     #if defined __DEBUG__ || defined __DEBUG_GUI__
         #define GLADE_UI_FILE "etc\\encrypt_w32.glade"
     #else
-        #define GLADE_UI_FILE "etc\\encrypt_win.glade"
+        #define GLADE_UI_FILE "encrypt\\etc\\encrypt_win.glade"
     #endif
 #endif
 
