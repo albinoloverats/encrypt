@@ -79,6 +79,11 @@ http://www.everaldo.com/</property>
       </object>
     </child>
   </object>
+  <object class="GtkImage" id="done_encrypt">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-apply</property>
+  </object>
   <object class="GtkImage" id="go_encrypt">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -154,6 +159,7 @@ http://www.everaldo.com/</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label">_Follow Symlinks</property>
+                        <property name="sensitive">False</property>
                         <property name="use_underline">True</property>
                         <signal name="toggled" handler="on_follow_toggle" swapped="no"/>
                       </object>
@@ -470,6 +476,7 @@ http://www.everaldo.com/</property>
               <object class="GtkEntry" id="password_entry">
                 <property name="width_request">160</property>
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="has_tooltip">True</property>
                 <property name="tooltip_markup" translatable="yes">Enter Passphrase</property>
@@ -491,6 +498,7 @@ http://www.everaldo.com/</property>
               <object class="GtkButton" id="key_button">
                 <property name="width_request">160</property>
                 <property name="height_request">24</property>
+                <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
@@ -563,6 +571,7 @@ http://www.everaldo.com/</property>
                 <property name="width_request">160</property>
                 <property name="height_request">24</property>
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
@@ -873,13 +882,13 @@ processes your file</property>
         </child>
         <child>
           <object class="GtkButton" id="progress_close_button">
-            <property name="label">gtk-close</property>
+            <property name="label">Done</property>
             <property name="sensitive">False</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="halign">center</property>
             <property name="valign">center</property>
-            <property name="use_stock">True</property>
+            <property name="image">done_encrypt</property>
             <signal name="clicked" handler="on_progress_button_clicked" swapped="no"/>
           </object>
           <packing>
