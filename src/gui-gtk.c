@@ -80,6 +80,7 @@ static crypto_status_e *_status = NULL;
 
 extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash, char *mode)
 {
+    log_message(LOG_EVERYTHING, _("Auto selecting: %s, %s, %s"), cipher, hash, mode);
     /*
      * ciphers
      */
