@@ -411,15 +411,17 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, cha
         char *s = strchr(a, '/');
         *s = '\0';
         s++;
-        char *d = strrchr(a, '/');
+        char *d = strrchr(s, '/');
         if (d)
         {
             *d = '\0';
             d++;
         }
+        else
+            d = "CBC";
         asprintf(c, "%s", a);
         asprintf(h, "%s", s);
-        asprintf(m ,"%s", d ? : "CBC");
+        asprintf(m ,"%s", d);
         free(a);
     }
     close(f);
