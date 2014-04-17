@@ -352,7 +352,7 @@ static void *process(void *ptr)
     io_sync(c->output);
     c->status = STATUS_SUCCESS;
 
-    return (void *)c->status;
+    pthread_exit((void *)c->status);
 }
 
 static inline void write_header(crypto_t *c)
@@ -473,14 +473,11 @@ static int64_t count_entries(crypto_t *c, const char *dir)
     {
         for (int i = 0; i < n; ++i)
         {
-            char *filename = strdup(eps[i]->d_name);
-            if (!strcmp(".", filename) || !strcmp("..", filename))
-            {
-                free(filename);
+            if (!strcmp(".", eps[i]->d_name) || !strcmp("..", eps[i]->d_name))
                 continue;
-            }
-            size_t l = strlen(filename);
-            if (!asprintf(&filename, "%s/%s", dir, filename))
+            size_t l = strlen(eps[i]->d_name);
+            char *filename = NULL;
+            if (!asprintf(&filename, "%s/%s", dir, eps[i]->d_name))
                 die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(dir) + l + 2);
             struct stat s;
             c->follow_links ? stat(filename, &s) : lstat(filename, &s);
@@ -495,6 +492,8 @@ static int64_t count_entries(crypto_t *c, const char *dir)
             free(filename);
         }
     }
+    for (int i = 0; i < n; ++i)
+        free(eps[i]);
     free(eps);
     return e;
 }
@@ -508,14 +507,11 @@ static void encrypt_directory(crypto_t *c, const char *dir)
         log_message(LOG_DEBUG, _("Found %i entries in %s"), n - 2, dir); /* subtract 2 for . and .. */
         for (int i = 0; i < n && c->status == STATUS_RUNNING; ++i)
         {
-            char *filename = strdup(eps[i]->d_name);
-            if (!strcmp(".", filename) || !strcmp("..", filename))
-            {
-                free(filename);
+            if (!strcmp(".", eps[i]->d_name) || !strcmp("..", eps[i]->d_name))
                 continue;
-            }
-            uint64_t l = strlen(filename);
-            if (!asprintf(&filename, "%s/%s", dir, filename))
+            uint64_t l = strlen(eps[i]->d_name);
+            char *filename = NULL;
+            if (!asprintf(&filename, "%s/%s", dir, eps[i]->d_name))
                 die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, strlen(dir) + l + 2);
             file_type_e tp;
             struct stat s;
@@ -593,6 +589,8 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                      * when we have a file:
                      */
                     log_message(LOG_VERBOSE, _("Encrypting file : %s"), filename);
+                    if (c->source)
+                        io_close(c->source);
                     c->source = io_open(filename, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR);
                     c->current.offset = 0;
                     c->current.size = io_seek(c->source, 0, SEEK_END);
@@ -612,6 +610,8 @@ static void encrypt_directory(crypto_t *c, const char *dir)
          * no more files in this directory
          */
     }
+    for (int i = 0; i < n; ++i)
+        free(eps[i]);
     free(eps);
     return;
 }

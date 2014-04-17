@@ -65,7 +65,7 @@ static void *version_check(void *n)
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, version_verify);
     curl_easy_perform(curl_handle);
     curl_easy_cleanup(curl_handle);
-    return n;
+    pthread_exit(n);
 }
 
 static size_t version_verify(void *p, size_t s, size_t n, void *x)

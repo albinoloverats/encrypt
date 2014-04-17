@@ -289,6 +289,7 @@ static void *process(void *ptr)
             log_binary(LOG_VERBOSE, cs, cl);
             c->status = STATUS_WARNING_CHECKSUM;
         }
+        free(cs);
         free(b);
     }
 
@@ -302,7 +303,7 @@ static void *process(void *ptr)
     if (c->status == STATUS_RUNNING)
         c->status = STATUS_SUCCESS;
 
-    return (void *)c->status;
+    pthread_exit((void *)c->status);
 }
 
 static uint64_t read_version(crypto_t *c)
@@ -471,20 +472,22 @@ static void decrypt_directory(crypto_t *c, const char *dir)
         file_type_e tp;
         io_read(c->source, &tp, sizeof( byte_t ));
 
-        char *filename;
         uint64_t l;
         io_read(c->source, &l, sizeof l);
         l = ntohll(l);
+        char *filename = NULL;
         if (!(filename = calloc(l + sizeof( byte_t ), sizeof( char ))))
             die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, l + sizeof( byte_t ));
         io_read(c->source, filename, l);
-        if (!asprintf(&filename, "%s/%s", dir, filename))
+        char *fullpath = NULL;
+        if (!asprintf(&fullpath, "%s/%s", dir, filename))
             die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, strlen(dir) + l + 2 * sizeof( byte_t ));
+        free(filename);
         switch (tp)
         {
             case FILE_DIRECTORY:
-                log_message(LOG_VERBOSE, _("Creating directory : %s"), filename);
-                recursive_mkdir(filename, S_IRUSR | S_IWUSR | S_IXUSR);
+                log_message(LOG_VERBOSE, _("Creating directory : %s"), fullpath);
+                recursive_mkdir(fullpath, S_IRUSR | S_IWUSR | S_IXUSR);
                 break;
             case FILE_SYMLINK:
             case FILE_LINK:
@@ -497,8 +500,8 @@ static void decrypt_directory(crypto_t *c, const char *dir)
                 if (tp == FILE_SYMLINK)
                 {
 #ifndef _WIN32
-                    log_message(LOG_VERBOSE, _("Creating soft link : %s -> %s"), filename, lnk);
-                    symlink(lnk, filename);
+                    log_message(LOG_VERBOSE, _("Creating soft link : %s -> %s"), fullpath, lnk);
+                    symlink(lnk, fullpath);
 #else
                     log_message(LOG_WARNING, _("Windows does not support links!"));
                     lnerr = true;
@@ -506,27 +509,29 @@ static void decrypt_directory(crypto_t *c, const char *dir)
                 }
                 else
                 {
-                    log_message(LOG_VERBOSE, _("Creating link : %s -> %s/%s"), filename, dir, lnk);
+                    log_message(LOG_VERBOSE, _("Creating link : %s -> %s/%s"), fullpath, dir, lnk);
                     char *hl = NULL;
                     if (!asprintf(&hl, "%s/%s", dir, lnk))
                         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(dir) + strlen(lnk) + 2);
                     /* NB: on Windows this is just a copy not a link */
-                    link(hl, filename);
+                    link(hl, fullpath);
                 }
                 break;
             case FILE_REGULAR:
                 c->current.offset = 0;
                 io_read(c->source, &c->current.size, sizeof c->current.size);
                 c->current.size = ntohll(c->current.size);
-                log_message(LOG_VERBOSE, _("Decrypting file : %s"), filename);
-                c->output = io_open(filename, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK, S_IRUSR | S_IWUSR);
+                log_message(LOG_VERBOSE, _("Decrypting file : %s"), fullpath);
+                if (c->output)
+                    io_close(c->output);
+                c->output = io_open(fullpath, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK, S_IRUSR | S_IWUSR);
                 decrypt_file(c);
                 io_close(c->output);
                 c->output = NULL;
                 c->current.offset = c->total.size;
                 break;
         }
-        free(filename);
+        free(fullpath);
     }
     if (lnerr)
         c->status = STATUS_WARNING_LINK;

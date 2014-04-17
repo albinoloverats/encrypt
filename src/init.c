@@ -55,9 +55,9 @@ char *KEY_SOURCE[] =
 
 extern args_t init(int argc, char **argv)
 {
-    args_t a = { DEFAULT_CIPHER,
-                 DEFAULT_HASH,
-                 DEFAULT_MODE,
+    args_t a = { NULL, /* cipher */
+                 NULL, /* hash */
+                 NULL, /* mode */
                  NULL, /* key file */
                  NULL, /* password */
                  NULL, /* source */
@@ -173,12 +173,18 @@ end_line:
                     a.nogui = true;
                     break;
                 case 'c':
+                    if (a.cipher)
+                        free(a.cipher);
                     a.cipher = strdup(optarg);
                     break;
                 case 's':
+                    if (a.hash)
+                        free(a.hash);
                     a.hash = strdup(optarg);
                     break;
                 case 'm':
+                    if (a.mode)
+                        free(a.mode);
                     a.mode = strdup(optarg);
                     break;
                 case 'k':
@@ -407,8 +413,9 @@ static char *parse_config_tail(const char *c, const char *l)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(x) - i + 1);
     free(x);
     for (i = strlen(y) - 1; i > 0 && isspace(y[i]); i--)
-        y[i] = '\0';
-    char *tail = strdup(y);
+        ;//y[i] = '\0';
+    char *tail = strndup(y, i + 1);
     free(y);
+    log_message(LOG_VERBOSE, _("Read config value: %s=%s"), c, tail);
     return tail;
 }

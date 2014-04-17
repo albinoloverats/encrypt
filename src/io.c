@@ -43,6 +43,7 @@
 #include "io.h"
 #include "crypto.h"
 
+#define IO_DUMMY_FD 0x42145c91
 #define OFFSET_SLOTS 3
 
 /*!
@@ -121,18 +122,18 @@ extern IO_HANDLE io_open(const char *n, int f, mode_t m)
 extern int io_close(IO_HANDLE ptr)
 {
     io_private_t *io_ptr = ptr;
-    if (!io_ptr || io_ptr->fd < 0)
+    if (!io_ptr || (io_ptr->fd < 0 && io_ptr->fd != -IO_DUMMY_FD))
         return (errno = EBADF , -1);
     int64_t fd = io_ptr->fd;
     io_release(ptr);
-    return close(fd);
+    return fd == -IO_DUMMY_FD ? 0 : close(fd);
 }
 
 extern IO_HANDLE io_dummy_handle(void)
 {
 
     io_private_t *io_ptr = calloc(1, sizeof( io_private_t ));
-    io_ptr->fd = -1;
+    io_ptr->fd = -IO_DUMMY_FD;
     return io_ptr;
 }
 

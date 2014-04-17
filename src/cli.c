@@ -122,47 +122,44 @@ extern void cli_display(crypto_t *c)
 
 static void cli_display_bar(float total, float current, bool single, bps_t *bps)
 {
-    char *prog_bar = NULL;
-
-    isnan(total) ? asprintf(&prog_bar, "  0%%") : asprintf(&prog_bar, "%3.0f%%", total);
+    char *prog_bar = calloc(cli_width + 1, sizeof( char ));
+    sprintf(prog_bar, "%3.0f%%", isnan(total) ? 0.0f : total);
     /*
-     * display progress bar (currently hardcoded for 80 columns)
+     * display progress bar
      */
-    asprintf(&prog_bar, "%s [", prog_bar);
+    strcat(prog_bar, " [");
     int pb = single ? cli_width - CLI_SINGLE : cli_width / 2 - CLI_DOUBLE;
     for (int i = 0; i < pb; i++)
-        i < pb * total / PERCENT ? asprintf(&prog_bar, "%s=", prog_bar) : asprintf(&prog_bar, "%s ", prog_bar);
+        strcat(prog_bar, i < pb * total / PERCENT ? "=" : " ");
     /*
      * current (if necessary)
      */
     if (!single)
     {
-        isnan(total) ? asprintf(&prog_bar, "%s]   0%% [", prog_bar) : asprintf(&prog_bar, "%s] %3.0f%% [", prog_bar, current);
+        sprintf(prog_bar + strlen(prog_bar), "] %3.0f%% [", isnan(total) ? 0.0f : current);
         for (int i = 0; i < pb; i++)
-            i < pb * current / PERCENT ? asprintf(&prog_bar, "%s=", prog_bar) : asprintf(&prog_bar, "%s ", prog_bar);
+            strcat(prog_bar, i < pb * current / PERCENT ? "=" : " ");
     }
-    asprintf(&prog_bar, "%s]", prog_bar);
+    strcat(prog_bar, "]");
     /*
      * calculate B/s
      */
     float val = cli_calc_bps(bps);
     if (isnan(val) || val == 0.0f)
-        asprintf(&prog_bar, "%s  ---.- B/s", prog_bar);
+        strcat(prog_bar, "  ---.- B/s");
     else
     {
         if (val < THOUSAND)
-            asprintf(&prog_bar, "%s  %5.1f B/s", prog_bar, val);
+            sprintf(prog_bar + strlen(prog_bar), "  %5.1f B/s", val);
         else if (val < MILLION)
-            asprintf(&prog_bar, "%s %5.1f KB/s", prog_bar, val / KILOBYTE);
+            sprintf(prog_bar + strlen(prog_bar), " %5.1f KB/s", val / KILOBYTE);
         else if (val < THOUSAND_MILLION)
-            asprintf(&prog_bar, "%s %5.1f MB/s", prog_bar, val / MEGABYTE);
+            sprintf(prog_bar + strlen(prog_bar), " %5.1f MB/s", val / MEGABYTE);
         else if (val < BILLION)
-            asprintf(&prog_bar, "%s %5.1f GB/s", prog_bar, val / GIGABYTE);
-        else
-            asprintf(&prog_bar, "%s", prog_bar);
+            sprintf(prog_bar + strlen(prog_bar), " %5.1f GB/s", val / GIGABYTE);
 #if 0
         else /* if you're getting these kinds of speeds please, please can I have your machine ;-) */
-            asprintf(&prog_bar, "%s %5.1f TB/s", prog_bar, val / TERABYTE);
+            sprintf(prog_bar + strlen(prog_bar), " %5.1f TB/s", val / TERABYTE);
 #endif
     }
 

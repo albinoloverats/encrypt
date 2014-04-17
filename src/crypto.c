@@ -171,7 +171,10 @@ extern void deinit(crypto_t **c)
 
     z->status = STATUS_CANCELLED;
     pthread_join(*z->thread, NULL);
+    free(z->thread);
 
+    if (z->path)
+        free(z->path);
     if (z->source)
         io_close(z->source);
     if (z->output)
@@ -202,7 +205,7 @@ extern const char **list_of_ciphers(void)
     static const char **l = NULL;
     if (!l)
     {
-        if (!(l = calloc(len, sizeof( char * ))))
+        if (!(l = calloc(len + 1, sizeof( char * ))))
             die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
         int j = 0;
         for (int i = 0; i < len; i++)
@@ -213,7 +216,7 @@ extern const char **list_of_ciphers(void)
             l[j] = strdup(n);
             j++;
         }
-        l[j] = NULL;
+        //l[j] = NULL;
         qsort(l, j, sizeof( char * ), algorithm_compare);
     }
     return (const char **)l;
@@ -238,7 +241,7 @@ extern const char **list_of_hashes(void)
     static const char **l = NULL;
     if (!l)
     {
-        if (!(l = calloc(len, sizeof( char * ))))
+        if (!(l = calloc(len + 1, sizeof( char * ))))
             die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
         int j = 0;
         for (int i = 0; i < len; i++)
@@ -249,7 +252,7 @@ extern const char **list_of_hashes(void)
             l[j] = strdup(n);
             j++;
         }
-        l[j] = NULL;
+        //l[j] = NULL;
         qsort(l, j, sizeof( char * ), algorithm_compare);
     }
     return (const char **)l;
@@ -365,7 +368,7 @@ extern const char *hash_name_from_id(enum gcry_md_algos h)
         return NULL;
     else if (!strncasecmp(NAME_SHA1, n, strlen(NAME_SHA1) - 1))
         return correct_sha1(n);
-    return strdup(n);
+    return n;
 }
 
 extern const char *mode_name_from_id(enum gcry_cipher_modes m)
