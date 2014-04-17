@@ -82,7 +82,12 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 {
     const char **ciphers = list_of_ciphers();
     unsigned slctd_cipher = 0;
+#ifndef _WIN32
     gtk_combo_box_text_remove_all((GtkComboBoxText *)data->crypto_combo);
+#else
+    for (unsigned i = 0; ciphers[i]; i++)
+        gtk_combo_box_remove_text((GtkComboBox *)data->crypto_combo, 0);
+#endif
     for (unsigned i = 0; ciphers[i]; i++)
     {
         if (cipher && !strcasecmp(ciphers[i], cipher))
@@ -100,8 +105,13 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 
     const char **hashes = list_of_hashes();
     unsigned slctd_hash = 0;
+#ifndef _WIN32
     gtk_combo_box_text_remove_all((GtkComboBoxText *)data->hash_combo);
-    for (unsigned  i = 0; hashes[i]; i++)
+#else
+    for (unsigned i = 0; hashes[i]; i++)
+        gtk_combo_box_remove_text((GtkComboBox *)data->hash_combo, 0);
+#endif
+    for (unsigned i = 0; hashes[i]; i++)
     {
         if (hash && !strcasecmp(hashes[i], hash))
         {
@@ -118,7 +128,12 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 
     const char **modes = list_of_modes();
     unsigned slctd_mode = 0;
+#ifndef _WIN32
     gtk_combo_box_text_remove_all((GtkComboBoxText *)data->mode_combo);
+#else
+    for (unsigned i = 0; modes[i]; i++)
+        gtk_combo_box_remove_text((GtkComboBox *)data->mode_combo, 0);
+#endif
     for (unsigned i = 0; modes[i]; i++)
     {
         if (mode && !strcasecmp(modes[i], mode))
