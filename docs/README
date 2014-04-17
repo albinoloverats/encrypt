@@ -14,13 +14,16 @@ Done
   * CTR (Counter)
 * Add Encrypt/Decrypt option to Windows Explorer file context menu
 * Fix disappearing keyboard bug on Android
-* Choosing an algorithm (GUI) will leave it as the default for next time
+* Choosing an algorithm (GUI/Android) will leave it as the default for
+  next time
+* Store rc file in user home (Windows)
+* Plug some memory leaks
 
 TODO
 ----
 
-* Store rc file in user home (Windows)
 * File context menu for
   - Thunar
   - Nautilus (or Files or whatever it's called now)
   - Konqueror or Dolphin
+* Find someone with a Mac and have them package a native OS X app
