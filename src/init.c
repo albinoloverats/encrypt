@@ -235,6 +235,8 @@ extern void init_deinit(args_t args)
         free(args.cipher);
     if (args.hash)
         free(args.hash);
+    if (args.mode)
+        free(args.mode);
     if (args.key)
         free(args.key);
     if (args.password)
