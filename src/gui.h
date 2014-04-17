@@ -26,6 +26,10 @@
 #define LABEL_ENCRYPT "Encrypt"
 #define LABEL_DECRYPT "Decrypt"
 
+#define SELECT_CIPHER "Select Cipher Algorithm"
+#define SELECT_HASH "Select Hash Algorithm"
+#define SELECT_MODE "Select Cipher Mode"
+
 extern char *gui_file_hack_source;
 extern char *gui_file_hack_output;
 

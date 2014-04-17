@@ -55,8 +55,8 @@ install: man
 	 @install -c -m 644 -D -T etc/encrypt.glade $(PREFIX)/usr/share/encrypt/encrypt.glade
 	-@echo "installed \`etc/encrypt.glade' --> \`$(PREFIX)/usr/share/encrypt/encrypt.glade'"
 # and an example rc file
-	 @install -c -m 644 -D -T etc/_encryptrc $(PREFIX)/usr/share/encrypt/_encryptrc
-	-@echo "installed \`etc/_encryptrc' --> \`$(PREFIX)/usr/share/encrypt/_encryptrc'"
+	 @install -c -m 644 -D -T etc/encryptrc $(PREFIX)/usr/share/encrypt/encryptrc
+	-@echo "installed \`etc/encryptrc' --> \`$(PREFIX)/usr/share/encrypt/encryptrc'"
 # ditto, but this time for the man page
 	 @install -c -m 644 -D -T encrypt.1a.gz $(PREFIX)/usr/share/man/man1/encrypt.1a.gz
 	-@echo "installed \`encrypt.1a.gz' --> \`$(PREFIX)/usr/share/man/man1/encrypt.1a.gz'"
