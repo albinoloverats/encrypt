@@ -11,7 +11,8 @@
 !define PRODUCT_WEB_SITE "https://albinoloverats.net/projects/encrypt"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\encrypt.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
-!define EXPLORER_CONTEXT "*\shell\Encrypt/Decrypt\command"
+!define EXPLORER_CONTEXT "*\shell\Encrypt/Decrypt"
+!define EXPLORER_COMMAND "command"
 
 SetCompressor lzma
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
@@ -83,6 +84,32 @@ Section "encrypt" SEC01
   File "docs\Apache_LICENSE"
   Rename "Apache_LICENSE" "Apache_LICENSE.txt"
 
+  SetOutPath "$INSTDIR\docs\User Guide"
+  File "..\encrypt_extras\mark_condic\User Guide\index.html"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt_button.png"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt1.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt2.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt3.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt4.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt5.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt6.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt7.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt8b.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt9b.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt10.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt11.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt12.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt14.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt15.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt16.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt17.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt18.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt19.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt20.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt21.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt22.jpg"
+  File "..\encrypt_extras\mark_condic\User Guide\encrypt22b.jpg"
+
   SetOutPath "$INSTDIR\pixmaps"
   File "pixmaps\encrypt.png"
   File "pixmaps\encrypt_button.png"
@@ -102,6 +129,7 @@ Section "encrypt" SEC01
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\encrypt.lnk" "$INSTDIR\encrypt.exe"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Licence.lnk" "$INSTDIR\docs\LICENCE.txt"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\ReadMe.lnk" "$INSTDIR\docs\README.txt"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\User Guide.lnk" "$INSTDIR\docs\User Guide\index.html"
 SectionEnd
 
 Section "GTK Runtime (v2.24.10)" SEC02
@@ -132,7 +160,7 @@ Section -Post
   WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
   WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
   WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
-  WriteRegStr HKCR "${EXPLORER_CONTEXT}" "" '$INSTDIR\encrypt.exe "%1"'
+  WriteRegStr HKCR "${EXPLORER_CONTEXT}\${EXPLORER_COMMAND}" "" '$INSTDIR\encrypt.exe "%1"'
 SectionEnd
 
 Function un.onUninstSuccess
@@ -147,6 +175,8 @@ FunctionEnd
 
 Section Uninstall
   Delete "$INSTDIR\encrypt.exe"
+
+  Delete "$INSTDIR\gtk2-runtime-2.24.10-2012-10-10-ash.exe"
 
   Delete "$INSTDIR\libgcrypt-11.dll"
   Delete "$INSTDIR\libgpg-error-0.dll"
@@ -169,6 +199,31 @@ Section Uninstall
   Delete "$INSTDIR\docs\MIT_LICENSE.txt"
   Delete "$INSTDIR\docs\Apache_LICENSE.txt"
 
+  Delete "$INSTDIR\docs\User Guide\index.html"
+  Delete "$INSTDIR\docs\User Guide\encrypt_button.png"
+  Delete "$INSTDIR\docs\User Guide\encrypt1.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt2.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt3.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt4.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt5.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt6.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt7.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt8b.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt9b.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt10.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt11.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt12.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt14.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt15.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt16.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt17.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt18.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt19.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt20.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt21.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt22.jpg"
+  Delete "$INSTDIR\docs\User Guide\encrypt22b.jpg"
+
   Delete "$INSTDIR\pixmaps\encrypt_button.png"
   Delete "$INSTDIR\pixmaps\encrypt.png"
 
@@ -177,12 +232,14 @@ Section Uninstall
 
   Delete "$INSTDIR\uninst.exe"
 
-  Delete "$SMPROGRAMS\encrypt\Uninstall.lnk"
-  Delete "$SMPROGRAMS\encrypt\ReadMe.lnk"
-  Delete "$SMPROGRAMS\encrypt\Licence.lnk"
-  Delete "$SMPROGRAMS\encrypt\encrypt.lnk"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME}\Uninstall.lnk"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME}\ReadMe.lnk"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME}\Licence.lnk"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME}\encrypt.lnk"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME}\User Guide.lnk"
 
   RMDir "$SMPROGRAMS\encrypt"
+  RMDir "$INSTDIR\docs\User Guide"
   RMDir "$INSTDIR\docs"
   RMDIR "$INSTDIR\pixmaps"
   RMDIR "$INSTDIR\etc"
