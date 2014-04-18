@@ -1,23 +1,26 @@
-#: src/main.c:66
+#: src/main.c:68
 #| \n**** DEBUG BUILD ****\n\n
 msgid "\n**** DEBUG BUILD ****\n\n"
 msgstr ""
 
-#: src/main.c:133
+#: src/main.c:145
+#. See common/common.po for the definitive "Out of memory" translation
+
+#: src/main.c:151
 #. This is a GTK error; not translated here. If the GTK translations are
 #. installed the message should be translated.
 #  msgid "%s"
 # msgstr ""
 
-#: src/main.c:212
+#: src/main.c:238
 #| Could not create GUI - falling back to command line\n
 msgid "Could not create GUI - falling back to command line\n"
 msgstr ""
 
-#: src/main.c:233
-#| Please enter a password: 
+#: src/main.c:259
+#| Please enter a password:
 msgid "Please enter a password: "
 msgstr ""
 
-#: src/main.c:276
+#: src/main.c:302
 #. See translation above

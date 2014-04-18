@@ -29,19 +29,13 @@ msgid "Deleting crypto instance %p, and freeing resources"
 msgstr ""
 
 #: src/crypto.c:209
-#| Out of memory @ %s:%d:%s [%zu]
-msgid "Out of memory @ %s:%d:%s [%zu]"
-msgstr ""
+#. See common/common.po for the definitive "Out of memory" translation
 
 #: src/crypto.c:245
-#| Out of memory @ %s:%d:%s [%zu]
-msgid "Out of memory @ %s:%d:%s [%zu]"
-msgstr ""
+#. See common/common.po for the definitive "Out of memory" translation
 
 #: src/crypto.c:268
-#| Out of memory @ %s:%d:%s [%zu]
-msgid "Out of memory @ %s:%d:%s [%zu]"
-msgstr ""
+#. See common/common.po for the definitive "Out of memory" translation
 
 #: src/crypto.c:298
 #| Found requested encryption algorithm: %s
@@ -84,32 +78,25 @@ msgid "Could not find requested mode: %d"
 msgstr ""
 
 #: src/crypto.c:394
-#| IO error [%d] @ %s:%d:%s : %s
-msgid "IO error [%d] @ %s:%d:%s : %s"
-msgstr ""
+#. See src/io.po for "IO error" translation
 
 #: src/crypto.c:398
-#| IO error [%d] @ %s:%d:%s : %s
-msgid "IO error [%d] @ %s:%d:%s : %s"
-msgstr ""
+#. See src/io.po for "IO error" translation
 
-#: src/crypto.c:434
+#: src/crypto.c:436
 #| File encrypted with version %s
 msgid "File encrypted with version %s"
 msgstr ""
 
-#: src/crypto.c:435
+#: src/crypto.c:437
 #| File encrypted with unknown, or more recent release of encrypt
 msgid "File encrypted with unknown, or more recent release of encrypt"
 msgstr ""
 
-#: src/crypto.c:456
+#: src/crypto.c:458
 #| Unknown version, defaulting to current : %s
 msgid "Unknown version, defaulting to current : %s"
 msgstr ""
 
-#: src/crypto.c:480
-#| Out of memory @ %s:%d:%s [%zu]
-msgid "Out of memory @ %s:%d:%s [%zu]"
-msgstr ""
-
+#: src/crypto.c:482
+#. See common/common.po for the definitive "Out of memory" translation

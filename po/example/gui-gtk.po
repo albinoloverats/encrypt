@@ -1,25 +1,59 @@
-#: src/gui-gtk.c:96
+#: src/gui-gtk.c:83
+#| Auto selecting: %s, %s, %s
+msgid "Auto selecting: %s, %s, %s"
+msgstr ""
+
+#: src/gui-gtk.c:102
 #| Selected %d is algorithm: %s
 msgid "Selected %d is algorithm: %s"
 msgstr ""
 
-#: src/gui-gtk.c:113
+#: src/gui-gtk.c:130
 #| Selected %d is hash: %s
 msgid "Selected %d is hash: %s"
 msgstr ""
 
-#: src/gui-gtk.c:143
+#: src/gui-gtk.c:158
+#| Selected %d is mode: %s
+msgid "Selected %d is mode: %s"
+msgstr ""
+
+#: src/gui-gtk.c:184
+#| Set key source: %s
+msgid "Set key source: %s"
+msgstr ""
+
+#: src/gui-gtk.c:205
 #| Compatibility version: %s
 msgid "Compatibility version: %s"
 msgstr ""
 
-#: src/gui-gtk.c:481
+#: src/gui-gtk.c:411
+#| Set key source: %s
+msgid "Set key source: %s"
+msgstr ""
+
+#: src/gui-gtk.c:512
+#| Set compression: %s "…on" or "…off"
+msgid "Set compression: %s"
+msgstr ""
+
+#: src/gui-gtk.c:522
+#| Set link traversal: %s "…on" or "…off"
+msgid "Set link traversal: %s"
+msgstr ""
+
+#: src/gui-gtk.c:533
+#| Set link compatibility: %s
+msgid "Set link compatibility: %s"
+msgstr ""
+
+#: src/gui-gtk.c:575
 #| Initialise crypto routine
 msgid "Initialise crypto routine"
 msgstr ""
 
-#: src/gui-gtk.c:539
+#: src/gui-gtk.c:635
 #| Update progress bar in loop
 msgid "Update progress bar in loop"
 msgstr ""
-

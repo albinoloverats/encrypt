@@ -1,38 +1,48 @@
-#: src/io.c:206
+#: src/io.c:213
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/io.c:216
+#: src/io.c:223
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/io.c:225
-#. See common/common.po for the definitive "Out of memory" translation
-
-#: src/io.c:234
+#: src/io.c:232
 #. See common/common.po for the definitive "Out of memory" translation
 
 #: src/io.c:241
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/io.c:250
+#: src/io.c:248
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/io.c:285
+#: src/io.c:257
 #. See common/common.po for the definitive "Out of memory" translation
 
-#: src/io.c:411
+#: src/io.c:292
+#. See common/common.po for the definitive "Out of memory" translation
+
+#: src/io.c:418
 #| Unexpected error during compression : %d
 msgid "Unexpected error during compression : %d"
 msgstr ""
 
-#: src/io.c:456
+#: src/io.c:463
 #| IO error [%d] @ %s:%d:%s : %s
 msgid "IO error [%d] @ %s:%d:%s : %s"
 msgstr ""
 
-#: src/io.c:468
+#: src/io.c:475
 #| Unexpected error during decompression : %d
 msgid "Unexpected error during decompression : %d"
 msgstr ""
 
-#: src/io.c:538
+#: src/io.c:545
 #. See common/common.po for the definitive "Out of memory" translation
+
+#: src/io.c:586
+#| Could not setup liblzma for compression!
+msgid "Could not setup liblzma for compression!"
+msgstr ""
+
+#: src/io.c:597
+#| Could not setup liblzma for decompression!
+msgid "Could not setup liblzma for decompression!"
+msgstr ""
