@@ -18,7 +18,7 @@
  *
  */
 
-#ifndef _COMMON_TLV_H
+#ifndef _COMMON_TLV_H_
 #define _COMMON_TLV_H_
 
 /*!
@@ -122,7 +122,7 @@ extern uint8_t *tlv_export_aux(TLV_HANDLE h, bool e) __attribute__((nonnull(1)))
 
 /*!
  * \brief         The number of TLV items in the array
- * \param[in]  h  The TLV array to count 
+ * \param[in]  h  The TLV array to count
  * \return        The number of TLV items
  *
  * Count the number of TLV triples in the array.

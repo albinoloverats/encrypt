@@ -28,12 +28,6 @@
 #define SELECT_OTHER "Other…"
 #define SELECT_KEY "Select Key…"
 
-#define KEY_FILE "Key File"
-#define PASSPHRASE "Passphrase"
-
-#define SELECT_CIPHER "Select Cipher Algorithm"
-#define SELECT_HASH "Select Hash Algorithm"
-
 #define SOURCE_FILE "sourceFile"
 #define OUTPUT_FILE "outputFile"
 #define KEYSRC_FILE "keyFile"
@@ -52,8 +46,12 @@
 
 @property (strong, nonatomic) IBOutlet NSPopUpButtonCell *cipherCombo;
 @property (strong, nonatomic) IBOutlet NSPopUpButtonCell *hashCombo;
+@property (strong, nonatomic) IBOutlet NSPopUpButtonCell *modeCombo;
 
-@property (strong, nonatomic) IBOutlet NSPopUpButtonCell *keyCombo;
+@property (strong, nonatomic) IBOutlet NSMenu *keySource;
+@property (strong, nonatomic) IBOutlet NSMenuItem *keySourceFile;
+@property (strong, nonatomic) IBOutlet NSMenuItem *keySourcePassword;
+
 @property (strong, nonatomic) IBOutlet NSPopUpButton *keyFileChooserButton;
 @property (strong, nonatomic) IBOutlet NSPopUpButtonCell *keyFileChooser;
 @property (strong, nonatomic) IBOutlet NSSecureTextField *passwordField;

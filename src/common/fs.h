@@ -18,7 +18,7 @@
  *
  */
 
-#ifndef _COMMON_FS_H
+#ifndef _COMMON_FS_H_
 #define _COMMON_FS_H_
 
 /*!

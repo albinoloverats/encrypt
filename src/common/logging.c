@@ -55,7 +55,7 @@ static const char *LOG_LEVELS[] =
     "FATAL"
 };
 
-static int levenshtein(const char * const restrict, const char * const restrict);
+static size_t levenshtein(const char * const restrict, const char * const restrict);
 
 extern void log_redirect(const char * const restrict f)
 {
@@ -136,22 +136,22 @@ extern void log_message(log_e l, const char * const restrict s, ...)
     return;
 }
 
-static int levenshtein(const char * const restrict s, const char * const restrict t)
+static size_t levenshtein(const char * const restrict s, const char * const restrict t)
 {
-    const int len_s = strlen(s);
-    const int len_t = strlen(t);
+    const size_t len_s = strlen(s);
+    const size_t len_t = strlen(t);
     if (!len_s)
         return len_t;
     if (!len_t)
         return len_s;
 
     char *s1 = strndup(s, len_s - 1);
-    const int a = levenshtein(s1, t) + 1;
+    const size_t a = levenshtein(s1, t) + 1;
 
     char *t1 = strndup(t, len_t - 1);
-    const int b = levenshtein(s, t1) + 1;
+    const size_t b = levenshtein(s, t1) + 1;
 
-    int c = levenshtein(s1, t1);
+    size_t c = levenshtein(s1, t1);
     free(s1);
     free(t1);
     if (tolower(s[len_s - 1]) != tolower(t[len_t - 1]))

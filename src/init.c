@@ -62,7 +62,7 @@ extern args_t init(int argc, char **argv)
                  NULL, /* password */
                  NULL, /* source */
                  NULL, /* output */
-                 ENCRYPT_VERSION,
+                 NULL, /* compatibility */
                  KEY_SOURCE_PASSWORD,
                  true,    /* compress */
                  false,   /* follow links */

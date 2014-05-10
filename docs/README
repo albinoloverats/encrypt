@@ -22,8 +22,8 @@ Done
 TODO
 ----
 
+* Fix seg-fault when there is no config file
 * File context menu for
   - Thunar
   - Nautilus (or Files or whatever it's called now)
   - Konqueror or Dolphin
-* Find someone with a Mac and have them package a native OS X app

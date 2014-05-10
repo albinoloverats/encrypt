@@ -50,6 +50,7 @@ static bool compress = true;
 static bool follow = false;
 static bool running = false;
 static version_e version = VERSION_CURRENT;
+static key_source_e key_source = KEY_SOURCE_PASSWORD;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
@@ -57,7 +58,7 @@ static version_e version = VERSION_CURRENT;
 
     args_t args = init(0, NULL);
 
-    [self auto_select_algorithms:args.cipher:args.hash];
+    [self auto_select_algorithms:args.cipher:args.hash:args.mode];
 
     bool z = true;
     for (NSMenuItem *m in [_sourceFileChooser itemArray])
@@ -136,6 +137,9 @@ static version_e version = VERSION_CURRENT;
         [_version addItem:m];
     }
 
+    key_source = args.key_source;
+    [self keySourceToggle];
+
     [_statusBar setStringValue:@STATUS_BAR_READY];
 
     return;
@@ -189,8 +193,9 @@ static version_e version = VERSION_CURRENT;
      */
     char *c = NULL;
     char *h = NULL;
-    if ((encrypted = is_encrypted(open_file, &c, &h)))
-        [self auto_select_algorithms:c:h];
+    char *m = NULL;
+    if ((encrypted = is_encrypted(open_file, &c, &h, &m)))
+        [self auto_select_algorithms:c:h:m];
     [_encryptButton setTitle:encrypted ? @LABEL_DECRYPT : @LABEL_ENCRYPT];
 
     if (!save_link || !strlen(save_link))
@@ -218,6 +223,7 @@ clean_up:
     {
         [_cipherCombo setEnabled:en];
         [_hashCombo setEnabled:en];
+        [_modeCombo setEnabled:en];
     }
 
     [self cipherHashSelected:pId];
@@ -225,43 +231,52 @@ clean_up:
 
 - (IBAction)cipherHashSelected:(id)pId
 {
-    if (([[[_cipherCombo selectedItem] title] isEqualTo:@SELECT_CIPHER])
-        || ([[[_hashCombo selectedItem] title] isEqualTo:@SELECT_HASH]))
+    const char *cipher = [[[_cipherCombo selectedItem] title] UTF8String];
+    const char *hash = [[[_hashCombo selectedItem] title] UTF8String];
+    const char *mode = [[[_modeCombo selectedItem] title] UTF8String];
+
+    if ((cipher && strcasecmp(cipher, SELECT_CIPHER)) &&
+          (hash && strcasecmp(hash, SELECT_HASH)) &&
+          (mode && strcasecmp(mode, SELECT_MODE)))
     {
-        // Unselected either cipher/hash, disable all options below
-        [_keyCombo setEnabled:FALSE];
-        [_keyFileChooser setEnabled:FALSE];
-        [_passwordField setEnabled:FALSE];
-        [_encryptButton setEnabled:FALSE];
+        [self keySourceSelected:pId];
+        [_keyFileChooser setEnabled:true];
+        [_passwordField setEnabled:true];
+
+        update_config(CONF_CIPHER, cipher);
+        update_config(CONF_HASH, hash);
+        update_config(CONF_MODE, mode);
     }
     else
     {
-        [_keyCombo setEnabled:TRUE];
-        [self keySourceSelected:pId];
+        // Unselected either cipher/hash/mode, disable all options below
+        [_keyFileChooser setEnabled:false];
+        [_passwordField setEnabled:false];
+        [_encryptButton setEnabled:false];
     }
 }
 
 - (IBAction)keySourceSelected:(id)pId
 {
-    Boolean k = FALSE;
-    Boolean p = FALSE;
-    Boolean h = TRUE;
-    if ([[[_keyCombo selectedItem] title] isEqualToString:@KEY_FILE])
-        k = TRUE , h = FALSE;
-    else if([[[_keyCombo selectedItem] title] isEqualToString:@PASSPHRASE])
-        p = TRUE , h = FALSE;
-    // Enable/disable as necessary; show/hide too (keep most recent visible)
-    [_keyFileChooser setEnabled:k];
-    [_keyFileChooserButton setHidden:!k];
-    [_passwordField setEnabled:p];
-    [_passwordField setHidden:!p ^ h];
-    // See if the action button needs changing
-    if (k)
-        ;//[self keyFileChoosen:(pId)];
-    else if (p)
-        [self passwordFieldUpdated:pId];
+    NSMenuItem *m = [_keySource highlightedItem];
+    const char *s = [[m title] UTF8String];
+    if (!s)
+        return;
+    if (!strcasecmp(s, KEY_SOURCE[KEY_SOURCE_PASSWORD]))
+        key_source = KEY_SOURCE_PASSWORD;
     else
-        [_encryptButton setEnabled:FALSE];
+        key_source = KEY_SOURCE_FILE;
+    update_config(CONF_KEY, KEY_SOURCE[key_source]);
+    [self keySourceToggle];
+}
+
+- (void)keySourceToggle
+{
+    [_keySourceFile setState:key_source == KEY_SOURCE_FILE ? NSOnState : NSOffState];
+    [_keySourcePassword setState:key_source == KEY_SOURCE_PASSWORD ? NSOnState : NSOffState];
+
+    [_keyFileChooserButton setHidden:key_source != KEY_SOURCE_FILE];
+    [_passwordField setHidden:key_source != KEY_SOURCE_PASSWORD];
 }
 
 - (IBAction)keyFileChoosen:(id)pId
@@ -331,7 +346,7 @@ clean_up:
      */
     uint8_t *key;
     size_t length;
-    if ([[[_keyCombo selectedItem] title] isEqualToString:@KEY_FILE])
+    if (key_source == KEY_SOURCE_FILE)
     {
         const char *key_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@KEYSRC_FILE] UTF8String];
 
@@ -352,7 +367,11 @@ clean_up:
 
     crypto_t *c;
     if (!encrypted)
-        c = encrypt_init(open_file, save_file, (char *)[[[_cipherCombo selectedItem] title] UTF8String], (char *)[[[_hashCombo selectedItem] title] UTF8String], key, length, compress, follow, version);
+        c = encrypt_init(open_file, save_file,
+                         (char *)[[[_cipherCombo selectedItem] title] UTF8String],
+                         (char *)[[[_hashCombo selectedItem] title] UTF8String],
+                         (char *)[[[_modeCombo selectedItem] title] UTF8String],
+                         key, length, compress, follow, version);
     else
         c = decrypt_init(open_file, save_file, key, length);
 
@@ -454,20 +473,24 @@ clean_up:
     [_popup setIsVisible:FALSE];
 }
 
-- (void)auto_select_algorithms:(char *)c :(char *)h
+- (void)auto_select_algorithms:(char *)c : (char *)h : (char *)m
 {
     const char **ciphers = list_of_ciphers();
     unsigned slctd_cipher = 0;
+    [_cipherCombo removeAllItems];
+    [_cipherCombo addItemWithTitle:[NSString stringWithUTF8String:SELECT_CIPHER]];
     for (unsigned i = 0; ciphers[i]; i++)
     {
         if (c && !strcasecmp(ciphers[i], c))
-            slctd_cipher = i + 1;
+            slctd_cipher = i;
         [_cipherCombo addItemWithTitle:[NSString stringWithUTF8String:ciphers[i]]];
     }
     [_cipherCombo selectItemAtIndex:slctd_cipher];
 
     const char **hashes = list_of_hashes();
     unsigned slctd_hash = 0;
+    [_hashCombo removeAllItems];
+    [_hashCombo addItemWithTitle:[NSString stringWithUTF8String:SELECT_HASH]];
     for (unsigned  i = 0; hashes[i]; i++)
     {
         if (h && !strcasecmp(hashes[i], h))
@@ -475,6 +498,18 @@ clean_up:
         [_hashCombo addItemWithTitle:[NSString stringWithUTF8String:hashes[i]]];
     }
     [_hashCombo selectItemAtIndex:slctd_hash];
+
+    const char **modes = list_of_modes();
+    unsigned slctd_mode = 0;
+    [_modeCombo removeAllItems];
+    [_modeCombo addItemWithTitle:[NSString stringWithUTF8String:SELECT_MODE]];
+    for (unsigned  i = 0; modes[i]; i++)
+    {
+        if (m && !strcasecmp(modes[i], m))
+            slctd_mode = i + 1;
+        [_modeCombo addItemWithTitle:[NSString stringWithUTF8String:modes[i]]];
+    }
+    [_modeCombo selectItemAtIndex:slctd_mode];
 }
 
 @end
