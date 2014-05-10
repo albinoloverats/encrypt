@@ -39,7 +39,6 @@
 
 #include "common/common.h"
 #include "common/error.h"
-#include "common/logging.h"
 #include "common/version.h"
 
 #ifdef _WIN32
@@ -57,8 +56,8 @@
 #define NONE_SELECTED "(None)"
 
 /*
- * FIXME There has to be a way to make gtk_file_chooser_set_filename
- * work correctly
+ * FIXME There has to be a way to make gtk_file_chooser_set_filename work
+ * correctly
  */
 char *gui_file_hack_source = NULL;
 char *gui_file_hack_output = NULL;
@@ -80,7 +79,6 @@ static crypto_status_e *_status = NULL;
 
 extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash, char *mode)
 {
-    log_message(LOG_EVERYTHING, _("Auto selecting: %s, %s, %s"), cipher, hash, mode);
     /*
      * ciphers
      */
@@ -97,10 +95,7 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
     for (unsigned i = 0; ciphers[i]; i++)
     {
         if (cipher && !strcasecmp(ciphers[i], cipher))
-        {
             slctd_cipher = i + 1;
-            log_message(LOG_VERBOSE, _("Selected %d is algorithm: %s"), slctd_cipher, cipher);
-        }
 #ifndef _WIN32
         gtk_combo_box_text_append_text((GtkComboBoxText *)data->crypto_combo, ciphers[i]);
 #else
@@ -125,10 +120,7 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
     for (unsigned i = 0; hashes[i]; i++)
     {
         if (hash && !strcasecmp(hashes[i], hash))
-        {
             slctd_hash = i + 1;
-            log_message(LOG_VERBOSE, _("Selected %d is hash: %s"), slctd_hash, hash);
-        }
 #ifndef _WIN32
         gtk_combo_box_text_append_text((GtkComboBoxText *)data->hash_combo, hashes[i]);
 #else
@@ -153,10 +145,7 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
     for (unsigned i = 0; modes[i]; i++)
     {
         if (mode && !strcasecmp(modes[i], mode))
-        {
             slctd_mode = i + 1;
-            log_message(LOG_VERBOSE, _("Selected %d is mode: %s"), slctd_mode, mode);
-        }
 #ifndef _WIN32
         gtk_combo_box_text_append_text((GtkComboBoxText *)data->mode_combo, modes[i]);
 #else
@@ -181,7 +170,6 @@ extern void set_key_source_menu(gtk_widgets_t *data, key_source_e source)
             gtk_check_menu_item_set_active((GtkCheckMenuItem *)data->key_password_menu_item, TRUE);
             break;
     }
-    log_message(LOG_VERBOSE, _("Set key source: %s"), KEY_SOURCE[source]);
     return;
 }
 
@@ -201,8 +189,6 @@ extern void set_compatibility_menu(gtk_widgets_t *data, char *version)
         {
             gtk_check_menu_item_set_active((GtkCheckMenuItem *)m, TRUE);
             _version = i;
-            if (i != VERSION_CURRENT)
-                log_message(LOG_VERBOSE, _("Compatibility version: %s"), t);
         }
     }
 
@@ -408,8 +394,6 @@ G_MODULE_EXPORT gboolean on_key_source_change(GtkWidget *widget, gtk_widgets_t *
     gtk_widget_hide(_key_source == KEY_SOURCE_PASSWORD ? data->key_button : data->password_entry);
     gtk_widget_show(_key_source == KEY_SOURCE_PASSWORD ? data->password_entry : data->key_button);
 
-    log_message(LOG_EVERYTHING, _("Set key source: %s"), KEY_SOURCE[_key_source]);
-
     return (void)data, TRUE;
 }
 
@@ -509,8 +493,6 @@ G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *widget, gtk_widgets_t *da
     _compress = gtk_check_menu_item_get_active((GtkCheckMenuItem *)widget);
     update_config(CONF_COMPRESS, _compress ? CONF_TRUE : CONF_FALSE);
 
-    log_message(LOG_EVERYTHING, _("Set compression: %s"), _compress ? _("on") : _("off"));
-
     return (void)data, TRUE;
 }
 
@@ -518,8 +500,6 @@ G_MODULE_EXPORT gboolean on_follow_toggle(GtkWidget *widget, gtk_widgets_t *data
 {
     _follow = gtk_check_menu_item_get_active((GtkCheckMenuItem *)widget);
     update_config(CONF_FOLLOW, _follow ? CONF_TRUE : CONF_FALSE);
-
-    log_message(LOG_EVERYTHING, _("Set link traversal: %s"), _follow ? _("on") : _("off"));
 
     return (void)data, TRUE;
 }
@@ -529,8 +509,6 @@ G_MODULE_EXPORT gboolean on_compatibility_change(GtkWidget *widget, gtk_widgets_
     _version = parse_version(gtk_menu_item_get_label((GtkMenuItem *)widget));
     const char *v = get_version_string(_version);
     update_config(CONF_VERSION, v);
-
-    log_message(LOG_EVERYTHING, _("Set link compatibility: %s"), v);
 
     return (void)data, TRUE;
 }
@@ -572,7 +550,6 @@ static void *gui_process(void *d)
 {
     gtk_widgets_t *data = d;
 
-    log_message(LOG_EVERYTHING, _("Initialise crypto routine"));
     char *source = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog));
     char *output = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog));
 
@@ -632,8 +609,6 @@ static void *gui_process(void *d)
 
 inline static void gui_display(crypto_t *c, gtk_widgets_t *data)
 {
-    log_message(LOG_EVERYTHING, _("Update progress bar in loop"));
-
     bps_t bps[BPS];
     memset(bps, 0x00, BPS * sizeof( bps_t ));
     int b = 0;

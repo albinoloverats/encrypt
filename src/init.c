@@ -30,7 +30,6 @@
 
 #include "common/common.h"
 #include "common/error.h"
-#include "common/logging.h"
 
 #ifdef _WIN32
     #include <Shlobj.h>
@@ -134,8 +133,6 @@ end_line:
             { "help",        no_argument,       0, 'h' },
             { "version",     no_argument,       0, 'v' },
             { "licence",     no_argument,       0, 'l' },
-            { "debug",       optional_argument, 0, 'd' },
-            { "quiet",       no_argument,       0, 'q' },
             { "nogui",       no_argument,       0, 'g' },
             { "cipher",      required_argument, 0, 'c' },
             { "hash",        required_argument, 0, 's' },
@@ -151,7 +148,7 @@ end_line:
         while (true)
         {
             int index = 0;
-            int c = getopt_long(argc, argv, "hvld::qgc:s:m:k:p:xfb:", options, &index);
+            int c = getopt_long(argc, argv, "hvlgc:s:m:k:p:xfb:", options, &index);
             if (c == -1)
                 break;
             switch (c)
@@ -162,13 +159,6 @@ end_line:
                     show_version();
                 case 'l':
                     show_licence();
-
-                case 'd':
-                    optarg ? log_relevel(log_parse_level(optarg)) : log_relevel(LOG_DEFAULT);
-                    break;
-                case 'q':
-                    log_relevel(LOG_ERROR);
-                    break;
                 case 'g':
                     a.nogui = true;
                     break;
@@ -197,8 +187,8 @@ end_line:
                     /*
                      * Could possibly use:
                      *     a.compress = !a.compress;
-                     * if we wanted to turn compression on even if it
-                     * was turned off in the config file
+                     * if we wanted to turn compression on even if it was
+                     * turned off in the config file
                      */
                     a.compress = false;
                     break;
@@ -278,15 +268,14 @@ extern void update_config(const char * const restrict o, const char * const rest
 
         for (int i = 0; i < 2; i++)
         {   /*
-             * first iteration: read rc file and change the value
-             * second iteration: read from tmpfile back into rc file
+             * first iteration: read rc file and change the value second
+             * iteration: read from tmpfile back into rc file
              */
             while (getline(&line, &len, f) >= 0)
             {
                 if (!i && (!strncmp(o, line, strlen(o)) && isspace(line[strlen(o)])))
                 {
                     asprintf(&line, "%s %s\n", o, v);
-                    log_message(LOG_VERBOSE, _("Updated %s to %s in config file"), o, v);
                     found = true;
                 }
                 fprintf(t, "%s", line);
@@ -396,8 +385,6 @@ static bool parse_config_boolean(const char *c, const char *l, bool d)
         r = true;
     else if (!strcasecmp(CONF_FALSE, v) || !strcasecmp(CONF_OFF, v) || !strcasecmp(CONF_DISABLED, v))
         r = false;
-    else
-        log_message(LOG_WARNING, _("Unknown value %s for %s in config file; using default : %s"), v, c, d ? _("true") : _("false"));
     free(v);
     return r;
 }
@@ -418,6 +405,5 @@ static char *parse_config_tail(const char *c, const char *l)
         ;//y[i] = '\0';
     char *tail = strndup(y, i + 1);
     free(y);
-    log_message(LOG_VERBOSE, _("Read config value: %s=%s"), c, tail);
     return tail;
 }

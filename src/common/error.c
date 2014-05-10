@@ -29,15 +29,14 @@
     #include <execinfo.h>
 #endif
 
+#include <stdint.h>
 #include <ctype.h>
 #include <string.h>
 
 #ifndef __APPLE__
     #include "common/error.h"
-    #include "common/logging.h"
 #else
     #include "error.h"
-    #include "logging.h"
 #endif
 
 #ifdef _WIN32
@@ -54,13 +53,13 @@ extern void die(const char * const restrict s, ...)
         va_start(ap, s);
 #ifndef _WIN32
         vasprintf(&d, s, ap);
-        log_message(LOG_FATAL, "%s", d);
+        fprintf(stderr, "%s", d);
 #else
         uint8_t l = 0xFF;
         d = calloc(l, sizeof( uint8_t ));
         if (d)
             vsnprintf(d, l - 1, s, ap);
-        log_message(LOG_FATAL, d);
+        fprintf(stderr, d);
         if (d)
             free(d);
 #endif
@@ -71,7 +70,7 @@ extern void die(const char * const restrict s, ...)
         char * const restrict e = strdup(strerror(ex));
         for (uint32_t i = 0; i < strlen(e); i++)
             e[i] = tolower(e[i]);
-        log_message(LOG_FATAL, "%s", e);
+        fprintf(stderr, "%s", e);
         free(e);
     }
 #if !defined _WIN32 && !defined __CYGWIN__ && !defined __FreeBSD__
@@ -81,13 +80,14 @@ extern void die(const char * const restrict s, ...)
     if (sym)
     {
         for (int i = 0; i < c; i++)
-            log_message(LOG_DEBUG, "%s", sym[i]);
+            fprintf(stderr, "%s", sym[i]);
         free(sym);
     }
 #endif
     /*
-     * TODO if running a GUI don't necessarily exit without alerting the user first
-     * Users seem to dislike applications just quitting for no apparent reason!
+     * TODO if running a GUI don't necessarily exit without alerting the
+     * user first (Users seem to dislike applications just quitting for
+     * no apparent reason)
      */
     exit(ex);
 }

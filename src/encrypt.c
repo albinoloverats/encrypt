@@ -29,7 +29,7 @@
 #include <dirent.h>
 
 #include <ctype.h>
-#include <inttypes.h> // used instead of stdint as this defines the PRI… format placeholders (include <stdint.h> itself)
+#include <inttypes.h> /* used instead of stdint as this defines the PRI… format placeholders (include <stdint.h> itself) */
 #include <stdbool.h>
 #include <string.h>
 
@@ -41,7 +41,6 @@
 
 #include "common/common.h"
 #include "common/error.h"
-#include "common/logging.h"
 #include "common/tlv.h"
 
 #ifdef _WIN32
@@ -101,47 +100,35 @@ extern crypto_t *encrypt_init(const char * const restrict i,
         stat(i, &s);
         if (S_ISDIR(s.st_mode))
         {
-            log_message(LOG_VERBOSE, _("Encrypting directory tree : %s"), i);
             z->source = IO_UNINITIALISED;
             z->path = strdup(i);
             z->directory = true;
         }
         else
         {
-            log_message(LOG_VERBOSE, _("Encrypting file : %s"), i);
             if (!(z->source = io_open(i, O_RDONLY | F_RDLCK, S_IRUSR | O_BINARY | S_IWUSR)))
             {
-                log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
                 z->status = STATUS_FAILED_IO;
                 return z;
             }
         }
     }
     else
-    {
-        log_message(LOG_VERBOSE, _("Encrypting stream from stdin"));
         z->source = IO_STDIN_FILENO;
-    }
 
     if (o)
     {
-        log_message(LOG_VERBOSE, _("Encrypting to file : %s"), o);
         if (!(z->output = io_open(o, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK | O_BINARY, S_IRUSR | S_IWUSR)))
         {
-            log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
             z->status = STATUS_FAILED_OUTPUT_MISMATCH;
             return z;
         }
     }
     else
-    {
-        log_message(LOG_VERBOSE, _("Encrypting to stdout"));
         z->output = IO_STDOUT_FILENO;
-    }
 
     if (!k)
     {
-        log_message(LOG_ERROR, _("Invalid key data"));
         z->status = STATUS_FAILED_INIT;
         return z;
     }
@@ -157,7 +144,6 @@ extern crypto_t *encrypt_init(const char * const restrict i,
         int64_t kf = open(k, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR);
         if (kf < 0)
         {
-            log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
             z->status = STATUS_FAILED_IO;
             return z;
         }
@@ -223,7 +209,6 @@ extern crypto_t *encrypt_init(const char * const restrict i,
         default:
             die(_("We've reached an unreachable location in the code @ %s:%d:%s"), __FILE__, __LINE__, __func__);
     }
-    log_message(LOG_VERBOSE, _("Encrypted file compatible with versions %s and later"), get_version_string(z->version));
     return z;
 }
 
@@ -232,7 +217,7 @@ static void *process(void *ptr)
     crypto_t *c = (crypto_t *)ptr;
 
     if (!c || c->status != STATUS_INIT)
-        return log_message(LOG_ERROR, _("Invalid cryptographic object!")) , NULL;
+        return NULL;
 
     c->status = STATUS_RUNNING;
     write_header(c);
@@ -250,7 +235,8 @@ static void *process(void *ptr)
         case VERSION_2011_10:
         case VERSION_2012_11:
             /*
-             * these versions didn't have random data preceeding the verification sum
+             * these versions didn't have random data preceeding the
+             * verification sum
              */
             pre_random = false;
             break;
@@ -270,18 +256,16 @@ static void *process(void *ptr)
         write_random_data(c);
 
     /*
-     * main encryption loop; if we're compressing the output then everything
-     * from here will be compressed (if necessary)
+     * main encryption loop; if we're compressing the output then
+     * everything from here will be compressed (if necessary)
      */
     if (c->compressed)
         io_compression_init(c->output);
-    log_message(LOG_INFO, _("Starting encryption process"));
 
     io_encryption_checksum_init(c->output, c->hash);
 
     if (c->directory)
     {
-        log_message(LOG_INFO, _("Directory tree contains %" PRIi64 " entries"), c->total.size);
         file_type_e tp = FILE_DIRECTORY;
         io_write(c->output, &tp, sizeof( byte_t ));
         /*
@@ -357,7 +341,6 @@ static void *process(void *ptr)
 
 static inline void write_header(crypto_t *c)
 {
-    log_message(LOG_INFO, _("Writing standard header"));
     uint64_t head[3] = { htonll(HEADER_0), htonll(HEADER_1), htonll(get_version(c->version)) };
     io_write(c->output, head, sizeof head);
     char *algos = NULL;
@@ -381,21 +364,18 @@ static inline void write_header(crypto_t *c)
 
 static inline void write_verification_sum(crypto_t *c)
 {
-    log_message(LOG_INFO, _("Writing verification sum"));
     /*
-     * write simple addition (x ^ y = z) where x, y are random
-     * 64bit signed integers
+     * write simple addition (x ^ y = z) where x, y are random 64 bit
+     * signed integers
      */
     int64_t x;
     gcry_create_nonce(&x, sizeof x);
     uint64_t y;
     gcry_create_nonce(&y, sizeof y);
     uint64_t z = x ^ y;
-    log_message(LOG_VERBOSE, "x = %" PRIx64 " ; y = %" PRIx64 " ; z = %" PRIx64, x, y, z);
     x = htonll(x);
     y = htonll(y);
     z = htonll(z);
-    log_message(LOG_VERBOSE, "x = %" PRIx64 " ; y = %" PRIx64 " ; z = %" PRIx64, x, y, z);
     io_write(c->output, &x, sizeof x);
     io_write(c->output, &y, sizeof y);
     io_write(c->output, &z, sizeof z);
@@ -404,7 +384,6 @@ static inline void write_verification_sum(crypto_t *c)
 
 static inline void write_metadata(crypto_t *c)
 {
-    log_message(LOG_INFO, _("Writing metadata"));
     if (c->directory)
         c->total.size = count_entries(c, c->path);
     else
@@ -467,7 +446,6 @@ static int64_t count_entries(crypto_t *c, const char *dir)
     struct dirent **eps = NULL;
     int n = 0;
     int64_t e = 1;
-    log_message(LOG_EVERYTHING, _("Scanning directory : %s"), dir);
     errno = 0;
     if ((n = scandir(dir, &eps, NULL, alphasort)))
     {
@@ -504,7 +482,6 @@ static void encrypt_directory(crypto_t *c, const char *dir)
     int n = 0;
     if ((n = scandir(dir, &eps, NULL, alphasort)))
     {
-        log_message(LOG_DEBUG, _("Found %i entries in %s"), n - 2, dir); /* subtract 2 for . and .. */
         for (int i = 0; i < n && c->status == STATUS_RUNNING; ++i)
         {
             if (!strcmp(".", eps[i]->d_name) || !strcmp("..", eps[i]->d_name))
@@ -531,7 +508,6 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                     tp = (ln = encrypt_link(c, filename, s)) ? FILE_LINK : FILE_REGULAR;
                     break;
                 default:
-                    log_message(LOG_EVERYTHING, _("Ignoring unsupported file type for : %s"), filename);
                     free(filename);
                     continue;
             }
@@ -545,14 +521,14 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                     /*
                      * recurse into each directory as necessary
                      */
-                    log_message(LOG_VERBOSE, _("Storing directory : %s"), filename);
                     encrypt_directory(c, filename);
                     break;
                 case FILE_SYMLINK:
 #ifndef _WIN32
                     {
                         /*
-                         * store the link instead of the file/directory it points to
+                         * store the link instead of the file/directory
+                         * it points to
                          */
                         char *sl = NULL;
                         for (l = BLOCK_SIZE; ; l += BLOCK_SIZE)
@@ -564,7 +540,6 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                             if (readlink(filename, sl, BLOCK_SIZE + l) < (int64_t)l)
                                 break;
                         }
-                        log_message(LOG_VERBOSE, _("Storing soft link : %s -> %s"), sl, filename);
                         l = htonll(strlen(sl));
                         io_write(c->output, &l, sizeof l);
                         io_write(c->output, sl, strlen(sl));
@@ -574,11 +549,10 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                 case FILE_LINK:
 #ifndef _WIN32
                     /*
-                     * store a hard link; it's basically the same as a symlink
-                     * at this point, but will be handled differently upon
-                     * decryption
+                     * store a hard link; it's basically the same as a
+                     * symlink at this point, but will be handled
+                     * differently upon decryption
                      */
-                    log_message(LOG_VERBOSE, _("Storing link : %s -> %s"), ln, filename);
                     l = htonll(strlen(ln));
                     io_write(c->output, &l, sizeof l);
                     io_write(c->output, ln, strlen(ln));
@@ -588,7 +562,6 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                     /*
                      * when we have a file:
                      */
-                    log_message(LOG_VERBOSE, _("Encrypting file : %s"), filename);
                     if (c->source)
                         io_close(c->source);
                     c->source = io_open(filename, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR);
@@ -622,7 +595,7 @@ static char *encrypt_link(crypto_t *c, char *filename, struct stat s)
 #ifndef _WIN32
     for (uint64_t i = 0; i < c->total.offset; i++)
         if (ln[i].dev == s.st_dev && ln[i].inode == s.st_ino)
-            return log_message(LOG_EVERYTHING, _("File %s is a duplicate of %ju:%ju"), filename, (intmax_t)s.st_dev, (intmax_t)s.st_ino) , ln[i].path;
+            return ln[i].path;
 #endif
     ln[c->total.offset].dev = s.st_dev;
     ln[c->total.offset].inode = s.st_ino;
@@ -646,7 +619,6 @@ static void encrypt_stream(crypto_t *c)
         int64_t r = io_read(c->source, buffer + sizeof b, c->blocksize);
         if (r < 0)
         {
-            log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
             c->status = STATUS_FAILED_IO;
             break;
         }
@@ -678,7 +650,6 @@ static void encrypt_file(crypto_t *c)
         int64_t r = io_read(c->source, buffer, BLOCK_SIZE);
         if (r < 0)
         {
-            log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
             c->status = STATUS_FAILED_IO;
             break;
         }

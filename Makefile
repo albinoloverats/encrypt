@@ -4,7 +4,7 @@ APP      = encrypt
 
 SOURCE   = src/main.c src/cli.c src/init.c src/crypto.c src/encrypt.c src/decrypt.c src/io.c
 GUI      = src/gui-gtk.c
-COMMON   = src/common/error.c src/common/logging.c src/common/tlv.c src/common/version.c src/common/fs.c
+COMMON   = src/common/error.c src/common/tlv.c src/common/version.c src/common/fs.c
 
 CFLAGS   = -Wall -Wextra -Werror -std=gnu99 `libgcrypt-config --cflags` -pipe -O2
 CPPFLAGS = -Isrc -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DLOG_DEFAULT=LOG_ERROR -DGIT_COMMIT=\"`git log | head -n1 | cut -f2 -d' '`\"

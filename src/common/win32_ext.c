@@ -41,7 +41,7 @@
 char *program_invocation_short_name = NULL;
 
 /*
- * Copyright (C) 2001 Federico Di Gregorio <fog@debian.org> 
+ * Copyright (C) 2001 Federico Di Gregorio <fog@debian.org>
  * Copyright (C) 1991, 1994-1999, 2000, 2001 Free Software Foundation, Inc.
  *
  * This code has been derived from an example in the glibc2 documentation.
@@ -53,10 +53,10 @@ extern int asprintf(char **buffer, char *fmt, ...)
     int size = 200;
     int nchars;
     va_list ap;
-    
+
     if (!(*buffer = (char *)malloc(size)))
         die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, size);
-          
+
     va_start(ap, fmt);
     nchars = vsnprintf(*buffer, size, fmt, ap);
     va_end(ap);
@@ -133,10 +133,10 @@ extern char *strndup(const char *s, size_t l)
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -146,7 +146,11 @@ extern char *strndup(const char *s, size_t l)
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
-extern int scandir(const char *path, struct dirent ***res, int (*sel)(const struct dirent *), int (*cmp)(const struct dirent **, const struct dirent **))
+extern int scandir(const char *path,
+                    struct dirent ***res,
+                    int (*sel)(const struct dirent *),
+                    int (*cmp)(const struct dirent **,
+                    const struct dirent **))
 {
     DIR *d = opendir(path);
     struct dirent *de, **names = 0, **tmp;

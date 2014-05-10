@@ -35,7 +35,6 @@
 #include <gcrypt.h>
 
 #include "common/common.h"
-#include "common/logging.h"
 #include "common/error.h"
 
 #ifdef _WIN32
@@ -131,7 +130,6 @@ extern void init_crypto(void)
     /*
      * initialise GNU Crypt library
      */
-    log_message(LOG_VERBOSE, _("Initialising GNU Crypt library"));
     if (!gcry_check_version(GCRYPT_VERSION))
         die(_("Could not find GNU Crypt library"));
     gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
@@ -142,8 +140,7 @@ extern void init_crypto(void)
 extern void execute(crypto_t *c)
 {
     if (!c || c->status != STATUS_INIT)
-        return (log_message(LOG_ERROR, _("Invalid cryptographic object!")) , (void)NULL);
-    log_message(LOG_VERBOSE, _("Executing crypto instance %p in background"), c);
+        return;
     pthread_t *t = calloc(1, sizeof( pthread_t ));
     pthread_attr_t a;
     pthread_attr_init(&a);
@@ -158,7 +155,6 @@ extern const char *status(const crypto_t * const restrict c)
 {
     if (!c)
         return NULL;
-    log_message(LOG_INFO, _("Status [%d] : %s"), c->status, STATUS_MESSAGE[c->status]);
     return STATUS_MESSAGE[c->status];
 }
 
@@ -167,7 +163,6 @@ extern void deinit(crypto_t **c)
     if (!c)
         return;
     crypto_t *z = *c;
-    log_message(LOG_VERBOSE, _("Deleting crypto instance %p, and freeing resources"), z);
 
     z->status = STATUS_CANCELLED;
     pthread_join(*z->thread, NULL);
@@ -294,13 +289,9 @@ extern enum gcry_cipher_algos cipher_id_from_name(const char * const restrict n)
             if (!x)
                 continue;
             if (!strcasecmp(x, n))
-            {
-                log_message(LOG_DEBUG, _("Found requested encryption algorithm: %s"), x);
                 return list[i];
-            }
         }
     }
-    log_message(LOG_ERROR, _("Could not find requested encryption algorithm: %s"), n);
     return 0;
 }
 
@@ -326,12 +317,8 @@ extern enum gcry_md_algos hash_id_from_name(const char * const restrict n)
         if (!x)
             continue;
         if (!strcasecmp(x, n))
-        {
-            log_message(LOG_DEBUG, _("Found requested hash: %s"), x);
             return list[i];
-        }
     }
-    log_message(LOG_ERROR, _("Could not find requested hash: %s"), n);
     return 0;
 }
 
@@ -341,11 +328,7 @@ extern enum gcry_cipher_modes mode_id_from_name(const char * const restrict n)
         return 0;
     for (unsigned i = 0; i < sizeof MODES / sizeof( block_mode_t ); i++)
         if (!strcasecmp(n, MODES[i].name))
-        {
-            log_message(LOG_DEBUG, _("Found requested mode: %s"), MODES[i].name);
             return MODES[i].id;
-        }
-    log_message(LOG_ERROR, _("Could not find requested mode: %s"), n);
     return 0;
 }
 
@@ -375,11 +358,7 @@ extern const char *mode_name_from_id(enum gcry_cipher_modes m)
 {
     for (unsigned i = 0; i < sizeof MODES / sizeof( block_mode_t ); i++)
         if (MODES[i].id == m)
-        {
-            log_message(LOG_DEBUG, _("Found requested mode: %s"), MODES[i].name);
             return MODES[i].name;
-        }
-    log_message(LOG_ERROR, _("Could not find requested mode: %d"), m);
     return NULL;
 }
 
@@ -391,11 +370,10 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, cha
         return VERSION_UNKNOWN;
     int64_t f = open(n, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR);
     if (f < 0)
-        return (log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno)) , VERSION_UNKNOWN);
+        return VERSION_UNKNOWN;
     uint64_t head[3] = { 0x0 };
     if ((read(f, head, sizeof head)) < 0)
     {
-        log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
         close(f);
         return VERSION_UNKNOWN;
     }
@@ -433,8 +411,7 @@ extern version_e check_version(uint64_t m)
 {
     for (version_e v = VERSION_CURRENT; v > VERSION_UNKNOWN; v--)
         if (m == VERSIONS[v].id)
-            return (log_message(LOG_INFO, _("File encrypted with version %s"), VERSIONS[v].string) , v);
-    log_message(LOG_ERROR, _("File encrypted with unknown, or more recent release of encrypt"));
+            return v;
     return VERSION_UNKNOWN;
 }
 
@@ -455,7 +432,6 @@ extern version_e parse_version(const char *v)
     for (version_e i = VERSION_CURRENT; i > VERSION_UNKNOWN; i--)
         if (!strcmp(v, VERSIONS[i].string))
             return i;
-    log_message(LOG_ERROR, _("Unknown version, defaulting to current : %s"), VERSIONS[VERSION_CURRENT].string);
     return VERSION_CURRENT;
 }
 

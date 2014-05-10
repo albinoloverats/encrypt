@@ -28,7 +28,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
-#include <inttypes.h> // used instead of stdint as this defines the PRI… format placeholders (include <stdint.h> itself)
+#include <inttypes.h> /* used instead of stdint as this defines the PRI… format placeholders (include <stdint.h> itself) */
 #include <stdbool.h>
 #include <string.h>
 
@@ -38,7 +38,6 @@
 
 #include "common/common.h"
 #include "common/error.h"
-#include "common/logging.h"
 #include "common/tlv.h"
 #include "common/fs.h"
 
@@ -76,19 +75,14 @@ extern crypto_t *decrypt_init(const char * const restrict i,
 
     if (i)
     {
-        log_message(LOG_VERBOSE, _("Decrypting file : %s"), i);
         if (!(c->source = io_open(i, O_RDONLY | F_RDLCK, S_IRUSR | S_IWUSR)))
         {
-            log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
             c->status = STATUS_FAILED_IO;
             return c;
         }
     }
     else
-    {
-        log_message(LOG_VERBOSE, _("Decrypting stream from stdin"));
         c->source = IO_STDIN_FILENO;
-    }
 
     c->path = NULL;
     c->compressed = false;
@@ -102,11 +96,9 @@ extern crypto_t *decrypt_init(const char * const restrict i,
         {
             if (errno != ENOENT)
             {
-                log_message(LOG_ERROR, _("Unexpected error looking up destination"));
                 c->status = STATUS_FAILED_IO;
                 return c;
             }
-            log_message(LOG_VERBOSE, _("Not sure whether %s will be a file or directory"), o);
             /*
              * we've got a name, but don't yet know if it will be a file
              * or a directory
@@ -118,24 +110,20 @@ extern crypto_t *decrypt_init(const char * const restrict i,
         {
             if (S_ISDIR(s.st_mode))
             {
-                log_message(LOG_VERBOSE, _("Decrypting to directory : %s"), o);
                 c->output = IO_UNINITIALISED;
                 c->path = strdup(o);
                 c->directory = true;
             }
             else if (S_ISREG(s.st_mode))
             {
-                log_message(LOG_VERBOSE, _("Decrypting to file : %s"), o);
                 if (!(c->output = io_open(o, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK, S_IRUSR | S_IWUSR)))
                 {
-                    log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
                     c->status = STATUS_FAILED_IO;
                     return c;
                 }
             }
             else
             {
-                log_message(LOG_ERROR, _("Unsupported destination file type"));
                 c->output = NULL; /* failure, doesn't matter what the handle is */
                 c->status = STATUS_FAILED_OUTPUT_MISMATCH;
                 return c;
@@ -143,14 +131,10 @@ extern crypto_t *decrypt_init(const char * const restrict i,
         }
     }
     else
-    {
-        log_message(LOG_VERBOSE, _("Decrypting to stdout"));
         c->output = IO_STDOUT_FILENO;
-    }
 
     if (!k)
     {
-        log_message(LOG_ERROR, _("Invalid key data"));
         c->status = STATUS_FAILED_INIT;
         return c;
     }
@@ -166,7 +150,6 @@ extern crypto_t *decrypt_init(const char * const restrict i,
         int64_t kf = open(k, O_RDONLY | F_RDLCK, S_IRUSR | S_IWUSR);
         if (kf < 0)
         {
-            log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
             c->status = STATUS_FAILED_IO;
             return c;
         }
@@ -186,18 +169,24 @@ static void *process(void *ptr)
     crypto_t *c = (crypto_t *)ptr;
 
     if (!c || c->status != STATUS_INIT)
-        return log_message(LOG_ERROR, _("Invalid cryptographic object!")) , NULL;
+        return NULL;
 
     c->status = STATUS_RUNNING;
     /*
      * read encrypt file header
      */
     c->version = read_version(c);
-    /* version_read() already handles setting the status and displaying an error */
+    /*
+     * version_read() already handles setting the status and displaying
+     * an error
+     */
     if (!c->version)
         return (void *)c->status;
 
-    /* the 2011.* versions (incorrectly) used key length instead of block length */
+    /*
+     * the 2011.* versions (incorrectly) used key length instead of block
+     * length
+     */
     io_extra_t iox = { c->version == VERSION_2011_08 || c->version == VERSION_2011_10, 1 };
     io_encryption_init(c->source, c->cipher, c->hash, c->mode, c->key, c->length, iox);
     free(c->key);
@@ -209,14 +198,16 @@ static void *process(void *ptr)
         case VERSION_2011_10:
         case VERSION_2012_11:
             /*
-             * these versions only had random data after the verification sum
+             * these versions only had random data after the verification
+             * sum
              */
             skip_some_random = true;
             break;
 
         default:
             /*
-             * this will catch the all more recent versions (unknown is detected above)
+             * this will catch the all more recent versions (unknown is
+             * detected above)
              */
             break;
     }
@@ -239,7 +230,6 @@ static void *process(void *ptr)
      */
     if (c->compressed)
         io_compression_init(c->source);
-    log_message(LOG_INFO, _("Starting decryption process"));
 
     /*
      * The ever-expanding decrypt function!
@@ -283,12 +273,7 @@ static void *process(void *ptr)
         uint8_t *b = malloc(cl);
         io_read(c->source, b, cl);
         if (memcmp(b, cs, cl))
-        {
-            log_message(LOG_ERROR, _("Checksum verification failed"));
-            log_binary(LOG_VERBOSE, b, cl);
-            log_binary(LOG_VERBOSE, cs, cl);
             c->status = STATUS_WARNING_CHECKSUM;
-        }
         free(cs);
         free(b);
     }
@@ -308,13 +293,11 @@ static void *process(void *ptr)
 
 static uint64_t read_version(crypto_t *c)
 {
-    log_message(LOG_INFO, _("Checking for file header"));
-
     uint64_t head[3] = { 0x0 };
     if ((io_read(c->source, head, sizeof head)) < 0)
-        return log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno)) , 0;
+        return 0;
     if (head[0] != htonll(HEADER_0) || head[1] != htonll(HEADER_1))
-        return log_message(LOG_ERROR, _("Data not encrypted")) , 0;
+        return 0;
     uint8_t l;
     io_read(c->source, &l, sizeof l);
     char *a = calloc(l + sizeof( char ), sizeof( char ));
@@ -339,7 +322,6 @@ static uint64_t read_version(crypto_t *c)
 
 static bool read_verification_sum(crypto_t *c)
 {
-    log_message(LOG_INFO, _("Reading verification sum"));
     /*
      * read three 64bit signed integers and assert that x ^ y = z
      */
@@ -349,15 +331,11 @@ static bool read_verification_sum(crypto_t *c)
     io_read(c->source, &x, sizeof x);
     io_read(c->source, &y, sizeof y);
     io_read(c->source, &z, sizeof z);
-    log_message(LOG_DEBUG, _("Verifying x ^ y = z"));
-    log_message(LOG_VERBOSE, "x = %" PRIx64 " ; y = %" PRIx64 " ; z = %" PRIx64, x, y, z);
     x = ntohll(x);
     y = ntohll(y);
     z = ntohll(z);
-    log_message(LOG_VERBOSE, "x = %" PRIx64 " ; y = %" PRIx64 " ; z = %" PRIx64, x, y, z);
     if ((x ^ y) != z)
     {
-        log_message(LOG_ERROR, _("Failed decryption verification"));
         c->status = STATUS_FAILED_DECRYPTION;
         return false;
     }
@@ -366,7 +344,6 @@ static bool read_verification_sum(crypto_t *c)
 
 static bool read_metadata(crypto_t *c)
 {
-    log_message(LOG_INFO, _("Reading metadata"));
     /*
      * read the original file metadata - skip any unknown tag values
      */
@@ -390,7 +367,6 @@ static bool read_metadata(crypto_t *c)
     {
         memcpy(&c->total.size, tlv_value_of(tlv, TAG_SIZE), sizeof c->total.size);
         c->total.size = ntohll(c->total.size);
-        log_message(LOG_DEBUG, _("Encrypted stream has size of %" PRIu64), c->total.size);
         c->blocksize = 0;
     }
 
@@ -401,26 +377,17 @@ static bool read_metadata(crypto_t *c)
     }
     else
         c->blocksize = 0;
-    log_message(LOG_DEBUG, _("Encrypted stream is %sblock delimited"), c->blocksize ? "" : "not ");
 
     c->compressed = tlv_has_tag(tlv, TAG_COMPRESSED) ? *tlv_value_of(tlv, TAG_COMPRESSED) : false;
-    log_message(LOG_DEBUG, _("Encrypted stream is %scompressed"), c->compressed ? "" : "not ");
-
     c->directory = tlv_has_tag(tlv, TAG_DIRECTORY) ? *tlv_value_of(tlv, TAG_DIRECTORY) : false;
     if (c->directory)
     {
         struct stat s;
         stat(c->path, &s);
         if ((errno == ENOENT || S_ISDIR(s.st_mode)) && !io_is_initialised(c->output))
-        {
-            log_message(LOG_DEBUG, _("Output is to a directory"));
             recursive_mkdir(c->path, S_IRUSR | S_IWUSR | S_IXUSR);
-        }
         else
-        {
-            log_message(LOG_ERROR, _("Output requires a directory, not a file"));
             c->status = STATUS_FAILED_OUTPUT_MISMATCH;
-        }
     }
     else
     {
@@ -432,16 +399,10 @@ static bool read_metadata(crypto_t *c)
             if (errno == ENOENT || S_ISREG(s.st_mode))
             {
                 if (!(c->output = io_open(c->path, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK, S_IRUSR | S_IWUSR)))
-                {
-                    log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
                     c->status = STATUS_FAILED_IO;
-                }
             }
             else
-            {
-                log_message(LOG_ERROR, _("Output requires a file, not a directory"));
                 c->status = STATUS_FAILED_OUTPUT_MISMATCH;
-            }
         }
     }
 
@@ -465,7 +426,6 @@ static void skip_random_data(crypto_t *c)
 
 static void decrypt_directory(crypto_t *c, const char *dir)
 {
-    log_message(LOG_INFO, _("Decrypting %" PRIu64 " entries into %s"), c->total.size, dir);
     bool lnerr = false;
     for (c->total.offset = 0; c->total.offset < c->total.size && c->status == STATUS_RUNNING; c->total.offset++)
     {
@@ -486,7 +446,6 @@ static void decrypt_directory(crypto_t *c, const char *dir)
         switch (tp)
         {
             case FILE_DIRECTORY:
-                log_message(LOG_VERBOSE, _("Creating directory : %s"), fullpath);
                 recursive_mkdir(fullpath, S_IRUSR | S_IWUSR | S_IXUSR);
                 break;
             case FILE_SYMLINK:
@@ -500,16 +459,13 @@ static void decrypt_directory(crypto_t *c, const char *dir)
                 if (tp == FILE_SYMLINK)
                 {
 #ifndef _WIN32
-                    log_message(LOG_VERBOSE, _("Creating soft link : %s -> %s"), fullpath, lnk);
                     symlink(lnk, fullpath);
 #else
-                    log_message(LOG_WARNING, _("Windows does not support links!"));
                     lnerr = true;
 #endif
                 }
                 else
                 {
-                    log_message(LOG_VERBOSE, _("Creating link : %s -> %s/%s"), fullpath, dir, lnk);
                     char *hl = NULL;
                     if (!asprintf(&hl, "%s/%s", dir, lnk))
                         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(dir) + strlen(lnk) + 2);
@@ -521,7 +477,6 @@ static void decrypt_directory(crypto_t *c, const char *dir)
                 c->current.offset = 0;
                 io_read(c->source, &c->current.size, sizeof c->current.size);
                 c->current.size = ntohll(c->current.size);
-                log_message(LOG_VERBOSE, _("Decrypting file : %s"), fullpath);
                 if (c->output)
                     io_close(c->output);
                 c->output = io_open(fullpath, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK, S_IRUSR | S_IWUSR);
@@ -550,7 +505,6 @@ static void decrypt_stream(crypto_t *c)
         int64_t r = io_read(c->source, buffer, c->blocksize + sizeof b);
         if (r < 0)
         {
-            log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
             c->status = STATUS_FAILED_IO;
             break;
         }
@@ -581,7 +535,6 @@ static void decrypt_file(crypto_t *c)
         int64_t r = io_read(c->source, buffer, l);
         if (r < 0)
         {
-            log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno));
             c->status = STATUS_FAILED_IO;
             break;
         }

@@ -63,7 +63,11 @@ extern float cli_calc_bps(bps_t *bps)
     qsort(copy, BPS, sizeof( bps_t ), cli_bps_sort);
     float avg[BPS - 1] = { 0.0f };
     for (int i = 0; i < BPS - 1; i++)
-        /* requires scale factor of MILLION as time is in microseconds not seconds (millions of bytes / micros of seconds, so to speak) */
+        /*
+         * requires scale factor of MILLION as time is in microseconds
+         * not seconds (millions of bytes / micros of seconds, so to
+         * speak)
+         */
         avg[i] = MILLION * (float)(copy[i + 1].bytes - copy[i].bytes) / (float)(copy[i + 1].time - copy[i].time);
     float val = 0.0;
     for (int i = 0; i < BPS - 1; i++)

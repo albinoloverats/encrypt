@@ -33,7 +33,6 @@
 #include <lzma.h>
 
 #include "common/common.h"
-#include "common/logging.h"
 #include "common/error.h"
 
 #ifdef _WIN32
@@ -242,7 +241,10 @@ extern void io_encryption_init(IO_HANDLE ptr,
     gcry_md_hash_buffer(gcry_md_get_algo(io_ptr->hash_handle), iv_hash, hash, hash_length);
     free(hash);
     gcry_cipher_algo_info(c, GCRYCTL_GET_BLKLEN, NULL, &io_ptr->buffer->block);
-    /* the 2011.* versions (incorrectly) used key length instead of block length */
+    /*
+     * the 2011.* versions (incorrectly) used key length instead of block
+     * length
+     */
     uint8_t *iv = calloc(x.x_iv ? key_length : io_ptr->buffer->block, sizeof( byte_t ));
     if (!iv)
        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, io_ptr->buffer->block);
@@ -257,9 +259,12 @@ extern void io_encryption_init(IO_HANDLE ptr,
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, io_ptr->buffer->block);
     /*
      * when encrypting/writing data:
-     *   0: length of data buffered so far (in stream); 1: length of data processed (from d)
+     *   0: length of data buffered so far (in stream)
+     *   1: length of data processed (from d)
      * when decrypting/reading data:
-     *   0: length of available data in input buffer (stream); 1: available space in read buffer (d); 2: next available memory location for data (from d)
+     *   0: length of available data in input buffer (stream)
+     *   1: available space in read buffer (d)
+     *   2: next available memory location for data (from d)
      */
     for (unsigned i = 0; i < OFFSET_SLOTS; i++)
         io_ptr->buffer->offset[i] = 0;
@@ -415,7 +420,7 @@ static ssize_t lzma_write(io_private_t *c, const void *d, size_t l)
             case LZMA_OK:
                 break;
             default:
-                return (log_message(LOG_ERROR, _("Unexpected error during compression : %d"), lr) , -1);
+                return -1;
         }
         if (c->lzma_handle.avail_out == 0)
         {
@@ -460,7 +465,7 @@ static ssize_t lzma_read(io_private_t *c, void *d, size_t l)
                     c->lzma_handle.avail_in = 1;
                     break;
                 default:
-                    return (log_message(LOG_ERROR, _("IO error [%d] @ %s:%d:%s : %s"), errno, __FILE__, __LINE__, __func__, strerror(errno)) , -1);
+                    return -1;
             }
         }
 proc_remain:;
@@ -472,7 +477,7 @@ proc_remain:;
             case LZMA_OK:
                 break;
             default:
-                return (log_message(LOG_ERROR, _("Unexpected error during decompression : %d"), lr) , -1);
+                return -1;
         }
 
         if (c->lzma_handle.avail_out == 0 || c->eof != EOF_NO)
@@ -583,7 +588,7 @@ static void io_do_compress(io_private_t *io_ptr)
     lzf[0].options = &lzo;
     lzf[1].id = LZMA_VLI_UNKNOWN;
     if (lzma_stream_encoder(&io_ptr->lzma_handle, lzf, LZMA_CHECK_NONE) != LZMA_OK)
-        return (log_message(LOG_ERROR, _("Could not setup liblzma for compression!")) , (void)NULL);
+        return;
     io_ptr->lzma_init = true;
     return;
 }
@@ -594,7 +599,7 @@ static void io_do_decompress(io_private_t *io_ptr)
     io_ptr->lzma_handle = l;
 
     if (lzma_stream_decoder(&io_ptr->lzma_handle, UINT64_MAX, 0/*LZMA_CONCATENATED*/) != LZMA_OK)
-        return (log_message(LOG_ERROR, _("Could not setup liblzma for decompression!")) , (void)NULL);
+        return;
 
     io_ptr->lzma_init = true;
     return;

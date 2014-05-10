@@ -27,11 +27,9 @@
 #include <unistd.h>
 
 #ifndef __APPLE__
-#include "common/common.h"
-#include "common/logging.h"
+    #include "common/common.h"
 #else
-#include "common.h"
-#include "logging.h"
+    #include "common.h"
 #endif
 
 #ifdef _WIN32
@@ -52,17 +50,11 @@ extern void recursive_mkdir(const char *path, mode_t mode)
         {
             *p = '\0';
             if (access(opath, F_OK))
-            {
-                log_message(LOG_EVERYTHING, _("Creating directory : %s"), opath);
                 mkdir(opath, mode);
-            }
             *p = '/';
         }
     if (access(opath, F_OK)) /* if path is not terminated with / */
-    {
-        log_message(LOG_EVERYTHING, _("Creating directory : %s"), opath);
         mkdir(opath, mode);
-    }
     free(opath);
     return;
 }

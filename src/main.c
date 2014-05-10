@@ -35,7 +35,6 @@
 
 #include "common/common.h"
 #include "common/error.h"
-#include "common/logging.h"
 #include "common/version.h"
 
 #ifdef _WIN32
@@ -79,12 +78,13 @@ int main(int argc, char **argv)
      * start background thread to check for newer version of encrypt
      *
      * NB If (When) encrypt makes it into a package manager for some
-     * distro this can/should be removed as it will be unnecessary
+     * distros this can/should be removed as it will be unnecessary
      */
     version_check_for_update(ENCRYPT_VERSION, UPDATE_URL);
 
     /*
-     * list available algorithms if asked to (possibly both hash and crypto)
+     * list available algorithms if asked to (possibly both hash and
+     * crypto)
      */
     bool la = false;
     if (args.cipher && !strcasecmp(args.cipher, "list"))
@@ -278,14 +278,14 @@ int main(int argc, char **argv)
     {
         execute(c);
         /*
-         * only display the UI if not outputting to stdout (and if stderr is
-         * a terminal)
+         * only display the UI if not outputting to stdout (and if stderr
+         * is a terminal)
          */
         cli_display(c);
     }
 
     if (c->status != STATUS_SUCCESS)
-        fprintf(stderr, "%s\n", status(c));
+        fprintf(stderr, _("%s\n"), status(c));
 
     deinit(&c);
 
