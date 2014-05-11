@@ -61,7 +61,7 @@ extern args_t init(int argc, char **argv)
                  NULL, /* password */
                  NULL, /* source */
                  NULL, /* output */
-                 NULL, /* compatibility */
+                 strdup(get_version_string(VERSION_CURRENT)), /* compatibility */
                  KEY_SOURCE_PASSWORD,
                  true,    /* compress */
                  false,   /* follow links */
