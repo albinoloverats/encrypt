@@ -165,16 +165,17 @@ extern void deinit(crypto_t **c)
     crypto_t *z = *c;
 
     z->status = STATUS_CANCELLED;
-    pthread_join(*z->thread, NULL);
-    free(z->thread);
-
+    if (z->thread)
+    {
+        pthread_join(*z->thread, NULL);
+        free(z->thread);
+    }
     if (z->path)
         free(z->path);
     if (z->source)
         io_close(z->source);
     if (z->output)
         io_close(z->output);
-
     free(z);
     z = NULL;
     *c = NULL;
@@ -292,44 +293,44 @@ extern enum gcry_cipher_algos cipher_id_from_name(const char * const restrict n)
                 return list[i];
         }
     }
-    return 0;
+    return GCRY_CIPHER_NONE;
 }
 
 extern enum gcry_md_algos hash_id_from_name(const char * const restrict n)
 {
-    if (!n)
-        return 0;
-    int list[0xff] = { 0x00 };
-    int len = 0;
-    enum gcry_md_algos id = GCRY_MD_NONE;
-    for (unsigned i = 0; i < sizeof list; i++)
+    if (n)
     {
-        if (gcry_md_test_algo(id) == 0)
+        int list[0xff] = { 0x00 };
+        int len = 0;
+        enum gcry_md_algos id = GCRY_MD_NONE;
+        for (unsigned i = 0; i < sizeof list; i++)
         {
-            list[len] = id;
-            len++;
+            if (gcry_md_test_algo(id) == 0)
+            {
+                list[len] = id;
+                len++;
+            }
+            id++;
         }
-        id++;
+        for (int i = 0; i < len; i++)
+        {
+            const char *x = hash_name_from_id(list[i]);
+            if (!x)
+                continue;
+            if (!strcasecmp(x, n))
+                return list[i];
+        }
     }
-    for (int i = 0; i < len; i++)
-    {
-        const char *x = hash_name_from_id(list[i]);
-        if (!x)
-            continue;
-        if (!strcasecmp(x, n))
-            return list[i];
-    }
-    return 0;
+    return GCRY_MD_NONE;
 }
 
 extern enum gcry_cipher_modes mode_id_from_name(const char * const restrict n)
 {
-    if (!n)
-        return 0;
-    for (unsigned i = 0; i < sizeof MODES / sizeof( block_mode_t ); i++)
-        if (!strcasecmp(n, MODES[i].name))
-            return MODES[i].id;
-    return 0;
+    if (n)
+        for (unsigned i = 0; i < sizeof MODES / sizeof( block_mode_t ); i++)
+            if (!strcasecmp(n, MODES[i].name))
+                return MODES[i].id;
+    return GCRY_CIPHER_MODE_NONE;
 }
 
 extern const char *cipher_name_from_id(enum gcry_cipher_algos c)

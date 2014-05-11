@@ -161,6 +161,12 @@ extern crypto_t *encrypt_init(const char * const restrict i,
     z->hash = hash_id_from_name(h);
     z->mode = mode_id_from_name(m);
 
+    if (z->cipher == GCRY_CIPHER_NONE || z->hash == GCRY_MD_NONE || z->mode == GCRY_CIPHER_MODE_NONE)
+    {
+        z->status = STATUS_FAILED_UNKNOWN_ALGORITH;
+        return z;
+    }
+
     z->blocksize = BLOCK_SIZE;
     z->compressed = x;
     z->follow_links = f;
