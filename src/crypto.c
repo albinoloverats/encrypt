@@ -75,7 +75,9 @@ static const char *STATUS_MESSAGE[] =
     /* failures - decryption did not complete */
     "Failed: Invalid initialisation parameters!",
     "Failed: Unsupported version!",
-    "Failed: Unsupported algorithm!",
+    "Failed: Unsupported cipher algorithm!",
+    "Failed: Unsupported hash algorithm!",
+    "Failed: Unsupported cipher mode!",
     "Failed: Decryption failure! (Invalid password)",
     "Failed: Unsupported feature!",
     "Failed: Read/Write error!",
@@ -153,9 +155,7 @@ extern void execute(crypto_t *c)
 
 extern const char *status(const crypto_t * const restrict c)
 {
-    if (!c)
-        return NULL;
-    return STATUS_MESSAGE[c->status];
+    return c ? STATUS_MESSAGE[c->status] : NULL;
 }
 
 extern void deinit(crypto_t **c)
@@ -374,12 +374,9 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, cha
         return VERSION_UNKNOWN;
     uint64_t head[3] = { 0x0 };
     if ((read(f, head, sizeof head)) < 0)
-    {
-        close(f);
-        return VERSION_UNKNOWN;
-    }
+        return close(f) , VERSION_UNKNOWN;
     if (head[0] != htonll(HEADER_0) && head[1] != htonll(HEADER_1))
-        return (close(f) , VERSION_UNKNOWN);
+        return close(f) , VERSION_UNKNOWN;
 
     if (b)
     {
@@ -462,12 +459,12 @@ static const char *correct_aes_rijndael(const char * const restrict n)
 
 static const char *correct_blowfish128(const char * const restrict n)
 {
-    return ((void)n , NAME_BLOWFISH128);
+    return (void)n , NAME_BLOWFISH128;
 }
 
 static const char *correct_twofish256(const char * const restrict n)
 {
-    return ((void)n , NAME_TWOFISH256);
+    return (void)n , NAME_TWOFISH256;
 }
 
 static bool algorithm_is_duplicate(const char * const restrict n)

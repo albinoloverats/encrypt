@@ -76,10 +76,7 @@ extern crypto_t *decrypt_init(const char * const restrict i,
     if (i)
     {
         if (!(c->source = io_open(i, O_RDONLY | F_RDLCK, S_IRUSR | S_IWUSR)))
-        {
-            c->status = STATUS_FAILED_IO;
-            return c;
-        }
+            return c->status = STATUS_FAILED_IO , c;
     }
     else
         c->source = IO_STDIN_FILENO;
@@ -95,10 +92,7 @@ extern crypto_t *decrypt_init(const char * const restrict i,
         if (stat(o, &s) < 0)
         {
             if (errno != ENOENT)
-            {
-                c->status = STATUS_FAILED_IO;
-                return c;
-            }
+                return c->status = STATUS_FAILED_IO , c;
             /*
              * we've got a name, but don't yet know if it will be a file
              * or a directory
@@ -117,27 +111,17 @@ extern crypto_t *decrypt_init(const char * const restrict i,
             else if (S_ISREG(s.st_mode))
             {
                 if (!(c->output = io_open(o, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK, S_IRUSR | S_IWUSR)))
-                {
-                    c->status = STATUS_FAILED_IO;
-                    return c;
-                }
+                    return c->status = STATUS_FAILED_IO , c;
             }
             else
-            {
-                c->output = NULL; /* failure, doesn't matter what the handle is */
-                c->status = STATUS_FAILED_OUTPUT_MISMATCH;
-                return c;
-            }
+                return c->status = STATUS_FAILED_OUTPUT_MISMATCH , c;
         }
     }
     else
         c->output = IO_STDOUT_FILENO;
 
     if (!k)
-    {
-        c->status = STATUS_FAILED_INIT;
-        return c;
-    }
+        return c->status = STATUS_FAILED_INIT , c;
     if (l)
     {
         if (!(c->key = malloc(l)))
@@ -149,10 +133,7 @@ extern crypto_t *decrypt_init(const char * const restrict i,
     {
         int64_t kf = open(k, O_RDONLY | F_RDLCK, S_IRUSR | S_IWUSR);
         if (kf < 0)
-        {
-            c->status = STATUS_FAILED_IO;
-            return c;
-        }
+            return c->status = STATUS_FAILED_IO , c;
         c->length = lseek(kf, 0, SEEK_END);
         lseek(kf, 0, SEEK_SET);
         if (!(c->key = malloc(c->length)))
@@ -335,10 +316,7 @@ static bool read_verification_sum(crypto_t *c)
     y = ntohll(y);
     z = ntohll(z);
     if ((x ^ y) != z)
-    {
-        c->status = STATUS_FAILED_DECRYPTION;
-        return false;
-    }
+        return c->status = STATUS_FAILED_DECRYPTION, false;
     return true;
 }
 

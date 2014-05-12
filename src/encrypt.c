@@ -104,14 +104,8 @@ extern crypto_t *encrypt_init(const char * const restrict i,
             z->path = strdup(i);
             z->directory = true;
         }
-        else
-        {
-            if (!(z->source = io_open(i, O_RDONLY | F_RDLCK, S_IRUSR | O_BINARY | S_IWUSR)))
-            {
-                z->status = STATUS_FAILED_IO;
-                return z;
-            }
-        }
+        else if (!(z->source = io_open(i, O_RDONLY | F_RDLCK, S_IRUSR | O_BINARY | S_IWUSR)))
+            return z->status = STATUS_FAILED_IO , z;
     }
     else
         z->source = IO_STDIN_FILENO;
@@ -119,19 +113,13 @@ extern crypto_t *encrypt_init(const char * const restrict i,
     if (o)
     {
         if (!(z->output = io_open(o, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK | O_BINARY, S_IRUSR | S_IWUSR)))
-        {
-            z->status = STATUS_FAILED_OUTPUT_MISMATCH;
-            return z;
-        }
+            return z->status = STATUS_FAILED_OUTPUT_MISMATCH , z;
     }
     else
         z->output = IO_STDOUT_FILENO;
 
     if (!k)
-    {
-        z->status = STATUS_FAILED_INIT;
-        return z;
-    }
+        return z->status = STATUS_FAILED_INIT , z;
     if (l)
     {
         if (!(z->key = malloc(l)))
@@ -143,10 +131,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
     {
         int64_t kf = open(k, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR);
         if (kf < 0)
-        {
-            z->status = STATUS_FAILED_IO;
-            return z;
-        }
+            return z->status = STATUS_FAILED_IO , z;
         z->length = lseek(kf, 0, SEEK_END);
         lseek(kf, 0, SEEK_SET);
         if (!(z->key = malloc(z->length)))
@@ -157,15 +142,12 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 
     z->process = process;
 
-    z->cipher = cipher_id_from_name(c);
-    z->hash = hash_id_from_name(h);
-    z->mode = mode_id_from_name(m);
-
-    if (z->cipher == GCRY_CIPHER_NONE || z->hash == GCRY_MD_NONE || z->mode == GCRY_CIPHER_MODE_NONE)
-    {
-        z->status = STATUS_FAILED_UNKNOWN_ALGORITH;
-        return z;
-    }
+    if ((z->cipher = cipher_id_from_name(c)) == GCRY_CIPHER_NONE)
+        return z->status = STATUS_FAILED_UNKNOWN_CIPHER_ALGORITHM , z;
+    if ((z->hash = hash_id_from_name(h)) == GCRY_MD_NONE)
+        return z->status = STATUS_FAILED_UNKNOWN_HASH_ALGORITHM , z;
+    if ((z->mode = mode_id_from_name(m)) == GCRY_CIPHER_MODE_NONE)
+        return z->status = STATUS_FAILED_UNKNOWN_CIPHER_MODE , z;
 
     z->blocksize = BLOCK_SIZE;
     z->compressed = x;

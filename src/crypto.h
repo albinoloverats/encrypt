@@ -64,23 +64,25 @@
 typedef enum
 {
     /* success and running states */
-    STATUS_SUCCESS,                 /*!< Success */
-    STATUS_INIT,                    /*!< Initialisation in progress or complete */
-    STATUS_RUNNING,                 /*!< Execution is in progress */
-    STATUS_CANCELLED,               /*!< User cancelled the operation */
+    STATUS_SUCCESS,                         /*!< Success */
+    STATUS_INIT,                            /*!< Initialisation in progress or complete */
+    STATUS_RUNNING,                         /*!< Execution is in progress */
+    STATUS_CANCELLED,                       /*!< User cancelled the operation */
     /* failures - decryption did not complete */
-    STATUS_FAILED_INIT,             /*!< Error during initialisation */
-    STATUS_FAILED_UNKNOWN_VERSION,  /*!< Failed due to unknown/unsupported encrypt data stream version */
-    STATUS_FAILED_UNKNOWN_ALGORITH, /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
-    STATUS_FAILED_DECRYPTION,       /*!< Failed decryption verification (likely wrong password) */
-    STATUS_FAILED_UNKNOWN_TAG,      /*!< Failed due to unknown tag */
-    STATUS_FAILED_IO,               /*!< Read/write error */
-    STATUS_FAILED_KEY,              /*!< Key generation/read error */
-    STATUS_FAILED_OUTPUT_MISMATCH,  /*!< Tried to write directory into a file or vice-versa */
-    STATUS_FAILED_OTHER,            /*!< Unknown error */
+    STATUS_FAILED_INIT,                     /*!< Error during initialisation */
+    STATUS_FAILED_UNKNOWN_VERSION,          /*!< Failed due to unknown/unsupported encrypt data stream version */
+    STATUS_FAILED_UNKNOWN_CIPHER_ALGORITHM, /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
+    STATUS_FAILED_UNKNOWN_HASH_ALGORITHM,   /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
+    STATUS_FAILED_UNKNOWN_CIPHER_MODE,      /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
+    STATUS_FAILED_DECRYPTION,               /*!< Failed decryption verification (likely wrong password) */
+    STATUS_FAILED_UNKNOWN_TAG,              /*!< Failed due to unknown tag */
+    STATUS_FAILED_IO,                       /*!< Read/write error */
+    STATUS_FAILED_KEY,                      /*!< Key generation/read error */
+    STATUS_FAILED_OUTPUT_MISMATCH,          /*!< Tried to write directory into a file or vice-versa */
+    STATUS_FAILED_OTHER,                    /*!< Unknown error */
     /* warnings - decryption finished but with possible errors */
-    STATUS_WARNING_CHECKSUM,        /*!< Data checksum was invalid, possible data corruption */
-    STATUS_WARNING_LINK             /*!< Warning where links are unsupported by the system */
+    STATUS_WARNING_CHECKSUM,                /*!< Data checksum was invalid, possible data corruption */
+    STATUS_WARNING_LINK                     /*!< Warning where links are unsupported by the system */
 }
 crypto_status_e;
 

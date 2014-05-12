@@ -204,7 +204,7 @@ extern void io_encryption_init(IO_HANDLE ptr,
 {
     io_private_t *io_ptr = ptr;
     if (!io_ptr || io_ptr->fd < 0)
-        return (errno = EBADF , (void)NULL);
+        return errno = EBADF , (void)NULL;
     /*
      * start setting up the encryption buffer
      */
@@ -278,7 +278,7 @@ extern void io_encryption_checksum_init(IO_HANDLE ptr, enum gcry_md_algos h)
 {
     io_private_t *io_ptr = ptr;
     if (!io_ptr || io_ptr->fd < 0)
-        return (errno = EBADF , (void)NULL);
+        return errno = EBADF , (void)NULL;
     io_ptr->hash_init ? gcry_md_reset(io_ptr->hash_handle) : gcry_md_open(&io_ptr->hash_handle, h, GCRY_MD_FLAG_SECURE);
     io_ptr->hash_init = true;
     return;
@@ -288,9 +288,9 @@ extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l)
 {
     io_private_t *io_ptr = ptr;
     if (!io_ptr || io_ptr->fd < 0)
-        return (errno = EBADF , (void)NULL);
+        return errno = EBADF , (void)NULL;
     if (!io_ptr->hash_init)
-        return (*l = 0 , (void)NULL);
+        return *l = 0 , (void)NULL;
     *l = gcry_md_get_algo_dlen(gcry_md_get_algo(io_ptr->hash_handle));
     uint8_t *x = realloc(*b, *l);
     if (!x)
@@ -304,7 +304,7 @@ extern void io_compression_init(IO_HANDLE ptr)
 {
     io_private_t *io_ptr = ptr;
     if (!io_ptr || io_ptr->fd < 0)
-        return (errno = EBADF , (void)NULL);
+        return errno = EBADF , (void)NULL;
     io_ptr->operation = IO_LZMA;
     io_ptr->lzma_init = false;
     return;
@@ -314,7 +314,7 @@ extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l)
 {
     io_private_t *io_ptr = f;
     if (!io_ptr || io_ptr->fd < 0)
-        return (errno = EBADF , -1);
+        return errno = EBADF , -1;
 
     if (io_ptr->hash_init)
         gcry_md_write(io_ptr->hash_handle, d, l);
@@ -341,7 +341,7 @@ extern ssize_t io_read(IO_HANDLE f, void *d, size_t l)
 {
     io_private_t *io_ptr = f;
     if (!io_ptr || io_ptr->fd < 0)
-        return (errno = EBADF , -1);
+        return errno = EBADF , -1;
 
     ssize_t r = 0;
     switch (io_ptr->operation)
@@ -374,7 +374,7 @@ extern int io_sync(IO_HANDLE ptr)
 {
     io_private_t *io_ptr = ptr;
     if (!io_ptr || io_ptr->fd < 0)
-        return (errno = EBADF , -1);
+        return errno = EBADF , -1;
 
     switch (io_ptr->operation)
     {
@@ -387,14 +387,14 @@ extern int io_sync(IO_HANDLE ptr)
         case IO_DEFAULT:
             return fsync(io_ptr->fd);
     }
-    return (errno = EINVAL , -1);
+    return errno = EINVAL , -1;
 }
 
 extern off_t io_seek(IO_HANDLE ptr, off_t o, int w)
 {
     io_private_t *io_ptr = ptr;
     if (!io_ptr || io_ptr->fd < 0)
-        return (errno = EBADF , -1);
+        return errno = EBADF , -1;
     return lseek(io_ptr->fd, o, w);
 }
 
@@ -487,7 +487,8 @@ proc_remain:;
 
 static int lzma_sync(io_private_t *c)
 {
-    return (lzma_write(c, NULL, 0) , enc_sync(c));
+    lzma_write(c, NULL, 0);
+    return enc_sync(c);
 }
 
 static ssize_t enc_write(io_private_t *f, const void *d, size_t l)
@@ -573,7 +574,8 @@ static ssize_t enc_read(io_private_t *f, void *d, size_t l)
 
 static int enc_sync(io_private_t *f)
 {
-    return (enc_write(f, NULL, 0) , 0);
+    enc_write(f, NULL, 0);
+    return 0;
 }
 
 static void io_do_compress(io_private_t *io_ptr)
