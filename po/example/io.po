@@ -1,48 +1,26 @@
-#: src/io.c:213
-#. See common/common.po for the definitive "Out of memory" translation
+## Typically the IO functions will use the default error code and message
+## from the standard system calls.
 
-#: src/io.c:223
-#. See common/common.po for the definitive "Out of memory" translation
+#: src/io.c:212
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/io.c:232
-#. See common/common.po for the definitive "Out of memory" translation
+#: src/io.c:222
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/io.c:241
-#. See common/common.po for the definitive "Out of memory" translation
+#: src/io.c:231
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/io.c:248
-#. See common/common.po for the definitive "Out of memory" translation
+#: src/io.c:240
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/io.c:257
-#. See common/common.po for the definitive "Out of memory" translation
+#: src/io.c:250
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/io.c:292
-#. See common/common.po for the definitive "Out of memory" translation
+#: src/io.c:259
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/io.c:418
-#| Unexpected error during compression : %d
-msgid "Unexpected error during compression : %d"
-msgstr ""
+#: src/io.c:297
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/io.c:463
-#| IO error [%d] @ %s:%d:%s : %s
-msgid "IO error [%d] @ %s:%d:%s : %s"
-msgstr ""
-
-#: src/io.c:475
-#| Unexpected error during decompression : %d
-msgid "Unexpected error during decompression : %d"
-msgstr ""
-
-#: src/io.c:545
-#. See common/common.po for the definitive "Out of memory" translation
-
-#: src/io.c:586
-#| Could not setup liblzma for compression!
-msgid "Could not setup liblzma for compression!"
-msgstr ""
-
-#: src/io.c:597
-#| Could not setup liblzma for decompression!
-msgid "Could not setup liblzma for decompression!"
-msgstr ""
+#: src/io.c:551
+#. See common/common.po for the definitive “Out of memory …” message translation

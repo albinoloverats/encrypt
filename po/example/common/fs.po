@@ -1,9 +1,0 @@
-#: src/common/fs.c:56
-#| Creating directory : %s
-msgid "Creating directory : %s"
-msgstr ""
-
-#: src/common/fs.c:63
-#| Creating directory : %s
-msgid "Creating directory : %s"
-msgstr ""

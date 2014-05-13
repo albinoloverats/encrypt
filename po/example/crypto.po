@@ -1,102 +1,16 @@
-#: src/crypto.c:134
-#| Initialising GNU Crypt library
-msgid "Initialising GNU Crypt library"
-msgstr ""
-
 #: src/crypto.c:136
 #| Could not find GNU Crypt library
 msgid "Could not find GNU Crypt library"
 msgstr ""
 
-#: src/crypto.c:145
-#| Invalid cryptographic object!
-msgid "Invalid cryptographic object!"
-msgstr ""
+#: src/crypto.c:205
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypto.c:146
-#| Executing crypto instance %p in background
-msgid "Executing crypto instance %p in background"
-msgstr ""
+#: src/crypto.c:241
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypto.c:161
-#| Status [%d] : %s
-msgid "Status [%d] : %s"
-msgstr ""
+#: src/crypto.c:264
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypto.c:170
-#| Deleting crypto instance %p, and freeing resources
-msgid "Deleting crypto instance %p, and freeing resources"
-msgstr ""
-
-#: src/crypto.c:209
-#. See common/common.po for the definitive "Out of memory" translation
-
-#: src/crypto.c:245
-#. See common/common.po for the definitive "Out of memory" translation
-
-#: src/crypto.c:268
-#. See common/common.po for the definitive "Out of memory" translation
-
-#: src/crypto.c:298
-#| Found requested encryption algorithm: %s
-msgid "Found requested encryption algorithm: %s"
-msgstr ""
-
-#: src/crypto.c:303
-#| Could not find requested encryption algorithm: %s
-msgid "Could not find requested encryption algorithm: %s"
-msgstr ""
-
-#: src/crypto.c:330
-#| Found requested hash: %s
-msgid "Found requested hash: %s"
-msgstr ""
-
-#: src/crypto.c:334
-#| Could not find requested hash: %s
-msgid "Could not find requested hash: %s"
-msgstr ""
-
-#: src/crypto.c:345
-#| Found requested mode: %s
-msgid "Found requested mode: %s"
-msgstr ""
-
-#: src/crypto.c:348
-#| Could not find requested mode: %s
-msgid "Could not find requested mode: %s"
-msgstr ""
-
-#: src/crypto.c:379
-#| Found requested mode: %s
-msgid "Found requested mode: %s"
-msgstr ""
-
-#: src/crypto.c:382
-#| Could not find requested mode: %d
-msgid "Could not find requested mode: %d"
-msgstr ""
-
-#: src/crypto.c:394
-#. See src/io.po for "IO error" translation
-
-#: src/crypto.c:398
-#. See src/io.po for "IO error" translation
-
-#: src/crypto.c:436
-#| File encrypted with version %s
-msgid "File encrypted with version %s"
-msgstr ""
-
-#: src/crypto.c:437
-#| File encrypted with unknown, or more recent release of encrypt
-msgid "File encrypted with unknown, or more recent release of encrypt"
-msgstr ""
-
-#: src/crypto.c:458
-#| Unknown version, defaulting to current : %s
-msgid "Unknown version, defaulting to current : %s"
-msgstr ""
-
-#: src/crypto.c:482
-#. See common/common.po for the definitive "Out of memory" translation
+#: src/crypto.c:456
+#. See common/common.po for the definitive “Out of memory …” message translation

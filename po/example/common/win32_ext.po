@@ -1,0 +1,5 @@
+#: src/common/win32_ext.c:58
+#. See common/common.po for the definitive “Out of memory …” message translation
+
+#: src/common/win32_ext.c:69
+#. See common/common.po for the definitive “Out of memory …” message translation

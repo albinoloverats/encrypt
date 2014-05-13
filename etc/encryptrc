@@ -24,7 +24,7 @@ cipher AES
 hash SHA256
 
 # Set the default mode to use for encryption
-mode OFB
+mode CTR
 
 # Set the level of backwards compatibility, by version number.
 version 2014.00

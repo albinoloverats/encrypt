@@ -1,165 +1,45 @@
-#: src/encrypt.c:92
-#. See common/common.po for the definitive "Out of memory" translation
+#: src/encrypt.c:91
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:104
-#| Encrypting directory tree : %s
-msgid "Encrypting directory tree : %s"
-msgstr ""
-
-#: src/encrypt.c:111
-#| Encrypting file : %s
-msgid "Encrypting file : %s"
-msgstr ""
-
-#: src/encrypt.c:114
-#. See src/io.po for "IO error" translation
-
-#: src/encrypt.c:122
-#| Encrypting stream from stdin
-msgid "Encrypting stream from stdin"
-msgstr ""
-
-#: src/encrypt.c:128
-#| Encrypting to file : %s
-msgid "Encrypting to file : %s"
-msgstr ""
-
-#: src/encrypt.c:131
-#. See src/io.po for "IO error" translation
+#: src/encrypt.c:126
+#. See common/common.po for the definitive “Out of memory …” message translation
 
 #: src/encrypt.c:138
-#| Encrypting to stdout
-msgid "Encrypting to stdout"
-msgstr ""
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:144
-#| Invalid key data
-msgid "Invalid key data"
-msgstr ""
-
-#: src/encrypt.c:151
-#. See common/common.po for the definitive "Out of memory" translation
-
-#: src/encrypt.c:160
-#. See src/io.po for "IO error" translation
-
-#: src/encrypt.c:167
-#. See common/common.po for the definitive "Out of memory" translation
-
-#: src/encrypt.c:200
+#: src/encrypt.c:174
 #| Compatibility with version %s does not allow encrypting directories
 msgid "Compatibility with version %s does not allow encrypting directories"
 msgstr ""
 
-#: src/encrypt.c:224
+#: src/encrypt.c:198
 #| We've reached an unreachable location in the code @ %s:%d:%s
 msgid "We've reached an unreachable location in the code @ %s:%d:%s"
 msgstr ""
 
-#: src/encrypt.c:226
-#| Encrypted file compatible with versions %s and later
-msgid "Encrypted file compatible with versions %s and later"
-msgstr ""
-
-#: src/encrypt.c:235
-#| Invalid cryptographic object!
-msgid "Invalid cryptographic object!"
-msgstr ""
-
 #: src/encrypt.c:278
-#| Starting encryption process
-msgid "Starting encryption process"
-msgstr ""
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:284
-#| Directory tree contains %" PRIi64 " entries
-msgid "Directory tree contains %" PRIi64 " entries"
-msgstr ""
+#: src/encrypt.c:285
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:306
-#. See common/common.po for the definitive "Out of memory" translation
+#: src/encrypt.c:341
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:313
-#. See common/common.po for the definitive "Out of memory" translation
+#: src/encrypt.c:345
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:360
-#| Writing standard header
-msgid "Writing standard header"
-msgstr ""
+#: src/encrypt.c:423
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:370
-#. See common/common.po for the definitive "Out of memory" translation
+#: src/encrypt.c:447
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:374
-#. See common/common.po for the definitive "Out of memory" translation
+#: src/encrypt.c:480
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:384
-#| Writing verification sum
-msgid "Writing verification sum"
-msgstr ""
+#: src/encrypt.c:526
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:407
-#| Writing metadata
-msgid "Writing metadata"
-msgstr ""
-
-#: src/encrypt.c:456
-#. See common/common.po for the definitive "Out of memory" translation
-
-#: src/encrypt.c:470
-#| Scanning directory : %s
-msgid "Scanning directory : %s"
-msgstr ""
-
-#: src/encrypt.c:481
-#. See common/common.po for the definitive "Out of memory" translation
-
-#: src/encrypt.c:507
-#| Found %i entries in %s
-msgid "Found %i entries in %s"
-msgstr ""
-
-#: src/encrypt.c:515
-#. See common/common.po for the definitive "Out of memory" translation
-
-#: src/encrypt.c:534
-#| Ignoring unsupported file type for : %s
-msgid "Ignoring unsupported file type for : %s"
-msgstr ""
-
-#: src/encrypt.c:548
-#| Storing directory : %s
-msgid "Storing directory : %s"
-msgstr ""
-
-#: src/encrypt.c:562
-#. See common/common.po for the definitive "Out of memory" translation
-
-#: src/encrypt.c:567
-#| Storing soft link : %s -> %s
-msgid "Storing soft link : %s -> %s"
-msgstr ""
-
-#: src/encrypt.c:581
-#| Storing link : %s -> %s
-msgid "Storing link : %s -> %s"
-msgstr ""
-
-#: src/encrypt.c:591
-#| Encrypting file : %s
-msgid "Encrypting file : %s"
-msgstr ""
-
-#: src/encrypt.c:625
-#| File %s is a duplicate of %ju:%ju
-msgid "File %s is a duplicate of %ju:%ju"
-msgstr ""
-
-#: src/encrypt.c:638
-#. See common/common.po for the definitive "Out of memory" translation
-
-#: src/encrypt.c:649
-#. See src/io.po for "IO error" translation
-
-#: src/encrypt.c:681
-#. See src/io.po for "IO error" translation
+#: src/encrypt.c:599
+#. See common/common.po for the definitive “Out of memory …” message translation

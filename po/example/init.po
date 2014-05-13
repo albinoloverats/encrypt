@@ -1,142 +1,119 @@
 ## When translating the options the white space is important so that
 ## everything lines up (the number of white space characters itself
-## isn't as long as everything is aligned)
+## isn't as long as everything is aligned in your language)
 
-#: src/init.c:77
-#. See common/common.po for the definitive "Out of memory" translation
+#: src/init.c:76
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/init.c:80
-#. See common/common.po for the definitive "Out of memory" translation
+#: src/init.c:79
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/init.c:261
-#. See common/common.po for the definitive "Out of memory" translation
+#: src/init.c:251
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/init.c:264
-#. See common/common.po for the definitive "Out of memory" translation
+#: src/init.c:254
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/init.c:289
-#| Updated %s to %s in config file
-msgid "Updated %s to %s in config file"
-msgstr ""
-
-#: src/init.c:325
+#: src/init.c:314
 #| %s version : %s\n%*s built on: %s %s\n      git commit: %s\n
 msgid "%s version : %s\n%*s built on: %s %s\n      git commit: %s\n"
 msgstr ""
 
-#: src/init.c:334
+#: src/init.c:323
 #| Usage:\n  %s %s\n
 msgid "Usage:\n  %s %s\n"
 msgstr ""
 
-#: src/init.c:344
+#: src/init.c:333
 #| Options:\n
 msgid "Options:\n"
 msgstr ""
 
-#: src/init.c:345
+#: src/init.c:334
 #|   -h, --help                   Display this message\n
 msgid "  -h, --help                   Display this message\n"
 msgstr ""
 
-#: src/init.c:346
+#: src/init.c:335
 #|   -l, --licence                Display GNU GPL v3 licence header\n
 msgid "  -l, --licence                Display GNU GPL v3 licence header\n"
 msgstr ""
 
-#: src/init.c:347
+#: src/init.c:336
 #|   -v, --version                Display application version\n
 msgid "  -v, --version                Display application version\n"
 msgstr ""
 
-#: src/init.c:348
+#: src/init.c:337
 #|   -d, --debug [log level]      Turn on debugging [to specified level]\n
 msgid "  -d, --debug [log level]      Turn on debugging [to specified level]\n"
 msgstr ""
 
-#: src/init.c:349
+#: src/init.c:338
 #|   -q, --quiet                  Turn off all but serious error messages\n
 msgid "  -q, --quiet                  Turn off all but serious error messages\n"
 msgstr ""
 
-#: src/init.c:350
+#: src/init.c:339
 #|   -g, --nogui                  Do not use the GUI, even if it's available\n
 msgid "  -g, --nogui                  Do not use the GUI, even if it's available\n"
 msgstr ""
 
-#: src/init.c:353
+#: src/init.c:342
 #|   -c, --cipher=<algorithm>     Algorithm to use to encrypt data\n
 msgid "  -c, --cipher=<algorithm>     Algorithm to use to encrypt data\n"
 msgstr ""
 
-#: src/init.c:354
+#: src/init.c:343
 #|   -s, --hash=<algorithm>       Hash algorithm to generate key\n
 msgid "  -s, --hash=<algorithm>       Hash algorithm to generate key\n"
 msgstr ""
 
-#: src/init.c:355
+#: src/init.c:344
 #|   -m, --mode=<mode>            The encryption mode to use\n
 msgid "  -m, --mode=<mode>            The encryption mode to use\n"
 msgstr ""
 
-#: src/init.c:357
+#: src/init.c:346
 #|   -k, --key=<key file>         File whose data will be used to generate the key\n
 msgid "  -k, --key=<key file>         File whose data will be used to generate the key\n"
 msgstr ""
 
-#: src/init.c:358
+#: src/init.c:347
 #|   -p, --password=<password>    Password used to generate the key\n
 msgid "  -p, --password=<password>    Password used to generate the key\n"
 msgstr ""
 
-#: src/init.c:361
+#: src/init.c:350
 #|   -x, --no-compress            Do not compress the plaintext using the xz algorithm\n
 msgid "  -x, --no-compress            Do not compress the plaintext using the xz algorithm\n"
 msgstr ""
 
-#: src/init.c:362
+#: src/init.c:351
 #|   -f, --follow                 Follow symlinks, the default is to store the link itself\n
 msgid "  -f, --follow                 Follow symlinks, the default is to store the link itself\n"
 msgstr ""
 
-#: src/init.c:363
+#: src/init.c:352
 #|   -b, --back-compat=<version>  Create an encrypted file that is backwards compatible\n
 msgid "  -b, --back-compat=<version>  Create an encrypted file that is backwards compatible\n"
 msgstr ""
 
-#: src/init.c:365
+#: src/init.c:354
 #| \nNotes:\n  If you do not supply a key or password, you will be prompted for one.\n
 msgid "\nNotes:\n  If you do not supply a key or password, you will be prompted for one.\n"
 msgstr ""
 
-#: src/init.c:368
+#: src/init.c:357
 #|   To see a list of available algorithms or modes use list as the argument.\n
 msgid "  To see a list of available algorithms or modes use list as the argument.\n"
 msgstr ""
 
-src/init.c:375:_(TEXT_LICENCE)
-#: src/init.c:400
-#| Unknown value %s for %s in config file; using default : %s
-msgid "Unknown value %s for %s in config file; using default : %s"
-msgstr ""
+#: src/init.c:364:
+#. See common/common.po for the translation of the GNU GPL header
 
-#: src/init.c:400
-#| true
-msgid "true"
-msgstr ""
+#: src/init.c:396
+#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/init.c:400
-#| false
-msgid "false"
-msgstr ""
-
-#: src/init.c:409
-#. See common/common.po for the definitive "Out of memory" translation
-
-#: src/init.c:415
-#. See common/common.po for the definitive "Out of memory" translation
-
-#: src/init.c:421
-#| Read config value: %s=%s
-msgid "Read config value: %s=%s"
-msgstr ""
+#: src/init.c:402
+#. See common/common.po for the definitive “Out of memory …” message translation
