@@ -58,26 +58,6 @@ ProductVersion=2014.00
 AutoIncBuildNr=0
 
 [Unit2]
-FileName=src\common\logging.c
-CompileCpp=0
-Folder=src/common
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit3]
-FileName=src\common\logging.h
-CompileCpp=0
-Folder=src/common
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit4]
 FileName=src\common\error.c
 CompileCpp=0
 Folder=src/common
@@ -87,7 +67,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit5]
+[Unit3]
 FileName=src\common\error.h
 CompileCpp=0
 Folder=src/common
@@ -97,7 +77,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit6]
+[Unit4]
 FileName=src\common\common.h
 CompileCpp=0
 Folder=src/common
@@ -107,7 +87,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit7]
+[Unit5]
 FileName=src\common\win32_ext.c
 CompileCpp=0
 Folder=src/common
@@ -117,7 +97,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit8]
+[Unit6]
 FileName=src\common\win32_ext.h
 CompileCpp=0
 Folder=src/common
@@ -127,7 +107,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit11]
+[Unit7]
 FileName=src\encrypt.c
 CompileCpp=0
 Folder=src
@@ -137,7 +117,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit12]
+[Unit8]
 FileName=src\encrypt.h
 CompileCpp=0
 Folder=src
@@ -167,7 +147,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit14]
+[Unit11]
 FileName=src\init.h
 CompileCpp=0
 Folder=src
@@ -177,7 +157,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit15]
+[Unit12]
 FileName=src\gui-gtk.h
 CompileCpp=0
 Folder=src
@@ -187,7 +167,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit16]
+[Unit13]
 FileName=src\gui-gtk.c
 CompileCpp=0
 Folder=src
@@ -197,7 +177,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit13]
+[Unit14]
 FileName=src\init.c
 CompileCpp=0
 Folder=src
@@ -207,7 +187,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit17]
+[Unit15]
 FileName=src\common\version.h
 CompileCpp=0
 Folder=src/common
@@ -217,7 +197,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit18]
+[Unit16]
 FileName=src\common\tlv.c
 CompileCpp=0
 Folder=src/common
@@ -227,7 +207,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit19]
+[Unit17]
 FileName=src\common\tlv.h
 CompileCpp=0
 Folder=src/common
@@ -237,7 +217,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit20]
+[Unit18]
 FileName=src\common\version.c
 CompileCpp=0
 Folder=src/common
@@ -247,7 +227,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit22]
+[Unit19]
 FileName=src\crypto.c
 CompileCpp=0
 Folder=src
@@ -257,7 +237,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit23]
+[Unit20]
 FileName=src\crypto.h
 CompileCpp=0
 Folder=src
@@ -267,7 +247,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit24]
+[Unit21]
 FileName=src\decrypt.c
 CompileCpp=0
 Folder=src
@@ -277,7 +257,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit25]
+[Unit22]
 FileName=src\decrypt.h
 CompileCpp=0
 Folder=src
@@ -287,7 +267,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit26]
+[Unit23]
 FileName=src\gui.h
 CompileCpp=0
 Folder=src
@@ -297,7 +277,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit27]
+[Unit24]
 FileName=src\cli.c
 CompileCpp=0
 Folder=src
@@ -307,7 +287,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit21]
+[Unit25]
 FileName=src\cli.h
 CompileCpp=0
 Folder=src
@@ -317,7 +297,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit28]
+[Unit26]
 FileName=src\common\fs.h
 CompileCpp=0
 Folder=src/common
@@ -327,7 +307,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit29]
+[Unit27]
 FileName=src\common\fs.c
 CompileCpp=0
 Folder=src/common
