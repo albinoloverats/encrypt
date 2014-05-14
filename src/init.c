@@ -334,8 +334,6 @@ extern void show_help(void)
     fprintf(stderr, _("  -h, --help                   Display this message\n"));
     fprintf(stderr, _("  -l, --licence                Display GNU GPL v3 licence header\n"));
     fprintf(stderr, _("  -v, --version                Display application version\n"));
-    fprintf(stderr, _("  -d, --debug [log level]      Turn on debugging [to specified level]\n"));
-    fprintf(stderr, _("  -q, --quiet                  Turn off all but serious error messages\n"));
     fprintf(stderr, _("  -g, --nogui                  Do not use the GUI, even if it's available\n"));
     if (!strncasecmp(program_invocation_short_name, APP_NAME, strlen(APP_NAME)))
     {
