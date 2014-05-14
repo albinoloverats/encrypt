@@ -390,7 +390,6 @@ static bool read_metadata(crypto_t *c)
 
 static void skip_random_data(crypto_t *c)
 {
-#ifndef __DEBUG__
     uint8_t l;
     io_read(c->source, &l, sizeof l);
     uint8_t *b = malloc(l);
@@ -398,7 +397,6 @@ static void skip_random_data(crypto_t *c)
         die(_("Out of memory @ %s:%d:%s [%hhu]"), __FILE__, __LINE__, __func__, l);
     io_read(c->source, b, l);
     free(b);
-#endif
     return (void)c;
 }
 

@@ -415,9 +415,12 @@ static inline void write_metadata(crypto_t *c)
 
 static inline void write_random_data(crypto_t *c)
 {
-#ifndef __DEBUG__
     uint8_t l;
+#ifndef __DEBUG__
     gcry_create_nonce(&l, sizeof l);
+#else
+    l = 1; /* keep the same structure (include this junk) but limit it */
+#endif
     uint8_t *b = malloc(l);
     if (!b)
         die(_("Out of memory @ %s:%d:%s [%hhu]"), __FILE__, __LINE__, __func__, l);
@@ -425,7 +428,6 @@ static inline void write_random_data(crypto_t *c)
     io_write(c->output, &l, sizeof l);
     io_write(c->output, b, l);
     free(b);
-#endif
     return (void)c;
 }
 
