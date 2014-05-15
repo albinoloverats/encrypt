@@ -5,14 +5,14 @@ UnitCount=29
 Type=0
 Ver=1
 ObjFiles=
-Includes=src;C:\extra\include
-Libs=C:\extra\lib
+Includes=src;C:\extra\curl-7.34.0-devel-mingw64\include;C:\extra\gtk+-bundle_3.6.4-20130921_win32\include;C:\extra\xz-5.0.5-windows\include
+Libs=C:\extra\curl-7.34.0-devel-mingw64\lib64;C:\extra\gtk+-bundle_3.6.4-20130921_win32\lib;C:\extra\xz-5.0.5-windows\bin_x86-64
 PrivateResource=src\encrypt_private.rc
 ResourceIncludes=
 MakeIncludes=
-Compiler=-DBUILD_GUI_@@_-D_GNU_SOURCE_@@_-D_FILE_OFFSET_BITS=64_@@_-DLOG_DEFAULT=LOG_ERROR_@@_-std=gnu99_@@_-mms-bitfields_@@_-I"C:\extra\gtk\include"_@@_-I"C:\extra\gtk\include\gtk-2.0" _@@_-I"C:\extra\gtk\include\atk-1.0" _@@_-I"C:\extra\gtk\include\pango-1.0" _@@_-I"C:\extra\gtk\include\glib-2.0" _@@_-I"C:\extra\gtk\lib\gtk-2.0\include" _@@_-I"C:\extra\gtk\lib\glib-2.0\include" _@@_-I"C:\extra\gtk\include\freetype2"_@@_-I"C:\extra\gtk\include\gail-1.0"_@@_-I"C:\extra\gtk\include\gdk-pixbuf-2.0"_@@_-I"C:\extra\gtk\include\gio-win32-2.0"_@@_-I"C:\extra\gtk\include\cairo"_@@_
+Compiler=-DBUILD_GUI_@@_-D_GNU_SOURCE_@@_-D_FILE_OFFSET_BITS=64_@@_-DLOG_DEFAULT=LOG_ERROR_@@_-std=gnu99_@@_-mms-bitfields_@@_-I"C:\extra\gtk+-bundle_3.6.4-20130921_win32\include"_@@_-I"C:\extra\gtk+-bundle_3.6.4-20130921_win32\include\atk-1.0"_@@_-I"C:\extra\gtk+-bundle_3.6.4-20130921_win32\include\cairo"_@@_-I"C:\extra\gtk+-bundle_3.6.4-20130921_win32\include\fontconfig"_@@_-I"C:\extra\gtk+-bundle_3.6.4-20130921_win32\include\freetype2"_@@_-I"C:\extra\gtk+-bundle_3.6.4-20130921_win32\include\gail-3.0"_@@_-I"C:\extra\gtk+-bundle_3.6.4-20130921_win32\include\gdk-pixbuf-2.0"_@@_-I"C:\extra\gtk+-bundle_3.6.4-20130921_win32\include\gio-win32-2.0"_@@_-I"C:\extra\gtk+-bundle_3.6.4-20130921_win32\include\glib-2.0"_@@_-I"C:\extra\gtk+-bundle_3.6.4-20130921_win32\include\gtk-3.0"_@@_-I"C:\extra\gtk+-bundle_3.6.4-20130921_win32\include\jasper"_@@_-I"C:\extra\gtk+-bundle_3.6.4-20130921_win32\include\libcroco-0.6"_@@_-I"C:\extra\gtk+-bundle_3.6.4-20130921_win32\include\libpng15"_@@_-I"C:\extra\gtk+-bundle_3.6.4-20130921_win32\include\librsvg-2.0"_@@_-I"C:\extra\gtk+-bundle_3.6.4-20130921_win32\include\libxml2"_@@_-I"C:\extra\gtk+-bundle_3.6.4-20130921_win32\include\lzma"_@@_-I"C:\extra\gtk+-bundle_3.6.4-20130921_win32\include\pango-1.0"_@@_-I"C:\extra\gtk+-bundle_3.6.4-20130921_win32\include\pixman-1"_@@_-I"C:\extra\gtk+-bundle_3.6.4-20130921_win32\lib\gtk-3.0\include"_@@_-I"C:\extra\gtk+-bundle_3.6.4-20130921_win32\lib\glib-2.0\include"_@@_
 CppCompiler=
-Linker=-lgtk-win32-2.0 _@@_-lgdk-win32-2.0 _@@_-latk-1.0 _@@_-lgdk_pixbuf-2.0 _@@_-lpangowin32-1.0 _@@_-lgdi32 _@@_-lpango-1.0 _@@_-lgobject-2.0 _@@_-lgmodule-2.0 _@@_-lglib-2.0_@@_-lgladeui-1_@@_-lpthread_@@_-lcurldll_@@_-lgcrypt_@@_-lgpg-error_@@_-llzma_@@_
+Linker=-lpthread_@@_-lcurldll_@@_-lgcrypt_@@_-lgpg-error_@@_-llzma_@@_-latk-1.0_@@_-lcairo_@@_-lfontconfig_@@_-lgailutil_@@_-lgdk_pixbuf-2.0_@@_-lgdk-win32-3.0_@@_-lgio-2.0_@@_-lglib-2.0_@@_-lgmodule-2.0_@@_-lgobject-2.0_@@_-lgthread-2.0_@@_-lgtk-win32-3.0_@@_-lpango-1.0_@@_-lpangocairo-1.0_@@_-lpangoft2-1.0_@@_-lpangowin32-1.0
 IsCpp=0
 Icon=pixmaps\encrypt.ico
 ExeOutput=
