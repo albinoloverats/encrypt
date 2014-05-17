@@ -32,14 +32,14 @@
 #include <gcrypt.h>
 #include <lzma.h>
 
-#include "common/common.h"
-#include "common/error.h"
-
 #ifdef _WIN32
     #include "common/win32_ext.h"
 #endif
 
-#include "io.h"
+#include "common/common.h"
+#include "common/error.h"
+
+#include "cryptio.h"
 #include "crypto.h"
 
 #define IO_DUMMY_FD 0x42145c91

@@ -39,17 +39,17 @@
 
 #include <gcrypt.h>
 
-#include "common/common.h"
-#include "common/error.h"
-#include "common/tlv.h"
-
 #ifdef _WIN32
     #include "common/win32_ext.h"
 #endif
 
+#include "common/common.h"
+#include "common/error.h"
+#include "common/tlv.h"
+
 #include "crypto.h"
 #include "encrypt.h"
-#include "io.h"
+#include "cryptio.h"
 
 static void *process(void *);
 

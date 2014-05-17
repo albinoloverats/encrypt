@@ -47,35 +47,35 @@ char *program_invocation_short_name = NULL;
  * This code has been derived from an example in the glibc2 documentation.
  * This file is part of the psycopg module.
  */
-extern int asprintf(char **buffer, char *fmt, ...)
-{
-    /* guess we need no more than 200 chars of space */
-    int size = 200;
-    int nchars;
-    va_list ap;
-
-    if (!(*buffer = (char *)malloc(size)))
-        die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, size);
-
-    va_start(ap, fmt);
-    nchars = vsnprintf(*buffer, size, fmt, ap);
-    va_end(ap);
-
-    if (nchars >= size)
-    {
-        char *tmpbuff;
-        size = nchars + 1;
-        if (!(tmpbuff = (char *)realloc(*buffer, size)))
-            die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, size);
-
-        *buffer = tmpbuff;
-
-        va_start(ap, fmt);
-        nchars = vsnprintf(*buffer, size, fmt, ap);
-        va_end(ap);
-    }
-    return nchars < 0 ? nchars : size;
-}
+//extern int asprintf(char **buffer, char *fmt, ...)
+//{
+//    /* guess we need no more than 200 chars of space */
+//    int size = 200;
+//    int nchars;
+//    va_list ap;
+//
+//    if (!(*buffer = (char *)malloc(size)))
+//        die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, size);
+//
+//    va_start(ap, fmt);
+//    nchars = vsnprintf(*buffer, size, fmt, ap);
+//    va_end(ap);
+//
+//    if (nchars >= size)
+//    {
+//        char *tmpbuff;
+//        size = nchars + 1;
+//        if (!(tmpbuff = (char *)realloc(*buffer, size)))
+//            die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, size);
+//
+//        *buffer = tmpbuff;
+//
+//        va_start(ap, fmt);
+//        nchars = vsnprintf(*buffer, size, fmt, ap);
+//        va_end(ap);
+//    }
+//    return nchars < 0 ? nchars : size;
+//}
 
 extern ssize_t getline(char **lineptr, size_t *n, FILE *stream)
 {

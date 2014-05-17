@@ -18,11 +18,11 @@
  *
  */
 
-#ifndef _ENCRYPT_IO_H_
-#define _ENCRYPT_IO_H_
+#ifndef _ENCRYPT_CRYPTIO_H_
+#define _ENCRYPT_CRYPTIO_H_
 
 /*!
- * \file    io.h
+ * \file    cryptio.h
  * \author  Ashley M Anderson
  * \date    2009-2014
  * \brief   IO functions for encrypt
@@ -32,12 +32,18 @@
  */
 
 #include <stdint.h> /*!< Necessary include as c99 standard integer types are referenced in this header */
+#include <stdbool.h> /*!< Necessary include as c99 boolean type is referenced in this header */
 
 #define IO_STDIN_FILENO io_use_stdin() /*!< Macro wrapper for io_use_stdin() */
 #define IO_STDOUT_FILENO io_use_stdout() /*!< Macro wrapper for io_use_stdout() */
 #define IO_UNINITIALISED io_dummy_handle() /*!< Macro wrapper for io_dummy_handle() */
 
 typedef void * IO_HANDLE; /*<! Handle type for IO functions */
+
+#if defined(_WIN32) && !defined(_MODE_T_)
+#define	_MODE_T_
+typedef unsigned short mode_t;
+#endif
 
 /*!
  * \brief  Extra options passed to IO crypto init
@@ -239,4 +245,4 @@ extern void io_encryption_checksum_init(IO_HANDLE f, enum gcry_md_algos h) __att
  */
 extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l) __attribute__((nonnull(1)));
 
-#endif /* ! _ENCRYPT_IO_H_ */
+#endif /* ! _ENCRYPT_CRYPTIO_H_ */

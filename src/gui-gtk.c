@@ -37,13 +37,13 @@
 #include "gui.h"
 #include "gui-gtk.h"
 
-#include "common/common.h"
-#include "common/error.h"
-#include "common/version.h"
-
 #ifdef _WIN32
     #include "common/win32_ext.h"
 #endif
+
+#include "common/common.h"
+#include "common/error.h"
+#include "common/version.h"
 
 #include "init.h"
 #include "crypto.h"
@@ -84,23 +84,14 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
      */
     const char **ciphers = list_of_ciphers();
     unsigned slctd_cipher = 0;
-#ifndef _WIN32
+
     gtk_combo_box_text_remove_all((GtkComboBoxText *)data->crypto_combo);
     gtk_combo_box_text_append_text((GtkComboBoxText *)data->crypto_combo, SELECT_CIPHER);
-#else
-    for (unsigned i = 0; ciphers[i]; i++)
-        gtk_combo_box_remove_text((GtkComboBox *)data->crypto_combo, 0);
-    gtk_combo_box_append_text((GtkComboBox *)data->crypto_combo, SELECT_CIPHER);
-#endif
     for (unsigned i = 0; ciphers[i]; i++)
     {
         if (cipher && !strcasecmp(ciphers[i], cipher))
             slctd_cipher = i + 1;
-#ifndef _WIN32
         gtk_combo_box_text_append_text((GtkComboBoxText *)data->crypto_combo, ciphers[i]);
-#else
-        gtk_combo_box_append_text((GtkComboBox *)data->crypto_combo, ciphers[i]);
-#endif
     }
     gtk_combo_box_set_active((GtkComboBox *)data->crypto_combo, slctd_cipher);
 
@@ -109,23 +100,13 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
      */
     const char **hashes = list_of_hashes();
     unsigned slctd_hash = 0;
-#ifndef _WIN32
     gtk_combo_box_text_remove_all((GtkComboBoxText *)data->hash_combo);
     gtk_combo_box_text_append_text((GtkComboBoxText *)data->hash_combo, SELECT_HASH);
-#else
-    for (unsigned i = 0; hashes[i]; i++)
-        gtk_combo_box_remove_text((GtkComboBox *)data->hash_combo, 0);
-    gtk_combo_box_append_text((GtkComboBox *)data->hash_combo, SELECT_HASH);
-#endif
     for (unsigned i = 0; hashes[i]; i++)
     {
         if (hash && !strcasecmp(hashes[i], hash))
             slctd_hash = i + 1;
-#ifndef _WIN32
         gtk_combo_box_text_append_text((GtkComboBoxText *)data->hash_combo, hashes[i]);
-#else
-        gtk_combo_box_append_text((GtkComboBox *)data->hash_combo, hashes[i]);
-#endif
     }
     gtk_combo_box_set_active((GtkComboBox *)data->hash_combo, slctd_hash);
 
@@ -134,23 +115,13 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
      */
     const char **modes = list_of_modes();
     unsigned slctd_mode = 0;
-#ifndef _WIN32
     gtk_combo_box_text_remove_all((GtkComboBoxText *)data->mode_combo);
     gtk_combo_box_text_append_text((GtkComboBoxText *)data->mode_combo, SELECT_MODE);
-#else
-    for (unsigned i = 0; modes[i]; i++)
-        gtk_combo_box_remove_text((GtkComboBox *)data->mode_combo, 0);
-    gtk_combo_box_append_text((GtkComboBox *)data->mode_combo, SELECT_MODE);
-#endif
     for (unsigned i = 0; modes[i]; i++)
     {
         if (mode && !strcasecmp(modes[i], mode))
             slctd_mode = i + 1;
-#ifndef _WIN32
         gtk_combo_box_text_append_text((GtkComboBoxText *)data->mode_combo, modes[i]);
-#else
-        gtk_combo_box_append_text((GtkComboBox *)data->mode_combo, modes[i]);
-#endif
     }
     gtk_combo_box_set_active((GtkComboBox *)data->mode_combo, slctd_mode);
 

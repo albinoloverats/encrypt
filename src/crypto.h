@@ -31,12 +31,12 @@
  * Many of the constants, wrapper functions exist here.
  */
 
-#include <stdint.h>  /*!< Necessary include as c99 standard integer types are referenced in this header */
-#include <stdbool.h> /*!< Necessary include as c99 standard boolean type is referenced in this header */
-#include <time.h>    /*!< Necessary include as time_t type is referenced in this header */
-#include <pthread.h> /*!< Necessary include as pthread handle is referenced in this header */
-#include <gcrypt.h>  /*!< Necessary include as encryption modes are referenced in this header */
-#include "io.h"      /*!< Necessary as IO_HANDLE type is referenced in this header */
+#include <stdint.h>     /*!< Necessary include as c99 standard integer types are referenced in this header */
+#include <stdbool.h>    /*!< Necessary include as c99 standard boolean type is referenced in this header */
+#include <time.h>       /*!< Necessary include as time_t type is referenced in this header */
+#include <pthread.h>    /*!< Necessary include as pthread handle is referenced in this header */
+#include <gcrypt.h>     /*!< Necessary include as encryption modes are referenced in this header */
+#include "cryptio.h" /*!< Necessary as IO_HANDLE type is referenced in this header */
 
 #define ENCRYPT_VERSION "2014.00" /*!< Current (display) version of encrypt application */
 #define UPDATE_URL "https://albinoloverats.net/encrypt.release" /*!< URI to check for updates */

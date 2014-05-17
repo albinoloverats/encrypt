@@ -42,7 +42,7 @@
 #endif
 
 #include "crypto.h"
-#include "io.h"
+#include "cryptio.h"
 
 #define NAME_SHA1 "SHA1"
 #define NAME_SHA160 "SHA160"

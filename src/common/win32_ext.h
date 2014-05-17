@@ -23,10 +23,16 @@
 #ifndef _WIN32_EXT_H_
 #define _WIN32_EXT_H_
 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
+#include <winsock2.h>
 #include <windows.h>
 #include <sys/stat.h>
 #include <stdio.h>
 #include <dirent.h>
+#include <direct.h>
 
 #define srand48 srand  /*!< Quietly alias srand48 to be srand on Windows */
 #define lrand48 rand   /*!< Quietly alias lrand48 to be rand on Windows */
@@ -63,13 +69,13 @@
 #endif
 
 #define fsync(fd) _commit(fd)
-#define ftruncate(fd, sz) _chsize(fd, sz)
+//#define ftruncate(fd, sz) _chsize(fd, sz)
 #define alphasort NULL
 #define mkdir(dir, attr) _mkdir(dir)
 #define lstat(path, st) stat(path, st)
 #define link(old, new) CopyFile(old, new, FALSE)
 
-extern int asprintf(char **buffer, char *fmt, ...) __attribute__((nonnull(2), format(printf, 2, 3)));
+//extern int asprintf(char **buffer, char *fmt, ...) __attribute__((nonnull(2), format(printf, 2, 3)));
 
 extern ssize_t getline(char **lineptr, size_t *n, FILE *stream) __attribute__((nonnull(3)));
 
