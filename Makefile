@@ -18,11 +18,11 @@ GUILIBS  = `pkg-config --libs gtk+-3.0 gmodule-2.0`
 all: gui language man
 
 cli:
-	@$(CC) $(LIBS) $(CFLAGS) $(CPPFLAGS) $(SOURCE) $(COMMON) $(LIBS) -o $(APP)
+	@$(CC) $(CFLAGS) $(CPPFLAGS) $(SOURCE) $(COMMON) $(LIBS) -o $(APP)
 	-@echo "built \`$(SOURCE) $(COMMON)' --> \`$(APP)'"
 
 debug:
-	@$(CC) $(LIBS) $(CFLAGS) $(CPPFLAGS) $(SOURCE) $(COMMON) $(LIBS) $(DEBUG) -o $(APP)
+	@$(CC) $(CFLAGS) $(CPPFLAGS) $(SOURCE) $(COMMON) $(LIBS) $(DEBUG) -o $(APP)
 	-@echo "built \`$(SOURCE) $(COMMON)' --> \`$(APP)'"
 
 gui:
