@@ -54,17 +54,18 @@ Section "encrypt" SEC01
   SetOverwrite on
   File "encrypt.exe"
 
-  File "C:\extra\bin\libgpg-error-0.dll"
-  File "C:\extra\bin\libgcrypt-11.dll"
-  File "C:\MinGW\bin\libpthread-2.dll"
-  File "C:\extra\bin\libcurl.dll"
-  File "C:\extra\bin\libeay32.dll"
-  File "C:\extra\bin\libidn-11.dll"
-  File "C:\extra\bin\liblzma.dll"
-  File "C:\extra\bin\librtmp.dll"
-  File "C:\extra\bin\libssh2.dll"
-  File "C:\extra\bin\libssl32.dll"
-  File "C:\extra\bin\zlib1.dll"
+  File "C:\Program Files (x86)\Dev-Cpp\MinGW64\bin\libgcc_s_dw2-1.dll"
+
+  File "C:\extra\curl-7.34.0-devel-mingw32\bin\libcurl.dll"
+  File "C:\extra\curl-7.34.0-devel-mingw32\bin\libeay32.dll"
+  File "C:\extra\curl-7.34.0-devel-mingw32\bin\libidn-11.dll"
+  File "C:\extra\curl-7.34.0-devel-mingw32\bin\ssleay32.dll"
+  File "C:\extra\curl-7.34.0-devel-mingw32\bin\zlib1.dll"
+
+  File "C:\extra\libgcrypt-1.4.6-1\bin\libgcrypt-11.dll"
+  File "C:\extra\libgpg-error-1.10-1\bin\libgpg-error-0.dll"
+  File "C:\extra\pthreads-w32-2-9-1\dll\x86\pthreadGC2.dll"
+  File "C:\extra\xz-5.0.5-windows\bin_i486\liblzma.dll"
 
   SetOutPath "$INSTDIR\docs"
   File "docs\README"
@@ -83,6 +84,37 @@ Section "encrypt" SEC01
   Rename "MIT_LICENSE" "MIT_LICENSE.txt"
   File "docs\Apache_LICENSE"
   Rename "Apache_LICENSE" "Apache_LICENSE.txt"
+
+  SetOutPath "$INSTDIR\pixmaps"
+  File "pixmaps\encrypt.png"
+  File "pixmaps\encrypt_button.png"
+
+  SetOutPath "$INSTDIR\etc"
+  ${If} ${RunningX64}
+    File "etc\encrypt_w64.glade"
+    Rename "encrypt_w64.glade" "encrypt_win.glade"
+  ${Else}
+    File "etc\encrypt_w32.glade"
+    Rename "encrypt_w32.glade" "encrypt_win.glade"
+  ${EndIf}
+  File "etc\encryptrc"
+
+  SetOutPath "$INSTDIR"
+  CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\encrypt.lnk" "$INSTDIR\encrypt.exe"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Licence.lnk" "$INSTDIR\docs\LICENCE.txt"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\ReadMe.lnk" "$INSTDIR\docs\README.txt"
+SectionEnd
+
+Section "GTK+3 Runtime" SEC02
+  SetOutPath $INSTDIR
+    File "..\encrypt_extras\GTK+-Runtime-3.6.1_(TARNYKO).exe"
+    ExecWait "$INSTDIR\GTK+-Runtime-3.6.1_(TARNYKO).exe"
+  Delete "$INSTDIR\GTK+-Runtime-3.6.1_(TARNYKO).exe"
+SectionEnd
+
+Section "User Guide" SEC03
+  SetOverwrite on
 
   SetOutPath "$INSTDIR\docs\User Guide"
   File "..\encrypt_extras\mark_condic\User Guide\index.html"
@@ -110,41 +142,17 @@ Section "encrypt" SEC01
   File "..\encrypt_extras\mark_condic\User Guide\encrypt22.jpg"
   File "..\encrypt_extras\mark_condic\User Guide\encrypt22b.jpg"
 
-  SetOutPath "$INSTDIR\pixmaps"
-  File "pixmaps\encrypt.png"
-  File "pixmaps\encrypt_button.png"
-
-  SetOutPath "$INSTDIR\etc"
-  ${If} ${RunningX64}
-    File "etc\encrypt_w64.glade"
-    Rename "encrypt_w64.glade" "encrypt_win.glade"
-  ${Else}
-    File "etc\encrypt_w32.glade"
-    Rename "encrypt_w32.glade" "encrypt_win.glade"
-  ${EndIf}  
-  File "etc\encryptrc"
-
-  SetOutPath "$INSTDIR"
-  CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\encrypt.lnk" "$INSTDIR\encrypt.exe"
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Licence.lnk" "$INSTDIR\docs\LICENCE.txt"
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\ReadMe.lnk" "$INSTDIR\docs\README.txt"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\User Guide.lnk" "$INSTDIR\docs\User Guide\index.html"
 SectionEnd
 
-Section "GTK Runtime (v2.24.10)" SEC02
-  SetOutPath $INSTDIR
-    File "..\gtk2-runtime-2.24.10-2012-10-10-ash.exe"
-    ExecWait "$INSTDIR\gtk2-runtime-2.24.10-2012-10-10-ash.exe"
-  Delete "$INSTDIR\gtk2-runtime-2.24.10-2012-10-10-ash.exe"
-SectionEnd
-
 LangString DES01 ${LANG_ENGLISH} "$(^Name)"
-LangString DES02 ${LANG_ENGLISH} "GTK2 runtime environment (version 2.24.10). Unless you know what you're doing, keep this checked."
+LangString DES02 ${LANG_ENGLISH} "GTK+3 Runtime Environment (it's recommended you install this unless you know what you're doing)"
+LangString DES03 ${LANG_ENGLISH} "encrypt User Guide (kindly provided by Mark Condic)"
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC01} $(DES01)
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} $(DES02)
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC03} $(DES03)
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Section -AdditionalIcons
@@ -176,19 +184,18 @@ FunctionEnd
 Section Uninstall
   Delete "$INSTDIR\encrypt.exe"
 
-  Delete "$INSTDIR\gtk2-runtime-2.24.10-2012-10-10-ash.exe"
+  Delete "$INSTDIR\libgcc_s_dw2-1.dll"
 
-  Delete "$INSTDIR\libgcrypt-11.dll"
-  Delete "$INSTDIR\libgpg-error-0.dll"
-  Delete "$INSTDIR\libpthread-2.dll"
   Delete "$INSTDIR\libcurl.dll"
   Delete "$INSTDIR\libeay32.dll"
   Delete "$INSTDIR\libidn-11.dll"
-  Delete "$INSTDIR\liblzma.dll"
-  Delete "$INSTDIR\librtmp.dll"
-  Delete "$INSTDIR\libssh2.dll"
-  Delete "$INSTDIR\libssl32.dll"
+  Delete "$INSTDIR\ssleay32.dll"
   Delete "$INSTDIR\zlib1.dll"
+
+  Delete "$INSTDIR\libgcrypt-11.dll"
+  Delete "$INSTDIR\libgpg-error-0.dll"
+  Delete "$INSTDIR\pthreadGC2.dll"
+  Delete "$INSTDIR\liblzma.dll"
 
   Delete "$INSTDIR\docs\README.txt"
   Delete "$INSTDIR\docs\CHANGELOG.txt"
@@ -229,6 +236,8 @@ Section Uninstall
 
   Delete "$INSTDIR\etc\encrypt_win.glade"
   Delete "$INSTDIR\etc\encryptrc"
+
+  Delete "$INSTDIR\GTK+-Runtime-3.6.1_(TARNYKO).exe"
 
   Delete "$INSTDIR\uninst.exe"
 
