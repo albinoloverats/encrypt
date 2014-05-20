@@ -450,11 +450,10 @@ static const char *correct_aes_rijndael(const char * const restrict n)
     /*
      * use rijndael instead of AES as that's the actual cipher name
      */
-    static char *x = NULL;
-    if (!x)
-        if (!(asprintf(&x, "%s%s", NAME_RIJNDAEL, n + strlen(NAME_AES))))
-            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(NAME_RIJNDAEL) + strlen(n) - strlen(NAME_AES));
-    return x;
+    char *x = NULL;
+    if (!(asprintf(&x, "%s%s", NAME_RIJNDAEL, n + strlen(NAME_AES))))
+        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(NAME_RIJNDAEL) + strlen(n) - strlen(NAME_AES));
+    return (const char *)x;
 }
 
 static const char *correct_blowfish128(const char * const restrict n)

@@ -95,7 +95,7 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
         }
         [_outputFileChooser removeItemWithTitle:[NSString stringWithUTF8String:t]];
     }
-    
+
 #if 0
     if (gui_file_hack_output)
     {
@@ -300,9 +300,9 @@ clean_up:
         goto clean_up;
 
     en = TRUE;
-    
+
 clean_up:
-    
+
     [_encryptButton setEnabled:en];
 }
 
@@ -482,7 +482,7 @@ clean_up:
     for (unsigned i = 0; ciphers[i]; i++)
     {
         if (c && !strcasecmp(ciphers[i], c))
-            slctd_cipher = i;
+            slctd_cipher = i + 1;
         [_cipherCombo addItemWithTitle:[NSString stringWithUTF8String:ciphers[i]]];
     }
     [_cipherCombo selectItemAtIndex:slctd_cipher];
