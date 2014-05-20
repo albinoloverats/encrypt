@@ -34,17 +34,17 @@ src/common/error.o: src/common/error.c
 src/common/win32_ext.o: src/common/win32_ext.c
 	$(CC) -c src/common/win32_ext.c -o src/common/win32_ext.o $(CFLAGS)
 
-src/cryptio.o: src/cryptio.c
-	$(CC) -c src/cryptio.c -o src/cryptio.o $(CFLAGS)
-
 src/encrypt.o: src/encrypt.c
 	$(CC) -c src/encrypt.c -o src/encrypt.o $(CFLAGS)
 
-src/init.o: src/init.c
-	$(CC) -c src/init.c -o src/init.o $(CFLAGS)
+src/cryptio.o: src/cryptio.c
+	$(CC) -c src/cryptio.c -o src/cryptio.o $(CFLAGS)
 
 src/gui-gtk.o: src/gui-gtk.c
 	$(CC) -c src/gui-gtk.c -o src/gui-gtk.o $(CFLAGS)
+
+src/init.o: src/init.c
+	$(CC) -c src/init.c -o src/init.o $(CFLAGS)
 
 src/common/tlv.o: src/common/tlv.c
 	$(CC) -c src/common/tlv.c -o src/common/tlv.o $(CFLAGS)
