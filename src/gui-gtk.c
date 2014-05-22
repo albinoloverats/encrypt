@@ -255,6 +255,9 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
     {
         struct stat s;
         stat(open_file, &s);
+        char *dir = open_file;
+        if (S_ISREG(s.st_mode))
+            dir = basename(open_file);
         if (S_ISREG(s.st_mode) || S_ISDIR(s.st_mode))
         {
             gtk_label_set_text((GtkLabel *)data->open_file_label, basename(open_file));
@@ -267,7 +270,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
                 auto_select_algorithms(data, c, h, m);
             gtk_button_set_label((GtkButton *)data->encrypt_button, _encrypted ? LABEL_DECRYPT : LABEL_ENCRYPT);
             en = TRUE;
-            asprintf(&cwd, "%s", open_file);
+            asprintf(&cwd, "%s", dir);
         }
         else
             en = FALSE;
@@ -289,11 +292,14 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
         /*
          * if the destination exists, it has to be a regular file
          */
+        char *dir = save_file;
+        if (S_ISREG(s.st_mode))
+            dir = basename(save_file);
         if (errno == ENOENT || S_ISREG(s.st_mode) || S_ISDIR(s.st_mode))
         {
             gtk_label_set_text((GtkLabel *)data->save_file_label, basename(save_file));
             gtk_widget_show(data->save_file_image);
-            asprintf(&cwd, "%s", save_file);
+            asprintf(&cwd, "%s", dir);
         }
         else
             en = FALSE;
@@ -524,17 +530,20 @@ static void *gui_process(void *d)
     char *source = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog));
     char *output = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog));
 
+    if (!source || !output)
+        *_status = STATUS_FAILED_IO;
+
     uint8_t *key = NULL;
     size_t length = 0;
     switch (_key_source)
     {
         case KEY_SOURCE_FILE:
-            key = (uint8_t *)strdup(_filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog)));
+            key = (uint8_t *)_filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog));
             length = 0;
             break;
 
         case KEY_SOURCE_PASSWORD:
-            key = (uint8_t *)strdup(gtk_entry_get_text((GtkEntry *)data->password_entry));
+            key = (uint8_t *)gtk_entry_get_text((GtkEntry *)data->password_entry);
             length = strlen((char *)key);
             break;
     }
@@ -555,7 +564,9 @@ static void *gui_process(void *d)
 
     _status = &x->status;
 
-    free(key);
+    g_free(source);
+    g_free(output);
+    g_free(key);
 
     if (x->status == STATUS_INIT)
         execute(x);
