@@ -539,19 +539,18 @@ static void *gui_process(void *d)
     {
         case KEY_SOURCE_FILE:
             {
-                char *k = (uint8_t *)_filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog));
+                char *k = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog));
                 length = 0;
-                key = strdup(k);
+                key = (uint8_t *)strdup(k);
                 g_free(k);
             }
             break;
 
         case KEY_SOURCE_PASSWORD:
             {
-                char *k = (uint8_t *)gtk_entry_get_text((GtkEntry *)data->password_entry);
-                length = strlen((char *)k);
-                key = strndup(k, length);
-                g_free(k);
+                const char *k = gtk_entry_get_text((GtkEntry *)data->password_entry);
+                length = strlen(k);
+                key = (uint8_t *)strndup(k, length);
             }
             break;
     }
