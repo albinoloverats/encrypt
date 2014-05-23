@@ -55,6 +55,7 @@ Section "encrypt" SEC01
   File "encrypt.exe"
 
   File "C:\Program Files (x86)\Dev-Cpp\MinGW64\bin\libgcc_s_dw2-1.dll"
+  File "C:\Program Files (x86)\Dev-Cpp\MinGW64\bin\libgcc_s_sjlj-1.dll"
 
   File "C:\extra\curl-7.34.0-devel-mingw32\bin\libcurl.dll"
   File "C:\extra\curl-7.34.0-devel-mingw32\bin\libeay32.dll"
@@ -62,8 +63,8 @@ Section "encrypt" SEC01
   File "C:\extra\curl-7.34.0-devel-mingw32\bin\ssleay32.dll"
   File "C:\extra\curl-7.34.0-devel-mingw32\bin\zlib1.dll"
 
-  File "C:\extra\libgcrypt-1.4.6-1\bin\libgcrypt-11.dll"
-  File "C:\extra\libgpg-error-1.10-1\bin\libgpg-error-0.dll"
+  File "C:\extra\libgcrypt-1.6.0-1\bin\libgcrypt-20.dll"
+  File "C:\extra\libgpg-error-1.12-1\bin\libgpg-error-0.dll"
   File "C:\extra\pthreads-w32-2-9-1\dll\x86\pthreadGC2.dll"
   File "C:\extra\xz-5.0.5-windows\bin_i486\liblzma.dll"
 

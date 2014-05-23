@@ -104,7 +104,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
             z->path = strdup(i);
             z->directory = true;
         }
-        else if (!(z->source = io_open(i, O_RDONLY | F_RDLCK, S_IRUSR | O_BINARY | S_IWUSR)))
+        else if (!(z->source = io_open(i, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR)))
             return z->status = STATUS_FAILED_IO , z;
     }
     else

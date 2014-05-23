@@ -538,13 +538,21 @@ static void *gui_process(void *d)
     switch (_key_source)
     {
         case KEY_SOURCE_FILE:
-            key = (uint8_t *)_filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog));
-            length = 0;
+            {
+                char *k = (uint8_t *)_filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog));
+                length = 0;
+                key = strdup(k);
+                g_free(k);
+            }
             break;
 
         case KEY_SOURCE_PASSWORD:
-            key = (uint8_t *)gtk_entry_get_text((GtkEntry *)data->password_entry);
-            length = strlen((char *)key);
+            {
+                char *k = (uint8_t *)gtk_entry_get_text((GtkEntry *)data->password_entry);
+                length = strlen((char *)k);
+                key = strndup(k, length);
+                g_free(k);
+            }
             break;
     }
 
@@ -566,7 +574,7 @@ static void *gui_process(void *d)
 
     g_free(source);
     g_free(output);
-    g_free(key);
+    free(key);
 
     if (x->status == STATUS_INIT)
         execute(x);

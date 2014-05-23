@@ -21,11 +21,12 @@ Done
 * Fix SIGSEGV when there is no config file
 * Fix dependency on Homebrew (I think I've got this covered)
 * Use GTK+3 on Windows
+* Fix Windows decrypt issue
+* Use latest version of libgcrypt on Windows
 
 TODO
 ----
 
-* Fix Windows decrypt issue
 * Fix SIGSEGV if the source file is deleted (even while doing nothing)
 * File context menu for
   - Thunar

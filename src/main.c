@@ -143,8 +143,10 @@ int main(int argc, char **argv)
         char *glade_ui_file = calloc(MAX_PATH, sizeof( char ));
         if (!glade_ui_file)
             die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, MAX_PATH);
+#ifndef __DEBUG__
         SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL, 0, glade_ui_file);
         strcat(glade_ui_file, "\\");
+#endif
         strcat(glade_ui_file, GLADE_UI_FILE);
 #endif
         if (!gtk_builder_add_from_file(builder, glade_ui_file, &error))

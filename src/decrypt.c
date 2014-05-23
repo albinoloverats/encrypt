@@ -75,7 +75,7 @@ extern crypto_t *decrypt_init(const char * const restrict i,
 
     if (i)
     {
-        if (!(c->source = io_open(i, O_RDONLY | F_RDLCK, S_IRUSR | S_IWUSR)))
+        if (!(c->source = io_open(i, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR)))
             return c->status = STATUS_FAILED_IO , c;
     }
     else
@@ -110,7 +110,7 @@ extern crypto_t *decrypt_init(const char * const restrict i,
             }
             else if (S_ISREG(s.st_mode))
             {
-                if (!(c->output = io_open(o, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK, S_IRUSR | S_IWUSR)))
+                if (!(c->output = io_open(o, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK | O_BINARY, S_IRUSR | S_IWUSR)))
                     return c->status = STATUS_FAILED_IO , c;
             }
             else
@@ -376,7 +376,7 @@ static bool read_metadata(crypto_t *c)
             stat(c->path, &s);
             if (errno == ENOENT || S_ISREG(s.st_mode))
             {
-                if (!(c->output = io_open(c->path, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK, S_IRUSR | S_IWUSR)))
+                if (!(c->output = io_open(c->path, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK | O_BINARY, S_IRUSR | S_IWUSR)))
                     c->status = STATUS_FAILED_IO;
             }
             else
@@ -455,7 +455,7 @@ static void decrypt_directory(crypto_t *c, const char *dir)
                 c->current.size = ntohll(c->current.size);
                 if (c->output)
                     io_close(c->output);
-                c->output = io_open(fullpath, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK, S_IRUSR | S_IWUSR);
+                c->output = io_open(fullpath, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK | O_BINARY, S_IRUSR | S_IWUSR);
                 decrypt_file(c);
                 io_close(c->output);
                 c->output = NULL;
