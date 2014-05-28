@@ -201,23 +201,29 @@ int main(int argc, char **argv)
         if (args.source)
         {
 #ifndef _WIN32
-            char *cwd = getcwd(NULL, 0);
-            asprintf(&gui_file_hack_source, "%s/%s", cwd, args.source);
-            free(cwd);
-#else
-            asprintf(&gui_file_hack_source, "%s", args.source);
+            if (args.source[0] != '/')
+            {
+                char *cwd = getcwd(NULL, 0);
+                asprintf(&gui_file_hack_source, "%s/%s", cwd, args.source);
+                free(cwd);
+            }
+            else
 #endif
+            asprintf(&gui_file_hack_source, "%s", args.source);
             gtk_file_chooser_set_filename((GtkFileChooser *)widgets->open_dialog, gui_file_hack_source);
         }
         if (args.output)
         {
 #ifndef _WIN32
-            char *cwd = getcwd(NULL, 0);
-            asprintf(&gui_file_hack_output, "%s/%s", cwd, args.output);
-            free(cwd);
-#else
-            asprintf(&gui_file_hack_output, "%s", args.output);
+            if (args.output[0] != '/')
+            {
+                char *cwd = getcwd(NULL, 0);
+                asprintf(&gui_file_hack_output, "%s/%s", cwd, args.output);
+                free(cwd);
+            }
+            else
 #endif
+            asprintf(&gui_file_hack_output, "%s", args.output);
             gtk_file_chooser_set_filename((GtkFileChooser *)widgets->save_dialog, gui_file_hack_output);
         }
         file_dialog_okay(NULL, widgets);
