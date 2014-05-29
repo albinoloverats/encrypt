@@ -9,6 +9,7 @@ arch=('i686' 'x86_64' 'arm')
 license=('GPL3')
 depends=('libgcrypt' 'gtk3' 'curl' 'xz')
 makedepends=('pkgconfig')
+install=encrypt.install
 
 # you shouldn't need to uncomment this as this PKGBUILD file lives in
 # the same Git repoository as the source
@@ -21,6 +22,6 @@ build() {
 
 package() {
   cd ${startdir}
-  mkdir -p ${pkgdir}/usr/{bin,share/{encrypt,applications,man/man1,pixmaps,file/magic,bash-completion/completions,zsh/functions/Completion/Unix}} # ,locale/de/LC_MESSAGES}}
+  mkdir -p ${pkgdir}/usr/{bin,share/{encrypt,applications,man/man1,pixmaps,bash-completion/completions,zsh/functions/Completion/Unix}}
   make -f Makefile install PREFIX=${pkgdir}
 }

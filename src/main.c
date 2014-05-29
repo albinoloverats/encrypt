@@ -124,9 +124,11 @@ int main(int argc, char **argv)
     struct stat t;
     fstat(STDOUT_FILENO, &t);
 
-    if (fe || (args.hash && args.cipher && (args.source || args.output)) || args.nogui)
-        ; /* user has given enough arguments on command line that we'll skip the gui */
+    if (args.nogui)
+      ;
 #if 0 /* currently causing problems */
+    if (fe || (args.hash && args.cipher && args.mode && (args.source || args.output)) || args.nogui)
+        ; /* user has given enough arguments on command line that we'll skip the gui */
     else if (!isatty(STDIN_FILENO) && (S_ISREG(n.st_mode) || S_ISFIFO(n.st_mode)))
         ; /* stdin is a redirect from a file or a pipe */
     else if (!isatty(STDOUT_FILENO) && (S_ISREG(t.st_mode) || S_ISFIFO(t.st_mode)))
