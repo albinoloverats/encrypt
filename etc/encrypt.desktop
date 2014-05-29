@@ -8,3 +8,4 @@ Terminal=False
 Type=Application
 Categories=GTK;Application;Utility
 StartupNotify=false
+MimeType=application/x-encrypt

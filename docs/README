@@ -29,6 +29,6 @@ TODO
 
 * Fix SIGSEGV if the source file is deleted (even while doing nothing)
 * File context menu for
-  - Thunar
+  - Thunar (consider plugin)
   - Nautilus (or Files or whatever it's called now)
-  - Konqueror or Dolphin
+  - Konqueror or Dolphin (maybe - KDE is Qt, not GTK)

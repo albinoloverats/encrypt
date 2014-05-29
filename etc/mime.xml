@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+    <mime-type type="application/x-encrypt">
+        <comment xml:lang="en">encrypt File Container</comment>
+        <magic priority="50">
+            <match type="big32" value="0x3697de5d" offset="0"/>
+            <match type="big32" value="0x96fca0fa" offset="4"/>
+            <match type="big32" value="0xc845c2fa" offset="8"/>
+            <match type="big32" value="0x95e2f52d" offset="12"/>
+        </magic>
+        <icon name="encrypt"/>
+    </mime-type>
+
+    <mime-type type="application/x-encrypt-201108">
+        <comment xml:lang="en">encrypt File Container (version 2011.08)</comment>
+        <sub-class-of type="application/x-encrypt"/>
+        <magic priority="50">
+            <match type="big32" value="0x72761df3" offset="16"/>
+            <match type="big32" value="0xe497c983" offset="20"/>
+        </magic>
+        <icon name="encrypt"/>
+    </mime-type>
+
+    <mime-type type="application/x-encrypt-201110">
+        <comment xml:lang="en">encrypt File Container (version 2011.10)</comment>
+        <sub-class-of type="application/x-encrypt"/>
+        <magic priority="50">
+            <match type="big32" value="0xbb116f7d" offset="16"/>
+            <match type="big32" value="0x00201110" offset="20"/>
+        </magic>
+        <icon name="encrypt"/>
+    </mime-type>
+
+    <mime-type type="application/x-encrypt-201211">
+        <comment xml:lang="en">encrypt File Container (version 2012.11)</comment>
+        <sub-class-of type="application/x-encrypt"/>
+        <magic priority="50">
+            <match type="big32" value="0x51d28245" offset="16"/>
+            <match type="big32" value="0xe1216c45" offset="20"/>
+        </magic>
+        <icon name="encrypt"/>
+    </mime-type>
+
+    <mime-type type="application/x-encrypt-201302">
+        <comment xml:lang="en">encrypt File Container (version 2013.02)</comment>
+        <sub-class-of type="application/x-encrypt"/>
+        <magic priority="50">
+            <match type="big32" value="0x5b7132ab" offset="16"/>
+            <match type="big32" value="0x5abb3c47" offset="20"/>
+        </magic>
+        <icon name="encrypt"/>
+    </mime-type>
+
+    <mime-type type="application/x-encrypt-201311">
+        <comment xml:lang="en">encrypt File Container (version 2013.11)</comment>
+        <sub-class-of type="application/x-encrypt"/>
+        <magic priority="50">
+            <match type="big32" value="0xf1f68e5f" offset="16"/>
+            <match type="big32" value="0x2a43aa5f" offset="20"/>
+        </magic>
+        <icon name="encrypt"/>
+    </mime-type>
+
+    <mime-type type="application/x-encrypt-201400">
+        <comment xml:lang="en">encrypt File Container (version 2014.00)</comment>
+        <sub-class-of type="application/x-encrypt"/>
+        <magic priority="50">
+            <match type="big32" value="0x8819d190" offset="16"/>
+            <match type="big32" value="0x69fae6b4" offset="20"/>
+        </magic>
+        <icon name="encrypt"/>
+    </mime-type>
+
+</mime-info>

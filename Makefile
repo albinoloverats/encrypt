@@ -65,7 +65,8 @@ install: man
 	-@echo "installed \`etc/xfce-menu.desktop' --> \`$(PREFIX)/usr/share/applications/encrypt.desktop'"
 	 @install -c -m 644 -D -T etc/thunar-sendto.desktop $(PREFIX)/usr/share/Thunar/sendto/encrypt.desktop
 	-@echo "installed \`etc/thunar-sendto.desktop' --> \`$(PREFIX)/usr/share/Thunar/sendto/encrypt.desktop'"
-## and the magic pattern
+## and the magic pattern (if all else fails, copy to ~/.magic)
+## on Fedora concat to /usr/share/misc/magic and then recompile
 #	 @install -c -m 644 -D -T etc/encrypt.mgc $(PREFIX)/usr/share/file/magic/encrypt
 #	-@echo "installed \`etc/encrypt.mgc' --> \`$(PREFIX)/usr/share/file/magic/encrypt'"
 #	 @file -C && mv magic.mgc /usr/share/file/magic.mgc
