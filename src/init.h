@@ -24,7 +24,8 @@
 #define APP_NAME "encrypt"
 #define ALT_NAME "decrypt"
 
-#define APP_USAGE "[source] [destination] [-c algorithm] [-s algorithm] [-m mode] [-k key/-p password] [-x] [-f] [-b version]"
+#define APP_USAGE "[source] [destination] [-c algorithm] [-s algorithm] [-m mode]\n" \
+                   "          [-k key/-p password] [-x] [-f] [-g] [-b version]"
 #define ALT_USAGE "[-k key/-p password] [input] [output]"
 
 #define ENCRYPTRC ".encryptrc"

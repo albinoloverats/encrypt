@@ -345,9 +345,12 @@ extern void show_help(void)
     fprintf(stderr, _("  -p, --password=<password>    Password used to generate the key\n"));
     if (!strncasecmp(program_invocation_short_name, APP_NAME, strlen(APP_NAME)))
     {
-        fprintf(stderr, _("  -x, --no-compress            Do not compress the plaintext using the xz algorithm\n"));
-        fprintf(stderr, _("  -f, --follow                 Follow symlinks, the default is to store the link itself\n"));
-        fprintf(stderr, _("  -b, --back-compat=<version>  Create an encrypted file that is backwards compatible\n"));
+        fprintf(stderr, _("  -x, --no-compress            Do not compress the plaintext using the xz\n" \
+                          "                               algorithm\n"));
+        fprintf(stderr, _("  -f, --follow                 Follow symlinks, the default is to store the\n" \
+                          "                               link itself\n"));
+        fprintf(stderr, _("  -b, --back-compat=<version>  Create an encrypted file that is backwards\n" \
+                          "                               compatible\n"));
     }
     fprintf(stderr, _("\nNotes:\n  If you do not supply a key or password, you will be prompted for one.\n"));
     if (!strncasecmp(program_invocation_short_name, APP_NAME, strlen(APP_NAME)))
