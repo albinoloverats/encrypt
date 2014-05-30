@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="gnu-crypto-2.0.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.gnu/gnu-crypto/2.0.1/f53ad21694351e9cc3b4bfb2f5c1bb68aa4d2bae/gnu-crypto-2.0.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

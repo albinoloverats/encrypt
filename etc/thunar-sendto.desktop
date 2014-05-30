@@ -1,6 +1,0 @@
-[Desktop Entry]
-Type=Application
-Version=1.0
-Name=Encrypt/Decrypt
-Icon=encrypt
-Exec=encrypt %f

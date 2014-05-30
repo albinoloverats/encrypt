@@ -1,9 +1,0 @@
-#: src/common/version.h:24
-#| A new version is available!
-msgid "A new version is available!"
-msgstr ""
-
-#: src/common/version.h:25
-#| A new version of %s is available!
-msgid "A new version of %s is available!"
-msgstr ""

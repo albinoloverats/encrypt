@@ -1,0 +1,27 @@
+apply plugin: 'android'
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion '19.0.3'
+    defaultConfig {
+        packageName 'net.albinoloverats.android.encrypt'
+        minSdkVersion 3
+        targetSdkVersion 19
+        versionCode 1
+        versionName '1.0'
+    }
+    buildTypes {
+        release {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    productFlavors {
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'org.tukaani:xz:1.5@jar'
+    compile 'org.gnu:gnu-crypto:2.0.1@jar'
+}
