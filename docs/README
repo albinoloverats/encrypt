@@ -28,6 +28,7 @@ TODO
 ----
 
 * Fix SIGSEGV if the source file is deleted (even while doing nothing)
+* Find a way to merge file/magic info into main magic.mgc file
 * File context menu for
   - Thunar (consider plugin)
   - Nautilus (or Files or whatever it's called now)

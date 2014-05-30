@@ -77,6 +77,9 @@ configuration file \fB~/.encryptrc\fR
 Written by Ashley Morgan Anderson
 .SH BUGS
 There are no bugs only features yet to be documented :p
+.P
+Although if you do think you've really found a bug, please let us know
+at https://albinoloverats.net/?tracker
 .SH COPYRIGHT
 Copyright \(co 2004\-2014 albinoloverats ~ Software Development
 .SH LICENCE

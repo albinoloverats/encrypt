@@ -14,6 +14,7 @@ install=encrypt.install
 # you shouldn't need to uncomment this as this PKGBUILD file lives in
 # the same Git repoository as the source
 # source=(https://albinoloverats.net/downloads/encrypt.tar.xz)
+# sha256sum=('')
 
 build() {
   cd ${startdir}
