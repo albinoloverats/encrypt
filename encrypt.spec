@@ -35,6 +35,7 @@ rm -rf %{buildroot}
 /usr/bin/decrypt
 /usr/share/encrypt/encrypt.glade
 /usr/share/encrypt/magic
+/usr/share/encrypt/encryptrc
 /usr/share/applications/encrypt.desktop
 /usr/share/Thunar/sendto/encrypt.desktop
 /usr/share/man/man1/encrypt.1a.gz
