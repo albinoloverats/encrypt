@@ -106,34 +106,31 @@ public abstract class Crypto extends Thread implements Runnable
 
     public void setKey(final Object k) throws CryptoProcessException
     {
-        FileInputStream f = null;
-        ByteArrayOutputStream b = new ByteArrayOutputStream();
-        try
+        if (k instanceof File)
         {
-            if (k instanceof File)
+            FileInputStream f = null;
+            ByteArrayOutputStream b = new ByteArrayOutputStream();
+            try
             {
                 File file = (File)k;
                 f = new FileInputStream(file);
                 key = new byte[(int)file.length()];
                 f.read(key);
             }
-            else if (k instanceof byte[])
+            catch (final IOException e)
             {
-                b.write((byte[])k);
-                key = b.toByteArray();
+                throw new CryptoProcessException(Status.FAILED_KEY, e);
             }
-            else
-                throw new CryptoProcessException(Status.FAILED_KEY);
+            finally
+            {
+                closeIgnoreException(f);
+                closeIgnoreException(b);
+            }
         }
-        catch (final IOException e)
-        {
-            throw new CryptoProcessException(Status.FAILED_KEY, e);
-        }
-        finally
-        {
-            closeIgnoreException(f);
-            closeIgnoreException(b);
-        }
+        else if (k instanceof byte[])
+            key = (byte[])k;
+        else
+            throw new CryptoProcessException(Status.FAILED_KEY);
     }
 
     protected static void closeIgnoreException(final Closeable c)
