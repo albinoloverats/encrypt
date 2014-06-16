@@ -39,6 +39,20 @@
 #define F_RDLCK NOTSET /*!< If value doesn't exist on Windows, ignore it */
 #define F_WRLCK NOTSET /*!< If value doesn't exist on Windows, ignore it */
 #define O_FSYNC NOTSET /*!< If value doesn't exist on Windows, ignore it */
+
+#ifdef S_IRUSR
+    #undef S_IRUSR
+    #define S_IRUSR 0
+#endif
+#ifdef S_IWUSR
+    #undef S_IWUSR
+    #define S_IWUSR 0
+#endif
+#ifdef S_IXUSR
+    #undef S_IXUSR
+    #define S_IXUSR 0
+#endif
+
 #ifndef SIGQUIT
     #define SIGQUIT SIGBREAK /*!< If value doesn't exist on Windows, use next closest match */
 #endif

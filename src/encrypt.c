@@ -223,7 +223,7 @@ static void *process(void *ptr)
         case VERSION_2011_10:
         case VERSION_2012_11:
             /*
-             * these versions didn't have random data preceeding the
+             * these versions didn't have random data preceding the
              * verification sum
              */
             pre_random = false;

@@ -33,7 +33,7 @@
 
 #define NOTSET 0 /*!< Value to use when nothing else is available */
 
-#ifndef O_BINARY
+#if !defined _WIN32 && !defined O_BINARY
     #define O_BINARY NOTSET /*!< Value is only relevant on MS systems (and is required), pretend it exists elsewhere */
 #endif
 

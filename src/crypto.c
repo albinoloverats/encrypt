@@ -182,6 +182,18 @@ extern void deinit(crypto_t **c)
     return;
 }
 
+#if 0
+extern void key_free(raw_key_t **key)
+{
+    memset((*key)->data, 0x00, (*key)->length);
+    free((*key)->data);
+    (*key)->length = 0;
+    free(*key);
+    key = NULL;
+    return;
+}
+#endif
+
 extern const char **list_of_ciphers(void)
 {
     init_crypto();

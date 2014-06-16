@@ -154,6 +154,20 @@ typedef struct
 }
 progress_t;
 
+#if 0
+/*!
+ * \brief  Key data structure
+ *
+ * Key the user key data/length together
+ */
+typedef struct
+{
+    uint8_t *data;  /*!< Key data */
+    size_t length; /*!< Key data length */
+}
+raw_key_t;
+#endif
+
 /*!
  * \brief  Main cryptographic structure
  *
@@ -170,6 +184,10 @@ typedef struct
     enum gcry_cipher_algos cipher; /*!< The chosen cipher algorithm */
     enum gcry_md_algos hash;       /*!< The chosen key hash algorithm */
     enum gcry_cipher_modes mode;   /*!< The chosen encryption mode */
+
+#if 0
+    raw_key_t *raw_key;            /*!< Encryption key (NB Not yet used) */
+#endif
     uint8_t *key;                  /*!< Key data */
     size_t length;                 /*!< Key data length */
 
@@ -226,6 +244,17 @@ extern const char *status(const crypto_t * const restrict c) __attribute__((nonn
  * longer needed.
  */
 extern void deinit(crypto_t **c) __attribute__((nonnull(1)));
+
+#if 0
+/*!
+ * \brief         Destroy key structure
+ * \param[in]  k  A pointer to a key structure
+ *
+ * Free the given key data structure; the key data is cleared (memset to
+ * zero and then freed).
+ */
+extern void key_free(raw_key_t **k);
+#endif
 
 /*!
  * \brief         Get list of usable ciphers
