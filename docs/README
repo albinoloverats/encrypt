@@ -7,11 +7,11 @@ Done
 * Add option to not start up the GUI (needed it so I can encrypt/decrypt
   on the fly with Vim).
 * Add ability to choose from various encrypt modes:
-  * ECB (Electronic Codebook)
-  * CBC (Cipher Block Chaining)
-  * CFB (Cipher Feedback)
-  * OFB (Output Feedback)
-  * CTR (Counter)
+  - ECB (Electronic Codebook)
+  - CBC (Cipher Block Chaining)
+  - CFB (Cipher Feedback)
+  - OFB (Output Feedback)
+  - CTR (Counter)
 * Add Encrypt/Decrypt option to Windows Explorer file context menu
 * Fix disappearing keyboard bug on Android
 * Choosing an algorithm (GUI/Android) will leave it as the default for
@@ -23,12 +23,14 @@ Done
 * Use GTK+3 on Windows
 * Fix Windows decrypt issue
 * Use latest version of libgcrypt on Windows
+* Investigate why the CTR cipher differs between libgcrypt and GNUCrypto
+  - Correctly set counter on desktop
+  - Use version 2.1.0 of GNUCrypto on Android
 
 TODO
 ----
 
 * Fix SIGSEGV if the source file is deleted (even while doing nothing)
-* Investigate why the CTR cipher differs between libgcrypt and GNUCrypto
 * Find a way to merge file/magic info into main magic.mgc file
 * File context menu for
   - Thunar (consider plugin)
