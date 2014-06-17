@@ -254,7 +254,10 @@ extern void io_encryption_init(IO_HANDLE ptr,
        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, io_ptr->buffer->block);
     memcpy(iv, iv_hash, io_ptr->buffer->block < hash_length ? io_ptr->buffer->block : hash_length);
     free(iv_hash);
-    gcry_cipher_setiv(io_ptr->cipher_handle, iv, io_ptr->buffer->block);
+    if (m == GCRY_CIPHER_MODE_CTR)
+        gcry_cipher_setctr(io_ptr->cipher_handle, iv, io_ptr->buffer->block);
+    else
+        gcry_cipher_setiv(io_ptr->cipher_handle, iv, io_ptr->buffer->block);
     free(iv);
     /*
      * set the rest of the buffer
