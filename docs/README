@@ -25,12 +25,13 @@ Done
 * Use latest version of libgcrypt on Windows
 * Investigate why the CTR cipher differs between libgcrypt and GNUCrypto
   - Correctly set counter on desktop
-  - Use version 2.1.0 of GNUCrypto on Android
 
 TODO
 ----
 
 * Fix SIGSEGV if the source file is deleted (even while doing nothing)
+* Investigate why the CTR cipher differs between libgcrypt and GNUCrypto
+  - Find a way to get version 2.1.0 of GNUCrypto working on Android
 * Find a way to merge file/magic info into main magic.mgc file
 * File context menu for
   - Thunar (consider plugin)
