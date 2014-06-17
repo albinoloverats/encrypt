@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/encrypt.iml" filepath="$PROJECT_DIR$/encrypt.iml" />
       <module fileurl="file://$PROJECT_DIR$/encrypt/encrypt-encrypt.iml" filepath="$PROJECT_DIR$/encrypt/encrypt-encrypt.iml" />
+      <module fileurl="file://$PROJECT_DIR$/gnu-crypto/gnu-crypto.iml" filepath="$PROJECT_DIR$/gnu-crypto/gnu-crypto.iml" />
     </modules>
   </component>
 </project>

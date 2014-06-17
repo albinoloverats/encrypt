@@ -1,1 +1,1 @@
-include ':encrypt'
+include ':encrypt', ':gnu-crypto'
