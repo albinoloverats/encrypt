@@ -78,8 +78,10 @@ Written by Ashley Morgan Anderson
 .SH BUGS
 There are no bugs only features yet to be documented :p
 .P
-Although if you do think you've really found a bug, please let us know
-at https://albinoloverats.net/?tracker
+Although if you do think you've really found a bug, please first check the
+README or the CHANGELOG to see if it has already been documented and scheduled
+for the next release; then if you're still convinced, let us know at
+https://albinoloverats.net/?tracker
 .SH COPYRIGHT
 Copyright \(co 2004\-2014 albinoloverats ~ Software Development
 .SH LICENCE
