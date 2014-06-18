@@ -1,34 +1,31 @@
 encrypt - 2014.00                                                 ? 2014
-====================
+=================
 
-Done
-----
+There's been a lot of (small) changes for this release. Perhaps the most
+significant update is the ability to select the cipher mode (the default
+was CBC). The most obvious update to the Windows build is the GUI is now
+GTK+3 instead of GTK+2, the other major change for Windows is the use of
+the latest version of libgcrypt (now inline with GNU/Linux and OS X).
 
-* Add option to not start up the GUI (needed it so I can encrypt/decrypt
-  on the fly with Vim).
-* Add ability to choose from various encrypt modes:
-  - ECB (Electronic Codebook)
-  - CBC (Cipher Block Chaining)
-  - CFB (Cipher Feedback)
-  - OFB (Output Feedback)
-  - CTR (Counter)
-* Add Encrypt/Decrypt option to Windows Explorer file context menu
-* Fix disappearing keyboard bug on Android
-* Choosing an algorithm (GUI/Android) will leave it as the default for
-  next time
-* Store rc file in user home (Windows)
-* Fix some memory leaks
-* Fix SIGSEGV when there is no config file
-* Fix dependency on Homebrew (I think I've got this covered)
-* Use GTK+3 on Windows
-* Fix Windows decrypt issue
-* Use latest version of libgcrypt on Windows
-* Investigate why the CTR cipher differs between libgcrypt and GNUCrypto
-  - Correctly set counter on desktop
-  - Find a way to get version 2.1.0 of GNUCrypto working on Android
+Speaking of OS X, I think that the libgcrypt issue there has been fixed.
+(encrypt still works if I remove libgcrypt from Homebrew - if you are an
+OS X user please let us know.)
 
-TODO
-----
+Next is Android: there were a few bugs that were found and have been now
+squashed. Specifically the keyboard would disappear when a user tried to
+enter a number in the password field. encrypt on Android, has too had an
+update to the version of the gnu-crypto library it depends on.  This was
+prompted by the way that the CTR mode was broken, and didn't allow an IV
+to be set (and version 2.1.0 does).
+
+Lastly, there were numerous memory leaks plugged, and greater/better use
+of the rc file: changing the selected algorithms/mode will be remembered
+for the next use (settings take effect immediately).  Windows has better
+Explorer integration, and there has been work towards a similar level of
+integration on GNU/Linux (but it's still a work in progress).
+
+
+Some things that didn't quite make this release:
 
 * Fix SIGSEGV if the source file is deleted (even while doing nothing)
 * Find a way to merge file/magic info into main magic.mgc file
