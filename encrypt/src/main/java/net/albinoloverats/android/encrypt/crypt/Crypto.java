@@ -52,7 +52,7 @@ public abstract class Crypto extends Thread implements Runnable
     public final Progress total = new Progress();
 
     protected int blockSize;
-    protected boolean compressed = true;
+    protected boolean compressed = false;
     protected boolean directory = false;
     protected boolean follow_links = false;
 
