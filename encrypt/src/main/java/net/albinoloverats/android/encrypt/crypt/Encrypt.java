@@ -106,7 +106,7 @@ public class Encrypt extends Crypto
             case _201311:
                 this.mode = ModeFactory.CBC_MODE;
                 break;
-            case _201400:
+            case _201406:
             case CURRENT:
                 break;
         }
@@ -199,7 +199,7 @@ public class Encrypt extends Crypto
         output.write(Convert.toBytes(HEADER[1]));
         output.write(Convert.toBytes(HEADER[2]));
         String algorithms = cipher + "/" + hash;
-        if (version.compareTo(Version._201400) >= 0)
+        if (version.compareTo(Version._201406) >= 0)
             algorithms = algorithms.concat("/" + mode);
         output.write((byte)algorithms.length());
         output.write(algorithms.getBytes());
