@@ -1,4 +1,4 @@
-0000000: 3697 de5d 96fc a0fa c845 c2fa 95e2 f52d 6..].....E.....-    Standard file header (version 2014.00)
+0000000: 3697 de5d 96fc a0fa c845 c2fa 95e2 f52d 6..].....E.....-    Standard file header (version 2014.06)
 0000010: 8819 d190 69fa e6b4                     ....i...
 
 0000010:                     1453 4552 5045 4e54         .SERPENT    Algorithms used; preceeded by byte indicating

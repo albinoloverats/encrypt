@@ -183,7 +183,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
         case VERSION_2013_11:
             z->mode = mode_id_from_name("CBC");
             break;
-        case VERSION_2014_00:
+        case VERSION_2014_06:
             /* fall back if using CBC */
             if (z->mode == GCRY_CIPHER_MODE_CBC)
                 z->version = VERSION_2013_11;
@@ -335,7 +335,7 @@ static inline void write_header(crypto_t *c)
     const char *u_cipher = cipher_name_from_id(c->cipher);
     const char *u_hash = hash_name_from_id(c->hash);
     const char *u_mode = mode_name_from_id(c->mode);
-    if (c->version >= VERSION_2014_00)
+    if (c->version >= VERSION_2014_06)
     {
         if (!asprintf(&algos, "%s/%s/%s", u_cipher, u_hash, u_mode))
             die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(u_cipher) + strlen(u_hash) + strlen(u_mode) + 3);

@@ -38,7 +38,7 @@
 #include <gcrypt.h>     /*!< Necessary include as encryption modes are referenced in this header */
 #include "cryptio.h" /*!< Necessary as IO_HANDLE type is referenced in this header */
 
-#define ENCRYPT_VERSION "2014.00" /*!< Current (display) version of encrypt application */
+#define ENCRYPT_VERSION "2014.06" /*!< Current (display) version of encrypt application */
 #define UPDATE_URL "https://albinoloverats.net/encrypt.release" /*!< URI to check for updates */
 
 #define HEADER_0 0x3697de5d96fca0fallu              /*!< The first 8 bytes of an encrypted file */
@@ -116,8 +116,8 @@ typedef enum
     VERSION_2012_11,                  /*!< Version 2012.11 */
     VERSION_2013_02,                  /*!< Version 2013.02 */
     VERSION_2013_11,                  /*!< Version 2013.11 */
-    VERSION_2014_00,                  /*!< Version 2014.00 (current development version) */
-    VERSION_CURRENT = VERSION_2014_00 /*!< Next release / current development version */
+    VERSION_2014_06,                  /*!< Version 2014.06 (current development version) */
+    VERSION_CURRENT = VERSION_2014_06 /*!< Next release / current development version */
 }
 version_e;
 
