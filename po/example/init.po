@@ -16,7 +16,7 @@
 
 #: src/init.c:314
 #| %s version : %s\n%*s built on: %s %s\n      git commit: %s\n
-msgid "%s version : %s\n%*s built on: %s %s\n      git commit: %s\n"
+msgid "%s version : %s\n%*s built on: %s %s\n%*s git commit: %s\n"
 msgstr ""
 
 #: src/init.c:323

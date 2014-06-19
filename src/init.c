@@ -311,7 +311,7 @@ static void print_version(void)
 {
     char *app_name = !strncasecmp(program_invocation_short_name, APP_NAME, strlen(APP_NAME)) ? APP_NAME : ALT_NAME;
     char *git = strndup(GIT_COMMIT, GIT_COMMIT_LENGTH);
-    fprintf(stderr, _("%s version : %s\n%*s built on: %s %s\n      git commit: %s\n"), app_name, ENCRYPT_VERSION, (int)strlen(app_name), "", __DATE__, __TIME__, git);
+    fprintf(stderr, _("%s version: %s\n%*s built on: %s %s\n%*s git commit: %s\n"), app_name, ENCRYPT_VERSION, (int)strlen(app_name) - 1, "", __DATE__, __TIME__, (int)strlen(app_name) - 3, "", git);
     free(git);
     return;
 }

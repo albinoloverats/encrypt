@@ -92,3 +92,5 @@ clean:
 
 distclean: clean
 	@rm -fv encrypt.1a.gz
+	@rm -fvr pkg
+	@rm -fv encrypt*pkg.tar.xz
