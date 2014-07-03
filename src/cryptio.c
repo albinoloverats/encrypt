@@ -241,7 +241,7 @@ extern void io_encryption_init(IO_HANDLE ptr,
      * length; versions after 2014.06 randomly generate the IV instead
      */
     gcry_cipher_algo_info(c, GCRYCTL_GET_BLKLEN, NULL, &io_ptr->buffer->block);
-    uint8_t *iv = calloc(x.x_iv ? key_length : io_ptr->buffer->block, sizeof( byte_t ));
+    uint8_t *iv = calloc(x.x_iv == IV_BROKEN ? key_length : io_ptr->buffer->block, sizeof( byte_t ));
     if (!iv)
        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, io_ptr->buffer->block);
     if (x.x_iv == IV_RANDOM)

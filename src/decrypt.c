@@ -182,7 +182,7 @@ static void *process(void *ptr)
     if (!c->version)
         return (void *)c->status;
 
-    bool skip_some_random = true;
+    bool skip_some_random = false;
     x_iv_e iv_type = IV_RANDOM;
     switch (c->version)
     {
@@ -194,7 +194,7 @@ static void *process(void *ptr)
         case VERSION_2011_10:
             iv_type = IV_BROKEN;
         case VERSION_2012_11:
-            skip_some_random = false;
+            skip_some_random = true;
             break;
 
         case VERSION_2013_02:
@@ -204,7 +204,6 @@ static void *process(void *ptr)
             break;
 
         default:
-            skip_some_random = true;
             /*
              * this will catch the all more recent versions (unknown is
              * detected above)
