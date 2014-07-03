@@ -219,16 +219,18 @@ static void *process(void *ptr)
     if (!c->raw)
         write_header(c);
 
-    bool pre_random = false;
+    bool pre_random = true;
     x_iv_e iv_type = IV_RANDOM;
     switch (c->version)
     {
         case VERSION_2011_08:
         case VERSION_2011_10:
             iv_type = IV_BROKEN;
+            /* fall through */
+        case VERSION_2012_11:
+            pre_random = false;
             break;
 
-        case VERSION_2012_11:
         case VERSION_2013_02:
         case VERSION_2013_11:
         case VERSION_2014_06:
@@ -236,7 +238,7 @@ static void *process(void *ptr)
             break;
 
         default:
-            pre_random = true;
+            /* no changes */
             break;
     }
 

@@ -186,16 +186,16 @@ static void *process(void *ptr)
     x_iv_e iv_type = IV_RANDOM;
     switch (c->version)
     {
-        case VERSION_2011_08:
-        case VERSION_2011_10:
-            iv_type = IV_BROKEN;
-            break;
-
-        case VERSION_2012_11:
             /*
              * these versions only had random data after the verification
              * sum
              */
+        case VERSION_2011_08:
+        case VERSION_2011_10:
+            iv_type = IV_BROKEN;
+        case VERSION_2012_11:
+            pre_random = false;
+            break;
 
         case VERSION_2013_02:
         case VERSION_2013_11:
