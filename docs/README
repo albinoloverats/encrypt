@@ -1,7 +1,7 @@
 encrypt - ----.--                                         ---- ---- ----
 =================
 
-New For This Release
+New For Next Release
 --------------------
 
 * No header information
@@ -14,6 +14,13 @@ New For This Release
     out of memory error occurs!)
 * Random IV's (not derived from key) (we could also add a salt to the
   password for key generation)
+
+Fixed For Next Release
+----------------------
+
+* Figure out why the Android app doesn't like Windows encrypted files
+  - It wasn't actually due to Windows, but a subtle bug in the Android
+    code
 
 From Previous Release
 ---------------------
@@ -29,11 +36,10 @@ Add For This Release
 --------------------
 
 * Support no header in GUI
-* More iterations for key/IV
+* More iterations for key/IV?
 
 Fix For This Release
 --------------------
 
 * Figure out why occasionally the Windows build crashes (seems algorithm
-  related)
-* Figure out why the Android app doesn't like Windows encrypted files
+  or possibly Windows 8 related)
