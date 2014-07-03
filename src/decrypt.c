@@ -194,7 +194,7 @@ static void *process(void *ptr)
         case VERSION_2011_10:
             iv_type = IV_BROKEN;
         case VERSION_2012_11:
-            pre_random = false;
+            skip_some_random = false;
             break;
 
         case VERSION_2013_02:
