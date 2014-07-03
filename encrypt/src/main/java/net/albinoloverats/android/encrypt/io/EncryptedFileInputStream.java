@@ -151,7 +151,7 @@ public class EncryptedFileInputStream extends FileInputStream
     {
         final byte[] bytes = new byte[len];
         final int x = read(bytes);
-        System.arraycopy(bytes, 0, b, off, x);
+        System.arraycopy(bytes, 0, b, off, len);
         return x;
     }
 
