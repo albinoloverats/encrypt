@@ -62,28 +62,32 @@ static void decrypt_file(crypto_t *);
 
 extern crypto_t *decrypt_init(const char * const restrict i,
                               const char * const restrict o,
+                              const char * const restrict c,
+                              const char * const restrict h,
+                              const char * const restrict m,
                               const void * const restrict k,
-                              size_t l)
+                              size_t l,
+                              bool n)
 {
     init_crypto();
 
-    crypto_t *c = calloc(1, sizeof( crypto_t ));
-    if (!c)
+    crypto_t *z = calloc(1, sizeof( crypto_t ));
+    if (!z)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( crypto_t ));
 
-    c->status = STATUS_INIT;
+    z->status = STATUS_INIT;
 
     if (i)
     {
-        if (!(c->source = io_open(i, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR)))
-            return c->status = STATUS_FAILED_IO , c;
+        if (!(z->source = io_open(i, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR)))
+            return z->status = STATUS_FAILED_IO , z;
     }
     else
-        c->source = IO_STDIN_FILENO;
+        z->source = IO_STDIN_FILENO;
 
-    c->path = NULL;
-    c->compressed = false;
-    c->directory = false;
+    z->path = NULL;
+    z->compressed = false;
+    z->directory = false;
 
     if (o)
     {
@@ -92,57 +96,68 @@ extern crypto_t *decrypt_init(const char * const restrict i,
         if (stat(o, &s) < 0)
         {
             if (errno != ENOENT)
-                return c->status = STATUS_FAILED_IO , c;
+                return z->status = STATUS_FAILED_IO , z;
             /*
              * we've got a name, but don't yet know if it will be a file
              * or a directory
              */
-            c->output = IO_UNINITIALISED;
-            c->path = strdup(o);
+            z->output = IO_UNINITIALISED;
+            z->path = strdup(o);
         }
         else
         {
             if (S_ISDIR(s.st_mode))
             {
-                c->output = IO_UNINITIALISED;
-                c->path = strdup(o);
-                c->directory = true;
+                z->output = IO_UNINITIALISED;
+                z->path = strdup(o);
+                z->directory = true;
             }
             else if (S_ISREG(s.st_mode))
             {
-                if (!(c->output = io_open(o, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK | O_BINARY, S_IRUSR | S_IWUSR)))
-                    return c->status = STATUS_FAILED_IO , c;
+                if (!(z->output = io_open(o, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK | O_BINARY, S_IRUSR | S_IWUSR)))
+                    return z->status = STATUS_FAILED_IO , z;
             }
             else
-                return c->status = STATUS_FAILED_OUTPUT_MISMATCH , c;
+                return z->status = STATUS_FAILED_OUTPUT_MISMATCH , z;
         }
     }
     else
-        c->output = IO_STDOUT_FILENO;
+        z->output = IO_STDOUT_FILENO;
 
     if (!k)
-        return c->status = STATUS_FAILED_INIT , c;
+        return z->status = STATUS_FAILED_INIT , z;
     if (l)
     {
-        if (!(c->key = malloc(l)))
+        if (!(z->key = malloc(l)))
             die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, l);
-        memcpy(c->key, k, l);
-        c->length = l;
+        memcpy(z->key, k, l);
+        z->length = l;
     }
     else
     {
         int64_t kf = open(k, O_RDONLY | F_RDLCK, S_IRUSR | S_IWUSR);
         if (kf < 0)
-            return c->status = STATUS_FAILED_IO , c;
-        c->length = lseek(kf, 0, SEEK_END);
+            return z->status = STATUS_FAILED_IO , z;
+        z->length = lseek(kf, 0, SEEK_END);
         lseek(kf, 0, SEEK_SET);
-        if (!(c->key = malloc(c->length)))
-            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, c->length);
-        read(kf, c->key, c->length);
+        if (!(z->key = malloc(z->length)))
+            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, z->length);
+        read(kf, z->key, z->length);
         close(kf);
     }
-    c->process = process;
-    return c;
+
+    if ((z->raw = n))
+    {
+        if ((z->cipher = cipher_id_from_name(c)) == GCRY_CIPHER_NONE)
+            return z->status = STATUS_FAILED_UNKNOWN_CIPHER_ALGORITHM , z;
+        if ((z->hash = hash_id_from_name(h)) == GCRY_MD_NONE)
+            return z->status = STATUS_FAILED_UNKNOWN_HASH_ALGORITHM , z;
+        if ((z->mode = mode_id_from_name(m)) == GCRY_CIPHER_MODE_NONE)
+            return z->status = STATUS_FAILED_UNKNOWN_CIPHER_MODE , z;
+    }
+
+    z->process = process;
+    return z;
 }
 
 static void *process(void *ptr)
@@ -156,7 +171,10 @@ static void *process(void *ptr)
     /*
      * read encrypt file header
      */
-    c->version = read_version(c);
+    if (c->raw)
+        c->version = VERSION_CURRENT; /* must assume the current version */
+    else
+        c->version = read_version(c);
     /*
      * version_read() already handles setting the status and displaying
      * an error
@@ -164,46 +182,59 @@ static void *process(void *ptr)
     if (!c->version)
         return (void *)c->status;
 
-    /*
-     * the 2011.* versions (incorrectly) used key length instead of block
-     * length
-     */
-    io_extra_t iox = { c->version == VERSION_2011_08 || c->version == VERSION_2011_10, 1 };
-    io_encryption_init(c->source, c->cipher, c->hash, c->mode, c->key, c->length, iox);
-    free(c->key);
-
-    bool skip_some_random = false;
+    bool skip_some_random = true;
+    x_iv_e iv_type = IV_RANDOM;
     switch (c->version)
     {
         case VERSION_2011_08:
         case VERSION_2011_10:
+            iv_type = IV_BROKEN;
+            break;
+
         case VERSION_2012_11:
             /*
              * these versions only had random data after the verification
              * sum
              */
-            skip_some_random = true;
+
+        case VERSION_2013_02:
+        case VERSION_2013_11:
+        case VERSION_2014_06:
+            iv_type = IV_SIMPLE;
             break;
 
         default:
+            skip_some_random = true;
             /*
              * this will catch the all more recent versions (unknown is
              * detected above)
              */
             break;
     }
-    if (!skip_some_random)
+
+    /*
+     * the 2011.* versions (incorrectly) used key length instead of block
+     * length
+     */
+    io_extra_t iox = { iv_type, false, 1 };
+    io_encryption_init(c->source, c->cipher, c->hash, c->mode, c->key, c->length, iox);
+    free(c->key);
+
+    if (!c->raw)
+    {
+        if (!skip_some_random && !c->raw)
+            skip_random_data(c);
+
+        if (!read_verification_sum(c))
+            return (void *)c->status;
+
         skip_random_data(c);
-
-    if (!read_verification_sum(c))
-        return (void *)c->status;
-
-    skip_random_data(c);
+    }
 
     if (!read_metadata(c))
         return (void *)c->status;
 
-    if (!skip_some_random)
+    if (!skip_some_random && !c->raw)
         skip_random_data(c);
 
     /*
@@ -243,7 +274,7 @@ static void *process(void *ptr)
     c->current.offset = c->current.size;
     c->total.offset = c->total.size;
 
-    if (c->version != VERSION_2011_08)
+    if (c->version != VERSION_2011_08 && !c->raw)
     {
         /*
          * verify checksum (on versions which calculated it correctly)
@@ -259,7 +290,8 @@ static void *process(void *ptr)
         free(b);
     }
 
-    skip_random_data(c); /* not entirely necessary as we already know we've reached the end of the file */
+    if (!c->raw)
+        skip_random_data(c); /* not entirely necessary as we already know we've reached the end of the file */
 
     /*
      * done
@@ -297,7 +329,6 @@ static uint64_t read_version(crypto_t *c)
     c->cipher = cipher_id_from_name(a);
     c->hash = hash_id_from_name(h);
     c->mode = mode_id_from_name(m);
-    free(a);
     return check_version(ntohll(head[2]));
 }
 

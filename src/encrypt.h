@@ -43,6 +43,7 @@
  * \param[in]  m  The name of the mode
  * \param[in]  k  Key data
  * \param[in]  l  Size of key data
+ * \param[in]  n  Raw - don't write a header or any verification
  * \param[in]  x  Compress data before encryption
  * \param[in]  f  Follow symlinks
  * \param[in]  v  Backwards compatibility version
@@ -59,6 +60,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
                               const char * const restrict m,
                               const void * const restrict k,
                               size_t l,
+                              bool n,
                               bool x,
                               bool f,
                               version_e v) __attribute__((nonnull(3, 4, 5, 6)));

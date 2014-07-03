@@ -38,17 +38,29 @@
  * \brief         Create a new decryption instance
  * \param[in]  i  The source to decrypt
  * \param[in]  o  The plaintext after decryption
+ * \param[in]  c  The name of the cipher (optional)
+ * \param[in]  h  The name of the hash   (optional)
+ * \param[in]  m  The name of the mode   (optional)
  * \param[in]  k  Key data
  * \param[in]  l  Size of key data
+ * \param[in]  n  Raw - don't check for a header or any verification
  * \return        A new decryption instance
  *
  * Create a new decryption instance, which if the status is INIT, is
  * ready to be executed. Any other status is a failure. If the input and
  * output file names are NULL, stdin/stdout will be used instead.
+ *
+ * The cipher/hash/mode should be NULL, then they will be parsed from
+ * the encrypted file; the only reason to set them is if there is no
+ * header information.
  */
 extern crypto_t *decrypt_init(const char * const restrict i,
                               const char * const restrict o,
+                              const char * const restrict c,
+                              const char * const restrict h,
+                              const char * const restrict m,
                               const void * const restrict k,
-                              size_t l) __attribute__((nonnull(3)));
+                              size_t l,
+                              bool n) __attribute__((nonnull(3)));
 
 #endif /* ! _ENCRYPT_DECRYPT_H_ */

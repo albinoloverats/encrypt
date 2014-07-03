@@ -105,7 +105,8 @@ static const version_t VERSIONS[] =
     { "2013.02", 0x5b7132ab5abb3c47llu },
     { "2013.11", 0xf1f68e5f2a43aa5fllu },
     { "2014.06", 0x8819d19069fae6b4llu },
-    { "current", 0x8819d19069fae6b4llu } /* same as above */
+
+    { "current", 0x63e7d49566e31bfbllu }
 };
 
 typedef struct

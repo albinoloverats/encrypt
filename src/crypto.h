@@ -116,8 +116,9 @@ typedef enum
     VERSION_2012_11,                  /*!< Version 2012.11 */
     VERSION_2013_02,                  /*!< Version 2013.02 */
     VERSION_2013_11,                  /*!< Version 2013.11 */
-    VERSION_2014_06,                  /*!< Version 2014.06 (current development version) */
-    VERSION_CURRENT = VERSION_2014_06 /*!< Next release / current development version */
+    VERSION_2014_06,                  /*!< Version 2014.06 */
+
+    VERSION_CURRENT//= VERSION_DEVELOPMENT /*!< Next release / current development version */
 }
 version_e;
 
@@ -204,6 +205,7 @@ typedef struct
     bool compressed:1;             /*!< Whether data stream is compress */
     bool directory:1;              /*!< Whether data stream is a directory hierarchy */
     bool follow_links:1;           /*!< Whether encrypt should follow symlinks (true: store the file it points to; false: store the link itself */
+    bool raw:1;                    /*!< Whether the header should be skipped (not recommended but ideal in some situations) */
 }
 crypto_t;
 

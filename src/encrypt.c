@@ -80,6 +80,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
                               const char * const restrict m,
                               const void * const restrict k,
                               size_t l,
+                              bool n,
                               bool x,
                               bool f,
                               version_e v)
@@ -153,6 +154,13 @@ extern crypto_t *encrypt_init(const char * const restrict i,
     z->compressed = x;
     z->follow_links = f;
 
+    /* if the user wants to skip the header information then they either
+     * know what they're doing, or they're an idiot; either way it will
+     * override almost everything else
+     */
+    if ((z->raw = n))
+        v = VERSION_CURRENT;
+
     z->version = v ? : VERSION_CURRENT;
     /*
      * determine which settings are valid for the given version
@@ -187,7 +195,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
             /* fall back if using CBC */
             if (z->mode == GCRY_CIPHER_MODE_CBC)
                 z->version = VERSION_2013_11;
-        //case VERSION_CURRENT:
+        case VERSION_CURRENT:
             /*
              * do nothing, all options are available; not falling back
              * allows extra padding at beginning of file
@@ -208,39 +216,47 @@ static void *process(void *ptr)
         return NULL;
 
     c->status = STATUS_RUNNING;
-    write_header(c);
-    /*
-     * all data written from here on is encrypted
-     */
-    io_extra_t iox = { false, 1 };
-    io_encryption_init(c->output, c->cipher, c->hash, c->mode, c->key, c->length, iox);
-    free(c->key);
+    if (!c->raw)
+        write_header(c);
 
-    bool pre_random = true;
+    bool pre_random = false;
+    x_iv_e iv_type = IV_RANDOM;
     switch (c->version)
     {
         case VERSION_2011_08:
         case VERSION_2011_10:
+            iv_type = IV_BROKEN;
+            break;
+
         case VERSION_2012_11:
-            /*
-             * these versions didn't have random data preceding the
-             * verification sum
-             */
-            pre_random = false;
+        case VERSION_2013_02:
+        case VERSION_2013_11:
+        case VERSION_2014_06:
+            iv_type = IV_SIMPLE;
             break;
 
         default:
-            /* all subsequent versions */
+            pre_random = true;
             break;
     }
-    if (pre_random)
-        write_random_data(c);
 
-    write_verification_sum(c);
-    write_random_data(c);
+    /*
+     * all data written from here on is encrypted
+     */
+    io_extra_t iox = { iv_type, true, 1 };
+    io_encryption_init(c->output, c->cipher, c->hash, c->mode, c->key, c->length, iox);
+    free(c->key);
+
+    if (!c->raw)
+    {
+        if (pre_random)
+            write_random_data(c);
+        write_verification_sum(c);
+        write_random_data(c);
+    }
     write_metadata(c);
 
-    if (pre_random)
+    if (pre_random && !c->raw)
         write_random_data(c);
 
     /*
@@ -316,7 +332,8 @@ static void *process(void *ptr)
     io_write(c->output, cs, cl);
     free(cs);
 
-    write_random_data(c);
+    if (!c->raw)
+        write_random_data(c);
 
     /*
      * done

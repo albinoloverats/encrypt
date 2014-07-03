@@ -237,23 +237,37 @@ extern void io_encryption_init(IO_HANDLE ptr,
     gcry_cipher_setkey(io_ptr->cipher_handle, key, key_length);
     free(key);
     /*
-     * set the IV as the hash of the hash
-     */
-    uint8_t *iv_hash = malloc(hash_length);
-    if (!iv_hash)
-        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, hash_length);
-    gcry_md_hash_buffer(gcry_md_get_algo(io_ptr->hash_handle), iv_hash, hash, hash_length);
-    free(hash);
-    gcry_cipher_algo_info(c, GCRYCTL_GET_BLKLEN, NULL, &io_ptr->buffer->block);
-    /*
      * the 2011.* versions (incorrectly) used key length instead of block
-     * length
+     * length; versions after 2014.06 randomly generate the IV instead
      */
+    gcry_cipher_algo_info(c, GCRYCTL_GET_BLKLEN, NULL, &io_ptr->buffer->block);
     uint8_t *iv = calloc(x.x_iv ? key_length : io_ptr->buffer->block, sizeof( byte_t ));
     if (!iv)
        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, io_ptr->buffer->block);
-    memcpy(iv, iv_hash, io_ptr->buffer->block < hash_length ? io_ptr->buffer->block : hash_length);
-    free(iv_hash);
+    if (x.x_iv == IV_RANDOM)
+    {
+        if (x.x_encrypt)
+        {
+            gcry_create_nonce(iv, io_ptr->buffer->block);
+            io_write(ptr, iv, io_ptr->buffer->block);
+        }
+        else
+            io_read(ptr, iv, io_ptr->buffer->block);
+    }
+    else
+    {
+        uint8_t *iv_hash = malloc(hash_length);
+        if (!iv_hash)
+            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, hash_length);
+        /*
+         * set the IV as the hash of the hash
+         */
+        gcry_md_hash_buffer(gcry_md_get_algo(io_ptr->hash_handle), iv_hash, hash, hash_length);
+        memcpy(iv, iv_hash, io_ptr->buffer->block < hash_length ? io_ptr->buffer->block : hash_length);
+        free(iv_hash);
+    }
+    free(hash);
+
     if (m == GCRY_CIPHER_MODE_CTR)
         gcry_cipher_setctr(io_ptr->cipher_handle, iv, io_ptr->buffer->block);
     else

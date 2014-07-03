@@ -30,13 +30,14 @@
 
 #define ENCRYPTRC ".encryptrc"
 
-#define CONF_COMPRESS "compress"
-#define CONF_FOLLOW   "follow"
-#define CONF_KEY      "key"
-#define CONF_CIPHER   "cipher"
-#define CONF_HASH     "hash"
-#define CONF_MODE     "mode"
-#define CONF_VERSION  "version"
+#define CONF_COMPRESS    "compress"
+#define CONF_FOLLOW      "follow"
+#define CONF_KEY         "key"
+#define CONF_CIPHER      "cipher"
+#define CONF_HASH        "hash"
+#define CONF_MODE        "mode"
+#define CONF_VERSION     "version"
+#define CONF_SKIP_HEADER "raw"
 
 #define CONF_TRUE     "true"
 #define CONF_ON       "on"
@@ -79,6 +80,7 @@ typedef struct
     bool compress:1;         /*!< Compress the file (with xz) before encrypting */
     bool follow:1;           /*!< Follow symlinks or not */
     bool nogui:1;            /*!< Skip the GUI (if it's available) */
+    bool raw:1;              /*!< Whether the header should be skipped */
 }
 args_t;
 

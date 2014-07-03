@@ -65,7 +65,9 @@ extern args_t init(int argc, char **argv)
                  KEY_SOURCE_PASSWORD,
                  true,    /* compress */
                  false,   /* follow links */
-                 false }; /* disable gui */
+                 false,   /* disable gui */
+                 false    /* skip header/verification */
+    };
 
     /*
      * check for options in rc file (~/.encryptrc)
@@ -113,6 +115,8 @@ extern args_t init(int argc, char **argv)
                     a.key_source = KEY_SOURCE_PASSWORD;
                 free(k);
             }
+            else if (!strncmp(CONF_SKIP_HEADER, line, strlen(CONF_SKIP_HEADER)) && isspace(line[strlen(CONF_SKIP_HEADER)]))
+                a.raw = parse_config_tail(CONF_SKIP_HEADER, line);
 end_line:
             free(line);
             line = NULL;
@@ -142,13 +146,14 @@ end_line:
             { "no-compress", no_argument,       0, 'x' },
             { "back-compat", required_argument, 0, 'b' },
             { "follow",      no_argument,       0, 'f' },
+            { "raw",         no_argument,       0, 'r' },
             { NULL,          0,                 0,  0  }
         };
 
         while (true)
         {
             int index = 0;
-            int c = getopt_long(argc, argv, "hvlgc:s:m:k:p:xfb:", options, &index);
+            int c = getopt_long(argc, argv, "hvlgc:s:m:k:p:xb:fr", options, &index);
             if (c == -1)
                 break;
             switch (c)
@@ -192,11 +197,14 @@ end_line:
                      */
                     a.compress = false;
                     break;
+                case 'b':
+                    a.version = strdup(optarg);
+                    break;
                 case 'f':
                     a.follow = true;
                     break;
-                case 'b':
-                    a.version = strdup(optarg);
+                case 'r':
+                    a.raw = true;
                     break;
 
                 case '?':
@@ -345,18 +353,19 @@ extern void show_help(void)
     fprintf(stderr, _("  -p, --password=<password>    Password used to generate the key\n"));
     if (!strncasecmp(program_invocation_short_name, APP_NAME, strlen(APP_NAME)))
     {
-        fprintf(stderr, _("  -x, --no-compress            Do not compress the plaintext using the xz\n" \
+        fprintf(stderr, _("  -x, --no-compress            Do not compress the plaintext using the xz\n"   \
                           "                               algorithm\n"));
         fprintf(stderr, _("  -f, --follow                 Follow symlinks, the default is to store the\n" \
                           "                               link itself\n"));
-        fprintf(stderr, _("  -b, --back-compat=<version>  Create an encrypted file that is backwards\n" \
+        fprintf(stderr, _("  -b, --back-compat=<version>  Create an encrypted file that is backwards\n"   \
                           "                               compatible\n"));
     }
+    fprintf(stderr, _("  -r, --raw                    Don't generate or look for an encrypt header;\n"    \
+                      "                               this IS NOT recommended, but can be usefull in\n"   \
+                      "                               some (limited) situations."));
     fprintf(stderr, _("\nNotes:\n  If you do not supply a key or password, you will be prompted for one.\n"));
     if (!strncasecmp(program_invocation_short_name, APP_NAME, strlen(APP_NAME)))
-    {
         fprintf(stderr, _("  To see a list of available algorithms or modes use list as the argument.\n"));
-    }
     exit(EXIT_SUCCESS);
 }
 

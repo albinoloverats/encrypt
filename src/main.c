@@ -278,9 +278,9 @@ int main(int argc, char **argv)
     crypto_t *c;
 
     if (dude || (args.source && is_encrypted(args.source)))
-        c = decrypt_init(args.source, args.output, key, length);
+        c = decrypt_init(args.source, args.output, args.cipher, args.hash, args.mode, key, length, args.raw);
     else
-        c = encrypt_init(args.source, args.output, args.cipher, args.hash, args.mode, key, length, args.compress, args.follow, parse_version(args.version));
+        c = encrypt_init(args.source, args.output, args.cipher, args.hash, args.mode, key, length, args.raw, args.compress, args.follow, parse_version(args.version));
 
     init_deinit(args);
 

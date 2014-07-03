@@ -46,6 +46,21 @@ typedef unsigned short mode_t;
 #endif
 
 /*!
+ * \brief  How the IV should be generated
+ *
+ * The IV can be generated in one of a few ways; it depends on the
+ * (compatibility) version of encrypt. Basically the only valid choice
+ * is the latest.
+ */
+typedef enum
+{
+    IV_BROKEN, /*!< The oldest version of encrypt didn't do a good job of IV generation */
+    IV_SIMPLE, /*!< More recent versions did a better job, but it's still not great */
+    IV_RANDOM  /*!< The next/current version does the best job (so far) */
+}
+x_iv_e;
+
+/*!
  * \brief  Extra options passed to IO crypto init
  *
  * A structure for any additional options necessary to revert to an
@@ -55,8 +70,9 @@ typedef unsigned short mode_t;
  */
 typedef struct
 {
-    bool x_iv:1; /*!< Whether to use the older (less correct) IV generation */
-    unsigned int x_hz:15; /*!< The number of iterations for key/IV generation */
+    x_iv_e x_iv;          /*!< Whether to use the older (less correct) IV generation */
+    bool x_encrypt;       /*!< Encrypt (or decrypt) */
+    unsigned int x_hz:15; /*!< NOT USED (yet) The number of iterations for key/IV generation */
 }
 io_extra_t;
 
