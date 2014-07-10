@@ -28,8 +28,20 @@ ShowUnInstDetails show
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_UNPAGE_INSTFILES
-!insertmacro MUI_LANGUAGE "English"
+!insertmacro MUI_LANGUAGE "British"
 !insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
+
+VIProductVersion "${PRODUCT_VERSION}.0.0"
+VIAddVersionKey /LANG=${LANG_BRITISH} "ProductName"      "${PRODUCT_NAME}"
+VIAddVersionKey /LANG=${LANG_BRITISH} "Comments"         "encrypt is a simple, cross platform utility for securing your personal files"
+VIAddVersionKey /LANG=${LANG_BRITISH} "CompanyName"      "${PRODUCT_PUBLISHER}"
+VIAddVersionKey /LANG=${LANG_BRITISH} "LegalCopyright"   "Copyright (c) 2004-2014, ${PRODUCT_PUBLISHER}"
+VIAddVersionKey /LANG=${LANG_BRITISH} "FileDescription"  "Installer for ${PRODUCT_NAME} version ${PRODUCT_VERSION}"
+VIAddVersionKey /LANG=${LANG_BRITISH} "FileVersion"      "${PRODUCT_VERSION}"
+VIAddVersionKey /LANG=${LANG_BRITISH} "ProductVersion"   "${PRODUCT_VERSION}"
+VIAddVersionKey /LANG=${LANG_BRITISH} "InternalName"     "${PRODUCT_NAME}"
+VIAddVersionKey /LANG=${LANG_BRITISH} "LegalTrademarks"  "Copyright (c) 2004-2014, ${PRODUCT_PUBLISHER}"
+VIAddVersionKey /LANG=${LANG_BRITISH} "OriginalFilename" "${PRODUCT_NAME}-${PRODUCT_VERSION}-install.exe"
 
 Function .onInit
   ReadRegStr $R0 HKLM "${PRODUCT_UNINST_KEY}" "UninstallString"

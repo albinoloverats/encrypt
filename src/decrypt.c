@@ -221,7 +221,7 @@ static void *process(void *ptr)
 
     if (!c->raw)
     {
-        if (!skip_some_random && !c->raw)
+        if (!skip_some_random)
             skip_random_data(c);
 
         if (!read_verification_sum(c))
