@@ -371,9 +371,9 @@ clean_up:
                          (char *)[[[_cipherCombo selectedItem] title] UTF8String],
                          (char *)[[[_hashCombo selectedItem] title] UTF8String],
                          (char *)[[[_modeCombo selectedItem] title] UTF8String],
-                         key, length, compress, follow, version);
+                         key, length, false, compress, follow, version);
     else
-        c = decrypt_init(open_file, save_file, key, length);
+        c = decrypt_init(open_file, save_file, NULL, NULL, NULL, key, length, false);
 
     free(open_file);
     free(save_file);
