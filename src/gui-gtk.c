@@ -557,16 +557,20 @@ static void *gui_process(void *d)
 
     crypto_t *x;
     if (_encrypted)
-        x = decrypt_init(source, output, key, length);
+        x = decrypt_init(source, output, NULL, NULL, NULL, key, length, false);
     else
     {
+        /*
+         * TODO above/below, add support for non-header encrypted
+         * files
+         */
         int c = gtk_combo_box_get_active((GtkComboBox *)data->crypto_combo);
         int h = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
         int m = gtk_combo_box_get_active((GtkComboBox *)data->mode_combo);
         const char **ciphers = list_of_ciphers();
         const char **hashes = list_of_hashes();
         const char **modes = list_of_modes();
-        x = encrypt_init(source, output, ciphers[c - 1], hashes[h - 1], modes[m - 1], key, length, _compress, _follow, _version);
+        x = encrypt_init(source, output, ciphers[c - 1], hashes[h - 1], modes[m - 1], key, length, false, _compress, _follow, _version);
     }
 
     _status = &x->status;
