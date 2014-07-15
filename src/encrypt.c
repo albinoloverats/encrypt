@@ -328,14 +328,16 @@ static void *process(void *ptr)
     /*
      * write checksum
      */
-    uint8_t *cs = NULL;
-    size_t cl = 0;
-    io_encryption_checksum(c->output, &cs, &cl);
-    io_write(c->output, cs, cl);
-    free(cs);
-
     if (!c->raw)
+    {
+        uint8_t *cs = NULL;
+        size_t cl = 0;
+        io_encryption_checksum(c->output, &cs, &cl);
+        io_write(c->output, cs, cl);
+        free(cs);
+
         write_random_data(c);
+    }
 
     /*
      * done
