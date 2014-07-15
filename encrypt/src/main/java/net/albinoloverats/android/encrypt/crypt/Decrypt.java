@@ -39,7 +39,7 @@ import org.tukaani.xz.XZInputStream;
 
 public class Decrypt extends Crypto
 {
-    public Decrypt(final String source, final String output) throws CryptoProcessException
+    public Decrypt(final String source, final String output, final String cipher, final String hash, final String mode, final boolean raw) throws CryptoProcessException
     {
         super();
 
@@ -56,6 +56,12 @@ public class Decrypt extends Crypto
         {
             throw new CryptoProcessException(Status.FAILED_IO, e);
         }
+        if ((this.raw = raw))
+        {
+            this.cipher = cipher;
+            this.hash = hash;
+            this.mode = mode;
+        }
     }
 
     @Override
@@ -67,16 +73,40 @@ public class Decrypt extends Crypto
         {
             status = Status.RUNNING;
 
-            readVersion();
-            checksum = ((EncryptedFileInputStream)source).encryptionInit(cipher, hash, mode, key, version == Version._201108 || version == Version._201110);
+            if (raw)
+                version = Version.CURRENT;
+            else
+                readVersion();
 
-            final boolean skipRandom = version.compareTo(Version._201211) <= 0;
-            if (!skipRandom)
+            boolean skipRandom = version.compareTo(Version._201211) <= 0;
+            XIV ivType = XIV.RANDOM;
+            switch (version)
+            {
+                case _201108:
+                case _201110:
+                    ivType = XIV.BROKEN;
+                case _201211:
+                    skipRandom = true;
+                    break;
+                case _201302:
+                case _201311:
+                case _201406:
+                    ivType = XIV.SIMPLE;
+                    break;
+                default:
+            }
+
+            checksum = ((EncryptedFileInputStream) source).encryptionInit(cipher, hash, mode, key, ivType);
+
+            if (!raw)
+            {
+                if (!skipRandom)
+                    skipRandomData();
+                readVerificationSum();
                 skipRandomData();
-            readVerificationSum();
-            skipRandomData();
+            }
             readMetadata();
-            if (!skipRandom)
+            if (!skipRandom && !raw)
                 skipRandomData();
 
             source = compressed ? new XZInputStream(source) : source;
@@ -95,7 +125,7 @@ public class Decrypt extends Crypto
                     decryptFile();
             }
 
-            if (version != Version._201108)
+            if (version != Version._201108 && !raw)
             {
                 final byte[] check = new byte[checksum.hashSize()];
                 int err = source.read(check);

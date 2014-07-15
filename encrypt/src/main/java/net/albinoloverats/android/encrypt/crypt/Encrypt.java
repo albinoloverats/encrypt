@@ -54,7 +54,7 @@ public class Encrypt extends Crypto
     private Map<Long, Path> inodes = new HashMap<Long, Path>();
      */
 
-    public Encrypt(final String source, final String output, final String cipher, final String hash, final String mode, final boolean compress, final boolean follow, final Version version) throws CryptoProcessException
+    public Encrypt(final String source, final String output, final String cipher, final String hash, final String mode, final boolean raw, final boolean compress, final boolean follow, final Version version) throws CryptoProcessException
     {
         super();
 
@@ -84,9 +84,13 @@ public class Encrypt extends Crypto
         this.hash = hash;
         this.mode = mode;
 
+        if ((this.raw = raw))
+            this.version = Version.CURRENT;
+        else
+            this.version = version;
+
         compressed = compress;
         follow_links = follow;
-        this.version = version;
 
         switch (this.version)
         {
@@ -121,20 +125,31 @@ public class Encrypt extends Crypto
         {
             status = Status.RUNNING;
 
-            writeHeader();
-            checksum = ((EncryptedFileOutputStream)output).encryptionInit(cipher, hash, mode, key);
+            if (!raw)
+                writeHeader();
 
             boolean preRandom = true;
+            XIV ivType = XIV.RANDOM;
             if (version.compareTo(Version._201211) <= 0)
+            {
+                ivType = XIV.SIMPLE;
                 preRandom = false;
-            if (preRandom)
-                writeRandomData();
+            }
+            if (version.compareTo(Version._201110) <= 0)
+                ivType = XIV.BROKEN;
 
-            writeVerificationSum();
-            writeRandomData();
+            checksum = ((EncryptedFileOutputStream)output).encryptionInit(cipher, hash, mode, key, ivType);
+
+            if (!raw)
+            {
+                if (preRandom)
+                    writeRandomData();
+                writeVerificationSum();
+                writeRandomData();
+            }
             writeMetadata();
 
-            if (preRandom)
+            if (preRandom && !raw)
                 writeRandomData();
 
             final LZMA2Options opts = new LZMA2Options(LZMA2Options.PRESET_DEFAULT);
@@ -165,9 +180,11 @@ public class Encrypt extends Crypto
                 total.offset = total.size;
             }
 
-            output.write(checksum.digest());
-
-            writeRandomData();
+            if (!raw)
+            {
+                output.write(checksum.digest());
+                writeRandomData();
+            }
 
             status = Status.SUCCESS;
         }

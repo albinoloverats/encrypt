@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.albinoloverats.android.encrypt.crypt.CryptoUtils;
+import net.albinoloverats.android.encrypt.crypt.XIV;
 import net.albinoloverats.android.encrypt.misc.Convert;
 
 public class EncryptedFileInputStream extends FileInputStream
@@ -54,7 +55,7 @@ public class EncryptedFileInputStream extends FileInputStream
         stream = new FileInputStream(file);
     }
 
-    public IMessageDigest encryptionInit(final String cipher, final String hash, final String mode, final byte[] key, final boolean legacy) throws NoSuchAlgorithmException, InvalidKeyException
+    public IMessageDigest encryptionInit(final String cipher, final String hash, final String mode, final byte[] key, final XIV ivType) throws NoSuchAlgorithmException, InvalidKeyException, IOException
     {
         IMessageDigest h = CryptoUtils.getHashAlgorithm(hash);
         final IBlockCipher c = CryptoUtils.getCipherAlgorithm(cipher);
@@ -71,10 +72,18 @@ public class EncryptedFileInputStream extends FileInputStream
         attributes.put(IMode.STATE, IMode.DECRYPTION);
         h.reset();
         h.update(keySource, 0, keySource.length);
-        final byte[] ivSource = h.digest();
-        final byte[] ivOutput = new byte[legacy ? keyLength : blockSize];
-        System.arraycopy(ivSource, 0, ivOutput, 0, blockSize < ivSource.length ? blockSize : ivSource.length);
-        attributes.put(IMode.IV, ivOutput);
+        final byte[] iv = new byte[ivType != XIV.BROKEN ? blockSize : keyLength];
+        switch (ivType)
+        {
+            case BROKEN:
+            case SIMPLE:
+                System.arraycopy(h.digest(), 0, iv, 0, iv.length);
+                break;
+            case RANDOM:
+                super.read(iv);
+                break;
+        }
+        attributes.put(IMode.IV, iv);
         this.cipher.init(attributes);
         buffer = new byte[blockSize];
         return h;
