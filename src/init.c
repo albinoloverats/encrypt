@@ -54,9 +54,9 @@ char *KEY_SOURCE[] =
 
 extern args_t init(int argc, char **argv)
 {
-    args_t a = { NULL, /* cipher */
-                 NULL, /* hash */
-                 NULL, /* mode */
+    args_t a = { strdup(DEFAULT_CIPHER),
+                 strdup(DEFAULT_HASH),
+                 strdup(DEFAULT_MODE),
                  NULL, /* key file */
                  NULL, /* password */
                  NULL, /* source */
@@ -99,11 +99,11 @@ extern args_t init(int argc, char **argv)
             else if (!strncmp(CONF_FOLLOW, line, strlen(CONF_FOLLOW)) && isspace(line[strlen(CONF_FOLLOW)]))
                 a.follow = parse_config_boolean(CONF_FOLLOW, line, a.follow);
             else if (!strncmp(CONF_CIPHER, line, strlen(CONF_CIPHER)) && isspace(line[strlen(CONF_CIPHER)]))
-                a.cipher = parse_config_tail(CONF_CIPHER, line);
+                asprintf(&a.cipher, "%s", parse_config_tail(CONF_CIPHER, line));
             else if (!strncmp(CONF_HASH, line, strlen(CONF_HASH)) && isspace(line[strlen(CONF_HASH)]))
-                a.hash = parse_config_tail(CONF_HASH, line);
+                asprintf(&a.hash, "%s", parse_config_tail(CONF_HASH, line));
             else if (!strncmp(CONF_MODE, line, strlen(CONF_MODE)) && isspace(line[strlen(CONF_MODE)]))
-                a.mode = parse_config_tail(CONF_MODE, line);
+                asprintf(&a.mode, "%s", parse_config_tail(CONF_MODE, line));
             else if (!strncmp(CONF_VERSION, line, strlen(CONF_VERSION)) && isspace(line[strlen(CONF_VERSION)]))
                 a.version = parse_config_tail(CONF_VERSION, line);
             else if (!strncmp(CONF_KEY, line, strlen(CONF_KEY)) && isspace(line[strlen(CONF_KEY)]))
@@ -168,19 +168,13 @@ end_line:
                     a.nogui = true;
                     break;
                 case 'c':
-                    if (a.cipher)
-                        free(a.cipher);
-                    a.cipher = strdup(optarg);
+                    asprintf(&a.cipher, "%s", strdup(optarg));
                     break;
                 case 's':
-                    if (a.hash)
-                        free(a.hash);
-                    a.hash = strdup(optarg);
+                    asprintf(&a.hash, "%s", strdup(optarg));
                     break;
                 case 'm':
-                    if (a.mode)
-                        free(a.mode);
-                    a.mode = strdup(optarg);
+                    asprintf(&a.mode, "%s", strdup(optarg));
                     break;
                 case 'k':
                     a.key = strdup(optarg);
@@ -300,13 +294,11 @@ extern void update_config(const char * const restrict o, const char * const rest
             f = t;
             t = z;
         }
-
         if (!found)
         {
             fseek(f, 0, SEEK_END);
             fprintf(f, "\n%s %s\n", o, v);
         }
-
         fclose(f);
         free(line);
         fclose(t);
