@@ -32,7 +32,7 @@
  * in the background when so desired.
  */
 
-#include "crypto.h"
+#include "crypt.h"
 
 /*!
  * \brief         Create a new decryption instance

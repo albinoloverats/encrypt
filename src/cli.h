@@ -21,7 +21,7 @@
 #ifndef _ENCRYPT_CLI_H_
 #define _ENCRYPT_CLI_H_
 
-#include "crypto.h"
+#include "crypt.h"
 
 #define BPS 128
 

@@ -41,8 +41,8 @@
     #include "common/win32_ext.h"
 #endif
 
-#include "crypto.h"
-#include "cryptio.h"
+#include "crypt.h"
+#include "crypt_io.h"
 
 #define NAME_SHA1 "SHA1"
 #define NAME_SHA160 "SHA160"

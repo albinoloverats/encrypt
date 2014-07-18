@@ -22,7 +22,7 @@
 #define _ENCRYPT_CRYPTIO_H_
 
 /*!
- * \file    cryptio.h
+ * \file    crypt_io.h
  * \author  Ashley M Anderson
  * \date    2009-2014
  * \brief   IO functions for encrypt

@@ -47,9 +47,9 @@
 #include "common/error.h"
 #include "common/tlv.h"
 
-#include "crypto.h"
+#include "crypt.h"
 #include "encrypt.h"
-#include "cryptio.h"
+#include "crypt_io.h"
 
 static void *process(void *);
 

@@ -45,9 +45,9 @@
 #include "common/tlv.h"
 #include "common/fs.h"
 
-#include "crypto.h"
+#include "crypt.h"
 #include "decrypt.h"
-#include "cryptio.h"
+#include "crypt_io.h"
 
 static void *process(void *);
 

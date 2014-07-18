@@ -46,7 +46,7 @@
 #include "common/version.h"
 
 #include "init.h"
-#include "crypto.h"
+#include "crypt.h"
 #include "encrypt.h"
 #include "decrypt.h"
 #include "cli.h"

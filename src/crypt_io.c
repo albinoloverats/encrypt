@@ -39,8 +39,8 @@
 #include "common/common.h"
 #include "common/error.h"
 
-#include "cryptio.h"
-#include "crypto.h"
+#include "crypt_io.h"
+#include "crypt.h"
 
 #define IO_DUMMY_FD 0x42145c91
 #define OFFSET_SLOTS 3

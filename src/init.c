@@ -38,7 +38,7 @@
 #include "common/error.h"
 
 #include "init.h"
-#include "crypto.h"
+#include "crypt.h"
 
 static bool parse_config_boolean(const char *, const char *, bool);
 static char *parse_config_tail(const char *, const char *);

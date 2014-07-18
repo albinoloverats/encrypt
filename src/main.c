@@ -45,7 +45,7 @@
 
 #include "init.h"
 #include "cli.h"
-#include "crypto.h"
+#include "crypt.h"
 #include "encrypt.h"
 #include "decrypt.h"
 

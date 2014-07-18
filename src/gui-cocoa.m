@@ -32,7 +32,7 @@
 #import "version.h"
 #import "error.h"
 
-#import "crypto.h"
+#import "crypt.h"
 #import "encrypt.h"
 #import "decrypt.h"
 #import "init.h"

@@ -3,7 +3,7 @@
 APP      = encrypt
 ALT		 = decrypt
 
-SOURCE   = src/main.c src/cli.c src/init.c src/crypto.c src/encrypt.c src/decrypt.c src/cryptio.c
+SOURCE   = src/main.c src/cli.c src/init.c src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
 GUI      = src/gui-gtk.c
 COMMON   = src/common/error.c src/common/tlv.c src/common/version.c src/common/fs.c
 

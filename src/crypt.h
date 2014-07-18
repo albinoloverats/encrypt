@@ -22,10 +22,10 @@
 #define _ENCRYPT_CRYPTO_H_
 
 /*!
- * \file    crypto.h
+ * \file    crypt.h
  * \author  Ashley M Anderson
  * \date    2009-2014
- * \brief   Main crypto header file
+ * \brief   Main crypt header file
  *
  * What is essentially the parent class for enc/decryption routines.
  * Many of the constants, wrapper functions exist here.
@@ -36,7 +36,8 @@
 #include <time.h>       /*!< Necessary include as time_t type is referenced in this header */
 #include <pthread.h>    /*!< Necessary include as pthread handle is referenced in this header */
 #include <gcrypt.h>     /*!< Necessary include as encryption modes are referenced in this header */
-#include "cryptio.h" /*!< Necessary as IO_HANDLE type is referenced in this header */
+
+#include "crypt_io.h"   /*!< Necessary as IO_HANDLE type is referenced in this header */
 
 #define ENCRYPT_VERSION "2014.06" /*!< Current (display) version of encrypt application */
 #define UPDATE_URL "https://albinoloverats.net/encrypt.release" /*!< URI to check for updates */
