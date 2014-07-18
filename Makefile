@@ -1,6 +1,7 @@
 .PHONY: clean distclean
 
 APP      = encrypt
+ALT		 = decrypt
 
 SOURCE   = src/main.c src/cli.c src/init.c src/crypto.c src/encrypt.c src/decrypt.c src/cryptio.c
 GUI      = src/gui-gtk.c
@@ -17,36 +18,40 @@ GUILIBS  = `pkg-config --libs gtk+-3.0 gmodule-2.0`
 
 all: gui language man
 
-cli:
-	@$(CC) $(CFLAGS) $(CPPFLAGS) $(SOURCE) $(COMMON) $(LIBS) -o $(APP)
+cli: link
+	 @$(CC) $(CFLAGS) $(CPPFLAGS) $(SOURCE) $(COMMON) $(LIBS) -o $(APP)
 	-@echo "built ‘`echo $(SOURCE) $(COMMON) | sed 's/ /’\n      ‘/g'`’ → ‘$(APP)’"
 
-debug:
-	@$(CC) $(CFLAGS) $(CPPFLAGS) $(SOURCE) $(COMMON) $(LIBS) $(DEBUG) -o $(APP)
+debug: link
+	 @$(CC) $(CFLAGS) $(CPPFLAGS) $(SOURCE) $(COMMON) $(LIBS) $(DEBUG) -o $(APP)
 	-@echo "built ‘`echo $(SOURCE) $(COMMON) | sed 's/ /’\n      ‘/g'`’ → ‘$(APP)’"
 
-gui:
-	@$(CC) $(CFLAGS) $(CPPFLAGS) $(GUIFLAGS) $(SOURCE) $(COMMON) $(GUI) $(LIBS) $(GUILIBS) -o $(APP)
+gui: link
+	 @$(CC) $(CFLAGS) $(CPPFLAGS) $(GUIFLAGS) $(SOURCE) $(COMMON) $(GUI) $(LIBS) $(GUILIBS) -o $(APP)
 	-@echo "built ‘`echo $(SOURCE) $(COMMON) $(GUI) | sed 's/ /’\n      ‘/g'`’ → ‘$(APP)’"
 
-debug-gui:
-	@$(CC) $(CFLAGS) $(CPPFLAGS) $(GUIFLAGS) $(SOURCE) $(COMMON) $(GUI) $(LIBS) $(GUILIBS) $(DEBUG) -o $(APP)
+debug-gui: link
+	 @$(CC) $(CFLAGS) $(CPPFLAGS) $(GUIFLAGS) $(SOURCE) $(COMMON) $(GUI) $(LIBS) $(GUILIBS) $(DEBUG) -o $(APP)
 	-@echo "built ‘`echo $(SOURCE) $(COMMON) $(GUI) | sed 's/ /’\n      ‘/g'`’ → ‘$(APP)’"
+
+link:
+	 @ln -fs $(APP) $(ALT)
+	-@echo "linked ‘$(ALT)’ → ‘$(APP)’"
 
 language:
 	-@echo "TODO - string translation"
 #	@$(MAKE) -C po
 
 man:
-	@gzip -c docs/encrypt.1a > encrypt.1a.gz
+	 @gzip -c docs/encrypt.1a > encrypt.1a.gz
 	-@echo "compressing ‘docs/encrypt.1a’ → ‘encrypt.1a.gz"
 
 install: man
 # install the main executable, also link decrypt
-	 @install -c -m 755 -s -D -T encrypt $(PREFIX)/usr/bin/encrypt
-	-@echo "installed ‘encrypt’ → ‘$(PREFIX)/usr/bin/encrypt’"
-	 @ln -f ${PREFIX}/usr/bin/encrypt ${PREFIX}/usr/bin/decrypt
-	-@echo "linked ‘decrypt’ → ‘encrypt’"
+	 @install -c -m 755 -s -D -T $(APP) $(PREFIX)/usr/bin/$(APP)
+	-@echo "installed ‘$(APP)’ → ‘$(PREFIX)/usr/bin/encrypt’"
+	 @ln -f ${PREFIX}/usr/bin/$(APP) ${PREFIX}/usr/bin/$(ALT)
+	-@echo "linked ‘$(ALT)’ → ‘$(APP)’"
 # install the pixmaps
 	 @install -c -m 644 -D -T pixmaps/encrypt.svg $(PREFIX)/usr/share/pixmaps/encrypt.svg
 	-@echo "installed ‘pixmaps/encrypt.svg’ → ‘$(PREFIX)/usr/share/pixmaps/encrypt.svg’"
@@ -90,6 +95,7 @@ uninstall:
 
 clean:
 	@rm -fv $(APP)
+	@rm -fv $(ALT)
 
 distclean: clean
 	@rm -fv encrypt.1a.gz
