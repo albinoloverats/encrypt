@@ -10,7 +10,6 @@
 		2E3922E0164D0F970028986B /* init.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E3922DE164D0F970028986B /* init.c */; };
 		2E63273E1680B599002A0CB5 /* tlv.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E63273A1680B599002A0CB5 /* tlv.c */; };
 		2E63273F1680B599002A0CB5 /* version.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E63273C1680B599002A0CB5 /* version.c */; };
-		2E6327441680B5A8002A0CB5 /* crypto.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E6327401680B5A8002A0CB5 /* crypto.c */; };
 		2E6327451680B5A8002A0CB5 /* decrypt.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E6327421680B5A8002A0CB5 /* decrypt.c */; };
 		2E79E87D16831ED700F73B01 /* cli.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E79E87A16831ED700F73B01 /* cli.c */; };
 		2E96E2D9164129B200C50460 /* error.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E96E2D1164129B200C50460 /* error.c */; };
@@ -32,7 +31,8 @@
 		AB0025A7192145B2008BB9DD /* liblzma.5.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB0025A519214573008BB9DD /* liblzma.5.dylib */; };
 		AB00260019214651008BB9DD /* libcurl.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB0025FF19214651008BB9DD /* libcurl.4.dylib */; };
 		AB00260119214664008BB9DD /* libcurl.4.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB0025FF19214651008BB9DD /* libcurl.4.dylib */; };
-		AB50B858192B361E00B607B7 /* cryptio.c in Sources */ = {isa = PBXBuildFile; fileRef = AB50B856192B361E00B607B7 /* cryptio.c */; };
+		ABE79DA81979B4DC00857369 /* crypt_io.c in Sources */ = {isa = PBXBuildFile; fileRef = ABE79DA41979B4DC00857369 /* crypt_io.c */; };
+		ABE79DA91979B4DC00857369 /* crypt.c in Sources */ = {isa = PBXBuildFile; fileRef = ABE79DA61979B4DC00857369 /* crypt.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -58,8 +58,6 @@
 		2E63273B1680B599002A0CB5 /* tlv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tlv.h; sourceTree = "<group>"; };
 		2E63273C1680B599002A0CB5 /* version.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = version.c; sourceTree = "<group>"; };
 		2E63273D1680B599002A0CB5 /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
-		2E6327401680B5A8002A0CB5 /* crypto.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = crypto.c; sourceTree = "<group>"; };
-		2E6327411680B5A8002A0CB5 /* crypto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = crypto.h; sourceTree = "<group>"; };
 		2E6327421680B5A8002A0CB5 /* decrypt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = decrypt.c; sourceTree = "<group>"; };
 		2E6327431680B5A8002A0CB5 /* decrypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = decrypt.h; sourceTree = "<group>"; };
 		2E79E87A16831ED700F73B01 /* cli.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cli.c; sourceTree = "<group>"; };
@@ -91,8 +89,10 @@
 		AB00259F19214475008BB9DD /* libgpg-error.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libgpg-error.0.dylib"; path = "/usr/local/Cellar/libgpg-error/1.13/lib/libgpg-error.0.dylib"; sourceTree = "<absolute>"; };
 		AB0025A519214573008BB9DD /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = /usr/local/Cellar/xz/5.0.5/lib/liblzma.5.dylib; sourceTree = "<absolute>"; };
 		AB0025FF19214651008BB9DD /* libcurl.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.4.dylib; path = /usr/local/Cellar/curl/7.36.0/lib/libcurl.4.dylib; sourceTree = "<absolute>"; };
-		AB50B856192B361E00B607B7 /* cryptio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cryptio.c; sourceTree = "<group>"; };
-		AB50B857192B361E00B607B7 /* cryptio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cryptio.h; sourceTree = "<group>"; };
+		ABE79DA41979B4DC00857369 /* crypt_io.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = crypt_io.c; sourceTree = "<group>"; };
+		ABE79DA51979B4DC00857369 /* crypt_io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = crypt_io.h; sourceTree = "<group>"; };
+		ABE79DA61979B4DC00857369 /* crypt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = crypt.c; sourceTree = "<group>"; };
+		ABE79DA71979B4DC00857369 /* crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = crypt.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -178,13 +178,13 @@
 		2EA92F65161DDC58008DFF9B /* src */ = {
 			isa = PBXGroup;
 			children = (
-				AB50B856192B361E00B607B7 /* cryptio.c */,
-				AB50B857192B361E00B607B7 /* cryptio.h */,
+				ABE79DA41979B4DC00857369 /* crypt_io.c */,
+				ABE79DA51979B4DC00857369 /* crypt_io.h */,
+				ABE79DA61979B4DC00857369 /* crypt.c */,
+				ABE79DA71979B4DC00857369 /* crypt.h */,
 				2E79E87A16831ED700F73B01 /* cli.c */,
 				2E79E87B16831ED700F73B01 /* cli.h */,
 				2E79E87C16831ED700F73B01 /* gui.h */,
-				2E6327401680B5A8002A0CB5 /* crypto.c */,
-				2E6327411680B5A8002A0CB5 /* crypto.h */,
 				2E6327421680B5A8002A0CB5 /* decrypt.c */,
 				2E6327431680B5A8002A0CB5 /* decrypt.h */,
 				2E3922DE164D0F970028986B /* init.c */,
@@ -299,18 +299,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB50B858192B361E00B607B7 /* cryptio.c in Sources */,
 				2EA92F6C161DDC58008DFF9B /* main.m in Sources */,
 				2EA92F73161DDC58008DFF9B /* gui-cocoa.m in Sources */,
 				2E96E2D9164129B200C50460 /* error.c in Sources */,
 				2E96E2DB164129B200C50460 /* encrypt.c in Sources */,
 				2E3922E0164D0F970028986B /* init.c in Sources */,
 				2E63273E1680B599002A0CB5 /* tlv.c in Sources */,
+				ABE79DA91979B4DC00857369 /* crypt.c in Sources */,
 				2E63273F1680B599002A0CB5 /* version.c in Sources */,
-				2E6327441680B5A8002A0CB5 /* crypto.c in Sources */,
 				2E6327451680B5A8002A0CB5 /* decrypt.c in Sources */,
 				2E79E87D16831ED700F73B01 /* cli.c in Sources */,
 				2EAD2143177C35AC0091EA3C /* fs.c in Sources */,
+				ABE79DA81979B4DC00857369 /* crypt_io.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -39,6 +39,7 @@
 
 @property (strong, nonatomic) IBOutlet NSMenuItem *compress;
 @property (strong, nonatomic) IBOutlet NSMenuItem *follow;
+@property (strong, nonatomic) IBOutlet NSMenuItem *raw;
 @property (strong, nonatomic) IBOutlet NSMenu *version;
 
 @property (strong, nonatomic) IBOutlet NSPopUpButtonCell *sourceFileChooser;

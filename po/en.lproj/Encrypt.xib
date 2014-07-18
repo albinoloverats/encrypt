@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13C1021" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment version="1060" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
@@ -96,9 +96,22 @@
                         </items>
                     </menu>
                 </menuItem>
-                <menuItem title="Compatibility" id="820">
+                <menuItem title="Advanced" id="bmI-Fc-CSd">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="Compatibility" id="821"/>
+                    <menu key="submenu" title="Advanced" id="6N9-Nj-AOF">
+                        <items>
+                            <menuItem title="Raw" id="ccE-IP-qh9">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="rawToggle:" target="494" id="fxg-qy-9Iz"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Compatibility" id="Msr-5w-F4a">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Compatibility" id="ASa-YP-e7O"/>
+                            </menuItem>
+                        </items>
+                    </menu>
                 </menuItem>
                 <menuItem title="Window" id="19">
                     <menu key="submenu" title="Window" systemMenu="window" id="24">
@@ -290,9 +303,10 @@
                 <outlet property="progress_current" destination="785" id="788"/>
                 <outlet property="progress_label" destination="790" id="792"/>
                 <outlet property="progress_total" destination="763" id="783"/>
+                <outlet property="raw" destination="ccE-IP-qh9" id="eiD-5L-ero"/>
                 <outlet property="sourceFileChooser" destination="546" id="731"/>
                 <outlet property="statusBar" destination="769" id="771"/>
-                <outlet property="version" destination="821" id="833"/>
+                <outlet property="version" destination="ASa-YP-e7O" id="UJx-rL-CQA"/>
                 <outlet property="window" destination="371" id="532"/>
             </connections>
         </customObject>

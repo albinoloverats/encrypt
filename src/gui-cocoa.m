@@ -48,6 +48,7 @@ char *gui_file_hack_output = NULL;
 static bool encrypted = true;
 static bool compress = true;
 static bool follow = false;
+static bool raw = false;
 static bool running = false;
 static version_e version = VERSION_CURRENT;
 static key_source_e key_source = KEY_SOURCE_PASSWORD;
@@ -154,6 +155,13 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
     compress = !(bool)[_compress state];
     [_compress setState:compress];
     update_config(CONF_COMPRESS, compress ? CONF_TRUE : CONF_FALSE);
+}
+
+- (IBAction)rawToggle:(id)pId
+{
+    raw = !(bool)[_raw state];
+    [_raw setState:raw];
+    update_config(CONF_SKIP_HEADER, raw ? CONF_TRUE : CONF_FALSE);
 }
 
 - (IBAction)followToggle:(id)pId
