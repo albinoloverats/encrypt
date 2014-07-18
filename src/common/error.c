@@ -69,7 +69,7 @@ extern void die(const char * const restrict s, ...)
     {
         char * const restrict e = strdup(strerror(ex));
         for (uint32_t i = 0; i < strlen(e); i++)
-            e[i] = tolower(e[i]);
+            e[i] = tolower((unsigned char)e[i]);
         fprintf(stderr, "%s", e);
         free(e);
     }

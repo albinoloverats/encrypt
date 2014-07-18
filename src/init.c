@@ -40,6 +40,8 @@
 #include "init.h"
 #include "crypt.h"
 
+static bool is_encrypt(void);
+
 static bool parse_config_boolean(const char *, const char *, bool);
 static char *parse_config_tail(const char *, const char *);
 
@@ -94,19 +96,19 @@ extern args_t init(int argc, char **argv)
             if (line[0] == '#' || len == 0)
                 goto end_line;
 
-            if (!strncmp(CONF_COMPRESS, line, strlen(CONF_COMPRESS)) && isspace(line[strlen(CONF_COMPRESS)]))
+            if (!strncmp(CONF_COMPRESS, line, strlen(CONF_COMPRESS)) && isspace((unsigned char)line[strlen(CONF_COMPRESS)]))
                 a.compress = parse_config_boolean(CONF_COMPRESS, line, a.compress);
-            else if (!strncmp(CONF_FOLLOW, line, strlen(CONF_FOLLOW)) && isspace(line[strlen(CONF_FOLLOW)]))
+            else if (!strncmp(CONF_FOLLOW, line, strlen(CONF_FOLLOW)) && isspace((unsigned char)line[strlen(CONF_FOLLOW)]))
                 a.follow = parse_config_boolean(CONF_FOLLOW, line, a.follow);
-            else if (!strncmp(CONF_CIPHER, line, strlen(CONF_CIPHER)) && isspace(line[strlen(CONF_CIPHER)]))
+            else if (!strncmp(CONF_CIPHER, line, strlen(CONF_CIPHER)) && isspace((unsigned char)line[strlen(CONF_CIPHER)]))
                 asprintf(&a.cipher, "%s", parse_config_tail(CONF_CIPHER, line));
-            else if (!strncmp(CONF_HASH, line, strlen(CONF_HASH)) && isspace(line[strlen(CONF_HASH)]))
+            else if (!strncmp(CONF_HASH, line, strlen(CONF_HASH)) && isspace((unsigned char)line[strlen(CONF_HASH)]))
                 asprintf(&a.hash, "%s", parse_config_tail(CONF_HASH, line));
-            else if (!strncmp(CONF_MODE, line, strlen(CONF_MODE)) && isspace(line[strlen(CONF_MODE)]))
+            else if (!strncmp(CONF_MODE, line, strlen(CONF_MODE)) && isspace((unsigned char)line[strlen(CONF_MODE)]))
                 asprintf(&a.mode, "%s", parse_config_tail(CONF_MODE, line));
-            else if (!strncmp(CONF_VERSION, line, strlen(CONF_VERSION)) && isspace(line[strlen(CONF_VERSION)]))
+            else if (!strncmp(CONF_VERSION, line, strlen(CONF_VERSION)) && isspace((unsigned char)line[strlen(CONF_VERSION)]))
                 a.version = parse_config_tail(CONF_VERSION, line);
-            else if (!strncmp(CONF_KEY, line, strlen(CONF_KEY)) && isspace(line[strlen(CONF_KEY)]))
+            else if (!strncmp(CONF_KEY, line, strlen(CONF_KEY)) && isspace((unsigned char)line[strlen(CONF_KEY)]))
             {
                 char *k = parse_config_tail(CONF_KEY, line);
                 if (!strcasecmp(KEY_SOURCE[KEY_SOURCE_FILE], k))
@@ -115,7 +117,7 @@ extern args_t init(int argc, char **argv)
                     a.key_source = KEY_SOURCE_PASSWORD;
                 free(k);
             }
-            else if (!strncmp(CONF_SKIP_HEADER, line, strlen(CONF_SKIP_HEADER)) && isspace(line[strlen(CONF_SKIP_HEADER)]))
+            else if (!strncmp(CONF_SKIP_HEADER, line, strlen(CONF_SKIP_HEADER)) && isspace((unsigned char)line[strlen(CONF_SKIP_HEADER)]))
                 a.raw = parse_config_tail(CONF_SKIP_HEADER, line);
 end_line:
             free(line);
@@ -275,7 +277,7 @@ extern void update_config(const char * const restrict o, const char * const rest
              */
             while (getline(&line, &len, f) >= 0)
             {
-                if (!i && (!strncmp(o, line, strlen(o)) && isspace(line[strlen(o)])))
+                if (!i && (!strncmp(o, line, strlen(o)) && isspace((unsigned char)line[strlen(o)])))
                 {
                     asprintf(&line, "%s %s\n", o, v);
                     found = true;
@@ -309,7 +311,7 @@ extern void update_config(const char * const restrict o, const char * const rest
 
 static void print_version(void)
 {
-    char *app_name = !strncasecmp(program_invocation_short_name, APP_NAME, strlen(APP_NAME)) ? APP_NAME : ALT_NAME;
+    char *app_name = is_encrypt() ? APP_NAME : ALT_NAME;
     char *git = strndup(GIT_COMMIT, GIT_COMMIT_LENGTH);
     fprintf(stderr, _("%s version: %s\n%*s built on: %s %s\n%*s git commit: %s\n"), app_name, ENCRYPT_VERSION, (int)strlen(app_name) - 1, "", __DATE__, __TIME__, (int)strlen(app_name) - 3, "", git);
     free(git);
@@ -318,8 +320,8 @@ static void print_version(void)
 
 static void print_usage(void)
 {
-    char *app_name = !strncasecmp(program_invocation_short_name, APP_NAME, strlen(APP_NAME)) ? APP_NAME : ALT_NAME;
-    char *app_usage = !strncasecmp(program_invocation_short_name, APP_NAME, strlen(APP_NAME)) ? APP_USAGE : ALT_USAGE;
+    char *app_name = is_encrypt() ? APP_NAME : ALT_NAME;
+    char *app_usage = is_encrypt() ? APP_USAGE : ALT_USAGE;
     fprintf(stderr, _("Usage:\n  %s %s\n"), app_name, app_usage);
     return;
 }
@@ -335,7 +337,7 @@ extern void show_help(void)
     fprintf(stderr, _("  -l, --licence                Display GNU GPL v3 licence header\n"));
     fprintf(stderr, _("  -v, --version                Display application version\n"));
     fprintf(stderr, _("  -g, --nogui                  Do not use the GUI, even if it's available\n"));
-    if (!strncasecmp(program_invocation_short_name, APP_NAME, strlen(APP_NAME)))
+    if (is_encrypt())
     {
         fprintf(stderr, _("  -c, --cipher=<algorithm>     Algorithm to use to encrypt data\n"));
         fprintf(stderr, _("  -s, --hash=<algorithm>       Hash algorithm to generate key\n"));
@@ -343,21 +345,26 @@ extern void show_help(void)
     }
     fprintf(stderr, _("  -k, --key=<key file>         File whose data will be used to generate the key\n"));
     fprintf(stderr, _("  -p, --password=<password>    Password used to generate the key\n"));
-    if (!strncasecmp(program_invocation_short_name, APP_NAME, strlen(APP_NAME)))
+    if (is_encrypt())
     {
         fprintf(stderr, _("  -x, --no-compress            Do not compress the plaintext using the xz\n"   \
                           "                               algorithm\n"));
         fprintf(stderr, _("  -f, --follow                 Follow symlinks, the default is to store the\n" \
                           "                               link itself\n"));
+        fprintf(stderr, _("\nAdvanced Options:\n"));
         fprintf(stderr, _("  -b, --back-compat=<version>  Create an encrypted file that is backwards\n"   \
                           "                               compatible\n"));
     }
+    else
+        fprintf(stderr, _("\nAdvanced Options:\n"));
     fprintf(stderr, _("  -r, --raw                    Don't generate or look for an encrypt header;\n"    \
                       "                               this IS NOT recommended, but can be usefull in\n"   \
                       "                               some (limited) situations."));
-    fprintf(stderr, _("\nNotes:\n  If you do not supply a key or password, you will be prompted for one.\n"));
-    if (!strncasecmp(program_invocation_short_name, APP_NAME, strlen(APP_NAME)))
-        fprintf(stderr, _("  To see a list of available algorithms or modes use list as the argument.\n"));
+    fprintf(stderr, _("\nNotes:\n  • If you do not supply a key or password, you will be prompted for one.\n"));
+    if (is_encrypt())
+        fprintf(stderr, _("  • To see a list of available algorithms or modes use list as the argument.\n"));
+    fprintf(stderr, _("  • If you encrypted data using --raw then you will need to pass the algorithms\n"));
+    fprintf(stderr, _("    as arguments when decrypting\n"));
     exit(EXIT_SUCCESS);
 }
 
@@ -379,6 +386,11 @@ extern void show_version(void)
     exit(EXIT_SUCCESS);
 }
 
+static bool is_encrypt(void)
+{
+    return !strncasecmp(program_invocation_short_name, APP_NAME, strlen(APP_NAME));
+}
+
 static bool parse_config_boolean(const char *c, const char *l, bool d)
 {
     bool r = d;
@@ -397,13 +409,13 @@ static char *parse_config_tail(const char *c, const char *l)
     if (!x)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(l) - strlen(c) + 1);
     size_t i = 0;
-    for (i = 0; i < strlen(x) && isspace(x[i]); i++)
+    for (i = 0; i < strlen(x) && isspace((unsigned char)x[i]); i++)
         ;
     char *y = strdup(x + i);
     if (!y)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(x) - i + 1);
     free(x);
-    for (i = strlen(y) - 1; i > 0 && isspace(y[i]); i--)
+    for (i = strlen(y) - 1; i > 0 && isspace((unsigned char)y[i]); i--)
         ;//y[i] = '\0';
     char *tail = strndup(y, i + 1);
     free(y);
