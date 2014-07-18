@@ -73,6 +73,7 @@ static gboolean _files = false;
 static bool _encrypted = false;
 static bool _compress = true;
 static bool _follow = false;
+static bool _raw = false;
 static key_source_e _key_source = KEY_SOURCE_PASSWORD;
 static version_e _version = VERSION_CURRENT;
 static crypto_status_e *_status = NULL;
@@ -481,6 +482,14 @@ G_MODULE_EXPORT gboolean on_follow_toggle(GtkWidget *widget, gtk_widgets_t *data
     return (void)data, TRUE;
 }
 
+G_MODULE_EXPORT gboolean on_raw_toggle(GtkWidget *widget, gtk_widgets_t *data)
+{
+    _raw = gtk_check_menu_item_get_active((GtkCheckMenuItem *)widget);
+    update_config(CONF_SKIP_HEADER, _raw ? CONF_TRUE : CONF_FALSE);
+
+    return (void)data, TRUE;
+}
+
 G_MODULE_EXPORT gboolean on_compatibility_change(GtkWidget *widget, gtk_widgets_t *data)
 {
     _version = parse_version(gtk_menu_item_get_label((GtkMenuItem *)widget));
@@ -570,7 +579,7 @@ static void *gui_process(void *d)
         const char **ciphers = list_of_ciphers();
         const char **hashes = list_of_hashes();
         const char **modes = list_of_modes();
-        x = encrypt_init(source, output, ciphers[c - 1], hashes[h - 1], modes[m - 1], key, length, false, _compress, _follow, _version);
+        x = encrypt_init(source, output, ciphers[c - 1], hashes[h - 1], modes[m - 1], key, length, _raw, _compress, _follow, _version);
     }
 
     _status = &x->status;

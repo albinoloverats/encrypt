@@ -135,12 +135,12 @@ int main(int argc, char **argv)
         ; /* stdout is a redirect to a file or a pipe */
 #endif
     else
-#endif
+#endif /* ! _WIN32 */
     if (gtk_init_check(&argc, &argv))
     {
         builder = gtk_builder_new();
 #ifndef _WIN32
-        const char *glade_ui_file = GLADE_UI_FILE;
+        const char *glade_ui_file = GLADE_UI_FILE_DEFAULT;
 #else
         char *glade_ui_file = calloc(MAX_PATH, sizeof( char ));
         if (!glade_ui_file)
@@ -148,11 +148,17 @@ int main(int argc, char **argv)
 #ifndef __DEBUG__
         SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL, 0, glade_ui_file);
         strcat(glade_ui_file, "\\");
-#endif
-        strcat(glade_ui_file, GLADE_UI_FILE);
-#endif
+#endif /* __DEBUG__ */
+        strcat(glade_ui_file, GLADE_UI_FILE_DEFAULT);
+#endif /* ! _WIN32 */
         if (!gtk_builder_add_from_file(builder, glade_ui_file, &error))
-            die(_("%s"), error->message);
+        {
+            fprintf(stderr, "%s", error->message);
+            g_error_free(error);
+            error = NULL;
+            if (!gtk_builder_add_from_file(builder, GLADE_UI_FILE_BACKUP, &error))
+                die(_("%s"), error->message);
+        }
 #ifdef _WIN32
         free(glade_ui_file);
 #endif
@@ -192,6 +198,7 @@ int main(int argc, char **argv)
         CH_GET_WIDGET(builder, about_new_version_label, widgets);
         CH_GET_WIDGET(builder, compress_menu_item, widgets);
         CH_GET_WIDGET(builder, follow_menu_item, widgets);
+        CH_GET_WIDGET(builder, raw_menu_item, widgets);
         CH_GET_WIDGET(builder, compat_menu, widgets);
         CH_GET_WIDGET(builder, key_file_menu_item, widgets);
         CH_GET_WIDGET(builder, key_password_menu_item, widgets);
@@ -236,6 +243,7 @@ int main(int argc, char **argv)
 
         gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->compress_menu_item, args.compress);
         gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->follow_menu_item, args.follow);
+        gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->raw_menu_item, args.raw);
         set_status_bar((GtkStatusbar *)widgets->status_bar, STATUS_BAR_READY);
 
         gtk_main();

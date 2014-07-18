@@ -30,17 +30,11 @@
 #define CH_GET_WIDGET( builder, name, data )        CH_GET_OBJECT( builder, name, GTK_WIDGET, data )
 
 #ifndef _WIN32
-    #if defined __DEBUG__ || defined __DEBUG_GUI__
-        #define GLADE_UI_FILE "etc/encrypt.glade"
-    #else
-        #define GLADE_UI_FILE "/usr/share/encrypt/" "encrypt.glade"
-    #endif
+    #define GLADE_UI_FILE_DEFAULT "/usr/share/encrypt/encrypt.glade"
+    #define GLADE_UI_FILE_BACKUP  "etc/encrypt.glade"
 #else
-    #if defined __DEBUG__ || defined __DEBUG_GUI__
-        #define GLADE_UI_FILE "etc\\encrypt_w32.glade"
-    #else
-        #define GLADE_UI_FILE "encrypt\\etc\\encrypt_win.glade"
-    #endif
+    #define GLADE_UI_FILE_DEFAULT "encrypt\\etc\\encrypt_win.glade"
+    #define GLADE_UI_FILE_BACKUP  "etc\\encrypt_w32.glade"
 #endif
 
 typedef struct gtk_widgets_t
@@ -74,6 +68,7 @@ typedef struct gtk_widgets_t
     GtkWidget *about_new_version_label;
     GtkWidget *compress_menu_item;
     GtkWidget *follow_menu_item;
+    GtkWidget *raw_menu_item;
     GtkWidget *compat_menu;
     GtkWidget *key_file_menu_item;
     GtkWidget *key_password_menu_item;
