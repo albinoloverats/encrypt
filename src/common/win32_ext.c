@@ -80,8 +80,8 @@ char *program_invocation_short_name = NULL;
 extern ssize_t getline(char **lineptr, size_t *n, FILE *stream)
 {
     bool e = false;
-    size_t r = 0;
-    uint32_t step = 0xFF;
+    ssize_t r = 0;
+    int32_t step = 0xFF;
     char *buffer = malloc(step);
     if (!buffer)
         die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, step);

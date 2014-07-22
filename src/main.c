@@ -96,9 +96,11 @@ int main(int argc, char **argv)
     if (la)
         return EXIT_SUCCESS;
 
+#ifndef _WIN32
     bool dude = false;
     if (!strcmp(basename(argv[0]), ALT_NAME))
         dude = true;
+#endif
 
 #ifdef BUILD_GUI
     gtk_widgets_t *widgets;
