@@ -26,8 +26,8 @@ UseCustomMakefile=0
 CustomMakefile=
 IncludeVersionInfo=1
 SupportXPThemes=1
-CompilerSet=1
-CompilerSettings=000aa0e1e0000000001010101
+CompilerSet=3
+CompilerSettings=000aa0a1e0000000000011001
 LogOutput=
 LogOutputEnabled=0
 
