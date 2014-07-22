@@ -1,0 +1,14 @@
+#!/bin/sh
+
+app=encrypt
+version=2014.00
+pkgdir=tmp/build
+
+mkdir -p ${pkgdir}/usr/{bin,share/{encrypt,applications,man/man1,pixmaps,bash-completion/completions,zsh/functions/Completion/Unix}}
+make -f Makefile install PREFIX=${pkgdir}
+
+mkdir ${pkgdir}/install
+cp slack-desc ${pkgdir}/install
+
+cd  ${pkgdir}
+makepkg -l y -c n ../${app}-${version}-x86_64-1aa.tgz
