@@ -220,7 +220,7 @@ extern void io_encryption_init(IO_HANDLE ptr,
     /*
      * generate a hash of the supplied key data
      */
-    size_t hash_length = gcry_md_get_algo_dlen(gcry_md_get_algo(io_ptr->hash_handle));
+    size_t hash_length = gcry_md_get_algo_dlen(h);
     uint8_t *hash = malloc(hash_length);
     if (!hash)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, hash_length);
@@ -228,8 +228,7 @@ extern void io_encryption_init(IO_HANDLE ptr,
     /*
      * set the key as the hash of supplied data
      */
-    size_t key_length = 0;
-    gcry_cipher_algo_info(c, GCRYCTL_GET_KEYLEN, NULL, &key_length);
+    size_t key_length = gcry_cipher_get_algo_keylen(c);
     uint8_t *key = calloc(key_length, sizeof( byte_t ));
     if (!key)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, key_length);
@@ -240,7 +239,7 @@ extern void io_encryption_init(IO_HANDLE ptr,
      * the 2011.* versions (incorrectly) used key length instead of block
      * length; versions after 2014.06 randomly generate the IV instead
      */
-    gcry_cipher_algo_info(c, GCRYCTL_GET_BLKLEN, NULL, &io_ptr->buffer->block);
+    io_ptr->buffer->block = gcry_cipher_get_algo_blklen(c);
     uint8_t *iv = calloc(x.x_iv == IV_BROKEN ? key_length : io_ptr->buffer->block, sizeof( byte_t ));
     if (!iv)
        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, io_ptr->buffer->block);
