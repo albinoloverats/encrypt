@@ -2,9 +2,10 @@
 
 app=encrypt
 version=2014.00
-pkgdir=tmp/build
+pkgdir=build
 
 mkdir -p ${pkgdir}/usr/{bin,share/{encrypt,applications,man/man1,pixmaps,bash-completion/completions,zsh/functions/Completion/Unix}}
+make -f Makefile
 make -f Makefile install PREFIX=${pkgdir}
 
 mkdir ${pkgdir}/install
