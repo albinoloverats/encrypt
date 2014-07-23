@@ -57,7 +57,9 @@
 @property (strong, nonatomic) IBOutlet NSPopUpButtonCell *keyFileChooser;
 @property (strong, nonatomic) IBOutlet NSSecureTextField *passwordField;
 
-@property (strong, nonatomic) IBOutlet NSButtonCell *encryptButton;
+@property (strong, nonatomic) IBOutlet NSButton *singleButton;
+@property (strong, nonatomic) IBOutlet NSButton *encryptButton;
+@property (strong, nonatomic) IBOutlet NSButton *decryptButton;
 
 @property (strong, nonatomic) IBOutlet NSTextField *statusBar;
 

@@ -28,3 +28,6 @@ mode CTR
 
 # Set the level of backwards compatibility, by version number.
 version 2014.06
+
+# Use raw format instead of encrypt container
+raw false

@@ -254,7 +254,7 @@
                         </connections>
                     </secureTextField>
                     <button toolTip="Encrypt/Decrypt" verticalHuggingPriority="750" id="622">
-                        <rect key="frame" x="70" y="146" width="180" height="32"/>
+                        <rect key="frame" x="69" y="146" width="181" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="push" title="Encrypt" alternateTitle="Decrypt" bezelStyle="rounded" image="encrypt" imagePosition="left" alignment="center" alternateImage="NSApplicationIcon" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="623">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -263,6 +263,30 @@
                         <accessibility description="Encrypt/Decrypt"/>
                         <connections>
                             <action selector="encryptButtonPushed:" target="494" id="685"/>
+                        </connections>
+                    </button>
+                    <button toolTip="Decrypt" verticalHuggingPriority="750" id="aQQ-RM-pMq">
+                        <rect key="frame" x="158" y="146" width="92" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                        <buttonCell key="cell" type="push" title="Decrypt" bezelStyle="rounded" alignment="center" alternateImage="NSApplicationIcon" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="rrK-98-PAs">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <accessibility description="Decrypt"/>
+                        <connections>
+                            <action selector="encryptButtonPushed:" target="494" id="ixK-Fi-0GL"/>
+                        </connections>
+                    </button>
+                    <button toolTip="Encrypt" verticalHuggingPriority="750" id="9vI-kY-zkZ">
+                        <rect key="frame" x="69" y="146" width="92" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                        <buttonCell key="cell" type="push" title="Encrypt" bezelStyle="rounded" alignment="center" alternateImage="NSApplicationIcon" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="JqP-UV-sA0">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <accessibility description="Encrypt"/>
+                        <connections>
+                            <action selector="encryptButtonPushed:" target="494" id="1LE-5o-CqX"/>
                         </connections>
                     </button>
                     <textField verticalHuggingPriority="750" id="769">
@@ -286,7 +310,8 @@
                 <outlet property="cipherCombo" destination="564" id="696"/>
                 <outlet property="closeButton" destination="765" id="773"/>
                 <outlet property="compress" destination="777" id="779"/>
-                <outlet property="encryptButton" destination="623" id="684"/>
+                <outlet property="decryptButton" destination="aQQ-RM-pMq" id="2hQ-X3-wKa"/>
+                <outlet property="encryptButton" destination="9vI-kY-zkZ" id="lEv-sq-R4S"/>
                 <outlet property="follow" destination="814" id="815"/>
                 <outlet property="hashCombo" destination="578" id="695"/>
                 <outlet property="keyFileChooser" destination="609" id="701"/>
@@ -304,6 +329,7 @@
                 <outlet property="progress_label" destination="790" id="792"/>
                 <outlet property="progress_total" destination="763" id="783"/>
                 <outlet property="raw" destination="ccE-IP-qh9" id="eiD-5L-ero"/>
+                <outlet property="singleButton" destination="622" id="iTY-aR-bZQ"/>
                 <outlet property="sourceFileChooser" destination="546" id="731"/>
                 <outlet property="statusBar" destination="769" id="771"/>
                 <outlet property="version" destination="ASa-YP-e7O" id="UJx-rL-CQA"/>

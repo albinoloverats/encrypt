@@ -126,6 +126,10 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
     follow = args.follow;
     [_follow setState:args.follow];
 
+    raw = args.raw;
+    [_raw setState:args.raw];
+    [self toggleButtons];
+
     version = parse_version(args.version);
     for (version_e v = VERSION_CURRENT; v > VERSION_UNKNOWN; v--)
     {
@@ -162,6 +166,15 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
     raw = !(bool)[_raw state];
     [_raw setState:raw];
     update_config(CONF_SKIP_HEADER, raw ? CONF_TRUE : CONF_FALSE);
+
+    [self toggleButtons];
+}
+
+- (void)toggleButtons
+{
+    [_singleButton setHidden:raw];
+    [_encryptButton setHidden:!raw];
+    [_decryptButton setHidden:!raw];
 }
 
 - (IBAction)followToggle:(id)pId
@@ -204,7 +217,7 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
     char *m = NULL;
     if ((encrypted = is_encrypted(open_file, &c, &h, &m)))
         [self auto_select_algorithms:c:h:m];
-    [_encryptButton setTitle:encrypted ? @LABEL_DECRYPT : @LABEL_ENCRYPT];
+    [_singleButton setTitle:encrypted ? @LABEL_DECRYPT : @LABEL_ENCRYPT];
 
     if (!save_link || !strlen(save_link))
         goto clean_up;
@@ -260,7 +273,10 @@ clean_up:
         // Unselected either cipher/hash/mode, disable all options below
         [_keyFileChooser setEnabled:false];
         [_passwordField setEnabled:false];
+        [_singleButton setEnabled:false];
         [_encryptButton setEnabled:false];
+        [_decryptButton setEnabled:false];
+
     }
 }
 
@@ -311,13 +327,17 @@ clean_up:
 
 clean_up:
 
+    [_singleButton setEnabled:en];
     [_encryptButton setEnabled:en];
+    [_decryptButton setEnabled:en];
 }
 
 - (IBAction)passwordFieldUpdated:(id)pId
 {
     // Toggle encrypt/decrypt button based on passphrase length
+    [_singleButton setEnabled:([[_passwordField stringValue] length] > 0)];
     [_encryptButton setEnabled:([[_passwordField stringValue] length] > 0)];
+    [_decryptButton setEnabled:([[_passwordField stringValue] length] > 0)];
 }
 
 
@@ -326,7 +346,7 @@ clean_up:
     [_popup setIsVisible:TRUE];
     [_progress_current setHidden:FALSE];
     [_percent_current setHidden:FALSE];
-    [self performSelectorInBackground:@selector(display_gui:)withObject:nil];
+    [self performSelectorInBackground:@selector(display_gui:)withObject:pId];
 }
 
 - (void)display_gui:(id)pId
@@ -372,6 +392,11 @@ clean_up:
         key = (uint8_t *)strdup([[_passwordField stringValue] UTF8String]);
         length = strlen((char *)key);
     }
+
+    if (raw && _encryptButton == pId)
+        encrypted = false;
+    else if (raw && _decryptButton == pId)
+        encrypted = true;
 
     crypto_t *c;
     if (!encrypted)

@@ -118,7 +118,7 @@ extern args_t init(int argc, char **argv)
                 free(k);
             }
             else if (!strncmp(CONF_SKIP_HEADER, line, strlen(CONF_SKIP_HEADER)) && isspace((unsigned char)line[strlen(CONF_SKIP_HEADER)]))
-                a.raw = parse_config_tail(CONF_SKIP_HEADER, line);
+                a.raw = parse_config_boolean(CONF_SKIP_HEADER, line, a.raw);
 end_line:
             free(line);
             line = NULL;
