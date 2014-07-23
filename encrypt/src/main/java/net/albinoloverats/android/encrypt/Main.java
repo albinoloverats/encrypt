@@ -666,6 +666,8 @@ public class Main extends Activity
                 s = c.status;
 
             mHandler.sendMessage(mHandler.obtainMessage(ProgressUpdate.DONE.value, s.message));
+
+            // TODO send Android notification that process has finished
         }
     }
 }
