@@ -384,32 +384,37 @@ public class Main extends Activity
         final int itemId = item.getItemId();
         switch (itemId)
         {
-            case R.id.menu_item_about:
+            case R.id.menu_about:
                 aboutDialog();
                 break;
-//            case R.id.menu_item_compatibility:
-            case R.id.menu_item_options:
+            case R.id.menu_options:
                 break;
-            case R.id.menu_item_compress:
+            case R.id.menu_options_compress:
                 compress = !item.isChecked();
                 item.setChecked(compress);
                 Toast.makeText(getApplicationContext(), getString(R.string.compress) + ": " + (compress ? getString(R.string.on) : getString(R.string.off)), Toast.LENGTH_SHORT).show();
                 storePreferences();
                 break;
-            case R.id.menu_item_follow:
+            case R.id.menu_options_follow:
                 follow = !item.isChecked();
                 item.setChecked(follow);
                 Toast.makeText(getApplicationContext(), getString(R.string.follow) + ": " + (follow ? getString(R.string.on) : getString(R.string.off)), Toast.LENGTH_SHORT).show();
                 storePreferences();
                 break;
-            case R.id.menu_item_key_file:
+            case R.id.menu_options_key_file:
                 key_file = !item.isChecked();
                 item.setChecked(key_file);
                 Toast.makeText(getApplicationContext(), key_file ? getString(R.string.use_key_file) : getString(R.string.use_password), Toast.LENGTH_SHORT).show();
                 toggleKeySource();
                 storePreferences();
                 break;
-            default:
+            case R.id.menu_advanced_raw:
+                raw = !item.isChecked();
+                item.setChecked(raw);
+                Toast.makeText(getApplicationContext(), getString(R.string.raw) + ": " + (raw ? getString(R.string.on) : getString(R.string.off)), Toast.LENGTH_SHORT).show();
+                storePreferences();
+                break;
+            case R.id.menu_advanced_compatibility:
                 for (final Version v : Version.values())
                 {
                     if (itemId == v.menu_id)
@@ -420,6 +425,8 @@ public class Main extends Activity
                         storePreferences();
                     }
                 }
+                break;
+            default:
                 break;
         }
         return true;

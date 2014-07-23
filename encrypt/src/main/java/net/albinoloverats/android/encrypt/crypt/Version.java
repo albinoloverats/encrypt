@@ -28,7 +28,8 @@ public enum Version
     _201302(0x5b7132ab5abb3c47L, "2013.02", 201302),
     _201311(0xf1f68e5f2a43aa5fL, "2013.11", 201311),
     _201406(0x8819d19069fae6b4L, "2014.06", 201406),
-    CURRENT(_201406.magicNumber, _201406.display, _201406.menu_id);
+
+    CURRENT(0x63e7d49566e31bfbL, "2014.--", 201499);
 
     final public long magicNumber;
     final public String display;
