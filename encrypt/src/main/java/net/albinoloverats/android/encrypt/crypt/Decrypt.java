@@ -184,8 +184,7 @@ public class Decrypt extends Crypto
         else
             mode = ModeFactory.CBC_MODE;
 
-        version = Version.parseMagicNumber(Convert.longFromBytes(header));
-        if (version == null)
+        if ((version = Version.parseMagicNumber(Convert.longFromBytes(header), null)) == null)
             throw new CryptoProcessException(Status.FAILED_UNKNOWN_VERSION);
     }
 

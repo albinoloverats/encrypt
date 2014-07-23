@@ -31,6 +31,7 @@ public enum Options
     COMPRESS,
     FOLLOW,
     KEY,
+    RAW,
     VERSION;
 
     @Override

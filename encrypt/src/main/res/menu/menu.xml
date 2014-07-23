@@ -10,9 +10,14 @@
             </group>
         </menu>
     </item>
-    <item android:id="@+id/menu_item_compatibility" android:title="@string/compatibility">
+    <item android:id="@+id/menu_item_advanced" android:icon="@android:drawable/ic_menu_preferences" android:title="@string/advanced">
         <menu>
-            <group android:id="@+id/menu_group_compatibility" android:checkableBehavior="single"/>
+            <item android:id="@+id/menu_item_raw" android:title="@string/raw" android:checked="false" android:enabled="false"/>
+            <item android:id="@+id/menu_item_compatibility" android:title="@string/compatibility">
+                <menu>
+                    <group android:id="@+id/menu_group_compatibility" android:checkableBehavior="single"/>
+                </menu>
+            </item>
         </menu>
     </item>
 </menu>

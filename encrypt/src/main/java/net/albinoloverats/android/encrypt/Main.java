@@ -81,6 +81,7 @@ public class Main extends Activity
     private boolean compress = true;
     private boolean follow = false;
     private boolean key_file = false;
+    private boolean raw = false;
     private Version version = Version.CURRENT;
 
     private String filenameIn;
@@ -235,8 +236,6 @@ public class Main extends Activity
 
         // populate algorithm spinners
         cipherNames = CryptoUtils.getCipherAlgorithmNames();
-        hashNames = CryptoUtils.getHashAlgorithmNames();
-        modeNames = CryptoUtils.getCipherModeNames();
         cipherSpinAdapter.add(getString(R.string.choose_cipher));
         int i = 1;
         for (final String s : cipherNames)
@@ -246,6 +245,7 @@ public class Main extends Activity
                 cSpinner.setSelection(i);
             i++;
         }
+        hashNames = CryptoUtils.getHashAlgorithmNames();
         hashSpinAdapter.add(getString(R.string.choose_hash));
         i = 1;
         for (final String s : hashNames)
@@ -255,6 +255,7 @@ public class Main extends Activity
                 hSpinner.setSelection(i);
             i++;
         }
+        modeNames = CryptoUtils.getCipherModeNames();
         modeSpinAdapter.add(getString(R.string.choose_mode));
         i = 1;
         for (final String s : modeNames)
@@ -328,14 +329,8 @@ public class Main extends Activity
         compress = settings.getBoolean(Options.COMPRESS.toString(), true);
         follow = settings.getBoolean(Options.FOLLOW.toString(), false);
         key_file = settings.getBoolean(Options.KEY.toString(), false);
-        try
-        {
-            version = Version.parseMagicNumber(settings.getLong(Options.VERSION.toString(), Version.CURRENT.magicNumber));
-        }
-        catch (final CryptoProcessException e)
-        {
-            version = Version.CURRENT;
-        }
+        raw = settings.getBoolean(Options.RAW.toString(), false);
+        version = Version.parseMagicNumber(settings.getLong(Options.VERSION.toString(), Version.CURRENT.magicNumber), Version.CURRENT);
         toggleKeySource();
     }
 
@@ -355,6 +350,7 @@ public class Main extends Activity
         editor.putBoolean(Options.COMPRESS.toString(), compress);
         editor.putBoolean(Options.FOLLOW.toString(), follow);
         editor.putBoolean(Options.KEY.toString(), key_file);
+        editor.putBoolean(Options.RAW.toString(), raw);
         editor.putLong(Options.VERSION.toString(), version.magicNumber);
         editor.commit();
     }
@@ -446,7 +442,7 @@ public class Main extends Activity
         dialog.setContentView(R.layout.about);
         dialog.setTitle(getString(R.string.app_name) + " " + getString(R.string.version));
         ((ImageView)dialog.findViewById(R.id.about_image)).setImageResource(R.drawable.icon);
-        ((TextView)dialog.findViewById(R.id.about_text)).setText(getString(R.string.shpeel) + "\n" + getString(R.string.copyright) + "\n" + getString(R.string.url));
+        ((TextView)dialog.findViewById(R.id.about_text)).setText(getString(R.string.description) + "\n" + getString(R.string.copyright) + "\n" + getString(R.string.url));
         dialog.show();
     }
 
