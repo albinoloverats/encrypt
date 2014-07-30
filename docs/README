@@ -38,9 +38,12 @@ Add For This Release
 
 * Support no header in GUI (halfway there; just OS X to go)
 * More iterations for key/IV?
+* On Android, allow backgrounding and then notify when complete
 
 Fix For This Release
 --------------------
 
-* Figure out why occasionally the Windows build crashes (seems algorithm
-  or possibly Windows 8 related - cannot reproduce on Win7)
+* Figure out why occasionally the Windows build crashes - confirmed as
+  both an algorithm and Windows 8 issue - attempting to use AES/Rijndael
+  causes a mojor crash - cannot reproduce on Win7 (could be libgcrypt
+  version related)
