@@ -1,8 +1,10 @@
 encrypt - ----.--                                         ---- ---- ----
 =================
 
-New For Next Release
---------------------
+Done
+----
+
+### New For Next Release
 
 * No header information
   - If you don't keep the header, you MUST remember which algorithms and
@@ -15,16 +17,17 @@ New For Next Release
 * Random IV's (not derived from key) (we could also add a salt to the
   password for key generation)
 
-Fixed For Next Release
-----------------------
+### Fixed For Next Release
 
 * Figure out why the Android app doesn't like Windows encrypted files
   - It wasn't actually due to Windows, but a subtle bug in the Android
     code
 * Fix bug caused by no rc file
 
-From Previous Release
----------------------
+TODO
+----
+
+### From Previous Release
 
 * Fix SIGSEGV if the source file is deleted (even while doing nothing)
 * Find a way to merge file/magic info into main magic.mgc file
@@ -33,17 +36,17 @@ From Previous Release
   - Nautilus (or Files or whatever it's called now)
   - Konqueror or Dolphin (maybe - KDE is Qt, not GTK)
 
-Add For This Release
---------------------
+### Add For This Release
 
-* Support no header in GUI (halfway there; just OS X to go)
-* More iterations for key/IV?
+* Support no header
+  - In GUI (halfway there, just need to add necessary buttons)
+  - In Android (it's mostly plumbed in; a few GUI updates to go)
 * On Android, allow backgrounding and then notify when complete
+* More iterations for key/IV?
 
-Fix For This Release
---------------------
+### Fix For This Release
 
 * Figure out why occasionally the Windows build crashes - confirmed as
   both an algorithm and Windows 8 issue - attempting to use AES/Rijndael
-  causes a mojor crash - cannot reproduce on Win7 (could be libgcrypt
-  version related)
+  causes a major crash - cannot reproduce on Win7 (could be libgcrypt
+  version or even 32/64-bit related)
