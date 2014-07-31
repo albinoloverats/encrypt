@@ -10,6 +10,11 @@ android {
         versionCode 9
         versionName '2014.06-7'
     }
+    signingConfigs {
+        release {
+            /* taken out for security reasons ;-) */
+        }
+    }
     buildTypes {
         release {
             signingConfig signingConfigs.release

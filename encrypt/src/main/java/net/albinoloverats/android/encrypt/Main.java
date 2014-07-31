@@ -359,12 +359,12 @@ public class Main extends Activity
     public boolean onCreateOptionsMenu(final Menu menu)
     {
         getMenuInflater().inflate(R.menu.menu, menu);
-        menu.findItem(R.id.menu_item_compress).setChecked(compress);
-        menu.findItem(R.id.menu_item_follow).setChecked(follow);
-        menu.findItem(R.id.menu_item_key_file).setChecked(key_file);
+        menu.findItem(R.id.menu_options_compress).setChecked(compress);
+        menu.findItem(R.id.menu_options_follow).setChecked(follow);
+        menu.findItem(R.id.menu_options_key_file).setChecked(key_file);
 
         // populate version compatibility menu
-        final SubMenu compatibilityMenu = menu.findItem(R.id.menu_item_compatibility).getSubMenu();
+        final SubMenu compatibilityMenu = menu.findItem(R.id.menu_advanced_compatibility).getSubMenu();
         int o = Version.values().length;
         for (final Version v : Version.values())
         {
@@ -630,7 +630,7 @@ public class Main extends Activity
 
             try
             {
-                c = encrypting ? new Encrypt(filenameIn, filenameOut, cipher, hash, mode, compress, follow, version) : new Decrypt(filenameIn, filenameOut);
+                c = encrypting ? new Encrypt(filenameIn, filenameOut, cipher, hash, mode, raw, compress, follow, version) : new Decrypt(filenameIn, filenameOut, cipher, hash, mode, raw);
                 c.setKey(key_file ? new File(key) : password.getBytes());
                 c.start();
 
