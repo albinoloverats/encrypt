@@ -363,7 +363,8 @@ public class Main extends Activity
         menu.findItem(R.id.menu_options_follow).setChecked(follow);
         menu.findItem(R.id.menu_options_key_file).setChecked(key_file);
 
-        // populate version compatibility menu
+        // populate version compatibility menu (floating context menu)
+        // we cannot have submenu of submenus :( have to rethink this
         final SubMenu compatibilityMenu = menu.findItem(R.id.menu_advanced_compatibility).getSubMenu();
         int o = Version.values().length;
         for (final Version v : Version.values())

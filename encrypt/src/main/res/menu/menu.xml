@@ -3,21 +3,15 @@
     <item android:id="@+id/menu_about" android:icon="@android:drawable/ic_menu_info_details" android:title="@string/about"/>
     <item android:id="@+id/menu_options" android:icon="@android:drawable/ic_menu_preferences" android:title="@string/options">
         <menu>
-            <group android:checkableBehavior="all">
-                <item android:id="@+id/menu_options_compress" android:title="@string/compress" android:checked="true"/>
-                <item android:id="@+id/menu_options_follow" android:title="@string/follow" android:checked="false" android:enabled="false"/>
-                <item android:id="@+id/menu_options_key_file" android:title="@string/key_file" android:checked="false"/>
-            </group>
+            <item android:id="@+id/menu_options_compress" android:title="@string/compress" android:checkable="true" android:checked="true"/>
+            <item android:id="@+id/menu_options_follow" android:title="@string/follow" android:checkable="true" android:checked="false" android:enabled="false"/>
+            <item android:id="@+id/menu_options_key_file" android:title="@string/key_file" android:checkable="true" android:checked="false"/>
+            <item android:id="@+id/menu_advanced_raw" android:title="@string/raw" android:checkable="true" android:checked="false" android:enabled="false"/>
         </menu>
     </item>
-    <item android:id="@+id/menu_advanced" android:icon="@android:drawable/ic_menu_preferences" android:title="@string/advanced">
+    <item android:id="@+id/menu_advanced_compatibility" android:title="@string/compatibility">
         <menu>
-            <item android:id="@+id/menu_advanced_raw" android:title="@string/raw" android:checked="false" android:enabled="false"/>
-            <item android:id="@+id/menu_advanced_compatibility" android:title="@string/compatibility">
-                <menu>
-                    <group android:id="@+id/menu_group_compatibility" android:checkableBehavior="single"/>
-                </menu>
-            </item>
+            <group android:id="@+id/menu_group_compatibility" android:checkableBehavior="single"/>
         </menu>
     </item>
 </menu>
