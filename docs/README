@@ -6,7 +6,7 @@ Done
 
 ### New For Next Release
 
-* No header information
+* No header information (GNU/Linux, OS X, Windows 7)
   - If you don't keep the header, you MUST remember which algorithms and
     mode you used to encrypt the data!
   - This feature is so that if you choose to encrypt your data and then
@@ -27,7 +27,7 @@ Done
 TODO
 ----
 
-### From Previous Release
+### Fix From Previous Release
 
 * Fix SIGSEGV if the source file is deleted (even while doing nothing)
 * Find a way to merge file/magic info into main magic.mgc file
@@ -38,9 +38,8 @@ TODO
 
 ### Add For This Release
 
-* Support no header
-  - In GUI (halfway there, just need to add necessary buttons)
-  - In Android (it's mostly plumbed in; a few GUI updates to go)
+* Support no header In Android (it's mostly plumbed in; a few GUI
+  updates to go)
 * On Android, allow backgrounding and then notify when complete
 * More iterations for key/IV?
 

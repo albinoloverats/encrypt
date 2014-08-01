@@ -417,7 +417,7 @@ processes your file</property>
             <child>
               <object class="GtkButton" id="open_button">
                 <property name="width_request">160</property>
-                <property name="height_request">24</property>
+                <property name="height_request">28</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
@@ -490,7 +490,7 @@ processes your file</property>
             <child>
               <object class="GtkButton" id="save_button">
                 <property name="width_request">160</property>
-                <property name="height_request">24</property>
+                <property name="height_request">28</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
@@ -563,7 +563,7 @@ processes your file</property>
             <child>
               <object class="GtkComboBoxText" id="crypto_combo">
                 <property name="width_request">160</property>
-                <property name="height_request">24</property>
+                <property name="height_request">28</property>
                 <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">False</property>
@@ -586,7 +586,7 @@ processes your file</property>
             <child>
               <object class="GtkComboBoxText" id="hash_combo">
                 <property name="width_request">160</property>
-                <property name="height_request">24</property>
+                <property name="height_request">28</property>
                 <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">False</property>
@@ -609,7 +609,7 @@ processes your file</property>
             <child>
               <object class="GtkComboBoxText" id="mode_combo">
                 <property name="width_request">160</property>
-                <property name="height_request">24</property>
+                <property name="height_request">28</property>
                 <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">False</property>
@@ -632,6 +632,7 @@ processes your file</property>
             <child>
               <object class="GtkEntry" id="password_entry">
                 <property name="width_request">160</property>
+                <property name="height_request">28</property>
                 <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
@@ -654,7 +655,7 @@ processes your file</property>
             <child>
               <object class="GtkButton" id="key_button">
                 <property name="width_request">160</property>
-                <property name="height_request">24</property>
+                <property name="height_request">28</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
@@ -726,7 +727,7 @@ processes your file</property>
               <object class="GtkButton" id="encrypt_button">
                 <property name="label" translatable="yes">Encrypt</property>
                 <property name="width_request">160</property>
-                <property name="height_request">24</property>
+                <property name="height_request">28</property>
                 <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
@@ -751,6 +752,8 @@ processes your file</property>
                 <child>
                   <object class="GtkButton" id="raw_encrypt_button">
                     <property name="label" translatable="yes">Encrypt</property>
+                    <property name="width_request">80</property>
+                    <property name="height_request">28</property>
                     <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -765,6 +768,8 @@ processes your file</property>
                 <child>
                   <object class="GtkButton" id="raw_decrypt_button">
                     <property name="label" translatable="yes">Decrypt</property>
+                    <property name="width_request">80</property>
+                    <property name="height_request">28</property>
                     <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -781,6 +786,7 @@ processes your file</property>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="position">8</property>
+                <property name="padding">4</property>
               </packing>
             </child>
           </object>
