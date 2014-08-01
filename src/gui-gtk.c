@@ -218,6 +218,8 @@ G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *d
                 gtk_widget_set_sensitive(data->key_button, FALSE);
             }
             gtk_widget_set_sensitive(data->encrypt_button, FALSE);
+            gtk_widget_set_sensitive(data->raw_encrypt_button, FALSE);
+            gtk_widget_set_sensitive(data->raw_decrypt_button, FALSE);
             break;
 
 #if 0 /* not yet fully implemented (because I don't like the resulting workflow) */
@@ -382,10 +384,16 @@ G_MODULE_EXPORT gboolean password_entry_callback(GtkComboBox *password_entry, gt
     if (key_data && strlen(key_data))
     {
         gtk_widget_set_sensitive(data->encrypt_button, TRUE);
-        gtk_widget_grab_default(data->encrypt_button);
+        gtk_widget_grab_default(_raw ? data->raw_encrypt_button : data->encrypt_button);
+        gtk_widget_set_sensitive(data->raw_encrypt_button, TRUE);
+        gtk_widget_set_sensitive(data->raw_decrypt_button, TRUE);
     }
     else
+    {
         gtk_widget_set_sensitive(data->encrypt_button, FALSE);
+        gtk_widget_set_sensitive(data->raw_encrypt_button, FALSE);
+        gtk_widget_set_sensitive(data->raw_decrypt_button, FALSE);
+    }
 
     return TRUE;
 }
@@ -420,8 +428,10 @@ G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widge
         gtk_widget_hide(data->key_file_image);
 
     gtk_widget_set_sensitive(data->encrypt_button, en);
+    gtk_widget_set_sensitive(data->raw_encrypt_button, en);
+    gtk_widget_set_sensitive(data->raw_decrypt_button, en);
     if (en)
-        gtk_widget_grab_default(data->encrypt_button);
+        gtk_widget_grab_default(_raw ? data->raw_encrypt_button : data->encrypt_button);
 
     return TRUE;
 }
@@ -435,6 +445,14 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
     set_progress_bar((GtkProgressBar *)data->progress_bar_total, 0.0f);
     set_progress_bar((GtkProgressBar *)data->progress_bar_current, 0.0f);
     gtk_widget_show(data->progress_bar_current);
+
+    if (_raw)
+    {
+        if (button == (GtkButton *)data->raw_encrypt_button)
+            _encrypted = false;
+        else if (button == (GtkButton *)data->raw_decrypt_button)
+            _encrypted = true;
+    }
 
     gui_process(data);
 
@@ -487,7 +505,26 @@ G_MODULE_EXPORT gboolean on_raw_toggle(GtkWidget *widget, gtk_widgets_t *data)
     _raw = gtk_check_menu_item_get_active((GtkCheckMenuItem *)widget);
     update_config(CONF_SKIP_HEADER, _raw ? CONF_TRUE : CONF_FALSE);
 
+    set_raw_buttons(data, _raw);
+
     return (void)data, TRUE;
+}
+
+inline extern void set_raw_buttons(gtk_widgets_t *data, bool raw)
+{
+    if (raw)
+    {
+        gtk_widget_hide(data->encrypt_button);
+        gtk_widget_show(data->raw_encrypt_button);
+        gtk_widget_show(data->raw_decrypt_button);
+    }
+    else
+    {
+        gtk_widget_show(data->encrypt_button);
+        gtk_widget_hide(data->raw_encrypt_button);
+        gtk_widget_hide(data->raw_decrypt_button);
+    }
+    return;
 }
 
 G_MODULE_EXPORT gboolean on_compatibility_change(GtkWidget *widget, gtk_widgets_t *data)
@@ -564,23 +601,18 @@ static void *gui_process(void *d)
             break;
     }
 
+    int c = gtk_combo_box_get_active((GtkComboBox *)data->crypto_combo);
+    int h = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
+    int m = gtk_combo_box_get_active((GtkComboBox *)data->mode_combo);
+    const char **ciphers = list_of_ciphers();
+    const char **hashes = list_of_hashes();
+    const char **modes = list_of_modes();
+
     crypto_t *x;
     if (_encrypted)
-        x = decrypt_init(source, output, NULL, NULL, NULL, key, length, false);
+        x = decrypt_init(source, output, ciphers[c - 1], hashes[h - 1], modes[m - 1], key, length, _raw);
     else
-    {
-        /*
-         * TODO above/below, add support for non-header encrypted
-         * files
-         */
-        int c = gtk_combo_box_get_active((GtkComboBox *)data->crypto_combo);
-        int h = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
-        int m = gtk_combo_box_get_active((GtkComboBox *)data->mode_combo);
-        const char **ciphers = list_of_ciphers();
-        const char **hashes = list_of_hashes();
-        const char **modes = list_of_modes();
         x = encrypt_init(source, output, ciphers[c - 1], hashes[h - 1], modes[m - 1], key, length, _raw, _compress, _follow, _version);
-    }
 
     _status = &x->status;
 

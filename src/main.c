@@ -204,6 +204,8 @@ int main(int argc, char **argv)
         CH_GET_WIDGET(builder, compat_menu, widgets);
         CH_GET_WIDGET(builder, key_file_menu_item, widgets);
         CH_GET_WIDGET(builder, key_password_menu_item, widgets);
+        CH_GET_WIDGET(builder, raw_encrypt_button, widgets);
+        CH_GET_WIDGET(builder, raw_decrypt_button, widgets);
 
         gtk_builder_connect_signals(builder, widgets);
         g_object_unref(G_OBJECT(builder));
@@ -246,6 +248,8 @@ int main(int argc, char **argv)
         gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->compress_menu_item, args.compress);
         gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->follow_menu_item, args.follow);
         gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->raw_menu_item, args.raw);
+
+        set_raw_buttons(widgets, args.raw);
         set_status_bar((GtkStatusbar *)widgets->status_bar, STATUS_BAR_READY);
 
         gtk_main();

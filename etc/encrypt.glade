@@ -751,6 +751,7 @@ processes your file</property>
                 <child>
                   <object class="GtkButton" id="raw_encrypt_button">
                     <property name="label" translatable="yes">Encrypt</property>
+                    <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <signal name="clicked" handler="on_encrypt_button_clicked" swapped="no"/>
@@ -764,6 +765,7 @@ processes your file</property>
                 <child>
                   <object class="GtkButton" id="raw_decrypt_button">
                     <property name="label" translatable="yes">Decrypt</property>
+                    <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <signal name="clicked" handler="on_encrypt_button_clicked" swapped="no"/>

@@ -72,6 +72,8 @@ typedef struct gtk_widgets_t
     GtkWidget *compat_menu;
     GtkWidget *key_file_menu_item;
     GtkWidget *key_password_menu_item;
+    GtkWidget *raw_encrypt_button;
+    GtkWidget *raw_decrypt_button;
 }
 gtk_widgets_t;
 
@@ -97,6 +99,7 @@ G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *widget, gtk_widgets_t *da
 G_MODULE_EXPORT gboolean on_follow_toggle(GtkWidget *widget, gtk_widgets_t *data);
 G_MODULE_EXPORT gboolean on_compatibility_change(GtkWidget *widget, gtk_widgets_t *data);
 
+extern void set_raw_buttons(gtk_widgets_t *, bool);
 extern void set_status_bar(GtkStatusbar *status_bar, const char *status);
 
 #endif /* _ENCRYPT_GUI_GTK_H_ */
