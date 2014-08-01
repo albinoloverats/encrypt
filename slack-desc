@@ -6,6 +6,6 @@ encrypt: system. The GUI, either GTK or native, has been desigen to be common
 encrypt: across systems and intuitive to use, whilst still providing
 encrypt: command-line capabilities for power-users.
 encrypt:
-encrypt:
-encrypt:
-encrypt:
+encrypt: Dependencies: libgcrypt, GTK+3, pthreads, liblzma, libcurl
+encrypt: It's likely your system already has all of these are they're included
+encrypt: in the default Slackware installation.
