@@ -8,7 +8,7 @@ android {
         minSdkVersion 3
         targetSdkVersion 19
         versionCode 9
-        versionName '2014.06-7'
+        versionName '2014.XX-7'
     }
     signingConfigs {
         release {

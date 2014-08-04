@@ -29,7 +29,7 @@ public enum Version
     _201311(0xf1f68e5f2a43aa5fL, "2013.11", 201311),
     _201406(0x8819d19069fae6b4L, "2014.06", 201406),
 
-    CURRENT(0x63e7d49566e31bfbL, "2014.--", 201499);
+    CURRENT(0x63e7d49566e31bfbL, "2014.XX", 201499);
 
     final public long magicNumber;
     final public String display;
