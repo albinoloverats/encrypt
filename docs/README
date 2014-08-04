@@ -12,8 +12,8 @@ Done
   - This feature is so that if you choose to encrypt your data and then
     hide it in an image (steganography) if you're coerced to extract it
     will still looks like random pixel data
-  - Will keep going even if decryption cannot be verified (or until an
-    out of memory error - or similar - occurs!)
+  - Will keep going even if decryption cannot be verified (until an out
+    of memory error - or similar - occurs!)
 * Random IV's (not derived from key) (we could also add a salt to the
   password for key generation)
 
@@ -27,14 +27,17 @@ Done
 TODO
 ----
 
-### Fix From Previous Release
+### Add From Previous Rlease
 
-* Fix SIGSEGV if the source file is deleted (even while doing nothing)
 * Find a way to merge file/magic info into main magic.mgc file
 * File context menu for
   - Thunar (consider plugin)
   - Nautilus (or Files or whatever it's called now)
   - Konqueror or Dolphin (maybe - KDE is Qt, not GTK)
+
+### Fix From Previous Release
+
+* Fix SIGSEGV if the source file is deleted (even while doing nothing)
 
 ### Add For This Release
 

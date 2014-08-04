@@ -30,14 +30,14 @@ FILETYPE VFT_APP
     BLOCK "080904E4"
     {
       VALUE "CompanyName", "albinoloverats ~ Software Development"
-      VALUE "FileVersion", "2014.6.0.0"
+      VALUE "FileVersion", "2014.XX.0.0"
       VALUE "FileDescription", "encrypt is a simple, cross platform utility for securing your personal files"
       VALUE "InternalName", "encrypt"
       VALUE "LegalCopyright", "Copyright (c) 2004-2014, albinoloverats ~ Software Development"
       VALUE "LegalTrademarks", "Copyright (c) 2004-2014, albinoloverats ~ Software Development"
       VALUE "OriginalFilename", "encrypt.exe"
       VALUE "ProductName", "encrypt"
-      VALUE "ProductVersion", "2014.6.0.0"
+      VALUE "ProductVersion", "2014.XX.0.0"
     }
   }
   BLOCK "VarFileInfo"

@@ -27,7 +27,7 @@ hash SHA256
 mode CTR
 
 # Set the level of backwards compatibility, by version number.
-version 2014.06
+version 2014.XX
 
 # Use raw format instead of encrypt container
 raw false
