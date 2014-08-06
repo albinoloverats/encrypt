@@ -7,8 +7,8 @@ SOURCE   = src/main.c src/cli.c src/init.c src/crypt.c src/encrypt.c src/decrypt
 GUI      = src/gui-gtk.c
 COMMON   = src/common/error.c src/common/tlv.c src/common/version.c src/common/fs.c
 
-CFLAGS  += -Wall -Wextra -Werror -std=gnu99 `libgcrypt-config --cflags` -pipe -O2
-CPPFLAGS = -Isrc -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGIT_COMMIT=\"`git log | head -n1 | cut -f2 -d' '`\"
+CFLAGS  += -Wall -Wextra -std=gnu99 `libgcrypt-config --cflags` -pipe -O2
+CPPFLAGS = -Isrc -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DGIT_COMMIT=\"`git log | head -n1 | cut -f2 -d' '`\"
 GUIFLAGS = -DBUILD_GUI `pkg-config --cflags gtk+-3.0 gmodule-2.0`
 
 DEBUG    = -O0 -ggdb -D__DEBUG__ -D__DEBUG_GUI__

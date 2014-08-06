@@ -1,0 +1,16 @@
+# $FreeBSD$
+
+PORTNAME     = encrypt
+PORTVERSION  = 2014.XX
+CATEGORIES   = security
+MASTER_SITES = https://albinoloverats.net/projects/encrypt
+
+MAINTAINER   = Ashley Anderson <amanderson@albinoloverats.net>
+COMMENT      = A simple, cross platform, file encryption application
+
+LIB_DEPENDS  = libgcrypt.so:${PORTSDIR}/security/libgcrypt \
+               libgtk-3.so:${PORTSDIR}/x11-toolkits/gtk30  \
+               libcurl.so:${PORTSDIR}/ftp/curl             \
+               liblzma.so:${PORTSDIR}/archivers/xz
+
+.include <bsd.port.mk>
