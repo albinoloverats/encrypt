@@ -14,8 +14,7 @@ Done
     will still looks like random pixel data
   - Will keep going even if decryption cannot be verified (until an out
     of memory error - or similar - occurs!)
-* Random IV's (not derived from key) (we could also add a salt to the
-  password for key generation)
+* Random IV's (not derived from key)
 
 ### Fixed For Next Release
 
@@ -50,5 +49,5 @@ TODO
 
 * Figure out why occasionally the Windows build crashes - confirmed as
   both an algorithm and Windows 8 issue - attempting to use AES/Rijndael
-  causes a major crash - cannot reproduce on Win7 (could be libgcrypt
-  version or even 32/64-bit related)
+  causes a major crash - cannot reproduce on Windows 7 (could be
+  libgcrypt version or even 32/64-bit related)
