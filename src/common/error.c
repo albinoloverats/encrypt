@@ -64,26 +64,27 @@ extern void die(const char * const restrict s, ...)
             free(d);
 #endif
         va_end(ap);
+        fprintf(stderr, "\n");
     }
     if (ex)
     {
         char * const restrict e = strdup(strerror(ex));
         for (uint32_t i = 0; i < strlen(e); i++)
             e[i] = tolower((unsigned char)e[i]);
-        fprintf(stderr, "%s", e);
+        fprintf(stderr, "%s\n", e);
         free(e);
-    }
 #if !defined _WIN32 && !defined __CYGWIN__ && !defined __FreeBSD__
-    void *bt[BACKTRACE_BUFFER_LIMIT];
-    int c = backtrace(bt, BACKTRACE_BUFFER_LIMIT);
-    char **sym = backtrace_symbols(bt, c);
-    if (sym)
-    {
-        for (int i = 0; i < c; i++)
-            fprintf(stderr, "%s", sym[i]);
-        free(sym);
-    }
+        void *bt[BACKTRACE_BUFFER_LIMIT];
+        int c = backtrace(bt, BACKTRACE_BUFFER_LIMIT);
+        char **sym = backtrace_symbols(bt, c);
+        if (sym)
+        {
+            for (int i = 0; i < c; i++)
+                fprintf(stderr, "%s\n", sym[i]);
+            free(sym);
+        }
 #endif
+    }
     /*
      * TODO if running a GUI don't necessarily exit without alerting the
      * user first (Users seem to dislike applications just quitting for
