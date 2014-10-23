@@ -83,13 +83,9 @@
 #endif
 
 #define fsync(fd) _commit(fd)
-//#define ftruncate(fd, sz) _chsize(fd, sz)
-#define alphasort NULL
 #define mkdir(dir, attr) _mkdir(dir)
 #define lstat(path, st) stat(path, st)
 #define link(old, new) CopyFile(old, new, FALSE)
-
-//extern int asprintf(char **buffer, char *fmt, ...) __attribute__((nonnull(2), format(printf, 2, 3)));
 
 extern ssize_t getline(char **lineptr, size_t *n, FILE *stream) __attribute__((nonnull(3)));
 
