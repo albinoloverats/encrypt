@@ -458,7 +458,7 @@ static int64_t count_entries(crypto_t *c, const char *dir)
     int n = 0;
     int64_t e = 1;
     errno = 0;
-    if ((n = scandir(dir, &eps, NULL, alphasort)))
+    if ((n = scandir(dir, &eps, NULL, NULL)))
     {
         for (int i = 0; i < n; ++i)
         {
@@ -491,7 +491,7 @@ static void encrypt_directory(crypto_t *c, const char *dir)
 {
     struct dirent **eps = NULL;
     int n = 0;
-    if ((n = scandir(dir, &eps, NULL, alphasort)))
+    if ((n = scandir(dir, &eps, NULL, NULL)))
     {
         for (int i = 0; i < n && c->status == STATUS_RUNNING; ++i)
         {
