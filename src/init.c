@@ -1,5 +1,5 @@
 /*
- * encrypt ~ a simple, modular, (multi-OS) encryption utility
+ * encrypt ~ a simple, multi-OS encryption utility
  * Copyright © 2005-2014, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
