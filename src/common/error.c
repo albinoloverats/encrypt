@@ -33,11 +33,7 @@
 #include <ctype.h>
 #include <string.h>
 
-#ifndef __APPLE__
-    #include "common/error.h"
-#else
-    #include "error.h"
-#endif
+#include "error.h"
 
 #ifdef _WIN32
     #include "common/win32_ext.h"

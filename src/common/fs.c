@@ -26,14 +26,10 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#ifndef __APPLE__
-    #include "common/common.h"
-#else
-    #include "common.h"
-#endif
+#include "common.h"
 
 #ifdef _WIN32
-    #include "common/win32_ext.h"
+    #include "win32_ext.h"
 #endif
 
 /*

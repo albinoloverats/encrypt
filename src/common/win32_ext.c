@@ -34,9 +34,9 @@
 
 #include <dirent.h>
 
-#include "common/win32_ext.h"
-#include "common/common.h"
-#include "common/error.h"
+#include "win32_ext.h"
+#include "common.h"
+#include "error.h"
 
 char *program_invocation_short_name = NULL;
 
