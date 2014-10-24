@@ -37,6 +37,7 @@
 #include <pthread.h>    /*!< Necessary include as pthread handle is referenced in this header */
 #include <gcrypt.h>     /*!< Necessary include as encryption modes are referenced in this header */
 
+#include "common/cli.h" /*!< Used for progress bar on command line */
 #include "crypt_io.h"   /*!< Necessary as IO_HANDLE type is referenced in this header */
 
 #define ENCRYPT_VERSION "2014.XX" /*!< Current (display) version of encrypt application */
@@ -141,21 +142,6 @@ typedef enum
 } __attribute__((packed))
 stream_tags_e;
 
-/*!
- * \brief  Current progress
- *
- * Provide the foreground thread a way to check on the progress. Thus a
- * percentage can be calculated using 100 * offset / size. Either the
- * number of bytes, or directory entries depending on what you're taking
- * the progress of.
- */
-typedef struct
-{
-    uint64_t offset; /*!< Progress */
-    uint64_t size;   /*!< Maximum */
-}
-progress_t;
-
 #if 0
 /*!
  * \brief  Key data structure
@@ -196,8 +182,8 @@ typedef struct
     pthread_t *thread;             /*!< Execution thread */
     void *(*process)(void *);      /*!< Main processing function; used by execute() */
     crypto_status_e status;        /*!< Current status */
-    progress_t current;            /*!< Progress of current file */
-    progress_t total;              /*!< Overall progress (all files) */
+    cli_progress_t current;        /*!< Progress of current file */
+    cli_progress_t total;          /*!< Overall progress (all files) */
 
     void *misc;                    /*!< Miscellaneous data, specific to either encryption or decryption only */
 

@@ -42,9 +42,9 @@
 #include "common/common.h"
 #include "common/error.h"
 #include "common/version.h"
+#include "common/cli.h"
 
 #include "init.h"
-#include "cli.h"
 #include "crypt.h"
 #include "encrypt.h"
 #include "decrypt.h"
@@ -309,7 +309,18 @@ int main(int argc, char **argv)
          * only display the UI if not outputting to stdout (and if stderr
          * is a terminal)
          */
-        cli_display(c);
+        struct stat t;
+        fstat(STDOUT_FILENO, &t);
+
+        bool ui = isatty(STDERR_FILENO) && (!io_is_stdout(c->output) || c->path || S_ISREG(t.st_mode));
+        if (ui)
+        {
+            cli_t p = { (cli_status_e *)&c->status, &c->current, &c->total };
+            cli_display(&p);
+        }
+        else
+            while (c->status == STATUS_INIT || c->status == STATUS_RUNNING)
+                sleep(1);
     }
 
     if (c->status != STATUS_SUCCESS)

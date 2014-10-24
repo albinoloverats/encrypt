@@ -44,12 +44,12 @@
 #include "common/common.h"
 #include "common/error.h"
 #include "common/version.h"
+#include "common/cli.h"
 
 #include "init.h"
 #include "crypt.h"
 #include "encrypt.h"
 #include "decrypt.h"
-#include "cli.h"
 
 #define _filename_utf8(A) g_filename_to_utf8(A, -1, NULL, NULL, NULL)
 
@@ -643,8 +643,8 @@ static void *gui_process(void *d)
 
 inline static void gui_display(crypto_t *c, gtk_widgets_t *data)
 {
-    bps_t bps[BPS];
-    memset(bps, 0x00, BPS * sizeof( bps_t ));
+    cli_bps_t bps[BPS];
+    memset(bps, 0x00, BPS * sizeof( cli_bps_t ));
     int b = 0;
 
     while (c->status == STATUS_INIT || c->status == STATUS_RUNNING)

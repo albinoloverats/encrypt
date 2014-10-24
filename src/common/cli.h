@@ -21,18 +21,50 @@
 #ifndef _ENCRYPT_CLI_H_
 #define _ENCRYPT_CLI_H_
 
-#include "crypt.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 #define BPS 128
+
+typedef enum
+{
+    CLI_DONE,
+    CLI_INIT,
+    CLI_RUN
+}
+cli_status_e;
+
+/*!
+ * \brief  Current progress
+ *
+ * Provide the foreground thread a way to check on the progress. Thus a
+ * percentage can be calculated using 100 * offset / size. Either the
+ * number of bytes, or directory entries depending on what you're taking
+ * the progress of.
+ */
+typedef struct
+{
+    uint64_t offset; /*!< Progress */
+    uint64_t size;   /*!< Maximum */
+}
+cli_progress_t;
+
+typedef struct
+{
+    cli_status_e *status;
+    cli_progress_t *current;
+    cli_progress_t *total;
+}
+cli_t;
 
 typedef struct
 {
     uint64_t time;
     uint64_t bytes;
 }
-bps_t;
+cli_bps_t;
 
-extern void cli_display(crypto_t *) __attribute__((nonnull(1)));
-extern float cli_calc_bps(bps_t *) __attribute__((nonnull(1)));
+extern void cli_display(cli_t *) __attribute__((nonnull(1)));
+extern float cli_calc_bps(cli_bps_t *) __attribute__((nonnull(1)));
 
 #endif /* _ENCRYPT_CLI_H_ */

@@ -29,6 +29,7 @@
 #import "gui-cocoa.h"
 
 #import "common.h"
+#import "cli.h"
 #import "version.h"
 #import "error.h"
 
@@ -36,7 +37,6 @@
 #import "encrypt.h"
 #import "decrypt.h"
 #import "init.h"
-#import "cli.h"
 
 @implementation AppDelegate
 
@@ -416,8 +416,8 @@ clean_up:
 
     execute(c);
 
-    bps_t bps[BPS];
-    memset(bps, 0x00, BPS * sizeof( bps_t ));
+    cli_bps_t bps[BPS];
+    memset(bps, 0x00, BPS * sizeof( cli_bps_t ));
     int b = 0;
 
     while (c->status == STATUS_INIT || c->status == STATUS_RUNNING)

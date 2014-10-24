@@ -3,9 +3,9 @@
 APP      = encrypt
 ALT		 = decrypt
 
-SOURCE   = src/main.c src/cli.c src/init.c src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
+SOURCE   = src/main.c src/init.c src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
 GUI      = src/gui-gtk.c
-COMMON   = src/common/error.c src/common/tlv.c src/common/version.c src/common/fs.c
+COMMON   = src/common/error.c src/common/tlv.c src/common/version.c src/common/fs.c src/common/cli.c
 
 CFLAGS  += -Wall -Wextra -std=gnu99 `libgcrypt-config --cflags` -pipe -O2
 CPPFLAGS = -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DGIT_COMMIT=\"`git log | head -n1 | cut -f2 -d' '`\"
