@@ -38,7 +38,6 @@
 #include "common.h"
 
 #include "cli.h"
-#include "crypt.h"
 
 #define CLI_DEFAULT 80
 #define CLI_SINGLE 18
