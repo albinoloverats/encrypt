@@ -43,13 +43,13 @@ language:
 #	@$(MAKE) -C po
 
 man:
-	 @gzip -c docs/encrypt.1a > encrypt.1a.gz
-	-@echo -e "compressing ‘docs/encrypt.1a’ → ‘encrypt.1a.gz"
+	 @gzip -c docs/$(APP).1a > $(APP).1a.gz
+	-@echo -e "compressing ‘docs/$(APP).1a’ → ‘$(APP).1a.gz"
 
-install: man
+install:
 # install the main executable, also link decrypt
 	 @install -c -m 755 -s -D -T $(APP) $(PREFIX)/usr/bin/$(APP)
-	-@echo -e "installed ‘$(APP)’ → ‘$(PREFIX)/usr/bin/encrypt’"
+	-@echo -e "installed ‘$(APP)’ → ‘$(PREFIX)/usr/bin/$(APP)’"
 	 @ln -f ${PREFIX}/usr/bin/$(APP) ${PREFIX}/usr/bin/$(ALT)
 	-@echo -e "linked ‘$(ALT)’ → ‘$(APP)’"
 # install the pixmaps
@@ -90,14 +90,15 @@ uninstall:
 	@rm -fv $(PREFIX)/usr/$(LOCAL)/share/man/man1/encrypt.1a.gz
 	@rm -fv $(PREFIX)/usr/$(LOCAL)/share/applications/encrypt.desktop
 	@rm -fv $(PREFIX)/usr/$(LOCAL)/share/Thunar/sendto/encrypt.desktop
-	@rm -fv $(PREFIX)/usr/bin/decrypt
-	@rm -fv $(PREFIX)/usr/bin/encrypt
+	@rm -fv $(PREFIX)/usr/bin/$(ALT)
+	@rm -fv $(PREFIX)/usr/bin/$(APP)
 
 clean:
 	@rm -fv $(APP)
 	@rm -fv $(ALT)
 
 distclean: clean
-	@rm -fv encrypt.1a.gz
-	@rm -fvr pkg
-	@rm -fv encrypt*pkg.tar.xz
+	@rm -fv $(APP).1a.gz
+	@rm -fvr pkg build
+	@rm -fv $(APP)*.pkg.tar.xz
+	@rm -fv $(APP)*.tgz

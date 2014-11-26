@@ -17,6 +17,9 @@ other projects:
  * asprintf() is from glibc and therefore (was) part of the GTK.
  * scandir() is Copyright Rich Felker, and covered by the MIT License.
 
+Liekwise for functions not available on OS X:
+ * strchrnul() is from GNU libc and Copyright Free Software Foundation.
+
 Parts of the Android UI have also been taken from existing projects:
  * The File Dialog is Copyright Alexander Ponomarev, and available under
    the terms of the (3-clause) New BSD License.

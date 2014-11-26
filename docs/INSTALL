@@ -17,7 +17,7 @@ distributions (but not always).
 The Process
 -----------
 
-NB There is no configure step, so just do the following:
+NB - There is no configure step, so just do the following:
 * make
 * make install
 
@@ -34,7 +34,7 @@ For non-GNU/Linux
 * Microsoft Windows
   - It's a headache! We used Dev C++ as the frontend to gcc and God only
     knows how we managed to get GTK linked in, but we did! And so now we
-    are not going to touch anything incase it breaks.
+    are not going to touch anything in case it breaks.
   - Dev C++ can be used to download all of the necessary packages (which
     includes GTK). encrypt.exe can then be compiled. Check the NSIS file
     (ncrypt.nsi) to see what binaries are necessary during installation.
