@@ -26,8 +26,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "common.h"
-
 #ifdef _WIN32
     #include "win32_ext.h"
 #endif
