@@ -3,3 +3,5 @@ gen
 pkg
 src/common/apple.c
 src/common/apple.h
+src/common/rand.c
+src/common/rand.h
