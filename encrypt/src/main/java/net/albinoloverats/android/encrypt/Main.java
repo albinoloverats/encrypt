@@ -634,7 +634,7 @@ public class Main extends Activity
 
             final NotificationManager mNotifyManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
             final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(Main.this);
-            mBuilder.setContentTitle(getString(encrypting ? R.string.encryption_in_progress : R.string.decryption_in_progress));
+            mBuilder.setContentTitle(getString(encrypting ? R.string.encrypting : R.string.decrypting));
             mBuilder.setContentText(getString(R.string.please_wait));
             mBuilder.setSmallIcon(R.drawable.icon);
             //mBuilder.setContentIntent(PendingIntent.getActivity(getContext(), 0, new Intent(getContext(), Main.class), 0));
