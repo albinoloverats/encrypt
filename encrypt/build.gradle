@@ -12,14 +12,11 @@ android {
     }
     signingConfigs {
         release {
-            /* taken out for security reasons ;-) */
         }
     }
     buildTypes {
         release {
             signingConfig signingConfigs.release
-            runProguard false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
     productFlavors {
