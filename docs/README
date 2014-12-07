@@ -28,7 +28,7 @@ Done
 TODO
 ----
 
-### Add From Previous Release
+### Add
 
 * Find a way to merge file/magic info into main magic.mgc file
 * File context menu for
@@ -36,17 +36,10 @@ TODO
   - Nautilus (or Files or whatever it’s called now)
   - Konqueror or Dolphin (maybe - it’s Qt based not GTK)
 
-### Fix From Previous Release
+### Fix
 
 * Fix SIGSEGV if the source file is deleted (even while doing nothing)
   (GTK file selection dialog)
-
-### Add For This Release
-
-* More iterations for key/IV?
-
-### Fix For This Release
-
 * Figure out why occasionally the Windows build crashes - confirmed as
   both an algorithm and Windows 8 issue - attempting to use AES/Rijndael
   causes a major crash - cannot reproduce on Windows 7 (could be
