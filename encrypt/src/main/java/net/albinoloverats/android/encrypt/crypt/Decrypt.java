@@ -167,7 +167,7 @@ public class Decrypt extends Crypto
     private void readVersion() throws CryptoProcessException, IOException
     {
         final byte[] header = new byte[Long.SIZE / Byte.SIZE];
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < HEADER.length; i++)
             source.read(header, 0, header.length);
 
         final byte[] b = new byte[source.read()];
