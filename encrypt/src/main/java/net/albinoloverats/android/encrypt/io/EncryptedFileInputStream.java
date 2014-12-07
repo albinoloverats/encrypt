@@ -80,7 +80,7 @@ public class EncryptedFileInputStream extends FileInputStream
                 System.arraycopy(h.digest(), 0, iv, 0, iv.length);
                 break;
             case RANDOM:
-                super.read(iv);
+                stream.read(iv);
                 break;
         }
         attributes.put(IMode.IV, iv);

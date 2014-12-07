@@ -34,6 +34,8 @@ import net.albinoloverats.android.encrypt.crypt.Status;
 import net.albinoloverats.android.encrypt.crypt.Version;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
@@ -45,6 +47,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.support.v4.app.NotificationCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -629,6 +632,13 @@ public class Main extends Activity
             final WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "encryptLock");
             wakeLock.acquire();
 
+            final NotificationManager mNotifyManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+            final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(Main.this);
+            mBuilder.setContentTitle(getString(encrypting ? R.string.encryption_in_progress : R.string.decryption_in_progress));
+            mBuilder.setContentText(getString(R.string.please_wait));
+            mBuilder.setSmallIcon(R.drawable.icon);
+            //mBuilder.setContentIntent(PendingIntent.getActivity(getContext(), 0, new Intent(getContext(), Main.class), 0));
+
             try
             {
                 c = encrypting ? new Encrypt(filenameIn, filenameOut, cipher, hash, mode, raw, compress, follow, version) : new Decrypt(filenameIn, filenameOut, cipher, hash, mode, raw);
@@ -645,9 +655,12 @@ public class Main extends Activity
 
                     mHandler.sendMessage(mHandler.obtainMessage(ProgressUpdate.CURRENT.value, (int)c.current.size, (int)c.current.offset));
                     if (c.total.size != c.current.size && c.total.size > 1)
-                        mHandler.sendMessage(mHandler.obtainMessage(ProgressUpdate.TOTAL.value, (int)c.total.size, (int)c.total.offset));
+                        mHandler.sendMessage(mHandler.obtainMessage(ProgressUpdate.TOTAL.value, (int) c.total.size, (int) c.total.offset));
                     else
                         mHandler.sendMessage(mHandler.obtainMessage(ProgressUpdate.TOTAL.value, -1, -1));
+                    mBuilder.setContentText("" + c.total.offset + "/" + c.total.size);
+                    mBuilder.setProgress(100, (int)(100.0 * c.current.offset / c.total.size), false);
+                    mNotifyManager.notify(0, mBuilder.build());
                 }
                 while (c.status == Status.INIT || c.status == Status.RUNNING);
             }
@@ -674,8 +687,9 @@ public class Main extends Activity
                 s = c.status;
 
             mHandler.sendMessage(mHandler.obtainMessage(ProgressUpdate.DONE.value, s.message));
-
-            // TODO send Android notification that process has finished
+            mBuilder.setContentText(s.message);
+            mBuilder.setProgress(0, 0, false);
+            mNotifyManager.notify(0, mBuilder.build());
         }
     }
 }

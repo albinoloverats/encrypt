@@ -27,6 +27,9 @@
     <string name="on">On</string>
     <string name="off">Off</string>
 
+    <string name="encrypting">Encrypting</string>
+    <string name="decrypting">Decrypting</string>
+
     <!-- success and running states -->
     <string name="success">Success</string>
     <string name="init">Initialisation</string>

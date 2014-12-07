@@ -84,7 +84,7 @@ public class EncryptedFileOutputStream extends FileOutputStream
                 break;
             case RANDOM:
                 PRNG.nextBytes(iv);
-                super.write(iv);
+                stream.write(iv);
                 break;
         }
         attributes.put(IMode.IV, iv);
