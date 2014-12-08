@@ -25,11 +25,15 @@
     #include "common/apple.h"
 #endif
 
+#ifdef _WIN32
+    #include "common/win32_ext.h"
+#endif
+
 #include "dir.h"
 
 extern char *dir_get_name(const char * const restrict path)
 {
-    char *file = strrchr(path, '/');
+    char *file = strrchr(path, DIR_SEPARATOR_CHAR);
     if (!file)
         return strdup(path);
     file++;
@@ -43,7 +47,7 @@ extern uint16_t dir_get_deep(const char * const restrict path)
 {
     uint16_t d = 0;
     char *ptr = (char *)path;
-    while ((ptr = strchr(ptr, '/')))
+    while ((ptr = strchr(ptr, DIR_SEPARATOR_CHAR)))
     {
         d++;
         ptr++;
@@ -54,16 +58,16 @@ extern uint16_t dir_get_deep(const char * const restrict path)
 extern char *dir_get_part(const char * const restrict path, const uint16_t index)
 {
     if (!index)
-        return strdup(DIRECTORY_ROOT);
+        return strdup(DIR_SEPARATOR_STRING);
     char *ptr = (char *)path;
     for (uint16_t i = 0; i < index; i++)
     {
-        ptr = strchr(ptr, '/');
+        ptr = strchr(ptr, DIR_SEPARATOR_CHAR);
         if (!ptr)
             break;
         ptr++;
     }
-    return strndup(ptr, strchrnul(ptr, '/') - ptr);
+    return strndup(ptr, strchrnul(ptr, DIR_SEPARATOR_CHAR) - ptr);
 }
 
 extern char *dir_get_pass(const char * const restrict path)
@@ -75,12 +79,12 @@ extern char *dir_get_pass(const char * const restrict path)
 
 extern char *dir_get_path(const char * const restrict path)
 {
-    char *s = strrchr(path, '/');
+    char *s = strrchr(path, DIR_SEPARATOR_CHAR);
     if (!s)
         return strdup("");
     char *p = strndup(path, s - path);
     if (strlen(p))
         return p;
     free(p);
-    return strdup(DIRECTORY_ROOT);
+    return strdup(DIR_SEPARATOR_STRING);
 }

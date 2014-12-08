@@ -35,11 +35,12 @@
 
 #include <inttypes.h>
 
-#define DIRECTORY_ROOT "/"
-
-#ifdef USE_PROC
-    #define DIRECTORY_PROC "proc"
-    #define PATH_PROC DIRECTORY_ROOT DIRECTORY_PROC
+#ifndef _WIN32
+    #define DIR_SEPARATOR_STRING "/"
+    #define DIR_SEPARATOR_CHAR '/'
+#else
+    #define DIR_SEPARATOR_STRING "\\"
+    #define DIR_SEPARATOR_CHAR '\\'
 #endif
 
 #define path_equals(X, Y)       (X && Y && !strcmp(X, Y))

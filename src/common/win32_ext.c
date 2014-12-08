@@ -125,6 +125,12 @@ extern char *strndup(const char *s, size_t l)
     return r;
 }
 
+extern char *strchrnul(const char *s, int c)
+{
+	char *r = strchr(s, c);
+	return r ? : (char *)(s + strlen(s) + 1);
+}
+
 /*
  * Copyright © 2005-2012 Rich Felker, http://www.musl-libc.org/
  *

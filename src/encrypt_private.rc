@@ -1,14 +1,10 @@
 /* THIS FILE WILL BE OVERWRITTEN BY DEV-C++ */
 /* DO NOT EDIT! */
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#include <winsock2.h>
 #include <windows.h> // include for version info constants
 
-A ICON "pixmaps\\encrypt.ico"
+
+A ICON "pixmaps/encrypt.ico"
 
 //
 // SUPPORT FOR WINDOWS XP THEMES:
@@ -30,14 +26,14 @@ FILETYPE VFT_APP
     BLOCK "080904E4"
     {
       VALUE "CompanyName", "albinoloverats ~ Software Development"
-      VALUE "FileVersion", "2015,01.0.0"
+      VALUE "FileVersion", "2015.1.0.0"
       VALUE "FileDescription", "encrypt is a simple, cross platform utility for securing your personal files"
       VALUE "InternalName", "encrypt"
       VALUE "LegalCopyright", "Copyright (c) 2004-2015, albinoloverats ~ Software Development"
-      VALUE "LegalTrademarks", "Copyright (c) 2004-2015, albinoloverats ~ Software Development"
+      VALUE "LegalTrademarks", ""
       VALUE "OriginalFilename", "encrypt.exe"
       VALUE "ProductName", "encrypt"
-      VALUE "ProductVersion", "2015.01.0.0"
+      VALUE "ProductVersion", "2015.1.0.0"
     }
   }
   BLOCK "VarFileInfo"

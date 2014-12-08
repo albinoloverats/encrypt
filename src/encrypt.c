@@ -114,6 +114,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 
     if (o)
     {
+#if 0
         struct stat s;
         stat(o, &s);
         char *op = NULL;
@@ -126,12 +127,15 @@ extern crypto_t *encrypt_init(const char * const restrict i,
             if (!strcmp(p, i))
                 asprintf(&op, "%s.X", f);
             else
-                asprintf(&op, "%s%s%s.X", o, o[strlen(o) - 1] == '/' ? "" : "/", f);
+                asprintf(&op, "%s%s%s.X", o, o[strlen(o) - 1] == DIR_SEPARATOR_CHAR ? "" : DIR_SEPARATOR_STRING, f);
             free(p);
             free(f);
         }
         else
             return z->status = STATUS_FAILED_OUTPUT_MISMATCH , z;
+#else
+        const char *op = o;
+#endif
 #ifdef _WIN32
 		long fa = GetFileAttributes(op);
 		switch (fa)
@@ -145,7 +149,9 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 	    }
 #endif
         z->output = io_open(op, O_CREAT | O_TRUNC |  O_WRONLY | O_BINARY, S_IRUSR | S_IWUSR);
+#if 0
         free(op);
+#endif
         if (!z->output)
             return z->status = STATUS_FAILED_OUTPUT_MISMATCH , z;
     }
