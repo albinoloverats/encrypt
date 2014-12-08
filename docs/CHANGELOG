@@ -1,23 +1,50 @@
 Changelog
 =========
 
-A history of what happened before, and a taste of what's to come…
+A history of what happened before, and a taste of what’s to come…
 
 
 Planned Future Enhancements
 ---------------------------
 
-* GNU/Windows : Fix SIGSEGV if source file is deleted
-* Desktop : Continue with better desktop integration
+* GNU/Linux, Windows : Investigate SIGSEGV in GTK when source file is
+  deleted
+* Windows 8: SIGSEGV when using AES/Rijndael
+* All desktop : Continue with better desktop integration
   - GNU/Linux : Find a way to merge file/magic info into main magic.mgc
 * Android : Support for file (hard/soft) links (depends on full NIO)
 * All : Bug fixes as necessary ;-)
 
 
+encrypt - 2015.01                                           --- Jan 2015
+-----------------
+
+### New For This Release
+
+* No header information
+  - If you don’t keep the header, you MUST remember which algorithms and
+    mode you used to encrypt the data!
+  - This feature is so that if you choose to encrypt your data and then
+    hide it in an image (steganography) if you’re coerced to extract it
+    will still looks like random pixel data
+  - Will keep going even if decryption cannot be verified (until an out
+    of memory error - or similar - occurs!)
+* Random IV’s (not derived from key)
+* Build Slackware package for easy installation
+* On Android, display notification of progress
+
+### Fixed For This Release
+
+* Figure out why the Android app doesn’t like Windows encrypted files
+  - It wasn’t actually due to Windows, but a subtle bug in the Android
+    code
+* Fix bug caused by no rc file
+
+
 encrypt - 2014.06                                         20th July 2014
 -----------------
 
-There's been a lot of (small) changes for this release. Perhaps the most
+There’s been a lot of (small) changes for this release. Perhaps the most
 significant update is the ability to select the cipher mode (the default
 was CBC). The most obvious update to the Windows build is the GUI is now
 GTK+3 instead of GTK+2, the other major change for Windows is the use of
@@ -31,14 +58,14 @@ Next is Android: there were a few bugs that were found and have been now
 squashed. Specifically the keyboard would disappear when a user tried to
 enter a number in the password field. encrypt on Android, has too had an
 update to the version of the gnu-crypto library it depends on.  This was
-prompted by the way that the CTR mode was broken, and didn't allow an IV
+prompted by the way that the CTR mode was broken, and didn’t allow an IV
 to be set (and version 2.1.0 does).
 
 Lastly, there were numerous memory leaks plugged, and greater/better use
 of the rc file: changing the selected algorithms/mode will be remembered
 for the next use (settings take effect immediately).  Windows has better
 Explorer integration, and there has been work towards a similar level of
-integration on GNU/Linux (but it's still a work in progress).
+integration on GNU/Linux (but it’s still a work in progress).
 
 
 encrypt - 2013.11.01                                       25th Jan 2014
@@ -57,22 +84,22 @@ There has also been several significant changes on all platforms such as
 the more traditional (or expected) approach to file links:  on Unix-like
 systems the links themselves are stored by default (unlike before, where
 the files the links pointed to were stored); and on Windows and Android,
-obviously they don't have links to encrypt,  but during decryption links
+obviously they don’t have links to encrypt,  but during decryption links
 are handled in one of two ways: symbolic links are ignored, whereas hard
 links cause the file to be copied. Although this means the file is dupl-
-icated it's the closest approximation to the original as possible.
+icated it’s the closest approximation to the original as possible.
 
-The second major addition to encrypt's abilities is the option to create
+The second major addition to encrypt’s abilities is the option to create
 encrypted archives for previous versions of the application. NB This has
-had only limited testing and should't be relied upon!  You should really
-be using the latest version wherever possible! (But it's there for those
+had only limited testing and should’t be relied upon!  You should really
+be using the latest version wherever possible! (But it’s there for those
 who might find it useful from time-to-time.)
 
 
 encrypt - 2013.02                                           7th Feb 2013
 -----------------
 
-Hot off the heals of our last release we're here with another. It brings
+Hot off the heals of our last release we’re here with another. It brings
 the much needed and hugely requested new feature: encrypted directories.
 You can now select and encrypt directories in addition to files. The has
 resulted in an update to the user interface to show the current progress
@@ -86,16 +113,16 @@ There has also been a couple of changes to the internal structure of the
 encrypted files; though as always, the latest version is able to decrypt
 your previously encrypted data.
 
-The native OS X port is now here too! So that's now GNU/Linux, Microsoft
-Windows, Android and of course Apple's OS X!
+The native OS X port is now here too! So that’s now GNU/Linux, Microsoft
+Windows, Android and of course Apple’s OS X!
 
 
 encrypt - 2012.11                                          19th Nov 2012
 -----------------
 
-A little over a year since the previous release but we're back with many
+A little over a year since the previous release but we’re back with many
 significant changes:  first and foremost is the capability to compress a
-file (or data stream) before it is encrypted.  Before you ask, yes we're
+file (or data stream) before it is encrypted.  Before you ask, yes we’re
 intending to support encrypting multiple files in an upcoming (maybe the
 next) version.
 
@@ -113,7 +140,7 @@ and then type in the file name.  In addition, there is a new menu option
 encrypt - 201110                                       16th October 2011
 -----------------
 
-We're on some sort of a roll here; there's a new release of encrypt.  It
+We’re on some sort of a roll here; there’s a new release of encrypt.  It
 fixes a couple of minor bugs---checksums are now correctly computed and,
 therefore, correctly verified upon decryption---as well as introducing a
 few new behind-the-scenes features:  the internal structure of encrypted
@@ -122,21 +149,21 @@ introduce data compression (planned for the next release). The other new
 feature is the ability to notify the user if  a newer version of encrypt
 is available for download.
 
-That's all for now, although we'll be back soon with more updates,  such
+That’s all for now, although we’ll be back soon with more updates,  such
 as compression, and anything else that comes our way...
 
 
 encrypt - 201108                                        21st August 2011
 -----------------
 
-It's been  a little  while but here  we have  the  latest  offering  for
+It’s been  a little  while but here  we have  the  latest  offering  for
 personal file security!
 
-In an effort to make encrypt even more useful to even more people,  it's
+In an effort to make encrypt even more useful to even more people,  it’s
 been rewritten to use a 3rd party encryption library---notably,  the GNU
-Project's libgcrypt and gnu-crypto.  This change increases the choice of
+Project’s libgcrypt and gnu-crypto.  This change increases the choice of
 algorithms as well as providing a base for an Android counterpart to the
-standard desktop package.  That's right---we've an Android version which
+standard desktop package.  That’s right---we’ve an Android version which
 is compatible with the desktop version.
 
 The inspiration behind providing an  Android app came ( in part ) due to
