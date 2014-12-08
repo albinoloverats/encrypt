@@ -21,12 +21,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef __APPLE__
-    #include "common/apple.h"
-#endif
-
-#ifdef _WIN32
-    #include "common/win32_ext.h"
+#if defined(__APPLE__) || defined(_WIN32)
+    #include "common/non-gnu.h"
 #endif
 
 #include "dir.h"

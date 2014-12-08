@@ -95,8 +95,6 @@ extern ssize_t getline(char **lineptr, size_t *n, FILE *stream) __attribute__((n
 
 extern char *strndup(const char *s, size_t l) __attribute__((nonnull(1)));
 
-extern char *strchrnul(const char *s, int c) __attribute__((nonnull(1)));
-
 extern int scandir(const char *path, struct dirent ***res, int (*sel)(const struct dirent *), int (*cmp)(const struct dirent **, const struct dirent **)) __attribute__((nonnull(1, 2)));
 
 #define IsWindows8OrGreater isWindows8
