@@ -22,6 +22,7 @@
 		2EA92F7F161DDCFE008DFF9B /* encrypt.icns in Resources */ = {isa = PBXBuildFile; fileRef = 2EA92F7E161DDCFE008DFF9B /* encrypt.icns */; };
 		2EAD2143177C35AC0091EA3C /* fs.c in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD2141177C35AC0091EA3C /* fs.c */; };
 		2EBF1C70165674B20072AA5A /* Automator.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2EBF1C6F165674B20072AA5A /* Automator.framework */; };
+		AB386AD71A362A840011FB54 /* dir.c in Sources */ = {isa = PBXBuildFile; fileRef = AB386AD51A362A840011FB54 /* dir.c */; };
 		AB730D911A34A92A00BA4DC8 /* libgcrypt.20.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB730D8E1A34A92A00BA4DC8 /* libgcrypt.20.dylib */; };
 		AB730D921A34A92A00BA4DC8 /* libgpg-error.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB730D8F1A34A92A00BA4DC8 /* libgpg-error.0.dylib */; };
 		AB730D931A34A92A00BA4DC8 /* liblzma.5.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB730D901A34A92A00BA4DC8 /* liblzma.5.dylib */; };
@@ -32,6 +33,7 @@
 		ABD7EC1C1A34A45E000DB1AE /* cli.c in Sources */ = {isa = PBXBuildFile; fileRef = ABD7EC1A1A34A45E000DB1AE /* cli.c */; };
 		ABE79DA81979B4DC00857369 /* crypt_io.c in Sources */ = {isa = PBXBuildFile; fileRef = ABE79DA41979B4DC00857369 /* crypt_io.c */; };
 		ABE79DA91979B4DC00857369 /* crypt.c in Sources */ = {isa = PBXBuildFile; fileRef = ABE79DA61979B4DC00857369 /* crypt.c */; };
+		ABECEF151A362C42002BA1BA /* non-gnu.c in Sources */ = {isa = PBXBuildFile; fileRef = ABECEF131A362C42002BA1BA /* non-gnu.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -81,6 +83,8 @@
 		2EAD2141177C35AC0091EA3C /* fs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fs.c; sourceTree = "<group>"; };
 		2EAD2142177C35AC0091EA3C /* fs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fs.h; sourceTree = "<group>"; };
 		2EBF1C6F165674B20072AA5A /* Automator.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Automator.framework; path = System/Library/Frameworks/Automator.framework; sourceTree = SDKROOT; };
+		AB386AD51A362A840011FB54 /* dir.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dir.c; sourceTree = "<group>"; };
+		AB386AD61A362A840011FB54 /* dir.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dir.h; sourceTree = "<group>"; };
 		AB730D8E1A34A92A00BA4DC8 /* libgcrypt.20.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgcrypt.20.dylib; path = ../../../../usr/local/Cellar/libgcrypt/1.6.2/lib/libgcrypt.20.dylib; sourceTree = "<group>"; };
 		AB730D8F1A34A92A00BA4DC8 /* libgpg-error.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libgpg-error.0.dylib"; path = "../../../../usr/local/Cellar/libgpg-error/1.17/lib/libgpg-error.0.dylib"; sourceTree = "<group>"; };
 		AB730D901A34A92A00BA4DC8 /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = ../../../../usr/local/Cellar/xz/5.0.7/lib/liblzma.5.dylib; sourceTree = "<group>"; };
@@ -94,6 +98,8 @@
 		ABE79DA51979B4DC00857369 /* crypt_io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = crypt_io.h; sourceTree = "<group>"; };
 		ABE79DA61979B4DC00857369 /* crypt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = crypt.c; sourceTree = "<group>"; };
 		ABE79DA71979B4DC00857369 /* crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = crypt.h; sourceTree = "<group>"; };
+		ABECEF131A362C42002BA1BA /* non-gnu.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "non-gnu.c"; sourceTree = "<group>"; };
+		ABECEF141A362C42002BA1BA /* non-gnu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "non-gnu.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -204,6 +210,10 @@
 		2EA92F66161DDC58008DFF9B /* common */ = {
 			isa = PBXGroup;
 			children = (
+				ABECEF131A362C42002BA1BA /* non-gnu.c */,
+				ABECEF141A362C42002BA1BA /* non-gnu.h */,
+				AB386AD51A362A840011FB54 /* dir.c */,
+				AB386AD61A362A840011FB54 /* dir.h */,
 				ABD7EC1A1A34A45E000DB1AE /* cli.c */,
 				ABD7EC1B1A34A45E000DB1AE /* cli.h */,
 				2EAD2141177C35AC0091EA3C /* fs.c */,
@@ -305,6 +315,7 @@
 			files = (
 				2EA92F6C161DDC58008DFF9B /* main.m in Sources */,
 				2EA92F73161DDC58008DFF9B /* gui-cocoa.m in Sources */,
+				ABECEF151A362C42002BA1BA /* non-gnu.c in Sources */,
 				2E96E2D9164129B200C50460 /* error.c in Sources */,
 				2E96E2DB164129B200C50460 /* encrypt.c in Sources */,
 				2E3922E0164D0F970028986B /* init.c in Sources */,
@@ -315,6 +326,7 @@
 				2E6327451680B5A8002A0CB5 /* decrypt.c in Sources */,
 				2EAD2143177C35AC0091EA3C /* fs.c in Sources */,
 				ABE79DA81979B4DC00857369 /* crypt_io.c in Sources */,
+				AB386AD71A362A840011FB54 /* dir.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

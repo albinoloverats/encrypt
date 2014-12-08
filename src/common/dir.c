@@ -22,7 +22,7 @@
 #include <string.h>
 
 #if defined(__APPLE__) || defined(_WIN32)
-    #include "common/non-gnu.h"
+    #include "non-gnu.h"
 #endif
 
 #include "dir.h"
