@@ -647,7 +647,7 @@ public class Main extends Activity
 
                 do
                 {
-                    sleep(2);
+                    sleep(50);
                     if (isInterrupted())
                         c.status = Status.CANCELLED;
                     if (c.status == Status.INIT)
@@ -659,7 +659,7 @@ public class Main extends Activity
                     else
                         mHandler.sendMessage(mHandler.obtainMessage(ProgressUpdate.TOTAL.value, -1, -1));
                     mBuilder.setContentText("" + c.total.offset + "/" + c.total.size);
-                    mBuilder.setProgress(100, (int)(100.0 * c.current.offset / c.total.size), false);
+                    mBuilder.setProgress(100, (int)(100.0 * c.current.offset / c.current.size), false);
                     mNotifyManager.notify(0, mBuilder.build());
                 }
                 while (c.status == Status.INIT || c.status == Status.RUNNING);

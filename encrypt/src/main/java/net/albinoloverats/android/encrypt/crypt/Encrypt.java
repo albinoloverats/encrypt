@@ -77,7 +77,7 @@ public class Encrypt extends Crypto
             if (out.isFile())
                 this.output = new EncryptedFileOutputStream(out);
             else if (out.isDirectory())
-                this.output = new EncryptedFileOutputStream(new File(out.getAbsolutePath() + File.pathSeparatorChar + in.getName() + ".X"));
+                this.output = new EncryptedFileOutputStream(new File(out.getAbsolutePath() + File.separatorChar + in.getName() + ".X"));
             else
                 throw new CryptoProcessException(Status.FAILED_IO);
         }
