@@ -1,7 +1,7 @@
 [Project]
 FileName=encrypt.dev
 Name=encrypt
-UnitCount=29
+UnitCount=31
 Type=0
 Ver=2
 ObjFiles=
@@ -332,6 +332,26 @@ BuildCmd=
 
 [Unit29]
 FileName=src\common\dir.h
+CompileCpp=0
+Folder=src/common
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit30]
+FileName=src\common\non-gnu.c
+CompileCpp=0
+Folder=src/common
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit31]
+FileName=src\common\non-gnu.h
 CompileCpp=0
 Folder=src/common
 Compile=1

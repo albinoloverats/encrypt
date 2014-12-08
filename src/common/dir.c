@@ -23,6 +23,9 @@
 
 #if defined(__APPLE__) || defined(_WIN32)
     #include "non-gnu.h"
+    #ifdef _WIN32
+        #include "win32_ext.h"
+    #endif
 #endif
 
 #include "dir.h"
