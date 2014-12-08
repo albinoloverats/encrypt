@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, multi-OS encryption utility
- * Copyright © 2005-2014, albinoloverats ~ Software Development
+ * Copyright © 2005-2015, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -207,6 +207,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
             /* fall back if using CBC */
             if (z->mode == GCRY_CIPHER_MODE_CBC)
                 z->version = VERSION_2013_11;
+        case VERSION_2015_01:
         case VERSION_CURRENT:
             /*
              * do nothing, all options are available; not falling back
@@ -249,6 +250,7 @@ static void *process(void *ptr)
             iv_type = IV_SIMPLE;
             break;
 
+        case VERSION_2015_01:
         default:
             /* no changes */
             break;

@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, multi-OS encryption utility
- * Copyright © 2005-2014, albinoloverats ~ Software Development
+ * Copyright © 2005-2015, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -203,6 +203,7 @@ static void *process(void *ptr)
             iv_type = IV_SIMPLE;
             break;
 
+        case VERSION_2015_01:
         default:
             /*
              * this will catch the all more recent versions (unknown is
