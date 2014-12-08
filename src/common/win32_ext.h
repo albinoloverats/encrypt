@@ -87,7 +87,7 @@
 #define lstat(path, st) stat(path, st)
 #define link(old, new) CopyFile(old, new, FALSE)
 
-#ifndef _ASPRINTF
+#if 0
 extern int asprintf(char **buffer, char *fmt, ...);
 #endif
 

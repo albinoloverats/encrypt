@@ -47,7 +47,7 @@ char *program_invocation_short_name = NULL;
  * This code has been derived from an example in the glibc2 documentation.
  * This file is part of the psycopg module.
  */
-#ifndef _ASPRINTF
+#if 0
 extern int asprintf(char **buffer, char *fmt, ...)
 {
     /* guess we need no more than 200 chars of space */
@@ -218,7 +218,7 @@ extern int isWindows8(void)
      *     OSVERSIONINFO.dwMajorVersion = 6
      *     OSVERSIONINFO.dwMinorVersion = 2
      */
-    return ((osvi.dwMajorVersion > 6) || ((osvi.dwMajorVersion == 6) && (osvi.dwMinorVersion >= 0)));
+    return ((osvi.dwMajorVersion > 6) || ((osvi.dwMajorVersion == 6) && (osvi.dwMinorVersion >= 2)));
 }
 
 #endif
