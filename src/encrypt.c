@@ -46,6 +46,7 @@
 #include "common/common.h"
 #include "common/error.h"
 #include "common/tlv.h"
+#include "common/dir.h"
 
 #include "crypt.h"
 #include "encrypt.h"
@@ -113,8 +114,26 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 
     if (o)
     {
+        struct stat s;
+        stat(o, &s);
+        char *op = NULL;
+        if (errno == ENOENT || S_ISREG(s.st_mode))
+            op = strdup(o);
+        else if (S_ISDIR(s.st_mode))
+        {
+            char *p = dir_get_path(i);
+            char *f = dir_get_name(i);
+            if (!strcmp(p, i))
+                asprintf(&op, "%s.X", f);
+            else
+                asprintf(&op, "%s%s%s.X", o, o[strlen(o) - 1] == '/' ? "" : "/", f);
+            free(p);
+            free(f);
+        }
+        else
+            return z->status = STATUS_FAILED_OUTPUT_MISMATCH , z;
 #ifdef _WIN32
-		long fa = GetFileAttributes(o);
+		long fa = GetFileAttributes(op);
 		switch (fa)
 	    {
 	    	case FILE_ATTRIBUTE_DIRECTORY:
@@ -122,10 +141,12 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 	    	case INVALID_FILE_ATTRIBUTES:
 	    		break; /* file doesn’t exist; that’s okay */
 	    	default:
-	    		chmod(o, 0600); /* this seems to work */
+	    		chmod(op, 0600); /* this seems to work */
 	    }
 #endif
-        if (!(z->output = io_open(o, O_CREAT | O_TRUNC |  O_WRONLY | O_BINARY, S_IRUSR | S_IWUSR)))
+        z->output = io_open(op, O_CREAT | O_TRUNC |  O_WRONLY | O_BINARY, S_IRUSR | S_IWUSR);
+        free(op);
+        if (!z->output)
             return z->status = STATUS_FAILED_OUTPUT_MISMATCH , z;
     }
     else

@@ -44,6 +44,7 @@
 #include "common/error.h"
 #include "common/tlv.h"
 #include "common/fs.h"
+#include "common/dir.h"
 
 #include "crypt.h"
 #include "decrypt.h"
@@ -406,12 +407,14 @@ static bool read_metadata(crypto_t *c)
             struct stat s;
             stat(c->path, &s);
             if (errno == ENOENT || S_ISREG(s.st_mode))
-            {
-                if (!(c->output = io_open(c->path, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK | O_BINARY, S_IRUSR | S_IWUSR)))
-                    c->status = STATUS_FAILED_IO;
-            }
+                ;
+            else if (S_ISDIR(s.st_mode))
+                asprintf(&c->path, "%s/decrypted", c->path);
             else
                 c->status = STATUS_FAILED_OUTPUT_MISMATCH;
+
+            if (!(c->output = io_open(c->path, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK | O_BINARY, S_IRUSR | S_IWUSR)))
+                c->status = STATUS_FAILED_IO;
         }
     }
 
