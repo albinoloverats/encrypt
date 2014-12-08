@@ -208,7 +208,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
             if (z->mode == GCRY_CIPHER_MODE_CBC)
                 z->version = VERSION_2013_11;
         case VERSION_2015_01:
-        case VERSION_CURRENT:
+        //case VERSION_CURRENT:
             /*
              * do nothing, all options are available; not falling back
              * allows extra padding at beginning of file
