@@ -73,7 +73,13 @@ public class Encrypt extends Crypto
             }
             else
                 throw new CryptoProcessException(Status.FAILED_IO);
-            this.output = new EncryptedFileOutputStream(new File(output));
+            final File out = new File(output);
+            if (out.isFile())
+                this.output = new EncryptedFileOutputStream(out);
+            else if (out.isDirectory())
+                this.output = new EncryptedFileOutputStream(new File(out.getAbsolutePath() + File.pathSeparatorChar + in.getName() + ".X"));
+            else
+                throw new CryptoProcessException(Status.FAILED_IO);
         }
         catch (final FileNotFoundException e)
         {

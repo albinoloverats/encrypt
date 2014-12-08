@@ -238,7 +238,9 @@ public class Decrypt extends Crypto
                         {
                             if (!f.exists())
                                 output = new FileOutputStream(f);
-                            else if (!f.isFile())
+                            else if (f.isDirectory())
+                                output = new FileOutputStream(f.getAbsolutePath() + File.pathSeparatorChar + "decrypted");
+                            else
                                 throw new CryptoProcessException(Status.FAILED_OUTPUT_MISMATCH);
                         }
                     }
