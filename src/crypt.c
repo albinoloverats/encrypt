@@ -474,7 +474,7 @@ static const char *correct_aes_rijndael(const char * const restrict n)
     if (!strcasecmp(NAME_AES, n))
         return n; /* use AES (bits/blocks/etc) */
     /*
-     * use rijndael instead of AES as that's the actual cipher name
+     * use rijndael instead of AES as that’s the actual cipher name
      */
     char *x = NULL;
     if (!(asprintf(&x, "%s%s", NAME_RIJNDAEL, n + strlen(NAME_AES))))

@@ -261,7 +261,7 @@ extern void update_config(const char * const restrict o, const char * const rest
     strcat(rc, ENCRYPTRC);
 #endif
     FILE *f = fopen(rc, "rb+");
-    if (!f) /* file doesn't exist, so create it */
+    if (!f) /* file doesn’t exist, so create it */
         f = fopen(rc, "wb+");
     if (f)
     {
@@ -336,7 +336,7 @@ extern void show_help(void)
     fprintf(stderr, _("  -h, --help                   Display this message\n"));
     fprintf(stderr, _("  -l, --licence                Display GNU GPL v3 licence header\n"));
     fprintf(stderr, _("  -v, --version                Display application version\n"));
-    fprintf(stderr, _("  -g, --nogui                  Do not use the GUI, even if it's available\n"));
+    fprintf(stderr, _("  -g, --nogui                  Do not use the GUI, even if it’s available\n"));
     if (is_encrypt())
     {
         fprintf(stderr, _("  -c, --cipher=<algorithm>     Algorithm to use to encrypt data\n"));
@@ -357,7 +357,7 @@ extern void show_help(void)
     }
     else
         fprintf(stderr, _("\nAdvanced Options:\n"));
-    fprintf(stderr, _("  -r, --raw                    Don't generate or look for an encrypt header;\n"    \
+    fprintf(stderr, _("  -r, --raw                    Don’t generate or look for an encrypt header;\n"    \
                       "                               this IS NOT recommended, but can be usefull in\n"   \
                       "                               some (limited) situations."));
     fprintf(stderr, _("\nNotes:\n  • If you do not supply a key or password, you will be prompted for one.\n"));

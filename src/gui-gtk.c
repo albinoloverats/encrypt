@@ -222,7 +222,7 @@ G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *d
             gtk_widget_set_sensitive(data->raw_decrypt_button, FALSE);
             break;
 
-#if 0 /* not yet fully implemented (because I don't like the resulting workflow) */
+#if 0 /* not yet fully implemented (because I don’t like the resulting workflow) */
         case GTK_RESPONSE_ACCEPT:
         case GTK_RESPONSE_OK:
             if (a)
@@ -250,7 +250,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
     char *open_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog);
     if (!open_file)
         open_file = gui_file_hack_source;
-    if (open_file) /* if at first you don't succeed, try, try again */
+    if (open_file) /* if at first you don’t succeed, try, try again */
         open_file = _filename_utf8(open_file);
     if (!open_file || !strlen(open_file))
         en = FALSE;

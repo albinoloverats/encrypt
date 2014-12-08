@@ -37,7 +37,7 @@
  * \brief         Display fatal error to user and quit application
  * \param[in]  s  String format, followed by optional additional variables
  *
- * Display the given error message and bail out - mostly for 'out of memory'
+ * Display the given error message and bail out - mostly for “out of memory”
  * errors which cannot be recovered from.
  */
 extern void die(const char * const restrict s, ...) __attribute__((noreturn, nonnull(1), format(printf, 1, 2)));

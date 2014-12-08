@@ -152,7 +152,7 @@ static void cli_display_bar(float total, float current, bool single, cli_bps_t *
         else if (val < BILLION)
             sprintf(prog_bar + strlen(prog_bar), " %5.1f GB/s", val / GIGABYTE);
 #if 0
-        else /* if you're getting these kinds of speeds please, please can I have your machine ;-) */
+        else /* if you’re getting these kinds of speeds please, please can I have your machine ;-) */
             sprintf(prog_bar + strlen(prog_bar), " %5.1f TB/s", val / TERABYTE);
 #endif
     }

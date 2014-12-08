@@ -43,7 +43,7 @@
  * \param[in]  m  The name of the mode   (optional)
  * \param[in]  k  Key data
  * \param[in]  l  Size of key data
- * \param[in]  n  Raw - don't check for a header or any verification
+ * \param[in]  n  Raw - don’t check for a header or any verification
  * \return        A new decryption instance
  *
  * Create a new decryption instance, which if the status is INIT, is

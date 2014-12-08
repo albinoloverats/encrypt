@@ -36,9 +36,9 @@
 
 #define srand48 srand  /*!< Quietly alias srand48 to be srand on Windows */
 #define lrand48 rand   /*!< Quietly alias lrand48 to be rand on Windows */
-#define F_RDLCK NOTSET /*!< If value doesn't exist on Windows, ignore it */
-#define F_WRLCK NOTSET /*!< If value doesn't exist on Windows, ignore it */
-#define O_FSYNC NOTSET /*!< If value doesn't exist on Windows, ignore it */
+#define F_RDLCK NOTSET /*!< If value doesn’t exist on Windows, ignore it */
+#define F_WRLCK NOTSET /*!< If value doesn’t exist on Windows, ignore it */
+#define O_FSYNC NOTSET /*!< If value doesn’t exist on Windows, ignore it */
 
 #ifdef S_IRUSR
     #undef S_IRUSR
@@ -54,7 +54,7 @@
 #endif
 
 #ifndef SIGQUIT
-    #define SIGQUIT SIGBREAK /*!< If value doesn't exist on Windows, use next closest match */
+    #define SIGQUIT SIGBREAK /*!< If value doesn’t exist on Windows, use next closest match */
 #endif
 #ifndef ECANCELED
     #define ECANCELED 125 /*!< Make sure the missing error code exists */

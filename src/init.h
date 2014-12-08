@@ -79,7 +79,7 @@ typedef struct
     key_source_e key_source; /*!< The expected key source (GUI only) */
     bool compress:1;         /*!< Compress the file (with xz) before encrypting */
     bool follow:1;           /*!< Follow symlinks or not */
-    bool nogui:1;            /*!< Skip the GUI (if it's available) */
+    bool nogui:1;            /*!< Skip the GUI (if it’s available) */
     bool raw:1;              /*!< Whether the header should be skipped */
 }
 args_t;

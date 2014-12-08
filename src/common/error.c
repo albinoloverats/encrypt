@@ -82,7 +82,7 @@ extern void die(const char * const restrict s, ...)
 #endif
     }
     /*
-     * TODO if running a GUI don't necessarily exit without alerting the
+     * TODO if running a GUI don’t necessarily exit without alerting the
      * user first (Users seem to dislike applications just quitting for
      * no apparent reason)
      */

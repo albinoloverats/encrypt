@@ -120,7 +120,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 	    	case FILE_ATTRIBUTE_DIRECTORY:
 	    		return z->status = STATUS_FAILED_OUTPUT_MISMATCH , z;
 	    	case INVALID_FILE_ATTRIBUTES:
-	    		break; /* file doesn't exist; that's okay */
+	    		break; /* file doesn’t exist; that’s okay */
 	    	default:
 	    		chmod(o, 0600); /* this seems to work */
 	    }
@@ -167,7 +167,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
     z->follow_links = f;
 
     /* if the user wants to skip the header information then they either
-     * know what they're doing, or they're an idiot; either way it will
+     * know what they’re doing, or they’re an idiot; either way it will
      * override almost everything else
      */
     if ((z->raw = n))
@@ -182,7 +182,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
         case VERSION_2011_08:
         case VERSION_2011_10:
             /*
-             * single file only; if we don't split the plaintext into
+             * single file only; if we don’t split the plaintext into
              * blocks or compress it then both versions are identical
              */
             z->version = VERSION_2011_08;
@@ -216,7 +216,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
             break;
 
         default:
-            die(_("We've reached an unreachable location in the code @ %s:%d:%s"), __FILE__, __LINE__, __func__);
+            die(_("We’ve reached an unreachable location in the code @ %s:%d:%s"), __FILE__, __LINE__, __func__);
     }
     return z;
 }
@@ -276,7 +276,7 @@ static void *process(void *ptr)
         write_random_data(c);
 
     /*
-     * main encryption loop; if we're compressing the output then
+     * main encryption loop; if we’re compressing the output then
      * everything from here will be compressed (if necessary)
      */
     if (c->compressed)
@@ -574,7 +574,7 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                 case FILE_LINK:
 #ifndef _WIN32
                     /*
-                     * store a hard link; it's basically the same as a
+                     * store a hard link; it’s basically the same as a
                      * symlink at this point, but will be handled
                      * differently upon decryption
                      */

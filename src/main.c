@@ -130,7 +130,7 @@ int main(int argc, char **argv)
       ;
   #if 0 /* currently causing problems */
     if (fe || (args.hash && args.cipher && args.mode && (args.source || args.output)) || args.nogui)
-        ; /* user has given enough arguments on command line that we'll skip the gui */
+        ; /* user has given enough arguments on command line that we’ll skip the gui */
     else if (!isatty(STDIN_FILENO) && (S_ISREG(n.st_mode) || S_ISFIFO(n.st_mode)))
         ; /* stdin is a redirect from a file or a pipe */
     else if (!isatty(STDOUT_FILENO) && (S_ISREG(t.st_mode) || S_ISFIFO(t.st_mode)))
@@ -264,9 +264,9 @@ int main(int argc, char **argv)
     }
     else
         fprintf(stderr, _("Could not create GUI - falling back to command line\n"));
-#endif /* we couldn't create the gui, so revert back to command line */
+#endif /* we couldn’t create the gui, so revert back to command line */
 
-#ifndef _WIN32 /* it's GUI or nothing */
+#ifndef _WIN32 /* it’s GUI or nothing */
     /*
      * get raw key data in form of password/phrase, key file
      */

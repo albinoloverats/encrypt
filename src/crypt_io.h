@@ -54,8 +54,8 @@ typedef unsigned short mode_t;
  */
 typedef enum
 {
-    IV_BROKEN, /*!< The oldest version of encrypt didn't do a good job of IV generation */
-    IV_SIMPLE, /*!< More recent versions did a better job, but it's still not great */
+    IV_BROKEN, /*!< The oldest version of encrypt didn’t do a good job of IV generation */
+    IV_SIMPLE, /*!< More recent versions did a better job, but it’s still not great */
     IV_RANDOM  /*!< The next/current version does the best job (so far) */
 }
 x_iv_e;
@@ -92,7 +92,7 @@ extern IO_HANDLE io_open(const char *n, int f, mode_t m) __attribute__((malloc, 
  * \brief         Destroy an IO instance
  * \param[in]  h  An IO instance to destroy
  *
- * Close's the file and free resources when no longer needed.
+ * Closes the file and free resources when no longer needed.
  */
 extern int io_close(IO_HANDLE h) __attribute__((nonnull(1)));
 
@@ -187,7 +187,7 @@ extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l) __attribute__((non
  * \return        The number of bytes read
  *
  * Read the specified number of bytes from the given file descriptor,
- * performing any necessary operations before it's returned.
+ * performing any necessary operations before it’s returned.
  */
 extern ssize_t io_read(IO_HANDLE f, void *d, size_t l) __attribute__((nonnull(1, 2)));
 

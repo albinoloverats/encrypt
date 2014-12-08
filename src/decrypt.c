@@ -98,7 +98,7 @@ extern crypto_t *decrypt_init(const char * const restrict i,
             if (errno != ENOENT)
                 return z->status = STATUS_FAILED_IO , z;
             /*
-             * we've got a name, but don't yet know if it will be a file
+             * we’ve got a name, but don’t yet know if it will be a file
              * or a directory
              */
             z->output = IO_UNINITIALISED;
@@ -253,8 +253,8 @@ static void *process(void *ptr)
      *  4. Next version: it might be a single file or stream, it might
      *     be a directory hierarchy, this is where it gets complicated
      *
-     * NB Newer versions didn't require the data be split into blocks;
-     *    it was only to allow pipe to give us data where we didn't know
+     * NB Newer versions didn’t require the data be split into blocks;
+     *    it was only to allow pipe to give us data where we didn’t know
      *    ahead of time the total size
      */
     io_encryption_checksum_init(c->source, c->hash);
@@ -291,7 +291,7 @@ static void *process(void *ptr)
     }
 
     if (!c->raw)
-        skip_random_data(c); /* not entirely necessary as we already know we've reached the end of the file */
+        skip_random_data(c); /* not entirely necessary as we already know we’ve reached the end of the file */
 
     /*
      * done

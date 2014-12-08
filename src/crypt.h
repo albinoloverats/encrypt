@@ -93,7 +93,7 @@ crypto_status_e;
  *
  * File type when encryption entire directory hierarchies. Packed as it
  * will only be stored as a single byte in the encrypted data. (Whether
- * it's packed in memory is not actually up to us, but hey, we tried.)
+ * it’s packed in memory is not actually up to us, but hey, we tried.)
  */
 typedef enum
 {
@@ -230,7 +230,7 @@ extern const char *status(const crypto_t * const restrict c) __attribute__((nonn
  * \brief         Deinitialise a cryptographic instance
  * \param[in]  c  A pointer to the instance to release
  *
- * Free's the resources used by the crypto instance after it is no
+ * Free’s the resources used by the crypto instance after it is no
  * longer needed.
  */
 extern void deinit(crypto_t **c) __attribute__((nonnull(1)));
@@ -252,7 +252,7 @@ extern void key_free(raw_key_t **k);
  *
  * Get an array of strings which lists the names of usable cipher
  * algorithms. NB: The array is allocated statically and SHOULD NOT be
- * free'd (or otherwise altered).
+ * free’d (or otherwise altered).
  */
 extern const char **list_of_ciphers(void) __attribute__((pure));
 
@@ -262,7 +262,7 @@ extern const char **list_of_ciphers(void) __attribute__((pure));
  *
  * Get an array of strings which lists the names of usable hash
  * algorithms. NB: The array is allocated statically and SHOULD NOT be
- * free'd (or otherwise altered).
+ * free’d (or otherwise altered).
  */
 extern const char **list_of_hashes(void) __attribute__((pure));
 
@@ -272,7 +272,7 @@ extern const char **list_of_hashes(void) __attribute__((pure));
  *
  * Get an array of strings which lists the names of available cipher
  * modes. NB: The array is allocated statically and SHOULD NOT be
- * free'd (or otherwise altered).
+ * free’d (or otherwise altered).
  */
 extern const char **list_of_modes(void) __attribute__((pure));
 
@@ -328,9 +328,9 @@ extern const char *hash_name_from_id(enum gcry_md_algos h) __attribute__((pure))
  * \param[in]  m  The libgcrypt mode enum
  * \return        A string representation of the mode
  *
- * As this isn't provided by libgcrypt, in the same way that it is for
- * algorithms, and the fact we're artificially limiting the choices,
- * here's a function to get the name from the enum.
+ * As this isn’t provided by libgcrypt, in the same way that it is for
+ * algorithms, and the fact we’re artificially limiting the choices,
+ * here’s a function to get the name from the enum.
  */
 extern const char *mode_name_from_id(enum gcry_cipher_modes m) __attribute__((pure));
 
@@ -339,9 +339,9 @@ extern const char *mode_name_from_id(enum gcry_cipher_modes m) __attribute__((pu
  * \param[in]  m  The libgcrypt mode enum
  * \return        A string representation of the mode
  *
- * As this isn't provided by libgcrypt, in the same way that it is for
- * algorithms, and the fact we're artificially limiting the choices,
- * here's a function to get the name from the enum.
+ * As this isn’t provided by libgcrypt, in the same way that it is for
+ * algorithms, and the fact we’re artificially limiting the choices,
+ * here’s a function to get the name from the enum.
  */
 extern const char *mode_name_from_id(enum gcry_cipher_modes m) __attribute__((pure));
 
@@ -362,7 +362,7 @@ extern const char *mode_name_from_id(enum gcry_cipher_modes m) __attribute__((pu
  * \param[out] m  Pointer to mode (if available) (free when no longer needed)
  * \return        The version of encrypted used
  *
- * Returns the version of encrypt used to encrypt the file, or 0 if it's
+ * Returns the version of encrypt used to encrypt the file, or 0 if it’s
  * not encrypted.
  */
 extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, char **m) __attribute__((nonnull(2)));

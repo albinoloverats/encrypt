@@ -39,7 +39,7 @@ cli_status_e;
  *
  * Provide the foreground thread a way to check on the progress. Thus a
  * percentage can be calculated using 100 * offset / size. Either the
- * number of bytes, or directory entries depending on what you're taking
+ * number of bytes, or directory entries depending on what you’re taking
  * the progress of.
  */
 typedef struct

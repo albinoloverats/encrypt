@@ -43,7 +43,7 @@
  * \param[in]  m  The name of the mode
  * \param[in]  k  Key data
  * \param[in]  l  Size of key data
- * \param[in]  n  Raw - don't write a header or any verification
+ * \param[in]  n  Raw - don’t write a header or any verification
  * \param[in]  x  Compress data before encryption
  * \param[in]  f  Follow symlinks
  * \param[in]  v  Backwards compatibility version
