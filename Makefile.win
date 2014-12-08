@@ -64,5 +64,5 @@ src/crypt.o: src/crypt.c
 src/crypt_io.o: src/crypt_io.c
 	$(CC) -c src/crypt_io.c -o src/crypt_io.o $(CFLAGS)
 
-src/encrypt_private.res: src/encrypt_private.rc
-	$(WINDRES) -i src/encrypt_private.rc -F pe-i386 --input-format=rc -o src/encrypt_private.res -O coff
+src/encrypt_private.res: src/encrypt_private.rc 
+	$(WINDRES) -i src/encrypt_private.rc -F pe-i386 --input-format=rc -o src/encrypt_private.res -O coff 

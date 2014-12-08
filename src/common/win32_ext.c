@@ -47,35 +47,37 @@ char *program_invocation_short_name = NULL;
  * This code has been derived from an example in the glibc2 documentation.
  * This file is part of the psycopg module.
  */
-//extern int asprintf(char **buffer, char *fmt, ...)
-//{
-//    /* guess we need no more than 200 chars of space */
-//    int size = 200;
-//    int nchars;
-//    va_list ap;
-//
-//    if (!(*buffer = (char *)malloc(size)))
-//        die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, size);
-//
-//    va_start(ap, fmt);
-//    nchars = vsnprintf(*buffer, size, fmt, ap);
-//    va_end(ap);
-//
-//    if (nchars >= size)
-//    {
-//        char *tmpbuff;
-//        size = nchars + 1;
-//        if (!(tmpbuff = (char *)realloc(*buffer, size)))
-//            die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, size);
-//
-//        *buffer = tmpbuff;
-//
-//        va_start(ap, fmt);
-//        nchars = vsnprintf(*buffer, size, fmt, ap);
-//        va_end(ap);
-//    }
-//    return nchars < 0 ? nchars : size;
-//}
+#ifndef _ASPRINTF
+extern int asprintf(char **buffer, char *fmt, ...)
+{
+    /* guess we need no more than 200 chars of space */
+    int size = 200;
+    int nchars;
+    va_list ap;
+
+    if (!(*buffer = (char *)malloc(size)))
+        die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, size);
+
+    va_start(ap, fmt);
+    nchars = vsnprintf(*buffer, size, fmt, ap);
+    va_end(ap);
+
+    if (nchars >= size)
+    {
+        char *tmpbuff;
+        size = nchars + 1;
+        if (!(tmpbuff = (char *)realloc(*buffer, size)))
+            die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, size);
+
+        *buffer = tmpbuff;
+
+        va_start(ap, fmt);
+        nchars = vsnprintf(*buffer, size, fmt, ap);
+        va_end(ap);
+    }
+    return nchars < 0 ? nchars : size;
+}
+#endif
 
 extern ssize_t getline(char **lineptr, size_t *n, FILE *stream)
 {
@@ -199,6 +201,24 @@ extern int scandir(const char *path,
 
     *res = names;
     return cnt;
+}
+
+/*
+ * Based on exmaple from MSDN
+ * http://msdn.microsoft.com/en-us/library/ms724451%28VS.85%29.aspx
+ */
+extern int isWindows8(void)
+{
+    OSVERSIONINFO osvi;
+    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&osvi);
+    /*
+     * windows 8 has
+     *     OSVERSIONINFO.dwMajorVersion = 6
+     *     OSVERSIONINFO.dwMinorVersion = 2
+     */
+    return ((osvi.dwMajorVersion > 6) || ((osvi.dwMajorVersion == 6) && (osvi.dwMinorVersion >= 0)));
 }
 
 #endif

@@ -233,7 +233,7 @@ extern void io_encryption_init(IO_HANDLE ptr,
     if (!key)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, key_length);
     memcpy(key, hash, key_length < hash_length ? key_length : hash_length);
-    gcry_cipher_setkey(io_ptr->cipher_handle, key, key_length);
+    gcry_cipher_setkey(io_ptr->cipher_handle, key, key_length); /* here is where it blows-up on Windows 8, using AES */
     free(key);
     /*
      * the 2011.* versions (incorrectly) used key length instead of block

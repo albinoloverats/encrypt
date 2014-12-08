@@ -113,7 +113,19 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 
     if (o)
     {
-        if (!(z->output = io_open(o, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK | O_BINARY, S_IRUSR | S_IWUSR)))
+#ifdef _WIN32
+		long fa = GetFileAttributes(o);
+		switch (fa)
+	    {
+	    	case FILE_ATTRIBUTE_DIRECTORY:
+	    		return z->status = STATUS_FAILED_OUTPUT_MISMATCH , z;
+	    	case INVALID_FILE_ATTRIBUTES:
+	    		break; /* file doesn't exist; that's okay */
+	    	default:
+	    		chmod(o, 0600); /* this seems to work */
+	    }
+#endif
+        if (!(z->output = io_open(o, O_CREAT | O_TRUNC |  O_WRONLY | O_BINARY, S_IRUSR | S_IWUSR)))
             return z->status = STATUS_FAILED_OUTPUT_MISMATCH , z;
     }
     else
