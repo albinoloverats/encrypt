@@ -39,8 +39,7 @@ TODO
 ### Fix
 
 * Fix SIGSEGV if the source file is deleted (even while doing nothing)
-  (GTK file selection dialog)
-* Figure out why occasionally the Windows build crashes - confirmed as
-  both an algorithm and Windows 8 issue - attempting to use AES/Rijndael
-  causes a major crash - cannot reproduce on Windows 7 (could be
-  libgcrypt version or even 32/64-bit related)
+  (GTK file selection dialog - GNU/Linux)
+* On Windows 8: AES is unavailable as there is a bug in libgcrypt. As
+  and when this issue is fixed upstream, we’ll provide a fix too. This
+  does not affect Windows 7.
