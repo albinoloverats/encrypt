@@ -100,6 +100,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
     {
         struct stat s;
         stat(i, &s);
+        z->name = dir_get_name(i);
         if (S_ISDIR(s.st_mode))
         {
             z->source = IO_UNINITIALISED;
@@ -108,7 +109,6 @@ extern crypto_t *encrypt_init(const char * const restrict i,
         }
         else
         {
-            z->name = dir_get_name(i);
             if (!(z->source = io_open(i, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR)))
                 return z->status = STATUS_FAILED_IO , z;
         }
@@ -464,9 +464,8 @@ static inline void write_metadata(crypto_t *c)
         tlv_t t = { TAG_DIRECTORY, sizeof b, &b };
         tlv_append(&tlv, t);
     }
-    if (c->version >= VERSION_2012_11)
+    if (!c->directory && c->name && c->version >= VERSION_2012_11)
     {   /* after 2012.11 unknown tags are ignored, and this tag doesn't impact anything */
-fprintf(stderr, "%s\n", c->name);
         tlv_t t = { TAG_FILENAME, strlen(c->name) + 1, c->name };
         tlv_append(&tlv, t);
     }
