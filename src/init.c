@@ -102,27 +102,23 @@ extern args_t init(int argc, char **argv)
                 a.follow = parse_config_boolean(CONF_FOLLOW, line, a.follow);
             else if (!strncmp(CONF_CIPHER, line, strlen(CONF_CIPHER)) && isspace((unsigned char)line[strlen(CONF_CIPHER)]))
             {
-                char *t = parse_config_tail(CONF_CIPHER, line);
-                asprintf(&a.cipher, "%s", t);
-                free(t);
+                free(a.cipher);
+                a.cipher = parse_config_tail(CONF_CIPHER, line);
             }
             else if (!strncmp(CONF_HASH, line, strlen(CONF_HASH)) && isspace((unsigned char)line[strlen(CONF_HASH)]))
             {
-                char *t = parse_config_tail(CONF_HASH, line);
-                asprintf(&a.hash, "%s", t);
-                free(t);
+                free(a.hash);
+                a.hash = parse_config_tail(CONF_HASH, line);
             }
             else if (!strncmp(CONF_MODE, line, strlen(CONF_MODE)) && isspace((unsigned char)line[strlen(CONF_MODE)]))
             {
-                char *t = parse_config_tail(CONF_MODE, line);
-                asprintf(&a.mode, "%s", t);
-                free(t);
+                free(a.mode);
+                a.mode = parse_config_tail(CONF_MODE, line);
             }
             else if (!strncmp(CONF_VERSION, line, strlen(CONF_VERSION)) && isspace((unsigned char)line[strlen(CONF_VERSION)]))
             {
-                char *t = parse_config_tail(CONF_VERSION, line);
-                asprintf(&a.version, "%s", t);
-                free(t);
+                free(a.version);
+                a.version = parse_config_tail(CONF_VERSION, line);
             }
             else if (!strncmp(CONF_KEY, line, strlen(CONF_KEY)) && isspace((unsigned char)line[strlen(CONF_KEY)]))
             {
@@ -186,18 +182,25 @@ end_line:
                     a.nogui = true;
                     break;
                 case 'c':
-                    asprintf(&a.cipher, "%s", strdup(optarg));
+                    free(a.cipher);
+                    a.cipher = strdup(optarg);
                     break;
                 case 's':
-                    asprintf(&a.hash, "%s", strdup(optarg));
+                    free(a.hash);
+                    a.hash = strdup(optarg);
                     break;
                 case 'm':
-                    asprintf(&a.mode, "%s", strdup(optarg));
+                    free(a.mode);
+                    a.mode = strdup(optarg);
                     break;
                 case 'k':
+                    if (a.key)
+                        free(a.key);
                     a.key = strdup(optarg);
                     break;
                 case 'p':
+                    if (a.password)
+                        free(a.password);
                     a.password = strdup(optarg);
                     break;
                 case 'x':
@@ -210,7 +213,8 @@ end_line:
                     a.compress = false;
                     break;
                 case 'b':
-                    asprintf(&a.version, "%s", optarg);
+                    free(a.version);
+                    a.version = strdup(optarg);
                     break;
                 case 'f':
                     a.follow = true;
@@ -295,6 +299,7 @@ extern void update_config(const char * const restrict o, const char * const rest
             {
                 if (!i && (!strncmp(o, line, strlen(o)) && isspace((unsigned char)line[strlen(o)])))
                 {
+                    free(line);
                     asprintf(&line, "%s %s\n", o, v);
                     found = true;
                 }

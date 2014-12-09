@@ -413,7 +413,10 @@ static bool read_metadata(crypto_t *c)
             if (errno == ENOENT || S_ISREG(s.st_mode))
                 ;
             else if (S_ISDIR(s.st_mode))
+            {
+                free(c->path);
                 asprintf(&c->path, "%s/%s", c->path, c->name ? : "decrypted");
+            }
             else
                 c->status = STATUS_FAILED_OUTPUT_MISMATCH;
             if (!(c->output = io_open(c->path, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK | O_BINARY, S_IRUSR | S_IWUSR)))
@@ -484,6 +487,7 @@ static void decrypt_directory(crypto_t *c, const char *dir)
                         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(dir) + strlen(lnk) + 2);
                     /* NB: on Windows this is just a copy not a link */
                     link(hl, fullpath);
+                    free(hl);
                 }
                 break;
             case FILE_REGULAR:

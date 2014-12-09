@@ -329,7 +329,8 @@ static void *process(void *ptr)
             dir++;
             cwd = getcwd(NULL, 0);
             chdir(c->path);
-            if (!(asprintf(&c->path, "%s", dir)))
+            free(c->path);
+            if (!(c->path = strdup(dir)))
                 die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(dir));
         }
         uint64_t l = htonll(strlen(c->path));
