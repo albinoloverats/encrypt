@@ -106,8 +106,12 @@ extern crypto_t *encrypt_init(const char * const restrict i,
             z->path = strdup(i);
             z->directory = true;
         }
-        else if (!(z->source = io_open(i, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR)))
-            return z->status = STATUS_FAILED_IO , z;
+        else
+        {
+            z->name = dir_get_name(i);
+            if (!(z->source = io_open(i, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR)))
+                return z->status = STATUS_FAILED_IO , z;
+        }
     }
     else
         z->source = IO_STDIN_FILENO;
@@ -122,13 +126,11 @@ extern crypto_t *encrypt_init(const char * const restrict i,
         else if (S_ISDIR(s.st_mode))
         {
             char *p = dir_get_path(i);
-            char *f = dir_get_name(i);
             if (!strcmp(p, i))
-                asprintf(&op, "%s.X", f);
+                asprintf(&op, "%s.X", z->name);
             else
-                asprintf(&op, "%s%s%s.X", o, o[strlen(o) - 1] == DIR_SEPARATOR_CHAR ? "" : DIR_SEPARATOR_STRING, f);
+                asprintf(&op, "%s%s%s.X", o, o[strlen(o) - 1] == DIR_SEPARATOR_CHAR ? "" : DIR_SEPARATOR, z->name);
             free(p);
-            free(f);
         }
         else
             return z->status = STATUS_FAILED_OUTPUT_MISMATCH , z;
@@ -460,6 +462,12 @@ static inline void write_metadata(crypto_t *c)
     {
         bool b = c->directory;
         tlv_t t = { TAG_DIRECTORY, sizeof b, &b };
+        tlv_append(&tlv, t);
+    }
+    if (c->version >= VERSION_2012_11)
+    {   /* after 2012.11 unknown tags are ignored, and this tag doesn't impact anything */
+fprintf(stderr, "%s\n", c->name);
+        tlv_t t = { TAG_FILENAME, strlen(c->name) + 1, c->name };
         tlv_append(&tlv, t);
     }
     uint8_t h = tlv_count(tlv);

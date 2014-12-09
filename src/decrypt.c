@@ -78,8 +78,10 @@ extern crypto_t *decrypt_init(const char * const restrict i,
 
     z->status = STATUS_INIT;
 
+    z->name = NULL;
     if (i)
     {
+        z->name = dir_get_name(i);
         if (!(z->source = io_open(i, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR)))
             return z->status = STATUS_FAILED_IO , z;
     }
@@ -390,6 +392,8 @@ static bool read_metadata(crypto_t *c)
 
     c->compressed = tlv_has_tag(tlv, TAG_COMPRESSED) ? *tlv_value_of(tlv, TAG_COMPRESSED) : false;
     c->directory = tlv_has_tag(tlv, TAG_DIRECTORY) ? *tlv_value_of(tlv, TAG_DIRECTORY) : false;
+    if (!c->name)
+        c->name = tlv_has_tag(tlv, TAG_FILENAME) ? strdup((char *)tlv_value_of(tlv, TAG_FILENAME)) : NULL;
     if (c->directory)
     {
         struct stat s;
@@ -409,10 +413,9 @@ static bool read_metadata(crypto_t *c)
             if (errno == ENOENT || S_ISREG(s.st_mode))
                 ;
             else if (S_ISDIR(s.st_mode))
-                asprintf(&c->path, "%s/decrypted", c->path);
+                asprintf(&c->path, "%s/%s", c->path, c->name ? : "decrypted");
             else
                 c->status = STATUS_FAILED_OUTPUT_MISMATCH;
-
             if (!(c->output = io_open(c->path, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK | O_BINARY, S_IRUSR | S_IWUSR)))
                 c->status = STATUS_FAILED_IO;
         }

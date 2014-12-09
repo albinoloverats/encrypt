@@ -136,7 +136,8 @@ typedef enum
     TAG_SIZE,       /*!< Encrypted data size */
     TAG_BLOCKED,    /*!< Data is split into blocks (of given size) */
     TAG_COMPRESSED, /*!< Data is compressed */
-    TAG_DIRECTORY   /*!< Data is a directory hierarchy */
+    TAG_DIRECTORY,  /*!< Data is a directory hierarchy */
+    TAG_FILENAME    /*!< Single file name */
         /*
          * TODO add tags for stat data (mode, atime, ctime, mtime)
          */
@@ -170,6 +171,7 @@ typedef struct
     IO_HANDLE output;              /*!< Where to put data to */
 
     char *path;                    /*!< Path to en/decrypted directory */
+    char *name;                    /*!< Name of single encrypted file */
     enum gcry_cipher_algos cipher; /*!< The chosen cipher algorithm */
     enum gcry_md_algos hash;       /*!< The chosen key hash algorithm */
     enum gcry_cipher_modes mode;   /*!< The chosen encryption mode */
