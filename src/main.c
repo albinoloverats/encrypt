@@ -110,15 +110,10 @@ int main(int argc, char **argv)
     bool fe = false;
     if (args.source)
     {
-        char *c = NULL;
-        char *h = NULL;
-        char *m = NULL;
-        if ((fe = is_encrypted(args.source, &c, &h, &m)))
-        {
-            asprintf(&args.cipher, "%s", c);
-            asprintf(&args.hash, "%s", h);
-            asprintf(&args.mode, m);
-        }
+        free(args.cipher);
+        free(args.hash);
+        free(args.mode);
+        fe = is_encrypted(args.source, &args.cipher, &args.hash, &args.mode);
     }
  #ifndef _WIN32
     struct stat n;
@@ -226,7 +221,7 @@ int main(int argc, char **argv)
             }
             else
  #endif
-            asprintf(&gui_file_hack_source, "%s", args.source);
+                gui_file_hack_source = strdup(args.source);
             gtk_file_chooser_set_filename((GtkFileChooser *)widgets->open_dialog, gui_file_hack_source);
         }
         if (args.output)
@@ -240,7 +235,7 @@ int main(int argc, char **argv)
             }
             else
  #endif
-            asprintf(&gui_file_hack_output, "%s", args.output);
+                gui_file_hack_output = strdup(args.output);
             gtk_file_chooser_set_filename((GtkFileChooser *)widgets->save_dialog, gui_file_hack_output);
         }
         file_dialog_okay(NULL, widgets);

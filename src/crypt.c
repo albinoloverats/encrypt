@@ -424,9 +424,12 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, cha
         }
         else
             d = "CBC";
-        asprintf(c, "%s", a);
-        asprintf(h, "%s", s);
-        asprintf(m ,"%s", d);
+        if (*c)
+            *c = strdup(a);
+        if (*h)
+            *h = strdup(s);
+        if (*m)
+            *m = strdup(d);
         gcry_free(a);
     }
     close(f);

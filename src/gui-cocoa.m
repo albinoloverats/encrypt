@@ -217,6 +217,7 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
     char *m = NULL;
     if ((encrypted = is_encrypted(open_file, &c, &h, &m)))
         [self auto_select_algorithms:c:h:m];
+    free(open_file);
     [_singleButton setTitle:encrypted ? @LABEL_DECRYPT : @LABEL_ENCRYPT];
 
     if (!save_link || !strlen(save_link))
@@ -484,6 +485,7 @@ clean_up:
         }
         if (bps_label)
             [_progress_label setStringValue:[NSString stringWithUTF8String:bps_label]];
+        free(bps_label);
     }
 
     [_progress_label setStringValue:[NSString stringWithUTF8String:status(c)]];

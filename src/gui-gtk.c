@@ -273,7 +273,9 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
                 auto_select_algorithms(data, c, h, m);
             gtk_button_set_label((GtkButton *)data->encrypt_button, _encrypted ? LABEL_DECRYPT : LABEL_ENCRYPT);
             en = TRUE;
-            asprintf(&cwd, "%s", dir);
+            if (cwd)
+                free(cwd);
+            cwd = strdup(dir);
         }
         else
             en = FALSE;
@@ -302,7 +304,9 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
         {
             gtk_label_set_text((GtkLabel *)data->save_file_label, basename(save_file));
             gtk_widget_show(data->save_file_image);
-            asprintf(&cwd, "%s", dir);
+            if (cwd)
+                free(cwd);
+            cwd = strdup(dir);
         }
         else
             en = FALSE;
@@ -414,7 +418,11 @@ G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widge
         if (errno == ENOENT || !S_ISREG(s.st_mode))
             en = FALSE;
         else
-            asprintf(&cwd, "%s", key_file);
+        {
+            if (cwd)
+                free(cwd);
+            cwd = strdup(key_file);
+        }
     }
 
     gtk_label_set_text((GtkLabel *)data->key_file_label, en ? basename(key_file) : NONE_SELECTED);
