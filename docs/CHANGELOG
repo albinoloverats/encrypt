@@ -32,6 +32,7 @@ encrypt - 2015.01                                           --- Jan 2015
 * Random IV’s (not derived from key)
 * Build Slackware package for easy installation
 * On Android, display notification of progress
+* Store filename even when encrypting a single file
 
 ### Fixed For This Release
 
@@ -39,6 +40,8 @@ encrypt - 2015.01                                           --- Jan 2015
   - It wasn’t actually due to Windows, but a subtle bug in the Android
     code
 * Fix bug caused by no rc file
+* Plugged some memory leaks
+* Better support for en/decrypting from/to a directory
 
 
 encrypt - 2014.06                                         20th July 2014

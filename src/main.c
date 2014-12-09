@@ -107,13 +107,18 @@ int main(int argc, char **argv)
     GtkBuilder *builder;
     GError *error = NULL;
 
+#if 0
     bool fe = false;
+#endif
     if (args.source)
     {
         free(args.cipher);
         free(args.hash);
         free(args.mode);
-        fe = is_encrypted(args.source, &args.cipher, &args.hash, &args.mode);
+#if 0
+        fe =
+#endif
+        is_encrypted(args.source, &args.cipher, &args.hash, &args.mode);
     }
  #ifndef _WIN32
     struct stat n;
