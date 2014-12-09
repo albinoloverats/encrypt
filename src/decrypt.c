@@ -393,7 +393,7 @@ static bool read_metadata(crypto_t *c)
     c->compressed = tlv_has_tag(tlv, TAG_COMPRESSED) ? *tlv_value_of(tlv, TAG_COMPRESSED) : false;
     c->directory = tlv_has_tag(tlv, TAG_DIRECTORY) ? *tlv_value_of(tlv, TAG_DIRECTORY) : false;
     if (!c->name)
-        c->name = tlv_has_tag(tlv, TAG_FILENAME) ? strdup((char *)tlv_value_of(tlv, TAG_FILENAME)) : NULL;
+        c->name = tlv_has_tag(tlv, TAG_FILENAME) ? strndup((char *)tlv_value_of(tlv, TAG_FILENAME), tlv_size_of(tlv, TAG_FILENAME)) : NULL;
     if (c->directory)
     {
         struct stat s;
