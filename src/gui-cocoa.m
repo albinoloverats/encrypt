@@ -212,11 +212,13 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
     /*
      * check if the file is encrypted or not
      */
-    char *c = NULL;
-    char *h = NULL;
-    char *m = NULL;
+    void *ptr = malloc(0);
+    char *c = ptr;
+    char *h = ptr;
+    char *m = ptr;
     if ((encrypted = is_encrypted(open_file, &c, &h, &m)))
         [self auto_select_algorithms:c:h:m];
+    free(ptr);
     free(open_file);
     [_singleButton setTitle:encrypted ? @LABEL_DECRYPT : @LABEL_ENCRYPT];
 
