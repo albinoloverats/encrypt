@@ -61,6 +61,7 @@ public class Encrypt extends Crypto
         try
         {
             final File in = new File(source);
+            name = in.getName();
             if (in.isFile())
             {
                 total.size = in.length();
@@ -77,7 +78,7 @@ public class Encrypt extends Crypto
             if (out.isFile())
                 this.output = new EncryptedFileOutputStream(out);
             else if (out.isDirectory())
-                this.output = new EncryptedFileOutputStream(new File(out.getAbsolutePath() + File.separatorChar + in.getName() + ".X"));
+                this.output = new EncryptedFileOutputStream(new File(out.getAbsolutePath() + File.separatorChar + name + ".X"));
             else
                 throw new CryptoProcessException(Status.FAILED_IO);
         }
@@ -258,6 +259,13 @@ public class Encrypt extends Crypto
         output.write(Convert.toBytes((byte)Tag.DIRECTORY.value));
         output.write(Convert.toBytes((short)(Byte.SIZE / Byte.SIZE)));
         output.write(Convert.toBytes(directory));
+
+        if (!directory && name != null && version.compareto(Version._201211) >= 0)
+        {
+            output.write(Convert.toBytes((byte)Tag.FILENAME.value));
+            output.write(Convert.toBytes((short)name.length()));
+            output.write(Convert.toBytes(name.getBytes()));
+        }
     }
 
     private void writeRandomData() throws IOException

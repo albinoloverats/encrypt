@@ -45,7 +45,9 @@ public class Decrypt extends Crypto
 
         try
         {
-            this.source = new EncryptedFileInputStream(new File(source));
+            final File in = new File(source);
+            this.source = new EncryptedFileInputStream(in);
+            name = in.getName(); // TODO strip extension
             final File out = new File(output);
             if (out.exists())
                 if (!(directory = out.isDirectory()))
@@ -225,27 +227,28 @@ public class Decrypt extends Crypto
                     compressed = Convert.booleanFromBytes(v);
                     break;
                 case DIRECTORY:
-                    {
-                        directory = Convert.booleanFromBytes(v);
-                        if (directory)
-                        {
-                            if (!f.exists())
-                                f.mkdirs();
-                            else if (!f.isDirectory())
-                                throw new CryptoProcessException(Status.FAILED_OUTPUT_MISMATCH);
-                        }
-                        else
-                        {
-                            if (!f.exists())
-                                output = new FileOutputStream(f);
-                            else if (f.isDirectory())
-                                output = new FileOutputStream(f.getAbsolutePath() + File.separatorChar + "decrypted");
-                            else
-                                throw new CryptoProcessException(Status.FAILED_OUTPUT_MISMATCH);
-                        }
-                    }
+                    directory = Convert.booleanFromBytes(v);
+                    break;
+                case FILENAME:
+                    name = new String(v);
                     break;
             }
+        }
+        if (directory)
+        {
+            if (!f.exists())
+                f.mkdirs();
+            else if (!f.isDirectory())
+                throw new CryptoProcessException(Status.FAILED_OUTPUT_MISMATCH);
+        }
+        else
+        {
+            if (!f.exists())
+                output = new FileOutputStream(f);
+            else if (f.isDirectory())
+                output = new FileOutputStream(f.getAbsolutePath() + File.separatorChar + (name != null ? name : "decrypted"));
+            else
+                throw new CryptoProcessException(Status.FAILED_OUTPUT_MISMATCH);
         }
         if (output == null && !directory)
         {

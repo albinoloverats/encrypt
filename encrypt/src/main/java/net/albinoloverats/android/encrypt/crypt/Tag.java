@@ -25,7 +25,8 @@ public enum Tag
     SIZE(0),
     BLOCKED(1),
     COMPRESSED(2),
-    DIRECTORY(3);
+    DIRECTORY(3),
+    FILENAME(4);
 
     final public int value;
 

@@ -42,6 +42,7 @@ public abstract class Crypto extends Thread implements Runnable
     protected OutputStream output;
 
     protected String path;
+    protected String name;
     protected String cipher;
     protected String hash;
     protected String mode;
