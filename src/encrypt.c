@@ -88,7 +88,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 {
     init_crypto();
 
-    crypto_t *z = calloc(1, sizeof( crypto_t ));
+    crypto_t *z = gcry_calloc_secure(1, sizeof( crypto_t ));
     if (!z)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( crypto_t ));
 
@@ -130,7 +130,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
                 asprintf(&op, "%s.X", z->name);
             else
                 asprintf(&op, "%s%s%s.X", o, o[strlen(o) - 1] == DIR_SEPARATOR_CHAR ? "" : DIR_SEPARATOR, z->name);
-            free(p);
+            gcry_free(p);
         }
         else
             return z->status = STATUS_FAILED_OUTPUT_MISMATCH , z;
@@ -147,7 +147,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 	    }
 #endif
         z->output = io_open(op, O_CREAT | O_TRUNC |  O_WRONLY | O_BINARY, S_IRUSR | S_IWUSR);
-        free(op);
+        gcry_free(op);
         if (!z->output)
             return z->status = STATUS_FAILED_OUTPUT_MISMATCH , z;
     }
@@ -158,7 +158,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
         return z->status = STATUS_FAILED_INIT , z;
     if (l)
     {
-        if (!(z->key = malloc(l)))
+        if (!(z->key = gcry_malloc_secure(l)))
             die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, l);
         memcpy(z->key, k, l);
         z->length = l;
@@ -170,7 +170,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
             return z->status = STATUS_FAILED_IO , z;
         z->length = lseek(kf, 0, SEEK_END);
         lseek(kf, 0, SEEK_SET);
-        if (!(z->key = malloc(z->length)))
+        if (!(z->key = gcry_malloc_secure(z->length)))
             die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, z->length);
         read(kf, z->key, z->length);
         close(kf);
@@ -284,7 +284,7 @@ static void *process(void *ptr)
      */
     io_extra_t iox = { iv_type, true, 1 };
     io_encryption_init(c->output, c->cipher, c->hash, c->mode, c->key, c->length, iox);
-    free(c->key);
+    gcry_free(c->key);
 
     if (!c->raw)
     {
@@ -336,17 +336,17 @@ static void *process(void *ptr)
         io_write(c->output, &l, sizeof l);
         io_write(c->output, c->path, strlen(c->path));
         c->total.offset = 1;
-        if (!(c->misc = calloc(c->total.size, sizeof( link_count_t ))))
+        if (!(c->misc = gcry_calloc_secure(c->total.size, sizeof( link_count_t ))))
             die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, c->total.size * sizeof( link_count_t ));
         encrypt_directory(c, c->path);
         for (uint64_t i = 0; i < c->total.size; i++)
             if (((link_count_t *)c->misc)[i].path)
-                free(((link_count_t *)c->misc)[i].path);
-        free(c->misc);
+                gcry_free(((link_count_t *)c->misc)[i].path);
+        gcry_free(c->misc);
         if (cwd)
         {
             chdir(cwd);
-            free(cwd);
+            gcry_free(cwd);
         }
     }
     else
@@ -371,7 +371,7 @@ static void *process(void *ptr)
         size_t cl = 0;
         io_encryption_checksum(c->output, &cs, &cl);
         io_write(c->output, cs, cl);
-        free(cs);
+        gcry_free(cs);
 
         write_random_data(c);
     }
@@ -404,7 +404,7 @@ static inline void write_header(crypto_t *c)
     uint8_t h = (uint8_t)strlen(algos);
     io_write(c->output, &h, sizeof h);
     io_write(c->output, algos, h);
-    free(algos);
+    gcry_free(algos);
     return;
 }
 
@@ -484,13 +484,13 @@ static inline void write_random_data(crypto_t *c)
 #else
     l = 1; /* keep the same structure (include this junk) but limit it */
 #endif
-    uint8_t *b = malloc(l);
+    uint8_t *b = gcry_malloc_secure(l);
     if (!b)
         die(_("Out of memory @ %s:%d:%s [%hhu]"), __FILE__, __LINE__, __func__, l);
     gcry_create_nonce(b, l);
     io_write(c->output, &l, sizeof l);
     io_write(c->output, b, l);
-    free(b);
+    gcry_free(b);
     return (void)c;
 }
 
@@ -520,12 +520,12 @@ static int64_t count_entries(crypto_t *c, const char *dir)
             else if (!c->follow_links && S_ISLNK(s.st_mode))
                 e++;
 #endif
-            free(filename);
+            gcry_free(filename);
         }
     }
     for (int i = 0; i < n; ++i)
-        free(eps[i]);
-    free(eps);
+        gcry_free(eps[i]);
+    gcry_free(eps);
     return e;
 }
 
@@ -561,7 +561,7 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                     tp = (ln = encrypt_link(c, filename, s)) ? FILE_LINK : FILE_REGULAR;
                     break;
                 default:
-                    free(filename);
+                    gcry_free(filename);
                     continue;
             }
             io_write(c->output, &tp, sizeof( byte_t ));
@@ -583,10 +583,10 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                          * store the link instead of the file/directory
                          * it points to
                          */
-                        char *sl = NULL;
+                        char *sl = gcry_malloc_secure(sizeof( byte_t ));
                         for (l = BLOCK_SIZE; ; l += BLOCK_SIZE)
                         {
-                            char *x = realloc(sl, l + sizeof( byte_t ));
+                            char *x = gcry_realloc(sl, l + sizeof( byte_t ));
                             if (!x)
                                 die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, l + sizeof( byte_t ) );
                             sl = x;
@@ -629,7 +629,7 @@ static void encrypt_directory(crypto_t *c, const char *dir)
                     c->source = NULL;
                     break;
             }
-            free(filename);
+            gcry_free(filename);
             c->total.offset++;
         }
         /*
@@ -637,8 +637,8 @@ static void encrypt_directory(crypto_t *c, const char *dir)
          */
     }
     for (int i = 0; i < n; ++i)
-        free(eps[i]);
-    free(eps);
+        gcry_free(eps[i]);
+    gcry_free(eps);
     return;
 }
 
@@ -660,7 +660,7 @@ static void encrypt_stream(crypto_t *c)
 {
     bool b = true;
     uint8_t *buffer;
-    if (!(buffer = malloc(c->blocksize + sizeof b)))
+    if (!(buffer = gcry_malloc_secure(c->blocksize + sizeof b)))
         die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, c->blocksize + sizeof b);
     do
     {
@@ -687,7 +687,7 @@ static void encrypt_stream(crypto_t *c)
         c->current.offset += c->blocksize;
     }
     while (b && c->status == STATUS_RUNNING);
-    free(buffer);
+    gcry_free(buffer);
     return;
 }
 

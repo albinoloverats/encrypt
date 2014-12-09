@@ -116,7 +116,7 @@ extern IO_HANDLE io_open(const char *n, int f, mode_t m)
 #endif
     if (fd < 0)
         return NULL;
-    io_private_t *io_ptr = calloc(1, sizeof( io_private_t ));
+    io_private_t *io_ptr = gcry_calloc_secure(1, sizeof( io_private_t ));
     io_ptr->fd = fd;
     io_ptr->eof = EOF_NO;
     return io_ptr;
@@ -135,7 +135,7 @@ extern int io_close(IO_HANDLE ptr)
 extern IO_HANDLE io_dummy_handle(void)
 {
 
-    io_private_t *io_ptr = calloc(1, sizeof( io_private_t ));
+    io_private_t *io_ptr = gcry_calloc_secure(1, sizeof( io_private_t ));
     io_ptr->fd = -IO_DUMMY_FD;
     return io_ptr;
 }
@@ -148,8 +148,8 @@ extern void io_release(IO_HANDLE ptr)
     if (io_ptr->buffer)
     {
         if (io_ptr->buffer->stream)
-            free(io_ptr->buffer->stream);
-        free(io_ptr->buffer);
+            gcry_free(io_ptr->buffer->stream);
+        gcry_free(io_ptr->buffer);
     }
     if (io_ptr->cipher_init)
         gcry_cipher_close(io_ptr->cipher_handle);
@@ -157,21 +157,21 @@ extern void io_release(IO_HANDLE ptr)
         gcry_md_close(io_ptr->hash_handle);
     if (io_ptr->lzma_init)
         lzma_end(&io_ptr->lzma_handle);
-    free(io_ptr);
+    gcry_free(io_ptr);
     io_ptr = NULL;
     return;
 }
 
 extern IO_HANDLE io_use_stdin(void)
 {
-    io_private_t *io_ptr = calloc(1, sizeof( io_private_t ));
+    io_private_t *io_ptr = gcry_calloc_secure(1, sizeof( io_private_t ));
     io_ptr->fd = STDIN_FILENO;
     return io_ptr;
 }
 
 extern IO_HANDLE io_use_stdout(void)
 {
-    io_private_t *io_ptr = calloc(1, sizeof( io_private_t ));
+    io_private_t *io_ptr = gcry_calloc_secure(1, sizeof( io_private_t ));
     io_ptr->fd = STDOUT_FILENO;
     return io_ptr;
 }
@@ -212,7 +212,7 @@ extern void io_encryption_init(IO_HANDLE ptr,
     /*
      * start setting up the encryption buffer
      */
-    if (!(io_ptr->buffer = malloc(sizeof( buffer_t ))))
+    if (!(io_ptr->buffer = gcry_malloc_secure(sizeof( buffer_t ))))
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( buffer_t ));
 
     gcry_md_open(&io_ptr->hash_handle, h, GCRY_MD_FLAG_SECURE);
@@ -221,7 +221,7 @@ extern void io_encryption_init(IO_HANDLE ptr,
      * generate a hash of the supplied key data
      */
     size_t hash_length = gcry_md_get_algo_dlen(h);
-    uint8_t *hash = malloc(hash_length);
+    uint8_t *hash = gcry_malloc_secure(hash_length);
     if (!hash)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, hash_length);
     gcry_md_hash_buffer(gcry_md_get_algo(io_ptr->hash_handle), hash, k, l);
@@ -229,18 +229,18 @@ extern void io_encryption_init(IO_HANDLE ptr,
      * set the key as the hash of supplied data
      */
     size_t key_length = gcry_cipher_get_algo_keylen(c);
-    uint8_t *key = calloc(key_length, sizeof( byte_t ));
+    uint8_t *key = gcry_calloc_secure(key_length, sizeof( byte_t ));
     if (!key)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, key_length);
     memcpy(key, hash, key_length < hash_length ? key_length : hash_length);
     gcry_cipher_setkey(io_ptr->cipher_handle, key, key_length); /* here is where it blows-up on Windows 8, using AES */
-    free(key);
+    gcry_free(key);
     /*
      * the 2011.* versions (incorrectly) used key length instead of block
      * length; versions after 2014.06 randomly generate the IV instead
      */
     io_ptr->buffer->block = gcry_cipher_get_algo_blklen(c);
-    uint8_t *iv = calloc(x.x_iv == IV_BROKEN ? key_length : io_ptr->buffer->block, sizeof( byte_t ));
+    uint8_t *iv = gcry_calloc_secure(x.x_iv == IV_BROKEN ? key_length : io_ptr->buffer->block, sizeof( byte_t ));
     if (!iv)
        die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, io_ptr->buffer->block);
     if (x.x_iv == IV_RANDOM)
@@ -255,7 +255,7 @@ extern void io_encryption_init(IO_HANDLE ptr,
     }
     else
     {
-        uint8_t *iv_hash = malloc(hash_length);
+        uint8_t *iv_hash = gcry_malloc_secure(hash_length);
         if (!iv_hash)
             die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, hash_length);
         /*
@@ -263,19 +263,19 @@ extern void io_encryption_init(IO_HANDLE ptr,
          */
         gcry_md_hash_buffer(gcry_md_get_algo(io_ptr->hash_handle), iv_hash, hash, hash_length);
         memcpy(iv, iv_hash, io_ptr->buffer->block < hash_length ? io_ptr->buffer->block : hash_length);
-        free(iv_hash);
+        gcry_free(iv_hash);
     }
-    free(hash);
+    gcry_free(hash);
 
     if (m == GCRY_CIPHER_MODE_CTR)
         gcry_cipher_setctr(io_ptr->cipher_handle, iv, io_ptr->buffer->block);
     else
         gcry_cipher_setiv(io_ptr->cipher_handle, iv, io_ptr->buffer->block);
-    free(iv);
+    gcry_free(iv);
     /*
      * set the rest of the buffer
      */
-    if (!(io_ptr->buffer->stream = malloc(io_ptr->buffer->block)))
+    if (!(io_ptr->buffer->stream = gcry_malloc_secure(io_ptr->buffer->block)))
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, io_ptr->buffer->block);
     /*
      * when encrypting/writing data:
@@ -312,7 +312,7 @@ extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l)
     if (!io_ptr->hash_init)
         return *l = 0 , (void)NULL;
     *l = gcry_md_get_algo_dlen(gcry_md_get_algo(io_ptr->hash_handle));
-    uint8_t *x = realloc(*b, *l);
+    uint8_t *x = gcry_realloc(*b, *l);
     if (!x)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, *l);
     *b = x;
@@ -525,7 +525,7 @@ static ssize_t enc_write(io_private_t *f, const void *d, size_t l)
         ssize_t e = write(f->fd, f->buffer->stream, f->buffer->block);
         fsync(f->fd);
         f->buffer->block = 0;
-        free(f->buffer->stream);
+        gcry_free(f->buffer->stream);
         f->buffer->stream = NULL;
         memset(f->buffer->offset, 0x00, sizeof f->buffer->offset);
         return e;
@@ -566,13 +566,13 @@ static ssize_t enc_read(io_private_t *f, void *d, size_t l)
         {
             memcpy(d + f->buffer->offset[2], f->buffer->stream, f->buffer->offset[1]);
             f->buffer->offset[0] -= f->buffer->offset[1];
-            uint8_t *x = calloc(f->buffer->block, sizeof( uint8_t ));
+            uint8_t *x = gcry_calloc_secure(f->buffer->block, sizeof( uint8_t ));
             if (!x)
                 die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, f->buffer->block * sizeof( uint8_t ));
             memcpy(x, f->buffer->stream + f->buffer->offset[1], f->buffer->offset[0]);
             memset(f->buffer->stream, 0x00, f->buffer->block);
             memcpy(f->buffer->stream, x, f->buffer->offset[0]);
-            free(x);
+            gcry_free(x);
             x = NULL;
             return l;
         }

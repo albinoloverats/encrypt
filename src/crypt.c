@@ -136,6 +136,7 @@ extern void init_crypto(void)
      */
     if (!gcry_check_version(GCRYPT_VERSION))
         die(_("Could not find GNU Crypt library"));
+    gcry_control(GCRYCTL_INIT_SECMEM, 16384, 0);
     gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
     errno = 0; /* need to reset errno after gcry_check_version() */
     done = true;
@@ -145,7 +146,7 @@ extern void execute(crypto_t *c)
 {
     if (!c || c->status != STATUS_INIT)
         return;
-    pthread_t *t = calloc(1, sizeof( pthread_t ));
+    pthread_t *t = gcry_calloc_secure(1, sizeof( pthread_t ));
     pthread_attr_t a;
     pthread_attr_init(&a);
     pthread_attr_setdetachstate(&a, PTHREAD_CREATE_JOINABLE);
@@ -170,27 +171,29 @@ extern void deinit(crypto_t **c)
     if (z->thread)
     {
         pthread_join(*z->thread, NULL);
-        free(z->thread);
+        gcry_free(z->thread);
     }
     if (z->path)
-        free(z->path);
+        gcry_free(z->path);
+    if (z->name)
+        gcry_free(z->name);
     if (z->source)
         io_close(z->source);
     if (z->output)
         io_close(z->output);
-    free(z);
+    gcry_free(z);
     z = NULL;
     *c = NULL;
     return;
 }
 
 #if 0
-extern void key_free(raw_key_t **key)
+extern void key_gcry_free(raw_key_t **key)
 {
     memset((*key)->data, 0x00, (*key)->length);
-    free((*key)->data);
+    gcry_free((*key)->data);
     (*key)->length = 0;
-    free(*key);
+    gcry_free(*key);
     key = NULL;
     return;
 }
@@ -215,7 +218,7 @@ extern const char **list_of_ciphers(void)
     static const char **l = NULL;
     if (!l)
     {
-        if (!(l = calloc(len + 1, sizeof( char * ))))
+        if (!(l = gcry_calloc_secure(len + 1, sizeof( char * ))))
             die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
         int j = 0;
         for (int i = 0; i < len; i++)
@@ -257,7 +260,7 @@ extern const char **list_of_hashes(void)
     static const char **l = NULL;
     if (!l)
     {
-        if (!(l = calloc(len + 1, sizeof( char * ))))
+        if (!(l = gcry_calloc_secure(len + 1, sizeof( char * ))))
             die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
         int j = 0;
         for (int i = 0; i < len; i++)
@@ -280,7 +283,7 @@ extern const char **list_of_modes(void)
     if (!l)
     {
         unsigned m = sizeof MODES / sizeof( block_mode_t );
-        if (!(l = calloc(m + 1, sizeof( char * ))))
+        if (!(l = gcry_calloc_secure(m + 1, sizeof( char * ))))
             die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
         for (unsigned i = 0; i < m; i++)
             l[i] = MODES[i].name;
@@ -408,7 +411,7 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, cha
     {
         uint8_t l;
         read(f, &l, sizeof l);
-        char *a = calloc(l + sizeof( char ), sizeof( char ));
+        char *a = gcry_calloc_secure(l + sizeof( char ), sizeof( char ));
         read(f, a, l);
         char *s = strchr(a, '/');
         *s = '\0';
@@ -424,7 +427,7 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, cha
         asprintf(c, "%s", a);
         asprintf(h, "%s", s);
         asprintf(m ,"%s", d);
-        free(a);
+        gcry_free(a);
     }
     close(f);
 
@@ -476,8 +479,8 @@ static const char *correct_aes_rijndael(const char * const restrict n)
     /*
      * use rijndael instead of AES as that’s the actual cipher name
      */
-    char *x = NULL;
-    if (!(asprintf(&x, "%s%s", NAME_RIJNDAEL, n + strlen(NAME_AES))))
+    static char *x = NULL;
+    if (!asprintf(&x, "%s%s", NAME_RIJNDAEL, n + strlen(NAME_AES)))
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(NAME_RIJNDAEL) + strlen(n) - strlen(NAME_AES));
     return (const char *)x;
 }

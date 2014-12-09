@@ -115,9 +115,9 @@ int main(int argc, char **argv)
         char *m = NULL;
         if ((fe = is_encrypted(args.source, &c, &h, &m)))
         {
-            args.cipher = c;
-            args.hash = h;
-            args.mode = m;
+            asprintf(&args.cipher, "%s", c);
+            asprintf(&args.hash, "%s", h);
+            asprintf(&args.mode, m);
         }
     }
  #ifndef _WIN32

@@ -72,7 +72,7 @@ extern crypto_t *decrypt_init(const char * const restrict i,
 {
     init_crypto();
 
-    crypto_t *z = calloc(1, sizeof( crypto_t ));
+    crypto_t *z = gcry_calloc_secure(1, sizeof( crypto_t ));
     if (!z)
         die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( crypto_t ));
 
@@ -131,7 +131,7 @@ extern crypto_t *decrypt_init(const char * const restrict i,
         return z->status = STATUS_FAILED_INIT , z;
     if (l)
     {
-        if (!(z->key = malloc(l)))
+        if (!(z->key = gcry_malloc_secure(l)))
             die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, l);
         memcpy(z->key, k, l);
         z->length = l;
@@ -143,7 +143,7 @@ extern crypto_t *decrypt_init(const char * const restrict i,
             return z->status = STATUS_FAILED_IO , z;
         z->length = lseek(kf, 0, SEEK_END);
         lseek(kf, 0, SEEK_SET);
-        if (!(z->key = malloc(z->length)))
+        if (!(z->key = gcry_malloc_secure(z->length)))
             die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, z->length);
         read(kf, z->key, z->length);
         close(kf);
@@ -221,7 +221,7 @@ static void *process(void *ptr)
      */
     io_extra_t iox = { iv_type, false, 1 };
     io_encryption_init(c->source, c->cipher, c->hash, c->mode, c->key, c->length, iox);
-    free(c->key);
+    gcry_free(c->key);
 
     if (!c->raw)
     {
@@ -285,12 +285,12 @@ static void *process(void *ptr)
         uint8_t *cs = NULL;
         size_t cl = 0;
         io_encryption_checksum(c->source, &cs, &cl);
-        uint8_t *b = malloc(cl);
+        uint8_t *b = gcry_malloc_secure(cl);
         io_read(c->source, b, cl);
         if (memcmp(b, cs, cl))
             c->status = STATUS_WARNING_CHECKSUM;
-        free(cs);
-        free(b);
+        gcry_free(cs);
+        gcry_free(b);
     }
 
     if (!c->raw)
@@ -316,7 +316,7 @@ static uint64_t read_version(crypto_t *c)
         return 0;
     uint8_t l;
     io_read(c->source, &l, sizeof l);
-    char *a = calloc(l + sizeof( char ), sizeof( char ));
+    char *a = gcry_calloc_secure(l + sizeof( char ), sizeof( char ));
     io_read(c->source, a, l);
     char *h = strchr(a, '/');
     *h = '\0';
@@ -368,11 +368,11 @@ static bool read_metadata(crypto_t *c)
         io_read(c->source, &t.tag, sizeof( byte_t ));
         io_read(c->source, &t.length, sizeof t.length);
         t.length = ntohs(t.length);
-        if (!(t.value = malloc(t.length)))
+        if (!(t.value = gcry_malloc_secure(t.length)))
             die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, t.length);
         io_read(c->source, t.value, t.length);
         tlv_append(&tlv, t);
-        free(t.value);
+        gcry_free(t.value);
     }
 
     if (tlv_has_tag(tlv, TAG_SIZE))
@@ -429,11 +429,11 @@ static void skip_random_data(crypto_t *c)
 {
     uint8_t l;
     io_read(c->source, &l, sizeof l);
-    uint8_t *b = malloc(l);
+    uint8_t *b = gcry_malloc_secure(l);
     if (!b)
         die(_("Out of memory @ %s:%d:%s [%hhu]"), __FILE__, __LINE__, __func__, l);
     io_read(c->source, b, l);
-    free(b);
+    gcry_free(b);
     return (void)c;
 }
 
@@ -449,13 +449,13 @@ static void decrypt_directory(crypto_t *c, const char *dir)
         io_read(c->source, &l, sizeof l);
         l = ntohll(l);
         char *filename = NULL;
-        if (!(filename = calloc(l + sizeof( byte_t ), sizeof( char ))))
+        if (!(filename = gcry_calloc_secure(l + sizeof( byte_t ), sizeof( char ))))
             die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, l + sizeof( byte_t ));
         io_read(c->source, filename, l);
         char *fullpath = NULL;
         if (!asprintf(&fullpath, "%s/%s", dir, filename))
             die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, strlen(dir) + l + 2 * sizeof( byte_t ));
-        free(filename);
+        gcry_free(filename);
         switch (tp)
         {
             case FILE_DIRECTORY:
@@ -465,7 +465,7 @@ static void decrypt_directory(crypto_t *c, const char *dir)
             case FILE_LINK:
                 io_read(c->source, &l, sizeof l);
                 l = ntohll(l);
-                char *lnk = calloc(l + sizeof( byte_t ), sizeof( byte_t ));
+                char *lnk = gcry_calloc_secure(l + sizeof( byte_t ), sizeof( byte_t ));
                 if (!lnk)
                     die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, l + sizeof( byte_t ));
                 io_read(c->source, lnk, l);
@@ -499,7 +499,7 @@ static void decrypt_directory(crypto_t *c, const char *dir)
                 c->current.offset = c->total.size;
                 break;
         }
-        free(fullpath);
+        gcry_free(fullpath);
     }
     if (lnerr)
         c->status = STATUS_WARNING_LINK;
@@ -510,7 +510,7 @@ static void decrypt_stream(crypto_t *c)
 {
     bool b = true;
     uint8_t *buffer;
-    if (!(buffer = malloc(c->blocksize + sizeof b)))
+    if (!(buffer = gcry_malloc_secure(c->blocksize + sizeof b)))
         die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, c->blocksize + sizeof b);
     while (b && c->status == STATUS_RUNNING)
     {
@@ -532,7 +532,7 @@ static void decrypt_stream(crypto_t *c)
         io_write(c->output, buffer, r);
         c->current.offset += r;
     }
-    free(buffer);
+    gcry_free(buffer);
     return;
 }
 

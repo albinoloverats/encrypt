@@ -101,13 +101,29 @@ extern args_t init(int argc, char **argv)
             else if (!strncmp(CONF_FOLLOW, line, strlen(CONF_FOLLOW)) && isspace((unsigned char)line[strlen(CONF_FOLLOW)]))
                 a.follow = parse_config_boolean(CONF_FOLLOW, line, a.follow);
             else if (!strncmp(CONF_CIPHER, line, strlen(CONF_CIPHER)) && isspace((unsigned char)line[strlen(CONF_CIPHER)]))
-                asprintf(&a.cipher, "%s", parse_config_tail(CONF_CIPHER, line));
+            {
+                char *t = parse_config_tail(CONF_CIPHER, line);
+                asprintf(&a.cipher, "%s", t);
+                free(t);
+            }
             else if (!strncmp(CONF_HASH, line, strlen(CONF_HASH)) && isspace((unsigned char)line[strlen(CONF_HASH)]))
-                asprintf(&a.hash, "%s", parse_config_tail(CONF_HASH, line));
+            {
+                char *t = parse_config_tail(CONF_HASH, line);
+                asprintf(&a.hash, "%s", t);
+                free(t);
+            }
             else if (!strncmp(CONF_MODE, line, strlen(CONF_MODE)) && isspace((unsigned char)line[strlen(CONF_MODE)]))
-                asprintf(&a.mode, "%s", parse_config_tail(CONF_MODE, line));
+            {
+                char *t = parse_config_tail(CONF_MODE, line);
+                asprintf(&a.mode, "%s", t);
+                free(t);
+            }
             else if (!strncmp(CONF_VERSION, line, strlen(CONF_VERSION)) && isspace((unsigned char)line[strlen(CONF_VERSION)]))
-                a.version = parse_config_tail(CONF_VERSION, line);
+            {
+                char *t = parse_config_tail(CONF_VERSION, line);
+                asprintf(&a.version, "%s", t);
+                free(t);
+            }
             else if (!strncmp(CONF_KEY, line, strlen(CONF_KEY)) && isspace((unsigned char)line[strlen(CONF_KEY)]))
             {
                 char *k = parse_config_tail(CONF_KEY, line);
@@ -194,7 +210,7 @@ end_line:
                     a.compress = false;
                     break;
                 case 'b':
-                    a.version = strdup(optarg);
+                    asprintf(&a.version, "%s", optarg);
                     break;
                 case 'f':
                     a.follow = true;
