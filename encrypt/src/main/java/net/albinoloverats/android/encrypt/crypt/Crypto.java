@@ -26,6 +26,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
 
@@ -76,6 +77,7 @@ public abstract class Crypto extends Service implements Runnable
 
     private Thread process;
     private Thread notification;
+    private PowerManager.WakeLock wakeLock;
 
     private String actionTitle;
 
@@ -117,6 +119,10 @@ public abstract class Crypto extends Service implements Runnable
 
         if (status == Status.INIT)
         {
+            final PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, actionTitle);
+            wakeLock.acquire();
+
             process = new Thread(this);
             process.start();
             notification = new Thread()
@@ -177,6 +183,8 @@ public abstract class Crypto extends Service implements Runnable
             notification.interrupt();
             process.interrupt();
         }
+        if (wakeLock.isHeld())
+            wakeLock.release();
         super.onDestroy();
     }
 

@@ -540,9 +540,11 @@ public class Main extends Activity
             case DOUBLE_PROGRESS_DIALOG:
                 doubleProgressDialog = new DoubleProgressDialog(Main.this);
                 doubleProgressDialog.setMessage(getString(R.string.please_wait));
-                doubleProgressDialog.setOnCancelListener(new OnCancelListener() {
+                doubleProgressDialog.setOnCancelListener(new OnCancelListener()
+                {
                     @Override
-                    public void onCancel(final DialogInterface dialog) {
+                    public void onCancel(final DialogInterface dialog)
+                    {
                         messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.DONE.value, Status.CANCELLED.message));
                         stopService(new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class));
                     }
@@ -605,9 +607,9 @@ public class Main extends Activity
 
             if (status == Status.INIT || status == Status.RUNNING)
             {
-                messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.CURRENT.value, (int) currentSize, (int) currentOffset));
+                messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.CURRENT.value, (int)currentSize, (int)currentOffset));
                 if (totalSize != currentSize && totalSize > 1)
-                    messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.TOTAL.value, (int) totalSize, (int) totalOffset));
+                    messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.TOTAL.value, (int)totalSize, (int)totalOffset));
                 else
                     messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.TOTAL.value, -1, -1));
             }
