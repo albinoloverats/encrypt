@@ -32,6 +32,7 @@ import net.albinoloverats.android.encrypt.crypt.Status;
 import net.albinoloverats.android.encrypt.crypt.Version;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -67,14 +68,15 @@ public class Main extends Activity
 {
     private static final int DOUBLE_PROGRESS_DIALOG = 1;
 
-    private static Context context;
+    private static Context context; /* used for Status messages */
 
     private Set<String> cipherNames;
     private Set<String> hashNames;
     private Set<String> modeNames;
 
-    private DoubleProgressDialog dProgressDialog;
+    private DoubleProgressDialog doubleProgressDialog;
     private ProgressReceiver progressReceiver;
+    private MessageHandler messageHandler;
 
     private boolean compress = true;
     private boolean follow = false;
@@ -335,8 +337,9 @@ public class Main extends Activity
     @Override
     protected void onStop()
     {
-        super.onStop();
         storePreferences();
+        ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancelAll();
+        super.onStop();
     }
 
     public static Context getContext()
@@ -535,18 +538,16 @@ public class Main extends Activity
         switch (id)
         {
             case DOUBLE_PROGRESS_DIALOG:
-                dProgressDialog = new DoubleProgressDialog(Main.this);
-                dProgressDialog.setMessage(getString(R.string.please_wait));
-                dProgressDialog.setOnCancelListener(new OnCancelListener()
-                {
+                doubleProgressDialog = new DoubleProgressDialog(Main.this);
+                doubleProgressDialog.setMessage(getString(R.string.please_wait));
+                doubleProgressDialog.setOnCancelListener(new OnCancelListener() {
                     @Override
-                    public void onCancel(final DialogInterface dialog)
-                    {
+                    public void onCancel(final DialogInterface dialog) {
+                        messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.DONE.value, Status.CANCELLED.message));
                         stopService(new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class));
-                        unregisterReceiver(progressReceiver);
                     }
                 });
-                return dProgressDialog;
+                return doubleProgressDialog;
             default:
                 return null;
         }
@@ -557,16 +558,16 @@ public class Main extends Activity
     {
         if (id == DOUBLE_PROGRESS_DIALOG)
         {
-            dProgressDialog.setMax(1);
-            dProgressDialog.setProgress(0);
-            dProgressDialog.setSecondaryMax(1);
-            dProgressDialog.setSecondaryProgress(0);
-
+            doubleProgressDialog.setMax(1);
+            doubleProgressDialog.setProgress(0);
+            doubleProgressDialog.setSecondaryMax(1);
+            doubleProgressDialog.setSecondaryProgress(0);
+            /* handle broadcasts from the service about progress */
             progressReceiver = new ProgressReceiver();
             final IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(getString(encrypting ? R.string.encrypting : R.string.decrypting));
             registerReceiver(progressReceiver, intentFilter);
-
+            messageHandler = new MessageHandler(this);
             /* kick off the actually cipher process */
             Intent intent = null;
             if (encrypting)
@@ -602,7 +603,6 @@ public class Main extends Activity
             final long totalSize     = intent.getLongExtra("total.size", 0L);
             final Status status      = Status.parseStatus(intent.getStringExtra("status"));
 
-            final MessageHandler messageHandler = new MessageHandler(Main.this);
             if (status == Status.INIT || status == Status.RUNNING)
             {
                 messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.CURRENT.value, (int) currentSize, (int) currentOffset));
@@ -612,10 +612,7 @@ public class Main extends Activity
                     messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.TOTAL.value, -1, -1));
             }
             else
-            {
                 messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.DONE.value, status.message));
-                unregisterReceiver(progressReceiver);
-            }
         }
     }
 
@@ -644,19 +641,20 @@ public class Main extends Activity
             case DONE:
                 dismissDialog(DOUBLE_PROGRESS_DIALOG);
                 Toast.makeText(getApplicationContext(), (String)msg.obj, Toast.LENGTH_LONG).show();
+                unregisterReceiver(progressReceiver);
                 break;
             case CURRENT:
-                dProgressDialog.setMax(msg.arg1);
-                dProgressDialog.setProgress(msg.arg2);
+                doubleProgressDialog.setMax(msg.arg1);
+                doubleProgressDialog.setProgress(msg.arg2);
                 break;
             case TOTAL:
                 if (msg.arg1 < 0 || msg.arg2 < 0)
-                    dProgressDialog.hideSecondaryProgress();
+                    doubleProgressDialog.hideSecondaryProgress();
                 else
                 {
-                    dProgressDialog.showSecondaryProgress();
-                    dProgressDialog.setSecondaryMax(msg.arg1);
-                    dProgressDialog.setSecondaryProgress(msg.arg2);
+                    doubleProgressDialog.showSecondaryProgress();
+                    doubleProgressDialog.setSecondaryMax(msg.arg1);
+                    doubleProgressDialog.setSecondaryProgress(msg.arg2);
                 }
                 break;
         }

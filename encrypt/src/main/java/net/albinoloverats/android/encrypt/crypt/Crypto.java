@@ -21,11 +21,13 @@
 package net.albinoloverats.android.encrypt.crypt;
 
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.widget.Toast;
 
 import gnu.crypto.hash.IMessageDigest;
 
@@ -37,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import net.albinoloverats.android.encrypt.Main;
 import net.albinoloverats.android.encrypt.R;
 import net.albinoloverats.android.encrypt.misc.Convert;
 
@@ -70,9 +73,6 @@ public abstract class Crypto extends Service implements Runnable
     protected Version version = Version.CURRENT;
 
     protected IMessageDigest checksum;
-
-    private NotificationManager notificationManager;
-    private NotificationCompat.Builder notificationBuilder;
 
     private Thread process;
     private Thread notification;
@@ -110,6 +110,11 @@ public abstract class Crypto extends Service implements Runnable
         notificationBuilder.setContentText(getString(R.string.please_wait));
         notificationBuilder.setSmallIcon(R.drawable.icon);
 
+        final Intent notificationIntent = new Intent(this, Main.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        notificationBuilder.setContentIntent(pendingIntent);
+
         if (status == Status.INIT)
         {
             process = new Thread(this);
@@ -123,7 +128,7 @@ public abstract class Crypto extends Service implements Runnable
                     {
                         try
                         {
-                            sleep(50);
+                            sleep(10);
                             if (isInterrupted())
                                 status = Status.CANCELLED;
                             if (status == Status.INIT)
@@ -169,18 +174,8 @@ public abstract class Crypto extends Service implements Runnable
     {
         if (status == Status.INIT || status == Status.RUNNING)
         {
-            status = Status.CANCELLED;
-            final Intent intent = new Intent();
-            intent.setAction(actionTitle);
-            intent.putExtra("current.offset", current.offset);
-            intent.putExtra("current.size", current.size);
-            intent.putExtra("total.offset", total.offset);
-            intent.putExtra("total.size", total.size);
-            notificationBuilder.setContentText(status.message);
-            notificationBuilder.setProgress(0, 0, false);
-            notificationManager.notify(0, notificationBuilder.build());
-            process.interrupt();
             notification.interrupt();
+            process.interrupt();
         }
         super.onDestroy();
     }
