@@ -1,5 +1,12 @@
+# desktop ignore
 bin
 gen
 pkg
+# common files we don’t use
 src/common/rand.c
 src/common/rand.h
+# android ignores
+.gradle
+.idea
+local.properties
+build
