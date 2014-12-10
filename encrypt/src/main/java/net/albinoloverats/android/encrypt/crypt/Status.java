@@ -52,4 +52,12 @@ public enum Status
     {
         this.message = Main.getContext().getString(message);
     }
+
+    public static Status parseStatus(final String s)
+    {
+        for (final Status status : Status.values())
+            if (status.name().equals(s))
+                return status;
+        return null;
+    }
 }

@@ -20,6 +20,8 @@
 
 package net.albinoloverats.android.encrypt.crypt;
 
+import android.content.Intent;
+
 import gnu.crypto.mode.ModeFactory;
 import gnu.crypto.util.PRNG;
 
@@ -54,9 +56,19 @@ public class Encrypt extends Crypto
     private Map<Long, Path> inodes = new HashMap<Long, Path>();
      */
 
-    public Encrypt(final String source, final String output, final String cipher, final String hash, final String mode, final boolean raw, final boolean compress, final boolean follow, final Version version) throws CryptoProcessException
+    @Override
+    public int onStartCommand(final Intent intent, final int flags, final int startId)
     {
-        super();
+        final String source = intent.getStringExtra("source");
+        final String output = intent.getStringExtra("output");
+        cipher       = intent.getStringExtra("cipher");
+        hash         = intent.getStringExtra("hash");
+        mode         = intent.getStringExtra("mode");
+        key          = intent.getByteArrayExtra("key");
+        raw          = intent.getBooleanExtra("raw", raw);
+        compressed   = intent.getBooleanExtra("compress", compressed);
+        follow_links = intent.getBooleanExtra("follow", follow_links);
+        version      = Version.parseMagicNumber(intent.getLongExtra("version", Version.CURRENT.magicNumber), Version.CURRENT);
 
         try
         {
@@ -73,61 +85,53 @@ public class Encrypt extends Crypto
                 path = source;
             }
             else
-                throw new CryptoProcessException(Status.FAILED_IO);
+                status = Status.FAILED_IO;
             final File out = new File(output);
             if (out.isFile())
                 this.output = new EncryptedFileOutputStream(out);
             else if (out.isDirectory())
                 this.output = new EncryptedFileOutputStream(new File(out.getAbsolutePath() + File.separatorChar + name + ".X"));
             else
-                throw new CryptoProcessException(Status.FAILED_IO);
+                status = Status.FAILED_IO;
         }
         catch (final FileNotFoundException e)
         {
-            throw new CryptoProcessException(Status.FAILED_IO, e);
+            status = Status.FAILED_IO;
         }
 
-        this.cipher = cipher;
-        this.hash = hash;
-        this.mode = mode;
-
-        if ((this.raw = raw))
-            this.version = Version.CURRENT;
-        else
-            this.version = version;
-
-        compressed = compress;
-        follow_links = follow;
+        if (raw)
+            version = Version._201406;
 
         switch (this.version)
         {
             // see src/encrypt.c for information/comments
             case _201108:
             case _201110:
-                this.version = Version._201108;
+                version = Version._201108;
                 compressed = false;
             case _201211:
                 if (directory)
-                    throw new CryptoProcessException(Status.FAILURE_COMPATIBILITY);
+                    status = Status.FAILURE_COMPATIBILITY;
                 if (!compressed)
-                    this.version = Version._201108;
+                    version = Version._201108;
                 break;
             case _201302:
                 follow_links = false;
             case _201311:
-                this.mode = ModeFactory.CBC_MODE;
+                mode = ModeFactory.CBC_MODE;
                 break;
             case _201406:
             case CURRENT:
                 break;
         }
+
+        intent.putExtra("encrypting", true);
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     protected void process() throws CryptoProcessException
     {
-        if (key == null)
-            throw new CryptoProcessException(Status.FAILED_KEY);
         try
         {
             status = Status.RUNNING;

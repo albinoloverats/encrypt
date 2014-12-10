@@ -20,6 +20,8 @@
 
 package net.albinoloverats.android.encrypt.crypt;
 
+import android.content.Intent;
+
 import gnu.crypto.mode.ModeFactory;
 
 import java.io.File;
@@ -39,9 +41,13 @@ import org.tukaani.xz.XZInputStream;
 
 public class Decrypt extends Crypto
 {
-    public Decrypt(final String source, final String output, final String cipher, final String hash, final String mode, final boolean raw) throws CryptoProcessException
+    @Override
+    public int onStartCommand(final Intent intent, final int flags, final int startId)
     {
-        super();
+        final String source = intent.getStringExtra("source");
+        final String output = intent.getStringExtra("output");
+        key = intent.getByteArrayExtra("key");
+        raw  = intent.getBooleanExtra("raw", raw);
 
         try
         {
@@ -56,21 +62,22 @@ public class Decrypt extends Crypto
         }
         catch (final FileNotFoundException e)
         {
-            throw new CryptoProcessException(Status.FAILED_IO, e);
+            status = Status.FAILED_IO;
         }
-        if ((this.raw = raw))
+        if (raw)
         {
-            this.cipher = cipher;
-            this.hash = hash;
-            this.mode = mode;
+            cipher = intent.getStringExtra("cipher");
+            hash   = intent.getStringExtra("hash");
+            mode   = intent.getStringExtra("mode");
         }
+
+        intent.putExtra("encrypting", false);
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     protected void process() throws CryptoProcessException
     {
-        if (key == null)
-            throw new CryptoProcessException(Status.FAILED_KEY);
         try
         {
             status = Status.RUNNING;

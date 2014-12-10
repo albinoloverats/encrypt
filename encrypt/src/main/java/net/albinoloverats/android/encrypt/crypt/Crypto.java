@@ -20,6 +20,13 @@
 
 package net.albinoloverats.android.encrypt.crypt;
 
+import android.app.NotificationManager;
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
+import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
+
 import gnu.crypto.hash.IMessageDigest;
 
 import java.io.ByteArrayOutputStream;
@@ -30,9 +37,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import net.albinoloverats.android.encrypt.R;
 import net.albinoloverats.android.encrypt.misc.Convert;
 
-public abstract class Crypto extends Thread implements Runnable
+public abstract class Crypto extends Service implements Runnable
 {
     protected static final long[] HEADER = { 0x3697de5d96fca0faL, 0xc845c2fa95e2f52dL, Version.CURRENT.magicNumber };
 
@@ -63,6 +71,14 @@ public abstract class Crypto extends Thread implements Runnable
 
     protected IMessageDigest checksum;
 
+    private NotificationManager notificationManager;
+    private NotificationCompat.Builder notificationBuilder;
+
+    private Thread process;
+    private Thread notification;
+
+    private String actionTitle;
+
     @Override
     public void run()
     {
@@ -77,6 +93,103 @@ public abstract class Crypto extends Thread implements Runnable
     }
 
     abstract protected void process() throws CryptoProcessException;
+
+    @Override
+    public int onStartCommand(final Intent intent, final int flags, final int startId)
+    {
+        if (intent.getBooleanExtra("key_file", false))
+            setKey(intent.getStringExtra("key"));
+        else
+            key = intent.getByteArrayExtra("key");
+
+        actionTitle = getString(intent.getBooleanExtra("encrypting", true) ? R.string.encrypting : R.string.decrypting);
+
+        final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        final NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getBaseContext());
+        notificationBuilder.setContentTitle(actionTitle);
+        notificationBuilder.setContentText(getString(R.string.please_wait));
+        notificationBuilder.setSmallIcon(R.drawable.icon);
+
+        if (status == Status.INIT)
+        {
+            process = new Thread(this);
+            process.start();
+            notification = new Thread()
+            {
+                @Override
+                public void run()
+                {
+                    do
+                    {
+                        try
+                        {
+                            sleep(50);
+                            if (isInterrupted())
+                                status = Status.CANCELLED;
+                            if (status == Status.INIT)
+                                continue;
+                            final Intent intent = new Intent();
+                            intent.setAction(actionTitle);
+                            intent.putExtra("current.offset", current.offset);
+                            intent.putExtra("current.size", current.size);
+                            intent.putExtra("total.offset", total.offset);
+                            intent.putExtra("total.size", total.size);
+                            intent.putExtra("status", status.name());
+                            sendBroadcast(intent);
+                            notificationBuilder.setContentText("" + total.offset + "/" + total.size);
+                            notificationBuilder.setProgress(100, (int) (100.0 * current.offset / current.size), false);
+                            notificationManager.notify(0, notificationBuilder.build());
+                        }
+                        catch (final InterruptedException e)
+                        {
+                            status = Status.CANCELLED;
+                        }
+                    }
+                    while (status == Status.RUNNING);
+
+                    final Intent intent = new Intent();
+                    intent.setAction(actionTitle);
+                    intent.putExtra("current.offset", current.offset);
+                    intent.putExtra("current.size", current.size);
+                    intent.putExtra("total.offset", total.offset);
+                    intent.putExtra("total.size", total.size);
+                    notificationBuilder.setContentText(status.message);
+                    notificationBuilder.setProgress(0, 0, false);
+                    notificationManager.notify(0, notificationBuilder.build());
+                }
+            };
+            notification.start();
+        }
+
+        return START_STICKY;
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        if (status == Status.INIT || status == Status.RUNNING)
+        {
+            status = Status.CANCELLED;
+            final Intent intent = new Intent();
+            intent.setAction(actionTitle);
+            intent.putExtra("current.offset", current.offset);
+            intent.putExtra("current.size", current.size);
+            intent.putExtra("total.offset", total.offset);
+            intent.putExtra("total.size", total.size);
+            notificationBuilder.setContentText(status.message);
+            notificationBuilder.setProgress(0, 0, false);
+            notificationManager.notify(0, notificationBuilder.build());
+            process.interrupt();
+            notification.interrupt();
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    public IBinder onBind(final Intent arg0)
+    {
+        return null;
+    }
 
     public static boolean fileEncrypted(final String path)
     {
@@ -107,35 +220,6 @@ public abstract class Crypto extends Thread implements Runnable
         }
     }
 
-    public void setKey(final Object k) throws CryptoProcessException
-    {
-        if (k instanceof File)
-        {
-            FileInputStream f = null;
-            ByteArrayOutputStream b = new ByteArrayOutputStream();
-            try
-            {
-                File file = (File)k;
-                f = new FileInputStream(file);
-                key = new byte[(int)file.length()];
-                f.read(key);
-            }
-            catch (final IOException e)
-            {
-                throw new CryptoProcessException(Status.FAILED_KEY, e);
-            }
-            finally
-            {
-                closeIgnoreException(f);
-                closeIgnoreException(b);
-            }
-        }
-        else if (k instanceof byte[])
-            key = (byte[])k;
-        else
-            throw new CryptoProcessException(Status.FAILED_KEY);
-    }
-
     protected static void closeIgnoreException(final Closeable c)
     {
         try
@@ -146,6 +230,28 @@ public abstract class Crypto extends Thread implements Runnable
         catch (final IOException ignored)
         {
             ;
+        }
+    }
+
+    private void setKey(final String k)
+    {
+        FileInputStream f = null;
+        ByteArrayOutputStream b = new ByteArrayOutputStream();
+        try
+        {
+            final File file = new File(k);
+            f = new FileInputStream(file);
+            key = new byte[(int)file.length()];
+            f.read(key);
+        }
+        catch (final IOException e)
+        {
+            status = Status.FAILED_KEY;
+        }
+        finally
+        {
+            closeIgnoreException(f);
+            closeIgnoreException(b);
         }
     }
 }

@@ -20,13 +20,11 @@
 
 package net.albinoloverats.android.encrypt;
 
-import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Set;
 
 import net.albinoloverats.android.encrypt.crypt.Crypto;
-import net.albinoloverats.android.encrypt.crypt.CryptoProcessException;
 import net.albinoloverats.android.encrypt.crypt.CryptoUtils;
 import net.albinoloverats.android.encrypt.crypt.Decrypt;
 import net.albinoloverats.android.encrypt.crypt.Encrypt;
@@ -34,20 +32,17 @@ import net.albinoloverats.android.encrypt.crypt.Status;
 import net.albinoloverats.android.encrypt.crypt.Version;
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
-import android.support.v4.app.NotificationCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -79,7 +74,7 @@ public class Main extends Activity
     private Set<String> modeNames;
 
     private DoubleProgressDialog dProgressDialog;
-    private ProgressThread progressThread;
+    private ProgressReceiver progressReceiver;
 
     private boolean compress = true;
     private boolean follow = false;
@@ -344,6 +339,11 @@ public class Main extends Activity
         storePreferences();
     }
 
+    public static Context getContext()
+    {
+        return context;
+    }
+
     private void storePreferences()
     {
         final SharedPreferences.Editor editor = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), 0).edit();
@@ -482,6 +482,53 @@ public class Main extends Activity
         }
     }
 
+    private void checkEnableButtons()
+    {
+        final Spinner cSpinner  = (Spinner)findViewById(R.id.spin_crypto);
+        final Spinner hSpinner  = (Spinner)findViewById(R.id.spin_hash);
+        final Spinner mSpinner  = (Spinner)findViewById(R.id.spin_mode);
+        final EditText password = (EditText)findViewById(R.id.text_password);
+        final Button keyButton  = (Button)findViewById(R.id.button_key);
+        final Button encButton  = (Button)findViewById(R.id.button_go);
+
+        hSpinner.setEnabled(false);
+        cSpinner.setEnabled(false);
+        mSpinner.setEnabled(false);
+        password.setEnabled(false);
+        keyButton.setEnabled(false);
+        encButton.setEnabled(false);
+
+        // update encryption button text
+        if (filenameIn != null)
+            encrypting = !Crypto.fileEncrypted(filenameIn);
+        if (encrypting)
+        {
+            encButton.setText(R.string.encrypt);
+            if (filenameIn != null && filenameOut != null)
+            {
+                cSpinner.setEnabled(true);
+                hSpinner.setEnabled(true);
+                mSpinner.setEnabled(true);
+                if (cipher != null && hash != null && mode != null)
+                {
+                    password.setEnabled(true);
+                    keyButton.setEnabled(true);
+                }
+            }
+        }
+        else
+        {
+            encButton.setText(R.string.decrypt);
+            if (filenameIn != null && filenameOut != null)
+            {
+                password.setEnabled(true);
+                keyButton.setEnabled(true);
+            }
+        }
+        if (this.password != null || key != null)
+            encButton.setEnabled(true);
+    }
+
     @Override
     protected Dialog onCreateDialog(final int id)
     {
@@ -495,7 +542,8 @@ public class Main extends Activity
                     @Override
                     public void onCancel(final DialogInterface dialog)
                     {
-                        progressThread.interrupt();
+                        stopService(new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class));
+                        unregisterReceiver(progressReceiver);
                     }
                 });
                 return dProgressDialog;
@@ -513,21 +561,69 @@ public class Main extends Activity
             dProgressDialog.setProgress(0);
             dProgressDialog.setSecondaryMax(1);
             dProgressDialog.setSecondaryProgress(0);
-            progressThread = new ProgressThread(new StaticMessageHandler(this));
-            progressThread.start();
+
+            progressReceiver = new ProgressReceiver();
+            final IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(getString(encrypting ? R.string.encrypting : R.string.decrypting));
+            registerReceiver(progressReceiver, intentFilter);
+
+            /* kick off the actually cipher process */
+            Intent intent = null;
+            if (encrypting)
+                intent = new Intent(getBaseContext(), Encrypt.class);
+            else
+                intent = new Intent(getBaseContext(), Decrypt.class);
+            intent.putExtra("source", filenameIn);
+            intent.putExtra("output", filenameOut);
+            intent.putExtra("cipher", cipher);
+            intent.putExtra("hash", hash);
+            intent.putExtra("mode", mode);
+            intent.putExtra("key_file", key_file);
+            if (key_file)
+                intent.putExtra("key", key);
+            else
+                intent.putExtra("key", password.getBytes());
+            intent.putExtra("raw", raw);
+            intent.putExtra("compress", compress);
+            intent.putExtra("follow", follow);
+            intent.putExtra("version", Version.CURRENT.magicNumber);
+            startService(intent);
         }
     }
 
-    public static Context getContext()
+    private class ProgressReceiver extends BroadcastReceiver
     {
-        return context;
+        @Override
+        public void onReceive(final Context ctx, final Intent intent)
+        {
+            final long currentOffset = intent.getLongExtra("current.offset", 0L);
+            final long currentSize   = intent.getLongExtra("current.size", 0L);
+            final long totalOffset   = intent.getLongExtra("total.offset", 0L);
+            final long totalSize     = intent.getLongExtra("total.size", 0L);
+            final Status status      = Status.parseStatus(intent.getStringExtra("status"));
+
+            final MessageHandler messageHandler = new MessageHandler(Main.this);
+            if (status == Status.INIT || status == Status.RUNNING)
+            {
+                messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.CURRENT.value, (int) currentSize, (int) currentOffset));
+                if (totalSize != currentSize && totalSize > 1)
+                    messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.TOTAL.value, (int) totalSize, (int) totalOffset));
+                else
+                    messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.TOTAL.value, -1, -1));
+            }
+            else
+            {
+                messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.DONE.value, status.message));
+                unregisterReceiver(progressReceiver);
+            }
+        }
     }
 
-    private static class StaticMessageHandler extends Handler
+    private static class MessageHandler extends Handler
     {
         private WeakReference<Main> reference;
 
-        public StaticMessageHandler(final Main service)
+        public MessageHandler(final Main service)
         {
             reference = new WeakReference<Main>(service);
         }
@@ -563,133 +659,6 @@ public class Main extends Activity
                     dProgressDialog.setSecondaryProgress(msg.arg2);
                 }
                 break;
-        }
-    }
-
-    private void checkEnableButtons()
-    {
-        final Spinner cSpinner = (Spinner)findViewById(R.id.spin_crypto);
-        final Spinner hSpinner = (Spinner)findViewById(R.id.spin_hash);
-        final Spinner mSpinner = (Spinner)findViewById(R.id.spin_mode);
-        final EditText passwd = (EditText)findViewById(R.id.text_password);
-        final Button keyButton = (Button)findViewById(R.id.button_key);
-        final Button encButton = (Button)findViewById(R.id.button_go);
-
-        hSpinner.setEnabled(false);
-        cSpinner.setEnabled(false);
-        mSpinner.setEnabled(false);
-        passwd.setEnabled(false);
-        keyButton.setEnabled(false);
-        encButton.setEnabled(false);
-
-        // update encryption button text
-        if (filenameIn != null)
-            encrypting = !Crypto.fileEncrypted(filenameIn);
-        if (encrypting)
-        {
-            encButton.setText(R.string.encrypt);
-            if (filenameIn != null && filenameOut != null)
-            {
-                cSpinner.setEnabled(true);
-                hSpinner.setEnabled(true);
-                mSpinner.setEnabled(true);
-                if (cipher != null && hash != null && mode != null)
-                {
-                    passwd.setEnabled(true);
-                    keyButton.setEnabled(true);
-                }
-            }
-        }
-        else
-        {
-            encButton.setText(R.string.decrypt);
-            if (filenameIn != null && filenameOut != null)
-            {
-                passwd.setEnabled(true);
-                keyButton.setEnabled(true);
-            }
-        }
-        if (password != null || key != null)
-            encButton.setEnabled(true);
-    }
-
-    private class ProgressThread extends Thread
-    {
-        private final Handler mHandler;
-
-        private ProgressThread(final Handler h)
-        {
-            mHandler = h;
-        }
-
-        @Override
-        public void run()
-        {
-            Status s = null;
-            Crypto c = null;
-
-            final PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-            final WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "encryptLock");
-            wakeLock.acquire();
-
-            final NotificationManager mNotifyManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-            final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(Main.this);
-            mBuilder.setContentTitle(getString(encrypting ? R.string.encrypting : R.string.decrypting));
-            mBuilder.setContentText(getString(R.string.please_wait));
-            mBuilder.setSmallIcon(R.drawable.icon);
-            //mBuilder.setContentIntent(PendingIntent.getActivity(getContext(), 0, new Intent(getContext(), Main.class), 0));
-
-            try
-            {
-                c = encrypting ? new Encrypt(filenameIn, filenameOut, cipher, hash, mode, raw, compress, follow, version) : new Decrypt(filenameIn, filenameOut, cipher, hash, mode, raw);
-                c.setKey(key_file ? new File(key) : password.getBytes());
-                c.start();
-
-                do
-                {
-                    sleep(50);
-                    if (isInterrupted())
-                        c.status = Status.CANCELLED;
-                    if (c.status == Status.INIT)
-                        continue;
-
-                    mHandler.sendMessage(mHandler.obtainMessage(ProgressUpdate.CURRENT.value, (int)c.current.size, (int)c.current.offset));
-                    if (c.total.size != c.current.size && c.total.size > 1)
-                        mHandler.sendMessage(mHandler.obtainMessage(ProgressUpdate.TOTAL.value, (int) c.total.size, (int) c.total.offset));
-                    else
-                        mHandler.sendMessage(mHandler.obtainMessage(ProgressUpdate.TOTAL.value, -1, -1));
-                    mBuilder.setContentText("" + c.total.offset + "/" + c.total.size);
-                    mBuilder.setProgress(100, (int)(100.0 * c.current.offset / c.current.size), false);
-                    mNotifyManager.notify(0, mBuilder.build());
-                }
-                while (c.status == Status.INIT || c.status == Status.RUNNING);
-            }
-            catch (final InterruptedException e)
-            {
-                c.status = Status.CANCELLED;
-            }
-            catch (final CryptoProcessException e)
-            {
-                s = e.code;
-            }
-            catch (final Throwable t)
-            {
-                s = Status.FAILED_OTHER;
-                if (c != null)
-                    c.status = s;
-            }
-            finally
-            {
-                wakeLock.release();
-            }
-
-            if (c != null)
-                s = c.status;
-
-            mHandler.sendMessage(mHandler.obtainMessage(ProgressUpdate.DONE.value, s.message));
-            mBuilder.setContentText(s.message);
-            mBuilder.setProgress(0, 0, false);
-            mNotifyManager.notify(0, mBuilder.build());
         }
     }
 }
