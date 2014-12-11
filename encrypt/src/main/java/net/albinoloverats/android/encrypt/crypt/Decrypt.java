@@ -53,11 +53,10 @@ public class Decrypt extends Crypto
         {
             final File in = new File(source);
             this.source = new EncryptedFileInputStream(in);
-            name = in.getName(); // TODO strip extension
+            name = in.getName();
             final File out = new File(output);
-            if (out.exists())
-                if (!(directory = out.isDirectory()))
-                    this.output = new FileOutputStream(output);
+            if (out.exists() && !out.isDirectory())
+                this.output = new FileOutputStream(output);
             path = output;
         }
         catch (final FileNotFoundException e)
