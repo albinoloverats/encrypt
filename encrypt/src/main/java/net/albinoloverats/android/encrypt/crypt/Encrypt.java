@@ -264,7 +264,7 @@ public class Encrypt extends Crypto
         output.write(Convert.toBytes((short)(Byte.SIZE / Byte.SIZE)));
         output.write(Convert.toBytes(directory));
 
-        if (!directory && name != null && version.compareTo(Version._201211) >= 0)
+        if (!directory && name != null && version.compareTo(Version._201501) >= 0)
         {
             output.write(Convert.toBytes((byte)Tag.FILENAME.value));
             output.write(Convert.toBytes((short)name.length()));
