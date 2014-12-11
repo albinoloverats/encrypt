@@ -250,7 +250,7 @@ public class Decrypt extends Crypto
         }
         else
         {
-            if (!f.exists())
+            if (!f.exists() || f.isFile())
                 output = new FileOutputStream(f);
             else if (f.isDirectory())
                 output = new FileOutputStream(f.getAbsolutePath() + File.separatorChar + (name != null ? name : "decrypted"));
