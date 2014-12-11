@@ -392,8 +392,6 @@ static bool read_metadata(crypto_t *c)
 
     c->compressed = tlv_has_tag(tlv, TAG_COMPRESSED) ? *tlv_value_of(tlv, TAG_COMPRESSED) : false;
     c->directory = tlv_has_tag(tlv, TAG_DIRECTORY) ? *tlv_value_of(tlv, TAG_DIRECTORY) : false;
-    if (!c->name)
-        c->name = tlv_has_tag(tlv, TAG_FILENAME) ? strndup((char *)tlv_value_of(tlv, TAG_FILENAME), tlv_size_of(tlv, TAG_FILENAME)) : NULL;
     if (c->directory)
     {
         struct stat s;
@@ -407,6 +405,14 @@ static bool read_metadata(crypto_t *c)
     {
         if (!io_is_initialised(c->output))
         {
+            /* directory was specified, but we're not decrypting a directory */
+            if (tlv_has_tag(tlv, TAG_FILENAME))
+            {
+                /* use what's in the metadata (if it's there) */
+                if (c->name)
+                    free(c->name);
+                c->name = strndup((char *)tlv_value_of(tlv, TAG_FILENAME), tlv_size_of(tlv, TAG_FILENAME));
+            }
             io_release(c->output);
             struct stat s;
             stat(c->path, &s);
@@ -414,8 +420,10 @@ static bool read_metadata(crypto_t *c)
                 ;
             else if (S_ISDIR(s.st_mode))
             {
+                char *ptr = NULL;
+                asprintf(&ptr, "%s/%s", c->path, c->name ? : "decrypted");
                 free(c->path);
-                asprintf(&c->path, "%s/%s", c->path, c->name ? : "decrypted");
+                c->path = ptr;
             }
             else
                 c->status = STATUS_FAILED_OUTPUT_MISMATCH;

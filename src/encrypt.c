@@ -465,7 +465,7 @@ static inline void write_metadata(crypto_t *c)
         tlv_t t = { TAG_DIRECTORY, sizeof b, &b };
         tlv_append(&tlv, t);
     }
-    if (!c->directory && c->name && c->version >= VERSION_2012_11)
+    if (!c->directory && c->name && c->version >= VERSION_2015_01)
     {   /* after 2012.11 unknown tags are ignored, and this tag doesn't impact anything */
         tlv_t t = { TAG_FILENAME, strlen(c->name), c->name };
         tlv_append(&tlv, t);
