@@ -214,7 +214,8 @@ extern crypto_t *encrypt_init(const char * const restrict i,
         case VERSION_2012_11:
             /* allow compression, but not directories */
             if (z->source == IO_UNINITIALISED)
-                die(_("Compatibility with version %s does not allow encrypting directories"), get_version_string(z->version));
+	    		return z->status = STATUS_FAILED_OUTPUT_MISMATCH , z;
+                //die(_("Compatibility with version %s does not allow encrypting directories"), get_version_string(z->version));
             /* if not compressing, fallback even more */
             if (!z->compressed)
                 z->version = VERSION_2011_08;
@@ -223,6 +224,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 
         case VERSION_2013_02:
             z->follow_links = true;
+            /* allow fall-through to force CBC mode */
         case VERSION_2013_11:
             z->mode = mode_id_from_name("CBC");
             break;
@@ -230,6 +232,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
             /* fall back if using CBC */
             if (z->mode == GCRY_CIPHER_MODE_CBC)
                 z->version = VERSION_2013_11;
+            break;
         case VERSION_2015_01:
         //case VERSION_CURRENT:
             /*
