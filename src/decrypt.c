@@ -441,10 +441,13 @@ static void skip_random_data(crypto_t *c)
     uint8_t l;
     io_read(c->source, &l, sizeof l);
     uint8_t *b = gcry_malloc_secure(l);
-    if (!b)
-        die(_("Out of memory @ %s:%d:%s [%hhu]"), __FILE__, __LINE__, __func__, l);
-    io_read(c->source, b, l);
-    gcry_free(b);
+    if (l)
+    {
+        if (!b)
+            die(_("Out of memory @ %s:%d:%s [%hhu]"), __FILE__, __LINE__, __func__, l);
+        io_read(c->source, b, l);
+        gcry_free(b);
+    }
     return (void)c;
 }
 

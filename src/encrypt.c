@@ -481,7 +481,11 @@ static inline void write_random_data(crypto_t *c)
 {
     uint8_t l;
 #ifndef __DEBUG__
-    gcry_create_nonce(&l, sizeof l);
+    do
+    {
+        gcry_create_nonce(&l, sizeof l);
+    }
+    while (!l);
 #else
     l = 1; /* keep the same structure (include this junk) but limit it */
 #endif
