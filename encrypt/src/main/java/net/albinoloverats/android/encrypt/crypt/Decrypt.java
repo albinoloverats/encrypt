@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS) encryption utility
- * Copyright © 2005-2014, albinoloverats ~ Software Development
+ * Copyright © 2005-2015, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -101,6 +101,8 @@ public class Decrypt extends Crypto
                 case _201406:
                     ivType = XIV.SIMPLE;
                     break;
+                case _201501:
+                case CURRENT:
                 default:
             }
 

@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS) encryption utility
- * Copyright © 2005-2014, albinoloverats ~ Software Development
+ * Copyright © 2005-2015, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -100,7 +100,7 @@ public class Encrypt extends Crypto
         }
 
         if (raw)
-            version = Version._201406;
+            version = Version.CURRENT;
 
         switch (this.version)
         {
@@ -121,6 +121,7 @@ public class Encrypt extends Crypto
                 mode = ModeFactory.CBC_MODE;
                 break;
             case _201406:
+            case _201501:
             case CURRENT:
                 break;
         }

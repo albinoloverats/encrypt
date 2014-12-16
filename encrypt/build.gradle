@@ -7,8 +7,8 @@ android {
         applicationId 'net.albinoloverats.android.encrypt'
         minSdkVersion 4
         targetSdkVersion 19
-        versionCode 9
-        versionName '2014.XX-7'
+        versionCode 10
+        versionName '2015.01'
     }
     signingConfigs {
         release {
