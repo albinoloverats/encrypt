@@ -80,7 +80,7 @@ int main(int argc, char **argv)
      * NB If (When) encrypt makes it into a package manager for some
      * distros this can/should be removed as it will be unnecessary
      */
-    //version_check_for_update(ENCRYPT_VERSION, UPDATE_URL);
+    version_check_for_update(ENCRYPT_VERSION, UPDATE_URL);
 
     /*
      * list available algorithms if asked to (possibly both hash and
@@ -107,18 +107,20 @@ int main(int argc, char **argv)
     GtkBuilder *builder;
     GError *error = NULL;
 
-#if 0
-    bool fe = false;
-#endif
     if (args.source)
     {
-        free(args.cipher);
-        free(args.hash);
-        free(args.mode);
-#if 0
-        fe =
-#endif
-        is_encrypted(args.source, &args.cipher, &args.hash, &args.mode);
+        char *c = malloc(0);
+        char *h = malloc(0);
+        char *m = malloc(0);
+        if (is_encrypted(args.source, &c, &h, &m))
+        {
+            free(args.cipher);
+            free(args.hash);
+            free(args.mode);
+            args.cipher = c;
+            args.hash = h;
+            args.mode = m;
+        }
     }
  #ifndef _WIN32
     struct stat n;
@@ -128,14 +130,6 @@ int main(int argc, char **argv)
 
     if (args.nogui)
       ;
-  #if 0 /* currently causing problems */
-    if (fe || (args.hash && args.cipher && args.mode && (args.source || args.output)) || args.nogui)
-        ; /* user has given enough arguments on command line that we’ll skip the gui */
-    else if (!isatty(STDIN_FILENO) && (S_ISREG(n.st_mode) || S_ISFIFO(n.st_mode)))
-        ; /* stdin is a redirect from a file or a pipe */
-    else if (!isatty(STDOUT_FILENO) && (S_ISREG(t.st_mode) || S_ISFIFO(t.st_mode)))
-        ; /* stdout is a redirect to a file or a pipe */
-  #endif
     else
  #endif /* ! _WIN32 */
     if (gtk_init_check(&argc, &argv))
