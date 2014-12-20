@@ -109,9 +109,10 @@ int main(int argc, char **argv)
 
     if (args.source)
     {
-        char *c = malloc(0);
-        char *h = malloc(0);
-        char *m = malloc(0);
+        char *ptr = malloc(0);
+        char *c = ptr;
+        char *h = ptr;
+        char *m = ptr;
         if (is_encrypted(args.source, &c, &h, &m))
         {
             free(args.cipher);
@@ -121,6 +122,7 @@ int main(int argc, char **argv)
             args.hash = h;
             args.mode = m;
         }
+        free(ptr);
     }
  #ifndef _WIN32
     struct stat n;
