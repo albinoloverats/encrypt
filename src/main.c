@@ -133,133 +133,140 @@ int main(int argc, char **argv)
     if (args.nogui)
       ;
     else
- #endif /* ! _WIN32 */
-    if (gtk_init_check(&argc, &argv))
     {
-        builder = gtk_builder_new();
+ #endif /* ! _WIN32 */
+
+        if (gtk_init_check(&argc, &argv))
+        {
+            builder = gtk_builder_new();
  #ifndef _WIN32
   #if !defined __DEBUG__ && !defined __DEBUG_GUI__
-        const char *glade_ui_file = GLADE_UI_FILE_DEFAULT;
+            const char *glade_ui_file = GLADE_UI_FILE_DEFAULT;
   #else
-        const char *glade_ui_file = GLADE_UI_FILE_BACKUP;
+            const char *glade_ui_file = GLADE_UI_FILE_BACKUP;
   #endif
  #else
-        char *glade_ui_file = calloc(MAX_PATH, sizeof( char ));
-        if (!glade_ui_file)
-            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, MAX_PATH);
+            char *glade_ui_file = calloc(MAX_PATH, sizeof( char ));
+            if (!glade_ui_file)
+                die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, MAX_PATH);
   #ifndef __DEBUG__
-        SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL, 0, glade_ui_file);
-        strcat(glade_ui_file, "\\");
+            SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL, 0, glade_ui_file);
+            strcat(glade_ui_file, "\\");
   #endif /* __DEBUG__ */
-        strcat(glade_ui_file, GLADE_UI_FILE_DEFAULT);
+            strcat(glade_ui_file, GLADE_UI_FILE_DEFAULT);
  #endif /* ! _WIN32 */
-        if (!gtk_builder_add_from_file(builder, glade_ui_file, &error))
-        {
-            fprintf(stderr, "%s", error->message);
-            g_error_free(error);
-            error = NULL;
-            if (!gtk_builder_add_from_file(builder, GLADE_UI_FILE_BACKUP, &error))
-                die(_("%s"), error->message);
-        }
+            if (!gtk_builder_add_from_file(builder, glade_ui_file, &error))
+            {
+                fprintf(stderr, "%s", error->message);
+                g_error_free(error);
+                error = NULL;
+                if (!gtk_builder_add_from_file(builder, GLADE_UI_FILE_BACKUP, &error))
+                    die(_("%s"), error->message);
+            }
  #ifdef _WIN32
-        free(glade_ui_file);
+            free(glade_ui_file);
  #endif
-        /*
-         * allocate widgets structure
-         */
-        widgets = g_slice_new(gtk_widgets_t);
-        /*
-         * get widgets from UI
-         */
-        CH_GET_WIDGET(builder, main_window, widgets);
-        CH_GET_WIDGET(builder, open_button, widgets);
-        CH_GET_WIDGET(builder, open_dialog, widgets);
-        CH_GET_WIDGET(builder, open_file_label, widgets);
-        CH_GET_WIDGET(builder, open_file_image, widgets);
-        CH_GET_WIDGET(builder, save_button, widgets);
-        CH_GET_WIDGET(builder, save_dialog, widgets);
-        CH_GET_WIDGET(builder, save_file_label, widgets);
-        CH_GET_WIDGET(builder, save_file_image, widgets);
-        CH_GET_WIDGET(builder, crypto_combo, widgets);
-        CH_GET_WIDGET(builder, hash_combo, widgets);
-        CH_GET_WIDGET(builder, mode_combo, widgets);
-        CH_GET_WIDGET(builder, password_entry, widgets);
-        CH_GET_WIDGET(builder, key_button, widgets);
-        CH_GET_WIDGET(builder, key_dialog, widgets);
-        CH_GET_WIDGET(builder, key_file_label, widgets);
-        CH_GET_WIDGET(builder, key_file_image, widgets);
-        CH_GET_WIDGET(builder, encrypt_button, widgets);
-        CH_GET_WIDGET(builder, status_bar, widgets);
-        CH_GET_WIDGET(builder, progress_dialog, widgets);
-        CH_GET_WIDGET(builder, progress_bar_total, widgets);
-        CH_GET_WIDGET(builder, progress_bar_current, widgets);
-        CH_GET_WIDGET(builder, progress_label, widgets);
-        CH_GET_WIDGET(builder, progress_cancel_button, widgets);
-        CH_GET_WIDGET(builder, progress_close_button, widgets);
-        CH_GET_WIDGET(builder, about_dialog, widgets);
-        CH_GET_WIDGET(builder, about_new_version_label, widgets);
-        CH_GET_WIDGET(builder, compress_menu_item, widgets);
-        CH_GET_WIDGET(builder, follow_menu_item, widgets);
-        CH_GET_WIDGET(builder, raw_menu_item, widgets);
-        CH_GET_WIDGET(builder, compat_menu, widgets);
-        CH_GET_WIDGET(builder, key_file_menu_item, widgets);
-        CH_GET_WIDGET(builder, key_password_menu_item, widgets);
-        CH_GET_WIDGET(builder, raw_encrypt_button, widgets);
-        CH_GET_WIDGET(builder, raw_decrypt_button, widgets);
+            /*
+             * allocate widgets structure
+             */
+            widgets = g_slice_new(gtk_widgets_t);
+            /*
+             * get widgets from UI
+             */
+            CH_GET_WIDGET(builder, main_window, widgets);
+            CH_GET_WIDGET(builder, open_button, widgets);
+            CH_GET_WIDGET(builder, open_dialog, widgets);
+            CH_GET_WIDGET(builder, open_file_label, widgets);
+            CH_GET_WIDGET(builder, open_file_image, widgets);
+            CH_GET_WIDGET(builder, save_button, widgets);
+            CH_GET_WIDGET(builder, save_dialog, widgets);
+            CH_GET_WIDGET(builder, save_file_label, widgets);
+            CH_GET_WIDGET(builder, save_file_image, widgets);
+            CH_GET_WIDGET(builder, crypto_combo, widgets);
+            CH_GET_WIDGET(builder, hash_combo, widgets);
+            CH_GET_WIDGET(builder, mode_combo, widgets);
+            CH_GET_WIDGET(builder, password_entry, widgets);
+            CH_GET_WIDGET(builder, key_button, widgets);
+            CH_GET_WIDGET(builder, key_dialog, widgets);
+            CH_GET_WIDGET(builder, key_file_label, widgets);
+            CH_GET_WIDGET(builder, key_file_image, widgets);
+            CH_GET_WIDGET(builder, encrypt_button, widgets);
+            CH_GET_WIDGET(builder, status_bar, widgets);
+            CH_GET_WIDGET(builder, progress_dialog, widgets);
+            CH_GET_WIDGET(builder, progress_bar_total, widgets);
+            CH_GET_WIDGET(builder, progress_bar_current, widgets);
+            CH_GET_WIDGET(builder, progress_label, widgets);
+            CH_GET_WIDGET(builder, progress_cancel_button, widgets);
+            CH_GET_WIDGET(builder, progress_close_button, widgets);
+            CH_GET_WIDGET(builder, about_dialog, widgets);
+            CH_GET_WIDGET(builder, about_new_version_label, widgets);
+            CH_GET_WIDGET(builder, compress_menu_item, widgets);
+            CH_GET_WIDGET(builder, follow_menu_item, widgets);
+            CH_GET_WIDGET(builder, raw_menu_item, widgets);
+            CH_GET_WIDGET(builder, compat_menu, widgets);
+            CH_GET_WIDGET(builder, key_file_menu_item, widgets);
+            CH_GET_WIDGET(builder, key_password_menu_item, widgets);
+            CH_GET_WIDGET(builder, raw_encrypt_button, widgets);
+            CH_GET_WIDGET(builder, raw_decrypt_button, widgets);
+            CH_GET_WIDGET(builder, abort_dialog, widgets);
+            CH_GET_WIDGET(builder, abort_message, widgets);
 
-        gtk_builder_connect_signals(builder, widgets);
-        g_object_unref(G_OBJECT(builder));
-        gtk_widget_show(widgets->main_window);
+            gtk_builder_connect_signals(builder, widgets);
+            g_object_unref(G_OBJECT(builder));
+            gtk_widget_show(widgets->main_window);
 
-        if (args.source)
-        {
- #ifndef _WIN32
-            if (args.source[0] != '/')
+            error_gui_init(widgets->abort_dialog, widgets->abort_message);
+
+            if (args.source)
             {
-                char *cwd = getcwd(NULL, 0);
-                asprintf(&gui_file_hack_source, "%s/%s", cwd, args.source);
-                free(cwd);
-            }
-            else
- #endif
-                gui_file_hack_source = strdup(args.source);
-            gtk_file_chooser_set_filename((GtkFileChooser *)widgets->open_dialog, gui_file_hack_source);
-        }
-        if (args.output)
-        {
  #ifndef _WIN32
-            if (args.output[0] != '/')
-            {
-                char *cwd = getcwd(NULL, 0);
-                asprintf(&gui_file_hack_output, "%s/%s", cwd, args.output);
-                free(cwd);
-            }
-            else
+                if (args.source[0] != '/')
+                {
+                    char *cwd = getcwd(NULL, 0);
+                    asprintf(&gui_file_hack_source, "%s/%s", cwd, args.source);
+                    free(cwd);
+                }
+                else
  #endif
-                gui_file_hack_output = strdup(args.output);
-            gtk_file_chooser_set_filename((GtkFileChooser *)widgets->save_dialog, gui_file_hack_output);
+                    gui_file_hack_source = strdup(args.source);
+                gtk_file_chooser_set_filename((GtkFileChooser *)widgets->open_dialog, gui_file_hack_source);
+            }
+            if (args.output)
+            {
+ #ifndef _WIN32
+                if (args.output[0] != '/')
+                {
+                    char *cwd = getcwd(NULL, 0);
+                    asprintf(&gui_file_hack_output, "%s/%s", cwd, args.output);
+                    free(cwd);
+                }
+                else
+ #endif
+                    gui_file_hack_output = strdup(args.output);
+                gtk_file_chooser_set_filename((GtkFileChooser *)widgets->save_dialog, gui_file_hack_output);
+            }
+            file_dialog_okay(NULL, widgets);
+
+            auto_select_algorithms(widgets, args.cipher, args.hash, args.mode);
+            set_compatibility_menu(widgets, args.version);
+            set_key_source_menu(widgets, args.key_source);
+
+            gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->compress_menu_item, args.compress);
+            gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->follow_menu_item, args.follow);
+            gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->raw_menu_item, args.raw);
+
+            set_raw_buttons(widgets, args.raw);
+            set_status_bar((GtkStatusbar *)widgets->status_bar, STATUS_BAR_READY);
+
+            gtk_main();
+
+            g_slice_free(gtk_widgets_t, widgets);
+
+            goto clean_up;
         }
-        file_dialog_okay(NULL, widgets);
-
-        auto_select_algorithms(widgets, args.cipher, args.hash, args.mode);
-        set_compatibility_menu(widgets, args.version);
-        set_key_source_menu(widgets, args.key_source);
-
-        gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->compress_menu_item, args.compress);
-        gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->follow_menu_item, args.follow);
-        gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->raw_menu_item, args.raw);
-
-        set_raw_buttons(widgets, args.raw);
-        set_status_bar((GtkStatusbar *)widgets->status_bar, STATUS_BAR_READY);
-
-        gtk_main();
-
-        g_slice_free(gtk_widgets_t, widgets);
-
-        goto clean_up;
+        else
+            fprintf(stderr, _("Could not create GUI - falling back to command line\n"));
     }
-    else
-        fprintf(stderr, _("Could not create GUI - falling back to command line\n"));
 #endif /* we couldn’t create the gui, so revert back to command line */
 
 #ifndef _WIN32 /* it’s GUI or nothing */

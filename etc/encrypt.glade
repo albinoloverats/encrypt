@@ -2,6 +2,123 @@
 <!-- Generated with glade 3.18.3 -->
 <interface>
   <requires lib="gtk+" version="3.0"/>
+  <object class="GtkDialog" id="abort_dialog">
+    <property name="width_request">128</property>
+    <property name="height_request">128</property>
+    <property name="can_focus">False</property>
+    <property name="border_width">8</property>
+    <property name="title" translatable="yes">Fatal Error!</property>
+    <property name="resizable">False</property>
+    <property name="window_position">center-on-parent</property>
+    <property name="default_width">160</property>
+    <property name="default_height">160</property>
+    <property name="icon_name">dialog-error</property>
+    <property name="type_hint">dialog</property>
+    <property name="skip_taskbar_hint">True</property>
+    <property name="skip_pager_hint">True</property>
+    <property name="deletable">False</property>
+    <property name="gravity">center</property>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="abort_dialog-vbox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="dialog-action_area1">
+            <property name="can_focus">False</property>
+            <property name="halign">center</property>
+            <property name="valign">center</property>
+            <property name="hexpand">True</property>
+            <property name="layout_style">center</property>
+            <child>
+              <object class="GtkButton" id="abort_button">
+                <property name="label">gtk-close</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+                <property name="use_stock">True</property>
+                <property name="always_show_image">True</property>
+                <signal name="clicked" handler="error_gui_close" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="box4">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
+            <property name="homogeneous">True</property>
+            <child>
+              <object class="GtkImage" id="abort_image">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="stock">gtk-dialog-error</property>
+                <property name="icon_size">6</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="abort_label">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+                <property name="label" translatable="yes">A fatal error has occurred; encrypt will now close</property>
+                <property name="justify">center</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="abort_message">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+                <property name="justify">center</property>
+                <property name="wrap">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
   <object class="GtkAboutDialog" id="about_dialog">
     <property name="width_request">320</property>
     <property name="height_request">240</property>
@@ -16,7 +133,6 @@
     <property name="type_hint">dialog</property>
     <property name="skip_taskbar_hint">True</property>
     <property name="skip_pager_hint">True</property>
-    <property name="has_resize_grip">False</property>
     <property name="program_name">encrypt</property>
     <property name="version">2015.01</property>
     <property name="copyright" translatable="yes">Copyright © 2004-2015, albinoloverats ~ Software Development</property>
@@ -101,7 +217,6 @@ http://www.everaldo.com/</property>
     <property name="skip_pager_hint">True</property>
     <property name="deletable">False</property>
     <property name="gravity">center</property>
-    <property name="has_resize_grip">False</property>
     <child>
       <object class="GtkBox" id="progress_dialog_vbox">
         <property name="visible">True</property>
@@ -179,14 +294,14 @@ processes your file</property>
           </packing>
         </child>
         <child>
-          <object class="GtkButton" id="progress_cancel_button">
-            <property name="label">gtk-cancel</property>
-            <property name="visible">True</property>
+          <object class="GtkButton" id="progress_close_button">
+            <property name="label">Done</property>
+            <property name="sensitive">False</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="halign">center</property>
             <property name="valign">center</property>
-            <property name="use_stock">True</property>
+            <property name="image">done_encrypt</property>
             <signal name="clicked" handler="on_progress_button_clicked" swapped="no"/>
           </object>
           <packing>
@@ -196,14 +311,14 @@ processes your file</property>
           </packing>
         </child>
         <child>
-          <object class="GtkButton" id="progress_close_button">
-            <property name="label">Done</property>
-            <property name="sensitive">False</property>
+          <object class="GtkButton" id="progress_cancel_button">
+            <property name="label">gtk-cancel</property>
+            <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="halign">center</property>
             <property name="valign">center</property>
-            <property name="image">done_encrypt</property>
+            <property name="use_stock">True</property>
             <signal name="clicked" handler="on_progress_button_clicked" swapped="no"/>
           </object>
           <packing>
@@ -230,7 +345,6 @@ processes your file</property>
     <property name="default_height">480</property>
     <property name="icon">/usr/share/pixmaps/encrypt.svg</property>
     <property name="gravity">center</property>
-    <property name="has_resize_grip">False</property>
     <signal name="destroy" handler="gtk_main_quit" swapped="no"/>
     <child>
       <object class="GtkBox" id="outer_box">
@@ -291,7 +405,6 @@ processes your file</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label">_Follow Symlinks</property>
-                        <property name="sensitive">True</property>
                         <property name="use_underline">True</property>
                         <signal name="toggled" handler="on_follow_toggle" swapped="no"/>
                       </object>
@@ -785,8 +898,8 @@ processes your file</property>
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
-                <property name="position">8</property>
                 <property name="padding">4</property>
+                <property name="position">8</property>
               </packing>
             </child>
           </object>

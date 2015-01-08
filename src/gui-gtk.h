@@ -74,6 +74,8 @@ typedef struct gtk_widgets_t
     GtkWidget *key_password_menu_item;
     GtkWidget *raw_encrypt_button;
     GtkWidget *raw_decrypt_button;
+    GtkWidget *abort_dialog;
+    GtkWidget *abort_message;
 }
 gtk_widgets_t;
 

@@ -32,11 +32,21 @@
 #include <stdint.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "error.h"
 
 #ifdef _WIN32
     #include "common/win32_ext.h"
+#endif
+
+#ifdef BUILD_GUI
+static void error_gui_alert(const char * const restrict);
+
+static GtkWidget *error_gui_window;
+static GtkWidget *error_gui_message;
+#else
+    #define error_gui_alert(X) (void)(X)
 #endif
 
 extern void die(const char * const restrict s, ...)
@@ -50,12 +60,14 @@ extern void die(const char * const restrict s, ...)
 #ifndef _WIN32
         vasprintf(&d, s, ap);
         fprintf(stderr, "%s", d);
+        error_gui_alert(d);
 #else
         uint8_t l = 0xFF;
         d = calloc(l, sizeof( uint8_t ));
         if (d)
             vsnprintf(d, l - 1, s, ap);
-        fprintf(stderr, d);
+        fprintf(stderr, "%s", d);
+        error_gui_alert(d);
         if (d)
             free(d);
 #endif
@@ -81,10 +93,44 @@ extern void die(const char * const restrict s, ...)
         }
 #endif
     }
-    /*
-     * TODO if running a GUI don’t necessarily exit without alerting the
-     * user first (Users seem to dislike applications just quitting for
-     * no apparent reason)
-     */
     exit(ex);
 }
+
+#ifdef BUILD_GUI
+extern void error_gui_init(GtkWidget *w, GtkWidget *m)
+{
+    error_gui_window = w;
+    error_gui_message = m;
+}
+
+extern void error_gui_close(GtkWidget *w)
+{
+    (void)w;
+    gtk_widget_hide(error_gui_window);
+    return;
+}
+
+static void error_gui_alert(const char * const restrict msg)
+{
+    if (error_gui_window)
+    {
+#if 1
+        gtk_label_set_text((GtkLabel *)error_gui_message, msg);
+        gtk_dialog_run((GtkDialog *)error_gui_window);
+#else
+        GtkWidget *dialog = gtk_message_dialog_new(GTK_WINDOW(error_gui_window),
+                GTK_DIALOG_DESTROY_WITH_PARENT,
+                GTK_MESSAGE_ERROR,
+                GTK_BUTTONS_OK,
+                "A fatal error has occurred; encrypt will now close");
+        gtk_window_set_default_size(GTK_WINDOW(dialog), 320, 200);
+        gtk_widget_set_size_request(dialog, 320, 200);
+        gtk_window_set_title(GTK_WINDOW(dialog), "Fatal Error!");
+        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", msg);
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
+#endif
+    }
+    return;
+}
+#endif
