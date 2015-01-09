@@ -48,6 +48,8 @@ extern void die(const char * const restrict s, ...) __attribute__((noreturn, non
 
 #ifdef BUILD_GUI
 extern void error_gui_init(GtkWidget *w, GtkWidget *m) __attribute__((nonnull(1), nonnull(2)));
+
+extern void *error_gui_close(void *, void *);
 #endif
 
 #endif /* _COMMON_ERROR_H_ */

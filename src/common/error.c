@@ -103,33 +103,20 @@ extern void error_gui_init(GtkWidget *w, GtkWidget *m)
     error_gui_message = m;
 }
 
-extern void error_gui_close(GtkWidget *w)
+extern void *error_gui_close(void *w, void *d)
 {
     (void)w;
+    (void)d;
     gtk_widget_hide(error_gui_window);
-    return;
+    return NULL;
 }
 
 static void error_gui_alert(const char * const restrict msg)
 {
     if (error_gui_window)
     {
-#if 1
         gtk_label_set_text((GtkLabel *)error_gui_message, msg);
         gtk_dialog_run((GtkDialog *)error_gui_window);
-#else
-        GtkWidget *dialog = gtk_message_dialog_new(GTK_WINDOW(error_gui_window),
-                GTK_DIALOG_DESTROY_WITH_PARENT,
-                GTK_MESSAGE_ERROR,
-                GTK_BUTTONS_OK,
-                "A fatal error has occurred; encrypt will now close");
-        gtk_window_set_default_size(GTK_WINDOW(dialog), 320, 200);
-        gtk_widget_set_size_request(dialog, 320, 200);
-        gtk_window_set_title(GTK_WINDOW(dialog), "Fatal Error!");
-        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", msg);
-        gtk_dialog_run(GTK_DIALOG(dialog));
-        gtk_widget_destroy(dialog);
-#endif
     }
     return;
 }
