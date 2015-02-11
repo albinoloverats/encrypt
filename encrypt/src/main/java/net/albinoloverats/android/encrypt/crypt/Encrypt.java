@@ -265,7 +265,7 @@ public class Encrypt extends Crypto
 
         output.write(Convert.toBytes((byte)Tag.COMPRESSED.value));
         output.write(Convert.toBytes((short)(Byte.SIZE / Byte.SIZE)));
-        output.write(Convert.toBytes(compressed));
+        output.write(Convert.toBytes(false));//compressed));
 
         output.write(Convert.toBytes((byte)Tag.DIRECTORY.value));
         output.write(Convert.toBytes((short)(Byte.SIZE / Byte.SIZE)));
