@@ -37,6 +37,7 @@ import java.util.Arrays;
 import net.albinoloverats.android.encrypt.io.EncryptedFileInputStream;
 import net.albinoloverats.android.encrypt.misc.Convert;
 
+import org.tukaani.xz.XZFormatException;
 import org.tukaani.xz.XZInputStream;
 
 public class Decrypt extends Crypto
@@ -86,7 +87,7 @@ public class Decrypt extends Crypto
             else
                 readVersion();
 
-            boolean skipRandom = version.compareTo(Version._201211) <= 0;
+            boolean extraRandom = true;
             XIV ivType = XIV.RANDOM;
             switch (version)
             {
@@ -94,7 +95,7 @@ public class Decrypt extends Crypto
                 case _201110:
                     ivType = XIV.BROKEN;
                 case _201211:
-                    skipRandom = true;
+                    extraRandom = false;
                     break;
                 case _201302:
                 case _201311:
@@ -110,13 +111,13 @@ public class Decrypt extends Crypto
 
             if (!raw)
             {
-                if (!skipRandom)
+                if (extraRandom)
                     skipRandomData();
                 readVerificationSum();
                 skipRandomData();
             }
             readMetadata();
-            if (!skipRandom && !raw)
+            if (extraRandom && !raw)
                 skipRandomData();
 
             source = compressed ? new XZInputStream(source) : source;
@@ -161,6 +162,11 @@ public class Decrypt extends Crypto
         {
             status = Status.FAILED_OTHER;
             throw new CryptoProcessException(Status.FAILED_OTHER, e);
+        }
+        catch (final XZFormatException e)
+        {
+            status = Status.FAILED_COMPRESSION_ERROR;
+            throw new CryptoProcessException(Status.FAILED_IO, e);
         }
         catch (final IOException e)
         {

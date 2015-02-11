@@ -20,6 +20,8 @@
 
 package net.albinoloverats.android.encrypt.crypt;
 
+import android.content.Context;
+
 import net.albinoloverats.android.encrypt.Main;
 import net.albinoloverats.android.encrypt.R;
 
@@ -41,6 +43,7 @@ public enum Status
     FAILED_IO(R.string.failed_io),
     FAILED_KEY(R.string.failed_key),
     FAILED_OUTPUT_MISMATCH(R.string.failed_output_mismatch),
+    FAILED_COMPRESSION_ERROR(R.string.failed_compression_error),
     FAILED_OTHER(R.string.failed_other),
     /* warnings - decryption finished but with possible errors */
     WARNING_CHECKSUM(R.string.warning_checksum),
@@ -50,7 +53,8 @@ public enum Status
 
     private Status(final int message)
     {
-        this.message = Main.getContext().getString(message);
+        final Context context = Main.getContext();
+        this.message = context.getString(message);
     }
 
     public static Status parseStatus(final String s)

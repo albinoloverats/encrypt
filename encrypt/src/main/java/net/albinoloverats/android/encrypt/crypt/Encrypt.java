@@ -45,6 +45,7 @@ import net.albinoloverats.android.encrypt.io.EncryptedFileOutputStream;
 import net.albinoloverats.android.encrypt.misc.Convert;
 
 import org.tukaani.xz.LZMA2Options;
+import org.tukaani.xz.XZFormatException;
 import org.tukaani.xz.XZOutputStream;
 
 public class Encrypt extends Crypto
@@ -87,7 +88,7 @@ public class Encrypt extends Crypto
             else
                 status = Status.FAILED_IO;
             final File out = new File(output);
-            if (out.isFile())
+            if (out.isFile() || !out.exists())
                 this.output = new EncryptedFileOutputStream(out);
             else if (out.isDirectory())
                 this.output = new EncryptedFileOutputStream(new File(out.getAbsolutePath() + File.separatorChar + name + ".X"));
@@ -140,12 +141,12 @@ public class Encrypt extends Crypto
             if (!raw)
                 writeHeader();
 
-            boolean preRandom = true;
+            boolean extraRandom = true;
             XIV ivType = XIV.RANDOM;
             if (version.compareTo(Version._201211) <= 0)
             {
                 ivType = XIV.SIMPLE;
-                preRandom = false;
+                extraRandom = false;
             }
             if (version.compareTo(Version._201110) <= 0)
                 ivType = XIV.BROKEN;
@@ -154,20 +155,20 @@ public class Encrypt extends Crypto
 
             if (!raw)
             {
-                if (preRandom)
+                if (extraRandom)
                     writeRandomData();
                 writeVerificationSum();
                 writeRandomData();
             }
             writeMetadata();
 
-            if (preRandom && !raw)
+            if (extraRandom && !raw)
                 writeRandomData();
 
-            final LZMA2Options opts = new LZMA2Options(LZMA2Options.PRESET_DEFAULT);
+            final LZMA2Options opts = new LZMA2Options(LZMA2Options.PRESET_MIN); // minimum compression
             opts.setDictSize(LZMA2Options.DICT_SIZE_MIN); // default dictionary size is 8MiB which is too large (on older devices)
 
-            output = compressed ? new XZOutputStream(output, opts) : output;
+//            output = compressed ? new XZOutputStream(output, opts) : output;
 
             checksum.reset();
 
@@ -209,6 +210,11 @@ public class Encrypt extends Crypto
         {
             status = Status.FAILED_OTHER;
             throw new CryptoProcessException(Status.FAILED_OTHER, e);
+        }
+        catch (final XZFormatException e)
+        {
+            status = Status.FAILED_COMPRESSION_ERROR;
+            throw new CryptoProcessException(Status.FAILED_IO, e);
         }
         catch (final IOException e)
         {
@@ -405,7 +411,7 @@ public class Encrypt extends Crypto
 
     private void hashAndWrite(final byte[] b, final int l) throws IOException
     {
-        checksum.update(b, 0, l);
         output.write(b, 0, l);
+        checksum.update(b, 0, l);
     }
 }

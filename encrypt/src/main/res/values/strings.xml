@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">encrypt</string>
-    <string name="version">2015.01</string>
+    <string name="version">2015.01.1</string>
     <string name="encrypt">Encrypt</string>
     <string name="decrypt">Decrypt</string>
 
@@ -46,6 +46,7 @@
     <string name="failed_io">Failed: Read/Write error!</string>
     <string name="failed_key">Failed: Key generation error!</string>
     <string name="failed_output_mismatch">Failed: Invalid target file type!</string>
+    <string name="failed_compression_error">Failed: Compression Error!</string>
     <string name="failed_other">Failed An unknown error has occurred!</string>
     <!-- warnings - decryption finished but with possible errors -->
     <string name="warning_checksum">Warning: Bad checksum!\n(Possible data corruption)</string>

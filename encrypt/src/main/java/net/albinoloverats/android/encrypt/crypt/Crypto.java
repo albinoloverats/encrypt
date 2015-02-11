@@ -117,60 +117,60 @@ public abstract class Crypto extends Service implements Runnable
         final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         notificationBuilder.setContentIntent(pendingIntent);
 
-        if (status == Status.INIT)
-        {
+        if (status == Status.INIT) {
             final PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
             wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, actionTitle);
             wakeLock.acquire();
 
             process = new Thread(this);
             process.start();
-            notification = new Thread()
-            {
-                @Override
-                public void run()
-                {
-                    do
-                    {
-                        try
-                        {
-                            sleep(10);
-                            if (isInterrupted())
-                                status = Status.CANCELLED;
-                            if (status == Status.INIT)
-                                continue;
-                            final Intent intent = new Intent();
-                            intent.setAction(actionTitle);
-                            intent.putExtra("current.offset", current.offset);
-                            intent.putExtra("current.size", current.size);
-                            intent.putExtra("total.offset", total.offset);
-                            intent.putExtra("total.size", total.size);
-                            intent.putExtra("status", status.name());
-                            sendBroadcast(intent);
-                            notificationBuilder.setContentText("" + total.offset + "/" + total.size);
-                            notificationBuilder.setProgress(100, (int) (100.0 * current.offset / current.size), false);
-                            notificationManager.notify(0, notificationBuilder.build());
-                        }
-                        catch (final InterruptedException e)
-                        {
-                            status = Status.CANCELLED;
-                        }
-                    }
-                    while (status == Status.RUNNING);
-
-                    final Intent intent = new Intent();
-                    intent.setAction(actionTitle);
-                    intent.putExtra("current.offset", current.offset);
-                    intent.putExtra("current.size", current.size);
-                    intent.putExtra("total.offset", total.offset);
-                    intent.putExtra("total.size", total.size);
-                    notificationBuilder.setContentText(status.message);
-                    notificationBuilder.setProgress(0, 0, false);
-                    notificationManager.notify(0, notificationBuilder.build());
-                }
-            };
-            notification.start();
         }
+
+        notification = new Thread()
+        {
+            @Override
+            public void run()
+            {
+                do
+                {
+                    try
+                    {
+                        sleep(10);
+                        if (isInterrupted())
+                            status = Status.CANCELLED;
+                        if (status == Status.INIT)
+                            continue;
+                        final Intent intent = new Intent();
+                        intent.setAction(actionTitle);
+                        intent.putExtra("current.offset", current.offset);
+                        intent.putExtra("current.size", current.size);
+                        intent.putExtra("total.offset", total.offset);
+                        intent.putExtra("total.size", total.size);
+                        intent.putExtra("status", status.name());
+                        sendBroadcast(intent);
+                        notificationBuilder.setContentText("" + total.offset + "/" + total.size);
+                        notificationBuilder.setProgress(100, (int) (100.0 * current.offset / current.size), false);
+                        notificationManager.notify(0, notificationBuilder.build());
+                    }
+                    catch (final InterruptedException e)
+                    {
+                        status = Status.CANCELLED;
+                    }
+                }
+                while (status == Status.RUNNING);
+
+                final Intent intent = new Intent();
+                intent.setAction(actionTitle);
+                intent.putExtra("current.offset", current.offset);
+                intent.putExtra("current.size", current.size);
+                intent.putExtra("total.offset", total.offset);
+                intent.putExtra("total.size", total.size);
+                notificationBuilder.setContentText(status.message);
+                notificationBuilder.setProgress(0, 0, false);
+                notificationManager.notify(0, notificationBuilder.build());
+            }
+        };
+        notification.start();
 
         return START_STICKY;
     }
@@ -183,7 +183,7 @@ public abstract class Crypto extends Service implements Runnable
             notification.interrupt();
             process.interrupt();
         }
-        if (wakeLock.isHeld())
+        if (wakeLock != null && wakeLock.isHeld())
             wakeLock.release();
         super.onDestroy();
     }
