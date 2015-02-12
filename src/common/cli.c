@@ -1,7 +1,7 @@
 /*
- * encrypt ~ a simple, multi-OS encryption utility
+ * Common code for providing a cmomand line progress bar
  * Copyright © 2005-2015, albinoloverats ~ Software Development
- * email: encrypt@albinoloverats.net
+ * email: webmaster@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

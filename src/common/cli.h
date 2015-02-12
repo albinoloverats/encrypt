@@ -1,7 +1,7 @@
 /*
- * encrypt ~ a simple, multi-OS encryption utility
+ * Common code for providing a cmomand line progress bar
  * Copyright © 2005-2015, albinoloverats ~ Software Development
- * email: encrypt@albinoloverats.net
+ * email: webmaster@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef _ENCRYPT_CLI_H_
-#define _ENCRYPT_CLI_H_
+#ifndef _COMMON_CLI_H_
+#define _COMMON_CLI_H_
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -67,4 +67,4 @@ cli_bps_t;
 extern void cli_display(cli_t *) __attribute__((nonnull(1)));
 extern float cli_calc_bps(cli_bps_t *) __attribute__((nonnull(1)));
 
-#endif /* _ENCRYPT_CLI_H_ */
+#endif /* _COMMON_CLI_H_ */
