@@ -85,9 +85,10 @@ extern void cli_display(cli_t *p)
     memset(bps, 0x00, BPS * sizeof( cli_bps_t ));
     int b = 0;
 
+    fprintf(stderr, "\e[?25l"); /* hide cursor */
     while (*p->status == CLI_INIT || *p->status == CLI_RUN)
     {
-        struct timespec s = { 0, MILLION };
+        struct timespec s = { 0, 10 * MILLION }; /* 10 milliseconds */
         nanosleep(&s, NULL);
 
         if (*p->status == CLI_INIT)
@@ -109,7 +110,7 @@ extern void cli_display(cli_t *p)
     }
     if (*p->status == CLI_DONE)
         cli_display_bar(PERCENT, PERCENT, p->total->size == 1, bps);
-    fprintf(stderr, "\n");
+    fprintf(stderr, "\e[?25h\n"); /* restore cursor */
 
     return;
 }

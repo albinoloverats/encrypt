@@ -294,14 +294,14 @@ processes your file</property>
           </packing>
         </child>
         <child>
-          <object class="GtkButton" id="progress_close_button">
-            <property name="label">Done</property>
-            <property name="sensitive">False</property>
+          <object class="GtkButton" id="progress_cancel_button">
+            <property name="label">gtk-cancel</property>
+            <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="halign">center</property>
             <property name="valign">center</property>
-            <property name="image">done_encrypt</property>
+            <property name="use_stock">True</property>
             <signal name="clicked" handler="on_progress_button_clicked" swapped="no"/>
           </object>
           <packing>
@@ -311,14 +311,14 @@ processes your file</property>
           </packing>
         </child>
         <child>
-          <object class="GtkButton" id="progress_cancel_button">
-            <property name="label">gtk-cancel</property>
-            <property name="visible">True</property>
+          <object class="GtkButton" id="progress_close_button">
+            <property name="label">Done</property>
+            <property name="sensitive">False</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="halign">center</property>
             <property name="valign">center</property>
-            <property name="use_stock">True</property>
+            <property name="image">done_encrypt</property>
             <signal name="clicked" handler="on_progress_button_clicked" swapped="no"/>
           </object>
           <packing>
@@ -527,6 +527,7 @@ processes your file</property>
             <property name="valign">center</property>
             <property name="border_width">64</property>
             <property name="orientation">vertical</property>
+            <property name="homogeneous">True</property>
             <child>
               <object class="GtkButton" id="open_button">
                 <property name="width_request">160</property>

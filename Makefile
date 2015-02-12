@@ -26,6 +26,10 @@ debug: link
 	 @$(CC) $(CFLAGS) $(CPPFLAGS) $(SOURCE) $(COMMON) $(LIBS) $(DEBUG) -o $(APP)
 	-@echo -e "built ‘`echo -e $(SOURCE) $(COMMON) | sed 's/ /’\n      ‘/g'`’ → ‘$(APP)’"
 
+debug-with-encryption: link
+	 @$(CC) $(CFLAGS) $(CPPFLAGS) $(SOURCE) $(COMMON) $(LIBS) $(DEBUG) -D__DEBUG_WITH_ENCRYPTION__ -o $(APP)
+	-@echo -e "built ‘`echo -e $(SOURCE) $(COMMON) | sed 's/ /’\n      ‘/g'`’ → ‘$(APP)’"
+
 gui: link
 	 @$(CC) $(CFLAGS) $(CPPFLAGS) $(GUIFLAGS) $(SOURCE) $(COMMON) $(GUI) $(LIBS) $(GUILIBS) -o $(APP)
 	-@echo -e "built ‘`echo -e $(SOURCE) $(COMMON) $(GUI) | sed 's/ /’\n      ‘/g'`’ → ‘$(APP)’"
