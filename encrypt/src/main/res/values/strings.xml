@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">encrypt</string>
-    <string name="version">2015.01.1</string>
+    <string name="version">2015.01.2</string>
     <string name="encrypt">Encrypt</string>
     <string name="decrypt">Decrypt</string>
 

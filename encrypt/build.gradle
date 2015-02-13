@@ -6,9 +6,9 @@ android {
     defaultConfig {
         applicationId 'net.albinoloverats.android.encrypt'
         minSdkVersion 4
-        targetSdkVersion 19
-        versionCode 12
-        versionName '2015.01.1'
+        targetSdkVersion 21
+        versionCode 13
+        versionName '2015.01.2'
     }
     signingConfigs {
         release {
