@@ -25,7 +25,7 @@ public class CryptoProcessException extends Exception
     private static final long serialVersionUID = 4714119489698420307L;
 
     final public Status code;
-    final public Exception cause;
+    final public Throwable cause;
 
     public CryptoProcessException(final Status code)
     {
@@ -33,7 +33,7 @@ public class CryptoProcessException extends Exception
         cause = null;
     }
 
-    public CryptoProcessException(final Status code, final Exception cause)
+    public CryptoProcessException(final Status code, final Throwable cause)
     {
         this.code = code;
         this.cause = cause;

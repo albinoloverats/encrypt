@@ -22,13 +22,24 @@ package net.albinoloverats.android.encrypt.crypt;
 
 import android.content.Intent;
 
-import gnu.crypto.mode.ModeFactory;
-import gnu.crypto.util.PRNG;
+import net.albinoloverats.android.encrypt.io.EncryptedFileOutputStream;
+import net.albinoloverats.android.encrypt.misc.Convert;
+
+import org.tukaani.xz.LZMA2Options;
+import org.tukaani.xz.XZFormatException;
+import org.tukaani.xz.XZOutputStream;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+import gnu.crypto.mode.ModeFactory;
+import gnu.crypto.util.PRNG;
+
 /*
  * If, and when, Android supports Java7 NIO:
 import java.nio.file.FileSystems;
@@ -38,15 +49,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
  */
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
-import net.albinoloverats.android.encrypt.io.EncryptedFileOutputStream;
-import net.albinoloverats.android.encrypt.misc.Convert;
-
-import org.tukaani.xz.LZMA2Options;
-import org.tukaani.xz.XZFormatException;
-import org.tukaani.xz.XZOutputStream;
 
 public class Encrypt extends Crypto
 {
@@ -167,8 +169,7 @@ public class Encrypt extends Crypto
 
             final LZMA2Options opts = new LZMA2Options(LZMA2Options.PRESET_MIN); // minimum compression
             opts.setDictSize(LZMA2Options.DICT_SIZE_MIN); // default dictionary size is 8MiB which is too large (on older devices)
-
-//            output = compressed ? new XZOutputStream(output, opts) : output;
+            output = compressed ? new XZOutputStream(output, opts) : output;
 
             checksum.reset();
 
@@ -221,6 +222,11 @@ public class Encrypt extends Crypto
             status = Status.FAILED_IO;
             throw new CryptoProcessException(Status.FAILED_IO, e);
         }
+        catch (final Throwable t)
+        {
+            status = Status.FAILED_OTHER;
+            throw new CryptoProcessException(Status.FAILED_OTHER, t);
+        }
         finally
         {
             closeIgnoreException(source);
@@ -254,9 +260,12 @@ public class Encrypt extends Crypto
 
     private void writeMetadata() throws IOException
     {
-        output.write(Convert.toBytes((byte)3));
+        byte meta = 3;
+        if (!directory && name != null && version.compareTo(Version._201501) >= 0)
+            meta++;
+        output.write(Convert.toBytes(meta));
 
-        if (directory)
+        if (directory) /* total size becomes number of entries */
             total.size = countEntries(path) + 1;
 
         output.write(Convert.toBytes((byte)Tag.SIZE.value));
@@ -265,7 +274,7 @@ public class Encrypt extends Crypto
 
         output.write(Convert.toBytes((byte)Tag.COMPRESSED.value));
         output.write(Convert.toBytes((short)(Byte.SIZE / Byte.SIZE)));
-        output.write(Convert.toBytes(false));//compressed));
+        output.write(Convert.toBytes(compressed));
 
         output.write(Convert.toBytes((byte)Tag.DIRECTORY.value));
         output.write(Convert.toBytes((short)(Byte.SIZE / Byte.SIZE)));

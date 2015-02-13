@@ -166,7 +166,7 @@ public class Decrypt extends Crypto
         catch (final XZFormatException e)
         {
             status = Status.FAILED_COMPRESSION_ERROR;
-            throw new CryptoProcessException(Status.FAILED_IO, e);
+            throw new CryptoProcessException(Status.FAILED_COMPRESSION_ERROR, e);
         }
         catch (final IOException e)
         {
