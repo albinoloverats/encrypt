@@ -42,6 +42,7 @@
 
 #include "common/common.h"
 #include "common/error.h"
+#include "common/ccrypt.h"
 #include "common/tlv.h"
 #include "common/fs.h"
 #include "common/dir.h"

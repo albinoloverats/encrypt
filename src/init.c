@@ -36,6 +36,7 @@
 
 #include "common/common.h"
 #include "common/error.h"
+#include "common/ccrypt.h"
 
 #include "init.h"
 #include "crypt.h"

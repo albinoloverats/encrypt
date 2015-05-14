@@ -36,6 +36,7 @@
 
 #include "common/common.h"
 #include "common/error.h"
+#include "common/ccrypt.h"
 
 #ifdef _WIN32
     #include "common/win32_ext.h"
@@ -43,27 +44,6 @@
 
 #include "crypt.h"
 #include "crypt_io.h"
-
-#define NAME_SHA1 "SHA1"
-#define NAME_SHA160 "SHA160"
-#define NAME_TIGER "TIGER"
-#define NAME_TIGER192 "TIGER192"
-
-#define NAME_AES "AES"
-#define NAME_RIJNDAEL "RIJNDAEL"
-#define NAME_BLOWFISH "BLOWFISH"
-#define NAME_BLOWFISH128 "BLOWFISH128"
-#define NAME_TWOFISH "TWOFISH"
-#define NAME_TWOFISH256 "TWOFISH256"
-
-static int algorithm_compare(const void *, const void *);
-
-static const char *correct_sha1(const char * const restrict);
-static const char *correct_aes_rijndael(const char * const restrict);
-static const char *correct_blowfish128(const char * const restrict);
-static const char *correct_twofish256(const char * const restrict);
-
-static bool algorithm_is_duplicate(const char * const restrict);
 
 static const char *STATUS_MESSAGE[] =
 {
@@ -109,38 +89,6 @@ static const version_t VERSIONS[] =
 
     { "current", 0x63e7d49566e31bfbllu }
 };
-
-typedef struct
-{
-    enum gcry_cipher_modes id;
-    const char name[4];
-}
-block_mode_t;
-
-static const block_mode_t MODES[] =
-{
-    { GCRY_CIPHER_MODE_ECB, "ECB" },
-    { GCRY_CIPHER_MODE_CBC, "CBC" },
-    { GCRY_CIPHER_MODE_CFB, "CFB" },
-    { GCRY_CIPHER_MODE_OFB, "OFB" },
-    { GCRY_CIPHER_MODE_CTR, "CTR" },
-};
-
-extern void init_crypto(void)
-{
-    static bool done = false;
-    if (done)
-        return;
-    /*
-     * initialise GNU Crypt library
-     */
-    if (!gcry_check_version(GCRYPT_VERSION))
-        die(_("Could not find GNU Crypt library"));
-    gcry_control(GCRYCTL_INIT_SECMEM, 10485760, 0);
-    gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
-    errno = 0; /* need to reset errno after gcry_check_version() */
-    done = true;
-}
 
 extern void execute(crypto_t *c)
 {
@@ -198,199 +146,6 @@ extern void key_gcry_free(raw_key_t **key)
     return;
 }
 #endif
-
-extern const char **list_of_ciphers(void)
-{
-    init_crypto();
-
-    enum gcry_cipher_algos lid[0xff] = { GCRY_CIPHER_NONE };
-    int len = 0;
-    enum gcry_cipher_algos id = GCRY_CIPHER_NONE;
-    for (unsigned i = 0; i < sizeof lid; i++)
-    {
-        if (gcry_cipher_algo_info(id, GCRYCTL_TEST_ALGO, NULL, NULL) == 0)
-        {
-            lid[len] = id;
-            len++;
-        }
-        id++;
-    }
-    static const char **l = NULL;
-    if (!l)
-    {
-        if (!(l = gcry_calloc_secure(len + 1, sizeof( char * ))))
-            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
-        int j = 0;
-        for (int i = 0; i < len; i++)
-        {
-            const char *n = cipher_name_from_id(lid[i]);
-            if (!n)
-                continue;
-#ifdef _WIN32
-            /* libgcrypt crashes when trying to use AES (Rijndael) on Windows 8 */
-            if (IsWindows8OrGreater())
-                if (!strncasecmp(NAME_RIJNDAEL, n, strlen(NAME_RIJNDAEL)) || !strncasecmp(NAME_AES, n, strlen(NAME_AES)))
-                    continue;
-#endif
-            l[j] = strdup(n);
-            j++;
-        }
-        //l[j] = NULL;
-        qsort(l, j, sizeof( char * ), algorithm_compare);
-    }
-    return (const char **)l;
-}
-
-extern const char **list_of_hashes(void)
-{
-    init_crypto();
-
-    enum gcry_md_algos lid[0xff] = { GCRY_MD_NONE };
-    int len = 0;
-    enum gcry_md_algos id = GCRY_MD_NONE;
-    for (unsigned i = 0; i < sizeof lid; i++)
-    {
-        if (gcry_md_test_algo(id) == 0)
-        {
-            lid[len] = id;
-            len++;
-        }
-        id++;
-    }
-    static const char **l = NULL;
-    if (!l)
-    {
-        if (!(l = gcry_calloc_secure(len + 1, sizeof( char * ))))
-            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
-        int j = 0;
-        for (int i = 0; i < len; i++)
-        {
-            const char *n = hash_name_from_id(lid[i]);
-            if (!n)
-                continue;
-            l[j] = strdup(n);
-            j++;
-        }
-        //l[j] = NULL;
-        qsort(l, j, sizeof( char * ), algorithm_compare);
-    }
-    return (const char **)l;
-}
-
-extern const char **list_of_modes(void)
-{
-    static const char **l = NULL;
-    if (!l)
-    {
-        unsigned m = sizeof MODES / sizeof( block_mode_t );
-        if (!(l = gcry_calloc_secure(m + 1, sizeof( char * ))))
-            die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
-        for (unsigned i = 0; i < m; i++)
-            l[i] = MODES[i].name;
-    }
-    return (const char **)l;
-}
-
-extern enum gcry_cipher_algos cipher_id_from_name(const char * const restrict n)
-{
-    if (n)
-    {
-        int list[0xff] = { 0x00 };
-        int len = 0;
-        enum gcry_cipher_algos id = GCRY_CIPHER_NONE;
-        for (unsigned i = 0; i < sizeof list; i++)
-        {
-            if (gcry_cipher_algo_info(id, GCRYCTL_TEST_ALGO, NULL, NULL) == 0)
-            {
-                list[len] = id;
-                len++;
-            }
-            id++;
-        }
-        for (int i = 0; i < len; i++)
-        {
-            const char *x = cipher_name_from_id(list[i]);
-            if (!x)
-                continue;
-#ifdef _WIN32
-            /* libgcrypt crashes when trying to use AES (Rijndael) on Windows 8 */
-            if (IsWindows8OrGreater())
-                if (!strncasecmp(NAME_RIJNDAEL, x, strlen(NAME_RIJNDAEL)) || !strncasecmp(NAME_AES, x, strlen(NAME_AES)))
-                    continue;
-#endif
-            if (!strcasecmp(x, n))
-                return list[i];
-        }
-    }
-    return GCRY_CIPHER_NONE;
-}
-
-extern enum gcry_md_algos hash_id_from_name(const char * const restrict n)
-{
-    if (n)
-    {
-        int list[0xff] = { 0x00 };
-        int len = 0;
-        enum gcry_md_algos id = GCRY_MD_NONE;
-        for (unsigned i = 0; i < sizeof list; i++)
-        {
-            if (gcry_md_test_algo(id) == 0)
-            {
-                list[len] = id;
-                len++;
-            }
-            id++;
-        }
-        for (int i = 0; i < len; i++)
-        {
-            const char *x = hash_name_from_id(list[i]);
-            if (!x)
-                continue;
-            if (!strcasecmp(x, n))
-                return list[i];
-        }
-    }
-    return GCRY_MD_NONE;
-}
-
-extern enum gcry_cipher_modes mode_id_from_name(const char * const restrict n)
-{
-    if (n)
-        for (unsigned i = 0; i < sizeof MODES / sizeof( block_mode_t ); i++)
-            if (!strcasecmp(n, MODES[i].name))
-                return MODES[i].id;
-    return GCRY_CIPHER_MODE_NONE;
-}
-
-extern const char *cipher_name_from_id(enum gcry_cipher_algos c)
-{
-    const char *n = gcry_cipher_algo_name(c);
-    if (!strncasecmp(NAME_AES, n, strlen(NAME_AES)))
-        return correct_aes_rijndael(n);
-    else if (!strcasecmp(NAME_BLOWFISH, n))
-        return correct_blowfish128(n);
-    else if (!strcasecmp(NAME_TWOFISH, n))
-        return correct_twofish256(n);
-    return n;
-}
-
-extern const char *hash_name_from_id(enum gcry_md_algos h)
-{
-    const char *n = gcry_md_algo_name(h);
-    if (algorithm_is_duplicate(n))
-        return NULL;
-    else if (!strncasecmp(NAME_SHA1, n, strlen(NAME_SHA1) - 1))
-        return correct_sha1(n);
-    return n;
-}
-
-extern const char *mode_name_from_id(enum gcry_cipher_modes m)
-{
-    for (unsigned i = 0; i < sizeof MODES / sizeof( block_mode_t ); i++)
-        if (MODES[i].id == m)
-            return MODES[i].name;
-    return NULL;
-}
 
 extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, char **m)
 {
@@ -463,41 +218,4 @@ extern version_e parse_version(const char *v)
         if (!strcmp(v, VERSIONS[i].string))
             return i;
     return VERSION_CURRENT;
-}
-
-static int algorithm_compare(const void *a, const void *b)
-{
-    return strcmp(*(char **)a, *(char **)b);
-}
-
-static const char *correct_sha1(const char * const restrict n)
-{
-    return strcasecmp(n, NAME_SHA1) ? n : NAME_SHA160;
-}
-
-static const char *correct_aes_rijndael(const char * const restrict n)
-{
-    if (!strcasecmp(NAME_AES, n))
-        return n; /* use AES (bits/blocks/etc) */
-    /*
-     * use rijndael instead of AES as that’s the actual cipher name
-     */
-    static char x[16];
-    snprintf(x, sizeof x, "%s%s", NAME_RIJNDAEL, n + strlen(NAME_AES));
-    return (const char *)x;
-}
-
-static const char *correct_blowfish128(const char * const restrict n)
-{
-    return (void)n , NAME_BLOWFISH128;
-}
-
-static const char *correct_twofish256(const char * const restrict n)
-{
-    return (void)n , NAME_TWOFISH256;
-}
-
-static bool algorithm_is_duplicate(const char * const restrict n)
-{
-    return !strcmp(NAME_TIGER192, n);
 }

@@ -38,6 +38,7 @@
 
 #include "common/common.h"
 #include "common/error.h"
+#include "common/ccrypt.h"
 
 #include "crypt_io.h"
 #include "crypt.h"

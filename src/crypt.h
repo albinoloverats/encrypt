@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef _ENCRYPT_CRYPTO_H_
-#define _ENCRYPT_CRYPTO_H_
+#ifndef _ENCRYPT_CRYPT_H_
+#define _ENCRYPT_CRYPT_H_
 
 /*!
  * \file    crypt.h
@@ -200,14 +200,6 @@ typedef struct
 crypto_t;
 
 /*!
- * \brief          Initialise libgcrypt library
- *
- * Initialise the libgcrypt library. Subsequent calls to the function
- * are ignored.
- */
-extern void init_crypto(void);
-
-/*!
  * \brief          Execute crypto routine
  * \params[in]  c  Cryptographic instance
  *
@@ -247,105 +239,6 @@ extern void deinit(crypto_t **c) __attribute__((nonnull(1)));
  */
 extern void key_free(raw_key_t **k);
 #endif
-
-/*!
- * \brief         Get list of usable ciphers
- * \return        An array of char* of cipher names
- *
- * Get an array of strings which lists the names of usable cipher
- * algorithms. NB: The array is allocated statically and SHOULD NOT be
- * free’d (or otherwise altered).
- */
-extern const char **list_of_ciphers(void) __attribute__((pure));
-
-/*!
- * \brief         Get list of usable hashes
- * \return        An array of char* of hash names
- *
- * Get an array of strings which lists the names of usable hash
- * algorithms. NB: The array is allocated statically and SHOULD NOT be
- * free’d (or otherwise altered).
- */
-extern const char **list_of_hashes(void) __attribute__((pure));
-
-/*!
- * \brief         Get list of available cipher modes
- * \return        An array of char* of mode names
- *
- * Get an array of strings which lists the names of available cipher
- * modes. NB: The array is allocated statically and SHOULD NOT be
- * free’d (or otherwise altered).
- */
-extern const char **list_of_modes(void) __attribute__((pure));
-
-/*!
- * \brief         Get cipher ID, given its name
- * \param[in]  n  Cipher name
- * \return        The ID used by libgcrypt
- *
- * Get the ID used internally by libgcrypt for the given cipher name.
- */
-extern enum gcry_cipher_algos cipher_id_from_name(const char * const restrict n) __attribute__((pure, nonnull(1)));
-
-/*!
- * \brief         Get hash ID, given its name
- * \param[in]  n  Hash name
- * \return        The ID used by libgcrypt
- *
- * Get the ID used internally by libgcrypt for the given hash name.
- */
-extern enum gcry_md_algos hash_id_from_name(const char * const restrict n) __attribute__((pure, nonnull(1)));
-
-/*!
- * \brief         Get cipher mode ID, given its name
- * \param[in]  n  Mode name
- * \return        The ID used by libgcrypt
- *
- * Get the ID used internally by libgcrypt for the given mode name.
- */
-extern enum gcry_cipher_modes mode_id_from_name(const char * const restrict n) __attribute__((pure, nonnull(1)));
-
-/*!
- * \brief         Get cipher name, given its ID
- * \param[in]  c  The libgcrypt cipher enum
- * \return        A string representation of the cipher
- *
- * "Correct" the name that libgcrypt gives us; this ensures
- * compatibility with the Android version.
- */
-extern const char *cipher_name_from_id(enum gcry_cipher_algos c) __attribute__((pure));
-
-/*!
- * \brief         Get hash name, given its ID
- * \param[in]  h  The libgcrypt hash enum
- * \return        A string representation of the hash
- *
- * "Correct" the name that libgcrypt gives us; this ensures
- * compatibility with the Android version.
- */
-extern const char *hash_name_from_id(enum gcry_md_algos h) __attribute__((pure));
-
-/*!
- * \brief         Get cipher mode name, given its ID
- * \param[in]  m  The libgcrypt mode enum
- * \return        A string representation of the mode
- *
- * As this isn’t provided by libgcrypt, in the same way that it is for
- * algorithms, and the fact we’re artificially limiting the choices,
- * here’s a function to get the name from the enum.
- */
-extern const char *mode_name_from_id(enum gcry_cipher_modes m) __attribute__((pure));
-
-/*!
- * \brief         Get cipher mode name, given its ID
- * \param[in]  m  The libgcrypt mode enum
- * \return        A string representation of the mode
- *
- * As this isn’t provided by libgcrypt, in the same way that it is for
- * algorithms, and the fact we’re artificially limiting the choices,
- * here’s a function to get the name from the enum.
- */
-extern const char *mode_name_from_id(enum gcry_cipher_modes m) __attribute__((pure));
 
 
 #define IS_ENCRYPTED_ARGS_COUNT(...) IS_ENCRYPTED_ARGS_COUNT2(__VA_ARGS__, 4, 3, 2, 1)
@@ -405,4 +298,4 @@ extern const char *get_version_string(version_e v);
  */
 extern version_e parse_version(const char *v);
 
-#endif /* ! _ENCRYPT_CRYPTO_H */
+#endif /* ! _ENCRYPT_CRYPT_H */
