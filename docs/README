@@ -6,11 +6,11 @@ About
 
 encrypt is a simple, cross platform, file encryption application. It is
 suitable for any modern desktop or mobile operating system. The GUI,
-either GTK or native, has been desigen to be common across systems and
-intuitive to use, whilst still providing command-line capabilities for
+either GTK or native, has been designed to be common across systems and
+intuitive to use, while still providing command-line capabilities for
 power-users.
 
-It is currently availabe as a binary package for several GNU/Linux
+It is currently available as a binary package for several GNU/Linux
 distributions: Arch, Debian, Fedora, Slackware; as well as Apple’s OS X,
 Microsoft Windows, and Android. It has also been tested on FreeBSD.
 
@@ -20,19 +20,19 @@ allow encrypted files to be shared between systems. (Check that your
 target system does support your intended cipher, as support will vary
 depending on the library available at runtime!)
 
-To report bugs, or otherwise contact the development team, please visit:
+To report bugs, or to contact the development team, please visit:
 https://albinoloverats.net/projects/encrypt
 
 Compiling
 ---------
 
-To compile from source, it’s as simpe as running either of the following
+Compiling from source is as simple as running one of the following
 commands:
 
     make
     make gui
 
-depending on what sort of interface you want (OS X, Windows, Android --
+- depending on what sort of interface you want (OS X, Windows, Android --
 you don’t readlly get a choice).
 
 Changelog
