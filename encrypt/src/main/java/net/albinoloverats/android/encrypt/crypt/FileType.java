@@ -22,23 +22,23 @@ package net.albinoloverats.android.encrypt.crypt;
 
 public enum FileType
 {
-    DIRECTORY(0),
-    REGULAR(1),
-    SYMLINK(2),
-    LINK(3);
+	DIRECTORY(0),
+	REGULAR(1),
+	SYMLINK(2),
+	LINK(3);
 
-    final public int value;
+	final public int value;
 
-    private FileType(final int value)
-    {
-        this.value = value;
-    }
+	private FileType(final int value)
+	{
+		this.value = value;
+	}
 
-    public static FileType fromID(final int value) throws CryptoProcessException
-    {
-        for (final FileType type : FileType.values())
-            if (value == type.value)
-                return type;
-        throw new CryptoProcessException(Status.FAILED_UNKNOWN_TAG);
-    }
+	public static FileType fromID(final int value) throws CryptoProcessException
+	{
+		for (final FileType type : FileType.values())
+			if (value == type.value)
+				return type;
+		throw new CryptoProcessException(Status.FAILED_UNKNOWN_TAG);
+	}
 }

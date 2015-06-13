@@ -22,32 +22,32 @@ package net.albinoloverats.android.encrypt.crypt;
 
 public enum Version
 {
-    _201108(0x72761df3e497c983L, "2011.08", 201108),
-    _201110(0xbb116f7d00201110L, "2011.10", 201110),
-    _201211(0x51d28245e1216c45L, "2012.11", 201211),
-    _201302(0x5b7132ab5abb3c47L, "2013.02", 201302),
-    _201311(0xf1f68e5f2a43aa5fL, "2013.11", 201311),
-    _201406(0x8819d19069fae6b4L, "2014.06", 201406),
-    _201501(0x63e7d49566e31bfbL, "2015.01", 201501),
+	_201108(0x72761df3e497c983L, "2011.08", 201108),
+	_201110(0xbb116f7d00201110L, "2011.10", 201110),
+	_201211(0x51d28245e1216c45L, "2012.11", 201211),
+	_201302(0x5b7132ab5abb3c47L, "2013.02", 201302),
+	_201311(0xf1f68e5f2a43aa5fL, "2013.11", 201311),
+	_201406(0x8819d19069fae6b4L, "2014.06", 201406),
+	_201501(0x63e7d49566e31bfbL, "2015.01", 201501),
 
-    CURRENT(0x63e7d49566e31bfbL, "2015.01", 201501);
+	CURRENT(0x63e7d49566e31bfbL, "2015.01", 201501);
 
-    final public long magicNumber;
-    final public String display;
-    final public int menu_id;
+	final public long magicNumber;
+	final public String display;
+	final public int menu_id;
 
-    private Version(final long m, final String d, final int i)
-    {
-        magicNumber = m;
-        display = d;
-        menu_id = i;
-    }
+	private Version(final long m, final String d, final int i)
+	{
+		magicNumber = m;
+		display = d;
+		menu_id = i;
+	}
 
-    public static Version parseMagicNumber(final long m, final Version d)
-    {
-        for (final Version v : Version.values())
-            if (v.magicNumber == m)
-                return v;
-        return d;
-    }
+	public static Version parseMagicNumber(final long m, final Version d)
+	{
+		for (final Version v : Version.values())
+			if (v.magicNumber == m)
+				return v;
+		return d;
+	}
 }

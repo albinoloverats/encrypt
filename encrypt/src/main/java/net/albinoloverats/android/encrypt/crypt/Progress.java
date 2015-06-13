@@ -22,6 +22,6 @@ package net.albinoloverats.android.encrypt.crypt;
 
 public class Progress
 {
-    public long offset;
-    public long size;
+	public long offset;
+	public long size;
 }

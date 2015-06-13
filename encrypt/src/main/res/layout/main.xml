@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_gravity="center" android:keepScreenOn="true">
-    <LinearLayout android:orientation="vertical" android:layout_width="240dp" android:layout_height="wrap_content" android:layout_gravity="center">
-        <Button android:id="@+id/button_file" android:text="@string/choose_source" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_gravity="center" android:enabled="true" android:focusable="true" android:focusableInTouchMode="true"/>
-        <Button android:id="@+id/button_output" android:text="@string/choose_output" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_gravity="center"/>
-        <Spinner android:id="@+id/spin_crypto" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_gravity="center" android:layout_weight="1" android:spinnerMode="dialog"/>
-        <Spinner android:id="@+id/spin_hash" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_gravity="center" android:layout_weight="1" android:spinnerMode="dialog"/>
-        <Spinner android:id="@+id/spin_mode" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_gravity="center" android:layout_weight="1" android:spinnerMode="dialog"/>
-        <EditText android:id="@+id/text_password" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_gravity="center" android:layout_weight="1" android:inputType="textPassword" android:hint="@string/password"/>
-        <Button android:id="@+id/button_key" android:text="@string/choose_key" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_gravity="center" android:enabled="true" android:focusable="true" android:focusableInTouchMode="true" android:visibility="gone"/>
-        <Button android:id="@+id/button_go" android:drawableLeft="@drawable/button" android:text="@string/encrypt" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_gravity="center" android:layout_weight="1" android:textStyle="bold"/>
-    </LinearLayout>
+	<LinearLayout android:orientation="vertical" android:layout_width="240dp" android:layout_height="wrap_content" android:layout_gravity="center">
+		<Button android:id="@+id/button_file" android:text="@string/choose_source" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_gravity="center" android:enabled="true" android:focusable="true" android:focusableInTouchMode="true"/>
+		<Button android:id="@+id/button_output" android:text="@string/choose_output" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_gravity="center"/>
+		<Spinner android:id="@+id/spin_crypto" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_gravity="center" android:layout_weight="1" android:spinnerMode="dialog"/>
+		<Spinner android:id="@+id/spin_hash" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_gravity="center" android:layout_weight="1" android:spinnerMode="dialog"/>
+		<Spinner android:id="@+id/spin_mode" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_gravity="center" android:layout_weight="1" android:spinnerMode="dialog"/>
+		<EditText android:id="@+id/text_password" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_gravity="center" android:layout_weight="1" android:inputType="textPassword" android:hint="@string/password"/>
+		<Button android:id="@+id/button_key" android:text="@string/choose_key" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_gravity="center" android:enabled="true" android:focusable="true" android:focusableInTouchMode="true" android:visibility="gone"/>
+		<Button android:id="@+id/button_go" android:drawableLeft="@drawable/button" android:text="@string/encrypt" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_gravity="center" android:layout_weight="1" android:textStyle="bold"/>
+	</LinearLayout>
 </ScrollView>

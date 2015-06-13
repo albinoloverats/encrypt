@@ -27,41 +27,41 @@ import net.albinoloverats.android.encrypt.R;
 
 public enum Status
 {
-    /* success and running states */
-    SUCCESS(R.string.success),
-    INIT(R.string.init),
-    RUNNING(R.string.running),
-    CANCELLED(R.string.cancelled),
-    /* failure with compatibility mode and directories */
-    FAILURE_COMPATIBILITY(R.string.failed_compatibility),
-    /* failures - decryption did not complete */
-    FAILED_INIT(R.string.failed_init),
-    FAILED_UNKNOWN_VERSION(R.string.failed_unknown_version),
-    FAILED_UNKNOWN_ALGORITHM(R.string.failed_unknown_algorithm),
-    FAILED_DECRYPTION(R.string.failed_decryption),
-    FAILED_UNKNOWN_TAG(R.string.failed_unknown_tag),
-    FAILED_IO(R.string.failed_io),
-    FAILED_KEY(R.string.failed_key),
-    FAILED_OUTPUT_MISMATCH(R.string.failed_output_mismatch),
-    FAILED_COMPRESSION_ERROR(R.string.failed_compression_error),
-    FAILED_OTHER(R.string.failed_other),
-    /* warnings - decryption finished but with possible errors */
-    WARNING_CHECKSUM(R.string.warning_checksum),
-    WARNING_LINK(R.string.warning_link);
+	/* success and running states */
+	SUCCESS(R.string.success),
+	INIT(R.string.init),
+	RUNNING(R.string.running),
+	CANCELLED(R.string.cancelled),
+	/* failure with compatibility mode and directories */
+	FAILURE_COMPATIBILITY(R.string.failed_compatibility),
+	/* failures - decryption did not complete */
+	FAILED_INIT(R.string.failed_init),
+	FAILED_UNKNOWN_VERSION(R.string.failed_unknown_version),
+	FAILED_UNKNOWN_ALGORITHM(R.string.failed_unknown_algorithm),
+	FAILED_DECRYPTION(R.string.failed_decryption),
+	FAILED_UNKNOWN_TAG(R.string.failed_unknown_tag),
+	FAILED_IO(R.string.failed_io),
+	FAILED_KEY(R.string.failed_key),
+	FAILED_OUTPUT_MISMATCH(R.string.failed_output_mismatch),
+	FAILED_COMPRESSION_ERROR(R.string.failed_compression_error),
+	FAILED_OTHER(R.string.failed_other),
+	/* warnings - decryption finished but with possible errors */
+	WARNING_CHECKSUM(R.string.warning_checksum),
+	WARNING_LINK(R.string.warning_link);
 
-    final public String message;
+	final public String message;
 
-    private Status(final int message)
-    {
-        final Context context = Main.getContext();
-        this.message = context.getString(message);
-    }
+	private Status(final int message)
+	{
+		final Context context = Main.getContext();
+		this.message = context.getString(message);
+	}
 
-    public static Status parseStatus(final String s)
-    {
-        for (final Status status : Status.values())
-            if (status.name().equals(s))
-                return status;
-        return null;
-    }
+	public static Status parseStatus(final String s)
+	{
+		for (final Status status : Status.values())
+			if (status.name().equals(s))
+				return status;
+		return null;
+	}
 }

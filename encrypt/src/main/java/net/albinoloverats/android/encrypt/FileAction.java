@@ -22,22 +22,22 @@ package net.albinoloverats.android.encrypt;
 
 public enum FileAction
 {
-    LOAD(0),
-    SAVE(1),
-    KEY(2);
+	LOAD(0),
+	SAVE(1),
+	KEY(2);
 
-    public int value;
+	public int value;
 
-    private FileAction(final int value)
-    {
-        this.value = value;
-    }
+	private FileAction(final int value)
+	{
+		this.value = value;
+	}
 
-    public static FileAction fromValue(final int value)
-    {
-        for (final FileAction action : FileAction.values())
-            if (action.value == value)
-                return action;
-        return null;
-    }
+	public static FileAction fromValue(final int value)
+	{
+		for (final FileAction action : FileAction.values())
+			if (action.value == value)
+				return action;
+		return null;
+	}
 }

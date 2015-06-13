@@ -24,19 +24,19 @@ import java.util.Locale;
 
 public enum Options
 {
-    ENCRYPT_PREFERENCES,
-    CIPHER,
-    HASH,
-    MODE,
-    COMPRESS,
-    FOLLOW,
-    KEY,
-    RAW,
-    VERSION;
+	ENCRYPT_PREFERENCES,
+	CIPHER,
+	HASH,
+	MODE,
+	COMPRESS,
+	FOLLOW,
+	KEY,
+	RAW,
+	VERSION;
 
-    @Override
-    public String toString()
-    {
-        return name().toLowerCase(Locale.ENGLISH);
-    }
+	@Override
+	public String toString()
+	{
+		return name().toLowerCase(Locale.ENGLISH);
+	}
 }

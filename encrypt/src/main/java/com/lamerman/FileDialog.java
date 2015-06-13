@@ -195,10 +195,10 @@ public class FileDialog extends ListActivity {
 			@Override
 			public void onClick(View v) {
 				if (mFileName.getText().length() > 0) {
-				    final StringBuilder p = new StringBuilder(currentPath);
-				    if (!currentPath.endsWith(ROOT))
-				        p.append(ROOT);
-				    p.append(mFileName.getText());
+					final StringBuilder p = new StringBuilder(currentPath);
+					if (!currentPath.endsWith(ROOT))
+						p.append(ROOT);
+					p.append(mFileName.getText());
 					getIntent().putExtra(RESULT_PATH, p.toString());
 					setResult(RESULT_OK, getIntent());
 					finish();
@@ -259,9 +259,9 @@ public class FileDialog extends ListActivity {
 			addItem(ROOT, R.drawable.folder);
 			path.add(ROOT);
 
-            item.add("./");
-            addItem("./", R.drawable.folder);
-            path.add(f.getPath());
+			item.add("./");
+			addItem("./", R.drawable.folder);
+			path.add(f.getPath());
 
 			item.add("../");
 			addItem("../", R.drawable.folder);
@@ -345,8 +345,8 @@ public class FileDialog extends ListActivity {
 
 		setSelectVisible(v);
 
-        for (int i = 0; i < l.getChildCount(); i++)
-            l.getChildAt(i).setBackgroundColor(0);
+		for (int i = 0; i < l.getChildCount(); i++)
+			l.getChildAt(i).setBackgroundColor(0);
 
 		if (file.isDirectory() && file.getPath() != currentPath) {
 			selectButton.setEnabled(false);
@@ -372,7 +372,7 @@ public class FileDialog extends ListActivity {
 		} else {
 			selectedFile = file;
 			v.setSelected(true);
-            v.setBackgroundColor(Color.parseColor(getString(R.color.red)));
+			v.setBackgroundColor(Color.parseColor(getString(R.color.red)));
 			selectButton.setEnabled(true);
 		}
 	}

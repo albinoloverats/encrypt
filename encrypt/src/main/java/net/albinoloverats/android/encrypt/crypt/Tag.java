@@ -22,24 +22,24 @@ package net.albinoloverats.android.encrypt.crypt;
 
 public enum Tag
 {
-    SIZE(0),
-    BLOCKED(1),
-    COMPRESSED(2),
-    DIRECTORY(3),
-    FILENAME(4);
+	SIZE(0),
+	BLOCKED(1),
+	COMPRESSED(2),
+	DIRECTORY(3),
+	FILENAME(4);
 
-    final public int value;
+	final public int value;
 
-    private Tag(final int value)
-    {
-        this.value = value;
-    }
+	private Tag(final int value)
+	{
+		this.value = value;
+	}
 
-    public static Tag fromValue(final int value) throws CryptoProcessException
-    {
-        for (final Tag tag : Tag.values())
-            if (tag.value == value)
-                return tag;
-        throw new CryptoProcessException(Status.FAILED_UNKNOWN_TAG);
-    }
+	public static Tag fromValue(final int value) throws CryptoProcessException
+	{
+		for (final Tag tag : Tag.values())
+			if (tag.value == value)
+				return tag;
+		throw new CryptoProcessException(Status.FAILED_UNKNOWN_TAG);
+	}
 }

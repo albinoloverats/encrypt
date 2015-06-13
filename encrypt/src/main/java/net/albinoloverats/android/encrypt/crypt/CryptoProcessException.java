@@ -22,26 +22,26 @@ package net.albinoloverats.android.encrypt.crypt;
 
 public class CryptoProcessException extends Exception
 {
-    private static final long serialVersionUID = 4714119489698420307L;
+	private static final long serialVersionUID = 4714119489698420307L;
 
-    final public Status code;
-    final public Throwable cause;
+	final public Status code;
+	final public Throwable cause;
 
-    public CryptoProcessException(final Status code)
-    {
-        this.code = code;
-        cause = null;
-    }
+	public CryptoProcessException(final Status code)
+	{
+		this.code = code;
+		cause = null;
+	}
 
-    public CryptoProcessException(final Status code, final Throwable cause)
-    {
-        this.code = code;
-        this.cause = cause;
-    }
+	public CryptoProcessException(final Status code, final Throwable cause)
+	{
+		this.code = code;
+		this.cause = cause;
+	}
 
-    @Override
-    public String getMessage()
-    {
-        return code.message;
-    }
+	@Override
+	public String getMessage()
+	{
+		return code.message;
+	}
 }

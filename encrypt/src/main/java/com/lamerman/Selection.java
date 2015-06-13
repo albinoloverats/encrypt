@@ -32,18 +32,18 @@ public enum Selection
 	CREATE(0),
 	OPEN(1);
 
-    public final int mode;
+	public final int mode;
 
-    private Selection(final int m)
-    {
-        mode = m;
-    }
+	private Selection(final int m)
+	{
+		mode = m;
+	}
 
-    public static Selection parseMode(final int m)
-    {
-        for (Selection s : Selection.values())
-            if (s.mode == m)
-                return s;
-        return null;
-    }
+	public static Selection parseMode(final int m)
+	{
+		for (Selection s : Selection.values())
+			if (s.mode == m)
+				return s;
+		return null;
+	}
 }
