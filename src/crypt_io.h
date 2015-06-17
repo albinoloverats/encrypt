@@ -54,9 +54,9 @@ typedef unsigned short mode_t;
  */
 typedef enum
 {
-    IV_BROKEN, /*!< The oldest version of encrypt didn’t do a good job of IV generation */
-    IV_SIMPLE, /*!< More recent versions did a better job, but it’s still not great */
-    IV_RANDOM  /*!< The next/current version does the best job (so far) */
+	IV_BROKEN, /*!< The oldest version of encrypt didn’t do a good job of IV generation */
+	IV_SIMPLE, /*!< More recent versions did a better job, but it’s still not great */
+	IV_RANDOM  /*!< The next/current version does the best job (so far) */
 }
 x_iv_e;
 
@@ -70,9 +70,9 @@ x_iv_e;
  */
 typedef struct
 {
-    x_iv_e x_iv;          /*!< Whether to use the older (less correct) IV generation */
-    bool x_encrypt;       /*!< Encrypt (or decrypt) */
-    unsigned int x_hz:15; /*!< NOT USED (yet) The number of iterations for key/IV generation */
+	x_iv_e x_iv;          /*!< Whether to use the older (less correct) IV generation */
+	bool x_encrypt;       /*!< Encrypt (or decrypt) */
+	unsigned int x_hz:15; /*!< NOT USED (yet) The number of iterations for key/IV generation */
 }
 io_extra_t;
 
@@ -225,12 +225,12 @@ extern off_t io_seek(IO_HANDLE f, off_t o, int w) __attribute__((nonnull(1)));
  * active for the rest of the life of the IO_HANDLE.
  */
 extern void io_encryption_init(IO_HANDLE f,
-                               enum gcry_cipher_algos c,
-                               enum gcry_md_algos h,
-                               enum gcry_cipher_modes m,
-                               const uint8_t *k,
-                               size_t l,
-                               io_extra_t x) __attribute__((nonnull(1, 5)));
+							   enum gcry_cipher_algos c,
+							   enum gcry_md_algos h,
+							   enum gcry_cipher_modes m,
+							   const uint8_t *k,
+							   size_t l,
+							   io_extra_t x) __attribute__((nonnull(1, 5)));
 
 /*
  * \brief         Compression initialisation

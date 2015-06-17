@@ -39,7 +39,7 @@
 #include "common/ccrypt.h"
 
 #ifdef _WIN32
-    #include "common/win32_ext.h"
+	#include "common/win32_ext.h"
 #endif
 
 #include "crypt.h"
@@ -47,175 +47,175 @@
 
 static const char *STATUS_MESSAGE[] =
 {
-    /* success and running states */
-    "Success",
-    "Initialisation",
-    "Running",
-    "Cancelled",
-    /* failures - decryption did not complete */
-    "Failed: Invalid initialisation parameters!",
-    "Failed: Unsupported version!",
-    "Failed: Unsupported cipher algorithm!",
-    "Failed: Unsupported hash algorithm!",
-    "Failed: Unsupported cipher mode!",
-    "Failed: Decryption failure! (Invalid password)",
-    "Failed: Unsupported feature!",
-    "Failed: Read/Write error!",
-    "Failed: Key generation error!",
-    "Failed: Invalid target file type!",
-    "Failed: An unknown error has occurred!",
-    /* warnings - decryption finished but with possible errors */
-    "Warning: Bad checksum! (Possible data corruption)",
-    "Warning: Could not extract all files! (Links are unsupported)"
+	/* success and running states */
+	"Success",
+	"Initialisation",
+	"Running",
+	"Cancelled",
+	/* failures - decryption did not complete */
+	"Failed: Invalid initialisation parameters!",
+	"Failed: Unsupported version!",
+	"Failed: Unsupported cipher algorithm!",
+	"Failed: Unsupported hash algorithm!",
+	"Failed: Unsupported cipher mode!",
+	"Failed: Decryption failure! (Invalid password)",
+	"Failed: Unsupported feature!",
+	"Failed: Read/Write error!",
+	"Failed: Key generation error!",
+	"Failed: Invalid target file type!",
+	"Failed: An unknown error has occurred!",
+	/* warnings - decryption finished but with possible errors */
+	"Warning: Bad checksum! (Possible data corruption)",
+	"Warning: Could not extract all files! (Links are unsupported)"
 };
 
 typedef struct
 {
-    const char string[8];
-    uint64_t id;
+	const char string[8];
+	uint64_t id;
 }
 version_t;
 
 static const version_t VERSIONS[] =
 {
-    { "Unknown", 0 },
-    { "2011.08", 0x72761df3e497c983llu },
-    { "2011.10", 0xbb116f7d00201110llu },
-    { "2012.11", 0x51d28245e1216c45llu },
-    { "2013.02", 0x5b7132ab5abb3c47llu },
-    { "2013.11", 0xf1f68e5f2a43aa5fllu },
-    { "2014.06", 0x8819d19069fae6b4llu },
-    { "2015.01", 0x63e7d49566e31bfbllu },
+	{ "Unknown", 0 },
+	{ "2011.08", 0x72761df3e497c983llu },
+	{ "2011.10", 0xbb116f7d00201110llu },
+	{ "2012.11", 0x51d28245e1216c45llu },
+	{ "2013.02", 0x5b7132ab5abb3c47llu },
+	{ "2013.11", 0xf1f68e5f2a43aa5fllu },
+	{ "2014.06", 0x8819d19069fae6b4llu },
+	{ "2015.01", 0x63e7d49566e31bfbllu },
 
-    { "current", 0x63e7d49566e31bfbllu }
+	{ "current", 0x63e7d49566e31bfbllu }
 };
 
 extern void execute(crypto_t *c)
 {
-    if (!c || c->status != STATUS_INIT)
-        return;
-    pthread_t *t = gcry_calloc_secure(1, sizeof( pthread_t ));
-    pthread_attr_t a;
-    pthread_attr_init(&a);
-    pthread_attr_setdetachstate(&a, PTHREAD_CREATE_JOINABLE);
-    pthread_create(t, &a, c->process, c);
-    c->thread = t;
-    pthread_attr_destroy(&a);
-    return;
+	if (!c || c->status != STATUS_INIT)
+		return;
+	pthread_t *t = gcry_calloc_secure(1, sizeof( pthread_t ));
+	pthread_attr_t a;
+	pthread_attr_init(&a);
+	pthread_attr_setdetachstate(&a, PTHREAD_CREATE_JOINABLE);
+	pthread_create(t, &a, c->process, c);
+	c->thread = t;
+	pthread_attr_destroy(&a);
+	return;
 }
 
 extern const char *status(const crypto_t * const restrict c)
 {
-    return c ? STATUS_MESSAGE[c->status] : NULL;
+	return c ? STATUS_MESSAGE[c->status] : NULL;
 }
 
 extern void deinit(crypto_t **c)
 {
-    if (!c)
-        return;
-    crypto_t *z = *c;
+	if (!c)
+		return;
+	crypto_t *z = *c;
 
-    z->status = STATUS_CANCELLED;
-    if (z->thread)
-    {
-        pthread_join(*z->thread, NULL);
-        gcry_free(z->thread);
-    }
-    if (z->path)
-        gcry_free(z->path);
-    if (z->name)
-        gcry_free(z->name);
-    if (z->source)
-        io_close(z->source);
-    if (z->output)
-        io_close(z->output);
-    gcry_free(z);
-    z = NULL;
-    *c = NULL;
-    return;
+	z->status = STATUS_CANCELLED;
+	if (z->thread)
+	{
+		pthread_join(*z->thread, NULL);
+		gcry_free(z->thread);
+	}
+	if (z->path)
+		gcry_free(z->path);
+	if (z->name)
+		gcry_free(z->name);
+	if (z->source)
+		io_close(z->source);
+	if (z->output)
+		io_close(z->output);
+	gcry_free(z);
+	z = NULL;
+	*c = NULL;
+	return;
 }
 
 #if 0
 extern void key_gcry_free(raw_key_t **key)
 {
-    memset((*key)->data, 0x00, (*key)->length);
-    gcry_free((*key)->data);
-    (*key)->length = 0;
-    gcry_free(*key);
-    key = NULL;
-    return;
+	memset((*key)->data, 0x00, (*key)->length);
+	gcry_free((*key)->data);
+	(*key)->length = 0;
+	gcry_free(*key);
+	key = NULL;
+	return;
 }
 #endif
 
 extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, char **m)
 {
-    struct stat s;
-    stat(n, &s);
-    if (S_ISDIR(s.st_mode))
-        return VERSION_UNKNOWN;
-    int64_t f = open(n, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR);
-    if (f < 0)
-        return VERSION_UNKNOWN;
-    uint64_t head[3] = { 0x0 };
-    if ((read(f, head, sizeof head)) < 0)
-        return close(f) , VERSION_UNKNOWN;
-    if (head[0] != htonll(HEADER_0) && head[1] != htonll(HEADER_1))
-        return close(f) , VERSION_UNKNOWN;
+	struct stat s;
+	stat(n, &s);
+	if (S_ISDIR(s.st_mode))
+		return VERSION_UNKNOWN;
+	int64_t f = open(n, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR);
+	if (f < 0)
+		return VERSION_UNKNOWN;
+	uint64_t head[3] = { 0x0 };
+	if ((read(f, head, sizeof head)) < 0)
+		return close(f) , VERSION_UNKNOWN;
+	if (head[0] != htonll(HEADER_0) && head[1] != htonll(HEADER_1))
+		return close(f) , VERSION_UNKNOWN;
 
-    if (b)
-    {
-        uint8_t l;
-        read(f, &l, sizeof l);
-        char *a = gcry_calloc_secure(l + sizeof( char ), sizeof( char ));
-        read(f, a, l);
-        char *s = strchr(a, '/');
-        *s = '\0';
-        s++;
-        char *d = strrchr(s, '/');
-        if (d)
-        {
-            *d = '\0';
-            d++;
-        }
-        else
-            d = "CBC";
-        if (*c)
-            *c = strdup(a);
-        if (*h)
-            *h = strdup(s);
-        if (*m)
-            *m = strdup(d);
-        gcry_free(a);
-    }
-    close(f);
+	if (b)
+	{
+		uint8_t l;
+		read(f, &l, sizeof l);
+		char *a = gcry_calloc_secure(l + sizeof( char ), sizeof( char ));
+		read(f, a, l);
+		char *s = strchr(a, '/');
+		*s = '\0';
+		s++;
+		char *d = strrchr(s, '/');
+		if (d)
+		{
+			*d = '\0';
+			d++;
+		}
+		else
+			d = "CBC";
+		if (*c)
+			*c = strdup(a);
+		if (*h)
+			*h = strdup(s);
+		if (*m)
+			*m = strdup(d);
+		gcry_free(a);
+	}
+	close(f);
 
-    return check_version(ntohll(head[2]));
+	return check_version(ntohll(head[2]));
 }
 
 extern version_e check_version(uint64_t m)
 {
-    for (version_e v = VERSION_CURRENT; v > VERSION_UNKNOWN; v--)
-        if (m == VERSIONS[v].id)
-            return v;
-    return VERSION_UNKNOWN;
+	for (version_e v = VERSION_CURRENT; v > VERSION_UNKNOWN; v--)
+		if (m == VERSIONS[v].id)
+			return v;
+	return VERSION_UNKNOWN;
 }
 
 extern uint64_t get_version(version_e v)
 {
-    return VERSIONS[v].id;
+	return VERSIONS[v].id;
 }
 
 extern const char *get_version_string(version_e v)
 {
-    return VERSIONS[v].string;
+	return VERSIONS[v].string;
 }
 
 extern version_e parse_version(const char *v)
 {
-    if (!v)
-        return VERSION_CURRENT;
-    for (version_e i = VERSION_CURRENT; i > VERSION_UNKNOWN; i--)
-        if (!strcmp(v, VERSIONS[i].string))
-            return i;
-    return VERSION_CURRENT;
+	if (!v)
+		return VERSION_CURRENT;
+	for (version_e i = VERSION_CURRENT; i > VERSION_UNKNOWN; i--)
+		if (!strcmp(v, VERSIONS[i].string))
+			return i;
+	return VERSION_CURRENT;
 }

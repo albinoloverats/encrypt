@@ -49,7 +49,7 @@
 #define BLOCK_SIZE 1024 /*!< Default IO block size */
 
 #ifndef GIT_COMMIT
-    #define GIT_COMMIT "unknown"
+	#define GIT_COMMIT "unknown"
 #endif
 #define GIT_COMMIT_LENGTH 7
 
@@ -65,26 +65,26 @@
  */
 typedef enum
 {
-    /* success and running states */
-    STATUS_SUCCESS,                         /*!< Success */
-    STATUS_INIT,                            /*!< Initialisation in progress or complete */
-    STATUS_RUNNING,                         /*!< Execution is in progress */
-    STATUS_CANCELLED,                       /*!< User cancelled the operation */
-    /* failures - decryption did not complete */
-    STATUS_FAILED_INIT,                     /*!< Error during initialisation */
-    STATUS_FAILED_UNKNOWN_VERSION,          /*!< Failed due to unknown/unsupported encrypt data stream version */
-    STATUS_FAILED_UNKNOWN_CIPHER_ALGORITHM, /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
-    STATUS_FAILED_UNKNOWN_HASH_ALGORITHM,   /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
-    STATUS_FAILED_UNKNOWN_CIPHER_MODE,      /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
-    STATUS_FAILED_DECRYPTION,               /*!< Failed decryption verification (likely wrong password) */
-    STATUS_FAILED_UNKNOWN_TAG,              /*!< Failed due to unknown tag */
-    STATUS_FAILED_IO,                       /*!< Read/write error */
-    STATUS_FAILED_KEY,                      /*!< Key generation/read error */
-    STATUS_FAILED_OUTPUT_MISMATCH,          /*!< Tried to write directory into a file or vice-versa */
-    STATUS_FAILED_OTHER,                    /*!< Unknown error */
-    /* warnings - decryption finished but with possible errors */
-    STATUS_WARNING_CHECKSUM,                /*!< Data checksum was invalid, possible data corruption */
-    STATUS_WARNING_LINK                     /*!< Warning where links are unsupported by the system */
+	/* success and running states */
+	STATUS_SUCCESS,                         /*!< Success */
+	STATUS_INIT,                            /*!< Initialisation in progress or complete */
+	STATUS_RUNNING,                         /*!< Execution is in progress */
+	STATUS_CANCELLED,                       /*!< User cancelled the operation */
+	/* failures - decryption did not complete */
+	STATUS_FAILED_INIT,                     /*!< Error during initialisation */
+	STATUS_FAILED_UNKNOWN_VERSION,          /*!< Failed due to unknown/unsupported encrypt data stream version */
+	STATUS_FAILED_UNKNOWN_CIPHER_ALGORITHM, /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
+	STATUS_FAILED_UNKNOWN_HASH_ALGORITHM,   /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
+	STATUS_FAILED_UNKNOWN_CIPHER_MODE,      /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
+	STATUS_FAILED_DECRYPTION,               /*!< Failed decryption verification (likely wrong password) */
+	STATUS_FAILED_UNKNOWN_TAG,              /*!< Failed due to unknown tag */
+	STATUS_FAILED_IO,                       /*!< Read/write error */
+	STATUS_FAILED_KEY,                      /*!< Key generation/read error */
+	STATUS_FAILED_OUTPUT_MISMATCH,          /*!< Tried to write directory into a file or vice-versa */
+	STATUS_FAILED_OTHER,                    /*!< Unknown error */
+	/* warnings - decryption finished but with possible errors */
+	STATUS_WARNING_CHECKSUM,                /*!< Data checksum was invalid, possible data corruption */
+	STATUS_WARNING_LINK                     /*!< Warning where links are unsupported by the system */
 }
 crypto_status_e;
 
@@ -97,10 +97,10 @@ crypto_status_e;
  */
 typedef enum
 {
-    FILE_DIRECTORY, /*!< File is a directory */
-    FILE_REGULAR,   /*!< File is a file */
-    FILE_SYMLINK,   /*!, File is a soft link */
-    FILE_LINK       /*!, File is a hard link */
+	FILE_DIRECTORY, /*!< File is a directory */
+	FILE_REGULAR,   /*!< File is a file */
+	FILE_SYMLINK,   /*!, File is a soft link */
+	FILE_LINK       /*!, File is a hard link */
 } __attribute__((packed))
 file_type_e;
 
@@ -112,16 +112,16 @@ file_type_e;
  */
 typedef enum
 {
-    VERSION_UNKNOWN = 0,              /*!< Unknown version, or not encrypted  */
-    VERSION_2011_08,                  /*!< Version 2011.08 */
-    VERSION_2011_10,                  /*!< Version 2011.10 */
-    VERSION_2012_11,                  /*!< Version 2012.11 */
-    VERSION_2013_02,                  /*!< Version 2013.02 */
-    VERSION_2013_11,                  /*!< Version 2013.11 */
-    VERSION_2014_06,                  /*!< Version 2014.06 */
-    VERSION_2015_01,                  /*!< Version 2015.01 */
+	VERSION_UNKNOWN = 0,              /*!< Unknown version, or not encrypted  */
+	VERSION_2011_08,                  /*!< Version 2011.08 */
+	VERSION_2011_10,                  /*!< Version 2011.10 */
+	VERSION_2012_11,                  /*!< Version 2012.11 */
+	VERSION_2013_02,                  /*!< Version 2013.02 */
+	VERSION_2013_11,                  /*!< Version 2013.11 */
+	VERSION_2014_06,                  /*!< Version 2014.06 */
+	VERSION_2015_01,                  /*!< Version 2015.01 */
 
-    VERSION_CURRENT = VERSION_2015_01 /*!< Next release / current development version */
+	VERSION_CURRENT = VERSION_2015_01 /*!< Next release / current development version */
 }
 version_e;
 
@@ -133,14 +133,14 @@ version_e;
  */
 typedef enum
 {
-    TAG_SIZE,       /*!< Encrypted data size */
-    TAG_BLOCKED,    /*!< Data is split into blocks (of given size) */
-    TAG_COMPRESSED, /*!< Data is compressed */
-    TAG_DIRECTORY,  /*!< Data is a directory hierarchy */
-    TAG_FILENAME    /*!< Single file name */
-        /*
-         * TODO add tags for stat data (mode, atime, ctime, mtime)
-         */
+	TAG_SIZE,       /*!< Encrypted data size */
+	TAG_BLOCKED,    /*!< Data is split into blocks (of given size) */
+	TAG_COMPRESSED, /*!< Data is compressed */
+	TAG_DIRECTORY,  /*!< Data is a directory hierarchy */
+	TAG_FILENAME    /*!< Single file name */
+		/*
+		 * TODO add tags for stat data (mode, atime, ctime, mtime)
+		 */
 } __attribute__((packed))
 stream_tags_e;
 
@@ -152,8 +152,8 @@ stream_tags_e;
  */
 typedef struct
 {
-    uint8_t *data;  /*!< Key data */
-    size_t length; /*!< Key data length */
+	uint8_t *data;  /*!< Key data */
+	size_t length; /*!< Key data length */
 }
 raw_key_t;
 #endif
@@ -167,35 +167,35 @@ raw_key_t;
  */
 typedef struct
 {
-    IO_HANDLE source;              /*!< Where to get data from */
-    IO_HANDLE output;              /*!< Where to put data to */
+	IO_HANDLE source;              /*!< Where to get data from */
+	IO_HANDLE output;              /*!< Where to put data to */
 
-    char *path;                    /*!< Path to en/decrypted directory */
-    char *name;                    /*!< Name of single encrypted file */
-    enum gcry_cipher_algos cipher; /*!< The chosen cipher algorithm */
-    enum gcry_md_algos hash;       /*!< The chosen key hash algorithm */
-    enum gcry_cipher_modes mode;   /*!< The chosen encryption mode */
+	char *path;                    /*!< Path to en/decrypted directory */
+	char *name;                    /*!< Name of single encrypted file */
+	enum gcry_cipher_algos cipher; /*!< The chosen cipher algorithm */
+	enum gcry_md_algos hash;       /*!< The chosen key hash algorithm */
+	enum gcry_cipher_modes mode;   /*!< The chosen encryption mode */
 
 #if 0
-    raw_key_t *raw_key;            /*!< Encryption key (NB Not yet used) */
+	raw_key_t *raw_key;            /*!< Encryption key (NB Not yet used) */
 #endif
-    uint8_t *key;                  /*!< Key data */
-    size_t length;                 /*!< Key data length */
+	uint8_t *key;                  /*!< Key data */
+	size_t length;                 /*!< Key data length */
 
-    pthread_t *thread;             /*!< Execution thread */
-    void *(*process)(void *);      /*!< Main processing function; used by execute() */
-    crypto_status_e status;        /*!< Current status */
-    cli_progress_t current;        /*!< Progress of current file */
-    cli_progress_t total;          /*!< Overall progress (all files) */
+	pthread_t *thread;             /*!< Execution thread */
+	void *(*process)(void *);      /*!< Main processing function; used by execute() */
+	crypto_status_e status;        /*!< Current status */
+	cli_progress_t current;        /*!< Progress of current file */
+	cli_progress_t total;          /*!< Overall progress (all files) */
 
-    void *misc;                    /*!< Miscellaneous data, specific to either encryption or decryption only */
+	void *misc;                    /*!< Miscellaneous data, specific to either encryption or decryption only */
 
-    version_e version;             /*!< Version of the encrypted file container */
-    uint64_t blocksize;            /*!< Whether data is split into blocks, and thus their size */
-    bool compressed:1;             /*!< Whether data stream is compress */
-    bool directory:1;              /*!< Whether data stream is a directory hierarchy */
-    bool follow_links:1;           /*!< Whether encrypt should follow symlinks (true: store the file it points to; false: store the link itself */
-    bool raw:1;                    /*!< Whether the header should be skipped (not recommended but ideal in some situations) */
+	version_e version;             /*!< Version of the encrypted file container */
+	uint64_t blocksize;            /*!< Whether data is split into blocks, and thus their size */
+	bool compressed:1;             /*!< Whether data stream is compress */
+	bool directory:1;              /*!< Whether data stream is a directory hierarchy */
+	bool follow_links:1;           /*!< Whether encrypt should follow symlinks (true: store the file it points to; false: store the link itself */
+	bool raw:1;                    /*!< Whether the header should be skipped (not recommended but ideal in some situations) */
 }
 crypto_t;
 

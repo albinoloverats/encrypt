@@ -37,43 +37,43 @@ static char *current = NULL;
 
 extern void version_check_for_update(char *c, char *url)
 {
-    if (!c || !url)
-        return;
-    current = c;
-    pthread_t vt;
-    pthread_attr_t a;
-    pthread_attr_init(&a);
-    pthread_attr_setdetachstate(&a, PTHREAD_CREATE_DETACHED);
-    pthread_create(&vt, &a, version_check, url);
-    pthread_attr_destroy(&a);
-    return;
+	if (!c || !url)
+		return;
+	current = c;
+	pthread_t vt;
+	pthread_attr_t a;
+	pthread_attr_init(&a);
+	pthread_attr_setdetachstate(&a, PTHREAD_CREATE_DETACHED);
+	pthread_create(&vt, &a, version_check, url);
+	pthread_attr_destroy(&a);
+	return;
 }
 
 static void *version_check(void *n)
 {
-    curl_global_init(CURL_GLOBAL_ALL);
-    CURL *curl_handle = curl_easy_init();
-    curl_easy_setopt(curl_handle, CURLOPT_URL, (char *)n);
+	curl_global_init(CURL_GLOBAL_ALL);
+	CURL *curl_handle = curl_easy_init();
+	curl_easy_setopt(curl_handle, CURLOPT_URL, (char *)n);
 #ifdef WIN32
-    curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
+	curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
 #endif
-    curl_easy_setopt(curl_handle, CURLOPT_NOPROGRESS, 1L);
-    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, version_verify);
-    curl_easy_perform(curl_handle);
-    curl_easy_cleanup(curl_handle);
-    pthread_exit(n);
+	curl_easy_setopt(curl_handle, CURLOPT_NOPROGRESS, 1L);
+	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, version_verify);
+	curl_easy_perform(curl_handle);
+	curl_easy_cleanup(curl_handle);
+	pthread_exit(n);
 }
 
 static size_t version_verify(void *p, size_t s, size_t n, void *x)
 {
-    (void)x;
-    char *b = calloc(s + 1, n);
-    memcpy(b, p, s * n);
-    char *l = strrchr(b, '\n');
-    if (l)
-        *l = '\0';
-    if (strcmp(b, current) > 0)
-        new_version_available = true;
-    free(b);
-    return s * n;
+	(void)x;
+	char *b = calloc(s + 1, n);
+	memcpy(b, p, s * n);
+	char *l = strrchr(b, '\n');
+	if (l)
+		*l = '\0';
+	if (strcmp(b, current) > 0)
+		new_version_available = true;
+	free(b);
+	return s * n;
 }

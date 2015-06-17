@@ -55,12 +55,12 @@
  * header information.
  */
 extern crypto_t *decrypt_init(const char * const restrict i,
-                              const char * const restrict o,
-                              const char * const restrict c,
-                              const char * const restrict h,
-                              const char * const restrict m,
-                              const void * const restrict k,
-                              size_t l,
-                              bool n) __attribute__((nonnull(6)));
+							  const char * const restrict o,
+							  const char * const restrict c,
+							  const char * const restrict h,
+							  const char * const restrict m,
+							  const void * const restrict k,
+							  size_t l,
+							  bool n) __attribute__((nonnull(6)));
 
 #endif /* ! _ENCRYPT_DECRYPT_H_ */

@@ -28,9 +28,9 @@
 
 typedef enum
 {
-    CLI_DONE,
-    CLI_INIT,
-    CLI_RUN
+	CLI_DONE,
+	CLI_INIT,
+	CLI_RUN
 }
 cli_status_e;
 
@@ -44,23 +44,23 @@ cli_status_e;
  */
 typedef struct
 {
-    uint64_t offset; /*!< Progress */
-    uint64_t size;   /*!< Maximum */
+	uint64_t offset; /*!< Progress */
+	uint64_t size;   /*!< Maximum */
 }
 cli_progress_t;
 
 typedef struct
 {
-    cli_status_e *status;
-    cli_progress_t *current;
-    cli_progress_t *total;
+	cli_status_e *status;
+	cli_progress_t *current;
+	cli_progress_t *total;
 }
 cli_t;
 
 typedef struct
 {
-    uint64_t time;
-    uint64_t bytes;
+	uint64_t time;
+	uint64_t bytes;
 }
 cli_bps_t;
 

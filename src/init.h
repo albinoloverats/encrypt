@@ -25,7 +25,7 @@
 #define ALT_NAME "decrypt"
 
 #define APP_USAGE "[source] [destination] [-c algorithm] [-s algorithm] [-m mode]\n" \
-                   "          [-k key/-p password] [-x] [-f] [-g] [-b version]"
+				   "          [-k key/-p password] [-x] [-f] [-g] [-b version]"
 #define ALT_USAGE "[-k key/-p password] [input] [output]"
 
 #define ENCRYPTRC ".encryptrc"
@@ -53,8 +53,8 @@
  */
 typedef enum
 {
-    KEY_SOURCE_FILE,    /*!< Key data comes from a file */
-    KEY_SOURCE_PASSWORD /*!< Key data comes from a password */
+	KEY_SOURCE_FILE,    /*!< Key data comes from a file */
+	KEY_SOURCE_PASSWORD /*!< Key data comes from a password */
 }
 key_source_e;
 
@@ -68,19 +68,19 @@ extern char *KEY_SOURCE[];
  */
 typedef struct
 {
-    char *cipher;            /*!< The cryptoraphic cipher selected by the user */
-    char *hash;              /*!< The hash function selected by the user */
-    char *mode;              /*!< The encryption mode selected by the user */
-    char *key;               /*!< The key file for key generation */
-    char *password;          /*!< The password for key generation */
-    char *source;            /*!< The input file/stream */
-    char *output;            /*!< The output file/stream */
-    char *version;           /*!< The container version to use */
-    key_source_e key_source; /*!< The expected key source (GUI only) */
-    bool compress:1;         /*!< Compress the file (with xz) before encrypting */
-    bool follow:1;           /*!< Follow symlinks or not */
-    bool nogui:1;            /*!< Skip the GUI (if it’s available) */
-    bool raw:1;              /*!< Whether the header should be skipped */
+	char *cipher;            /*!< The cryptoraphic cipher selected by the user */
+	char *hash;              /*!< The hash function selected by the user */
+	char *mode;              /*!< The encryption mode selected by the user */
+	char *key;               /*!< The key file for key generation */
+	char *password;          /*!< The password for key generation */
+	char *source;            /*!< The input file/stream */
+	char *output;            /*!< The output file/stream */
+	char *version;           /*!< The container version to use */
+	key_source_e key_source; /*!< The expected key source (GUI only) */
+	bool compress:1;         /*!< Compress the file (with xz) before encrypting */
+	bool follow:1;           /*!< Follow symlinks or not */
+	bool nogui:1;            /*!< Skip the GUI (if it’s available) */
+	bool raw:1;              /*!< Whether the header should be skipped */
 }
 args_t;
 

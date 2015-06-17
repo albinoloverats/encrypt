@@ -50,79 +50,79 @@ char *program_invocation_short_name = NULL;
 #if 0
 extern int asprintf(char **buffer, char *fmt, ...)
 {
-    /* guess we need no more than 200 chars of space */
-    int size = 200;
-    int nchars;
-    va_list ap;
+	/* guess we need no more than 200 chars of space */
+	int size = 200;
+	int nchars;
+	va_list ap;
 
-    if (!(*buffer = (char *)malloc(size)))
-        die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, size);
+	if (!(*buffer = (char *)malloc(size)))
+		die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, size);
 
-    va_start(ap, fmt);
-    nchars = vsnprintf(*buffer, size, fmt, ap);
-    va_end(ap);
+	va_start(ap, fmt);
+	nchars = vsnprintf(*buffer, size, fmt, ap);
+	va_end(ap);
 
-    if (nchars >= size)
-    {
-        char *tmpbuff;
-        size = nchars + 1;
-        if (!(tmpbuff = (char *)realloc(*buffer, size)))
-            die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, size);
+	if (nchars >= size)
+	{
+		char *tmpbuff;
+		size = nchars + 1;
+		if (!(tmpbuff = (char *)realloc(*buffer, size)))
+			die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, size);
 
-        *buffer = tmpbuff;
+		*buffer = tmpbuff;
 
-        va_start(ap, fmt);
-        nchars = vsnprintf(*buffer, size, fmt, ap);
-        va_end(ap);
-    }
-    return nchars < 0 ? nchars : size;
+		va_start(ap, fmt);
+		nchars = vsnprintf(*buffer, size, fmt, ap);
+		va_end(ap);
+	}
+	return nchars < 0 ? nchars : size;
 }
 #endif
 
 extern ssize_t getline(char **lineptr, size_t *n, FILE *stream)
 {
-    bool e = false;
-    ssize_t r = 0;
-    int32_t step = 0xFF;
-    char *buffer = malloc(step);
-    if (!buffer)
-        die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, step);
-    for (r = 0; ; r++)
-    {
-        int c = fgetc(stream);
-        if (c == EOF)
-        {
-            e = true;
-            break;
-        }
-        buffer[r] = c;
-        if (c == '\n')
-            break;
-        if (r >= step - 0x10)
-        {
-            step += 0xFF;
-            if (!(buffer = realloc(buffer, step)))
-                die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, step);
-        }
-    }
-    buffer[r + 1] = 0x00;
-    if (*lineptr)
-        free(*lineptr);
-    *lineptr = buffer;
-    *n = r;
-    return e ? -1 : r;
+	bool e = false;
+	ssize_t r = 0;
+	int32_t step = 0xFF;
+	char *buffer = malloc(step);
+	if (!buffer)
+		die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, step);
+	for (r = 0; ; r++)
+	{
+		int c = fgetc(stream);
+		if (c == EOF)
+		{
+			e = true;
+			break;
+		}
+		buffer[r] = c;
+		if (c == '\n')
+			break;
+		if (r >= step - 0x10)
+		{
+			step += 0xFF;
+			if (!(buffer = realloc(buffer, step)))
+				die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, step);
+		}
+	}
+	buffer[r + 1] = 0x00;
+	if (*lineptr)
+		free(*lineptr);
+	*lineptr = buffer;
+	*n = r;
+	return e ? -1 : r;
 }
 
 extern char *strndup(const char *s, size_t l)
 {
-    size_t z = strlen(s);
-    if (z > l)
-        z = l;
-    z++;
-    char *r = malloc(z);
-    memmove(r, s, z);
-    r[z - 1] = '\0';
-    return r;
+	size_t z = strlen(s);
+	if (z > l)
+		z = l;
+	z++;
+	char *r = malloc(z);
+	memmove(r, s, z);
+	r[z - 1] = '\0';
+	return r;
 }
 
 /*
@@ -149,58 +149,58 @@ extern char *strndup(const char *s, size_t l)
  *
  */
 extern int scandir(const char *path,
-                    struct dirent ***res,
-                    int (*sel)(const struct dirent *),
-                    int (*cmp)(const struct dirent **,
-                    const struct dirent **))
+					struct dirent ***res,
+					int (*sel)(const struct dirent *),
+					int (*cmp)(const struct dirent **,
+					const struct dirent **))
 {
-    DIR *d = opendir(path);
-    struct dirent *de, **names = 0, **tmp;
-    size_t cnt = 0, len = 0;
-    int old_errno = errno;
+	DIR *d = opendir(path);
+	struct dirent *de, **names = 0, **tmp;
+	size_t cnt = 0, len = 0;
+	int old_errno = errno;
 
-    if (!d)
-        return -1;
+	if (!d)
+		return -1;
 
-    while ((errno = 0), (de = readdir(d)))
-    {
-        if (sel && !sel(de))
-            continue;
+	while ((errno = 0), (de = readdir(d)))
+	{
+		if (sel && !sel(de))
+			continue;
 
-        if (cnt >= len)
-        {
-            len = 2 * len + 1;
-            if (len > SIZE_MAX / sizeof *names)
-                break;
+		if (cnt >= len)
+		{
+			len = 2 * len + 1;
+			if (len > SIZE_MAX / sizeof *names)
+				break;
 
-            if (!(tmp = realloc(names, len * sizeof *names)))
-                die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, len * sizeof *names);
-            names = tmp;
-        }
+			if (!(tmp = realloc(names, len * sizeof *names)))
+				die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, len * sizeof *names);
+			names = tmp;
+		}
 
-        if (!(names[cnt] = malloc(sizeof( struct dirent ))))
-            die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, sizeof *names);
+		if (!(names[cnt] = malloc(sizeof( struct dirent ))))
+			die("out of memory @ %s:%d:%s [%d]", __FILE__, __LINE__, __func__, sizeof *names);
 
-        memcpy(names[cnt++], de, sizeof( struct dirent ));
-    }
+		memcpy(names[cnt++], de, sizeof( struct dirent ));
+	}
 
-    closedir(d);
+	closedir(d);
 
-    if (errno)
-    {
-        if (names)
-            while (cnt-- > 0)
-                free(names[cnt]);
-        free(names);
-        return -1;
-    }
-    errno = old_errno;
+	if (errno)
+	{
+		if (names)
+			while (cnt-- > 0)
+				free(names[cnt]);
+		free(names);
+		return -1;
+	}
+	errno = old_errno;
 
-    if (cmp)
-        qsort(names, cnt, sizeof *names, (int (*)(const void *, const void *))cmp);
+	if (cmp)
+		qsort(names, cnt, sizeof *names, (int (*)(const void *, const void *))cmp);
 
-    *res = names;
-    return cnt;
+	*res = names;
+	return cnt;
 }
 
 /*
@@ -209,16 +209,16 @@ extern int scandir(const char *path,
  */
 extern int isWindows8(void)
 {
-    OSVERSIONINFO osvi;
-    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    GetVersionEx(&osvi);
-    /*
-     * windows 8 has
-     *     OSVERSIONINFO.dwMajorVersion = 6
-     *     OSVERSIONINFO.dwMinorVersion = 2
-     */
-    return ((osvi.dwMajorVersion > 6) || ((osvi.dwMajorVersion == 6) && (osvi.dwMinorVersion >= 2)));
+	OSVERSIONINFO osvi;
+	ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	GetVersionEx(&osvi);
+	/*
+	 * windows 8 has
+	 *     OSVERSIONINFO.dwMajorVersion = 6
+	 *     OSVERSIONINFO.dwMinorVersion = 2
+	 */
+	return ((osvi.dwMajorVersion > 6) || ((osvi.dwMajorVersion == 6) && (osvi.dwMinorVersion >= 2)));
 }
 
 #endif

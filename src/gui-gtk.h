@@ -30,52 +30,52 @@
 #define CH_GET_WIDGET( builder, name, data )        CH_GET_OBJECT( builder, name, GTK_WIDGET, data )
 
 #ifndef _WIN32
-    #define GLADE_UI_FILE_DEFAULT "/usr/share/encrypt/encrypt.glade"
-    #define GLADE_UI_FILE_BACKUP  "etc/encrypt.glade"
+	#define GLADE_UI_FILE_DEFAULT "/usr/share/encrypt/encrypt.glade"
+	#define GLADE_UI_FILE_BACKUP  "etc/encrypt.glade"
 #else
-    #define GLADE_UI_FILE_DEFAULT "encrypt\\etc\\encrypt_win.glade"
-    #define GLADE_UI_FILE_BACKUP  "etc\\encrypt_w32.glade"
+	#define GLADE_UI_FILE_DEFAULT "encrypt\\etc\\encrypt_win.glade"
+	#define GLADE_UI_FILE_BACKUP  "etc\\encrypt_w32.glade"
 #endif
 
 typedef struct gtk_widgets_t
 {
-    GtkWidget *main_window;
-    GtkWidget *open_button;
-    GtkWidget *open_dialog;
-    GtkWidget *open_file_label;
-    GtkWidget *open_file_image;
-    GtkWidget *save_button;
-    GtkWidget *save_dialog;
-    GtkWidget *save_file_label;
-    GtkWidget *save_file_image;
-    GtkWidget *crypto_combo;
-    GtkWidget *hash_combo;
-    GtkWidget *mode_combo;
-    GtkWidget *password_entry;
-    GtkWidget *key_button;
-    GtkWidget *key_dialog;
-    GtkWidget *key_file_label;
-    GtkWidget *key_file_image;
-    GtkWidget *encrypt_button;
-    GtkWidget *status_bar;
-    GtkWidget *progress_dialog;
-    GtkWidget *progress_bar_total;
-    GtkWidget *progress_bar_current;
-    GtkWidget *progress_label;
-    GtkWidget *progress_cancel_button;
-    GtkWidget *progress_close_button;
-    GtkWidget *about_dialog;
-    GtkWidget *about_new_version_label;
-    GtkWidget *compress_menu_item;
-    GtkWidget *follow_menu_item;
-    GtkWidget *raw_menu_item;
-    GtkWidget *compat_menu;
-    GtkWidget *key_file_menu_item;
-    GtkWidget *key_password_menu_item;
-    GtkWidget *raw_encrypt_button;
-    GtkWidget *raw_decrypt_button;
-    GtkWidget *abort_dialog;
-    GtkWidget *abort_message;
+	GtkWidget *main_window;
+	GtkWidget *open_button;
+	GtkWidget *open_dialog;
+	GtkWidget *open_file_label;
+	GtkWidget *open_file_image;
+	GtkWidget *save_button;
+	GtkWidget *save_dialog;
+	GtkWidget *save_file_label;
+	GtkWidget *save_file_image;
+	GtkWidget *crypto_combo;
+	GtkWidget *hash_combo;
+	GtkWidget *mode_combo;
+	GtkWidget *password_entry;
+	GtkWidget *key_button;
+	GtkWidget *key_dialog;
+	GtkWidget *key_file_label;
+	GtkWidget *key_file_image;
+	GtkWidget *encrypt_button;
+	GtkWidget *status_bar;
+	GtkWidget *progress_dialog;
+	GtkWidget *progress_bar_total;
+	GtkWidget *progress_bar_current;
+	GtkWidget *progress_label;
+	GtkWidget *progress_cancel_button;
+	GtkWidget *progress_close_button;
+	GtkWidget *about_dialog;
+	GtkWidget *about_new_version_label;
+	GtkWidget *compress_menu_item;
+	GtkWidget *follow_menu_item;
+	GtkWidget *raw_menu_item;
+	GtkWidget *compat_menu;
+	GtkWidget *key_file_menu_item;
+	GtkWidget *key_password_menu_item;
+	GtkWidget *raw_encrypt_button;
+	GtkWidget *raw_decrypt_button;
+	GtkWidget *abort_dialog;
+	GtkWidget *abort_message;
 }
 gtk_widgets_t;
 

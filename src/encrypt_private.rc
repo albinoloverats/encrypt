@@ -23,21 +23,21 @@ FILETYPE VFT_APP
 {
   BLOCK "StringFileInfo"
   {
-    BLOCK "080904E4"
-    {
-      VALUE "CompanyName", "albinoloverats ~ Software Development"
-      VALUE "FileVersion", "2015.1.0.0"
-      VALUE "FileDescription", "encrypt is a simple, cross platform utility for securing your personal files"
-      VALUE "InternalName", "encrypt"
-      VALUE "LegalCopyright", "Copyright (c) 2004-2015, albinoloverats ~ Software Development"
-      VALUE "LegalTrademarks", ""
-      VALUE "OriginalFilename", "encrypt.exe"
-      VALUE "ProductName", "encrypt"
-      VALUE "ProductVersion", "2015.1.0.0"
-    }
+	BLOCK "080904E4"
+	{
+	  VALUE "CompanyName", "albinoloverats ~ Software Development"
+	  VALUE "FileVersion", "2015.1.0.0"
+	  VALUE "FileDescription", "encrypt is a simple, cross platform utility for securing your personal files"
+	  VALUE "InternalName", "encrypt"
+	  VALUE "LegalCopyright", "Copyright (c) 2004-2015, albinoloverats ~ Software Development"
+	  VALUE "LegalTrademarks", ""
+	  VALUE "OriginalFilename", "encrypt.exe"
+	  VALUE "ProductName", "encrypt"
+	  VALUE "ProductVersion", "2015.1.0.0"
+	}
   }
   BLOCK "VarFileInfo"
   {
-    VALUE "Translation", 0x0809, 1252
+	VALUE "Translation", 0x0809, 1252
   }
 }
