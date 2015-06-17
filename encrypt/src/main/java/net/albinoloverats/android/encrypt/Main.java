@@ -589,7 +589,7 @@ public class Main extends Activity
 			intent.putExtra("raw", raw);
 			intent.putExtra("compress", compress);
 			intent.putExtra("follow", follow);
-			intent.putExtra("version", Version.CURRENT.magicNumber);
+			intent.putExtra("version", version.magicNumber);
 			startService(intent);
 		}
 	}
