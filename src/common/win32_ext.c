@@ -148,11 +148,7 @@ extern char *strndup(const char *s, size_t l)
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
-extern int scandir(const char *path,
-					struct dirent ***res,
-					int (*sel)(const struct dirent *),
-					int (*cmp)(const struct dirent **,
-					const struct dirent **))
+extern int scandir(const char *path, struct dirent ***res, int (*sel)(const struct dirent *), int (*cmp)(const struct dirent **, const struct dirent **))
 {
 	DIR *d = opendir(path);
 	struct dirent *de, **names = 0, **tmp;
