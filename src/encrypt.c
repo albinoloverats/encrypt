@@ -75,17 +75,7 @@ typedef struct
 }
 link_count_t;
 
-extern crypto_t *encrypt_init(const char * const restrict i,
-							  const char * const restrict o,
-							  const char * const restrict c,
-							  const char * const restrict h,
-							  const char * const restrict m,
-							  const void * const restrict k,
-							  size_t l,
-							  bool n,
-							  bool x,
-							  bool f,
-							  version_e v)
+extern crypto_t *encrypt_init(const char * const restrict i, const char * const restrict o, const char * const restrict c, const char * const restrict h, const char * const restrict m, const void * const restrict k, size_t l, bool n, bool x, bool f, version_e v)
 {
 	init_crypto();
 
@@ -222,7 +212,6 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 				z->version = VERSION_2011_08;
 			z->mode = mode_id_from_name("CBC");
 			break;
-
 		case VERSION_2013_02:
 			z->follow_links = true;
 			/* allow fall-through to force CBC mode */
@@ -241,7 +230,6 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 			 * allows extra padding at beginning of file
 			 */
 			break;
-
 		default:
 			die(_("We’ve reached an unreachable location in the code @ %s:%d:%s"), __FILE__, __LINE__, __func__);
 	}
@@ -270,13 +258,11 @@ static void *process(void *ptr)
 		case VERSION_2012_11:
 			pre_random = false;
 			break;
-
 		case VERSION_2013_02:
 		case VERSION_2013_11:
 		case VERSION_2014_06:
 			iv_type = IV_SIMPLE;
 			break;
-
 		case VERSION_2015_01:
 		default:
 			/* no changes */

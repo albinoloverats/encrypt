@@ -112,14 +112,14 @@ file_type_e;
  */
 typedef enum
 {
-	VERSION_UNKNOWN = 0,              /*!< Unknown version, or not encrypted  */
-	VERSION_2011_08,                  /*!< Version 2011.08 */
-	VERSION_2011_10,                  /*!< Version 2011.10 */
-	VERSION_2012_11,                  /*!< Version 2012.11 */
-	VERSION_2013_02,                  /*!< Version 2013.02 */
-	VERSION_2013_11,                  /*!< Version 2013.11 */
-	VERSION_2014_06,                  /*!< Version 2014.06 */
-	VERSION_2015_01,                  /*!< Version 2015.01 */
+	VERSION_UNKNOWN = 0, /*!< Unknown version, or not encrypted  */
+	VERSION_2011_08,     /*!< Version 2011.08 */
+	VERSION_2011_10,     /*!< Version 2011.10 */
+	VERSION_2012_11,     /*!< Version 2012.11 */
+	VERSION_2013_02,     /*!< Version 2013.02 */
+	VERSION_2013_11,     /*!< Version 2013.11 */
+	VERSION_2014_06,     /*!< Version 2014.06 */
+	VERSION_2015_01,     /*!< Version 2015.01 */
 
 	VERSION_CURRENT = VERSION_2015_01 /*!< Next release / current development version */
 }
@@ -138,9 +138,9 @@ typedef enum
 	TAG_COMPRESSED, /*!< Data is compressed */
 	TAG_DIRECTORY,  /*!< Data is a directory hierarchy */
 	TAG_FILENAME    /*!< Single file name */
-		/*
-		 * TODO add tags for stat data (mode, atime, ctime, mtime)
-		 */
+	/*
+	 * TODO add tags for stat data (mode, atime, ctime, mtime)
+	 */
 } __attribute__((packed))
 stream_tags_e;
 

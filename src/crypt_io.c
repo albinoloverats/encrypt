@@ -199,13 +199,7 @@ extern bool io_is_stdout(IO_HANDLE ptr)
 	return io_ptr->fd == STDOUT_FILENO;
 }
 
-extern void io_encryption_init(IO_HANDLE ptr,
-							   enum gcry_cipher_algos c,
-							   enum gcry_md_algos h,
-							   enum gcry_cipher_modes m,
-							   const uint8_t *k,
-							   size_t l,
-							   io_extra_t x)
+extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, const uint8_t *k, size_t l, io_extra_t x)
 {
 	io_private_t *io_ptr = ptr;
 	if (!io_ptr || io_ptr->fd < 0)
@@ -346,13 +340,10 @@ extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l)
 			if (!io_ptr->lzma_init)
 				io_do_compress(io_ptr);
 			return lzma_write(io_ptr, d, l);
-
 		case IO_ENCRYPT:
 			return enc_write(io_ptr, d, l);
-
 		case IO_DEFAULT:
 			return write(io_ptr->fd, d, l);
-
 	}
 	errno = EINVAL;
 	return -1;
@@ -372,15 +363,12 @@ extern ssize_t io_read(IO_HANDLE f, void *d, size_t l)
 				io_do_decompress(io_ptr);
 			r = lzma_read(io_ptr, d, l);
 			break;
-
 		case IO_ENCRYPT:
 			r = enc_read(io_ptr, d, l);
 			break;
-
 		case IO_DEFAULT:
 			r = read(io_ptr->fd, d, l);
 			break;
-
 		default:
 			errno = EINVAL;
 			r = -1;
@@ -401,10 +389,8 @@ extern int io_sync(IO_HANDLE ptr)
 	{
 		case IO_LZMA:
 			return lzma_sync(io_ptr);
-
 		case IO_ENCRYPT:
 			return enc_sync(io_ptr);
-
 		case IO_DEFAULT:
 			return fsync(io_ptr->fd);
 	}
