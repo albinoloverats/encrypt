@@ -1,7 +1,7 @@
 .PHONY: clean distclean
 
 APP      = encrypt
-ALT		 = decrypt
+ALT      = decrypt
 
 SOURCE   = src/main.c src/init.c src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
 GUI      = src/gui-gtk.c

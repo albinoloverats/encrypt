@@ -259,9 +259,7 @@ clean_up:
 	const char *hash = [[[_hashCombo selectedItem] title] UTF8String];
 	const char *mode = [[[_modeCombo selectedItem] title] UTF8String];
 
-	if ((cipher && strcasecmp(cipher, SELECT_CIPHER)) &&
-		  (hash && strcasecmp(hash, SELECT_HASH)) &&
-		  (mode && strcasecmp(mode, SELECT_MODE)))
+	if ((cipher && strcasecmp(cipher, SELECT_CIPHER)) && (hash && strcasecmp(hash, SELECT_HASH)) && (mode && strcasecmp(mode, SELECT_MODE)))
 	{
 		[self keySourceSelected:pId];
 		[_keyFileChooser setEnabled:true];
@@ -279,7 +277,6 @@ clean_up:
 		[_singleButton setEnabled:false];
 		[_encryptButton setEnabled:false];
 		[_decryptButton setEnabled:false];
-
 	}
 }
 
@@ -403,11 +400,7 @@ clean_up:
 
 	crypto_t *c;
 	if (!encrypted)
-		c = encrypt_init(open_file, save_file,
-						 (char *)[[[_cipherCombo selectedItem] title] UTF8String],
-						 (char *)[[[_hashCombo selectedItem] title] UTF8String],
-						 (char *)[[[_modeCombo selectedItem] title] UTF8String],
-						 key, length, false, compress, follow, version);
+		c = encrypt_init(open_file, save_file, (char *)[[[_cipherCombo selectedItem] title] UTF8String], (char *)[[[_hashCombo selectedItem] title] UTF8String], (char *)[[[_modeCombo selectedItem] title] UTF8String], key, length, false, compress, follow, version);
 	else
 		c = decrypt_init(open_file, save_file, NULL, NULL, NULL, key, length, false);
 

@@ -62,14 +62,7 @@ static void decrypt_directory(crypto_t *, const char *);
 static void decrypt_stream(crypto_t *);
 static void decrypt_file(crypto_t *);
 
-extern crypto_t *decrypt_init(const char * const restrict i,
-							  const char * const restrict o,
-							  const char * const restrict c,
-							  const char * const restrict h,
-							  const char * const restrict m,
-							  const void * const restrict k,
-							  size_t l,
-							  bool n)
+extern crypto_t *decrypt_init(const char * const restrict i, const char * const restrict o, const char * const restrict c, const char * const restrict h, const char * const restrict m, const void * const restrict k, size_t l, bool n)
 {
 	init_crypto();
 
@@ -215,7 +208,6 @@ static void *process(void *ptr)
 			 */
 			break;
 	}
-
 	/*
 	 * the 2011.* versions (incorrectly) used key length instead of block
 	 * length

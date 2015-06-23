@@ -58,18 +58,18 @@ char *KEY_SOURCE[] =
 extern args_t init(int argc, char **argv)
 {
 	args_t a = { strdup(DEFAULT_CIPHER),
-				 strdup(DEFAULT_HASH),
-				 strdup(DEFAULT_MODE),
-				 NULL, /* key file */
-				 NULL, /* password */
-				 NULL, /* source */
-				 NULL, /* output */
-				 strdup(get_version_string(VERSION_CURRENT)), /* compatibility */
-				 KEY_SOURCE_PASSWORD,
-				 true,    /* compress */
-				 false,   /* follow links */
-				 false,   /* disable gui */
-				 false    /* skip header/verification */
+			strdup(DEFAULT_HASH),
+			strdup(DEFAULT_MODE),
+			NULL, /* key file */
+			NULL, /* password */
+			NULL, /* source */
+			NULL, /* output */
+			strdup(get_version_string(VERSION_CURRENT)), /* compatibility */
+			KEY_SOURCE_PASSWORD,
+			true,    /* compress */
+			false,   /* follow links */
+			false,   /* disable gui */
+			false    /* skip header/verification */
 	};
 
 	/*
@@ -223,7 +223,6 @@ end_line:
 				case 'r':
 					a.raw = true;
 					break;
-
 				case '?':
 				default:
 					show_usage();
@@ -369,19 +368,19 @@ extern void show_help(void)
 	fprintf(stderr, _("  -p, --password=<password>    Password used to generate the key\n"));
 	if (is_encrypt())
 	{
-		fprintf(stderr, _("  -x, --no-compress            Do not compress the plaintext using the xz\n"   \
-						  "                               algorithm\n"));
-		fprintf(stderr, _("  -f, --follow                 Follow symlinks, the default is to store the\n" \
-						  "                               link itself\n"));
+		fprintf(stderr, _("  -x, --no-compress            Do not compress the plaintext using the xz\n"));
+		fprintf(stderr, _("                               algorithm\n"));
+		fprintf(stderr, _("  -f, --follow                 Follow symlinks, the default is to store the\n"));
+		fprintf(stderr, _("                               link itself\n"));
 		fprintf(stderr, _("\nAdvanced Options:\n"));
-		fprintf(stderr, _("  -b, --back-compat=<version>  Create an encrypted file that is backwards\n"   \
-						  "                               compatible\n"));
+		fprintf(stderr, _("  -b, --back-compat=<version>  Create an encrypted file that is backwards\n"  ));
+		fprintf(stderr, _("                               compatible\n"));
 	}
 	else
 		fprintf(stderr, _("\nAdvanced Options:\n"));
-	fprintf(stderr, _("  -r, --raw                    Don’t generate or look for an encrypt header;\n"    \
-					  "                               this IS NOT recommended, but can be usefull in\n"   \
-					  "                               some (limited) situations."));
+	fprintf(stderr, _("  -r, --raw                    Don’t generate or look for an encrypt header;\n"));
+	fprintf(stderr, _("                               this IS NOT recommended, but can be usefull in\n"));
+	fprintf(stderr, _("                               some (limited) situations."));
 	fprintf(stderr, _("\nNotes:\n  • If you do not supply a key or password, you will be prompted for one.\n"));
 	if (is_encrypt())
 		fprintf(stderr, _("  • To see a list of available algorithms or modes use list as the argument.\n"));
