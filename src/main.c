@@ -125,7 +125,7 @@ int main(int argc, char **argv)
 		}
 		free(ptr);
 	}
- #ifndef _WIN32
+	#ifndef _WIN32
 	struct stat n;
 	fstat(STDIN_FILENO, &n);
 	struct stat t;
@@ -135,27 +135,27 @@ int main(int argc, char **argv)
 	  ;
 	else
 	{
- #endif /* ! _WIN32 */
+	#endif /* ! _WIN32 */
 
 		if (gtk_init_check(&argc, &argv))
 		{
 			builder = gtk_builder_new();
- #ifndef _WIN32
-  #if !defined __DEBUG__ && !defined __DEBUG_GUI__
+	#ifndef _WIN32
+		#if !defined __DEBUG__ && !defined __DEBUG_GUI__
 			const char *glade_ui_file = GLADE_UI_FILE_DEFAULT;
-  #else
+		#else
 			const char *glade_ui_file = GLADE_UI_FILE_BACKUP;
-  #endif
- #else
+		#endif
+	#else
 			char *glade_ui_file = calloc(MAX_PATH, sizeof( char ));
 			if (!glade_ui_file)
 				die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, MAX_PATH);
-  #ifndef __DEBUG__
+		#ifndef __DEBUG__
 			SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL, 0, glade_ui_file);
 			strcat(glade_ui_file, "\\");
-  #endif /* __DEBUG__ */
+		#endif /* __DEBUG__ */
 			strcat(glade_ui_file, GLADE_UI_FILE_DEFAULT);
- #endif /* ! _WIN32 */
+	#endif /* ! _WIN32 */
 			if (!gtk_builder_add_from_file(builder, glade_ui_file, &error))
 			{
 				fprintf(stderr, "%s", error->message);
@@ -164,9 +164,9 @@ int main(int argc, char **argv)
 				if (!gtk_builder_add_from_file(builder, GLADE_UI_FILE_BACKUP, &error))
 					die(_("%s"), error->message);
 			}
- #ifdef _WIN32
+	#ifdef _WIN32
 			free(glade_ui_file);
- #endif
+	#endif
 			/*
 			 * allocate widgets structure
 			 */
@@ -220,7 +220,7 @@ int main(int argc, char **argv)
 
 			if (args.source)
 			{
- #ifndef _WIN32
+	#ifndef _WIN32
 				if (args.source[0] != '/')
 				{
 					char *cwd = getcwd(NULL, 0);
@@ -228,13 +228,13 @@ int main(int argc, char **argv)
 					free(cwd);
 				}
 				else
- #endif
+	#endif
 					gui_file_hack_source = strdup(args.source);
 				gtk_file_chooser_set_filename((GtkFileChooser *)widgets->open_dialog, gui_file_hack_source);
 			}
 			if (args.output)
 			{
- #ifndef _WIN32
+	#ifndef _WIN32
 				if (args.output[0] != '/')
 				{
 					char *cwd = getcwd(NULL, 0);
@@ -242,7 +242,7 @@ int main(int argc, char **argv)
 					free(cwd);
 				}
 				else
- #endif
+	#endif
 					gui_file_hack_output = strdup(args.output);
 				gtk_file_chooser_set_filename((GtkFileChooser *)widgets->save_dialog, gui_file_hack_output);
 			}
