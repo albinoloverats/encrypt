@@ -54,6 +54,7 @@
 
 #define ECC_CAPACITY     255
 #define ECC_PAYLOAD      249
+#define ECC_OFFSET      (ECC_CAPACITY - ECC_PAYLOAD)
 #define ECC_BLOCK_START 0xFF
 
 extern void ecc_encode(uint8_t m[ECC_PAYLOAD], uint8_t c[ECC_CAPACITY]);

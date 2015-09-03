@@ -617,13 +617,14 @@ static ssize_t ecc_write(io_private_t *f, const void *d, size_t l)
 	size_t remainder[2] = { l, f->buffer_ecc->block - f->buffer_ecc->offset[0] }; /* 0: length of data yet to buffer (from d); 1: available space in output buffer (stream) */
 	if (!d && !l)
 	{
-
 		uint8_t tmp[ECC_CAPACITY] = { 0x0 };
 		ecc_encode(f->buffer_ecc->stream, tmp);
 		memcpy(f->buffer_ecc->stream, tmp, sizeof tmp);
 		uint8_t z = (uint8_t)f->buffer_ecc->offset[0];
 		write(f->fd, &z, sizeof z);
-		ssize_t e = write(f->fd, f->buffer_ecc->stream, ECC_CAPACITY/*f->buffer_ecc->block*/);
+		write(f->fd, f->buffer_ecc->stream, ECC_OFFSET);
+		ssize_t e = write(f->fd, f->buffer_ecc->stream + ECC_OFFSET + ECC_CAPACITY - z, z - ECC_OFFSET/*f->buffer_ecc->block*/);
+
 		fsync(f->fd);
 		f->buffer_ecc->block = 0;
 		free(f->buffer_ecc->stream);
@@ -692,7 +693,10 @@ static ssize_t ecc_read(io_private_t *f, void *d, size_t l)
 		ssize_t e = EXIT_SUCCESS;
 		uint8_t z;
 		read(f->fd, &z, sizeof z);
-		if ((e = read(f->fd, f->buffer_ecc->stream, ECC_CAPACITY)) < 0)
+		read(f->fd, f->buffer_ecc->stream, ECC_OFFSET);
+		if (z < ECC_CAPACITY)
+			memset(f->buffer_ecc->stream + ECC_OFFSET, 0x00, ECC_PAYLOAD);
+		if ((e = read(f->fd, f->buffer_ecc->stream + ECC_OFFSET + ECC_CAPACITY - z, ECC_CAPACITY - ECC_OFFSET)) < 0)
 			return e;
 
 		uint8_t tmp[ECC_CAPACITY] = { 0x0 };
