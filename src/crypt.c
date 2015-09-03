@@ -87,7 +87,9 @@ static const version_t VERSIONS[] =
 	{ "2014.06", 0x8819d19069fae6b4llu },
 	{ "2015.01", 0x63e7d49566e31bfbllu },
 
-	{ "current", 0x63e7d49566e31bfbllu }
+	{ "XXXX.YY", 0x0dae4a923e4ae71dllu },
+
+	{ "current", 0x0dae4a923e4ae71dllu }
 };
 
 extern void execute(crypto_t *c)

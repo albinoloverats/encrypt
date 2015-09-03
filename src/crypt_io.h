@@ -211,7 +211,7 @@ extern int io_sync(IO_HANDLE f) __attribute__((nonnull(1)));
  */
 extern off_t io_seek(IO_HANDLE f, off_t o, int w) __attribute__((nonnull(1)));
 
-/*
+/*!
  * \brief         Encryption/Decryption initialisation
  * \param[in]  f  An IO instance
  * \param[in]  c  The ID of the cipher to use
@@ -226,7 +226,7 @@ extern off_t io_seek(IO_HANDLE f, off_t o, int w) __attribute__((nonnull(1)));
  */
 extern void io_encryption_init(IO_HANDLE f, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, const uint8_t *k, size_t l, io_extra_t x) __attribute__((nonnull(1, 5)));
 
-/*
+/*!
  * \brief         Compression initialisation
  * \param[in]  f  An IO instance
  *
@@ -235,7 +235,7 @@ extern void io_encryption_init(IO_HANDLE f, enum gcry_cipher_algos c, enum gcry_
  */
 extern void io_compression_init(IO_HANDLE f) __attribute__((nonnull(1)));
 
-/*
+/*!
  * \brief         Read/Write data checksum initialisation
  * \param[in]  f  An IO instance
  * \param[in]  h  The ID of the hash to use for checksum calculations
@@ -245,7 +245,7 @@ extern void io_compression_init(IO_HANDLE f) __attribute__((nonnull(1)));
  */
 extern void io_encryption_checksum_init(IO_HANDLE f, enum gcry_md_algos h) __attribute__((nonnull(1)));
 
-/*
+/*!
  * \brief         Read/Write data checksum generation
  * \param[in]  f  An IO instance
  * \param[out] b  A pointer to the calculated checksum
@@ -253,6 +253,14 @@ extern void io_encryption_checksum_init(IO_HANDLE f, enum gcry_md_algos h) __att
  *
  * Retrieve the hash checksum of all data read/written so far.
  */
-extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l) __attribute__((nonnull(1)));
+extern void io_encryption_checksum(IO_HANDLE f, uint8_t **b, size_t *l) __attribute__((nonnull(1)));
+
+/*!
+ * \brief         Enable ECC
+ * \param[in]  f  An IO instance
+ *
+ * Enable error correction in IO. Uses Reed-Solomon error correction.
+ */
+extern void io_correction_init(IO_HANDLE f) __attribute__((nonnull(1)));
 
 #endif /* ! _ENCRYPT_CRYPTIO_H_ */

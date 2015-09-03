@@ -40,7 +40,7 @@
 #include "common/cli.h" /*!< Used for progress bar on command line */
 #include "crypt_io.h"   /*!< Necessary as IO_HANDLE type is referenced in this header */
 
-#define ENCRYPT_VERSION "2015.01" /*!< Current (display) version of encrypt application */
+#define ENCRYPT_VERSION "XXXX.YY" /*!< Current (display) version of encrypt application */
 #define UPDATE_URL "https://albinoloverats.net/encrypt.release" /*!< URI to check for updates */
 
 #define HEADER_0 0x3697de5d96fca0fallu              /*!< The first 8 bytes of an encrypted file */
@@ -121,7 +121,9 @@ typedef enum
 	VERSION_2014_06,     /*!< Version 2014.06 */
 	VERSION_2015_01,     /*!< Version 2015.01 */
 
-	VERSION_CURRENT = VERSION_2015_01 /*!< Next release / current development version */
+	VERSION_XXXX_YY,    /*!< Next version (date unknown) */
+
+	VERSION_CURRENT = VERSION_XXXX_YY /*!< Next release / current development version */
 }
 version_e;
 

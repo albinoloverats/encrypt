@@ -39,6 +39,7 @@
 #include "common/common.h"
 #include "common/error.h"
 #include "common/ccrypt.h"
+#include "common/ecc.h"
 
 #include "crypt_io.h"
 #include "crypt.h"
@@ -53,7 +54,7 @@
  */
 typedef enum
 {
-	IO_DEFAULT, /*!< No processing will be done */
+	IO_DEFAULT, /*!< No processing will be done; only used when reading/writing the header */
 	IO_ENCRYPT, /*!< Data will be encrypted/decrypted */
 	IO_LZMA     /*!< Data will be compressed/decompressed prior to encryption/decryption */
 }
@@ -69,9 +70,9 @@ eof_e;
 
 typedef struct
 {
-	uint8_t *stream;
-	size_t block;
-	size_t offset[OFFSET_SLOTS];
+	uint8_t *stream;             /*!< Buffer data   */
+	size_t block;                /*!< Size of steam */
+	size_t offset[OFFSET_SLOTS]; /*!< 0: length of data yet to buffer (from d); 1: available space in output buffer (stream); 2: offset of where to read new data to */
 }
 buffer_t;
 
@@ -79,21 +80,20 @@ typedef struct
 {
 	int64_t fd;
 
-	bool cipher_init;
 	gcry_cipher_hd_t cipher_handle;
-
-	bool hash_init;
 	gcry_md_hd_t hash_handle;
-
-	buffer_t *buffer;
-
-	eof_e eof;
-	uint8_t byte;
-
-	bool lzma_init;
 	lzma_stream lzma_handle;
 
-	io_e operation;
+	buffer_t *buffer_crypt;
+	buffer_t *buffer_ecc;
+
+	eof_e eof:2;
+	io_e operation:2;
+
+	bool cipher_init:1;
+	bool hash_init:1;
+	bool lzma_init:1;
+	bool ecc_init:1;
 }
 io_private_t;
 
@@ -104,6 +104,10 @@ static int lzma_sync(io_private_t *);
 static ssize_t enc_write(io_private_t *, const void *, size_t);
 static ssize_t enc_read(io_private_t *, void *, size_t);
 static int enc_sync(io_private_t *);
+
+static ssize_t ecc_write(io_private_t *, const void *, size_t);
+static ssize_t ecc_read(io_private_t *, void *, size_t);
+static int ecc_sync(io_private_t *);
 
 static void io_do_compress(io_private_t *);
 static void io_do_decompress(io_private_t *);
@@ -146,11 +150,17 @@ extern void io_release(IO_HANDLE ptr)
 	io_private_t *io_ptr = ptr;
 	if (!io_ptr)
 		return (errno = EBADF , (void)NULL);
-	if (io_ptr->buffer)
+	if (io_ptr->buffer_crypt)
 	{
-		if (io_ptr->buffer->stream)
-			gcry_free(io_ptr->buffer->stream);
-		gcry_free(io_ptr->buffer);
+		if (io_ptr->buffer_crypt->stream)
+			gcry_free(io_ptr->buffer_crypt->stream);
+		gcry_free(io_ptr->buffer_crypt);
+	}
+	if (io_ptr->buffer_ecc)
+	{
+		if (io_ptr->buffer_ecc->stream)
+			free(io_ptr->buffer_ecc->stream);
+		free(io_ptr->buffer_ecc);
 	}
 	if (io_ptr->cipher_init)
 		gcry_cipher_close(io_ptr->cipher_handle);
@@ -207,7 +217,7 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	/*
 	 * start setting up the encryption buffer
 	 */
-	if (!(io_ptr->buffer = gcry_malloc_secure(sizeof( buffer_t ))))
+	if (!(io_ptr->buffer_crypt = gcry_malloc_secure(sizeof( buffer_t ))))
 		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( buffer_t ));
 
 	gcry_md_open(&io_ptr->hash_handle, h, GCRY_MD_FLAG_SECURE);
@@ -234,19 +244,19 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	 * the 2011.* versions (incorrectly) used key length instead of block
 	 * length; versions after 2014.06 randomly generate the IV instead
 	 */
-	io_ptr->buffer->block = gcry_cipher_get_algo_blklen(c);
-	uint8_t *iv = gcry_calloc_secure(x.x_iv == IV_BROKEN ? key_length : io_ptr->buffer->block, sizeof( byte_t ));
+	io_ptr->buffer_crypt->block = gcry_cipher_get_algo_blklen(c);
+	uint8_t *iv = gcry_calloc_secure(x.x_iv == IV_BROKEN ? key_length : io_ptr->buffer_crypt->block, sizeof( byte_t ));
 	if (!iv)
-	   die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, io_ptr->buffer->block);
+	   die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, io_ptr->buffer_crypt->block);
 	if (x.x_iv == IV_RANDOM)
 	{
 		if (x.x_encrypt)
 		{
-			gcry_create_nonce(iv, io_ptr->buffer->block);
-			io_write(ptr, iv, io_ptr->buffer->block);
+			gcry_create_nonce(iv, io_ptr->buffer_crypt->block);
+			io_write(ptr, iv, io_ptr->buffer_crypt->block);
 		}
 		else
-			io_read(ptr, iv, io_ptr->buffer->block);
+			io_read(ptr, iv, io_ptr->buffer_crypt->block);
 	}
 	else
 	{
@@ -257,21 +267,21 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 		 * set the IV as the hash of the hash
 		 */
 		gcry_md_hash_buffer(gcry_md_get_algo(io_ptr->hash_handle), iv_hash, hash, hash_length);
-		memcpy(iv, iv_hash, io_ptr->buffer->block < hash_length ? io_ptr->buffer->block : hash_length);
+		memcpy(iv, iv_hash, io_ptr->buffer_crypt->block < hash_length ? io_ptr->buffer_crypt->block : hash_length);
 		gcry_free(iv_hash);
 	}
 	gcry_free(hash);
 
 	if (m == GCRY_CIPHER_MODE_CTR)
-		gcry_cipher_setctr(io_ptr->cipher_handle, iv, io_ptr->buffer->block);
+		gcry_cipher_setctr(io_ptr->cipher_handle, iv, io_ptr->buffer_crypt->block);
 	else
-		gcry_cipher_setiv(io_ptr->cipher_handle, iv, io_ptr->buffer->block);
+		gcry_cipher_setiv(io_ptr->cipher_handle, iv, io_ptr->buffer_crypt->block);
 	gcry_free(iv);
 	/*
 	 * set the rest of the buffer
 	 */
-	if (!(io_ptr->buffer->stream = gcry_malloc_secure(io_ptr->buffer->block)))
-		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, io_ptr->buffer->block);
+	if (!(io_ptr->buffer_crypt->stream = gcry_malloc_secure(io_ptr->buffer_crypt->block)))
+		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, io_ptr->buffer_crypt->block);
 	/*
 	 * when encrypting/writing data:
 	 *   0: length of data buffered so far (in stream)
@@ -282,7 +292,7 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	 *   2: next available memory location for data (from d)
 	 */
 	for (unsigned i = 0; i < OFFSET_SLOTS; i++)
-		io_ptr->buffer->offset[i] = 0;
+		io_ptr->buffer_crypt->offset[i] = 0;
 	io_ptr->cipher_init = true;
 	io_ptr->hash_init = true;
 	io_ptr->operation = IO_ENCRYPT;
@@ -325,6 +335,20 @@ extern void io_compression_init(IO_HANDLE ptr)
 	return;
 }
 
+extern void io_correction_init(IO_HANDLE ptr)
+{
+	io_private_t *io_ptr = ptr;
+	if (!io_ptr || io_ptr->fd < 0)
+		return errno = EBADF , (void)NULL;
+	io_ptr->ecc_init = true;
+	io_ptr->buffer_ecc = malloc(sizeof( buffer_t ));
+	io_ptr->buffer_ecc->block = ECC_PAYLOAD;
+	io_ptr->buffer_ecc->stream = calloc(ECC_CAPACITY, sizeof( uint8_t ));
+	for (unsigned i = 0; i < OFFSET_SLOTS; i++)
+		io_ptr->buffer_ecc->offset[i] = 0;
+	return;
+}
+
 extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l)
 {
 	io_private_t *io_ptr = f;
@@ -343,7 +367,7 @@ extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l)
 		case IO_ENCRYPT:
 			return enc_write(io_ptr, d, l);
 		case IO_DEFAULT:
-			return write(io_ptr->fd, d, l);
+			return ecc_write(io_ptr, d, l);
 	}
 	errno = EINVAL;
 	return -1;
@@ -367,7 +391,7 @@ extern ssize_t io_read(IO_HANDLE f, void *d, size_t l)
 			r = enc_read(io_ptr, d, l);
 			break;
 		case IO_DEFAULT:
-			r = read(io_ptr->fd, d, l);
+			r = ecc_read(io_ptr, d, l);
 			break;
 		default:
 			errno = EINVAL;
@@ -392,7 +416,7 @@ extern int io_sync(IO_HANDLE ptr)
 		case IO_ENCRYPT:
 			return enc_sync(io_ptr);
 		case IO_DEFAULT:
-			return fsync(io_ptr->fd);
+			return ecc_sync(io_ptr);
 	}
 	return errno = EINVAL , -1;
 }
@@ -462,8 +486,9 @@ static ssize_t lzma_read(io_private_t *c, void *d, size_t l)
 	{
 		if (c->lzma_handle.avail_in == 0)
 		{
-			c->lzma_handle.next_in = &c->byte;
-			switch (enc_read(c, &c->byte, sizeof c->byte))
+			uint8_t b;
+			c->lzma_handle.next_in = &b;
+			switch (enc_read(c, &b, sizeof b))
 			{
 				case 0:
 					a = LZMA_FINISH;
@@ -500,88 +525,190 @@ static int lzma_sync(io_private_t *c)
 
 static ssize_t enc_write(io_private_t *f, const void *d, size_t l)
 {
-	size_t remainder[2] = { l, f->buffer->block - f->buffer->offset[0] }; /* 0: length of data yet to buffer (from d); 1: available space in output buffer (stream) */
+	size_t remainder[2] = { l, f->buffer_crypt->block - f->buffer_crypt->offset[0] }; /* 0: length of data yet to buffer (from d); 1: available space in output buffer (stream) */
 	if (!d && !l)
 	{
 #if defined(__DEBUG__) && !defined(__DEBUG_WITH_ENCRYPTION__)
-		memset(f->buffer->stream + f->buffer->offset[0], 0x00, remainder[1]);
+		memset(f->buffer_crypt->stream + f->buffer_crypt->offset[0], 0x00, remainder[1]);
 #else
-		gcry_create_nonce(f->buffer->stream + f->buffer->offset[0], remainder[1]);
-		gcry_cipher_encrypt(f->cipher_handle, f->buffer->stream, f->buffer->block, NULL, 0);
+		gcry_create_nonce(f->buffer_crypt->stream + f->buffer_crypt->offset[0], remainder[1]);
+		gcry_cipher_encrypt(f->cipher_handle, f->buffer_crypt->stream, f->buffer_crypt->block, NULL, 0);
 #endif
-		ssize_t e = write(f->fd, f->buffer->stream, f->buffer->block);
-		fsync(f->fd);
-		f->buffer->block = 0;
-		gcry_free(f->buffer->stream);
-		f->buffer->stream = NULL;
-		memset(f->buffer->offset, 0x00, sizeof f->buffer->offset);
+		ssize_t e = ecc_write(f, f->buffer_crypt->stream, f->buffer_crypt->block);
+		ecc_sync(f);
+		f->buffer_crypt->block = 0;
+		gcry_free(f->buffer_crypt->stream);
+		f->buffer_crypt->stream = NULL;
+		memset(f->buffer_crypt->offset, 0x00, sizeof f->buffer_crypt->offset);
 		return e;
 	}
 
-	f->buffer->offset[1] = 0;
+	f->buffer_crypt->offset[1] = 0;
 	while (remainder[0])
 	{
 		if (remainder[0] < remainder[1])
 		{
-			memcpy(f->buffer->stream + f->buffer->offset[0], d + f->buffer->offset[1], remainder[0]);
-			f->buffer->offset[0] += remainder[0];
+			memcpy(f->buffer_crypt->stream + f->buffer_crypt->offset[0], d + f->buffer_crypt->offset[1], remainder[0]);
+			f->buffer_crypt->offset[0] += remainder[0];
 			return l;
 		}
-		memcpy(f->buffer->stream + f->buffer->offset[0], d + f->buffer->offset[1], remainder[1]);
+		memcpy(f->buffer_crypt->stream + f->buffer_crypt->offset[0], d + f->buffer_crypt->offset[1], remainder[1]);
 #if !defined(__DEBUG__) || defined(__DEBUG_WITH_ENCRYPTION__)
-		gcry_cipher_encrypt(f->cipher_handle, f->buffer->stream, f->buffer->block, NULL, 0);
+		gcry_cipher_encrypt(f->cipher_handle, f->buffer_crypt->stream, f->buffer_crypt->block, NULL, 0);
 #endif
 		ssize_t e = EXIT_SUCCESS;
-		if ((e = write(f->fd, f->buffer->stream, f->buffer->block)) < 0)
+		if ((e = ecc_write(f, f->buffer_crypt->stream, f->buffer_crypt->block)) < 0)
 			return e;
-		f->buffer->offset[0] = 0;
-		memset(f->buffer->stream, 0x00, f->buffer->block);
-		f->buffer->offset[1] += remainder[1];
+		f->buffer_crypt->offset[0] = 0;
+		memset(f->buffer_crypt->stream, 0x00, f->buffer_crypt->block);
+		f->buffer_crypt->offset[1] += remainder[1];
 		remainder[0] -= remainder[1];
-		remainder[1] = f->buffer->block - f->buffer->offset[0];
+		remainder[1] = f->buffer_crypt->block - f->buffer_crypt->offset[0];
 	}
 	return l;
 }
 
 static ssize_t enc_read(io_private_t *f, void *d, size_t l)
 {
-	f->buffer->offset[1] = l;
-	f->buffer->offset[2] = 0;
+	f->buffer_crypt->offset[1] = l;
+	f->buffer_crypt->offset[2] = 0;
 	while (true)
 	{
-		if (f->buffer->offset[0] >= f->buffer->offset[1])
+		if (f->buffer_crypt->offset[0] >= f->buffer_crypt->offset[1])
 		{
-			memcpy(d + f->buffer->offset[2], f->buffer->stream, f->buffer->offset[1]);
-			f->buffer->offset[0] -= f->buffer->offset[1];
-			uint8_t *x = gcry_calloc_secure(f->buffer->block, sizeof( uint8_t ));
+			memcpy(d + f->buffer_crypt->offset[2], f->buffer_crypt->stream, f->buffer_crypt->offset[1]);
+			f->buffer_crypt->offset[0] -= f->buffer_crypt->offset[1];
+			uint8_t *x = gcry_calloc_secure(f->buffer_crypt->block, sizeof( uint8_t ));
 			if (!x)
-				die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, f->buffer->block * sizeof( uint8_t ));
-			memcpy(x, f->buffer->stream + f->buffer->offset[1], f->buffer->offset[0]);
-			memset(f->buffer->stream, 0x00, f->buffer->block);
-			memcpy(f->buffer->stream, x, f->buffer->offset[0]);
+				die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, f->buffer_crypt->block * sizeof( uint8_t ));
+			memcpy(x, f->buffer_crypt->stream + f->buffer_crypt->offset[1], f->buffer_crypt->offset[0]);
+			memset(f->buffer_crypt->stream, 0x00, f->buffer_crypt->block);
+			memcpy(f->buffer_crypt->stream, x, f->buffer_crypt->offset[0]);
 			gcry_free(x);
-			x = NULL;
 			return l;
 		}
 
-		memcpy(d + f->buffer->offset[2], f->buffer->stream, f->buffer->offset[0]);
-		f->buffer->offset[2] += f->buffer->offset[0];
-		f->buffer->offset[1] -= f->buffer->offset[0];
-		f->buffer->offset[0] = 0;
+		memcpy(d + f->buffer_crypt->offset[2], f->buffer_crypt->stream, f->buffer_crypt->offset[0]);
+		f->buffer_crypt->offset[2] += f->buffer_crypt->offset[0];
+		f->buffer_crypt->offset[1] -= f->buffer_crypt->offset[0];
+		f->buffer_crypt->offset[0] = 0;
 
 		ssize_t e = EXIT_SUCCESS;
-		if ((e = read(f->fd, f->buffer->stream, f->buffer->block)) < 0)
+		if ((e = ecc_read(f, f->buffer_crypt->stream, f->buffer_crypt->block)) < 0)
 			return e;
 #if !defined(__DEBUG__) || defined(__DEBUG_WITH_ENCRYPTION__)
-		gcry_cipher_decrypt(f->cipher_handle, f->buffer->stream, f->buffer->block, NULL, 0);
+		gcry_cipher_decrypt(f->cipher_handle, f->buffer_crypt->stream, f->buffer_crypt->block, NULL, 0);
 #endif
-		f->buffer->offset[0] = f->buffer->block;
+		f->buffer_crypt->offset[0] = f->buffer_crypt->block;
 	}
 }
 
 static int enc_sync(io_private_t *f)
 {
 	enc_write(f, NULL, 0);
+	return 0;
+}
+
+static ssize_t ecc_write(io_private_t *f, const void *d, size_t l)
+{
+	if (!f->ecc_init)
+		return write(f->fd, d, l);
+
+	size_t remainder[2] = { l, f->buffer_ecc->block - f->buffer_ecc->offset[0] }; /* 0: length of data yet to buffer (from d); 1: available space in output buffer (stream) */
+	if (!d && !l)
+	{
+
+		uint8_t tmp[ECC_CAPACITY] = { 0x0 };
+		ecc_encode(f->buffer_ecc->stream, tmp);
+		memcpy(f->buffer_ecc->stream, tmp, sizeof tmp);
+		uint8_t z = (uint8_t)f->buffer_ecc->offset[0];
+		write(f->fd, &z, sizeof z);
+		ssize_t e = write(f->fd, f->buffer_ecc->stream, ECC_CAPACITY/*f->buffer_ecc->block*/);
+		fsync(f->fd);
+		f->buffer_ecc->block = 0;
+		free(f->buffer_ecc->stream);
+		f->buffer_ecc->stream = NULL;
+		memset(f->buffer_ecc->offset, 0x00, sizeof f->buffer_ecc->offset);
+		return e;
+	}
+
+	f->buffer_ecc->offset[1] = 0;
+	while (remainder[0])
+	{
+		if (remainder[0] < remainder[1])
+		{
+			memcpy(f->buffer_ecc->stream + f->buffer_ecc->offset[0], d + f->buffer_ecc->offset[1], remainder[0]);
+			f->buffer_ecc->offset[0] += remainder[0];
+			return l;
+		}
+		memcpy(f->buffer_ecc->stream + f->buffer_ecc->offset[0], d + f->buffer_ecc->offset[1], remainder[1]);
+
+		uint8_t tmp[ECC_CAPACITY] = { 0x0 };
+		ecc_encode(f->buffer_ecc->stream, tmp);
+		memcpy(f->buffer_ecc->stream, tmp, sizeof tmp);
+
+		ssize_t e = EXIT_SUCCESS;
+		uint8_t z = ECC_CAPACITY;
+		write(f->fd, &z, sizeof z);
+		if ((e = write(f->fd, f->buffer_ecc->stream, ECC_CAPACITY)) < 0)
+			return e;
+		f->buffer_ecc->offset[0] = 0;
+		memset(f->buffer_ecc->stream, 0x00, f->buffer_ecc->block);
+		f->buffer_ecc->offset[1] += remainder[1];
+		remainder[0] -= remainder[1];
+		remainder[1] = f->buffer_ecc->block - f->buffer_ecc->offset[0];
+	}
+	return l;
+}
+
+static ssize_t ecc_read(io_private_t *f, void *d, size_t l)
+{
+	if (!f->ecc_init)
+		return read(f->fd, d, l);
+
+	f->buffer_ecc->offset[1] = l;
+	f->buffer_ecc->offset[2] = 0;
+	while (true)
+	{
+		if (f->buffer_ecc->offset[0] >= f->buffer_ecc->offset[1])
+		{
+			memcpy(d + f->buffer_ecc->offset[2], f->buffer_ecc->stream, f->buffer_ecc->offset[1]);
+			f->buffer_ecc->offset[0] -= f->buffer_ecc->offset[1];
+			uint8_t *x = calloc(f->buffer_ecc->block, sizeof( uint8_t ));
+			if (!x)
+				die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, f->buffer_ecc->block * sizeof( uint8_t ));
+			memcpy(x, f->buffer_ecc->stream + f->buffer_ecc->offset[1], f->buffer_ecc->offset[0]);
+			memset(f->buffer_ecc->stream, 0x00, f->buffer_ecc->block);
+			memcpy(f->buffer_ecc->stream, x, f->buffer_ecc->offset[0]);
+			free(x);
+			return l;
+		}
+
+		memcpy(d + f->buffer_ecc->offset[2], f->buffer_ecc->stream, f->buffer_ecc->offset[0]);
+		f->buffer_ecc->offset[2] += f->buffer_ecc->offset[0];
+		f->buffer_ecc->offset[1] -= f->buffer_ecc->offset[0];
+		f->buffer_ecc->offset[0] = 0;
+
+		ssize_t e = EXIT_SUCCESS;
+		uint8_t z;
+		read(f->fd, &z, sizeof z);
+		if ((e = read(f->fd, f->buffer_ecc->stream, ECC_CAPACITY)) < 0)
+			return e;
+
+		uint8_t tmp[ECC_CAPACITY] = { 0x0 };
+		int bo;
+		ecc_decode(f->buffer_ecc->stream, tmp, &bo);
+		if (bo >= 4)
+			return errno = EIO , -1;
+		memcpy(f->buffer_ecc->stream, tmp, z);
+
+		f->buffer_ecc->offset[0] = z - (ECC_CAPACITY - ECC_PAYLOAD);
+	}
+}
+
+static int ecc_sync(io_private_t *f)
+{
+	ecc_write(f, NULL, 0);
 	return 0;
 }
 

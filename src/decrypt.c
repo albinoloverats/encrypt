@@ -177,7 +177,7 @@ static void *process(void *ptr)
 	 * an error
 	 */
 	if (!c->version)
-		return (void *)c->status;
+		return c->status = STATUS_FAILED_UNKNOWN_VERSION , (void *)c->status;
 
 	bool skip_some_random = false;
 	x_iv_e iv_type = IV_RANDOM;
@@ -201,6 +201,7 @@ static void *process(void *ptr)
 			break;
 
 		case VERSION_2015_01:
+		case VERSION_XXXX_YY:
 		default:
 			/*
 			 * this will catch the all more recent versions (unknown is
@@ -307,6 +308,11 @@ static uint64_t read_version(crypto_t *c)
 		return 0;
 	if (head[0] != htonll(HEADER_0) || head[1] != htonll(HEADER_1))
 		return 0;
+
+	version_e v = check_version(ntohll(head[2]));
+	if (v >= VERSION_XXXX_YY && !c->raw)
+		io_correction_init(c->source);
+
 	uint8_t l;
 	io_read(c->source, &l, sizeof l);
 	char *a = gcry_calloc_secure(l + sizeof( char ), sizeof( char ));
@@ -325,7 +331,7 @@ static uint64_t read_version(crypto_t *c)
 	c->cipher = cipher_id_from_name(a);
 	c->hash = hash_id_from_name(h);
 	c->mode = mode_id_from_name(m);
-	return check_version(ntohll(head[2]));
+	return v;
 }
 
 static bool read_verification_sum(crypto_t *c)
