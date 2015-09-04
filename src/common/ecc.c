@@ -21,30 +21,12 @@
  * ecc Version 1.2 by Paul Flaherty (paulf@stanford.edu)
  * Copyright (C) 1993 Free Software Foundation, Inc.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
-
-/*
  * Basic Software Tool for Encoding and Decoding Files.
  *
- * This is a simple stream encoder which uses the rslib routines to
- * do something practical. It reads data from stdin in 248(encode) or
- * 256(decode) blocks, and writes the corresponding encoded/decoded
- * block onto stdout. An encoded block contains 248 data bytes, one
- * length byte, six redundancy bytes, and a capital G byte as a sync
- * marker to round it out to 256 bytes.
+ * This is a simple stream encoder. It takes a buffer of data 249 bytes
+ * (encode) - or 255 bytes (decode) - and copies the corresponding
+ * encoded/decoded block to the output buffer. An encoded block contains
+ * 249 data bytes and 6 redundancy bytes.
  */
 
 #include <stdio.h>
@@ -65,9 +47,9 @@
 #define GF_EXP(A, B) ((A) == 0 ? 0 : e2v[(v2e[A] * (B)) % ECC_CAPACITY])
 
 
-static uint8_t g[ECC_CAPACITY - ECC_PAYLOAD] = { 117, 49, 58, 158, 4, 126 };
+static const uint8_t g[ECC_CAPACITY - ECC_PAYLOAD] = { 117, 49, 58, 158, 4, 126 };
 
-static uint8_t e2v[ECC_CAPACITY + 1] =
+static const uint8_t e2v[ECC_CAPACITY + 1] =
 {
 	  1,   2,   4,   8,  16,  32,  64, 128,  29,  58, 116, 232, 205, 135,  19,  38,
 	 76, 152,  45,  90, 180, 117, 234, 201, 143,   3,   6,  12,  24,  48,  96, 192,
@@ -87,7 +69,7 @@ static uint8_t e2v[ECC_CAPACITY + 1] =
 	 44,  88, 176, 125, 250, 233, 207, 131,  27,  54, 108, 216, 173,  71, 142,   1
 };
 
-static uint8_t v2e[ECC_CAPACITY + 1] =
+static const uint8_t v2e[ECC_CAPACITY + 1] =
 {
 	255,   0,   1,  25,   2,  50,  26, 198,   3, 223,  51, 238,  27, 104, 199,  75,
 	  4, 100, 224,  14,  52, 141, 239, 129,  28, 193, 105, 248, 200,   8,  76, 113,
@@ -179,10 +161,7 @@ static void polysolve(uint8_t polynom[4], uint8_t roots[3], int *numsol)
 		for (int j = 0; j < 4; j++)
 			y = GF_ADD(y, GF_MUL(polynom[j], GF_EXP(e2v[i], j)));
 		if (y == 0)
-		{
-			roots[*numsol] = e2v[i];
-			(*numsol)++;
-		}
+			roots[(*numsol)++] = e2v[i];
 	}
 }
 
