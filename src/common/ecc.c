@@ -46,8 +46,16 @@
 /* Exponentiation. Convert to exponential notation, mod ECC_CAPACITY */
 #define GF_EXP(A, B) ((A) == 0 ? 0 : e2v[(v2e[A] * (B)) % ECC_CAPACITY])
 
+#define REVERSE(A, L)                                                   \
+	for (int i = 0, j = (L) - 1; i < (L) / 2; i++, j--)             \
+	{                                                               \
+		A[i] ^= A[j];                                           \
+		A[j] ^= A[i];                                           \
+		A[i] ^= A[j];                                           \
+	}
 
-static const uint8_t g[ECC_CAPACITY - ECC_PAYLOAD] = { 117, 49, 58, 158, 4, 126 };
+
+static const uint8_t g[ECC_OFFSET] = { 117, 49, 58, 158, 4, 126 };
 
 static const uint8_t e2v[ECC_CAPACITY + 1] =
 {
@@ -173,6 +181,8 @@ static void polysolve(uint8_t polynom[4], uint8_t roots[3], int *numsol)
  */
 extern void ecc_decode(uint8_t code[ECC_CAPACITY], uint8_t mesg[ECC_CAPACITY], int *errcode)
 {
+	REVERSE(code, ECC_CAPACITY);
+
 	uint8_t syn[7], deter, z[4], e0, e1, e2, n0, n1, n2, w0, w1, w2, x0, x[3];
 	int sols;
 
@@ -309,7 +319,7 @@ extern void ecc_decode(uint8_t code[ECC_CAPACITY], uint8_t mesg[ECC_CAPACITY], i
  */
 extern void ecc_encode(uint8_t m[ECC_PAYLOAD], uint8_t c[ECC_CAPACITY])
 {
-	uint8_t r[ECC_CAPACITY - ECC_PAYLOAD] = { 0x0 };
+	uint8_t r[ECC_OFFSET] = { 0x0 };
 
 	for (int i = 0; i < ECC_PAYLOAD; i++)
 	{
@@ -319,6 +329,8 @@ extern void ecc_encode(uint8_t m[ECC_PAYLOAD], uint8_t c[ECC_CAPACITY])
 			r[j] = GF_ADD(GF_MUL(rtmp, g[j]), r[j - 1]);
 		r[0] = GF_MUL(rtmp, g[0]);
 	}
-	for (int i = 0; i < ECC_CAPACITY - ECC_PAYLOAD; i++)
+	for (int i = 0; i < ECC_OFFSET; i++)
 		c[i] = r[i];
+
+	REVERSE(c, ECC_CAPACITY);
 }
