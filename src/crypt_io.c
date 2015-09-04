@@ -72,7 +72,7 @@ typedef struct
 {
 	uint8_t *stream;             /*!< Buffer data   */
 	size_t block;                /*!< Size of steam */
-	size_t offset[OFFSET_SLOTS]; /*!< 0: length of data yet to buffer (from d); 1: available space in output buffer (stream); 2: offset of where to read new data to */
+	size_t offset[OFFSET_SLOTS]; /*!< 0: length of data in buffer, yet to write; 1: available space in output buffer (stream); 2: offset of where to read new data to */
 }
 buffer_t;
 
@@ -630,7 +630,7 @@ static ssize_t ecc_write(io_private_t *f, const void *d, size_t l)
 		uint8_t z = (uint8_t)f->buffer_ecc->offset[0];
 		write(f->fd, &z, sizeof z);
 		write(f->fd, f->buffer_ecc->stream, ECC_OFFSET);
-		ssize_t e = write(f->fd, f->buffer_ecc->stream + ECC_CAPACITY - z, z);
+		ssize_t e = write(f->fd, f->buffer_ecc->stream + ECC_OFFSET, ECC_PAYLOAD);
 
 		fsync(f->fd);
 		f->buffer_ecc->block = 0;
@@ -702,14 +702,8 @@ static ssize_t ecc_read(io_private_t *f, void *d, size_t l)
 		ssize_t e = EXIT_SUCCESS;
 		uint8_t z;
 		read(f->fd, &z, sizeof z);
-		if ((e = read(f->fd, f->buffer_ecc->stream, ECC_CAPACITY)) < 0)
+		if ((e = read(f->fd, f->buffer_ecc->stream, ECC_CAPACITY)) <= 0)
 			return e;
-
-		if (z < ECC_PAYLOAD)
-		{
-			memmove(f->buffer_ecc->stream + ECC_CAPACITY - z, f->buffer_ecc->stream + ECC_OFFSET, z);
-			memset(f->buffer_ecc->stream + ECC_OFFSET, 0x00, ECC_CAPACITY - z);
-		}
 
 		uint8_t tmp[ECC_CAPACITY] = { 0x0 };
 		int bo;
