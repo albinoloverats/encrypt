@@ -90,6 +90,8 @@ typedef struct
 	eof_e eof:2;
 	io_e operation:2;
 
+	uint8_t byte;
+
 	bool cipher_init:1;
 	bool hash_init:1;
 	bool lzma_init:1;
@@ -486,9 +488,8 @@ static ssize_t lzma_read(io_private_t *c, void *d, size_t l)
 	{
 		if (c->lzma_handle.avail_in == 0)
 		{
-			uint8_t b;
-			c->lzma_handle.next_in = &b;
-			switch (enc_read(c, &b, sizeof b))
+			c->lzma_handle.next_in = &c->byte;
+			switch (enc_read(c, &c->byte, sizeof c->byte))
 			{
 				case 0:
 					a = LZMA_FINISH;
@@ -612,7 +613,12 @@ static int enc_sync(io_private_t *f)
 static ssize_t ecc_write(io_private_t *f, const void *d, size_t l)
 {
 	if (!f->ecc_init)
-		return write(f->fd, d, l);
+	{
+		if (!d && !l)
+			return fsync(f->fd) , 0;
+		else
+			return write(f->fd, d, l);
+	}
 
 	size_t remainder[2] = { l, f->buffer_ecc->block - f->buffer_ecc->offset[0] }; /* 0: length of data yet to buffer (from d); 1: available space in output buffer (stream) */
 	if (!d && !l)
@@ -620,10 +626,11 @@ static ssize_t ecc_write(io_private_t *f, const void *d, size_t l)
 		uint8_t tmp[ECC_CAPACITY] = { 0x0 };
 		ecc_encode(f->buffer_ecc->stream, tmp);
 		memcpy(f->buffer_ecc->stream, tmp, sizeof tmp);
+
 		uint8_t z = (uint8_t)f->buffer_ecc->offset[0];
 		write(f->fd, &z, sizeof z);
 		write(f->fd, f->buffer_ecc->stream, ECC_OFFSET);
-		ssize_t e = write(f->fd, f->buffer_ecc->stream + ECC_OFFSET + ECC_CAPACITY - z, z - ECC_OFFSET/*f->buffer_ecc->block*/);
+		ssize_t e = write(f->fd, f->buffer_ecc->stream + ECC_CAPACITY - z, z);
 
 		fsync(f->fd);
 		f->buffer_ecc->block = 0;
@@ -648,11 +655,12 @@ static ssize_t ecc_write(io_private_t *f, const void *d, size_t l)
 		ecc_encode(f->buffer_ecc->stream, tmp);
 		memcpy(f->buffer_ecc->stream, tmp, sizeof tmp);
 
-		ssize_t e = EXIT_SUCCESS;
-		uint8_t z = ECC_CAPACITY;
+		uint8_t z = ECC_PAYLOAD;
 		write(f->fd, &z, sizeof z);
+		ssize_t e = EXIT_SUCCESS;
 		if ((e = write(f->fd, f->buffer_ecc->stream, ECC_CAPACITY)) < 0)
 			return e;
+
 		f->buffer_ecc->offset[0] = 0;
 		memset(f->buffer_ecc->stream, 0x00, f->buffer_ecc->block);
 		f->buffer_ecc->offset[1] += remainder[1];
@@ -689,15 +697,19 @@ static ssize_t ecc_read(io_private_t *f, void *d, size_t l)
 		f->buffer_ecc->offset[2] += f->buffer_ecc->offset[0];
 		f->buffer_ecc->offset[1] -= f->buffer_ecc->offset[0];
 		f->buffer_ecc->offset[0] = 0;
+		memset(f->buffer_ecc->stream, 0x00, ECC_CAPACITY);
 
 		ssize_t e = EXIT_SUCCESS;
 		uint8_t z;
 		read(f->fd, &z, sizeof z);
-		read(f->fd, f->buffer_ecc->stream, ECC_OFFSET);
-		if (z < ECC_CAPACITY)
-			memset(f->buffer_ecc->stream + ECC_OFFSET, 0x00, ECC_PAYLOAD);
-		if ((e = read(f->fd, f->buffer_ecc->stream + ECC_OFFSET + ECC_CAPACITY - z, ECC_CAPACITY - ECC_OFFSET)) < 0)
+		if ((e = read(f->fd, f->buffer_ecc->stream, ECC_CAPACITY)) < 0)
 			return e;
+
+		if (z < ECC_PAYLOAD)
+		{
+			memmove(f->buffer_ecc->stream + ECC_CAPACITY - z, f->buffer_ecc->stream + ECC_OFFSET, z);
+			memset(f->buffer_ecc->stream + ECC_OFFSET, 0x00, ECC_CAPACITY - z);
+		}
 
 		uint8_t tmp[ECC_CAPACITY] = { 0x0 };
 		int bo;
@@ -706,7 +718,7 @@ static ssize_t ecc_read(io_private_t *f, void *d, size_t l)
 			return errno = EIO , -1;
 		memcpy(f->buffer_ecc->stream, tmp, z);
 
-		f->buffer_ecc->offset[0] = z - (ECC_CAPACITY - ECC_PAYLOAD);
+		f->buffer_ecc->offset[0] = z;
 	}
 }
 
