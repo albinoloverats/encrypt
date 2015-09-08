@@ -55,7 +55,7 @@
 	}
 
 
-static const uint8_t g[ECC_OFFSET] = { 117, 49, 58, 158, 4, 126 };
+static const uint8_t g[ECC_OFFSET] = { 0x75, 0x31, 0x3A, 0x9E, 0x04, 0x7E };
 
 static const uint8_t e2v[ECC_CAPACITY + 1] =
 {
