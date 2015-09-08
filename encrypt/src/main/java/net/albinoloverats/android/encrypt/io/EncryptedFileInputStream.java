@@ -26,6 +26,7 @@ import gnu.crypto.mode.IMode;
 import gnu.crypto.mode.ModeFactory;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -41,7 +42,7 @@ import net.albinoloverats.android.encrypt.misc.Convert;
 
 public class EncryptedFileInputStream extends FileInputStream
 {
-	private final FileInputStream stream;
+	private final ECCFileInputStream eccFileInputStream;
 
 	private IMode cipher;
 
@@ -52,10 +53,18 @@ public class EncryptedFileInputStream extends FileInputStream
 	public EncryptedFileInputStream(final File file) throws FileNotFoundException
 	{
 		super(file);
-		stream = new FileInputStream(file);
+		try
+		{
+			super.close();
+		}
+		catch (final IOException e)
+		{
+			; // ignored
+		}
+		eccFileInputStream = new ECCFileInputStream(file);
 	}
 
-	public IMessageDigest encryptionInit(final String cipher, final String hash, final String mode, final byte[] key, final XIV ivType) throws NoSuchAlgorithmException, InvalidKeyException, IOException
+	public IMessageDigest initialiseDecryption(final String cipher, final String hash, final String mode, final byte[] key, final XIV ivType) throws NoSuchAlgorithmException, InvalidKeyException, IOException
 	{
 		IMessageDigest h = CryptoUtils.getHashAlgorithm(hash);
 		final IBlockCipher c = CryptoUtils.getCipherAlgorithm(cipher);
@@ -80,7 +89,7 @@ public class EncryptedFileInputStream extends FileInputStream
 				System.arraycopy(h.digest(), 0, iv, 0, iv.length);
 				break;
 			case RANDOM:
-				stream.read(iv);
+				eccFileInputStream.read(iv);
 				break;
 		}
 		attributes.put(IMode.IV, iv);
@@ -89,31 +98,29 @@ public class EncryptedFileInputStream extends FileInputStream
 		return h;
 	}
 
+	public void initialiseECC()
+	{
+		eccFileInputStream.initalise();
+	}
+
 	@Override
 	public int available() throws IOException
 	{
 		if (cipher == null)
-			return super.available();
+			return eccFileInputStream.available();
 		return offset[0];
 	}
 
 	@Override
 	public void close() throws IOException
 	{
-		stream.close();
-	}
-
-	@Override
-	protected void finalize() throws IOException
-	{
-		close();
-		super.finalize();
+		eccFileInputStream.close();
 	}
 
 	@Override
 	public FileChannel getChannel()
 	{
-		return stream.getChannel();
+		return eccFileInputStream.getChannel();
 	}
 
 	@Override
@@ -129,7 +136,7 @@ public class EncryptedFileInputStream extends FileInputStream
 	{
 		int err = 0;
 		if (cipher == null)
-			return stream.read(bytes);
+			return eccFileInputStream.read(bytes);
 		offset[1] = bytes.length;
 		offset[2] = 0;
 		while (true)
@@ -149,7 +156,7 @@ public class EncryptedFileInputStream extends FileInputStream
 			offset[1] -= offset[0];
 			offset[0] = 0;
 			final byte[] eBytes = new byte[blockSize];
-			err = stream.read(eBytes);
+			err = eccFileInputStream.read(eBytes);
 			cipher.update(eBytes, 0, buffer, 0);
 			offset[0] = blockSize;
 		}

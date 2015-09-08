@@ -422,6 +422,8 @@ public class Main extends Activity
 				storePreferences();
 				break;
 			case R.id.menu_advanced_compatibility:
+				break;
+			default:
 				for (final Version v : Version.values())
 				{
 					if (itemId == v.menu_id)
@@ -432,8 +434,6 @@ public class Main extends Activity
 						storePreferences();
 					}
 				}
-				break;
-			default:
 				break;
 		}
 		return true;

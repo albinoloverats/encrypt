@@ -82,10 +82,7 @@ public class Decrypt extends Crypto
 		{
 			status = Status.RUNNING;
 
-			if (raw)
-				version = Version.CURRENT;
-			else
-				readVersion();
+			version = raw ? Version.CURRENT : readVersion();
 
 			boolean extraRandom = true;
 			XIV ivType = XIV.RANDOM;
@@ -107,7 +104,7 @@ public class Decrypt extends Crypto
 				default:
 			}
 
-			checksum = ((EncryptedFileInputStream) source).encryptionInit(cipher, hash, mode, key, ivType);
+			checksum = ((EncryptedFileInputStream) source).initialiseDecryption(cipher, hash, mode, key, ivType);
 
 			if (!raw)
 			{
@@ -180,11 +177,18 @@ public class Decrypt extends Crypto
 		}
 	}
 
-	private void readVersion() throws CryptoProcessException, IOException
+	private Version readVersion() throws CryptoProcessException, IOException
 	{
 		final byte[] header = new byte[Long.SIZE / Byte.SIZE];
 		for (int i = 0; i < HEADER.length; i++)
 			source.read(header, 0, header.length);
+
+		final Version v = Version.parseMagicNumber(Convert.longFromBytes(header), null);
+		if (v == null)
+			throw new CryptoProcessException(Status.FAILED_UNKNOWN_VERSION);
+
+		if (v.compareTo(Version._201600) >= 0 && !raw)
+			((EncryptedFileInputStream)source).initialiseECC();
 
 		final byte[] b = new byte[source.read()];
 		source.read(b);
@@ -200,8 +204,7 @@ public class Decrypt extends Crypto
 		else
 			mode = ModeFactory.CBC_MODE;
 
-		if ((version = Version.parseMagicNumber(Convert.longFromBytes(header), null)) == null)
-			throw new CryptoProcessException(Status.FAILED_UNKNOWN_VERSION);
+		return v;
 	}
 
 	private void readVerificationSum() throws CryptoProcessException, IOException

@@ -33,7 +33,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -105,7 +104,7 @@ public class Encrypt extends Crypto
 		if (raw)
 			version = Version.CURRENT;
 
-		switch (this.version)
+		switch (version)
 		{
 			// see src/encrypt.c for information/comments
 			case _201108:
@@ -124,7 +123,11 @@ public class Encrypt extends Crypto
 				mode = ModeFactory.CBC_MODE;
 				break;
 			case _201406:
+				if (mode == ModeFactory.CBC_MODE)
+					version = Version._201311;
+				break;
 			case _201501:
+			case _201600:
 			case CURRENT:
 				break;
 		}
@@ -153,7 +156,7 @@ public class Encrypt extends Crypto
 			if (version.compareTo(Version._201110) <= 0)
 				ivType = XIV.BROKEN;
 
-			checksum = ((EncryptedFileOutputStream)output).encryptionInit(cipher, hash, mode, key, ivType);
+			checksum = ((EncryptedFileOutputStream)output).initialiseEncryption(cipher, hash, mode, key, ivType);
 
 			if (!raw)
 			{
@@ -239,6 +242,8 @@ public class Encrypt extends Crypto
 		output.write(Convert.toBytes(HEADER[0]));
 		output.write(Convert.toBytes(HEADER[1]));
 		output.write(Convert.toBytes(HEADER[2]));
+		if (version.compareTo(Version._201600) >= 0 && !raw)
+			((EncryptedFileOutputStream)output).initaliseECC();
 		String algorithms = cipher + "/" + hash;
 		if (version.compareTo(Version._201406) >= 0)
 			algorithms = algorithms.concat("/" + mode);

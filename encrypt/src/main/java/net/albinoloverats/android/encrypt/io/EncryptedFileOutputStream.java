@@ -42,7 +42,7 @@ import net.albinoloverats.android.encrypt.misc.Convert;
 
 public class EncryptedFileOutputStream extends FileOutputStream
 {
-	private final FileOutputStream stream;
+	private final ECCFileOutputStream eccFileOutputStream;
 
 	private IMode cipher;
 
@@ -55,10 +55,18 @@ public class EncryptedFileOutputStream extends FileOutputStream
 	public EncryptedFileOutputStream(final File file) throws FileNotFoundException
 	{
 		super(file);
-		stream = new FileOutputStream(file);
+		try
+		{
+			super.close();
+		}
+		catch (final IOException e)
+		{
+			; // ignored
+		}
+		eccFileOutputStream = new ECCFileOutputStream(file);
 	}
 
-	public IMessageDigest encryptionInit(final String cipher, final String hash, final String mode, final byte[] key, final XIV ivType) throws NoSuchAlgorithmException, InvalidKeyException, IOException
+	public IMessageDigest initialiseEncryption(final String cipher, final String hash, final String mode, final byte[] key, final XIV ivType) throws NoSuchAlgorithmException, InvalidKeyException, IOException
 	{
 		IMessageDigest h = CryptoUtils.getHashAlgorithm(hash);
 		final IBlockCipher c = CryptoUtils.getCipherAlgorithm(cipher);
@@ -84,7 +92,7 @@ public class EncryptedFileOutputStream extends FileOutputStream
 				break;
 			case RANDOM:
 				PRNG.nextBytes(iv);
-				stream.write(iv);
+				eccFileOutputStream.write(iv);
 				break;
 		}
 		attributes.put(IMode.IV, iv);
@@ -93,12 +101,16 @@ public class EncryptedFileOutputStream extends FileOutputStream
 		return h;
 	}
 
+	public void initaliseECC()
+	{
+		eccFileOutputStream.initalise();
+	}
+
 	@Override
 	public void close() throws IOException
 	{
 		if (!open)
 			return;
-
 		if (cipher != null)
 		{
 			final int[] remainder = { 0, blockSize - offset[0] };
@@ -107,24 +119,16 @@ public class EncryptedFileOutputStream extends FileOutputStream
 			System.arraycopy(x, 0, buffer, offset[0], remainder[1]);
 			final byte[] eBytes = new byte[blockSize];
 			cipher.update(buffer, 0, eBytes, 0);
-			stream.write(eBytes);
+			eccFileOutputStream.write(eBytes);
 		}
-		stream.flush();
-		stream.close();
+		eccFileOutputStream.close();
 		open = false;
-	}
-
-	@Override
-	protected void finalize() throws IOException
-	{
-		close();
-		super.finalize();
 	}
 
 	@Override
 	public FileChannel getChannel()
 	{
-		return stream.getChannel();
+		return eccFileOutputStream.getChannel();
 	}
 
 	@Override
@@ -132,7 +136,7 @@ public class EncryptedFileOutputStream extends FileOutputStream
 	{
 		if (cipher == null)
 		{
-			stream.write(bytes);
+			eccFileOutputStream.write(bytes);
 			return;
 		}
 		final int[] remainder = { bytes.length, blockSize - offset[0] };
@@ -148,7 +152,7 @@ public class EncryptedFileOutputStream extends FileOutputStream
 			System.arraycopy(bytes, offset[1], buffer, offset[0], remainder[1]);
 			final byte[] eBytes = new byte[blockSize];
 			cipher.update(buffer, 0, eBytes, 0);
-			stream.write(eBytes);
+			eccFileOutputStream.write(eBytes);
 			offset[0] = 0;
 			buffer = new byte[blockSize];
 			offset[1] += remainder[1];
