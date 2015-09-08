@@ -44,7 +44,10 @@ Changelog
 
 ### Fixed For Latest Release
 
-* Infinite loop on decryption attempt of unrecognised version
+* UNIX
+  - Infinite loop on decryption attempt of unrecognised version
+* Android
+  - Fix compatibility menu bug
 
 TODO
 ----
@@ -63,4 +66,4 @@ TODO
   (GTK file selection dialog - GNU/Linux)
 * On Windows 8: AES is unavailable as there is a bug in libgcrypt. As
   and when this issue is fixed upstream, we’ll provide a fix too. This
-  does not affect Windows 7.
+  does not affect Windows 7. (Check if 1.6.3 fixes this issue.)

@@ -168,10 +168,7 @@ static void *process(void *ptr)
 	/*
 	 * read encrypt file header
 	 */
-	if (c->raw)
-		c->version = VERSION_CURRENT; /* must assume the current version */
-	else
-		c->version = read_version(c);
+	c->version = c->raw ? VERSION_CURRENT : read_version(c);
 	/*
 	 * version_read() already handles setting the status and displaying
 	 * an error
