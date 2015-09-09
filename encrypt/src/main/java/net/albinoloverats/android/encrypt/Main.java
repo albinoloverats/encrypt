@@ -30,6 +30,7 @@ import net.albinoloverats.android.encrypt.crypt.Decrypt;
 import net.albinoloverats.android.encrypt.crypt.Encrypt;
 import net.albinoloverats.android.encrypt.crypt.Status;
 import net.albinoloverats.android.encrypt.crypt.Version;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.NotificationManager;
@@ -466,21 +467,23 @@ public class Main extends Activity
 		if (resultCode == Activity.RESULT_OK)
 		{
 			final String filename = data.getStringExtra(FileDialog.RESULT_PATH);
-			switch (FileAction.fromValue(requestCode))
-			{
-				case LOAD:
-					filenameIn = filename;
-					((Button)findViewById(R.id.button_file)).setText(filenameIn);
-					break;
-				case SAVE:
-					filenameOut = filename;
-					((Button)findViewById(R.id.button_output)).setText(filenameOut);
-					break;
-				case KEY:
-					((Button)findViewById(R.id.button_key)).setText(filename);
-					key = filename;
-					break;
-			}
+			final FileAction fileAction = FileAction.fromValue(requestCode);
+			if (fileAction != null)
+				switch (fileAction)
+				{
+					case LOAD:
+						filenameIn = filename;
+						((Button)findViewById(R.id.button_file)).setText(filenameIn);
+						break;
+					case SAVE:
+						filenameOut = filename;
+						((Button)findViewById(R.id.button_output)).setText(filenameOut);
+						break;
+					case KEY:
+						((Button)findViewById(R.id.button_key)).setText(filename);
+						key = filename;
+						break;
+				}
 			checkEnableButtons();
 		}
 	}
@@ -545,8 +548,8 @@ public class Main extends Activity
 					@Override
 					public void onCancel(final DialogInterface dialog)
 					{
-						messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.DONE.value, Status.CANCELLED.message));
 						stopService(new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class));
+						messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.DONE.value, Status.CANCELLED.message));
 					}
 				});
 				return doubleProgressDialog;
