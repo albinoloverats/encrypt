@@ -28,7 +28,6 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
-import android.widget.Toast;
 
 import gnu.crypto.hash.IMessageDigest;
 
@@ -62,7 +61,7 @@ public abstract class Crypto extends Service implements Runnable
 
 	protected boolean raw = false;
 
-	public Status status = Status.INIT;
+	public Status status;
 	public final Progress current = new Progress();
 	public final Progress total = new Progress();
 
@@ -99,6 +98,8 @@ public abstract class Crypto extends Service implements Runnable
 	@Override
 	public int onStartCommand(final Intent intent, final int flags, final int startId)
 	{
+		status = Status.INIT;
+
 		if (intent.getBooleanExtra("key_file", false))
 			setKey(intent.getStringExtra("key"));
 		else
@@ -117,7 +118,8 @@ public abstract class Crypto extends Service implements Runnable
 		final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 		notificationBuilder.setContentIntent(pendingIntent);
 
-		if (status == Status.INIT) {
+		if (status == Status.INIT)
+		{
 			final PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
 			wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, actionTitle);
 			wakeLock.acquire();
