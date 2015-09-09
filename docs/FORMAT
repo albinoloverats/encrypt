@@ -1,32 +1,40 @@
-0000000: 3697 de5d 96fc a0fa c845 c2fa 95e2 f52d 6..].....E.....-    Standard file header (version 2014.06)
-0000010: 8819 d190 69fa e6b4                     ....i...
+00000000: 3697 de5d 96fc a0fa c845 c2fa 95e2 f52d  6..].....E.....-     Standard file header (version 2014.06)
+00000010: 8819 d190 69fa e6b4                      ....i...
 
-0000010:                     1453 4552 5045 4e54         .SERPENT    Algorithms used; preceeded by byte indicating
-0000020: 3139 322f 5449 4745 522f 4354 52        192/TIGER/CTR       length of the string (not null terminated)
+00000010:                     f914 5345 5250 454e         ..SERPEN      f9 indicates length of ECC data; followed by length
+00000020: 5431 3932 2f54 4947 4552 2f43 5452       T192/TIGER/CTR       of the algorithms string (not null terminated)
 
-0000020:                                 01 5c                .\     Random data (first byte is length)
+00000020:                                    fc0b                ..     IV used for encryption (length is cipher dependent)
+00000030: fcd4 0b13 4229 62a1 b231 31c9 4e61       ....B)b..11.Na
 
-0000020:                                      e7                .    Checksum (x ^ y = z)
-0000030: ae44 9e37 24fc c21b a12d af8d 1530 1bfc .D.7$....-...0..
-0000040: 0f69 31ba 31cc d9                       .i1.1..
+00000030:                                    012e                ..     Random data (first byte is length)
 
-0000040:                  01 64                         .d           Random data (first byte is length)
+00000040: 0ab8 ff6d b2da 5c28 fca7 4302 8c65 8a4a  ...m..\(..C..e.J     Checksum (x ^ y = z)
+00000050: f61f bc6f 3ebf d662                      ...o>..b.U......
 
-0000040:                       01 0000 0800 0000          .......    Metadata (1st byte is the number of TLV entries,
-0000050: 0000 0003 2d                            ....-               2nd is the tag, 3rd-4th are length, then value)
+00000050:                     0155                         .U           Random data (first byte is length)
 
-0000050:             01 1c                            ..             Random data (first byte is length)
+00000050:                          0200 0008 0000  ...o>..b.U......     Metadata (1st byte is the number of TLV entries,
+00000060: 0000 0000 0875 0400 0f52 4541 444d 452e  .....u...README.     2nd is the tag, 3rd-4th are length, then value)
+00000070: 6d61 726b 646f 776e                      markdown
 
-0000050:                  65 6e63 7279 7074 202d        encrypt -    Start of actual payload
+00000070:                     0108                         ..           Random data (first byte is length)
 
+00000070:                          656e 6372 7970            encryp     Start of actual payload
 
+00000110:      dc1a bbae 642e                      ry....d.             Error correction codes for first block
 
-0000380: 6869 6e0a                               hin.                End of payload
+00000910:      2115 fbae fbce 34                     !.....4            Error correction codes for penultimate block and
+                                                                        length of data in final block
 
-0000380:           2aeb f797 3720 5e76 33d6 447a     *...7 ^v3.Dz    Hash of payload data
-0000390: 4964 40e6 4081 0ef4 dcc3 0349           Id@.@......I
+00000920: 626c 6163 6b20 2620 7768 6974 650a       black & white.       End of payload
 
-0000390:                               0124                  .$      Random data (first byte is length)
+00000920:                                    fa17                ..     Hash of payload data
+00000930: eb12 55fa 87a9 efa0 1f29 f44f e0b9 387f  ..U......).O..8.
+00000940: 425b 9d7f ea7c                           B[...|
 
-0000390:                                    0000               ..
-00003a0: 0000 0000 0000 0000 0000 0000 00        .............
+00000940:                0169                            .i             Random data (first byte is length)
+
+00000950: 0000 0000 0000 0000 0000 0000 0000 0000          ........     Padding for final block of ECC
+
+00000a10: 0000 87c2 74f6 e089                      ....t...             Error correction codes for final block
