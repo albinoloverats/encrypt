@@ -91,6 +91,10 @@ public abstract class Crypto extends Service implements Runnable
 		{
 			status = e.code;
 		}
+		finally
+		{
+			releaseWakeLock();
+		}
 	}
 
 	abstract protected void process() throws CryptoProcessException;
@@ -111,7 +115,7 @@ public abstract class Crypto extends Service implements Runnable
 		final NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getBaseContext());
 		notificationBuilder.setContentTitle(actionTitle);
 		notificationBuilder.setContentText(getString(R.string.please_wait));
-		notificationBuilder.setSmallIcon(R.drawable.icon);
+		notificationBuilder.setSmallIcon(R.drawable.icon_bw);
 
 		final Intent notificationIntent = new Intent(this, Main.class);
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -120,7 +124,8 @@ public abstract class Crypto extends Service implements Runnable
 
 		if (status == Status.INIT)
 		{
-			final PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+			/* start en/decryption process */
+			final PowerManager powerManager = (PowerManager)getSystemService(POWER_SERVICE);
 			wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, actionTitle);
 			wakeLock.acquire();
 
@@ -128,6 +133,7 @@ public abstract class Crypto extends Service implements Runnable
 			process.start();
 		}
 
+		/* start a thread to keep ui updated */
 		notification = new Thread()
 		{
 			@Override
@@ -185,9 +191,17 @@ public abstract class Crypto extends Service implements Runnable
 			notification.interrupt();
 			process.interrupt();
 		}
-		if (wakeLock != null && wakeLock.isHeld())
-			wakeLock.release();
+		releaseWakeLock();
 		super.onDestroy();
+	}
+
+	private void releaseWakeLock()
+	{
+		if (wakeLock != null && wakeLock.isHeld())
+		{
+			wakeLock.release();
+			wakeLock = null;
+		}
 	}
 
 	@Override

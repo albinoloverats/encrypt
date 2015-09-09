@@ -320,7 +320,8 @@ public class Main extends Activity
 			@Override
 			public void onClick(final View v)
 			{
-				showDialog(DOUBLE_PROGRESS_DIALOG);
+				createDoubleProgressDialog();
+				startService(createBackgroundTask());
 			}
 		});
 		encButton.setEnabled(false);
@@ -456,7 +457,7 @@ public class Main extends Activity
 		final Dialog dialog = new Dialog(this);
 		dialog.setContentView(R.layout.about);
 		dialog.setTitle(getString(R.string.app_name) + " " + getString(R.string.version));
-		((ImageView)dialog.findViewById(R.id.about_image)).setImageResource(R.drawable.icon);
+		((ImageView)dialog.findViewById(R.id.about_image)).setImageResource(R.drawable.about);
 		((TextView)dialog.findViewById(R.id.about_text)).setText(getString(R.string.description) + "\n" + getString(R.string.copyright) + "\n" + getString(R.string.url));
 		dialog.show();
 	}
@@ -464,28 +465,28 @@ public class Main extends Activity
 	@Override
 	public synchronized void onActivityResult(final int requestCode, final int resultCode, final Intent data)
 	{
-		if (resultCode == Activity.RESULT_OK)
-		{
-			final String filename = data.getStringExtra(FileDialog.RESULT_PATH);
-			final FileAction fileAction = FileAction.fromValue(requestCode);
-			if (fileAction != null)
-				switch (fileAction)
-				{
-					case LOAD:
-						filenameIn = filename;
-						((Button)findViewById(R.id.button_file)).setText(filenameIn);
-						break;
-					case SAVE:
-						filenameOut = filename;
-						((Button)findViewById(R.id.button_output)).setText(filenameOut);
-						break;
-					case KEY:
-						((Button)findViewById(R.id.button_key)).setText(filename);
-						key = filename;
-						break;
-				}
-			checkEnableButtons();
-		}
+		if (resultCode != Activity.RESULT_OK)
+			return;
+
+		final String filename = data.getStringExtra(FileDialog.RESULT_PATH);
+		final FileAction fileAction = FileAction.fromValue(requestCode);
+		if (fileAction != null)
+			switch (fileAction)
+			{
+				case LOAD:
+					filenameIn = filename;
+					((Button)findViewById(R.id.button_file)).setText(filenameIn);
+					break;
+				case SAVE:
+					filenameOut = filename;
+					((Button)findViewById(R.id.button_output)).setText(filenameOut);
+					break;
+				case KEY:
+					((Button)findViewById(R.id.button_key)).setText(filename);
+					key = filename;
+					break;
+			}
+		checkEnableButtons();
 	}
 
 	private void checkEnableButtons()
@@ -535,66 +536,55 @@ public class Main extends Activity
 			encButton.setEnabled(true);
 	}
 
-	@Override
-	protected Dialog onCreateDialog(final int id)
+	private void createDoubleProgressDialog()
 	{
-		switch (id)
+		doubleProgressDialog = new DoubleProgressDialog(Main.this);
+		doubleProgressDialog.setMessage(getString(R.string.please_wait));
+		doubleProgressDialog.setOnCancelListener(new OnCancelListener()
 		{
-			case DOUBLE_PROGRESS_DIALOG:
-				doubleProgressDialog = new DoubleProgressDialog(Main.this);
-				doubleProgressDialog.setMessage(getString(R.string.please_wait));
-				doubleProgressDialog.setOnCancelListener(new OnCancelListener()
-				{
-					@Override
-					public void onCancel(final DialogInterface dialog)
-					{
-						stopService(new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class));
-						messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.DONE.value, Status.CANCELLED.message));
-					}
-				});
-				return doubleProgressDialog;
-			default:
-				return null;
-		}
+			@Override
+			public void onCancel(final DialogInterface dialog)
+			{
+				stopService(new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class));
+				messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.DONE.value, Status.CANCELLED.message));
+			}
+		});
+		doubleProgressDialog.setMax(1);
+		doubleProgressDialog.setProgress(0);
+		doubleProgressDialog.setSecondaryMax(1);
+		doubleProgressDialog.setSecondaryProgress(0);
+		/* handle broadcasts from the service about progress */
+		progressReceiver = new ProgressReceiver();
+		final IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(getString(encrypting ? R.string.encrypting : R.string.decrypting));
+		registerReceiver(progressReceiver, intentFilter);
+		messageHandler = new MessageHandler(Main.this);
+		doubleProgressDialog.show();
 	}
 
-	@Override
-	protected void onPrepareDialog(final int id, final Dialog dialog)
+	private Intent createBackgroundTask()
 	{
-		if (id == DOUBLE_PROGRESS_DIALOG)
-		{
-			doubleProgressDialog.setMax(1);
-			doubleProgressDialog.setProgress(0);
-			doubleProgressDialog.setSecondaryMax(1);
-			doubleProgressDialog.setSecondaryProgress(0);
-			/* handle broadcasts from the service about progress */
-			progressReceiver = new ProgressReceiver();
-			final IntentFilter intentFilter = new IntentFilter();
-			intentFilter.addAction(getString(encrypting ? R.string.encrypting : R.string.decrypting));
-			registerReceiver(progressReceiver, intentFilter);
-			messageHandler = new MessageHandler(this);
-			/* kick off the actually cipher process */
-			Intent intent = null;
-			if (encrypting)
-				intent = new Intent(getBaseContext(), Encrypt.class);
-			else
-				intent = new Intent(getBaseContext(), Decrypt.class);
-			intent.putExtra("source", filenameIn);
-			intent.putExtra("output", filenameOut);
-			intent.putExtra("cipher", cipher);
-			intent.putExtra("hash", hash);
-			intent.putExtra("mode", mode);
-			intent.putExtra("key_file", key_file);
-			if (key_file)
-				intent.putExtra("key", key);
-			else
-				intent.putExtra("key", password.getBytes());
-			intent.putExtra("raw", raw);
-			intent.putExtra("compress", compress);
-			intent.putExtra("follow", follow);
-			intent.putExtra("version", version.magicNumber);
-			startService(intent);
-		}
+		/* kick off the actually cipher process */
+		Intent intent = null;
+		if (encrypting)
+			intent = new Intent(getBaseContext(), Encrypt.class);
+		else
+			intent = new Intent(getBaseContext(), Decrypt.class);
+		intent.putExtra("source", filenameIn);
+		intent.putExtra("output", filenameOut);
+		intent.putExtra("cipher", cipher);
+		intent.putExtra("hash", hash);
+		intent.putExtra("mode", mode);
+		intent.putExtra("key_file", key_file);
+		if (key_file)
+			intent.putExtra("key", key);
+		else
+			intent.putExtra("key", password.getBytes());
+		intent.putExtra("raw", raw);
+		intent.putExtra("compress", compress);
+		intent.putExtra("follow", follow);
+		intent.putExtra("version", version.magicNumber);
+		return intent;
 	}
 
 	private class ProgressReceiver extends BroadcastReceiver
@@ -644,7 +634,7 @@ public class Main extends Activity
 		switch (ProgressUpdate.fromValue(msg.what))
 		{
 			case DONE:
-				dismissDialog(DOUBLE_PROGRESS_DIALOG);
+				doubleProgressDialog.dismiss();
 				Toast.makeText(getApplicationContext(), (String)msg.obj, Toast.LENGTH_LONG).show();
 				unregisterReceiver(progressReceiver);
 				break;

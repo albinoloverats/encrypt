@@ -67,6 +67,7 @@ import gnu.crypto.pki.X509CertSelectorImpl;
 import gnu.crypto.pki.X509CRLSelectorImpl;
 import gnu.crypto.pki.ext.*;
 import gnu.crypto.der.OID;
+import gnu.crypto.pki.ext.Extension;
 import gnu.crypto.util.SimpleList;
 
 /**

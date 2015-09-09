@@ -18,6 +18,9 @@ android {
 		release {
 			signingConfig signingConfigs.release
 		}
+		debug {
+			debuggable true
+		}
 	}
 	productFlavors {
 	}
