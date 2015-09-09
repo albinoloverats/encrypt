@@ -94,7 +94,9 @@ public class ECCFileInputStream extends ECCFileStream
 			source = new byte[CAPACITY];
 			int z = fileInputStream.read();
 			err = fileInputStream.read(source);
-			byte tmp[] = decode();
+			final byte tmp[] = decode();
+			if (tmp == null)
+				return -getDecodeError();
 			System.arraycopy(tmp, 0, source, 0, z);
 			offset[0] = z;
 		}
@@ -116,11 +118,9 @@ public class ECCFileInputStream extends ECCFileStream
 		return read(bytes);
 	}
 
-	public byte[] decode()
+	private byte[] decode()
 	{
-		if (!reversed)
-			reverse(source, CAPACITY);
-		reversed = true;
+		reverse(source, CAPACITY);
 
 		final byte target[] = new byte[PAYLOAD];
 
@@ -237,12 +237,6 @@ public class ECCFileInputStream extends ECCFileStream
 
 		}
 		return null;
-	}
-
-	public String decodeString()
-	{
-		final byte[] decoded = decode();
-		return decoded == null ? null : new String(decoded);
 	}
 
 	public int getDecodeError()

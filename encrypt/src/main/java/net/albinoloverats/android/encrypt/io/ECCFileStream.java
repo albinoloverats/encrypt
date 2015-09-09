@@ -70,7 +70,6 @@ public abstract class ECCFileStream
 
 	protected int[] offset;
 	protected byte[] source;
-	protected boolean reversed = false;
 	protected boolean initialised = false;
 
 	public void initalise()
