@@ -121,21 +121,21 @@ public class MainFree extends Activity
 
 		// setup the hash and crypto spinners
 		final Spinner cSpinner = (Spinner)findViewById(R.id.spin_crypto);
-		final ArrayAdapter<CharSequence> cipherSpinAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
+		final ArrayAdapter<CharSequence> cipherSpinAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
 		cipherSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		cSpinner.setAdapter(cipherSpinAdapter);
 		cSpinner.setOnItemSelectedListener(new SpinnerSelectedListener(CIPHERS));
 		cSpinner.setEnabled(false);
 
 		final Spinner hSpinner = (Spinner)findViewById(R.id.spin_hash);
-		final ArrayAdapter<CharSequence> hashSpinAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
+		final ArrayAdapter<CharSequence> hashSpinAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
 		hashSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		hSpinner.setAdapter(hashSpinAdapter);
 		hSpinner.setOnItemSelectedListener(new SpinnerSelectedListener(HASHES));
 		hSpinner.setEnabled(false);
 
 		final Spinner mSpinner = (Spinner)findViewById(R.id.spin_mode);
-		final ArrayAdapter<CharSequence> modeSpinAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
+		final ArrayAdapter<CharSequence> modeSpinAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
 		modeSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		mSpinner.setAdapter(modeSpinAdapter);
 		mSpinner.setOnItemSelectedListener(new SpinnerSelectedListener(MODES));
@@ -148,7 +148,8 @@ public class MainFree extends Activity
 		{
 			cipherSpinAdapter.add(s);
 			if (s.equals(cipher))
-				cSpinner.setSelection(i++);
+				cSpinner.setSelection(i);
+			i++;
 		}
 
 		hashSpinAdapter.add(getString(R.string.choose_hash));
@@ -157,7 +158,8 @@ public class MainFree extends Activity
 		{
 			hashSpinAdapter.add(s);
 			if (s.equals(hash))
-				hSpinner.setSelection(i++);
+				hSpinner.setSelection(i);
+			i++;
 		}
 
 		modeSpinAdapter.add(getString(R.string.choose_mode));
@@ -166,7 +168,8 @@ public class MainFree extends Activity
 		{
 			modeSpinAdapter.add(s);
 			if (s.equals(mode))
-				mSpinner.setSelection(i++);
+				mSpinner.setSelection(i);
+			i++;
 		}
 
 		// get reference to password text box
@@ -589,7 +592,7 @@ public class MainFree extends Activity
 				else
 					messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.TOTAL.value, -1, -1));
 			}
-			else
+			else if (status != null)
 				messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.DONE.value, status.message));
 		}
 	}
@@ -600,7 +603,7 @@ public class MainFree extends Activity
 
 		public MessageHandler(final MainFree service)
 		{
-			reference = new WeakReference<MainFree>(service);
+			reference = new WeakReference<>(service);
 		}
 
 		@Override

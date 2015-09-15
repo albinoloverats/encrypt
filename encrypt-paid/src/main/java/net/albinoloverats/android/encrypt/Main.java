@@ -145,7 +145,8 @@ public class Main extends Activity
 		{
 			cipherSpinAdapter.add(s);
 			if (s.equals(cipher))
-				cSpinner.setSelection(i++);
+				cSpinner.setSelection(i);
+			i++;
 		}
 
 		hashSpinAdapter.add(getString(R.string.choose_hash));
@@ -154,7 +155,8 @@ public class Main extends Activity
 		{
 			hashSpinAdapter.add(s);
 			if (s.equals(hash))
-				hSpinner.setSelection(i++);
+				hSpinner.setSelection(i);
+			i++;
 		}
 
 		modeSpinAdapter.add(getString(R.string.choose_mode));
@@ -163,7 +165,8 @@ public class Main extends Activity
 		{
 			modeSpinAdapter.add(s);
 			if (s.equals(mode))
-				mSpinner.setSelection(i++);
+				mSpinner.setSelection(i);
+			i++;
 		}
 
 		// get reference to password text box
@@ -571,7 +574,7 @@ public class Main extends Activity
 				else
 					messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.TOTAL.value, -1, -1));
 			}
-			else
+			else if (status != null)
 				messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.DONE.value, status.message));
 		}
 	}
@@ -582,7 +585,7 @@ public class Main extends Activity
 
 		public MessageHandler(final Main service)
 		{
-			reference = new WeakReference<Main>(service);
+			reference = new WeakReference<>(service);
 		}
 
 		@Override

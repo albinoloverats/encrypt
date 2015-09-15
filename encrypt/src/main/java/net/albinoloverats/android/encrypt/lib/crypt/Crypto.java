@@ -262,7 +262,7 @@ public abstract class Crypto extends Service implements Runnable
 		intent.putExtra("current.size", current.size);
 		intent.putExtra("total.offset", total.offset);
 		intent.putExtra("total.size", total.size);
-		intent.putExtra("status", status.message);
+		intent.putExtra("status", status.name());
 		sendBroadcast(intent);
 
 		notificationBuilder.setContentText("" + total.offset + "/" + total.size);
