@@ -52,7 +52,7 @@ public abstract class CryptoUtils
 	public static Set<String> getHashAlgorithmNames()
 	{
 		final Set<?> s = HashFactory.getNames();
-		final Set<String> h = new TreeSet<String>();
+		final Set<String> h = new TreeSet<>();
 		for (final Object o : s)
 		{
 			String n = ((String)o).replace("-", "").toUpperCase(Locale.ENGLISH);
@@ -77,13 +77,13 @@ public abstract class CryptoUtils
 	public static Set<String> getCipherAlgorithmNames()
 	{
 		final Set<?> s = CipherFactory.getNames();
-		final Set<String> h = new TreeSet<String>();
+		final Set<String> h = new TreeSet<>();
 		for (final Object o : s)
 		{
 			String n = ((String)o).replace("-", "").toUpperCase(Locale.ENGLISH);
 			if (n.equals("NULL"))
 				continue;
-			final Set<Integer> keySizes = new TreeSet<Integer>();
+			final Set<Integer> keySizes = new TreeSet<>();
 			for (final Iterator<?> iterator = CipherFactory.getInstance(n).keySizes(); iterator.hasNext();)
 				keySizes.add((Integer)iterator.next());
 			if (n.equals(NAME_TRIPLE_DES))
@@ -114,7 +114,7 @@ public abstract class CryptoUtils
 				continue;
 			if (name.substring(0, n.length()).equals(n))
 			{
-				final Set<Integer> keySizes = new TreeSet<Integer>();
+				final Set<Integer> keySizes = new TreeSet<>();
 				final IBlockCipher cipher = CipherFactory.getInstance(n);
 				for (final Iterator<?> iterator = cipher.keySizes(); iterator.hasNext();)
 					keySizes.add((Integer)iterator.next());
@@ -143,7 +143,7 @@ public abstract class CryptoUtils
 				continue;
 			if (name.substring(0, n.length()).equals(n))
 			{
-				final Set<Integer> keySizes = new TreeSet<Integer>();
+				final Set<Integer> keySizes = new TreeSet<>();
 				final IBlockCipher cipher = CipherFactory.getInstance(n);
 				for (final Iterator<?> iterator = cipher.keySizes(); iterator.hasNext();)
 					keySizes.add((Integer)iterator.next());
@@ -162,7 +162,7 @@ public abstract class CryptoUtils
 
 	public static Set<String> getCipherModeNames()
 	{
-		final Set<String> modes = new TreeSet<String>();
+		final Set<String> modes = new TreeSet<>();
 		modes.add(ModeFactory.ECB_MODE.toUpperCase(Locale.ENGLISH));
 		modes.add(ModeFactory.CBC_MODE.toUpperCase(Locale.ENGLISH));
 		modes.add(ModeFactory.CFB_MODE.toUpperCase(Locale.ENGLISH));

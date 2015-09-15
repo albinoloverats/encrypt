@@ -70,14 +70,15 @@ import net.albinoloverats.android.encrypt.lib.crypt.Version;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class MainFree extends Activity
 {
 	private static Context context; /* used for Status messages */
 
-	private Set<String> cipherNames;
-	private Set<String> hashNames;
-	private Set<String> modeNames;
+	private static final Set<String> CIPHERS = CryptoUtils.getCipherAlgorithmNames();
+	private static final Set<String> HASHES = CryptoUtils.getHashAlgorithmNames();
+	private static final Set<String> MODES = CryptoUtils.getCipherModeNames();
 
 	private DoubleProgressDialog doubleProgressDialog;
 	private ProgressReceiver progressReceiver;
@@ -106,169 +107,66 @@ public class MainFree extends Activity
 
 		context = this;
 
-		final SharedPreferences settings = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), 0);
+		final SharedPreferences settings = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), Context.MODE_PRIVATE);
 		cipher = settings.getString(Options.CIPHER.toString(), null);
 		hash = settings.getString(Options.HASH.toString(), null);
 		mode = settings.getString(Options.MODE.toString(), null);
 
 		// setup the file chooser button
 		final Button fChooser = (Button)findViewById(R.id.button_file);
-		fChooser.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(final View v)
-			{
-				final Intent intent = new Intent(MainFree.this.getBaseContext(), FileDialog.class);
-				intent.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory().getPath());
-				intent.putExtra(FileDialog.CAN_SELECT_DIR, true);
-				MainFree.this.startActivityForResult(intent, FileAction.LOAD.value);
-			}
-		});
+		fChooser.setOnClickListener(new FileChooserListener(FileAction.LOAD));
 
 		// setup the file output chooser button
-		final Button oChooser = (Button)findViewById(R.id.button_output);
-		oChooser.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(final View v)
-			{
-				final Intent intent = new Intent(MainFree.this.getBaseContext(), FileDialog.class);
-				intent.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory().getPath());
-				intent.putExtra(FileDialog.CAN_SELECT_DIR, true);
-				MainFree.this.startActivityForResult(intent, FileAction.SAVE.value);
-			}
-		});
+		findViewById(R.id.button_output).setOnClickListener(new FileChooserListener(FileAction.SAVE));
 
 		// setup the hash and crypto spinners
 		final Spinner cSpinner = (Spinner)findViewById(R.id.spin_crypto);
 		final ArrayAdapter<CharSequence> cipherSpinAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
 		cipherSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		cSpinner.setAdapter(cipherSpinAdapter);
-		cSpinner.setOnItemSelectedListener(new OnItemSelectedListener()
-		{
-			@Override
-			public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id)
-			{
-				int i = 0;
-				for (final Iterator<String> iterator = cipherNames.iterator(); iterator.hasNext(); i++)
-					if (position > 0 && i == position - 1)
-					{
-						cipher = iterator.next();
-						storePreferences();
-					}
-					else
-					{
-						if (position == 0)
-							cipher = null;
-						iterator.next();
-					}
-				checkEnableButtons();
-			}
-
-			@Override
-			public void onNothingSelected(final AdapterView<?> parent)
-			{
-				;
-			}
-		});
+		cSpinner.setOnItemSelectedListener(new SpinnerSelectedListener(CIPHERS));
 		cSpinner.setEnabled(false);
 
 		final Spinner hSpinner = (Spinner)findViewById(R.id.spin_hash);
 		final ArrayAdapter<CharSequence> hashSpinAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
 		hashSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		hSpinner.setAdapter(hashSpinAdapter);
-		hSpinner.setOnItemSelectedListener(new OnItemSelectedListener()
-		{
-			@Override
-			public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id)
-			{
-				int i = 0;
-				for (final Iterator<String> iterator = hashNames.iterator(); iterator.hasNext(); i++)
-					if (i > 0 && i == position - 1)
-					{
-						hash = iterator.next();
-						storePreferences();
-					}
-					else
-					{
-						if (position == 0)
-							hash = null;
-						iterator.next();
-					}
-				checkEnableButtons();
-			}
-
-			@Override
-			public void onNothingSelected(final AdapterView<?> parent)
-			{
-				;
-			}
-		});
+		hSpinner.setOnItemSelectedListener(new SpinnerSelectedListener(HASHES));
 		hSpinner.setEnabled(false);
 
 		final Spinner mSpinner = (Spinner)findViewById(R.id.spin_mode);
 		final ArrayAdapter<CharSequence> modeSpinAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
 		modeSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		mSpinner.setAdapter(modeSpinAdapter);
-		mSpinner.setOnItemSelectedListener(new OnItemSelectedListener()
-		{
-			@Override
-			public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id)
-			{
-				int i = 0;
-				for (final Iterator<String> iterator = modeNames.iterator(); iterator.hasNext(); i++)
-					if (position > 0 && i == position - 1)
-					{
-						mode = iterator.next();
-						storePreferences();
-					}
-					else
-					{
-						if (position == 0)
-							mode = null;
-						iterator.next();
-					}
-				checkEnableButtons();
-			}
-
-			@Override
-			public void onNothingSelected(final AdapterView<?> parent)
-			{
-				;
-			}
-		});
+		mSpinner.setOnItemSelectedListener(new SpinnerSelectedListener(MODES));
 		mSpinner.setEnabled(false);
 
 		// populate algorithm spinners
-		cipherNames = CryptoUtils.getCipherAlgorithmNames();
 		cipherSpinAdapter.add(getString(R.string.choose_cipher));
 		int i = 1;
-		for (final String s : cipherNames)
+		for (final String s : CIPHERS)
 		{
 			cipherSpinAdapter.add(s);
 			if (s.equals(cipher))
-				cSpinner.setSelection(i);
-			i++;
+				cSpinner.setSelection(i++);
 		}
-		hashNames = CryptoUtils.getHashAlgorithmNames();
+
 		hashSpinAdapter.add(getString(R.string.choose_hash));
 		i = 1;
-		for (final String s : hashNames)
+		for (final String s : HASHES)
 		{
 			hashSpinAdapter.add(s);
 			if (s.equals(hash))
-				hSpinner.setSelection(i);
-			i++;
+				hSpinner.setSelection(i++);
 		}
-		modeNames = CryptoUtils.getCipherModeNames();
+
 		modeSpinAdapter.add(getString(R.string.choose_mode));
 		i = 1;
-		for (final String s : modeNames)
+		for (final String s : MODES)
 		{
 			modeSpinAdapter.add(s);
 			if (s.equals(mode))
-				mSpinner.setSelection(i);
-			i++;
+				mSpinner.setSelection(i++);
 		}
 
 		// get reference to password text box
@@ -285,7 +183,7 @@ public class MainFree extends Activity
 					checkEnableButtons();
 				}
 				else
-					((Button)findViewById(R.id.button_go)).setEnabled(true);
+					findViewById(R.id.button_go).setEnabled(true);
 			}
 
 			@Override
@@ -304,17 +202,7 @@ public class MainFree extends Activity
 
 		// select key file button
 		final Button keyButton = (Button)findViewById(R.id.button_key);
-		keyButton.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(final View v)
-			{
-				final Intent intent = new Intent(MainFree.this.getBaseContext(), FileDialog.class);
-				intent.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory().getPath());
-				intent.putExtra(FileDialog.CAN_SELECT_DIR, false);
-				MainFree.this.startActivityForResult(intent, FileAction.KEY.value);
-			}
-		});
+		keyButton.setOnClickListener(new FileChooserListener(FileAction.KEY));
 		keyButton.setEnabled(false);
 
 		// get reference to encrypt/decrypt button
@@ -340,9 +228,14 @@ public class MainFree extends Activity
 		toggleKeySource();
 
 		final AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
-		adRequestBuilder.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
-		adRequestBuilder.addTestDevice("463890CB55C5B59AE12223411206E40A");
-		((AdView)findViewById(R.id.ad_banner)).loadAd(adRequestBuilder.build());
+		if (BuildConfig.DEBUG)
+		{
+			adRequestBuilder.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
+			adRequestBuilder.addTestDevice("463890CB55C5B59AE12223411206E40A");
+			((AdView)findViewById(R.id.ad_banner_test)).loadAd(adRequestBuilder.build());
+		}
+		else
+			((AdView)findViewById(R.id.ad_banner_live)).loadAd(adRequestBuilder.build());
 	}
 
 	@Override
@@ -360,7 +253,7 @@ public class MainFree extends Activity
 
 	private void storePreferences()
 	{
-		final SharedPreferences.Editor editor = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), 0).edit();
+		final SharedPreferences.Editor editor = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), Context.MODE_PRIVATE).edit();
 		editor.putString(Options.CIPHER.toString(), cipher);
 		editor.putString(Options.HASH.toString(), hash);
 		editor.putString(Options.MODE.toString(), mode);
@@ -397,10 +290,9 @@ public class MainFree extends Activity
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item)
+	public boolean onOptionsItemSelected(final MenuItem menuItem)
 	{
-		final int itemId = item.getItemId();
-		switch (itemId)
+		switch (menuItem.getItemId())
 		{
 			case R.id.menu_about:
 				aboutDialog();
@@ -408,27 +300,27 @@ public class MainFree extends Activity
 			case R.id.menu_options:
 				break;
 			case R.id.menu_options_compress:
-				compress = !item.isChecked();
-				item.setChecked(compress);
+				compress = !menuItem.isChecked();
+				menuItem.setChecked(compress);
 				Toast.makeText(getApplicationContext(), getString(R.string.compress) + ": " + (compress ? getString(R.string.on) : getString(R.string.off)), Toast.LENGTH_SHORT).show();
 				storePreferences();
 				break;
 			case R.id.menu_options_follow:
-				follow = !item.isChecked();
-				item.setChecked(follow);
+				follow = !menuItem.isChecked();
+				menuItem.setChecked(follow);
 				Toast.makeText(getApplicationContext(), getString(R.string.follow) + ": " + (follow ? getString(R.string.on) : getString(R.string.off)), Toast.LENGTH_SHORT).show();
 				storePreferences();
 				break;
 			case R.id.menu_options_key_file:
-				key_file = !item.isChecked();
-				item.setChecked(key_file);
+				key_file = !menuItem.isChecked();
+				menuItem.setChecked(key_file);
 				Toast.makeText(getApplicationContext(), key_file ? getString(R.string.use_key_file) : getString(R.string.use_password), Toast.LENGTH_SHORT).show();
 				toggleKeySource();
 				storePreferences();
 				break;
 			case R.id.menu_advanced_raw:
-				raw = !item.isChecked();
-				item.setChecked(raw);
+				raw = !menuItem.isChecked();
+				menuItem.setChecked(raw);
 				Toast.makeText(getApplicationContext(), getString(R.string.raw) + ": " + (raw ? getString(R.string.on) : getString(R.string.off)), Toast.LENGTH_SHORT).show();
 				storePreferences();
 				break;
@@ -440,16 +332,7 @@ public class MainFree extends Activity
 				startActivity(i);
 				break;
 			default:
-				for (final Version v : Version.values())
-				{
-					if (itemId == v.menu_id)
-					{
-						version = v;
-						Toast.makeText(getApplicationContext(), getString(R.string.compatibility) + ": " + version.display, Toast.LENGTH_SHORT).show();
-						item.setChecked(true);
-						storePreferences();
-					}
-				}
+				checkCompatibilityChange(menuItem);
 				break;
 		}
 		return true;
@@ -474,6 +357,21 @@ public class MainFree extends Activity
 		((ImageView)dialog.findViewById(R.id.about_image)).setImageResource(R.drawable.about);
 		((TextView)dialog.findViewById(R.id.about_text)).setText(getString(R.string.description) + "\n" + getString(R.string.copyright) + "\n" + getString(R.string.url));
 		dialog.show();
+	}
+
+	private void checkCompatibilityChange(final MenuItem menuItem)
+	{
+		final int itemId = menuItem.getItemId();
+		for (final Version v : Version.values())
+		{
+			if (itemId == v.menu_id)
+			{
+				version = v;
+				Toast.makeText(getApplicationContext(), getString(R.string.compatibility) + ": " + version.display, Toast.LENGTH_SHORT).show();
+				menuItem.setChecked(true);
+				storePreferences();
+			}
+		}
 	}
 
 	@Override
@@ -607,6 +505,71 @@ public class MainFree extends Activity
 		return intent;
 	}
 
+	/*
+	 * private on... (something) classes
+	 */
+
+	private class FileChooserListener implements OnClickListener
+	{
+		private final FileAction fileAction;
+
+		public FileChooserListener(final FileAction fileAction)
+		{
+			this.fileAction = fileAction;
+		}
+
+		@Override
+		public void onClick(final View v)
+		{
+			final Intent intent = new Intent(context, FileDialog.class);
+			intent.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory().getPath());
+			intent.putExtra(FileDialog.CAN_SELECT_DIR, fileAction != FileAction.KEY);
+			MainFree.this.startActivityForResult(intent, fileAction.value);
+		}
+	}
+
+	private class SpinnerSelectedListener implements OnItemSelectedListener
+	{
+		private final Set<String> choices;
+
+		public SpinnerSelectedListener(final Set<String> choices)
+		{
+			this.choices = choices;
+		}
+
+		@Override
+		public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id)
+		{
+			String selected = null;
+			int i = 0;
+			for (final Iterator<String> iterator = choices.iterator(); iterator.hasNext(); iterator.next(), i++)
+				if (position > 0 && i == position - 1)
+				{
+					selected = iterator.next();
+					break;
+				}
+			if (choices == CIPHERS)
+				cipher = selected;
+			else if (choices == HASHES)
+				hash = selected;
+			else if (choices == MODES)
+				mode = selected;
+			if (selected != null)
+				storePreferences();
+			checkEnableButtons();
+		}
+
+		@Override
+		public void onNothingSelected(final AdapterView<?> parent)
+		{
+			;
+		}
+	}
+
+	/*
+	 * notification and progress update handling
+	 */
+
 	private class ProgressReceiver extends BroadcastReceiver
 	{
 		@Override
@@ -643,35 +606,37 @@ public class MainFree extends Activity
 		@Override
 		public void handleMessage(final Message msg)
 		{
-			 final MainFree service = reference.get();
-			 if (service != null)
-				  service.handleMessage(msg);
+			final MainFree service = reference.get();
+			if (service != null)
+				service.handleMessage(msg);
 		}
 	}
 
 	private void handleMessage(final Message msg)
 	{
-		switch (ProgressUpdate.fromValue(msg.what))
-		{
-			case DONE:
-				doubleProgressDialog.dismiss();
-				Toast.makeText(getApplicationContext(), (String)msg.obj, Toast.LENGTH_LONG).show();
-				unregisterReceiver(progressReceiver);
-				break;
-			case CURRENT:
-				doubleProgressDialog.setMax(msg.arg1);
-				doubleProgressDialog.setProgress(msg.arg2);
-				break;
-			case TOTAL:
-				if (msg.arg1 < 0 || msg.arg2 < 0)
-					doubleProgressDialog.hideSecondaryProgress();
-				else
-				{
-					doubleProgressDialog.showSecondaryProgress();
-					doubleProgressDialog.setSecondaryMax(msg.arg1);
-					doubleProgressDialog.setSecondaryProgress(msg.arg2);
-				}
-				break;
-		}
+		final ProgressUpdate progressUpdate = ProgressUpdate.fromValue(msg.what);
+		if (progressUpdate != null)
+			switch (progressUpdate)
+			{
+				case DONE:
+					doubleProgressDialog.dismiss();
+					Toast.makeText(getApplicationContext(), (String)msg.obj, Toast.LENGTH_LONG).show();
+					unregisterReceiver(progressReceiver);
+					break;
+				case CURRENT:
+					doubleProgressDialog.setMax(msg.arg1);
+					doubleProgressDialog.setProgress(msg.arg2);
+					break;
+				case TOTAL:
+					if (msg.arg1 < 0 || msg.arg2 < 0)
+						doubleProgressDialog.hideSecondaryProgress();
+					else
+					{
+						doubleProgressDialog.showSecondaryProgress();
+						doubleProgressDialog.setSecondaryMax(msg.arg1);
+						doubleProgressDialog.setSecondaryProgress(msg.arg2);
+					}
+					break;
+			}
 	}
 }

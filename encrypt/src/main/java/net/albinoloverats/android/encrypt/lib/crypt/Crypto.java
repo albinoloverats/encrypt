@@ -114,7 +114,6 @@ public abstract class Crypto extends Service implements Runnable
 
 		actionTitle = getString(action);
 
-		final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 		final NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getBaseContext());
 		notificationBuilder.setContentTitle(actionTitle);
 		notificationBuilder.setContentText(getString(wait));
@@ -122,8 +121,7 @@ public abstract class Crypto extends Service implements Runnable
 
 		final Intent notificationIntent = new Intent(this, clas);
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-		final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-		notificationBuilder.setContentIntent(pendingIntent);
+		notificationBuilder.setContentIntent(PendingIntent.getActivity(this, 0, notificationIntent, 0));
 
 		if (status == Status.INIT)
 		{
@@ -131,7 +129,6 @@ public abstract class Crypto extends Service implements Runnable
 			final PowerManager powerManager = (PowerManager)getSystemService(POWER_SERVICE);
 			wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, actionTitle);
 			wakeLock.acquire();
-
 			process = new Thread(this);
 			process.start();
 		}
@@ -151,17 +148,7 @@ public abstract class Crypto extends Service implements Runnable
 							status = Status.CANCELLED;
 						if (status == Status.INIT)
 							continue;
-						final Intent intent = new Intent();
-						intent.setAction(actionTitle);
-						intent.putExtra("current.offset", current.offset);
-						intent.putExtra("current.size", current.size);
-						intent.putExtra("total.offset", total.offset);
-						intent.putExtra("total.size", total.size);
-						intent.putExtra("status", status.name());
-						sendBroadcast(intent);
-						notificationBuilder.setContentText("" + total.offset + "/" + total.size);
-						notificationBuilder.setProgress(100, (int) (100.0 * current.offset / current.size), false);
-						notificationManager.notify(0, notificationBuilder.build());
+						sendNotifiationUpdate(notificationBuilder);
 					}
 					catch (final InterruptedException e)
 					{
@@ -169,16 +156,7 @@ public abstract class Crypto extends Service implements Runnable
 					}
 				}
 				while (status == Status.RUNNING);
-
-				final Intent intent = new Intent();
-				intent.setAction(actionTitle);
-				intent.putExtra("current.offset", current.offset);
-				intent.putExtra("current.size", current.size);
-				intent.putExtra("total.offset", total.offset);
-				intent.putExtra("total.size", total.size);
-				notificationBuilder.setContentText(status.message);
-				notificationBuilder.setProgress(0, 0, false);
-				notificationManager.notify(0, notificationBuilder.build());
+				sendNotifiationUpdate(notificationBuilder);
 			}
 		};
 		notification.start();
@@ -274,5 +252,21 @@ public abstract class Crypto extends Service implements Runnable
 			closeIgnoreException(f);
 			closeIgnoreException(b);
 		}
+	}
+
+	private void sendNotifiationUpdate(final NotificationCompat.Builder notificationBuilder)
+	{
+		final Intent intent = new Intent();
+		intent.setAction(actionTitle);
+		intent.putExtra("current.offset", current.offset);
+		intent.putExtra("current.size", current.size);
+		intent.putExtra("total.offset", total.offset);
+		intent.putExtra("total.size", total.size);
+		intent.putExtra("status", status.message);
+		sendBroadcast(intent);
+
+		notificationBuilder.setContentText("" + total.offset + "/" + total.size);
+		notificationBuilder.setProgress(100, status == Status.SUCCESS ? 100 : (int) (100.0 * current.offset / current.size), false);
+		((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).notify(0, notificationBuilder.build());
 	}
 }
