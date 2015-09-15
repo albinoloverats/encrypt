@@ -11,6 +11,7 @@
 			<Button android:id="@+id/button_key" android:text="@string/choose_key" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_gravity="center" android:enabled="true" android:focusable="true" android:focusableInTouchMode="true" android:visibility="gone"/>
 			<Button android:id="@+id/button_go" android:drawableLeft="@drawable/button" android:text="@string/encrypt" android:layout_height="fill_parent" android:layout_width="fill_parent" android:layout_gravity="center" android:layout_weight="1" android:textStyle="bold"/>
 		</LinearLayout>
-		<com.google.android.gms.ads.AdView android:id="@+id/ad_banner" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_centerHorizontal="true" android:layout_alignParentBottom="true" ads:adSize="BANNER" ads:adUnitId="@string/banner_ad_unit_id_test"></com.google.android.gms.ads.AdView>
+		<com.google.android.gms.ads.AdView android:id="@+id/ad_banner_test" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_centerHorizontal="true" android:layout_alignParentBottom="true" ads:adSize="BANNER" ads:adUnitId="@string/banner_ad_unit_id_test"></com.google.android.gms.ads.AdView>
+		<com.google.android.gms.ads.AdView android:id="@+id/ad_banner_live" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_centerHorizontal="true" android:layout_alignParentBottom="true" ads:adSize="BANNER" ads:adUnitId="@string/banner_ad_unit_id_live"></com.google.android.gms.ads.AdView>
 	</LinearLayout>
 </ScrollView>

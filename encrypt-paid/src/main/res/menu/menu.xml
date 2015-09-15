@@ -9,7 +9,7 @@
 			<item android:id="@+id/menu_advanced_raw" android:title="@string/raw" android:checkable="true" android:checked="false"/>
 		</menu>
 	</item>
-	<item android:id="@+id/menu_advanced_compatibility" android:title="@string/compatibility">
+	<item android:id="@+id/menu_advanced_compatibility" android:icon="@android:drawable/ic_menu_set_as" android:title="@string/compatibility">
 		<menu>
 			<group android:id="@+id/menu_group_compatibility" android:checkableBehavior="single"/>
 		</menu>
