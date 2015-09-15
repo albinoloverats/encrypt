@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<string name="package_name">net.albinoloverats.android.encrypt</string>
 	<string name="app_name">encrypt</string>
 	<string name="version">2016.00</string>
 	<string name="encrypt">Encrypt</string>

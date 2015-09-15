@@ -30,11 +30,13 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -107,7 +109,15 @@ public class MainFree extends Activity
 
 		context = this;
 
-		final SharedPreferences settings = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), Context.MODE_PRIVATE);
+		SharedPreferences settings = null;
+		try
+		{
+			settings = PreferenceManager.getDefaultSharedPreferences(context.createPackageContext(getString(R.string.package_name), CONTEXT_IGNORE_SECURITY));
+		}
+		catch (final PackageManager.NameNotFoundException e)
+		{
+			settings = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), Context.MODE_PRIVATE);
+		}
 		cipher = settings.getString(Options.CIPHER.toString(), null);
 		hash = settings.getString(Options.HASH.toString(), null);
 		mode = settings.getString(Options.MODE.toString(), null);
