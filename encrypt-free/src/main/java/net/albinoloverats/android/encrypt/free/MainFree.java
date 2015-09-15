@@ -109,15 +109,7 @@ public class MainFree extends Activity
 
 		context = this;
 
-		SharedPreferences settings = null;
-		try
-		{
-			settings = PreferenceManager.getDefaultSharedPreferences(context.createPackageContext(getString(R.string.package_name), CONTEXT_IGNORE_SECURITY));
-		}
-		catch (final PackageManager.NameNotFoundException e)
-		{
-			settings = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), Context.MODE_PRIVATE);
-		}
+		final SharedPreferences settings = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), Context.MODE_PRIVATE);
 		cipher = settings.getString(Options.CIPHER.toString(), null);
 		hash = settings.getString(Options.HASH.toString(), null);
 		mode = settings.getString(Options.MODE.toString(), null);
