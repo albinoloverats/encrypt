@@ -1,45 +1,45 @@
-#: src/encrypt.c:91
+#: src/encrypt.c:84
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:126
+#: src/encrypt.c:153
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:138
+#: src/encrypt.c:165
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:174
+#: src/encrypt.c:209
 #| Compatibility with version %s does not allow encrypting directories
 msgid "Compatibility with version %s does not allow encrypting directories"
 msgstr ""
 
-#: src/encrypt.c:198
-#| We've reached an unreachable location in the code @ %s:%d:%s
-msgid "We've reached an unreachable location in the code @ %s:%d:%s"
+#: src/encrypt.c:235
+#| We’ve reached an unreachable location in the code @ %s:%d:%s
+msgid "We’ve reached an unreachable location in the code @ %s:%d:%s"
 msgstr ""
 
-#: src/encrypt.c:278
+#: src/encrypt.c:326
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:285
+#: src/encrypt.c:333
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:341
+#: src/encrypt.c:394
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:345
+#: src/encrypt.c:398
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:423
+#: src/encrypt.c:488
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:447
+#: src/encrypt.c:511
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:480
+#: src/encrypt.c:544
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:526
+#: src/encrypt.c:590
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:599
+#: src/encrypt.c:663
 #. See common/common.po for the definitive “Out of memory …” message translation

@@ -1,29 +1,26 @@
-#: src/decrypt.c:71
+#: src/crypt_io.c:223
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/decrypt.c:129
+#: src/crypt_io.c:233
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/decrypt.c:141
+#: src/crypt_io.c:241
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/decrypt.c:368
+#: src/crypt_io.c:252
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/decrypt.c:443
+#: src/crypt_io.c:267
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/decrypt.c:463
+#: src/crypt_io.c:286
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/decrypt.c:467
+#: src/crypt_io.c:324
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/decrypt.c:480
+#: src/crypt_io.c:584
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/decrypt.c:494
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/decrypt.c:525
+#: src/crypt_io.c:688
 #. See common/common.po for the definitive “Out of memory …” message translation

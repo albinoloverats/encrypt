@@ -1,26 +1,26 @@
-#: src/main.c:67
+#: src/main.c:68
 #| \n**** DEBUG BUILD ****\n\n
 msgid "\n**** DEBUG BUILD ****\n\n"
 msgstr ""
 
-#: src/main.c:145
+#: src/main.c:152
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/main.c:151
+#: src/main.c:165
 #. This is a GTK error; not translated here. If the GTK translations are
 #. installed the message should be translated.
 
-#: src/main.c:238
+#: src/main.c:269
 #| Could not create GUI - falling back to command line\n
 msgid "Could not create GUI - falling back to command line\n"
 msgstr ""
 
-#: src/main.c:259
+#: src/main.c:291
 #| Please enter a password:
 msgid "Please enter a password: "
 msgstr ""
 
-#: src/main.c:288
+#: src/main.c:331
 #. This is the (error) message from the en/decryption process. The messages are
 #. stored in the variable STATUS_MESSAGES in src/crypto.c:68-90 although it's
 #. likely only the failures and warnings will need translating, as the success
@@ -37,8 +37,8 @@ msgstr ""
 #| Failed: Invalid target file type!
 #| Failed: An unknown error has occurred!
 
-#: src/main.c:299
+#: src/main.c:342
 #/ See common/version.po for vew version message translation
 
-#: src/main.c:302
+#: src/main.c:345
 #. See translation above

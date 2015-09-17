@@ -2,118 +2,149 @@
 ## everything lines up (the number of white space characters itself
 ## isn't as long as everything is aligned in your language)
 
-#: src/init.c:76
+#: src/init.c:81
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/init.c:79
+#: src/init.c:84
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/init.c:251
+#: src/init.c:275
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/init.c:254
+#: src/init.c:278
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/init.c:314
-#| %s version : %s\n%*s built on: %s %s\n      git commit: %s\n
-msgid "%s version : %s\n%*s built on: %s %s\n%*s git commit: %s\n"
+#: src/init.c:337
+#| %s version: %s\n%*s built on: %s %s\n%*s git commit: %s\n
+msgid "%s version: %s\n%*s built on: %s %s\n%*s git commit: %s\n"
 msgstr ""
 
-#: src/init.c:323
+#: src/init.c:346
 #| Usage:\n  %s %s\n
 msgid "Usage:\n  %s %s\n"
 msgstr ""
 
-#: src/init.c:333
+#: src/init.c:356
 #| Options:\n
 msgid "Options:\n"
 msgstr ""
 
-#: src/init.c:334
+#: src/init.c:357
 #|   -h, --help                   Display this message\n
 msgid "  -h, --help                   Display this message\n"
 msgstr ""
 
-#: src/init.c:335
+#: src/init.c:358
 #|   -l, --licence                Display GNU GPL v3 licence header\n
 msgid "  -l, --licence                Display GNU GPL v3 licence header\n"
 msgstr ""
 
-#: src/init.c:336
+#: src/init.c:359
 #|   -v, --version                Display application version\n
 msgid "  -v, --version                Display application version\n"
 msgstr ""
 
-#: src/init.c:337
-#|   -d, --debug [log level]      Turn on debugging [to specified level]\n
-msgid "  -d, --debug [log level]      Turn on debugging [to specified level]\n"
+#: src/init.c:360
+#|   -g, --nogui                  Do not use the GUI, even if it’s available\n
+msgid "  -g, --nogui                  Do not use the GUI, even if it’s available\n"
 msgstr ""
 
-#: src/init.c:338
-#|   -q, --quiet                  Turn off all but serious error messages\n
-msgid "  -q, --quiet                  Turn off all but serious error messages\n"
-msgstr ""
-
-#: src/init.c:339
-#|   -g, --nogui                  Do not use the GUI, even if it's available\n
-msgid "  -g, --nogui                  Do not use the GUI, even if it's available\n"
-msgstr ""
-
-#: src/init.c:342
+#: src/init.c:363
 #|   -c, --cipher=<algorithm>     Algorithm to use to encrypt data\n
 msgid "  -c, --cipher=<algorithm>     Algorithm to use to encrypt data\n"
 msgstr ""
 
-#: src/init.c:343
+#: src/init.c:364
 #|   -s, --hash=<algorithm>       Hash algorithm to generate key\n
 msgid "  -s, --hash=<algorithm>       Hash algorithm to generate key\n"
 msgstr ""
 
-#: src/init.c:344
+#: src/init.c:365
 #|   -m, --mode=<mode>            The encryption mode to use\n
 msgid "  -m, --mode=<mode>            The encryption mode to use\n"
 msgstr ""
 
-#: src/init.c:346
+#: src/init.c:367
 #|   -k, --key=<key file>         File whose data will be used to generate the key\n
 msgid "  -k, --key=<key file>         File whose data will be used to generate the key\n"
 msgstr ""
 
-#: src/init.c:347
+#: src/init.c:368
 #|   -p, --password=<password>    Password used to generate the key\n
 msgid "  -p, --password=<password>    Password used to generate the key\n"
 msgstr ""
 
-#: src/init.c:350
-#|   -x, --no-compress            Do not compress the plaintext using the xz algorithm\n
-msgid "  -x, --no-compress            Do not compress the plaintext using the xz algorithm\n"
+#: src/init.c:371
+#|   -x, --no-compress            Do not compress the plaintext using the xz\n
+msgid "  -x, --no-compress            Do not compress the plaintext using the xz\n"
 msgstr ""
 
-#: src/init.c:351
-#|   -f, --follow                 Follow symlinks, the default is to store the link itself\n
-msgid "  -f, --follow                 Follow symlinks, the default is to store the link itself\n"
+#: src/init.c:372
+#|                                algorithm\n
+msgid "                               algorithm\n"
 msgstr ""
 
-#: src/init.c:352
+#: src/init.c:373
+#|   -f, --follow                 Follow symlinks, the default is to store the\n
+msgid "  -f, --follow                 Follow symlinks, the default is to store the\n"
+msgstr ""
+
+#: src/init.c:374
+#|                                link itself\n
+msgid "                               link itself\n"
+msgstr ""
+
+#: src/init.c:375
+#| \nAdvanced Options:\n
+msgid "\nAdvanced Options:\n"
+msgstr ""
+
+#: src/init.c:377
 #|   -b, --back-compat=<version>  Create an encrypted file that is backwards compatible\n
 msgid "  -b, --back-compat=<version>  Create an encrypted file that is backwards compatible\n"
 msgstr ""
 
-#: src/init.c:354
-#| \nNotes:\n  If you do not supply a key or password, you will be prompted for one.\n
-msgid "\nNotes:\n  If you do not supply a key or password, you will be prompted for one.\n"
+#: src/init.c:380
+#| \nAdvanced Options:\n
+msgid "\nAdvanced Options:\n"
 msgstr ""
 
-#: src/init.c:357
-#|   To see a list of available algorithms or modes use list as the argument.\n
-msgid "  To see a list of available algorithms or modes use list as the argument.\n"
+#: src/init.c:381
+#|   -r, --raw                    Don’t generate or look for an encrypt header;\n
+msgid "  -r, --raw                    Don’t generate or look for an encrypt header;\n"
 msgstr ""
 
-#: src/init.c:364:
+#: src/init.c:382
+#|                                this IS NOT recommended, but can be usefull in\n
+msgid "                               this IS NOT recommended, but can be usefull in\n"
+msgstr ""
+
+src/init.c:383:_("                               some (limited)
+#: src/init.c:384
+#| \nNotes:\n  • If you do not supply a key or password, you will be prompted for one.\n
+msgid "\nNotes:\n  • If you do not supply a key or password, you will be prompted for one.\n"
+msgstr ""
+
+#: src/init.c:386
+#|   • To see a list of available algorithms or modes use list as the argument.\n
+msgid "  • To see a list of available algorithms or modes use list as the argument.\n"
+msgstr ""
+
+#: src/init.c:387
+#|   • If you encrypted data using --raw then you will need to pass the algorithms\n
+msgid "  • If you encrypted data using --raw then you will need to pass the algorithms\n"
+msgstr ""
+
+#: src/init.c:388
+#|     as arguments when decrypting\n
+msgid "    as arguments when decrypting\n"
+msgstr ""
+
+src/init.c:394:
 #. See common/common.po for the translation of the GNU GPL header
 
-#: src/init.c:396
+#: src/init.c:431
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/init.c:402
+#: src/init.c:437
 #. See common/common.po for the definitive “Out of memory …” message translation
