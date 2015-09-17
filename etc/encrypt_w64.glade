@@ -18,7 +18,7 @@
 		<property name="skip_pager_hint">True</property>
 		<property name="has_resize_grip">False</property>
 		<property name="program_name">encrypt</property>
-		<property name="version">2015.01</property>
+		<property name="version">XXXX.YY</property>
 		<property name="copyright" translatable="yes">Copyright © 2004-2015, albinoloverats ~ Software Development</property>
 		<property name="website">https://albinoloverats.net/projects/encrypt</property>
 		<property name="website_label" translatable="yes">https://albinoloverats.net/projects/encrypt</property>
