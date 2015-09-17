@@ -1,4 +1,4 @@
-encrypt - 2015.01                                           4th Jan 2015
+encrypt - XXXX.YY                                           zzz yyy XXXX
 =================
 
 About
@@ -48,6 +48,7 @@ Changelog
   - Infinite loop on decryption attempt of unrecognised version
 * Android
   - Fix compatibility menu bug
+  - Change Android tray icon to black & white
 
 TODO
 ----
@@ -67,4 +68,3 @@ TODO
 * On Windows 8: AES is unavailable as there is a bug in libgcrypt. As
   and when this issue is fixed upstream, we’ll provide a fix too. This
   does not affect Windows 7. (Check if 1.6.3 fixes this issue.)
-* Change Android tray icon to black & white

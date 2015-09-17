@@ -16,7 +16,7 @@ Planned Future Enhancements
 * All : Bug fixes as necessary ;-)
 
 
-encrypt - XXXX.YY                                           --- --- ----
+encrypt - XXXX.YY                                           zzz yyy XXXX
 -----------------
 
 ### New For Latest Release
@@ -25,7 +25,11 @@ encrypt - XXXX.YY                                           --- --- ----
 
 ### Fixed For Latest Release
 
-* Infinite loop on decryption attempt of unrecognised version
+* UNIX
+  - Infinite loop on decryption attempt of unrecognised version
+* Android
+  - Fix compatibility menu bug
+  - Change Android tray icon to black & white
 
 
 encrypt - 2015.01                                           4th Jan 2015
