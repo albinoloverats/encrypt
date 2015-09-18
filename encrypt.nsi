@@ -76,8 +76,11 @@ Section "encrypt" SEC01
 	File "C:\extra\curl-7.34.0-devel-mingw32\bin\zlib1.dll"
 
 	File "C:\extra\libgcrypt-1.6.1-2\bin\libgcrypt-20.dll"
+
 	File "C:\extra\libgpg-error-1.13-1\bin\libgpg-error-0.dll"
+
 	File "C:\extra\pthreads-w32-2-9-1\dll\x86\pthreadGC2.dll"
+
 	File "C:\extra\xz-5.0.5-windows\bin_i486\liblzma.dll"
 
 	SetOutPath "$INSTDIR\docs"

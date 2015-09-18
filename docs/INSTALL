@@ -35,9 +35,12 @@ For non-GNU/Linux
   - It's a headache! We used Dev C++ as the frontend to gcc and God only
     knows how we managed to get GTK linked in, but we did! And so now we
     are not going to touch anything in case it breaks.
-  - Dev C++ can be used to download all of the necessary packages (which
-    includes GTK). encrypt.exe can then be compiled. Check the NSIS file
-    (ncrypt.nsi) to see what binaries are necessary during installation.
+  - Dev C++ can be used to download most of the necessary packages,
+    however some have to come from other sources:
+    - http://curl.haxx.se/download.html
+    - https://www.sourceware.org/pthreads-win32/
+    - http://tukaani.org/xz/
+    - http://lrn.no-ip.info/packages/i686-w64-mingw/libgcrypt/
 
 * Mac OS X
   - Get Homebrew (http://mxcl.github.com/homebrew/)
