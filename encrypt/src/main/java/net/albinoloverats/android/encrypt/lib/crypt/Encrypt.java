@@ -307,7 +307,7 @@ public class Encrypt extends Crypto
 	private int countEntries(final String dir) throws IOException
 	{
 		int c = 0;
-		File[] files =  new File(dir).listFiles();
+		final File[] files =  new File(dir).listFiles();
 		if (files == null)
 			return c;
 		for (final File file : files)
@@ -338,7 +338,7 @@ public class Encrypt extends Crypto
 		 *  If, and when, Android supports Java7 NIO:
 		final LinkOption linkOptions = follow ? null : LinkOption.NOFOLLOW_LINKS;
 		 */
-		File[] files =  new File(dir).listFiles();
+		final File[] files =  new File(dir).listFiles();
 		if (files == null)
 			return;
 		for (final File file : files)

@@ -104,7 +104,7 @@ public class Decrypt extends Crypto
 				default:
 			}
 
-			checksum = ((EncryptedFileInputStream) source).initialiseDecryption(cipher, hash, mode, key, ivType);
+			checksum = ((EncryptedFileInputStream)source).initialiseDecryption(cipher, hash, mode, key, ivType);
 
 			if (!raw)
 			{
