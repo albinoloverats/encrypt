@@ -89,13 +89,17 @@ public abstract class Crypto extends Service implements Runnable
 		{
 			status = e.code;
 		}
+		catch (final InterruptedException e)
+		{
+			status = Status.CANCELLED;
+		}
 		finally
 		{
 			releaseWakeLock();
 		}
 	}
 
-	abstract protected void process() throws CryptoProcessException;
+	abstract protected void process() throws InterruptedException, CryptoProcessException;
 
 	@Override
 	public int onStartCommand(final Intent intent, final int flags, final int startId)
@@ -266,7 +270,7 @@ public abstract class Crypto extends Service implements Runnable
 		sendBroadcast(intent);
 
 		notificationBuilder.setContentText(status == Status.INIT || status == Status.RUNNING ? total.offset + "/" + total.size : status.toString());
-		notificationBuilder.setProgress(100, status == Status.SUCCESS ? 100 : (int) (100.0 * current.offset / current.size), false);
+		notificationBuilder.setProgress(100, status == Status.SUCCESS ? 100 : (int)(100 * current.offset / current.size), false);
 		((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).notify(0, notificationBuilder.build());
 	}
 }

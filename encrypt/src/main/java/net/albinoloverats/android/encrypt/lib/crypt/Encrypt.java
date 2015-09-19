@@ -203,7 +203,8 @@ public class Encrypt extends Crypto
 				writeRandomData();
 			}
 
-			status = Status.SUCCESS;
+			if (status == Status.RUNNING)
+				status = Status.SUCCESS;
 		}
 		catch (final NoSuchAlgorithmException e)
 		{
