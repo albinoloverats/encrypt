@@ -244,11 +244,26 @@ public class MainFree extends Activity
 	}
 
 	@Override
+	public void onResume()
+	{
+		createProgressReceiver();
+		super.onResume();
+	}
+
+	@Override
 	protected void onStop()
 	{
 		storePreferences();
+		cancelProgressReceiver();
 		((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancelAll();
 		super.onStop();
+	}
+
+	@Override
+	public void onPause()
+	{
+		cancelProgressReceiver();
+		super.onPause();
 	}
 
 	public static Context getContext()
@@ -471,10 +486,7 @@ public class MainFree extends Activity
 		doubleProgressDialog.setSecondaryMax(1);
 		doubleProgressDialog.setSecondaryProgress(0);
 		/* handle broadcasts from the service about progress */
-		progressReceiver = new ProgressReceiver();
-		final IntentFilter intentFilter = new IntentFilter();
-		intentFilter.addAction(getString(encrypting ? R.string.encrypting : R.string.decrypting));
-		registerReceiver(progressReceiver, intentFilter);
+		createProgressReceiver();
 		messageHandler = new MessageHandler(MainFree.this);
 		doubleProgressDialog.show();
 	}
@@ -508,6 +520,24 @@ public class MainFree extends Activity
 		intent.putExtra("follow", follow);
 		intent.putExtra("version", version.magicNumber);
 		return intent;
+	}
+
+	private void createProgressReceiver()
+	{
+		cancelProgressReceiver();
+		progressReceiver = new ProgressReceiver();
+		final IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(getString(encrypting ? R.string.encrypting : R.string.decrypting));
+		registerReceiver(progressReceiver, intentFilter);
+	}
+
+	private void cancelProgressReceiver()
+	{
+		if (progressReceiver != null)
+		{
+			unregisterReceiver(progressReceiver);
+			progressReceiver = null;
+		}
 	}
 
 	/*
@@ -626,7 +656,7 @@ public class MainFree extends Activity
 				case DONE:
 					doubleProgressDialog.dismiss();
 					Toast.makeText(getApplicationContext(), (String)msg.obj, Toast.LENGTH_LONG).show();
-					unregisterReceiver(progressReceiver);
+					cancelProgressReceiver();
 					break;
 				case CURRENT:
 					doubleProgressDialog.setMax(msg.arg1);
