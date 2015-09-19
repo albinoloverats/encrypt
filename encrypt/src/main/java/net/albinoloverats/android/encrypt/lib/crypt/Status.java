@@ -58,4 +58,10 @@ public enum Status
 				return status;
 		return null;
 	}
+
+	@Override
+	public String toString()
+	{
+		return message.substring(0, 1) + message.substring(1).replace('_', ' ').toLowerCase();
+	}
 }

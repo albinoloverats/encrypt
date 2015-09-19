@@ -265,7 +265,7 @@ public abstract class Crypto extends Service implements Runnable
 		intent.putExtra("status", status.name());
 		sendBroadcast(intent);
 
-		notificationBuilder.setContentText("" + total.offset + "/" + total.size);
+		notificationBuilder.setContentText(status == Status.INIT || status == Status.RUNNING ? total.offset + "/" + total.size : status.toString());
 		notificationBuilder.setProgress(100, status == Status.SUCCESS ? 100 : (int) (100.0 * current.offset / current.size), false);
 		((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).notify(0, notificationBuilder.build());
 	}
