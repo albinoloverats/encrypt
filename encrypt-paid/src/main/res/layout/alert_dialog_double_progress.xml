@@ -34,8 +34,7 @@
 			android:layout_marginLeft="10dip"
 			android:layout_marginRight="10dip"
 			android:layout_alignParentLeft="true"
-			android:layout_below="@id/secondaryProgress"
-		/>
+			android:layout_below="@id/secondaryProgress"/>
 		<TextView
 			android:id="@+id/secondary_progress_number"
 			android:layout_width="wrap_content"
@@ -44,8 +43,7 @@
 			android:layout_marginLeft="50dip"
 			android:layout_marginRight="15dip"
 			android:layout_alignParentLeft="true"
-			android:layout_below="@id/secondaryProgress"
-		/>
+			android:layout_below="@id/secondaryProgress"/>
 	</RelativeLayout>
 
 	<RelativeLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
@@ -57,8 +55,8 @@
 			android:layout_marginBottom="1dip"
 			android:layout_marginLeft="10dip"
 			android:layout_marginRight="10dip"
-			android:layout_centerHorizontal="true" />
-			<TextView
+			android:layout_centerHorizontal="true"/>
+		<TextView
 			android:id="@+id/progress_percent"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -66,8 +64,7 @@
 			android:layout_marginLeft="10dip"
 			android:layout_marginRight="10dip"
 			android:layout_alignParentLeft="true"
-			android:layout_below="@id/progress"
-		/>
+			android:layout_below="@id/progress"/>
 		<TextView
 			android:id="@+id/progress_number"
 			android:layout_width="wrap_content"
@@ -76,7 +73,15 @@
 			android:layout_marginLeft="50dip"
 			android:layout_marginRight="15dip"
 			android:layout_alignParentLeft="true"
-			android:layout_below="@id/progress"
-		/>
+			android:layout_below="@id/progress"/>
+		<TextView
+			android:id="@+id/progress_rate"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:paddingBottom="12dip"
+			android:layout_marginLeft="50dip"
+			android:layout_marginRight="15dip"
+			android:layout_alignParentRight="true"
+			android:layout_below="@id/progress"/>
 	</RelativeLayout>
 </LinearLayout>

@@ -439,9 +439,11 @@ public class Main extends Activity
 	{
 		doubleProgressDialog = new DoubleProgressDialog(Main.this);
 		doubleProgressDialog.setMessage(getString(R.string.please_wait));
-		doubleProgressDialog.setOnCancelListener(new OnCancelListener() {
+		doubleProgressDialog.setOnCancelListener(new OnCancelListener()
+		{
 			@Override
-			public void onCancel(final DialogInterface dialog) {
+			public void onCancel(final DialogInterface dialog)
+			{
 				stopService(new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class));
 				messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.DONE.value, Status.CANCELLED.message));
 			}
