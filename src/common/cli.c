@@ -46,13 +46,13 @@
 #ifndef _WIN32
 static int cli_width = CLI_DEFAULT;
 
-static void cli_display_bar(float, float, bool, cli_bps_t *);
+static void cli_display_bar(double, double, bool, cli_bps_t *);
 static void cli_sigwinch(int);
 #endif
 
 static int cli_bps_sort(const void *, const void *);
 
-extern float cli_calc_bps(cli_bps_t *bps)
+extern double cli_calc_bps(cli_bps_t *bps)
 {
 	cli_bps_t copy[BPS];
 	for (int i = 0; i < BPS; i++)
@@ -61,19 +61,18 @@ extern float cli_calc_bps(cli_bps_t *bps)
 		copy[i].bytes = bps[i].bytes;
 	}
 	qsort(copy, BPS, sizeof( cli_bps_t ), cli_bps_sort);
-	float avg[BPS - 1] = { 0.0f };
+	double avg[BPS - 1] = { 0.0f };
 	for (int i = 0; i < BPS - 1; i++)
 		/*
 		 * requires scale factor of MILLION as time is in microseconds
 		 * not seconds (millions of bytes / micros of seconds, so to
 		 * speak)
 		 */
-		avg[i] = MILLION * (float)(copy[i + 1].bytes - copy[i].bytes) / (float)(copy[i + 1].time - copy[i].time);
-	float val = 0.0;
+		avg[i] = MILLION * (double)(copy[i + 1].bytes - copy[i].bytes) / (double)(copy[i + 1].time - copy[i].time);
+	double val = 0.0;
 	for (int i = 0; i < BPS - 1; i++)
 		val += avg[i];
-	val /= BPS - 1;
-	return val;
+	return val /= (BPS - 1);
 }
 
 #ifndef _WIN32
@@ -94,7 +93,7 @@ extern void cli_display(cli_t *p)
 		if (*p->status == CLI_INIT)
 			continue;
 
-		float pc = (PERCENT * p->total->offset + PERCENT * p->current->offset / p->current->size) / p->total->size;
+		double pc = (PERCENT * p->total->offset + PERCENT * p->current->offset / p->current->size) / p->total->size;
 		if (p->total->offset == p->total->size)
 			pc = PERCENT * p->total->offset / p->total->size;
 
@@ -115,7 +114,7 @@ extern void cli_display(cli_t *p)
 	return;
 }
 
-static void cli_display_bar(float total, float current, bool single, cli_bps_t *bps)
+static void cli_display_bar(double total, double current, bool single, cli_bps_t *bps)
 {
 	char *prog_bar = calloc(cli_width + 1, sizeof( char ));
 	sprintf(prog_bar, "%3.0f%%", isnan(total) ? 0.0f : total);
@@ -139,7 +138,7 @@ static void cli_display_bar(float total, float current, bool single, cli_bps_t *
 	/*
 	 * calculate B/s
 	 */
-	float val = cli_calc_bps(bps);
+	double val = cli_calc_bps(bps);
 	if (isnan(val) || val == 0.0f)
 		strcat(prog_bar, "  ---.- B/s");
 	else
