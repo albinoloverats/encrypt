@@ -69,7 +69,6 @@ import net.albinoloverats.android.encrypt.lib.crypt.Version;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.TreeSet;
 
 public class Main extends Activity
 {
@@ -231,26 +230,11 @@ public class Main extends Activity
 	}
 
 	@Override
-	public void onResume()
-	{
-		createProgressReceiver();
-		super.onResume();
-	}
-
-	@Override
 	protected void onStop()
 	{
 		storePreferences();
-		cancelProgressReceiver();
 		((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancelAll();
 		super.onStop();
-	}
-
-	@Override
-	public void onPause()
-	{
-		cancelProgressReceiver();
-		super.onPause();
 	}
 
 	public static Context getContext()
@@ -452,13 +436,14 @@ public class Main extends Activity
 
 	private void createDoubleProgressDialog()
 	{
+		cancelDoubleProgressDialog();
 		doubleProgressDialog = new DoubleProgressDialog(Main.this);
 		doubleProgressDialog.setMessage(getString(R.string.please_wait));
 		doubleProgressDialog.setOnCancelListener(new OnCancelListener()
 		{
 			@Override
 			public void onCancel(final DialogInterface dialog)
-		{
+			{
 				stopService(new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class));
 				messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.DONE.value, Status.CANCELLED.message));
 			}
@@ -467,10 +452,27 @@ public class Main extends Activity
 		doubleProgressDialog.setProgress(0);
 		doubleProgressDialog.setSecondaryMax(1);
 		doubleProgressDialog.setSecondaryProgress(0);
-		/* handle broadcasts from the service about progress */
-		createProgressReceiver();
-		messageHandler = new MessageHandler(Main.this);
 		doubleProgressDialog.show();
+		/* handle broadcasts from the service about progress */
+		progressReceiver = new ProgressReceiver();
+		final IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(getString(encrypting ? R.string.encrypting : R.string.decrypting));
+		registerReceiver(progressReceiver, intentFilter);
+		messageHandler = new MessageHandler(Main.this);
+	}
+
+	private void cancelDoubleProgressDialog()
+	{
+		if (doubleProgressDialog != null)
+		{
+			doubleProgressDialog.dismiss();
+			doubleProgressDialog = null;
+		}
+		if (progressReceiver != null)
+		{
+			unregisterReceiver(progressReceiver);
+			progressReceiver = null;
+		}
 	}
 
 	private Intent createBackgroundTask()
@@ -502,24 +504,6 @@ public class Main extends Activity
 		intent.putExtra("follow", follow);
 		intent.putExtra("version", version.magicNumber);
 		return intent;
-	}
-
-	private void createProgressReceiver()
-	{
-		cancelProgressReceiver();
-		progressReceiver = new ProgressReceiver();
-		final IntentFilter intentFilter = new IntentFilter();
-		intentFilter.addAction(getString(encrypting ? R.string.encrypting : R.string.decrypting));
-		registerReceiver(progressReceiver, intentFilter);
-	}
-
-	private void cancelProgressReceiver()
-	{
-		if (progressReceiver != null)
-		{
-			unregisterReceiver(progressReceiver);
-			progressReceiver = null;
-		}
 	}
 
 	/*
@@ -636,9 +620,8 @@ public class Main extends Activity
 			switch (progressUpdate)
 			{
 				case DONE:
-					doubleProgressDialog.dismiss();
+					cancelDoubleProgressDialog();
 					Toast.makeText(getApplicationContext(), (String)msg.obj, Toast.LENGTH_LONG).show();
-					cancelProgressReceiver();
 					break;
 				case CURRENT:
 					doubleProgressDialog.setMax(msg.arg1);
