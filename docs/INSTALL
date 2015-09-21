@@ -20,7 +20,7 @@ The Process
 -----------
 
 NB - There is no configure step, so just do the following:
-* make
+* make gui
 * make install
 
 Or perhaps you don't want a GUI:

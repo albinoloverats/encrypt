@@ -31,7 +31,7 @@ Compiling
 Compiling from source is as simple as running one of the following
 commands:
 
-    make
+    make cli
     make gui
 
 Depending on whether you want a GUI or not.
