@@ -81,7 +81,7 @@ Section "encrypt" SEC01
 
 	File "C:\extra\pthreads-w32-2-9-1\dll\x86\pthreadGC2.dll"
 
-	File "C:\extra\xz-5.2.1-windows\bin_i486\liblzma.dll"
+	File "C:\extra\xz-5.2.1-windows\bin_i686\liblzma.dll"
 
 	SetOutPath "$INSTDIR\docs"
 	File "docs\README"
