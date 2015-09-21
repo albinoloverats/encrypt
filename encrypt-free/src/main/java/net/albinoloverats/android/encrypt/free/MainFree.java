@@ -477,7 +477,7 @@ public class MainFree extends Activity
 		final IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(getString(encrypting ? R.string.encrypting : R.string.decrypting));
 		registerReceiver(progressReceiver, intentFilter);
-		messageHandler = new MessageHandler(Main.this);
+		messageHandler = new MessageHandler(MainFree.this);
 	}
 
 	private void cancelDoubleProgressDialog()
