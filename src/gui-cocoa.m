@@ -32,6 +32,7 @@
 #import "cli.h"
 #import "version.h"
 #import "error.h"
+#import "ccrypt.h"
 
 #import "crypt.h"
 #import "encrypt.h"
