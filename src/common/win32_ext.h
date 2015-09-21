@@ -91,8 +91,10 @@ extern char *strndup(const char *s, size_t l) __attribute__((nonnull(1)));
 
 extern int scandir(const char *path, struct dirent ***res, int (*sel)(const struct dirent *), int (*cmp)(const struct dirent **, const struct dirent **)) __attribute__((nonnull(1, 2)));
 
+#if 0
 #define IsWindows8OrGreater isWindows8
 extern int isWindows8(void);
+#endif
 
 #endif /* _WIN32_EXT_H_ */
 

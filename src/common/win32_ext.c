@@ -199,6 +199,7 @@ extern int scandir(const char *path, struct dirent ***res, int (*sel)(const stru
 	return cnt;
 }
 
+#if 0
 /*
  * Based on exmaple from MSDN
  * http://msdn.microsoft.com/en-us/library/ms724451%28VS.85%29.aspx
@@ -215,6 +216,8 @@ extern int isWindows8(void)
 	 *     OSVERSIONINFO.dwMinorVersion = 2
 	 */
 	return ((osvi.dwMajorVersion > 6) || ((osvi.dwMajorVersion == 6) && (osvi.dwMinorVersion >= 2)));
+	return false;
 }
+#endif
 
 #endif

@@ -43,6 +43,8 @@ For non-GNU/Linux
     - https://www.sourceware.org/pthreads-win32/
     - http://tukaani.org/xz/
     - http://lrn.no-ip.info/packages/i686-w64-mingw/libgcrypt/
+  - The libgcrypt-20.dll actually comes from the Gpg4win project as this
+    fixes the AES issue (http://www.gpg4win.org/)
 
 * Mac OS X
   - Get Homebrew (http://mxcl.github.com/homebrew/)

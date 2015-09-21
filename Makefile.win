@@ -76,5 +76,5 @@ src/common/ccrypt.o: src/common/ccrypt.c
 src/common/ecc.o: src/common/ecc.c
 	$(CC) -c src/common/ecc.c -o src/common/ecc.o $(CFLAGS)
 
-src/encrypt_private.res: src/encrypt_private.rc
-	$(WINDRES) -i src/encrypt_private.rc -F pe-i386 --input-format=rc -o src/encrypt_private.res -O coff
+src/encrypt_private.res: src/encrypt_private.rc 
+	$(WINDRES) -i src/encrypt_private.rc -F pe-i386 --input-format=rc -o src/encrypt_private.res -O coff 

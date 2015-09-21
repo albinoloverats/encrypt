@@ -75,7 +75,8 @@ Section "encrypt" SEC01
 	File "C:\extra\curl-7.40.0-devel-mingw32\bin\ssleay32.dll"
 	File "C:\extra\curl-7.40.0-devel-mingw32\bin\zlib1.dll"
 
-	File "C:\extra\libgcrypt-1.6.3-1\bin\libgcrypt-20.dll"
+	#File "C:\extra\libgcrypt-1.6.3-1\bin\libgcrypt-20.dll"
+	File "C:\extra\libgcrypt-20.dll"
 
 	File "C:\extra\libgpg-error-1.18-1\bin\libgpg-error-0.dll"
 

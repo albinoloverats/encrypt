@@ -30,6 +30,10 @@ encrypt - XXXX.YY                                           zzz yyy XXXX
 * Android
   - Fix compatibility menu bug
   - Change Android tray icon to black & white
+* Windows
+  - Workaround for the AES/Rijndael issue; instead of using the DLL from
+    http://lrn.no-ip.info we now use the DLL included as part of the
+    Gpg4win project
 
 
 encrypt - 2015.01                                           4th Jan 2015
