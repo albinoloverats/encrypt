@@ -427,7 +427,7 @@ clean_up:
 		if (c->status == STATUS_INIT)
 			continue;
 
-		float pc = (PERCENT * c->total.offset + PERCENT * c->current.offset / c->current.size) / c->total.size;
+		double pc = (PERCENT * c->total.offset + PERCENT * c->current.offset / c->current.size) / c->total.size;
 		if (c->total.offset == c->total.size)
 			pc = PERCENT * c->total.offset / c->total.size;
 
@@ -444,7 +444,7 @@ clean_up:
 		}
 		else
 		{
-			float cp = PERCENT * c->current.offset / c->current.size;
+			double cp = PERCENT * c->current.offset / c->current.size;
 			[_progress_current setDoubleValue:cp];
 			char *cpc = NULL;
 			asprintf(&cpc, "%3.0f %%", cp);
@@ -456,7 +456,7 @@ clean_up:
 		gettimeofday(&tv, NULL);
 		bps[b].time = tv.tv_sec * MILLION + tv.tv_usec;
 		bps[b].bytes = c->current.offset;
-		float val = cli_calc_bps(bps);
+		double val = cli_calc_bps(bps);
 		b++;
 		if (b >= BPS)
 			b = 0;

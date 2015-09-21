@@ -64,7 +64,7 @@ char *gui_file_hack_source = NULL;
 char *gui_file_hack_output = NULL;
 static char *cwd = NULL;
 
-inline static void set_progress_bar(GtkProgressBar *, float);
+inline static void set_progress_bar(GtkProgressBar *, double);
 inline static void set_progress_button(GtkButton *, bool);
 
 static void *gui_process(void *);
@@ -556,7 +556,7 @@ extern void set_status_bar(GtkStatusbar *status_bar, const char *status)
 	return;
 }
 
-inline static void set_progress_bar(GtkProgressBar *progress_bar, float percent)
+inline static void set_progress_bar(GtkProgressBar *progress_bar, double percent)
 {
 	gtk_progress_bar_set_fraction(progress_bar, (double)percent / PERCENT);
 	char *pc = NULL;
@@ -670,7 +670,7 @@ inline static void gui_display(crypto_t *c, gtk_widgets_t *data)
 		if (c->status == STATUS_INIT)
 			continue;
 
-		float pc = (PERCENT * c->total.offset + PERCENT * c->current.offset / c->current.size) / c->total.size;
+		double pc = (PERCENT * c->total.offset + PERCENT * c->current.offset / c->current.size) / c->total.size;
 		if (c->total.offset == c->total.size)
 			pc = PERCENT * c->total.offset / c->total.size;
 		set_progress_bar((GtkProgressBar *)data->progress_bar_total, pc);
@@ -684,7 +684,7 @@ inline static void gui_display(crypto_t *c, gtk_widgets_t *data)
 		gettimeofday(&tv, NULL);
 		bps[b].time = tv.tv_sec * MILLION + tv.tv_usec;
 		bps[b].bytes = c->current.offset;
-		float val = cli_calc_bps(bps);
+		double val = cli_calc_bps(bps);
 		b++;
 		if (b >= BPS)
 			b = 0;
