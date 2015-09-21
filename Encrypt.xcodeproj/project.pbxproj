@@ -162,6 +162,7 @@
 				2EA92F5C161DDC58008DFF9B /* Products */,
 			);
 			sourceTree = "<group>";
+			usesTabs = 1;
 		};
 		2EA92F5C161DDC58008DFF9B /* Products */ = {
 			isa = PBXGroup;
