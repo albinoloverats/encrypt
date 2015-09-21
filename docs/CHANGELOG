@@ -9,7 +9,7 @@ Planned Future Enhancements
 
 * GNU/Linux, Windows : Investigate SIGSEGV in GTK when source file is
   deleted
-* Windows 8: SIGSEGV when using AES/Rijndael
+* Windows 8 : SIGSEGV when using AES/Rijndael
 * All desktop : Continue with better desktop integration
   - GNU/Linux : Find a way to merge file/magic info into main magic.mgc
 * Android : Support for file (hard/soft) links (depends on full NIO)

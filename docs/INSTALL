@@ -1,6 +1,7 @@
 Compiling/Installing From Source
 ================================
 
+
 Prerequisites
 -------------
 
@@ -13,6 +14,7 @@ To compile from source on GNU/Linux you will need the following:
 
 Most of the above are installed as part of the base (or core) OS on many
 distributions (but not always).
+
 
 The Process
 -----------

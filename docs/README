@@ -1,6 +1,7 @@
 encrypt - XXXX.YY                                           zzz yyy XXXX
 =================
 
+
 About
 -----
 
@@ -18,10 +19,11 @@ It supports a wide range of algorithms (provided by GNU’s libcrypt or
 gnu-crypto), of which many are common between the two libraries and thus
 allow encrypted files to be shared between systems. (Check that your
 target system does support your intended cipher, as support will vary
-depending on the library available at runtime!)
+depending on the library available.)
 
 To report bugs, or to contact the development team, please visit:
 https://albinoloverats.net/projects/encrypt
+
 
 Compiling
 ---------
@@ -32,8 +34,8 @@ commands:
     make
     make gui
 
-- depending on what sort of interface you want (OS X, Windows, Android --
-you don’t readlly get a choice).
+Depending on whether you want a GUI or not.
+
 
 Changelog
 ---------
@@ -49,6 +51,7 @@ Changelog
 * Android
   - Fix compatibility menu bug
   - Change Android tray icon to black & white
+
 
 TODO
 ----
