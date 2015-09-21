@@ -28,6 +28,9 @@
 #include "common.h"
 #include "error.h"
 #include "ccrypt.h"
+#ifdef _WIN32
+	#include "win32_ext.h"
+#endif
 
 static int algorithm_compare(const void *, const void *);
 

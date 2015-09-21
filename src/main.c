@@ -264,10 +264,13 @@ int main(int argc, char **argv)
 			g_slice_free(gtk_widgets_t, widgets);
 
 			goto clean_up;
+
 		}
 		else
 			fprintf(stderr, _("Could not create GUI - falling back to command line\n"));
+	#ifndef _WIN32
 	}
+	#endif
 #endif /* we couldn’t create the gui, so revert back to command line */
 
 #ifndef _WIN32 /* it’s GUI or nothing */
