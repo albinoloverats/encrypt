@@ -28,15 +28,15 @@
 #include <string.h>
 #include <stdbool.h>
 
-#ifdef _WIN32
-	#include <Shlobj.h>
-	extern char *program_invocation_short_name;
-#endif
-
 #include "common/common.h"
 #include "common/non-gnu.h"
 #include "common/error.h"
 #include "common/ccrypt.h"
+
+#ifdef _WIN32
+	#include <Shlobj.h>
+	extern char *program_invocation_short_name;
+#endif
 
 #include "init.h"
 #include "crypt.h"

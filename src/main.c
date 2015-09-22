@@ -33,17 +33,17 @@
 #include <sys/stat.h>
 #include <libgen.h>
 
-#ifdef _WIN32
-	#include <Shlobj.h>
-	extern char *program_invocation_short_name;
-#endif
-
 #include "common/common.h"
 #include "common/non-gnu.h"
 #include "common/error.h"
 #include "common/ccrypt.h"
 #include "common/version.h"
 #include "common/cli.h"
+
+#ifdef _WIN32
+	#include <Shlobj.h>
+	extern char *program_invocation_short_name;
+#endif
 
 #include "init.h"
 #include "crypt.h"
@@ -54,6 +54,7 @@
 	#include "gui.h"
 	#include "gui-gtk.h"
 #endif
+
 
 extern char *gui_file_hack_source;
 extern char *gui_file_hack_output;

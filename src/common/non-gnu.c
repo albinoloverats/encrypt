@@ -23,8 +23,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "common.h"
 #include "non-gnu.h"
+#include "common.h"
 #include "error.h"
 
 /* Copyright (C) 1991,1993-1997,99,2000,2005 Free Software Foundation, Inc.
