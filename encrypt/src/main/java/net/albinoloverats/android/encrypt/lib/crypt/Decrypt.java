@@ -100,6 +100,7 @@ public class Decrypt extends Crypto
 					ivType = XIV.SIMPLE;
 					break;
 				case _201501:
+				case _201510:
 				case CURRENT:
 				default:
 			}
@@ -187,7 +188,7 @@ public class Decrypt extends Crypto
 		if (v == null)
 			throw new CryptoProcessException(Status.FAILED_UNKNOWN_VERSION);
 
-		if (v.compareTo(Version._201600) >= 0 && !raw)
+		if (v.compareTo(Version._201510) >= 0 && !raw)
 			((EncryptedFileInputStream)source).initialiseECC();
 
 		final byte[] b = new byte[source.read()];

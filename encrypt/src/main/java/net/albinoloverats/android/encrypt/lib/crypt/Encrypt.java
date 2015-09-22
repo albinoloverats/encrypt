@@ -127,7 +127,7 @@ public class Encrypt extends Crypto
 					version = Version._201311;
 				break;
 			case _201501:
-			case _201600:
+			case _201510:
 			case CURRENT:
 				break;
 		}
@@ -243,7 +243,7 @@ public class Encrypt extends Crypto
 		output.write(Convert.toBytes(HEADER[0]));
 		output.write(Convert.toBytes(HEADER[1]));
 		output.write(Convert.toBytes(HEADER[2]));
-		if (version.compareTo(Version._201600) >= 0 && !raw)
+		if (version.compareTo(Version._201510) >= 0 && !raw)
 			((EncryptedFileOutputStream)output).initaliseECC();
 		String algorithms = cipher + "/" + hash;
 		if (version.compareTo(Version._201406) >= 0)
