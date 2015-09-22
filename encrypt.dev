@@ -43,20 +43,20 @@ BuildCmd=
 
 [VersionInfo]
 Major=2015
-Minor=1
+Minor=10
 Release=0
 Build=0
 LanguageID=2057
 CharsetID=1252
 CompanyName=albinoloverats ~ Software Development
-FileVersion=2015.1.0.0
+FileVersion=2015.10
 FileDescription=encrypt is a simple, cross platform utility for securing your personal files
 InternalName=encrypt
 LegalCopyright=Copyright (c) 2004-2015, albinoloverats ~ Software Development
 LegalTrademarks=
 OriginalFilename=encrypt.exe
 ProductName=encrypt
-ProductVersion=2015.1.0.0
+ProductVersion=2015.10
 AutoIncBuildNr=0
 SyncProduct=1
 
