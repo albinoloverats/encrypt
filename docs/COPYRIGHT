@@ -11,6 +11,9 @@ licence or another:
  * the Gimp Toolkit and the Gimp Drawing Kit (GTK and GDK) are Copyright
    The GNOME Foundation, and are available under terms of the GNU Lesser
    General Public License.
+ * The ECC functions are heavily modified from their originals, which
+   were authored by Paul Flaherty and released under the terms of the
+   GNU GPL version 2 or later (hence now version 3).
 
 Many of the implementations of the functions for  Windows have come from
 other projects:
