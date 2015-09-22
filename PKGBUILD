@@ -1,7 +1,7 @@
 # Maintainer: Ashley Anderson <amanderson@albinoloverats.net>
 # Contributor: Ashley Anderson <amanderson@albinoloverats.net>
 pkgname=encrypt
-pkgver=2015.01
+pkgver=2015.10
 pkgrel=1
 pkgdesc="A simple, cross platform, file encryption application---suitable for any modern desktop or mobile operating system. The GUI, either GTK or native, has been desigen to be common across systems and intuitive to use, whilst still providing command-line capabilities for power-users."
 url="https://albinoloverats.net/projects/encrypt"

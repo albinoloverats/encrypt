@@ -198,7 +198,7 @@ static void *process(void *ptr)
 			break;
 
 		case VERSION_2015_01:
-		case VERSION_XXXX_YY:
+		case VERSION_2015_10:
 		default:
 			/*
 			 * this will catch the all more recent versions (unknown is
@@ -307,7 +307,7 @@ static uint64_t read_version(crypto_t *c)
 		return 0;
 
 	version_e v = check_version(ntohll(head[2]));
-	if (v >= VERSION_XXXX_YY && !c->raw)
+	if (v >= VERSION_2015_10 && !c->raw)
 		io_correction_init(c->source);
 
 	uint8_t l;

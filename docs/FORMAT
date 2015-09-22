@@ -1,4 +1,4 @@
-00000000: 3697 de5d 96fc a0fa c845 c2fa 95e2 f52d  6..].....E.....-     Standard file header (version XXXX.YY)
+00000000: 3697 de5d 96fc a0fa c845 c2fa 95e2 f52d  6..].....E.....-     Standard file header (version 2015.10)
 00000010: 0dae 4a92 3e4a e71d                      ....i...
 
 00000010:                     f914 5345 5250 454e         ..SERPEN      f9 indicates length of ECC data; followed by length

@@ -224,7 +224,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
 				z->version = VERSION_2013_11;
 			break;
 		case VERSION_2015_01:
-		case VERSION_XXXX_YY:
+		case VERSION_2015_10:
 		// case VERSION_CURRENT:
 			/*
 			 * do nothing, all options are available; not falling back
@@ -265,7 +265,7 @@ static void *process(void *ptr)
 			iv_type = IV_SIMPLE;
 			break;
 		case VERSION_2015_01:
-		case VERSION_XXXX_YY:
+		case VERSION_2015_10:
 		default:
 			/* no changes */
 			break;
@@ -382,7 +382,7 @@ static inline void write_header(crypto_t *c)
 {
 	uint64_t head[3] = { htonll(HEADER_0), htonll(HEADER_1), htonll(get_version(c->version)) };
 	io_write(c->output, head, sizeof head);
-	if (c->version >= VERSION_XXXX_YY && !c->raw) /* only since XXXX.YY do we support ecc (and only when not in raw mode) */
+	if (c->version >= VERSION_2015_10 && !c->raw) /* only since 2015_10 do we support ecc (and only when not in raw mode) */
 		io_correction_init(c->output);
 	char *algos = NULL;
 	const char *u_cipher = cipher_name_from_id(c->cipher);
