@@ -39,11 +39,8 @@
 
 #include <gcrypt.h>
 
-#ifdef _WIN32
-	#include "common/win32_ext.h"
-#endif
-
 #include "common/common.h"
+#include "common/non-gnu.h"
 #include "common/error.h"
 #include "common/ccrypt.h"
 #include "common/tlv.h"

@@ -18,12 +18,14 @@
  *
  */
 
-#include "non-gnu.h"
-
 #if defined(__APPLE__) || defined(_WIN32)
 
 #include <string.h>
 #include <stdlib.h>
+
+#include "common.h"
+#include "non-gnu.h"
+#include "error.h"
 
 /* Copyright (C) 1991,1993-1997,99,2000,2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -190,20 +192,14 @@ char *strchrnul(const char *s, int c_in)
 #include <errno.h>
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <stdarg.h>
 #include <stddef.h>
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <string.h>
 
 #include <dirent.h>
-
-#include "win32_ext.h"
-#include "common.h"
-#include "error.h"
 
 char *program_invocation_short_name = NULL;
 
