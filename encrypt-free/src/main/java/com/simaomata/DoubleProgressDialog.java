@@ -114,20 +114,25 @@ public class DoubleProgressDialog extends AlertDialog {
 				mProgressPercent.setText(tmp);
 
 				double rate = progressRateCalc.calcRate(progress);
-				if (Double.isNaN(rate) || rate == 0.0)
+				if (Double.isNaN(rate) || rate < 0.0)
 					mProgressRate.setText("---.-- B/s");
 				else
 				{
 					String units = "B/s";
 					if (rate < 1000.0)
 						; // Do nothing
-					else if (rate < 1000000.0) {
+					else if (rate < 1000000.0)
+					{
 						rate /= 1024;
 						units = "KB/s";
-					} else if (rate < 1000000000.0) {
+					}
+					else if (rate < 1000000000.0)
+					{
 						rate /= (1024 * 1024);
 						units = "MB/s";
-					} else if (rate < 1000000000000.0) {
+					}
+					else if (rate < 1000000000000.0)
+					{
 						rate /= (1024 * 1024 * 1024);
 						units = "GB/s";
 					}
