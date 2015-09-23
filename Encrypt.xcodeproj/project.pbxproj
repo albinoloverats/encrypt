@@ -25,9 +25,9 @@
 		AB386AD71A362A840011FB54 /* dir.c in Sources */ = {isa = PBXBuildFile; fileRef = AB386AD51A362A840011FB54 /* dir.c */; };
 		AB5CDADE1BB080F300E10BB0 /* ccrypt.c in Sources */ = {isa = PBXBuildFile; fileRef = AB5CDADA1BB080F300E10BB0 /* ccrypt.c */; settings = {ASSET_TAGS = (); }; };
 		AB5CDADF1BB080F300E10BB0 /* ecc.c in Sources */ = {isa = PBXBuildFile; fileRef = AB5CDADC1BB080F300E10BB0 /* ecc.c */; settings = {ASSET_TAGS = (); }; };
-		AB730D911A34A92A00BA4DC8 /* libgcrypt.20.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB730D8E1A34A92A00BA4DC8 /* libgcrypt.20.dylib */; };
-		AB730D921A34A92A00BA4DC8 /* libgpg-error.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB730D8F1A34A92A00BA4DC8 /* libgpg-error.0.dylib */; };
-		AB730D931A34A92A00BA4DC8 /* liblzma.5.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB730D901A34A92A00BA4DC8 /* liblzma.5.dylib */; };
+		AB730D911A34A92A00BA4DC8 /* libgcrypt.20.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB730D8E1A34A92A00BA4DC8 /* libgcrypt.20.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		AB730D921A34A92A00BA4DC8 /* libgpg-error.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB730D8F1A34A92A00BA4DC8 /* libgpg-error.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		AB730D931A34A92A00BA4DC8 /* liblzma.5.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB730D901A34A92A00BA4DC8 /* liblzma.5.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		ABD3BA431A34A6DA00976011 /* libgcrypt.20.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABD3BA401A34A6DA00976011 /* libgcrypt.20.dylib */; };
 		ABD3BA441A34A6DA00976011 /* libgpg-error.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABD3BA411A34A6DA00976011 /* libgpg-error.0.dylib */; };
 		ABD3BA451A34A6DA00976011 /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABD3BA421A34A6DA00976011 /* liblzma.5.dylib */; };
@@ -269,7 +269,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = net.albinoloverats;
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = "albinoloverats ~ Software Development";
 			};
 			buildConfigurationList = 2EA92F55161DDC58008DFF9B /* Build configuration list for PBXProject "Encrypt" */;
@@ -385,6 +385,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 2015.10;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -468,6 +469,7 @@
 					/usr/local/Cellar/xz/5.2.1/lib,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_BUNDLE_IDENTIFIER = "albinoloverats-Software-Development.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				STRINGS_FILE_OUTPUT_ENCODING = binary;
@@ -498,6 +500,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "albinoloverats-Software-Development.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				STRINGS_FILE_OUTPUT_ENCODING = binary;
