@@ -266,9 +266,16 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
 			/*
 			 * quickly see if the file is encrypted already
 			 */
-			char *c = NULL, *h = NULL, *m = NULL;
+			char *ptr = malloc(0);
+			char *c = ptr;
+			char *h = ptr;
+			char *m = ptr;
 			if ((_encrypted = is_encrypted(open_file, &c, &h, &m)))
 				auto_select_algorithms(data, c, h, m);
+			free(ptr);
+			free(c);
+			free(h);
+			free(m);
 			gtk_button_set_label((GtkButton *)data->encrypt_button, _encrypted ? LABEL_DECRYPT : LABEL_ENCRYPT);
 			en = TRUE;
 			if (cwd)

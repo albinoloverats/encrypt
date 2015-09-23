@@ -160,8 +160,15 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, cha
 	if (head[0] != htonll(HEADER_0) && head[1] != htonll(HEADER_1))
 		return close(f) , VERSION_UNKNOWN;
 
+	version_e version = check_version(ntohll(head[2]));
 	if (b)
 	{
+		if (version >= VERSION_2015_10)
+		{
+			/* skips past ECC length byte */
+			uint8_t b;
+			read(f, &b, sizeof b);
+		}
 		uint8_t l;
 		read(f, &l, sizeof l);
 		char *a = gcry_calloc_secure(l + sizeof( char ), sizeof( char ));
@@ -187,7 +194,7 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, cha
 	}
 	close(f);
 
-	return check_version(ntohll(head[2]));
+	return version;
 }
 
 extern version_e check_version(uint64_t m)
