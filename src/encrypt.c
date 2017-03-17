@@ -142,8 +142,6 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
 	else
 		z->output = IO_STDOUT_FILENO;
 
-	if (!k)
-		return z->status = STATUS_FAILED_INIT , z;
 	if (l)
 	{
 		if (!(z->key = gcry_malloc_secure(l)))

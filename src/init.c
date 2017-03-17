@@ -266,9 +266,6 @@ extern void init_deinit(args_t args)
 
 extern void update_config(const char * const restrict o, const char * const restrict v)
 {
-	if (!o || !v)
-		return;
-
 	char *rc = NULL;
 #ifndef _WIN32
 	if (!asprintf(&rc, "%s/%s", getenv("HOME") ? : ".", ENCRYPTRC))

@@ -37,8 +37,6 @@ static char *current = NULL;
 
 extern void version_check_for_update(char *c, char *url)
 {
-	if (!c || !url)
-		return;
 	current = c;
 	pthread_t vt;
 	pthread_attr_t a;

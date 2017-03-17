@@ -90,8 +90,6 @@ static const version_t VERSIONS[] =
 
 extern void execute(crypto_t *c)
 {
-	if (!c || c->status != STATUS_INIT)
-		return;
 	pthread_t *t = gcry_calloc_secure(1, sizeof( pthread_t ));
 	pthread_attr_t a;
 	pthread_attr_init(&a);
@@ -104,13 +102,11 @@ extern void execute(crypto_t *c)
 
 extern const char *status(const crypto_t * const restrict c)
 {
-	return c ? STATUS_MESSAGE[c->status] : NULL;
+	return STATUS_MESSAGE[c->status];
 }
 
 extern void deinit(crypto_t **c)
 {
-	if (!c)
-		return;
 	crypto_t *z = *c;
 
 	z->status = STATUS_CANCELLED;
