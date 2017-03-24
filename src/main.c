@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 	 * NB If (When) encrypt makes it into a package manager for some
 	 * distros this can/should be removed as it will be unnecessary
 	 */
-	version_check_for_update(ENCRYPT_VERSION, UPDATE_URL);
+	version_check_for_update(ENCRYPT_VERSION, UPDATE_URL, DOWNLOAD_URL_TEMPLATE);
 
 	/*
 	 * list available algorithms if asked to (possibly both hash and
@@ -274,7 +274,7 @@ int main(int argc, char **argv)
 	#endif
 #endif /* we couldn’t create the gui, so revert back to command line */
 
-#ifndef _WIN32 /* it’s GUI or nothing */
+#ifndef _WIN32 /* it’s GUI or nothing for Windows */
 	/*
 	 * get raw key data in form of password/phrase, key file
 	 */
@@ -343,7 +343,7 @@ clean_up:
 #endif
 
 	if (new_version_available)
-		fprintf(stderr, _(NEW_VERSION_OF_AVAILABLE_LINE), program_invocation_short_name);
+		fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, new_version_url);
 
 #ifdef __DEBUG__
 	fprintf(stderr, _("\n**** DEBUG BUILD ****\n\n"));

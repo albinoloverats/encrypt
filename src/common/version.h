@@ -21,12 +21,15 @@
 #ifndef _COMMON_VERSION_H_
 #define _COMMON_VERSION_H_
 
-#define NEW_VERSION_AVAILABLE "A new version is available!"
-#define NEW_VERSION_OF_AVAILABLE "A new version of %s is available!"
-#define NEW_VERSION_OF_AVAILABLE_LINE NEW_VERSION_OF_AVAILABLE "\n"
+#define NEW_VERSION_AVAILABLE "Version %s is available!"
+#define NEW_VERSION_OF_AVAILABLE "Version %s of %s is available!"
+#define NEW_VERSION_URL "Version %s of %s is available from\n%s\n"
 
-extern void version_check_for_update(char *, char *) __attribute__((nonnull(1, 2)));
+extern void version_check_for_update(char *current_version, char *check_url, char *download_url) __attribute__((nonnull(1, 2)));
+extern void version_install_latest(void);
 
 extern bool new_version_available;
+extern char *version_available;
+extern char *new_version_url;
 
 #endif /* _COMMON_VERSION_H_ */

@@ -43,6 +43,15 @@
 #define ENCRYPT_VERSION "2015.10" /*!< Current (display) version of encrypt application */
 #define UPDATE_URL "https://albinoloverats.net/encrypt.release" /*!< URI to check for updates */
 
+#if defined _WIN32
+	#define DOWNLOAD_URL_TEMPLATE "https://albinoloverats.net/downloads/encrypt/%s/encrypt-%s-install.exe"
+#elif defined __APPLE__
+	#define DOWNLOAD_URL_TEMPLATE "https://albinoloverats.net/downloads/encrypt/%s/encrypt-%s.dmg"
+#else
+	#define DOWNLOAD_URL_TEMPLATE NULL
+#endif
+
+
 #define HEADER_0 0x3697de5d96fca0fallu              /*!< The first 8 bytes of an encrypted file */
 #define HEADER_1 0xc845c2fa95e2f52dllu              /*!< The second 8 bytes of an encrypted file */
 
