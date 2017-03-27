@@ -2,25 +2,25 @@
 !include x64.nsh
 
 !define MUI_ABORTWARNING
-!define MUI_ICON "${NSISDIR}\Contrib\Graphics\Icons\modern-install.ico"
+!define MUI_ICON   "${NSISDIR}\Contrib\Graphics\Icons\modern-install.ico"
 !define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall.ico"
 
-!define PRODUCT_NAME "encrypt"
-!define PRODUCT_VERSION "2015.10"
-!define PRODUCT_PUBLISHER "albinoloverats ~ Software Development"
-!define PRODUCT_WEB_SITE "https://albinoloverats.net/projects/encrypt"
+!define PRODUCT_NAME       "encrypt"
+!define PRODUCT_VERSION    "2015.10"
+!define PRODUCT_PUBLISHER  "albinoloverats ~ Software Development"
+!define PRODUCT_WEB_SITE   "https://albinoloverats.net/projects/encrypt"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\encrypt.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
-!define EXPLORER_CONTEXT "*\shell\Encrypt/Decrypt"
-!define EXPLORER_COMMAND "command"
+!define EXPLORER_CONTEXT   "*\shell\Encrypt/Decrypt"
+!define EXPLORER_COMMAND   "command"
 
-SetCompressor lzma
-Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "${PRODUCT_NAME}-${PRODUCT_VERSION}-install.exe"
-InstallDir "$PROGRAMFILES\${PRODUCT_NAME}"
-InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
-ComponentText "Check the components you want to install and uncheck the components you don't want to install:"
-ShowInstDetails show
+SetCompressor     lzma
+Name              "${PRODUCT_NAME} ${PRODUCT_VERSION}"
+OutFile           "${PRODUCT_NAME}-${PRODUCT_VERSION}-install.exe"
+InstallDir        "$PROGRAMFILES\${PRODUCT_NAME}"
+InstallDirRegKey  HKLM "${PRODUCT_DIR_REGKEY}" ""
+ComponentText     "Check the components you want to install and uncheck the components you don't want to install:"
+ShowInstDetails   show
 ShowUnInstDetails show
 
 !insertmacro MUI_PAGE_WELCOME
@@ -32,25 +32,36 @@ ShowUnInstDetails show
 !insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
 
 VIProductVersion "${PRODUCT_VERSION}.0.0"
-VIAddVersionKey /LANG=${LANG_BRITISH} "ProductName"			"${PRODUCT_NAME}"
-VIAddVersionKey /LANG=${LANG_BRITISH} "Comments"				 "encrypt is a simple, cross platform utility for securing your personal files"
-VIAddVersionKey /LANG=${LANG_BRITISH} "CompanyName"			"${PRODUCT_PUBLISHER}"
-VIAddVersionKey /LANG=${LANG_BRITISH} "LegalCopyright"	 "Copyright (c) 2004-2015, ${PRODUCT_PUBLISHER}"
-VIAddVersionKey /LANG=${LANG_BRITISH} "FileDescription"	"Installer for ${PRODUCT_NAME} version ${PRODUCT_VERSION}"
-VIAddVersionKey /LANG=${LANG_BRITISH} "FileVersion"			"${PRODUCT_VERSION}"
-VIAddVersionKey /LANG=${LANG_BRITISH} "ProductVersion"	 "${PRODUCT_VERSION}"
-VIAddVersionKey /LANG=${LANG_BRITISH} "InternalName"		 "${PRODUCT_NAME}"
-VIAddVersionKey /LANG=${LANG_BRITISH} "LegalTrademarks"	"Copyright (c) 2004-2015, ${PRODUCT_PUBLISHER}"
+VIAddVersionKey /LANG=${LANG_BRITISH} "ProductName"      "${PRODUCT_NAME}"
+VIAddVersionKey /LANG=${LANG_BRITISH} "Comments"         "encrypt is a simple, cross platform utility for securing your personal files"
+VIAddVersionKey /LANG=${LANG_BRITISH} "CompanyName"      "${PRODUCT_PUBLISHER}"
+VIAddVersionKey /LANG=${LANG_BRITISH} "LegalCopyright"   "Copyright (c) 2004-2015, ${PRODUCT_PUBLISHER}"
+VIAddVersionKey /LANG=${LANG_BRITISH} "FileDescription"  "Installer for ${PRODUCT_NAME} version ${PRODUCT_VERSION}"
+VIAddVersionKey /LANG=${LANG_BRITISH} "FileVersion"      "${PRODUCT_VERSION}"
+VIAddVersionKey /LANG=${LANG_BRITISH} "ProductVersion"   "${PRODUCT_VERSION}"
+VIAddVersionKey /LANG=${LANG_BRITISH} "InternalName"     "${PRODUCT_NAME}"
+VIAddVersionKey /LANG=${LANG_BRITISH} "LegalTrademarks"  "Copyright (c) 2004-2015, ${PRODUCT_PUBLISHER}"
 VIAddVersionKey /LANG=${LANG_BRITISH} "OriginalFilename" "${PRODUCT_NAME}-${PRODUCT_VERSION}-install.exe"
 
 Function .onInit
 	ReadRegStr $R0 HKLM "${PRODUCT_UNINST_KEY}" "UninstallString"
 	StrCmp $R0 "" done
 
+	FindProcDLL::FindProc "${PRODUCT_NAME}.exe"
+	IntCmp $R0 1 0 notRunning
+		MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION \
+			"${PRODUCT_NAME} is currently running. $\n$\nClick `OK` to \
+            continue or `Cancel` to cancel this upgrade." \
+			IDOK stopRunning
+		Abort
+	stopRunning:
+		KillProcDLL::KillProc "${PRODUCT_NAME}.exe"
+	notRunning:
+
 	MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION \
-	"${PRODUCT_NAME} is already installed. $\n$\nClick `OK` to remove the \
-	previous version or `Cancel` to cancel this upgrade." \
-	IDOK uninst
+		"${PRODUCT_NAME} is already installed. $\n$\nClick `OK` to remove the \
+		previous version or `Cancel` to cancel this upgrade." \
+		IDOK uninst
 	Abort
 
 	uninst:
@@ -178,13 +189,13 @@ SectionEnd
 
 Section -Post
 	WriteUninstaller "$INSTDIR\uninst.exe"
-	WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\encrypt.exe"
-	WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
-	WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninst.exe"
-	WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayIcon" "$INSTDIR\encrypt.exe"
-	WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
-	WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
-	WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
+	WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" ""                 "$INSTDIR\encrypt.exe"
+	WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayName"      "$(^Name)"
+	WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "UninstallString"  "$INSTDIR\uninst.exe"
+	WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayIcon"      "$INSTDIR\encrypt.exe"
+	WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayVersion"   "${PRODUCT_VERSION}"
+	WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "URLInfoAbout"     "${PRODUCT_WEB_SITE}"
+	WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "Publisher"        "${PRODUCT_PUBLISHER}"
 	WriteRegStr HKCR "${EXPLORER_CONTEXT}\${EXPLORER_COMMAND}" "" '$INSTDIR\encrypt.exe "%1"'
 SectionEnd
 

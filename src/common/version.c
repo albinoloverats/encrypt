@@ -18,14 +18,22 @@
  *
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stddef.h>
+#include <fcntl.h>
 
 #include <string.h>
 #include <stdbool.h>
+#include <inttypes.h>
 
 #include <curl/curl.h>
 #include <pthread.h>
+
+#ifdef _WIN32
+	#include <windows.h>
+#endif
 
 #include "version.h"
 
@@ -91,19 +99,27 @@ static void *version_check(void *n)
 		curl_easy_setopt(cupdate, CURLOPT_SSL_VERIFYPEER, 0L);
 #endif
 		curl_easy_setopt(cupdate, CURLOPT_NOPROGRESS, 1L);
+#ifndef _WIN32
 		asprintf(&update, "%s/update-%s-XXXXXX", P_tmpdir ,version_available);
 		int64_t fd = mkstemp(update);
+#else
+		char p[MAX_PATH] = { 0x0 };
+		char f [MAX_PATH] = { 0x0 };
+		GetTempPath(sizeof p, p);
+		asprintf(&update, "%supdate-%s.exe", p, version_available);
+		int64_t fd = open(update, O_CREAT | O_WRONLY | O_BINARY);
+#endif
 		if (fd > 0)
 		{
 			FILE *fh = fdopen(fd, "wb");
 			curl_easy_setopt(cupdate, CURLOPT_WRITEDATA, fh);
 			curl_easy_perform(cupdate);
 			curl_easy_cleanup(cupdate);
+			fclose(fh);
 			close(fd);
 
 			version_install_latest();
 
-			unlink(update);
 		}
 	}
 	pthread_exit(n);
@@ -113,21 +129,18 @@ extern void version_install_latest(void)
 {
 	if (!new_version_available || !update)
 		return;
-//	int status;
+#ifndef _WIN32
 	pid_t pid = fork();
 	if (pid == 0)
 	{
 		execl(update, basename(update), NULL);
+		unlink(update);
+		free(update);
 		_exit(EXIT_FAILURE);
 	}
-//	else if (pid < 0)
-//		/* The fork failed.  Report failure.  */
-//		status = -1;
-//	else
-//		/* This is the parent process.  Wait for the child to complete.  */
-//		if (waitpid (pid, &status, 0) != pid)
-//			status = -1;
-//	return status;
+#else
+	ShellExecute(NULL, "open", update, NULL, NULL, SW_SHOWNORMAL);
+#endif
 	return;
 }
 
