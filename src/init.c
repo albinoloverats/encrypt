@@ -32,6 +32,7 @@
 #include "common/non-gnu.h"
 #include "common/error.h"
 #include "common/ccrypt.h"
+#include "common/version.h"
 
 #ifdef _WIN32
 	#include <Shlobj.h>
@@ -332,6 +333,12 @@ static void print_version(void)
 	char *app_name = is_encrypt() ? APP_NAME : ALT_NAME;
 	char *git = strndup(GIT_COMMIT, GIT_COMMIT_LENGTH);
 	fprintf(stderr, _("%s version: %s\n%*s built on: %s %s\n%*s git commit: %s\n"), app_name, ENCRYPT_VERSION, (int)strlen(app_name) - 1, "", __DATE__, __TIME__, (int)strlen(app_name) - 3, "", git);
+	sleep(1);
+	if (new_version_available)
+	{
+		fprintf(stderr, "\n");
+		fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, new_version_url ? : PROJECT_URL);
+	}
 	free(git);
 	return;
 }

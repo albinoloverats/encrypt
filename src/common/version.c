@@ -31,12 +31,16 @@
 #include <curl/curl.h>
 #include <pthread.h>
 
-#ifdef _WIN32
+#ifndef _WIN32
+	#include <sys/stat.h>
+	#include <sys/wait.h>
+#else
 	#include <windows.h>
 #endif
 
 #include "version.h"
 
+static void version_install_latest(char *);
 static void *version_check(void *);
 static size_t version_verify(void *, size_t, size_t, void *);
 
@@ -102,9 +106,9 @@ static void *version_check(void *n)
 #ifndef _WIN32
 		asprintf(&update, "%s/update-%s-XXXXXX", P_tmpdir ,version_available);
 		int64_t fd = mkstemp(update);
+		fchmod(fd, S_IRUSR | S_IWUSR | S_IXUSR);
 #else
 		char p[MAX_PATH] = { 0x0 };
-		char f [MAX_PATH] = { 0x0 };
 		GetTempPath(sizeof p, p);
 		asprintf(&update, "%supdate-%s.exe", p, version_available);
 		int64_t fd = open(update, O_CREAT | O_WRONLY | O_BINARY);
@@ -118,28 +122,35 @@ static void *version_check(void *n)
 			fclose(fh);
 			close(fd);
 
-			version_install_latest();
-
+			version_install_latest(update);
 		}
+		free(update);
 	}
 	pthread_exit(n);
 }
 
-extern void version_install_latest(void)
+static void version_install_latest(char *u)
 {
-	if (!new_version_available || !update)
+	if (!new_version_available || !u)
 		return;
 #ifndef _WIN32
+	char *u2 = strdup(u);
 	pid_t pid = fork();
 	if (pid == 0)
 	{
-		execl(update, basename(update), NULL);
-		unlink(update);
-		free(update);
+		execl(u2, basename(u2), NULL);
+		unlink(u2);
+		free(u2);
 		_exit(EXIT_FAILURE);
 	}
+	else if (pid > 0)
+	{
+		waitpid(pid, NULL, 0);
+		unlink(u2);
+		free(u2);
+	}
 #else
-	ShellExecute(NULL, "open", update, NULL, NULL, SW_SHOWNORMAL);
+	ShellExecute(NULL, "open", u, NULL, NULL, SW_SHOWNORMAL);
 #endif
 	return;
 }

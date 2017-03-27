@@ -74,8 +74,6 @@ int main(int argc, char **argv)
 	setbuf(stderr, NULL);
 	program_invocation_short_name = strdup(argv[0]);
 #endif
-	args_t args = init(argc, argv);
-
 	/*
 	 * start background thread to check for newer version of encrypt
 	 *
@@ -83,6 +81,8 @@ int main(int argc, char **argv)
 	 * distros this can/should be removed as it will be unnecessary
 	 */
 	version_check_for_update(ENCRYPT_VERSION, UPDATE_URL, DOWNLOAD_URL_TEMPLATE);
+
+	args_t args = init(argc, argv);
 
 	/*
 	 * list available algorithms if asked to (possibly both hash and
@@ -343,7 +343,7 @@ clean_up:
 #endif
 
 	if (new_version_available)
-		fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, new_version_url);
+		fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, new_version_url ? : PROJECT_URL);
 
 #ifdef __DEBUG__
 	fprintf(stderr, _("\n**** DEBUG BUILD ****\n\n"));

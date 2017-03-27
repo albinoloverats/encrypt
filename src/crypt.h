@@ -42,6 +42,7 @@
 
 #define ENCRYPT_VERSION "2015.10" /*!< Current (display) version of encrypt application */
 #define UPDATE_URL "https://albinoloverats.net/encrypt.release" /*!< URI to check for updates */
+#define PROJECT_URL "https://albinoloverats.net/projects/encrypt"
 
 #if defined _WIN32
 	#define DOWNLOAD_URL_TEMPLATE "https://albinoloverats.net/downloads/encrypt/%s/encrypt-%s-install.exe"
