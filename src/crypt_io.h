@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, multi-OS encryption utility
- * Copyright © 2005-2015, albinoloverats ~ Software Development
+ * Copyright © 2005-2017, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -40,7 +40,7 @@
 
 typedef void * IO_HANDLE; /*<! Handle type for IO functions */
 
-#if defined(_WIN32) && !defined(_MODE_T_)
+#if defined _WIN32 && !defined _MODE_T_
 #define	_MODE_T_
 typedef unsigned short mode_t;
 #endif

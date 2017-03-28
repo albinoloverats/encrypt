@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS) encryption utility
- * Copyright © 2005-2015, albinoloverats ~ Software Development
+ * Copyright © 2005-2017, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -56,7 +56,7 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-	version_check_for_update(ENCRYPT_VERSION, UPDATE_URL);
+	version_check_for_update(ENCRYPT_VERSION, UPDATE_URL, DOWNLOAD_URL_TEMPLATE);
 
 	args_t args = init(0, NULL);
 

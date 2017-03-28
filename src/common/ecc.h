@@ -1,5 +1,6 @@
 /*
- * Copyright © 2005-2015, albinoloverats ~ Software Development
+ * Common code for ECC calculations
+ * Copyright © 2005-2017, albinoloverats ~ Software Development
  * email: webmaster@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify

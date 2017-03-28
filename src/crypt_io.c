@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, multi-OS encryption utility
- * Copyright © 2005-2015, albinoloverats ~ Software Development
+ * Copyright © 2005-2017, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -526,7 +526,7 @@ static ssize_t enc_write(io_private_t *f, const void *d, size_t l)
 	size_t remainder[2] = { l, f->buffer_crypt->block - f->buffer_crypt->offset[0] }; /* 0: length of data yet to buffer (from d); 1: available space in output buffer (stream) */
 	if (!d && !l)
 	{
-#if defined(__DEBUG__) && !defined(__DEBUG_WITH_ENCRYPTION__)
+#if defined __DEBUG__ && !defined __DEBUG_WITH_ENCRYPTION__
 		memset(f->buffer_crypt->stream + f->buffer_crypt->offset[0], 0x00, remainder[1]);
 #else
 		gcry_create_nonce(f->buffer_crypt->stream + f->buffer_crypt->offset[0], remainder[1]);
@@ -551,7 +551,7 @@ static ssize_t enc_write(io_private_t *f, const void *d, size_t l)
 			return l;
 		}
 		memcpy(f->buffer_crypt->stream + f->buffer_crypt->offset[0], d + f->buffer_crypt->offset[1], remainder[1]);
-#if !defined(__DEBUG__) || defined(__DEBUG_WITH_ENCRYPTION__)
+#if !defined __DEBUG__ || defined __DEBUG_WITH_ENCRYPTION__
 		gcry_cipher_encrypt(f->cipher_handle, f->buffer_crypt->stream, f->buffer_crypt->block, NULL, 0);
 #endif
 		ssize_t e = EXIT_SUCCESS;
@@ -594,7 +594,7 @@ static ssize_t enc_read(io_private_t *f, void *d, size_t l)
 		ssize_t e = EXIT_SUCCESS;
 		if ((e = ecc_read(f, f->buffer_crypt->stream, f->buffer_crypt->block)) < 0)
 			return e;
-#if !defined(__DEBUG__) || defined(__DEBUG_WITH_ENCRYPTION__)
+#if !defined __DEBUG__ || defined __DEBUG_WITH_ENCRYPTION__
 		gcry_cipher_decrypt(f->cipher_handle, f->buffer_crypt->stream, f->buffer_crypt->block, NULL, 0);
 #endif
 		f->buffer_crypt->offset[0] = f->buffer_crypt->block;

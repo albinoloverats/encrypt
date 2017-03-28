@@ -14,7 +14,7 @@
 #define FILE_VERSION	"2015.10"
 #define FILE_DESCRIPTION	"encrypt is a simple, cross platform utility for securing your personal files"
 #define INTERNAL_NAME	"encrypt"
-#define LEGAL_COPYRIGHT	"Copyright (c) 2004-2015, albinoloverats ~ Software Development"
+#define LEGAL_COPYRIGHT	"Copyright (c) 2004-2017, albinoloverats ~ Software Development"
 #define LEGAL_TRADEMARKS	""
 #define ORIGINAL_FILENAME	"encrypt.exe"
 #define PRODUCT_NAME	"encrypt"
