@@ -1,6 +1,6 @@
 /*
  * Version checking functions (non-applications specific)
- * Copyright © 2005-2015, albinoloverats ~ Software Development
+ * Copyright © 2005-2017, albinoloverats ~ Software Development
  * email: webmaster@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -36,6 +36,10 @@
 	#include <sys/wait.h>
 #else
 	#include <windows.h>
+#endif
+
+#ifdef __APPLE__
+	#include "osx.h"
 #endif
 
 #include "version.h"
@@ -133,7 +137,7 @@ static void version_install_latest(char *u)
 {
 	if (!new_version_available || !u)
 		return;
-#ifndef _WIN32
+#if !defined __APPLE__ && !defined _WIN32
 	char *u2 = strdup(u);
 	pid_t pid = fork();
 	if (pid == 0)
@@ -149,7 +153,15 @@ static void version_install_latest(char *u)
 		unlink(u2);
 		free(u2);
 	}
-#else
+#elif defined __APPLE__
+	char *dmg = NULL;
+	asprintf(&dmg, "%s.dmg", u);
+	rename(u, dmg);
+	//execl("/usr/bin/open", "open", dmg, NULL);
+	osx_open_file(dmg);
+	unlink(dmg);
+	free(dmg);
+#elif defined _WIN32
 	ShellExecute(NULL, "open", u, NULL, NULL, SW_SHOWNORMAL);
 #endif
 	return;
