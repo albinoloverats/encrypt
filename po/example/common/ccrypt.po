@@ -1,13 +1,13 @@
-#: src/common/ccrypt.c:68
+#: src/common/ccrypt.c:69
 #| Could not find GNU Crypt library
 msgid "Could not find GNU Crypt library"
 msgstr ""
 
-#: src/common/ccrypt.c:98
+#: src/common/ccrypt.c:99
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/common/ccrypt.c:140
+#: src/common/ccrypt.c:135
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/common/ccrypt.c:163
+#: src/common/ccrypt.c:158
 #. See common/common.po for the definitive “Out of memory …” message translation

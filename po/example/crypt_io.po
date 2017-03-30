@@ -1,26 +1,29 @@
-#: src/crypt_io.c:223
+## Typically the IO functions will use the default error code and message
+## from the standard system calls.
+
+#: src/crypt_io.c:220
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypt_io.c:233
+#: src/crypt_io.c:230
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypt_io.c:241
+#: src/crypt_io.c:238
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypt_io.c:252
+#: src/crypt_io.c:249
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypt_io.c:267
+#: src/crypt_io.c:264
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypt_io.c:286
+#: src/crypt_io.c:283
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypt_io.c:324
+#: src/crypt_io.c:321
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypt_io.c:584
+#: src/crypt_io.c:581
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypt_io.c:688
+#: src/crypt_io.c:685
 #. See common/common.po for the definitive “Out of memory …” message translation

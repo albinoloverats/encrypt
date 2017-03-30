@@ -49,8 +49,8 @@ static void *version_check(void *);
 static size_t version_verify(void *, size_t, size_t, void *);
 
 bool new_version_available = false;
-char *version_available = NULL;
-char *new_version_url = NULL;
+char version_available[0x10] = { 0x0 };
+char new_version_url[0xFF] = { 0x0 };
 
 static char *update = NULL;
 
@@ -101,7 +101,7 @@ static void *version_check(void *n)
 		 * default template for our projects download url is /downloads/project/version/project-version
 		 * and as the project knows and can set everything except the new version number this is sufficient
 		 */
-		asprintf(&new_version_url, info->update_url, version_available, version_available);
+		snprintf(new_version_url, sizeof new_version_url - 1, info->update_url, version_available, version_available);
 		curl_easy_setopt(cupdate, CURLOPT_URL, new_version_url);
 #ifdef WIN32
 		curl_easy_setopt(cupdate, CURLOPT_SSL_VERIFYPEER, 0L);
@@ -130,7 +130,8 @@ static void *version_check(void *n)
 		}
 		free(update);
 	}
-	pthread_exit(n);
+	free(n);
+	pthread_exit(NULL);
 }
 
 static void version_install_latest(char *u)
@@ -177,7 +178,7 @@ static size_t version_verify(void *p, size_t s, size_t n, void *v)
 	if (strcmp(b, (char *)v) > 0)
 	{
 		new_version_available = true;
-		asprintf(&version_available, "%s", b);
+		snprintf(version_available, sizeof version_available - 1, "%s", b);
 	}
 	free(b);
 	return s * n;

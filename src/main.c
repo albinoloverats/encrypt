@@ -343,7 +343,7 @@ clean_up:
 #endif
 
 	if (new_version_available)
-		fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, new_version_url ? : PROJECT_URL);
+		fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : PROJECT_URL);
 
 #ifdef __DEBUG__
 	fprintf(stderr, _("\n**** DEBUG BUILD ****\n\n"));

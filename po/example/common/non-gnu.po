@@ -1,16 +1,19 @@
-#: src/crypto.c:136
-#| Could not find GNU Crypt library
-msgid "Could not find GNU Crypt library"
+#: src/common/non-gnu.c:89
+#| unsupported size of unsigned long @ %s:%d:%s [%d]
+msgid "unsupported size of unsigned long @ %s:%d:%s [%d]"
 msgstr ""
 
-#: src/crypto.c:205
+#: src/common/non-gnu.c:99
+#. See translation above
+
+#: src/common/non-gnu.c:213
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypto.c:241
+#: src/common/non-gnu.c:229
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypto.c:264
+#: src/common/non-gnu.c:297
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypto.c:456
+#: src/common/non-gnu.c:302
 #. See common/common.po for the definitive “Out of memory …” message translation

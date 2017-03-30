@@ -1,45 +1,45 @@
-#: src/encrypt.c:84
+#: src/encrypt.c:81
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:153
+#: src/encrypt.c:148
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:165
+#: src/encrypt.c:160
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:209
+#: src/encrypt.c:204
 #| Compatibility with version %s does not allow encrypting directories
 msgid "Compatibility with version %s does not allow encrypting directories"
 msgstr ""
 
-#: src/encrypt.c:235
+#: src/encrypt.c:230
 #| We’ve reached an unreachable location in the code @ %s:%d:%s
 msgid "We’ve reached an unreachable location in the code @ %s:%d:%s"
 msgstr ""
 
-#: src/encrypt.c:326
+#: src/encrypt.c:321
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:333
+#: src/encrypt.c:328
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:394
+#: src/encrypt.c:389
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:398
+#: src/encrypt.c:393
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:488
+#: src/encrypt.c:483
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:511
+#: src/encrypt.c:506
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:544
+#: src/encrypt.c:539
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:590
+#: src/encrypt.c:585
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/encrypt.c:663
+#: src/encrypt.c:658
 #. See common/common.po for the definitive “Out of memory …” message translation

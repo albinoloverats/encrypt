@@ -44,6 +44,7 @@
 
 static const char *STATUS_MESSAGE[] =
 {
+	/* TODO Add translation support for these */
 	/* success and running states */
 	"Success",
 	"Initialisation",

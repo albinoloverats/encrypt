@@ -1,0 +1,14 @@
+#: src/common/version.h:23
+#| Version %s is available!
+msgid "Version %s is available!"
+msgstr ""
+
+#: src/common/version.h:24
+#| Version %s of %s is available!
+msgid "Version %s of %s is available!"
+msgstr ""
+
+#: src/common/version.h:25
+#| Version %s of %s is available from\n%s\n
+msgid "Version of %s is available from\n%s\n"
+msgstr ""
