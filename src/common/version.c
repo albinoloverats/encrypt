@@ -69,31 +69,29 @@ extern void version_check_for_update(char *current_version, char *check_url, cha
 	pthread_attr_init(&a);
 	pthread_attr_setdetachstate(&a, PTHREAD_CREATE_DETACHED);
 
-	version_check_t *info = calloc(sizeof( version_check_t ), 1);
-	info->current = current_version;
-	info->check_url = check_url;
-	info->update_url = download_url;
+	version_check_t info = { current_version, check_url, download_url };
 
-	pthread_create(&vt, &a, version_check, info);
+	pthread_create(&vt, &a, version_check, &info);
 	pthread_attr_destroy(&a);
 	return;
 }
 
 static void *version_check(void *n)
 {
-	version_check_t *info = (version_check_t *)n;
+	version_check_t info;
+	memcpy(&info, n, sizeof info);
 	curl_global_init(CURL_GLOBAL_ALL);
 	CURL *ccheck = curl_easy_init();
-	curl_easy_setopt(ccheck, CURLOPT_URL, info->check_url);
+	curl_easy_setopt(ccheck, CURLOPT_URL, info.check_url);
 #ifdef WIN32
 	curl_easy_setopt(ccheck, CURLOPT_SSL_VERIFYPEER, 0L);
 #endif
 	curl_easy_setopt(ccheck, CURLOPT_NOPROGRESS, 1L);
-	curl_easy_setopt(ccheck, CURLOPT_WRITEDATA, info->current);
+	curl_easy_setopt(ccheck, CURLOPT_WRITEDATA, info.current);
 	curl_easy_setopt(ccheck, CURLOPT_WRITEFUNCTION, version_verify);
 	curl_easy_perform(ccheck);
 	curl_easy_cleanup(ccheck);
-	if (new_version_available && info->update_url)
+	if (new_version_available && info.update_url)
 	{
 		/* download new version */
 		CURL *cupdate = curl_easy_init();
@@ -101,7 +99,7 @@ static void *version_check(void *n)
 		 * default template for our projects download url is /downloads/project/version/project-version
 		 * and as the project knows and can set everything except the new version number this is sufficient
 		 */
-		snprintf(new_version_url, sizeof new_version_url - 1, info->update_url, version_available, version_available);
+		snprintf(new_version_url, sizeof new_version_url - 1, info.update_url, version_available, version_available);
 		curl_easy_setopt(cupdate, CURLOPT_URL, new_version_url);
 #ifdef WIN32
 		curl_easy_setopt(cupdate, CURLOPT_SSL_VERIFYPEER, 0L);
@@ -130,7 +128,6 @@ static void *version_check(void *n)
 		}
 		free(update);
 	}
-	free(n);
 	pthread_exit(NULL);
 }
 
