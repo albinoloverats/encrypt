@@ -1,4 +1,4 @@
-encrypt - 2015.10                                           4th Oct 2015
+encrypt - 2017.09                                         --th Sept 2017
 =================
 
 
@@ -42,19 +42,14 @@ Changelog
 
 ### New For Latest Release
 
-* Automatic error correction of encrypted container format
+* Improved key derivation
+* Added MAC as well as previously used hash of data to ensure
+  authentication
 
 ### Fixed For Latest Release
 
-* UNIX
-  - Infinite loop on decryption attempt of unrecognised version
 * Android
-  - Fix compatibility menu bug
-  - Change Android tray icon to black & white
-* Windows
-  - Workaround for the AES/Rijndael issue; instead of using the DLL from
-    http://lrn.no-ip.info we now use the DLL included as part of the
-    Gpg4win project
+  - Fix permission handling
 
 
 TODO

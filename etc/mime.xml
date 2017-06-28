@@ -92,4 +92,15 @@
 		<icon name="encrypt"/>
 	</mime-type>
 
+	<mime-type type="application/x-encrypt-201709">
+		<comment xml:lang="en">encrypt File Container (version 2017.09)</comment>
+		<sub-class-of type="application/x-encrypt"/>
+		<magic priority="50">
+			<match type="big32" value="0x32303137" offset="16"/>
+			<match type="big32" value="0x2e303921" offset="20"/>
+		</magic>
+
+		<icon name="encrypt"/>
+	</mime-type>
+
 </mime-info>

@@ -1,7 +1,7 @@
 # $FreeBSD$
 
 PORTNAME     = encrypt
-PORTVERSION  = 2015.10
+PORTVERSION  = 2017.09
 CATEGORIES   = security
 MASTER_SITES = https://albinoloverats.net/projects/encrypt
 

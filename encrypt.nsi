@@ -6,7 +6,7 @@
 !define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall.ico"
 
 !define PRODUCT_NAME       "encrypt"
-!define PRODUCT_VERSION    "2015.10"
+!define PRODUCT_VERSION    "2017.09"
 !define PRODUCT_PUBLISHER  "albinoloverats ~ Software Development"
 !define PRODUCT_WEB_SITE   "https://albinoloverats.net/projects/encrypt"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\encrypt.exe"
@@ -35,12 +35,12 @@ VIProductVersion "${PRODUCT_VERSION}.0.0"
 VIAddVersionKey /LANG=${LANG_BRITISH} "ProductName"      "${PRODUCT_NAME}"
 VIAddVersionKey /LANG=${LANG_BRITISH} "Comments"         "encrypt is a simple, cross platform utility for securing your personal files"
 VIAddVersionKey /LANG=${LANG_BRITISH} "CompanyName"      "${PRODUCT_PUBLISHER}"
-VIAddVersionKey /LANG=${LANG_BRITISH} "LegalCopyright"   "Copyright (c) 2004-2015, ${PRODUCT_PUBLISHER}"
+VIAddVersionKey /LANG=${LANG_BRITISH} "LegalCopyright"   "Copyright (c) 2004-2017, ${PRODUCT_PUBLISHER}"
 VIAddVersionKey /LANG=${LANG_BRITISH} "FileDescription"  "Installer for ${PRODUCT_NAME} version ${PRODUCT_VERSION}"
 VIAddVersionKey /LANG=${LANG_BRITISH} "FileVersion"      "${PRODUCT_VERSION}"
 VIAddVersionKey /LANG=${LANG_BRITISH} "ProductVersion"   "${PRODUCT_VERSION}"
 VIAddVersionKey /LANG=${LANG_BRITISH} "InternalName"     "${PRODUCT_NAME}"
-VIAddVersionKey /LANG=${LANG_BRITISH} "LegalTrademarks"  "Copyright (c) 2004-2015, ${PRODUCT_PUBLISHER}"
+VIAddVersionKey /LANG=${LANG_BRITISH} "LegalTrademarks"  "Copyright (c) 2004-2017, ${PRODUCT_PUBLISHER}"
 VIAddVersionKey /LANG=${LANG_BRITISH} "OriginalFilename" "${PRODUCT_NAME}-${PRODUCT_VERSION}-install.exe"
 
 Function .onInit
