@@ -1,14 +1,14 @@
 apply plugin: 'android'
 
 android {
-	compileSdkVersion 23
-	buildToolsVersion '23.0.1'
+	compileSdkVersion 25
+	buildToolsVersion '25.0.0'
 	defaultConfig {
 		applicationId 'net.albinoloverats.android.encrypt'
-		minSdkVersion 9
-		targetSdkVersion 23
-		versionCode 14
-		versionName '2015.10'
+		minSdkVersion 23
+		targetSdkVersion 25
+		versionCode 15
+		versionName '2017.09'
 	}
 	signingConfigs {
 		release {

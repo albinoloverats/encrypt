@@ -24,6 +24,8 @@ import gnu.crypto.cipher.CipherFactory;
 import gnu.crypto.cipher.IBlockCipher;
 import gnu.crypto.hash.HashFactory;
 import gnu.crypto.hash.IMessageDigest;
+import gnu.crypto.mac.MacFactory;
+import gnu.crypto.mac.IMac;
 import gnu.crypto.mode.ModeFactory;
 
 import java.security.InvalidKeyException;
@@ -48,6 +50,14 @@ public abstract class CryptoUtils
 	private static final String NAME_WHIRLPOOL_T = "WHIRLPOOL-T";
 
 	private static final int KEY_SIZE_MINIMUM = 128;
+
+	private static final String OMAC_NULL = "OMAC-NULL";
+
+	private static final String OMAC_RIJNDAEL = "OMAC-RIJNDAEL";
+	private static final String CMAC_AES = "CMAC_AES";
+
+	private static final String OMAC_TRIPLE_DES = "OMAC-TRIPLEDES";
+	private static final String CMAC_3DES = "CMAC_3DES";
 
 	public static Set<String> getHashAlgorithmNames()
 	{
@@ -169,5 +179,42 @@ public abstract class CryptoUtils
 		modes.add(ModeFactory.OFB_MODE.toUpperCase(Locale.ENGLISH));
 		modes.add(ModeFactory.CTR_MODE.toUpperCase(Locale.ENGLISH));
 		return modes;
+	}
+
+	public static Set<String> getMacAlgorithmNames()
+	{
+		final Set<?> s = MacFactory.getNames();
+		final Set<String> m = new TreeSet<>();
+		for (final Object o : s)
+		{
+			final String n = ((String)o).toUpperCase(Locale.ENGLISH).replace("SHA-", "SHA");
+			if (n.equals(OMAC_NULL))
+				continue;
+			if (n.equals(OMAC_RIJNDAEL))
+				m.add(CMAC_AES);
+			else if (n.equals(OMAC_TRIPLE_DES))
+				m.add(CMAC_3DES);
+			else
+				m.add(n.replace("HMAC-", "HMAC_").replace("OMAC-", "CMAC_"));
+		}
+		return m;
+	}
+
+	public static IMac getMacAlgorithm(String name) throws NoSuchAlgorithmException
+	{
+		final Set<?> s = MacFactory.getNames();
+		for (final Object o : s)
+		{
+			final String n = ((String)o).toUpperCase(Locale.ENGLISH);
+			String c = n.replace("SHA-", "SHA");
+			c = c.replace("HMAC-", "HMAC_").replace("OMAC-", "CMAC_");
+			if (n.equals(CMAC_AES))
+				return MacFactory.getInstance(OMAC_RIJNDAEL);
+			else if (n.equals(CMAC_3DES))
+				return MacFactory.getInstance(OMAC_TRIPLE_DES);
+			if (name.equals(c))
+				return MacFactory.getInstance(n);
+		}
+		throw new NoSuchAlgorithmException(name);
 	}
 }

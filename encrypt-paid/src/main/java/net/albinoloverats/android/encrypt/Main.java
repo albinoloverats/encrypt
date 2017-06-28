@@ -20,6 +20,7 @@
 
 package net.albinoloverats.android.encrypt;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.NotificationManager;
@@ -70,6 +71,9 @@ import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Set;
 
+import static android.content.pm.PackageManager.PERMISSION_DENIED;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+
 public class Main extends Activity
 {
 	private static Context context; /* used for Status messages */
@@ -77,6 +81,9 @@ public class Main extends Activity
 	private static final Set<String> CIPHERS = CryptoUtils.getCipherAlgorithmNames();
 	private static final Set<String> HASHES = CryptoUtils.getHashAlgorithmNames();
 	private static final Set<String> MODES = CryptoUtils.getCipherModeNames();
+	private static final Set<String> MACS = CryptoUtils.getMacAlgorithmNames();
+
+	private static final int STORAGE_PERMISSION_REQUEST = 1;
 
 	private DoubleProgressDialog doubleProgressDialog;
 	private ProgressReceiver progressReceiver;
@@ -94,6 +101,7 @@ public class Main extends Activity
 	private String cipher;
 	private String hash;
 	private String mode;
+	private String mac;
 	private String password;
 	private String key;
 
@@ -105,10 +113,16 @@ public class Main extends Activity
 
 		context = this;
 
+		if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+		{
+			requestPermissions(new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, STORAGE_PERMISSION_REQUEST);
+		}
+
 		final SharedPreferences settings = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), Context.MODE_PRIVATE);
 		cipher = settings.getString(Options.CIPHER.toString(), null);
 		hash = settings.getString(Options.HASH.toString(), null);
 		mode = settings.getString(Options.MODE.toString(), null);
+		mac = settings.getString(Options.MAC.toString(), null);
 
 		// setup the file chooser button
 		final Button fChooser = (Button)findViewById(R.id.button_file);
@@ -139,6 +153,13 @@ public class Main extends Activity
 		mSpinner.setOnItemSelectedListener(new SpinnerSelectedListener(MODES));
 		mSpinner.setEnabled(false);
 
+		final Spinner aSpinner = (Spinner)findViewById(R.id.spin_mac);
+		final ArrayAdapter<CharSequence> macSpinAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
+		macSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		aSpinner.setAdapter(macSpinAdapter);
+		aSpinner.setOnItemSelectedListener(new SpinnerSelectedListener(MACS));
+		aSpinner.setEnabled(false);
+
 		// populate algorithm spinners
 		cipherSpinAdapter.add(getString(R.string.choose_cipher));
 		int i = 1;
@@ -167,6 +188,16 @@ public class Main extends Activity
 			modeSpinAdapter.add(s);
 			if (s.equals(mode))
 				mSpinner.setSelection(i);
+			i++;
+		}
+
+		macSpinAdapter.add(getString(R.string.choose_mac));
+		i = 1;
+		for (final String s : MACS)
+		{
+			macSpinAdapter.add(s);
+			if (s.equals(mac))
+				aSpinner.setSelection(i);
 			i++;
 		}
 
@@ -230,6 +261,25 @@ public class Main extends Activity
 	}
 
 	@Override
+	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
+	{
+		switch (requestCode)
+		{
+			case STORAGE_PERMISSION_REQUEST:
+			{
+				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+				{
+					; // we have permission, carry on
+				}
+				else
+				{
+					finishAffinity();
+				}
+			}
+		}
+	}
+
+	@Override
 	protected void onStop()
 	{
 		storePreferences();
@@ -248,6 +298,7 @@ public class Main extends Activity
 		editor.putString(Options.CIPHER.toString(), cipher);
 		editor.putString(Options.HASH.toString(), hash);
 		editor.putString(Options.MODE.toString(), mode);
+		editor.putString(Options.MAC.toString(), mac);
 		editor.putBoolean(Options.COMPRESS.toString(), compress);
 		editor.putBoolean(Options.FOLLOW.toString(), follow);
 		editor.putBoolean(Options.KEY.toString(), key_file);
@@ -392,6 +443,7 @@ public class Main extends Activity
 		final Spinner cSpinner  = (Spinner)findViewById(R.id.spin_crypto);
 		final Spinner hSpinner  = (Spinner)findViewById(R.id.spin_hash);
 		final Spinner mSpinner  = (Spinner)findViewById(R.id.spin_mode);
+		final Spinner aSpinner  = (Spinner)findViewById(R.id.spin_mac);
 		final EditText password = (EditText)findViewById(R.id.text_password);
 		final Button keyButton  = (Button)findViewById(R.id.button_key);
 		final Button encButton  = (Button)findViewById(R.id.button_go);
@@ -399,6 +451,7 @@ public class Main extends Activity
 		hSpinner.setEnabled(false);
 		cSpinner.setEnabled(false);
 		mSpinner.setEnabled(false);
+		aSpinner.setEnabled(false);
 		password.setEnabled(false);
 		keyButton.setEnabled(false);
 		encButton.setEnabled(false);
@@ -414,7 +467,8 @@ public class Main extends Activity
 				cSpinner.setEnabled(true);
 				hSpinner.setEnabled(true);
 				mSpinner.setEnabled(true);
-				if (cipher != null && hash != null && mode != null)
+				aSpinner.setEnabled(true);
+				if (cipher != null && hash != null && mode != null && mac != null)
 				{
 					password.setEnabled(true);
 					keyButton.setEnabled(true);
@@ -494,6 +548,7 @@ public class Main extends Activity
 		intent.putExtra("cipher", cipher);
 		intent.putExtra("hash", hash);
 		intent.putExtra("mode", mode);
+		intent.putExtra("mac", mac);
 		intent.putExtra("key_file", key_file);
 		if (key_file)
 			intent.putExtra("key", key);
@@ -555,6 +610,8 @@ public class Main extends Activity
 				hash = selected;
 			else if (choices == MODES)
 				mode = selected;
+			else if (choices == MACS)
+				mac = selected;
 			if (selected != null)
 				storePreferences();
 			checkEnableButtons();

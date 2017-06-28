@@ -69,6 +69,7 @@ public class Decrypt extends Crypto
 			cipher = intent.getStringExtra("cipher");
 			hash   = intent.getStringExtra("hash");
 			mode   = intent.getStringExtra("mode");
+			mac    = intent.getStringExtra("mac");
 		}
 
 		intent.putExtra("encrypting", false);
@@ -86,6 +87,7 @@ public class Decrypt extends Crypto
 
 			boolean extraRandom = true;
 			XIV ivType = XIV.RANDOM;
+			boolean useMAC = true;
 			switch (version)
 			{
 				case _201108:
@@ -93,19 +95,24 @@ public class Decrypt extends Crypto
 					ivType = XIV.BROKEN;
 				case _201211:
 					extraRandom = false;
+					useMAC = false;
 					break;
 				case _201302:
 				case _201311:
 				case _201406:
 					ivType = XIV.SIMPLE;
+					useMAC = false;
 					break;
 				case _201501:
 				case _201510:
+					useMAC = false;
+					break;
+				case _201709:
 				case CURRENT:
 				default:
 			}
 
-			checksum = ((EncryptedFileInputStream)source).initialiseDecryption(cipher, hash, mode, key, ivType);
+			checksum = ((EncryptedFileInputStream)source).initialiseDecryption(cipher, hash, mode, mac, key, ivType, useMAC);
 
 			if (!raw)
 			{
@@ -141,6 +148,10 @@ public class Decrypt extends Crypto
 				final byte[] digest = checksum.digest();
 				if (err < 0 || !Arrays.equals(check, digest))
 					status = Status.WARNING_CHECKSUM;
+			}
+			if (useMAC)
+			{
+				/* TODO */;
 			}
 
 			if (status == Status.RUNNING)
@@ -199,8 +210,13 @@ public class Decrypt extends Crypto
 		hash = a.substring(a.indexOf('/') + 1);
 		if (hash.contains("/"))
 		{
-			hash = a.substring(a.indexOf('/') + 1, a.lastIndexOf('/'));
-			mode = a.substring(a.lastIndexOf('/') + 1);
+			hash = hash.substring(0, hash.indexOf('/'));
+			mode = hash.substring(hash.indexOf('/') + 1);
+			if (mode.contains("/"))
+			{
+				mode = mode.substring(0, mode.indexOf('/'));
+				mac = mode.substring(mode.indexOf('/') + 1);
+			}
 		}
 		else
 			mode = ModeFactory.CBC_MODE;

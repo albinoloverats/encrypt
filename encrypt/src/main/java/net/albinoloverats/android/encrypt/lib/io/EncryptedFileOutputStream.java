@@ -22,8 +22,12 @@ package net.albinoloverats.android.encrypt.lib.io;
 
 import gnu.crypto.cipher.IBlockCipher;
 import gnu.crypto.hash.IMessageDigest;
+import gnu.crypto.mac.IMac;
 import gnu.crypto.mode.IMode;
 import gnu.crypto.mode.ModeFactory;
+import gnu.crypto.prng.IPBE;
+import gnu.crypto.prng.LimitReachedException;
+import gnu.crypto.prng.PBKDF2;
 import gnu.crypto.util.PRNG;
 
 import java.io.File;
@@ -33,6 +37,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,9 +47,12 @@ import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
 public class EncryptedFileOutputStream extends FileOutputStream
 {
+	private static final int PBKDF2_ITERATIONS = 1024;
+
 	private final ECCFileOutputStream eccFileOutputStream;
 
 	private IMode cipher;
+	private IMac mac;
 
 	private byte[] buffer = null;
 	private int blockSize = 0;
@@ -66,29 +74,50 @@ public class EncryptedFileOutputStream extends FileOutputStream
 		eccFileOutputStream = new ECCFileOutputStream(file);
 	}
 
-	public IMessageDigest initialiseEncryption(final String cipher, final String hash, final String mode, final byte[] key, final XIV ivType) throws NoSuchAlgorithmException, InvalidKeyException, IOException
+	public IMessageDigest initialiseEncryption(final String c, final String h, final String m, String a, final byte[] k, final XIV ivType, final boolean fakeKDF) throws NoSuchAlgorithmException, InvalidKeyException, LimitReachedException, IOException
 	{
-		IMessageDigest h = CryptoUtils.getHashAlgorithm(hash);
-		final IBlockCipher c = CryptoUtils.getCipherAlgorithm(cipher);
-		blockSize = c.defaultBlockSize();
-		this.cipher = ModeFactory.getInstance(mode, c, blockSize);
-		h.update(key, 0, key.length);
-		final byte[] keySource = h.digest();
-		final Map<String, Object> attributes = new HashMap<String, Object>();
-		final int keyLength = CryptoUtils.getCipherAlgorithmKeySize(cipher) / Byte.SIZE;
-		final byte[] keyOutput = new byte[keyLength];
-		System.arraycopy(keySource, 0, keyOutput, 0, keyLength < keySource.length ? keyLength : keySource.length);
-		attributes.put(IBlockCipher.KEY_MATERIAL, keyOutput);
+		final IMessageDigest hash = CryptoUtils.getHashAlgorithm(h);
+		final IBlockCipher cipher = CryptoUtils.getCipherAlgorithm(c);
+		mac = CryptoUtils.getMacAlgorithm(a);
+		blockSize = cipher.defaultBlockSize();
+		this.cipher = ModeFactory.getInstance(m, cipher, blockSize);
+		hash.update(k, 0, k.length);
+		final byte[] keySource = hash.digest();
+		final Map<String, Object> attributes = new HashMap<>();
+		final int keyLength = CryptoUtils.getCipherAlgorithmKeySize(c) / Byte.SIZE;
+		byte[] key = new byte[keyLength];
+
+		final int saltLength = keyLength;
+		final byte[] salt = new byte[saltLength];
+
+		if (fakeKDF)
+			System.arraycopy(keySource, 0, key, 0, keyLength < keySource.length ? keyLength : keySource.length);
+		else
+		{
+			PRNG.nextBytes(salt);
+			eccFileOutputStream.write(salt);
+			final char[] ks = new char[keySource.length];
+			for (int i = 0; i < ks.length; i++)
+				ks[i] = (char)keySource[i];
+			PBKDF2 keyGen = new PBKDF2(mac);
+			Map<String, Object> attr = new HashMap<>();
+			attr.put(IPBE.PASSWORD, ks);
+			attr.put(IPBE.SALT, salt);
+			attr.put(IPBE.ITERATION_COUNT, PBKDF2_ITERATIONS);
+			keyGen.init(attr);
+			keyGen.nextBytes(key);
+		}
+		attributes.put(IBlockCipher.KEY_MATERIAL, key);
 		attributes.put(IBlockCipher.CIPHER_BLOCK_SIZE, blockSize);
 		attributes.put(IMode.STATE, IMode.ENCRYPTION);
-		h.reset();
-		h.update(keySource, 0, keySource.length);
+		hash.reset();
+		hash.update(keySource, 0, keySource.length);
 		final byte[] iv = new byte[ivType != XIV.BROKEN ? blockSize : keyLength];
 		switch (ivType)
 		{
 			case BROKEN:
 			case SIMPLE:
-				System.arraycopy(h.digest(), 0, iv, 0, iv.length);
+				System.arraycopy(hash.digest(), 0, iv, 0, iv.length);
 				break;
 			case RANDOM:
 				PRNG.nextBytes(iv);
@@ -98,7 +127,7 @@ public class EncryptedFileOutputStream extends FileOutputStream
 		attributes.put(IMode.IV, iv);
 		this.cipher.init(attributes);
 		buffer = new byte[blockSize];
-		return h;
+		return hash;
 	}
 
 	public void initaliseECC()

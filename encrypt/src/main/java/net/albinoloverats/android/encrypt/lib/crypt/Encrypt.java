@@ -55,7 +55,7 @@ public class Encrypt extends Crypto
 	/*
 	 * If, and when, Android supports Java7 NIO:
 	private boolean follow = false;
-	private Map<Long, Path> inodes = new HashMap<Long, Path>();
+	private Map<Long, Path> inodes = new HashMap<>();
 	 */
 
 	@Override
@@ -66,6 +66,7 @@ public class Encrypt extends Crypto
 		cipher       = intent.getStringExtra("cipher");
 		hash         = intent.getStringExtra("hash");
 		mode         = intent.getStringExtra("mode");
+		mac          = intent.getStringExtra("mac");
 		key          = intent.getByteArrayExtra("key");
 		raw          = intent.getBooleanExtra("raw", raw);
 		compressed   = intent.getBooleanExtra("compress", compressed);
@@ -128,6 +129,8 @@ public class Encrypt extends Crypto
 				break;
 			case _201501:
 			case _201510:
+				break;
+			case _201709:
 			case CURRENT:
 				break;
 		}
@@ -155,8 +158,11 @@ public class Encrypt extends Crypto
 			}
 			if (version.compareTo(Version._201110) <= 0)
 				ivType = XIV.BROKEN;
-
-			checksum = ((EncryptedFileOutputStream)output).initialiseEncryption(cipher, hash, mode, key, ivType);
+			boolean useMAC = true;
+			if (version.compareTo(Version._201709) < 0)
+				useMAC = false;
+			/* we can use useMAC to indicate whether to use a proper key derivation function */
+			checksum = ((EncryptedFileOutputStream)output).initialiseEncryption(cipher, hash, mode, mac, key, ivType, useMAC);
 
 			if (!raw)
 			{
@@ -201,6 +207,10 @@ public class Encrypt extends Crypto
 			{
 				output.write(checksum.digest());
 				writeRandomData();
+			}
+			if (useMAC)
+			{
+				/* TODO */;
 			}
 
 			if (status == Status.RUNNING)
@@ -248,6 +258,8 @@ public class Encrypt extends Crypto
 		String algorithms = cipher + "/" + hash;
 		if (version.compareTo(Version._201406) >= 0)
 			algorithms = algorithms.concat("/" + mode);
+		if (version.compareTo(Version._201709) >= 0)
+			algorithms = algorithms.concat("/" + mac);
 		output.write((byte)algorithms.length());
 		output.write(algorithms.getBytes());
 	}

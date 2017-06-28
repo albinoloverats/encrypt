@@ -55,6 +55,7 @@ public abstract class Crypto extends Service implements Runnable
 	protected String cipher;
 	protected String hash;
 	protected String mode;
+	protected String mac;
 	protected byte[] key;
 
 	protected boolean raw = false;

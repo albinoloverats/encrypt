@@ -28,6 +28,7 @@ public enum Options
 	CIPHER,
 	HASH,
 	MODE,
+	MAC,
 	COMPRESS,
 	FOLLOW,
 	KEY,
