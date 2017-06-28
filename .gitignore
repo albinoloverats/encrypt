@@ -10,3 +10,4 @@ src/common/rand.h
 .idea
 local.properties
 build
+*.apk
