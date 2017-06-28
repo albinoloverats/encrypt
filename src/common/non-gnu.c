@@ -86,7 +86,7 @@ char *strchrnul(const char *s, int c_in)
 		case 4: magic_bits = 0x7efefeffL; break;
 		case 8: magic_bits = ((0x7efefefeL << 16) << 16) | 0xfefefeffL; break;
 		default:
-			die(_("unsupported size of unsigned long @ %s:%d:%s [%d])", __FILE__, __LINE__, __func__, sizeof (longword));
+			die(_("unsupported size of unsigned long @ %s:%d:%s [%d])"), __FILE__, __LINE__, __func__, sizeof longword);
 	}
 
 	/* Set up a longword, each of whose bytes is C.  */
@@ -96,7 +96,7 @@ char *strchrnul(const char *s, int c_in)
 		/* Do the shift in two steps to avoid a warning if long has 32 bits.  */
 		charmask |= (charmask << 16) << 16;
 	if (sizeof (longword) > 8)
-		die(_("unsupported size of unsigned long @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, sizeof (longword));
+		die(_("unsupported size of unsigned long @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, sizeof longword);
 
 	/* Instead of the traditional loop which tests each character,
 	   we will test a longword at a time.  The tricky part is testing

@@ -60,7 +60,7 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 
 	args_t args = init(0, NULL);
 
-	[self auto_select_algorithms:args.cipher:args.hash:args.mode];
+	[self auto_select_algorithms:args.cipher:args.hash:args.mode:args.mac];
 
 	bool z = true;
 	for (NSMenuItem *m in [_sourceFileChooser itemArray])
@@ -151,7 +151,8 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 	return;
 }
 
-- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication {
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication
+{
 	return YES;
 }
 
@@ -217,8 +218,15 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 	char *c = ptr;
 	char *h = ptr;
 	char *m = ptr;
-	if ((encrypted = is_encrypted(open_file, &c, &h, &m)))
-		[self auto_select_algorithms:c:h:m];
+	char *a = ptr;
+	if ((encrypted = is_encrypted(open_file, &c, &h, &m, &a)))
+	{
+		[self auto_select_algorithms:c:h:m:a];
+		free(c);
+		free(h);
+		free(m);
+		free(a);
+	}
 	free(ptr);
 	free(open_file);
 	[_singleButton setTitle:encrypted ? @LABEL_DECRYPT : @LABEL_ENCRYPT];
@@ -249,6 +257,7 @@ clean_up:
 		[_cipherCombo setEnabled:en];
 		[_hashCombo setEnabled:en];
 		[_modeCombo setEnabled:en];
+		[_macCombo setEnabled:en];
 	}
 
 	[self cipherHashSelected:pId];
@@ -259,8 +268,9 @@ clean_up:
 	const char *cipher = [[[_cipherCombo selectedItem] title] UTF8String];
 	const char *hash = [[[_hashCombo selectedItem] title] UTF8String];
 	const char *mode = [[[_modeCombo selectedItem] title] UTF8String];
+	const char *mac = [[[_macCombo selectedItem] title] UTF8String];
 
-	if ((cipher && strcasecmp(cipher, SELECT_CIPHER)) && (hash && strcasecmp(hash, SELECT_HASH)) && (mode && strcasecmp(mode, SELECT_MODE)))
+	if ((cipher && strcasecmp(cipher, SELECT_CIPHER)) && (hash && strcasecmp(hash, SELECT_HASH)) && (mode && strcasecmp(mode, SELECT_MODE)) && (mac && strcasecmp(mac, SELECT_MAC)))
 	{
 		[self keySourceSelected:pId];
 		[_keyFileChooser setEnabled:true];
@@ -269,6 +279,7 @@ clean_up:
 		update_config(CONF_CIPHER, cipher);
 		update_config(CONF_HASH, hash);
 		update_config(CONF_MODE, mode);
+		update_config(CONF_MAC, mac);
 	}
 	else
 	{
@@ -401,9 +412,15 @@ clean_up:
 
 	crypto_t *c;
 	if (!encrypted)
-		c = encrypt_init(open_file, save_file, (char *)[[[_cipherCombo selectedItem] title] UTF8String], (char *)[[[_hashCombo selectedItem] title] UTF8String], (char *)[[[_modeCombo selectedItem] title] UTF8String], key, length, false, compress, follow, version);
+	{
+		char *cipher = (char *)[[[_cipherCombo selectedItem] title] UTF8String];
+		char *hash = (char *)[[[_hashCombo selectedItem] title] UTF8String];
+		char *mode = (char *)[[[_modeCombo selectedItem] title] UTF8String];
+		char *mac = (char *)[[[_macCombo selectedItem] title] UTF8String];
+		c = encrypt_init(open_file, save_file, cipher, hash, mode, mac, key, length, false, compress, follow, version);
+	}
 	else
-		c = decrypt_init(open_file, save_file, NULL, NULL, NULL, key, length, false);
+		c = decrypt_init(open_file, save_file, NULL, NULL, NULL, NULL, key, length, false);
 
 	free(open_file);
 	free(save_file);
@@ -504,7 +521,7 @@ clean_up:
 	[_popup setIsVisible:FALSE];
 }
 
-- (void)auto_select_algorithms:(char *)c : (char *)h : (char *)m
+- (void)auto_select_algorithms:(char *)c : (char *)h : (char *)m : (char *)a
 {
 	const char **ciphers = list_of_ciphers();
 	unsigned slctd_cipher = 0;
@@ -541,6 +558,18 @@ clean_up:
 		[_modeCombo addItemWithTitle:[NSString stringWithUTF8String:modes[i]]];
 	}
 	[_modeCombo selectItemAtIndex:slctd_mode];
+
+	const char **macs = list_of_macs();
+	unsigned slctd_mac = 0;
+	[_macCombo removeAllItems];
+	[_macCombo addItemWithTitle:[NSString stringWithUTF8String:SELECT_MAC]];
+	for (unsigned  i = 0; macs[i]; i++)
+	{
+		if (h && !strcasecmp(macs[i], a))
+			slctd_mac = i + 1;
+		[_macCombo addItemWithTitle:[NSString stringWithUTF8String:macs[i]]];
+	}
+	[_macCombo selectItemAtIndex:slctd_mac];
 }
 
 @end

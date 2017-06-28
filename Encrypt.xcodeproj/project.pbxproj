@@ -92,12 +92,12 @@
 		AB5CDADB1BB080F300E10BB0 /* ccrypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ccrypt.h; sourceTree = "<group>"; };
 		AB5CDADC1BB080F300E10BB0 /* ecc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ecc.c; sourceTree = "<group>"; };
 		AB5CDADD1BB080F300E10BB0 /* ecc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ecc.h; sourceTree = "<group>"; };
-		AB730D8E1A34A92A00BA4DC8 /* libgcrypt.20.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgcrypt.20.dylib; path = /usr/local/Cellar/libgcrypt/1.7.6/lib/libgcrypt.20.dylib; sourceTree = "<absolute>"; };
+		AB730D8E1A34A92A00BA4DC8 /* libgcrypt.20.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgcrypt.20.dylib; path = /usr/local/Cellar/libgcrypt/1.7.7/lib/libgcrypt.20.dylib; sourceTree = "<absolute>"; };
 		AB730D8F1A34A92A00BA4DC8 /* libgpg-error.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libgpg-error.0.dylib"; path = "/usr/local/Cellar/libgpg-error/1.27/lib/libgpg-error.0.dylib"; sourceTree = "<absolute>"; };
 		AB730D901A34A92A00BA4DC8 /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = /usr/local/Cellar/xz/5.2.3/lib/liblzma.5.dylib; sourceTree = "<absolute>"; };
 		ABC4B1D31E8A9B1700645215 /* osx.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = osx.m; sourceTree = "<group>"; };
 		ABC4B1D51E8A9B2800645215 /* osx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = osx.h; sourceTree = "<group>"; };
-		ABD3BA401A34A6DA00976011 /* libgcrypt.20.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgcrypt.20.dylib; path = /usr/local/Cellar/libgcrypt/1.7.6/lib/libgcrypt.20.dylib; sourceTree = "<absolute>"; };
+		ABD3BA401A34A6DA00976011 /* libgcrypt.20.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgcrypt.20.dylib; path = /usr/local/Cellar/libgcrypt/1.7.7/lib/libgcrypt.20.dylib; sourceTree = "<absolute>"; };
 		ABD3BA411A34A6DA00976011 /* libgpg-error.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libgpg-error.0.dylib"; path = "//usr/local/Cellar/libgpg-error/1.27/lib/libgpg-error.0.dylib"; sourceTree = "<absolute>"; };
 		ABD3BA421A34A6DA00976011 /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = /usr/local/Cellar/xz/5.2.3/lib/liblzma.5.dylib; sourceTree = "<absolute>"; };
 		ABD3BA461A34A70100976011 /* libcurl.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.dylib; path = /usr/lib/libcurl.dylib; sourceTree = SDKROOT; };

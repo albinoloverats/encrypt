@@ -48,6 +48,7 @@
 @property (strong, nonatomic) IBOutlet NSPopUpButtonCell *cipherCombo;
 @property (strong, nonatomic) IBOutlet NSPopUpButtonCell *hashCombo;
 @property (strong, nonatomic) IBOutlet NSPopUpButtonCell *modeCombo;
+@property (strong, nonatomic) IBOutlet NSPopUpButtonCell *macCombo;
 
 @property (strong, nonatomic) IBOutlet NSMenu *keySource;
 @property (strong, nonatomic) IBOutlet NSMenuItem *keySourceFile;
