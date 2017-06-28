@@ -56,6 +56,7 @@ static const char *STATUS_MESSAGE[] =
 	"Failed: Unsupported cipher algorithm!",
 	"Failed: Unsupported hash algorithm!",
 	"Failed: Unsupported cipher mode!",
+	"Failed: Unsupported MAC algorithm!",
 	"Failed: Decryption failure! (Invalid password)",
 	"Failed: Unsupported feature!",
 	"Failed: Read/Write error!",
@@ -85,8 +86,8 @@ static const version_t VERSIONS[] =
 	{ "2014.06", 0x8819d19069fae6b4llu },
 	{ "2015.01", 0x63e7d49566e31bfbllu },
 	{ "2015.10", 0x0dae4a923e4ae71dllu },
-
-	{ "current", 0x0dae4a923e4ae71dllu }
+	{ "2017.09", 0x323031372e303921llu },
+	{ "current", 0x323031372e303921llu }
 };
 
 extern void execute(crypto_t *c)
@@ -142,7 +143,7 @@ extern void key_gcry_free(raw_key_t **key)
 }
 #endif
 
-extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, char **m)
+extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, char **m, char **a)
 {
 	struct stat s;
 	stat(n, &s);
@@ -168,26 +169,39 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, cha
 		}
 		uint8_t l;
 		read(f, &l, sizeof l);
-		char *a = gcry_calloc_secure(l + sizeof( char ), sizeof( char ));
-		read(f, a, l);
-		char *s = strchr(a, '/');
+		char *z = gcry_calloc_secure(l + sizeof( char ), sizeof( char ));
+		read(f, z, l);
+		char *s = strchr(z, '/');
 		*s = '\0';
 		s++;
-		char *d = strrchr(s, '/');
+		char *d = strchr(s, '/');
+		char *g = NULL;
 		if (d)
 		{
 			*d = '\0';
 			d++;
+			if ((g = strchr(d, '/')))
+			{
+				*g = '\0';
+				g++;
+			}
+			else
+				g = DEFAULT_MAC;
 		}
 		else
+		{
 			d = "CBC";
+			g = DEFAULT_MAC;
+		}
 		if (*c)
-			*c = strdup(a);
+			*c = strdup(z);
 		if (*h)
 			*h = strdup(s);
 		if (*m)
 			*m = strdup(d);
-		gcry_free(a);
+		if (*a)
+			*a = strdup(g);
+		gcry_free(z);
 	}
 	close(f);
 

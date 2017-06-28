@@ -24,7 +24,7 @@
 /*!
  * \file    decrypt.h
  * \author  Ashley M Anderson
- * \date    2009-2015
+ * \date    2009-2017
  * \brief   Main decryption routine
  *
  * The main decryption routine; the only visible function is for the
@@ -41,6 +41,7 @@
  * \param[in]  c  The name of the cipher (optional)
  * \param[in]  h  The name of the hash   (optional)
  * \param[in]  m  The name of the mode   (optional)
+ * \param[in]  a  The name of the MAC    (optional)
  * \param[in]  k  Key data
  * \param[in]  l  Size of key data
  * \param[in]  n  Raw - don’t check for a header or any verification
@@ -54,6 +55,13 @@
  * the encrypted file; the only reason to set them is if there is no
  * header information.
  */
-extern crypto_t *decrypt_init(const char * const restrict i, const char * const restrict o, const char * const restrict c, const char * const restrict h, const char * const restrict m, const void * const restrict k, size_t l, bool n) __attribute__((nonnull(6)));
+extern crypto_t *decrypt_init(const char * const restrict i,
+                              const char * const restrict o,
+                              const char * const restrict c,
+                              const char * const restrict h,
+                              const char * const restrict m,
+                              const char * const restrict a,
+                              const void * const restrict k,
+                              size_t l, bool n) __attribute__((nonnull(7)));
 
 #endif /* ! _ENCRYPT_DECRYPT_H_ */

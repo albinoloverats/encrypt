@@ -77,9 +77,11 @@ typedef struct
 {
 	int64_t fd;
 
+	lzma_stream lzma_handle;
+
 	gcry_cipher_hd_t cipher_handle;
 	gcry_md_hd_t hash_handle;
-	lzma_stream lzma_handle;
+	gcry_mac_hd_t mac_handle;
 
 	buffer_t *buffer_crypt;
 	buffer_t *buffer_ecc;
@@ -89,9 +91,10 @@ typedef struct
 
 	uint8_t byte;
 
+	bool lzma_init:1;
 	bool cipher_init:1;
 	bool hash_init:1;
-	bool lzma_init:1;
+	bool mac_init:1;
 	bool ecc_init:1;
 }
 io_private_t;
@@ -165,6 +168,8 @@ extern void io_release(IO_HANDLE ptr)
 		gcry_cipher_close(io_ptr->cipher_handle);
 	if (io_ptr->hash_init)
 		gcry_md_close(io_ptr->hash_handle);
+	if (io_ptr->mac_init)
+		gcry_mac_close(io_ptr->mac_handle);
 	if (io_ptr->lzma_init)
 		lzma_end(&io_ptr->lzma_handle);
 	gcry_free(io_ptr);
@@ -208,7 +213,7 @@ extern bool io_is_stdout(IO_HANDLE ptr)
 	return io_ptr->fd == STDOUT_FILENO;
 }
 
-extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, const uint8_t *k, size_t l, io_extra_t x)
+extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, enum gcry_mac_algos a, const uint8_t *k, size_t l, io_extra_t x)
 {
 	io_private_t *io_ptr = ptr;
 	if (!io_ptr || io_ptr->fd < 0)
@@ -221,6 +226,8 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 
 	gcry_md_open(&io_ptr->hash_handle, h, GCRY_MD_FLAG_SECURE);
 	gcry_cipher_open(&io_ptr->cipher_handle, c, m, GCRY_CIPHER_SECURE);
+	gcry_mac_open(&io_ptr->mac_handle, a, GCRY_MAC_FLAG_SECURE, NULL);
+
 	/*
 	 * generate a hash of the supplied key data
 	 */
@@ -236,9 +243,53 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	uint8_t *key = gcry_calloc_secure(key_length, sizeof( byte_t ));
 	if (!key)
 		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, key_length);
-	memcpy(key, hash, key_length < hash_length ? key_length : hash_length);
-	gcry_cipher_setkey(io_ptr->cipher_handle, key, key_length); /* here is where it blows-up on Windows 8, using AES */
+	size_t salt_length = key_length;
+	uint8_t *salt = gcry_calloc_secure(salt_length, sizeof( byte_t ));
+	if (x.x_kdf)
+	{
+		if (!salt)
+			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, salt_length);
+		if (x.x_encrypt)
+		{
+			gcry_create_nonce(salt, salt_length);
+			io_write(ptr, salt, salt_length);
+		}
+		else
+			io_read(ptr, salt, salt_length);
+		/*
+		 * use key derivation function instead of just a hash; fixed
+		 * at the moment, maybe in a later release GCRY_KDF_SCRYPT
+		 * might be possible along with number of iterations
+		 */
+		gcry_kdf_derive(hash, hash_length, GCRY_KDF_PBKDF2, h, salt, salt_length, KEY_ITERATIONS, key_length, key);
+	}
+	else
+	{
+		/*
+		 * versions previous to 2017.09 didn't use a proper key
+		 * derivation function and instead just used a hash of
+		 * the passphrase
+		 */
+		memcpy(key, hash, key_length < hash_length ? key_length : hash_length);
+	}
+	gcry_cipher_setkey(io_ptr->cipher_handle, key, key_length);
 	gcry_free(key);
+
+	/*
+	 * initialise the MAC (not used on version before 2017.09 and so
+	 * the default salt of { 0x00 } can be used/ignored)
+	 */
+	if (a != GCRY_MAC_NONE)
+	{
+		size_t mac_length = gcry_mac_get_algo_keylen(a);
+		uint8_t *mac = gcry_calloc_secure(mac_length, sizeof( byte_t ));
+		gcry_kdf_derive(hash, hash_length, GCRY_KDF_PBKDF2, h, salt, salt_length, KEY_ITERATIONS, mac_length, mac);
+		gcry_mac_setkey(io_ptr->mac_handle, mac, mac_length);
+		gcry_free(mac);
+		io_ptr->mac_init = true;
+	}
+	gcry_free(salt);
+
 	/*
 	 * the 2011.* versions (incorrectly) used key length instead of block
 	 * length; versions after 2014.06 randomly generate the IV instead
@@ -275,7 +326,12 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 		gcry_cipher_setctr(io_ptr->cipher_handle, iv, io_ptr->buffer_crypt->block);
 	else
 		gcry_cipher_setiv(io_ptr->cipher_handle, iv, io_ptr->buffer_crypt->block);
+
+	const char *mac_name = mac_name_from_id(a);
+	if (io_ptr->mac_init && (!strncmp("GMAC", mac_name, strlen("GMAC")) || !strncmp("POLY1305", mac_name, strlen("POLY1305"))))
+		gcry_mac_setiv(io_ptr->mac_handle, iv, io_ptr->buffer_crypt->block);
 	gcry_free(iv);
+
 	/*
 	 * set the rest of the buffer
 	 */
@@ -324,6 +380,22 @@ extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l)
 	return;
 }
 
+extern void io_encryption_mac(IO_HANDLE ptr, uint8_t **b, size_t *l)
+{
+	io_private_t *io_ptr = ptr;
+	if (!io_ptr || io_ptr->fd < 0)
+		return errno = EBADF , (void)NULL;
+	if (!io_ptr->mac_init)
+		return *l = 0 , (void)NULL;
+	*l = gcry_mac_get_algo_maclen(gcry_mac_get_algo(io_ptr->mac_handle));
+	uint8_t *x = gcry_realloc(*b, *l);
+	if (!x)
+		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, *l);
+	*b = x;
+	gcry_mac_read(io_ptr->mac_handle, *b, l);
+	return;
+}
+
 extern void io_compression_init(IO_HANDLE ptr)
 {
 	io_private_t *io_ptr = ptr;
@@ -354,8 +426,11 @@ extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l)
 	if (!io_ptr || io_ptr->fd < 0)
 		return errno = EBADF , -1;
 
-	if (io_ptr->hash_init)
+	if (io_ptr->hash_init && io_ptr->mac_init)
+	{
 		gcry_md_write(io_ptr->hash_handle, d, l);
+		gcry_mac_write(io_ptr->mac_handle, d, l);
+	}
 
 	switch (io_ptr->operation)
 	{
@@ -397,8 +472,11 @@ extern ssize_t io_read(IO_HANDLE f, void *d, size_t l)
 			r = -1;
 			break;
 	}
-	if (r >= 0 && io_ptr->hash_init)
+	if (r >= 0 && io_ptr->hash_init && io_ptr->mac_init)
+	{
 		gcry_md_write(io_ptr->hash_handle, d, r);
+		gcry_mac_write(io_ptr->mac_handle, d, r);
+	}
 	return r;
 }
 

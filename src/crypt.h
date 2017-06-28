@@ -24,7 +24,7 @@
 /*!
  * \file    crypt.h
  * \author  Ashley M Anderson
- * \date    2009-2015
+ * \date    2009-2017
  * \brief   Main crypt header file
  *
  * What is essentially the parent class for enc/decryption routines.
@@ -40,7 +40,7 @@
 #include "common/cli.h" /*!< Used for progress bar on command line */
 #include "crypt_io.h"   /*!< Necessary as IO_HANDLE type is referenced in this header */
 
-#define ENCRYPT_VERSION "2015.10" /*!< Current (display) version of encrypt application */
+#define ENCRYPT_VERSION "2017.09" /*!< Current (display) version of encrypt application */
 #define UPDATE_URL "https://albinoloverats.net/encrypt.release" /*!< URI to check for updates */
 #define PROJECT_URL "https://albinoloverats.net/projects/encrypt"
 
@@ -56,7 +56,8 @@
 #define HEADER_0 0x3697de5d96fca0fallu              /*!< The first 8 bytes of an encrypted file */
 #define HEADER_1 0xc845c2fa95e2f52dllu              /*!< The second 8 bytes of an encrypted file */
 
-#define BLOCK_SIZE 1024 /*!< Default IO block size */
+#define BLOCK_SIZE     1024 /*!< Default IO block size; not currently configurable */
+#define KEY_ITERATIONS 1024 /*!< Default number of iterations for key derivation algorithm; not currently configurable */
 
 #ifndef GIT_COMMIT
 	#define GIT_COMMIT "unknown"
@@ -66,6 +67,7 @@
 #define DEFAULT_CIPHER "AES"
 #define DEFAULT_HASH "SHA256"
 #define DEFAULT_MODE "OFB"
+#define DEFAULT_MAC "HMAC_SHA512"
 
 /*!
  * \brief  Encryption status
@@ -86,6 +88,7 @@ typedef enum
 	STATUS_FAILED_UNKNOWN_CIPHER_ALGORITHM, /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
 	STATUS_FAILED_UNKNOWN_HASH_ALGORITHM,   /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
 	STATUS_FAILED_UNKNOWN_CIPHER_MODE,      /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
+	STATUS_FAILED_UNKNOWN_MAC_ALGORITHM,    /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
 	STATUS_FAILED_DECRYPTION,               /*!< Failed decryption verification (likely wrong password) */
 	STATUS_FAILED_UNKNOWN_TAG,              /*!< Failed due to unknown tag */
 	STATUS_FAILED_IO,                       /*!< Read/write error */
@@ -131,8 +134,8 @@ typedef enum
 	VERSION_2014_06,     /*!< Version 2014.06 */
 	VERSION_2015_01,     /*!< Version 2015.01 */
 	VERSION_2015_10,     /*!< Version 2015.10 */
-
-	VERSION_CURRENT = VERSION_2015_10 /*!< Next release / current development version */
+	VERSION_2017_09,     /*!< Version 2017.09 */
+	VERSION_CURRENT = VERSION_2017_09 /*!< Next release / current development version */
 }
 version_e;
 
@@ -186,6 +189,7 @@ typedef struct
 	enum gcry_cipher_algos cipher; /*!< The chosen cipher algorithm */
 	enum gcry_md_algos hash;       /*!< The chosen key hash algorithm */
 	enum gcry_cipher_modes mode;   /*!< The chosen encryption mode */
+	enum gcry_mac_algos mac;       /*!< The chosen MAC algorithm */
 
 #if 0
 	raw_key_t *raw_key;            /*!< Encryption key (NB Not yet used) */
@@ -252,26 +256,27 @@ extern void key_free(raw_key_t **k);
 #endif
 
 
-#define IS_ENCRYPTED_ARGS_COUNT(...) IS_ENCRYPTED_ARGS_COUNT2(__VA_ARGS__, 4, 3, 2, 1)
-#define IS_ENCRYPTED_ARGS_COUNT2(_1, _2, _3, _4, _, ...) _
+#define IS_ENCRYPTED_ARGS_COUNT(...) IS_ENCRYPTED_ARGS_COUNT2(__VA_ARGS__, 5, 4, 3, 2, 1)
+#define IS_ENCRYPTED_ARGS_COUNT2(_1, _2, _3, _4, _5, _, ...) _
 
-#define is_encrypted_1(A)           is_encrypted_aux(false, A, NULL, NULL, NULL)
-#define is_encrypted_4(A, B, C, D)  is_encrypted_aux(true, A, B, C, D)
+#define is_encrypted_1(A)              is_encrypted_aux(false, A, NULL, NULL, NULL, NULL)
+#define is_encrypted_5(A, B, C, D, E)  is_encrypted_aux(true, A, B, C, D, E)
 #define is_encrypted(...) CONCAT(is_encrypted_, IS_ENCRYPTED_ARGS_COUNT(__VA_ARGS__))(__VA_ARGS__)
 
 /*!
  * \brief         Determine if a file is encrypted
  * \param[in]  b  Whether passing in 3 arguments or not
  * \param[in]  n  The file path/name
- * \param[out] c  Pointer to cipher (free when no longer needed)
- * \param[out] h  Pointer to hash (free when no longer needed)
- * \param[out] m  Pointer to mode (if available) (free when no longer needed)
+ * \param[out] c  Pointer to cipher (user to free when no longer needed)
+ * \param[out] h  Pointer to hash (user to free when no longer needed)
+ * \param[out] m  Pointer to mode (if available) (user to free when no longer needed)
+ * \param[out] a  Pointer to the MAC (if available) (user to free when no longer needed)
  * \return        The version of encrypted used
  *
  * Returns the version of encrypt used to encrypt the file, or 0 if it’s
  * not encrypted.
  */
-extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, char **m) __attribute__((nonnull(2)));
+extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, char **m, char **a) __attribute__((nonnull(2)));
 
 /*!
  * \brief         Log which version the file is encrypted with

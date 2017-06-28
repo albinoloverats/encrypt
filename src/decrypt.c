@@ -59,7 +59,14 @@ static void decrypt_directory(crypto_t *, const char *);
 static void decrypt_stream(crypto_t *);
 static void decrypt_file(crypto_t *);
 
-extern crypto_t *decrypt_init(const char * const restrict i, const char * const restrict o, const char * const restrict c, const char * const restrict h, const char * const restrict m, const void * const restrict k, size_t l, bool n)
+extern crypto_t *decrypt_init(const char * const restrict i,
+                              const char * const restrict o,
+                              const char * const restrict c,
+                              const char * const restrict h,
+                              const char * const restrict m,
+                              const char * const restrict a,
+                              const void * const restrict k,
+                              size_t l, bool n)
 {
 	init_crypto();
 
@@ -146,6 +153,8 @@ extern crypto_t *decrypt_init(const char * const restrict i, const char * const 
 			return z->status = STATUS_FAILED_UNKNOWN_HASH_ALGORITHM , z;
 		if ((z->mode = mode_id_from_name(m)) == GCRY_CIPHER_MODE_NONE)
 			return z->status = STATUS_FAILED_UNKNOWN_CIPHER_MODE , z;
+		if ((z->mac = mac_id_from_name(a)) == GCRY_MAC_NONE)
+			return z->status = STATUS_FAILED_UNKNOWN_MAC_ALGORITHM, z;
 	}
 
 	z->process = process;
@@ -173,6 +182,7 @@ static void *process(void *ptr)
 
 	bool skip_some_random = false;
 	x_iv_e iv_type = IV_RANDOM;
+	bool kdf=  true;
 	switch (c->version)
 	{
 			/*
@@ -182,31 +192,33 @@ static void *process(void *ptr)
 		case VERSION_2011_08:
 		case VERSION_2011_10:
 			iv_type = IV_BROKEN;
+			__attribute__((fallthrough)); /* allow fall-through for broken IV compatibility */
 		case VERSION_2012_11:
 			skip_some_random = true;
+			kdf = false;
 			break;
 
 		case VERSION_2013_02:
 		case VERSION_2013_11:
 		case VERSION_2014_06:
 			iv_type = IV_SIMPLE;
-			break;
-
+			__attribute__((fallthrough)); /* allow fall-through for broken key derivation */
 		case VERSION_2015_01:
 		case VERSION_2015_10:
+			kdf = false;
+			break;
+
+		case VERSION_2017_09:
 		default:
-			/*
-			 * this will catch the all more recent versions (unknown is
-			 * detected above)
-			 */
+			/* this will catch the all more recent versions (unknown is detected above) */
 			break;
 	}
 	/*
 	 * the 2011.* versions (incorrectly) used key length instead of block
-	 * length
+	 * length; and up until 2017.XX a kdf was not used
 	 */
-	io_extra_t iox = { iv_type, false, 1 };
-	io_encryption_init(c->source, c->cipher, c->hash, c->mode, c->key, c->length, iox);
+	io_extra_t iox = { iv_type, false, kdf };
+	io_encryption_init(c->source, c->cipher, c->hash, c->mode, c->mac, c->key, c->length, iox);
 	gcry_free(c->key);
 
 	if (!c->raw)
@@ -282,6 +294,19 @@ static void *process(void *ptr)
 	if (!c->raw)
 		skip_random_data(c); /* not entirely necessary as we already know we’ve reached the end of the file */
 
+	if (kdf)
+	{
+		uint8_t *mac = NULL;
+		size_t mac_length = 0;
+		io_encryption_mac(c->source, &mac, &mac_length);
+		uint8_t *b = gcry_malloc_secure(mac_length);
+		io_read(c->source, b, mac_length);
+		if (memcmp(b, mac, mac_length))
+			c->status = STATUS_WARNING_CHECKSUM;
+		gcry_free(mac);
+		gcry_free(b);
+	}
+
 	/*
 	 * done
 	 */
@@ -307,22 +332,31 @@ static uint64_t read_version(crypto_t *c)
 
 	uint8_t l;
 	io_read(c->source, &l, sizeof l);
-	char *a = gcry_calloc_secure(l + sizeof( char ), sizeof( char ));
-	io_read(c->source, a, l);
-	char *h = strchr(a, '/');
+	char *z = gcry_calloc_secure(l + sizeof( char ), sizeof( char ));
+	io_read(c->source, z, l);
+	char *h = strchr(z, '/');
 	*h = '\0';
 	h++;
-	char *m = strrchr(h, '/');
+	char *m = strchr(h, '/');
+	char *a = NULL;
 	if (m)
 	{
 		*m = '\0';
 		m++;
+		if ((a = strchr(m, '/')))
+		{
+			*a = '\0';
+			a++;
+		}
 	}
 	else
 		m = "CBC";
-	c->cipher = cipher_id_from_name(a);
+	c->cipher = cipher_id_from_name(z);
 	c->hash = hash_id_from_name(h);
 	c->mode = mode_id_from_name(m);
+	if (v >= VERSION_2017_09)
+		c->mac = mac_id_from_name(a);
+	gcry_free(z);
 	return v;
 }
 

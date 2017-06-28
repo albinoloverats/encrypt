@@ -24,7 +24,7 @@
 /*!
  * \file    crypt_io.h
  * \author  Ashley M Anderson
- * \date    2009-2015
+ * \date    2009-2017
  * \brief   IO functions for encrypt
  *
  * Advanced IO functions for encryption/compression. Wraps read/write
@@ -41,7 +41,7 @@
 typedef void * IO_HANDLE; /*<! Handle type for IO functions */
 
 #if defined _WIN32 && !defined _MODE_T_
-#define	_MODE_T_
+#define _MODE_T_
 typedef unsigned short mode_t;
 #endif
 
@@ -70,9 +70,9 @@ x_iv_e;
  */
 typedef struct
 {
-	x_iv_e x_iv;          /*!< Whether to use the older (less correct) IV generation */
-	bool x_encrypt;       /*!< Encrypt (or decrypt) */
-	unsigned int x_hz:15; /*!< NOT USED (yet) The number of iterations for key/IV generation */
+	x_iv_e x_iv;    /*!< Whether to use the older (less correct) IV generation */
+	bool x_encrypt; /*!< Encrypt (or decrypt) */
+	bool x_kdf;     /*!< Whether to use a key derivation function or not */
 }
 io_extra_t;
 
@@ -217,6 +217,7 @@ extern off_t io_seek(IO_HANDLE f, off_t o, int w) __attribute__((nonnull(1)));
  * \param[in]  c  The ID of the cipher to use
  * \param[in]  h  The ID of the hash to use for key generation
  * \param[in]  m  The ID of the mode to use
+ * \param[in]  a  The ID of the MAC to use
  * \param[in]  k  Raw key data
  * \param[in]  l  The length of the key data
  * \param[in]  x  Any extra modifing options
@@ -224,7 +225,7 @@ extern off_t io_seek(IO_HANDLE f, off_t o, int w) __attribute__((nonnull(1)));
  * Initialise encryption/decryption of data read/written. This is then
  * active for the rest of the life of the IO_HANDLE.
  */
-extern void io_encryption_init(IO_HANDLE f, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, const uint8_t *k, size_t l, io_extra_t x) __attribute__((nonnull(1, 5)));
+extern void io_encryption_init(IO_HANDLE f, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, enum gcry_mac_algos a, const uint8_t *k, size_t l, io_extra_t x) __attribute__((nonnull(1, 6)));
 
 /*!
  * \brief         Compression initialisation
@@ -249,11 +250,21 @@ extern void io_encryption_checksum_init(IO_HANDLE f, enum gcry_md_algos h) __att
  * \brief         Read/Write data checksum generation
  * \param[in]  f  An IO instance
  * \param[out] b  A pointer to the calculated checksum
- * \param[out] h  The length of the checksum
+ * \param[out] l  The length of the checksum
  *
- * Retrieve the hash checksum of all data read/written so far.
+ * Retrieve the hash checksum of all encrypted data read/written so far.
  */
 extern void io_encryption_checksum(IO_HANDLE f, uint8_t **b, size_t *l) __attribute__((nonnull(1)));
+
+/*!
+ * \brief
+ * \param[in]  f  An IO instance
+ * \param[out] b  A pointer to the MAC
+ * \param[out] l  The length of the MAC
+ *
+ * Retrieve the MAC of all the encrypted data read/written.
+ */
+extern void io_encryption_mac(IO_HANDLE f, uint8_t **b, size_t *l) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Enable ECC

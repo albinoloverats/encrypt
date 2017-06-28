@@ -72,7 +72,14 @@ typedef struct
 }
 link_count_t;
 
-extern crypto_t *encrypt_init(const char * const restrict i, const char * const restrict o, const char * const restrict c, const char * const restrict h, const char * const restrict m, const void * const restrict k, size_t l, bool n, bool x, bool f, version_e v)
+extern crypto_t *encrypt_init(const char * const restrict i,
+                              const char * const restrict o,
+                              const char * const restrict c,
+                              const char * const restrict h,
+                              const char * const restrict m,
+                              const char * const restrict a,
+                              const void * const restrict k,
+                              size_t l, bool n, bool x, bool f, version_e v)
 {
 	init_crypto();
 
@@ -170,6 +177,8 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
 		return z->status = STATUS_FAILED_UNKNOWN_HASH_ALGORITHM , z;
 	if ((z->mode = mode_id_from_name(m)) == GCRY_CIPHER_MODE_NONE)
 		return z->status = STATUS_FAILED_UNKNOWN_CIPHER_MODE , z;
+	if ((z->mac = mac_id_from_name(a)) == GCRY_MAC_NONE)
+		return z->status = STATUS_FAILED_UNKNOWN_MAC_ALGORITHM , z;
 
 	z->blocksize = BLOCK_SIZE;
 	z->compressed = x;
@@ -196,7 +205,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
 			 */
 			z->version = VERSION_2011_08;
 			z->compressed = false;
-			/* allow fall-through to check for directories */
+			__attribute__((fallthrough)); /* allow fall-through to check for directories */
 		case VERSION_2012_11:
 			/* allow compression, but not directories */
 			if (z->source == IO_UNINITIALISED)
@@ -209,7 +218,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
 			break;
 		case VERSION_2013_02:
 			z->follow_links = true;
-			/* allow fall-through to force CBC mode */
+			__attribute__((fallthrough)); /* allow fall-through to force CBC mode */
 		case VERSION_2013_11:
 			z->mode = mode_id_from_name("CBC");
 			break;
@@ -220,6 +229,7 @@ extern crypto_t *encrypt_init(const char * const restrict i, const char * const 
 			break;
 		case VERSION_2015_01:
 		case VERSION_2015_10:
+		case VERSION_2017_09:
 		// case VERSION_CURRENT:
 			/*
 			 * do nothing, all options are available; not falling back
@@ -245,32 +255,40 @@ static void *process(void *ptr)
 
 	bool pre_random = true;
 	x_iv_e iv_type = IV_RANDOM;
+	bool kdf = true;
 	switch (c->version)
 	{
 		case VERSION_2011_08:
 		case VERSION_2011_10:
 			iv_type = IV_BROKEN;
-			/* fall through */
+			__attribute__((fallthrough)); /* allow fall-through for broken IV compatibility */
 		case VERSION_2012_11:
 			pre_random = false;
+			kdf = false;
 			break;
 		case VERSION_2013_02:
 		case VERSION_2013_11:
 		case VERSION_2014_06:
 			iv_type = IV_SIMPLE;
-			break;
+			__attribute__((fallthrough)); /* allow fall-through for broken key derivation */
 		case VERSION_2015_01:
 		case VERSION_2015_10:
+			kdf = false;
+			break;
+
+		case VERSION_2017_09:
 		default:
 			/* no changes */
 			break;
 	}
 
 	/*
-	 * all data written from here on is encrypted
+	 * all data written from here on is encrypted (with the exception
+	 * of the IV and salt, both of which are auto-generated during
+	 * the encryption initialisation)
 	 */
-	io_extra_t iox = { iv_type, true, 1 };
-	io_encryption_init(c->output, c->cipher, c->hash, c->mode, c->key, c->length, iox);
+	io_extra_t iox = { iv_type, true, kdf };
+	io_encryption_init(c->output, c->cipher, c->hash, c->mode, c->mac, c->key, c->length, iox);
 	gcry_free(c->key);
 
 	if (!c->raw)
@@ -364,6 +382,18 @@ static void *process(void *ptr)
 		write_random_data(c);
 	}
 
+	if (kdf)
+	{
+		/*
+		 * using a key derivation function also gives a MAC
+		 */
+		uint8_t *mac = NULL;
+		size_t mac_length = 0;
+		io_encryption_mac(c->output, &mac, &mac_length);
+		io_write(c->output, mac, mac_length);
+		gcry_free(mac);
+	}
+
 	/*
 	 * done
 	 */
@@ -383,7 +413,13 @@ static inline void write_header(crypto_t *c)
 	const char *u_cipher = cipher_name_from_id(c->cipher);
 	const char *u_hash = hash_name_from_id(c->hash);
 	const char *u_mode = mode_name_from_id(c->mode);
-	if (c->version >= VERSION_2014_06)
+	const char *u_mac = mac_name_from_id(c->mac);
+	if (c->version >= VERSION_2017_09)
+	{
+		if (!asprintf(&algos, "%s/%s/%s/%s", u_cipher, u_hash, u_mode, u_mac))
+			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(u_cipher) + strlen(u_hash) + strlen(u_mode) + strlen(u_mac) + 4);
+	}
+	else if (c->version >= VERSION_2014_06)
 	{
 		if (!asprintf(&algos, "%s/%s/%s", u_cipher, u_hash, u_mode))
 			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(u_cipher) + strlen(u_hash) + strlen(u_mode) + 3);
@@ -404,9 +440,9 @@ static inline void write_verification_sum(crypto_t *c)
 	 * write simple addition (x ^ y = z) where x, y are random 64 bit
 	 * signed integers
 	 */
-	int64_t x;
-	gcry_create_nonce(&x, sizeof x);
+	uint64_t x;
 	uint64_t y;
+	gcry_create_nonce(&x, sizeof x);
 	gcry_create_nonce(&y, sizeof y);
 	uint64_t z = x ^ y;
 	x = htonll(x);
