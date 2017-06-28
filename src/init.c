@@ -61,6 +61,7 @@ extern args_t init(int argc, char **argv)
 	args_t a = { strdup(DEFAULT_CIPHER),
 			strdup(DEFAULT_HASH),
 			strdup(DEFAULT_MODE),
+			strdup(DEFAULT_MAC),
 			NULL, /* key file */
 			NULL, /* password */
 			NULL, /* source */
@@ -117,6 +118,11 @@ extern args_t init(int argc, char **argv)
 				free(a.mode);
 				a.mode = parse_config_tail(CONF_MODE, line);
 			}
+			else if (!strncmp(CONF_MAC, line, strlen(CONF_MAC)) && isspace((unsigned char)line[strlen(CONF_MAC)]))
+			{
+				free(a.mac);
+				a.mac = parse_config_tail(CONF_MAC, line);
+			}
 			else if (!strncmp(CONF_VERSION, line, strlen(CONF_VERSION)) && isspace((unsigned char)line[strlen(CONF_VERSION)]))
 			{
 				free(a.version);
@@ -157,6 +163,7 @@ end_line:
 			{ "cipher",      required_argument, 0, 'c' },
 			{ "hash",        required_argument, 0, 's' },
 			{ "mode",        required_argument, 0, 'm' },
+			{ "mac",         required_argument, 0, 'a' },
 			{ "key",         required_argument, 0, 'k' },
 			{ "password",    required_argument, 0, 'p' },
 			{ "no-compress", no_argument,       0, 'x' },
@@ -169,7 +176,7 @@ end_line:
 		while (true)
 		{
 			int index = 0;
-			int c = getopt_long(argc, argv, "hvlgc:s:m:k:p:xb:fr", options, &index);
+			int c = getopt_long(argc, argv, "hvlgc:s:m:a:k:p:xb:fr", options, &index);
 			if (c == -1)
 				break;
 			switch (c)
@@ -194,6 +201,10 @@ end_line:
 				case 'm':
 					free(a.mode);
 					a.mode = strdup(optarg);
+					break;
+				case 'a':
+					free(a.mac);
+					a.mac = strdup(optarg);
 					break;
 				case 'k':
 					if (a.key)
@@ -252,6 +263,8 @@ extern void init_deinit(args_t args)
 		free(args.hash);
 	if (args.mode)
 		free(args.mode);
+	if (args.mac)
+		free(args.mac);
 	if (args.key)
 		free(args.key);
 	if (args.password)
@@ -367,6 +380,7 @@ extern void show_help(void)
 		fprintf(stderr, _("  -c, --cipher=<algorithm>     Algorithm to use to encrypt data\n"));
 		fprintf(stderr, _("  -s, --hash=<algorithm>       Hash algorithm to generate key\n"));
 		fprintf(stderr, _("  -m, --mode=<mode>            The encryption mode to use\n"));
+		fprintf(stderr, _("  -a, --mac=<mac>              The MAC algorithm to use\n"));
 	}
 	fprintf(stderr, _("  -k, --key=<key file>         File whose data will be used to generate the key\n"));
 	fprintf(stderr, _("  -p, --password=<password>    Password used to generate the key\n"));

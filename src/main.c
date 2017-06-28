@@ -29,7 +29,6 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include <pthread.h>
 #include <sys/stat.h>
 #include <libgen.h>
 
@@ -62,6 +61,7 @@ extern char *gui_file_hack_output;
 static bool list_ciphers(void);
 static bool list_hashes(void);
 static bool list_modes(void);
+static bool list_macs(void);
 
 int main(int argc, char **argv)
 {
@@ -95,6 +95,8 @@ int main(int argc, char **argv)
 		la = list_hashes();
 	if (args.mode && !strcasecmp(args.mode, "list"))
 		la = list_modes();
+	if (args.mac && !strcasecmp(args.mac, "list"))
+		la = list_macs();
 	if (la)
 		return EXIT_SUCCESS;
 
@@ -115,14 +117,17 @@ int main(int argc, char **argv)
 		char *c = ptr;
 		char *h = ptr;
 		char *m = ptr;
-		if (is_encrypted(args.source, &c, &h, &m))
+		char *a = ptr;
+		if (is_encrypted(args.source, &c, &h, &m, &a))
 		{
 			free(args.cipher);
 			free(args.hash);
 			free(args.mode);
+			free(args.mac);
 			args.cipher = c;
 			args.hash = h;
 			args.mode = m;
+			args.mac = a;
 		}
 		free(ptr);
 	}
@@ -187,6 +192,7 @@ int main(int argc, char **argv)
 			CH_GET_WIDGET(builder, crypto_combo, widgets);
 			CH_GET_WIDGET(builder, hash_combo, widgets);
 			CH_GET_WIDGET(builder, mode_combo, widgets);
+			CH_GET_WIDGET(builder, mac_combo, widgets);
 			CH_GET_WIDGET(builder, password_entry, widgets);
 			CH_GET_WIDGET(builder, key_button, widgets);
 			CH_GET_WIDGET(builder, key_dialog, widgets);
@@ -249,7 +255,7 @@ int main(int argc, char **argv)
 			}
 			file_dialog_okay(NULL, widgets);
 
-			auto_select_algorithms(widgets, args.cipher, args.hash, args.mode);
+			auto_select_algorithms(widgets, args.cipher, args.hash, args.mode, args.mac);
 			set_compatibility_menu(widgets, args.version);
 			set_key_source_menu(widgets, args.key_source);
 
@@ -304,9 +310,9 @@ int main(int argc, char **argv)
 	crypto_t *c;
 
 	if (dude || (args.source && is_encrypted(args.source)))
-		c = decrypt_init(args.source, args.output, args.cipher, args.hash, args.mode, key, length, args.raw);
+		c = decrypt_init(args.source, args.output, args.cipher, args.hash, args.mode, args.mac, key, length, args.raw);
 	else
-		c = encrypt_init(args.source, args.output, args.cipher, args.hash, args.mode, key, length, args.raw, args.compress, args.follow, parse_version(args.version));
+		c = encrypt_init(args.source, args.output, args.cipher, args.hash, args.mode, args.mac, key, length, args.raw, args.compress, args.follow, parse_version(args.version));
 
 	init_deinit(args);
 
@@ -371,6 +377,14 @@ static bool list_hashes(void)
 static bool list_modes(void)
 {
 	const char **l = list_of_modes();
+	for (int i = 0; l[i]; i++)
+		fprintf(stderr, "%s\n", l[i]);
+	return true;
+}
+
+static bool list_macs(void)
+{
+	const char **l = list_of_macs();
 	for (int i = 0; l[i]; i++)
 		fprintf(stderr, "%s\n", l[i]);
 	return true;

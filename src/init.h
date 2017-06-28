@@ -35,6 +35,7 @@
 #define CONF_CIPHER      "cipher"
 #define CONF_HASH        "hash"
 #define CONF_MODE        "mode"
+#define CONF_MAC         "mac"
 #define CONF_VERSION     "version"
 #define CONF_SKIP_HEADER "raw"
 
@@ -70,6 +71,7 @@ typedef struct
 	char *cipher;            /*!< The cryptoraphic cipher selected by the user */
 	char *hash;              /*!< The hash function selected by the user */
 	char *mode;              /*!< The encryption mode selected by the user */
+	char *mac;               /*!< The MAC selected by the user */
 	char *key;               /*!< The key file for key generation */
 	char *password;          /*!< The password for key generation */
 	char *source;            /*!< The input file/stream */
