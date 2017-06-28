@@ -373,7 +373,7 @@ public class FileDialog extends ListActivity {
 		} else {
 			selectedFile = file;
 			v.setSelected(true);
-			v.setBackgroundColor(Color.parseColor(getString(R.color.red)));
+			v.setBackgroundColor(getColor(R.color.red));
 			selectButton.setEnabled(true);
 		}
 	}

@@ -23,6 +23,7 @@ package net.albinoloverats.android.encrypt.lib.crypt;
 import android.content.Intent;
 
 import gnu.crypto.mode.ModeFactory;
+import gnu.crypto.prng.LimitReachedException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -167,7 +168,7 @@ public class Decrypt extends Crypto
 			status = Status.FAILED_UNKNOWN_ALGORITHM;
 			throw new CryptoProcessException(Status.FAILED_UNKNOWN_ALGORITHM, e);
 		}
-		catch (final InvalidKeyException e)
+		catch (final InvalidKeyException | LimitReachedException e)
 		{
 			status = Status.FAILED_OTHER;
 			throw new CryptoProcessException(Status.FAILED_OTHER, e);
