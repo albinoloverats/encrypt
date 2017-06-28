@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.18.3 -->
+<!-- Generated with glade 3.20.0 -->
 <interface>
 	<requires lib="gtk+" version="3.0"/>
 	<object class="GtkDialog" id="abort_dialog">
@@ -118,6 +118,9 @@
 				</child>
 			</object>
 		</child>
+		<child>
+			<placeholder/>
+		</child>
 	</object>
 	<object class="GtkAboutDialog" id="about_dialog">
 		<property name="width_request">320</property>
@@ -134,13 +137,13 @@
 		<property name="skip_taskbar_hint">True</property>
 		<property name="skip_pager_hint">True</property>
 		<property name="program_name">encrypt</property>
-		<property name="version">2015.10</property>
-		<property name="copyright" translatable="yes">Copyright © 2004-2015, albinoloverats ~ Software Development</property>
+		<property name="version">2017.09</property>
+		<property name="copyright" translatable="yes">Copyright © 2004-2017, albinoloverats ~ Software Development</property>
 		<property name="website">https://albinoloverats.net/projects/encrypt</property>
 		<property name="website_label" translatable="yes">https://albinoloverats.net/projects/encrypt</property>
 		<property name="license" translatable="yes">encrypt ~ a cross platform, symetric key, file encryption application
 
-Copyright © 2004-2015, albinoloverats ~ Software Development
+Copyright © 2004-2017, albinoloverats ~ Software Development
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -193,6 +196,9 @@ http://www.everaldo.com/</property>
 					</packing>
 				</child>
 			</object>
+		</child>
+		<child>
+			<placeholder/>
 		</child>
 	</object>
 	<object class="GtkImage" id="done_encrypt">
@@ -328,6 +334,9 @@ processes your file</property>
 					</packing>
 				</child>
 			</object>
+		</child>
+		<child type="titlebar">
+			<placeholder/>
 		</child>
 	</object>
 	<object class="GtkImage" id="encrypt_button_image">
@@ -744,6 +753,28 @@ processes your file</property>
 							</packing>
 						</child>
 						<child>
+							<object class="GtkComboBoxText" id="mac_combo">
+								<property name="width_request">160</property>
+								<property name="height_request">28</property>
+								<property name="visible">True</property>
+								<property name="sensitive">False</property>
+								<property name="can_focus">False</property>
+								<property name="has_tooltip">True</property>
+								<property name="tooltip_markup" translatable="yes">Select Cipher Mode</property>
+								<property name="tooltip_text" translatable="yes">Select Cipher Mode</property>
+								<property name="active">0</property>
+								<items>
+									<item translatable="yes">Select MAC Algorithm</item>
+								</items>
+							</object>
+							<packing>
+								<property name="expand">False</property>
+								<property name="fill">True</property>
+								<property name="padding">4</property>
+								<property name="position">5</property>
+							</packing>
+						</child>
+						<child>
 							<object class="GtkEntry" id="password_entry">
 								<property name="width_request">160</property>
 								<property name="height_request">28</property>
@@ -763,7 +794,7 @@ processes your file</property>
 								<property name="expand">False</property>
 								<property name="fill">True</property>
 								<property name="padding">4</property>
-								<property name="position">5</property>
+								<property name="position">6</property>
 							</packing>
 						</child>
 						<child>
@@ -834,7 +865,7 @@ processes your file</property>
 								<property name="expand">False</property>
 								<property name="fill">True</property>
 								<property name="padding">4</property>
-								<property name="position">6</property>
+								<property name="position">7</property>
 							</packing>
 						</child>
 						<child>
@@ -856,7 +887,7 @@ processes your file</property>
 								<property name="expand">False</property>
 								<property name="fill">True</property>
 								<property name="padding">4</property>
-								<property name="position">7</property>
+								<property name="position">8</property>
 							</packing>
 						</child>
 						<child>
@@ -900,7 +931,7 @@ processes your file</property>
 								<property name="expand">True</property>
 								<property name="fill">True</property>
 								<property name="padding">4</property>
-								<property name="position">8</property>
+								<property name="position">9</property>
 							</packing>
 						</child>
 					</object>
@@ -926,6 +957,9 @@ processes your file</property>
 					</packing>
 				</child>
 			</object>
+		</child>
+		<child type="titlebar">
+			<placeholder/>
 		</child>
 	</object>
 	<object class="GtkFileChooserDialog" id="key_dialog">
@@ -1006,6 +1040,9 @@ processes your file</property>
 			<action-widget response="0">key_dialog_cancel</action-widget>
 			<action-widget response="0">key_dialog_okay</action-widget>
 		</action-widgets>
+		<child>
+			<placeholder/>
+		</child>
 	</object>
 	<object class="GtkFileChooserDialog" id="open_dialog">
 		<property name="width_request">640</property>
@@ -1085,6 +1122,9 @@ processes your file</property>
 			<action-widget response="0">open_dialog_cancel</action-widget>
 			<action-widget response="0">open_dialog_okay</action-widget>
 		</action-widgets>
+		<child>
+			<placeholder/>
+		</child>
 	</object>
 	<object class="GtkFileChooserDialog" id="save_dialog">
 		<property name="width_request">640</property>
@@ -1165,5 +1205,8 @@ processes your file</property>
 			<action-widget response="0">save_dialog_cancel</action-widget>
 			<action-widget response="0">save_dialog_okay</action-widget>
 		</action-widgets>
+		<child>
+			<placeholder/>
+		</child>
 	</object>
 </interface>

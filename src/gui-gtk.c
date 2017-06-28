@@ -76,7 +76,7 @@ static key_source_e _key_source = KEY_SOURCE_PASSWORD;
 static version_e _version = VERSION_CURRENT;
 static crypto_status_e *_status = NULL;
 
-extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash, char *mode)
+extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash, char *mode, char *mac)
 {
 	/*
 	 * ciphers
@@ -123,6 +123,21 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 		gtk_combo_box_text_append_text((GtkComboBoxText *)data->mode_combo, modes[i]);
 	}
 	gtk_combo_box_set_active((GtkComboBox *)data->mode_combo, slctd_mode);
+
+	/*
+	 * MACs
+	 */
+	const char **macs = list_of_macs();
+	unsigned slctd_mac = 0;
+	gtk_combo_box_text_remove_all((GtkComboBoxText *)data->mac_combo);
+	gtk_combo_box_text_append_text((GtkComboBoxText *)data->mac_combo, SELECT_MAC);
+	for (unsigned i = 0; macs[i]; i++)
+	{
+		if (hash && !strcasecmp(macs[i], mac))
+			slctd_mac = i + 1;
+		gtk_combo_box_text_append_text((GtkComboBoxText *)data->mac_combo, macs[i]);
+	}
+	gtk_combo_box_set_active((GtkComboBox *)data->mac_combo, slctd_mac);
 
 	return;
 }
@@ -213,6 +228,7 @@ G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *d
 				gtk_widget_set_sensitive(data->crypto_combo, FALSE);
 				gtk_widget_set_sensitive(data->hash_combo, FALSE);
 				gtk_widget_set_sensitive(data->mode_combo, FALSE);
+				gtk_widget_set_sensitive(data->mac_combo, FALSE);
 				gtk_widget_set_sensitive(data->key_button, FALSE);
 			}
 			gtk_widget_set_sensitive(data->encrypt_button, FALSE);
@@ -270,12 +286,16 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
 			char *c = ptr;
 			char *h = ptr;
 			char *m = ptr;
-			if ((_encrypted = is_encrypted(open_file, &c, &h, &m)))
-				auto_select_algorithms(data, c, h, m);
+			char *a = ptr;
+			if ((_encrypted = is_encrypted(open_file, &c, &h, &m, &a)))
+			{
+				auto_select_algorithms(data, c, h, m, a);
+				free(c);
+				free(h);
+				free(m);
+				free(a);
+			}
 			free(ptr);
-			free(c);
-			free(h);
-			free(m);
 			gtk_button_set_label((GtkButton *)data->encrypt_button, _encrypted ? LABEL_DECRYPT : LABEL_ENCRYPT);
 			en = TRUE;
 			if (cwd)
@@ -326,6 +346,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
 		gtk_widget_set_sensitive(data->crypto_combo, FALSE);
 		gtk_widget_set_sensitive(data->hash_combo, FALSE);
 		gtk_widget_set_sensitive(data->mode_combo, FALSE);
+		gtk_widget_set_sensitive(data->mac_combo, FALSE);
 		gtk_widget_set_sensitive(data->password_entry, en);
 		gtk_widget_set_sensitive(data->key_button, en);
 	}
@@ -334,6 +355,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
 		gtk_widget_set_sensitive(data->crypto_combo, en);
 		gtk_widget_set_sensitive(data->hash_combo, en);
 		gtk_widget_set_sensitive(data->mode_combo, en);
+		gtk_widget_set_sensitive(data->mac_combo, en);
 		if (en)
 			algorithm_combo_callback(NULL, data);
 	}
@@ -346,6 +368,7 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_wi
 	int cipher = gtk_combo_box_get_active((GtkComboBox *)data->crypto_combo);
 	int hash = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
 	int mode = gtk_combo_box_get_active((GtkComboBox *)data->mode_combo);
+	int mac = gtk_combo_box_get_active((GtkComboBox *)data->mac_combo);
 
 	gboolean en = _files;
 
@@ -354,6 +377,7 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_wi
 		const char **ciphers = list_of_ciphers();
 		const char **hashes = list_of_hashes();
 		const char **modes = list_of_modes();
+		const char **macs = list_of_macs();
 
 		if (cipher > 0)
 			update_config(CONF_CIPHER, ciphers[cipher - 1]);
@@ -361,6 +385,8 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_wi
 			update_config(CONF_HASH, hashes[hash - 1]);
 		if (mode > 0)
 			update_config(CONF_MODE, modes[mode - 1]);
+		if (mac > 0)
+			update_config(CONF_MAC, macs[mac - 1]);
 
 	}
 	else
@@ -617,15 +643,17 @@ static void *gui_process(void *d)
 	int c = gtk_combo_box_get_active((GtkComboBox *)data->crypto_combo);
 	int h = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
 	int m = gtk_combo_box_get_active((GtkComboBox *)data->mode_combo);
+	int a = gtk_combo_box_get_active((GtkComboBox *)data->mac_combo);
 	const char **ciphers = list_of_ciphers();
 	const char **hashes = list_of_hashes();
 	const char **modes = list_of_modes();
+	const char **macs = list_of_macs();
 
 	crypto_t *x;
 	if (_encrypted)
-		x = decrypt_init(source, output, ciphers[c - 1], hashes[h - 1], modes[m - 1], key, length, _raw);
+		x = decrypt_init(source, output, ciphers[c - 1], hashes[h - 1], modes[m - 1], macs[a - 1], key, length, _raw);
 	else
-		x = encrypt_init(source, output, ciphers[c - 1], hashes[h - 1], modes[m - 1], key, length, _raw, _compress, _follow, _version);
+		x = encrypt_init(source, output, ciphers[c - 1], hashes[h - 1], modes[m - 1], macs[a - 1], key, length, _raw, _compress, _follow, _version);
 
 	_status = &x->status;
 

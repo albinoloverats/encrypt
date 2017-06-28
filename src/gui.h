@@ -29,6 +29,7 @@
 #define SELECT_CIPHER "Select Cipher Algorithm"
 #define SELECT_HASH "Select Hash Algorithm"
 #define SELECT_MODE "Select Cipher Mode"
+#define SELECT_MAC "Select MAC Algorithm"
 
 extern char *gui_file_hack_source;
 extern char *gui_file_hack_output;

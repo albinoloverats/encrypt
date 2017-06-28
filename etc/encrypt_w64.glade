@@ -2,6 +2,126 @@
 <!-- Copied with a few minor tweaks from the Linux Glade file -->
 <interface>
 	<requires lib="gtk+" version="3.0"/>
+	<object class="GtkDialog" id="abort_dialog">
+		<property name="width_request">128</property>
+		<property name="height_request">128</property>
+		<property name="can_focus">False</property>
+		<property name="border_width">8</property>
+		<property name="title" translatable="yes">Fatal Error!</property>
+		<property name="resizable">False</property>
+		<property name="window_position">center-on-parent</property>
+		<property name="default_width">160</property>
+		<property name="default_height">160</property>
+		<property name="icon_name">dialog-error</property>
+		<property name="type_hint">dialog</property>
+		<property name="skip_taskbar_hint">True</property>
+		<property name="skip_pager_hint">True</property>
+		<property name="deletable">False</property>
+		<property name="gravity">center</property>
+		<child internal-child="vbox">
+			<object class="GtkBox" id="abort_dialog-vbox">
+				<property name="can_focus">False</property>
+				<property name="orientation">vertical</property>
+				<property name="spacing">2</property>
+				<child internal-child="action_area">
+					<object class="GtkButtonBox" id="dialog-action_area1">
+						<property name="can_focus">False</property>
+						<property name="halign">center</property>
+						<property name="valign">center</property>
+						<property name="hexpand">True</property>
+						<property name="layout_style">center</property>
+						<child>
+							<object class="GtkButton" id="abort_button">
+								<property name="label">gtk-close</property>
+								<property name="visible">True</property>
+								<property name="can_focus">True</property>
+								<property name="receives_default">True</property>
+								<property name="halign">center</property>
+								<property name="valign">center</property>
+								<property name="use_stock">True</property>
+								<property name="always_show_image">True</property>
+								<signal name="clicked" handler="error_gui_close" swapped="no"/>
+							</object>
+							<packing>
+								<property name="expand">False</property>
+								<property name="fill">False</property>
+								<property name="position">0</property>
+							</packing>
+						</child>
+					</object>
+					<packing>
+						<property name="expand">False</property>
+						<property name="fill">False</property>
+						<property name="position">1</property>
+					</packing>
+				</child>
+				<child>
+					<object class="GtkBox" id="box4">
+						<property name="visible">True</property>
+						<property name="can_focus">False</property>
+						<property name="orientation">vertical</property>
+						<property name="homogeneous">True</property>
+						<child>
+							<object class="GtkImage" id="abort_image">
+								<property name="visible">True</property>
+								<property name="can_focus">False</property>
+								<property name="halign">center</property>
+								<property name="valign">start</property>
+								<property name="stock">gtk-dialog-error</property>
+								<property name="icon_size">6</property>
+							</object>
+							<packing>
+								<property name="expand">False</property>
+								<property name="fill">False</property>
+								<property name="position">0</property>
+							</packing>
+						</child>
+						<child>
+							<object class="GtkLabel" id="abort_label">
+								<property name="visible">True</property>
+								<property name="can_focus">False</property>
+								<property name="halign">center</property>
+								<property name="valign">center</property>
+								<property name="label" translatable="yes">A fatal error has occurred; encrypt will now close</property>
+								<property name="justify">center</property>
+								<attributes>
+									<attribute name="weight" value="bold"/>
+								</attributes>
+							</object>
+							<packing>
+								<property name="expand">False</property>
+								<property name="fill">False</property>
+								<property name="position">1</property>
+							</packing>
+						</child>
+						<child>
+							<object class="GtkLabel" id="abort_message">
+								<property name="visible">True</property>
+								<property name="can_focus">False</property>
+								<property name="halign">center</property>
+								<property name="valign">center</property>
+								<property name="justify">center</property>
+								<property name="wrap">True</property>
+							</object>
+							<packing>
+								<property name="expand">False</property>
+								<property name="fill">False</property>
+								<property name="position">2</property>
+							</packing>
+						</child>
+					</object>
+					<packing>
+						<property name="expand">False</property>
+						<property name="fill">True</property>
+						<property name="position">0</property>
+					</packing>
+				</child>
+			</object>
+		</child>
+		<child>
+			<placeholder/>
+		</child>
+	</object>
 	<object class="GtkAboutDialog" id="about_dialog">
 		<property name="width_request">380</property>
 		<property name="height_request">280</property>
@@ -16,15 +136,14 @@
 		<property name="type_hint">dialog</property>
 		<property name="skip_taskbar_hint">True</property>
 		<property name="skip_pager_hint">True</property>
-		<property name="has_resize_grip">False</property>
 		<property name="program_name">encrypt</property>
-		<property name="version">2015.10</property>
-		<property name="copyright" translatable="yes">Copyright © 2004-2015, albinoloverats ~ Software Development</property>
+		<property name="version">2017.09</property>
+		<property name="copyright" translatable="yes">Copyright © 2004-2017, albinoloverats ~ Software Development</property>
 		<property name="website">https://albinoloverats.net/projects/encrypt</property>
 		<property name="website_label" translatable="yes">https://albinoloverats.net/projects/encrypt</property>
 		<property name="license" translatable="yes">encrypt ~ a cross platform, symetric key, file encryption application
 
-Copyright © 2004-2015, albinoloverats ~ Software Development
+Copyright © 2004-2017, albinoloverats ~ Software Development
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -78,6 +197,9 @@ http://www.everaldo.com/</property>
 				</child>
 			</object>
 		</child>
+		<child>
+			<placeholder/>
+		</child>
 	</object>
 	<object class="GtkImage" id="done_encrypt">
 		<property name="visible">True</property>
@@ -101,7 +223,6 @@ http://www.everaldo.com/</property>
 		<property name="skip_pager_hint">True</property>
 		<property name="deletable">False</property>
 		<property name="gravity">center</property>
-		<property name="has_resize_grip">False</property>
 		<child>
 			<object class="GtkBox" id="progress_dialog_vbox">
 				<property name="visible">True</property>
@@ -214,6 +335,9 @@ processes your file</property>
 				</child>
 			</object>
 		</child>
+		<child type="titlebar">
+			<placeholder/>
+		</child>
 	</object>
 	<object class="GtkImage" id="encrypt_button_image">
 		<property name="visible">True</property>
@@ -230,7 +354,6 @@ processes your file</property>
 		<property name="default_height">480</property>
 		<property name="icon">C:\\Program Files (x86)\\encrypt\\pixmaps\\encrypt.png</property>
 		<property name="gravity">center</property>
-		<property name="has_resize_grip">False</property>
 		<signal name="destroy" handler="gtk_main_quit" swapped="no"/>
 		<child>
 			<object class="GtkBox" id="outer_box">
@@ -291,7 +414,6 @@ processes your file</property>
 												<property name="visible">True</property>
 												<property name="can_focus">False</property>
 												<property name="label">_Follow Symlinks</property>
-												<property name="sensitive">False</property>
 												<property name="use_underline">True</property>
 												<signal name="toggled" handler="on_follow_toggle" swapped="no"/>
 											</object>
@@ -414,6 +536,7 @@ processes your file</property>
 						<property name="valign">center</property>
 						<property name="border_width">88</property>
 						<property name="orientation">vertical</property>
+						<property name="homogeneous">True</property>
 						<child>
 							<object class="GtkButton" id="open_button">
 								<property name="width_request">160</property>
@@ -630,6 +753,28 @@ processes your file</property>
 							</packing>
 						</child>
 						<child>
+							<object class="GtkComboBoxText" id="mac_combo">
+								<property name="width_request">160</property>
+								<property name="height_request">32</property>
+								<property name="visible">True</property>
+								<property name="sensitive">False</property>
+								<property name="can_focus">False</property>
+								<property name="has_tooltip">True</property>
+								<property name="tooltip_markup" translatable="yes">Select Cipher Mode</property>
+								<property name="tooltip_text" translatable="yes">Select Cipher Mode</property>
+								<property name="active">0</property>
+								<items>
+									<item translatable="yes">Select MAC Algorithm</item>
+								</items>
+							</object>
+							<packing>
+								<property name="expand">False</property>
+								<property name="fill">True</property>
+								<property name="padding">4</property>
+								<property name="position">5</property>
+							</packing>
+						</child>
+						<child>
 							<object class="GtkEntry" id="password_entry">
 								<property name="width_request">160</property>
 								<property name="height_request">32</property>
@@ -649,7 +794,7 @@ processes your file</property>
 								<property name="expand">False</property>
 								<property name="fill">True</property>
 								<property name="padding">4</property>
-								<property name="position">5</property>
+								<property name="position">6</property>
 							</packing>
 						</child>
 						<child>
@@ -720,7 +865,7 @@ processes your file</property>
 								<property name="expand">False</property>
 								<property name="fill">True</property>
 								<property name="padding">4</property>
-								<property name="position">6</property>
+								<property name="position">7</property>
 							</packing>
 						</child>
 						<child>
@@ -742,7 +887,7 @@ processes your file</property>
 								<property name="expand">False</property>
 								<property name="fill">True</property>
 								<property name="padding">4</property>
-								<property name="position">7</property>
+								<property name="position">8</property>
 							</packing>
 						</child>
 						<child>
@@ -785,8 +930,8 @@ processes your file</property>
 							<packing>
 								<property name="expand">True</property>
 								<property name="fill">True</property>
-								<property name="position">8</property>
 								<property name="padding">4</property>
+								<property name="position">9</property>
 							</packing>
 						</child>
 					</object>
@@ -812,6 +957,9 @@ processes your file</property>
 					</packing>
 				</child>
 			</object>
+		</child>
+		<child type="titlebar">
+			<placeholder/>
 		</child>
 	</object>
 	<object class="GtkFileChooserDialog" id="key_dialog">
@@ -892,6 +1040,9 @@ processes your file</property>
 			<action-widget response="0">key_dialog_cancel</action-widget>
 			<action-widget response="0">key_dialog_okay</action-widget>
 		</action-widgets>
+		<child>
+			<placeholder/>
+		</child>
 	</object>
 	<object class="GtkFileChooserDialog" id="open_dialog">
 		<property name="width_request">640</property>
@@ -971,6 +1122,9 @@ processes your file</property>
 			<action-widget response="0">open_dialog_cancel</action-widget>
 			<action-widget response="0">open_dialog_okay</action-widget>
 		</action-widgets>
+		<child>
+			<placeholder/>
+		</child>
 	</object>
 	<object class="GtkFileChooserDialog" id="save_dialog">
 		<property name="width_request">640</property>
@@ -1051,5 +1205,8 @@ processes your file</property>
 			<action-widget response="0">save_dialog_cancel</action-widget>
 			<action-widget response="0">save_dialog_okay</action-widget>
 		</action-widgets>
+		<child>
+			<placeholder/>
+		</child>
 	</object>
 </interface>
