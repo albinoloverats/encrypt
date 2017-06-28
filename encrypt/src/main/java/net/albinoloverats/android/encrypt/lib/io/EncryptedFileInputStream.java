@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS) encryption utility
- * Copyright © 2005-2015, albinoloverats ~ Software Development
+ * Copyright © 2005-2017, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,7 +28,6 @@ import gnu.crypto.mode.ModeFactory;
 import gnu.crypto.prng.IPBE;
 import gnu.crypto.prng.LimitReachedException;
 import gnu.crypto.prng.PBKDF2;
-import gnu.crypto.util.PRNG;
 
 import java.io.File;
 import java.io.FileInputStream;

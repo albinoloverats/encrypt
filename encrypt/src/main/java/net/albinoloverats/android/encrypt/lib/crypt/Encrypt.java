@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS) encryption utility
- * Copyright © 2005-2015, albinoloverats ~ Software Development
+ * Copyright © 2005-2017, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -37,6 +37,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 import gnu.crypto.mode.ModeFactory;
+import gnu.crypto.prng.LimitReachedException;
 import gnu.crypto.util.PRNG;
 
 /*
@@ -221,7 +222,7 @@ public class Encrypt extends Crypto
 			status = Status.FAILED_UNKNOWN_ALGORITHM;
 			throw new CryptoProcessException(Status.FAILED_UNKNOWN_ALGORITHM, e);
 		}
-		catch (final InvalidKeyException e)
+		catch (final InvalidKeyException | LimitReachedException e)
 		{
 			status = Status.FAILED_OTHER;
 			throw new CryptoProcessException(Status.FAILED_OTHER, e);

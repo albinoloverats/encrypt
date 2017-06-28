@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS) encryption utility
- * Copyright © 2005-2015, albinoloverats ~ Software Development
+ * Copyright © 2005-2017, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -182,6 +182,11 @@ public class Decrypt extends Crypto
 		{
 			status = Status.FAILED_IO;
 			throw new CryptoProcessException(Status.FAILED_IO, e);
+		}
+		catch (final Throwable t)
+		{
+			status = Status.FAILED_OTHER;
+			throw new CryptoProcessException(Status.FAILED_OTHER, t);
 		}
 		finally
 		{
