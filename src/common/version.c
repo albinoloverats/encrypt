@@ -64,15 +64,18 @@ version_check_t;
 
 extern void version_check_for_update(char *current_version, char *check_url, char *download_url)
 {
+	version_check_t info = { current_version, check_url, download_url };
+#ifndef __DEBUG__
 	pthread_t vt;
 	pthread_attr_t a;
 	pthread_attr_init(&a);
 	pthread_attr_setdetachstate(&a, PTHREAD_CREATE_DETACHED);
 
-	version_check_t info = { current_version, check_url, download_url };
-
 	pthread_create(&vt, &a, version_check, &info);
 	pthread_attr_destroy(&a);
+#else
+	version_check(&info);
+#endif
 	return;
 }
 
@@ -128,7 +131,11 @@ static void *version_check(void *n)
 		}
 		free(update);
 	}
+#ifndef __DEBUG__
 	pthread_exit(NULL);
+#else
+	return NULL;
+#endif
 }
 
 static void version_install_latest(char *u)
