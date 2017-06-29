@@ -216,12 +216,12 @@ public class Decrypt extends Crypto
 		hash = a.substring(a.indexOf('/') + 1);
 		if (hash.contains("/"))
 		{
-			hash = hash.substring(0, hash.indexOf('/'));
 			mode = hash.substring(hash.indexOf('/') + 1);
+			hash = hash.substring(0, hash.indexOf('/'));
 			if (mode.contains("/"))
 			{
-				mode = mode.substring(0, mode.indexOf('/'));
 				mac = mode.substring(mode.indexOf('/') + 1);
+				mode = mode.substring(0, mode.indexOf('/'));
 			}
 		}
 		else
