@@ -73,7 +73,7 @@ public class EncryptedFileOutputStream extends FileOutputStream
 		eccFileOutputStream = new ECCFileOutputStream(file);
 	}
 
-	public IMessageDigest initialiseEncryption(final String c, final String h, final String m, String a, final byte[] k, final XIV ivType, final boolean fakeKDF) throws NoSuchAlgorithmException, InvalidKeyException, LimitReachedException, IOException
+	public IMessageDigest initialiseEncryption(final String c, final String h, final String m, String a, final byte[] k, final XIV ivType, final boolean useKDF) throws NoSuchAlgorithmException, InvalidKeyException, LimitReachedException, IOException
 	{
 		final IMessageDigest hash = CryptoUtils.getHashAlgorithm(h);
 		final IBlockCipher cipher = CryptoUtils.getCipherAlgorithm(c);
@@ -89,23 +89,22 @@ public class EncryptedFileOutputStream extends FileOutputStream
 		final int saltLength = keyLength;
 		final byte[] salt = new byte[saltLength];
 
-		if (fakeKDF)
-			System.arraycopy(keySource, 0, key, 0, keyLength < keySource.length ? keyLength : keySource.length);
-		else
+		if (useKDF)
 		{
 			PRNG.nextBytes(salt);
 			eccFileOutputStream.write(salt);
-			final char[] ks = new char[keySource.length];
-			for (int i = 0; i < ks.length; i++)
-				ks[i] = (char)keySource[i];
+
 			PBKDF2 keyGen = new PBKDF2(mac);
 			Map<String, Object> attr = new HashMap<>();
-			attr.put(IPBE.PASSWORD, ks);
+			attr.put(IMac.MAC_KEY_MATERIAL, keySource);
 			attr.put(IPBE.SALT, salt);
 			attr.put(IPBE.ITERATION_COUNT, PBKDF2_ITERATIONS);
 			keyGen.init(attr);
 			keyGen.nextBytes(key);
 		}
+		else
+			System.arraycopy(keySource, 0, key, 0, keyLength < keySource.length ? keyLength : keySource.length);
+
 		attributes.put(IBlockCipher.KEY_MATERIAL, key);
 		attributes.put(IBlockCipher.CIPHER_BLOCK_SIZE, blockSize);
 		attributes.put(IMode.STATE, IMode.ENCRYPTION);
