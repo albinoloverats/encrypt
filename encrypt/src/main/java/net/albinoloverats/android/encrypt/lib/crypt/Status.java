@@ -33,7 +33,7 @@ public enum Status
 	FAILED_INIT("Failed: Invalid initialisation parameters!"),
 	FAILED_UNKNOWN_VERSION("Failed: Unsupported version!"),
 	FAILED_UNKNOWN_ALGORITHM("Failed: Unsupported algorithm!"),
-	FAILED_DECRYPTION("Failed: Decryption failure!\\n(Invalid password)"),
+	FAILED_DECRYPTION("Failed: Decryption failure!\n(Invalid password)"),
 	FAILED_UNKNOWN_TAG("Failed: Unsupported feature!"),
 	FAILED_IO("Failed: Read/Write error!"),
 	FAILED_KEY("Failed: Key generation error!"),
@@ -41,7 +41,7 @@ public enum Status
 	FAILED_COMPRESSION_ERROR("Failed: Compression Error!"),
 	FAILED_OTHER("Failed An unknown error has occurred!"),
 	/* warnings - decryption finished but with possible errors */
-	WARNING_CHECKSUM("Warning: Bad checksum!\\n(Possible data corruption)"),
+	WARNING_CHECKSUM("Warning: Bad checksum!\n(Possible data corruption)"),
 	WARNING_LINK("Warning: Could not extract all files!\n(Links are unsupported");
 
 	final public String message;
