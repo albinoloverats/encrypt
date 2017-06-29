@@ -36,7 +36,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -70,9 +69,6 @@ import net.albinoloverats.android.encrypt.lib.crypt.Version;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Set;
-
-import static android.content.pm.PackageManager.PERMISSION_DENIED;
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 public class Main extends Activity
 {
