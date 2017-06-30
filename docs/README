@@ -50,6 +50,7 @@ Changelog
 
 * Android
   - Fix permission handling
+  - TODO NullPointerException after exit
 
 
 TODO

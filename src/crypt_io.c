@@ -256,11 +256,6 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 		}
 		else
 			io_read(ptr, salt, salt_length);
-		/*
-		 * use key derivation function instead of just a hash; fixed
-		 * at the moment, maybe in a later release GCRY_KDF_SCRYPT
-		 * might be possible along with number of iterations
-		 */
 		gcry_kdf_derive(hash, hash_length, GCRY_KDF_PBKDF2, h, salt, salt_length, KEY_ITERATIONS, key_length, key);
 	}
 	else

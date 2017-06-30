@@ -11,7 +11,7 @@ CFLAGS  += -Wall -Wextra -std=gnu99 `libgcrypt-config --cflags` -pipe -O2
 CPPFLAGS = -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DGIT_COMMIT=\"`git log | head -n1 | cut -f2 -d' '`\"
 GUIFLAGS = -DBUILD_GUI `pkg-config --cflags gtk+-3.0 gmodule-2.0`
 
-DEBUG    = -O0 -ggdb -D__DEBUG__ -D__DEBUG_GUI__
+DEBUG    = -O0 -ggdb -D__DEBUG__ -D__DEBUG_GUI__ -DMALLOC_CHECK_=1
 
 LIBS     = `libgcrypt-config --libs` -lpthread -lcurl -llzma
 GUILIBS  = `pkg-config --libs gtk+-3.0 gmodule-2.0`
