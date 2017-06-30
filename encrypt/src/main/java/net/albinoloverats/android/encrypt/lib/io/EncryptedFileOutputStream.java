@@ -22,6 +22,7 @@ package net.albinoloverats.android.encrypt.lib.io;
 
 import gnu.crypto.cipher.IBlockCipher;
 import gnu.crypto.hash.IMessageDigest;
+import gnu.crypto.mac.HMac;
 import gnu.crypto.mac.IMac;
 import gnu.crypto.mode.IMode;
 import gnu.crypto.mode.ModeFactory;
@@ -51,7 +52,6 @@ public class EncryptedFileOutputStream extends FileOutputStream
 	private final ECCFileOutputStream eccFileOutputStream;
 
 	private IMode cipher;
-	private IMac mac;
 
 	private byte[] buffer = null;
 	private int blockSize = 0;
@@ -73,38 +73,42 @@ public class EncryptedFileOutputStream extends FileOutputStream
 		eccFileOutputStream = new ECCFileOutputStream(file);
 	}
 
-	public IMessageDigest initialiseEncryption(final String c, final String h, final String m, String a, final byte[] k, final XIV ivType, final boolean useKDF) throws NoSuchAlgorithmException, InvalidKeyException, LimitReachedException, IOException
+	public HashMAC initialiseEncryption(final String c, final String h, final String m, String a, final byte[] k, final XIV ivType, final boolean useKDF) throws NoSuchAlgorithmException, InvalidKeyException, LimitReachedException, IOException
 	{
 		final IMessageDigest hash = CryptoUtils.getHashAlgorithm(h);
 		final IBlockCipher cipher = CryptoUtils.getCipherAlgorithm(c);
-		mac = CryptoUtils.getMacAlgorithm(a);
+		final HMac mac = CryptoUtils.getMacAlgorithm(a);
+
 		blockSize = cipher.defaultBlockSize();
 		this.cipher = ModeFactory.getInstance(m, cipher, blockSize);
 		hash.update(k, 0, k.length);
 		final byte[] keySource = hash.digest();
-		final Map<String, Object> attributes = new HashMap<>();
-		final int keyLength = CryptoUtils.getCipherAlgorithmKeySize(c) / Byte.SIZE;
+		Map<String, Object> attributes;
+		int keyLength = CryptoUtils.getCipherAlgorithmKeySize(c) / Byte.SIZE;
 		byte[] key = new byte[keyLength];
 
 		final int saltLength = keyLength;
 		final byte[] salt = new byte[saltLength];
+
+		final IMac keyMac = CryptoUtils.getMacAlgorithm(CryptoUtils.hmacFromHash(h));
 
 		if (useKDF)
 		{
 			PRNG.nextBytes(salt);
 			eccFileOutputStream.write(salt);
 
-			PBKDF2 keyGen = new PBKDF2(mac);
-			Map<String, Object> attr = new HashMap<>();
-			attr.put(IMac.MAC_KEY_MATERIAL, keySource);
-			attr.put(IPBE.SALT, salt);
-			attr.put(IPBE.ITERATION_COUNT, PBKDF2_ITERATIONS);
-			keyGen.init(attr);
+			PBKDF2 keyGen = new PBKDF2(keyMac);
+			attributes = new HashMap<>();
+			attributes.put(IMac.MAC_KEY_MATERIAL, keySource);
+			attributes.put(IPBE.SALT, salt);
+			attributes.put(IPBE.ITERATION_COUNT, PBKDF2_ITERATIONS);
+			keyGen.init(attributes);
 			keyGen.nextBytes(key);
 		}
 		else
 			System.arraycopy(keySource, 0, key, 0, keyLength < keySource.length ? keyLength : keySource.length);
 
+		attributes = new HashMap<>();
 		attributes.put(IBlockCipher.KEY_MATERIAL, key);
 		attributes.put(IBlockCipher.CIPHER_BLOCK_SIZE, blockSize);
 		attributes.put(IMode.STATE, IMode.ENCRYPTION);
@@ -125,7 +129,21 @@ public class EncryptedFileOutputStream extends FileOutputStream
 		attributes.put(IMode.IV, iv);
 		this.cipher.init(attributes);
 		buffer = new byte[blockSize];
-		return hash;
+
+		final int macLength = CryptoUtils.getHashAlgorithm(CryptoUtils.hashFromHmac(a)).blockSize();
+		key = new byte[macLength];
+		PBKDF2 keyGen = new PBKDF2(keyMac);
+		attributes = new HashMap<>();
+		attributes.put(IMac.MAC_KEY_MATERIAL, keySource);
+		attributes.put(IPBE.SALT, salt);
+		attributes.put(IPBE.ITERATION_COUNT, PBKDF2_ITERATIONS);
+		keyGen.init(attributes);
+		keyGen.nextBytes(key);
+		attributes = new HashMap<>();
+		attributes.put(IMac.MAC_KEY_MATERIAL, key);
+		mac.init(attributes);
+
+		return new HashMAC(hash, mac);
 	}
 
 	public void initaliseECC()

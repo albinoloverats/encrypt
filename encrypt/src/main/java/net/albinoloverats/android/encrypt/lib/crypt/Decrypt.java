@@ -113,7 +113,7 @@ public class Decrypt extends Crypto
 				default:
 			}
 
-			checksum = ((EncryptedFileInputStream)source).initialiseDecryption(cipher, hash, mode, mac, key, ivType, useMAC);
+			verification = ((EncryptedFileInputStream)source).initialiseDecryption(cipher, hash, mode, mac, key, ivType, useMAC);
 
 			if (!raw)
 			{
@@ -128,7 +128,7 @@ public class Decrypt extends Crypto
 
 			source = compressed ? new XZInputStream(source) : source;
 
-			checksum.reset();
+			verification.hash.reset();
 
 			if (directory)
 				decryptDirectory(path);
@@ -144,15 +144,21 @@ public class Decrypt extends Crypto
 
 			if (version != Version._201108 && !raw)
 			{
-				final byte[] check = new byte[checksum.hashSize()];
+				final byte[] check = new byte[verification.hash.hashSize()];
 				int err = source.read(check);
-				final byte[] digest = checksum.digest();
+				verification.mac.update(check, 0, check.length);
+				final byte[] digest = verification.hash.digest();
 				if (err < 0 || !Arrays.equals(check, digest))
 					status = Status.WARNING_CHECKSUM;
+				skipRandomData(true);
 			}
 			if (useMAC)
 			{
-				/* TODO */;
+				final byte[] check = new byte[verification.mac.macSize()];
+				int err = source.read(check);
+				final byte[] digest = verification.mac.digest();
+				if (err < 0 || !Arrays.equals(check, digest))
+					status = Status.WARNING_CHECKSUM;
 			}
 
 			if (status == Status.RUNNING)
@@ -301,8 +307,18 @@ public class Decrypt extends Crypto
 
 	private void skipRandomData() throws IOException
 	{
+		skipRandomData(false);
+	}
+
+	private void skipRandomData(final boolean h) throws IOException
+	{
 		final byte[] b = new byte[source.read()];
 		source.read(b);
+		if (h)
+		{
+			verification.hash.update(b);
+			verification.mac.update(b, 0, b.length);
+		}
 	}
 
 	private void decryptDirectory(final String dir) throws CryptoProcessException, IOException
@@ -394,7 +410,8 @@ public class Decrypt extends Crypto
 				buffer = new byte[r];
 				System.arraycopy(tmp, 0, buffer, 0, r);
 			}
-			checksum.update(buffer, 0, r);
+			verification.hash.update(buffer, 0, r);
+			verification.mac.update(buffer, 0, r);
 			output.write(buffer);
 			current.offset += r;
 		}
@@ -421,7 +438,8 @@ public class Decrypt extends Crypto
 	private int readAndHash(final byte[] b, final int l) throws IOException
 	{
 		final int r = source.read(b, 0, l);
-		checksum.update(b, 0, l);
+		verification.hash.update(b, 0, l);
+		verification.mac.update(b, 0, l);
 		return r;
 	}
 }

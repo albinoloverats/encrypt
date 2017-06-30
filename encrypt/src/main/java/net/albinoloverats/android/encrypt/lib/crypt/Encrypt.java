@@ -163,7 +163,7 @@ public class Encrypt extends Crypto
 			if (version.compareTo(Version._201709) < 0)
 				useMAC = false;
 			/* we can use useMAC to indicate whether to use a proper key derivation function */
-			checksum = ((EncryptedFileOutputStream)output).initialiseEncryption(cipher, hash, mode, mac, key, ivType, useMAC);
+			verification = ((EncryptedFileOutputStream)output).initialiseEncryption(cipher, hash, mode, mac, key, ivType, useMAC);
 
 			if (!raw)
 			{
@@ -181,7 +181,7 @@ public class Encrypt extends Crypto
 			opts.setDictSize(LZMA2Options.DICT_SIZE_MIN); // default dictionary size is 8MiB which is too large (on older devices)
 			output = compressed ? new XZOutputStream(output, opts) : output;
 
-			checksum.reset();
+			verification.hash.reset();
 
 			if (directory)
 			{
@@ -206,12 +206,13 @@ public class Encrypt extends Crypto
 
 			if (!raw)
 			{
-				output.write(checksum.digest());
-				writeRandomData();
+				hashAndWrite(verification.hash.digest());
+				writeRandomData(true);
 			}
 			if (useMAC)
 			{
-				/* TODO */;
+				byte[] m = verification.mac.digest();
+				output.write(m);
 			}
 
 			if (status == Status.RUNNING)
@@ -309,13 +310,26 @@ public class Encrypt extends Crypto
 
 	private void writeRandomData() throws IOException
 	{
+		writeRandomData(false);
+	}
+
+	private void writeRandomData(final boolean h) throws IOException
+	{
 		byte[] buffer = new byte[Short.SIZE / Byte.SIZE];
 		PRNG.nextBytes(buffer);
 		final short sr = (short)(Convert.shortFromBytes(buffer) & 0x00FF);
 		buffer = new byte[sr];
 		PRNG.nextBytes(buffer);
-		output.write(Convert.toBytes((byte)sr));
-		output.write(buffer);
+		if (h)
+		{
+			hashAndWrite(Convert.toBytes((byte)sr));
+			hashAndWrite(buffer);
+		}
+		else
+		{
+			output.write(Convert.toBytes((byte)sr));
+			output.write(buffer);
+		}
 	}
 
 	private int countEntries(final String dir) throws IOException
@@ -440,6 +454,7 @@ public class Encrypt extends Crypto
 	private void hashAndWrite(final byte[] b, final int l) throws IOException
 	{
 		output.write(b, 0, l);
-		checksum.update(b, 0, l);
+		verification.hash.update(b, 0, l);
+		verification.mac.update(b, 0, l);
 	}
 }

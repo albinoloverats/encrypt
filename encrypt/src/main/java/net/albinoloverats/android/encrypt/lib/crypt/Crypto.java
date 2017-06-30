@@ -29,8 +29,6 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 
-import gnu.crypto.hash.IMessageDigest;
-
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -39,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import net.albinoloverats.android.encrypt.lib.io.HashMAC;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
 public abstract class Crypto extends Service implements Runnable
@@ -71,7 +70,7 @@ public abstract class Crypto extends Service implements Runnable
 
 	protected Version version = Version.CURRENT;
 
-	protected IMessageDigest checksum;
+	protected HashMAC verification;
 
 	private Thread process;
 	private Thread notification;

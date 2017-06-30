@@ -25,7 +25,7 @@ import gnu.crypto.cipher.IBlockCipher;
 import gnu.crypto.hash.HashFactory;
 import gnu.crypto.hash.IMessageDigest;
 import gnu.crypto.mac.HMacFactory;
-import gnu.crypto.mac.IMac;
+import gnu.crypto.mac.HMac;
 import gnu.crypto.mode.ModeFactory;
 
 import java.security.InvalidKeyException;
@@ -48,6 +48,8 @@ public abstract class CryptoUtils
 
 	private static final String NAME_WHIRLPOOL = "WHIRLPOOL";
 	private static final String NAME_WHIRLPOOL_T = "WHIRLPOOL-T";
+
+	private static final String HMAC_PREFIX = "HMAC";
 
 	private static final int KEY_SIZE_MINIMUM = 128;
 
@@ -182,13 +184,17 @@ public abstract class CryptoUtils
 			String n = ((String)o).toUpperCase(Locale.ENGLISH);
 			n = n.replace("HMAC-", "HMAC_");
 			n = n.replace("SHA-", "SHA");
+			if (n.equals(HMAC_PREFIX + "_" + NAME_WHIRLPOOL))
+				n = HMAC_PREFIX + "_" + NAME_WHIRLPOOL_T;
 			m.add(n);
 		}
 		return m;
 	}
 
-	public static IMac getMacAlgorithm(String name) throws NoSuchAlgorithmException
+	public static HMac getMacAlgorithm(String name) throws NoSuchAlgorithmException
 	{
+		if (name.equals(HMAC_PREFIX + "_" + NAME_WHIRLPOOL_T))
+			name = HMAC_PREFIX + "_" + NAME_WHIRLPOOL;
 		final Set<?> s = HMacFactory.getNames();
 		for (final Object o : s)
 		{
@@ -196,8 +202,18 @@ public abstract class CryptoUtils
 			String c = n.replace("HMAC-", "HMAC_");
 			c = c.replace("SHA-", "SHA");
 			if (name.equals(c))
-				return HMacFactory.getInstance(n);
+				return (HMac)HMacFactory.getInstance(n);
 		}
 		throw new NoSuchAlgorithmException(name);
+	}
+
+	public static String hmacFromHash(final String h)
+	{
+		return HMAC_PREFIX + "_" + h.toUpperCase(Locale.ENGLISH);
+	}
+
+	public static String hashFromHmac(final String h)
+	{
+		return h.toUpperCase(Locale.ENGLISH).replace(HMAC_PREFIX + "_", "");
 	}
 }
