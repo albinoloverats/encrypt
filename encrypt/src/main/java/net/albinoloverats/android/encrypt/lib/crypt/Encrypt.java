@@ -207,12 +207,12 @@ public class Encrypt extends Crypto
 			if (!raw)
 			{
 				hashAndWrite(verification.hash.digest());
-				writeRandomData(true);
+				writeRandomData();
 			}
 			if (useMAC)
 			{
 				byte[] m = verification.mac.digest();
-				output.write(m);
+				hashAndWrite(m);
 			}
 
 			if (status == Status.RUNNING)
@@ -273,9 +273,9 @@ public class Encrypt extends Crypto
 		final long x = Convert.longFromBytes(buffer);
 		PRNG.nextBytes(buffer);
 		final long y = Convert.longFromBytes(buffer);
-		output.write(Convert.toBytes(x));
-		output.write(Convert.toBytes(y));
-		output.write(Convert.toBytes(x ^ y));
+		hashAndWrite(Convert.toBytes(x));
+		hashAndWrite(Convert.toBytes(y));
+		hashAndWrite(Convert.toBytes(x ^ y));
 	}
 
 	private void writeMetadata() throws IOException
@@ -283,53 +283,40 @@ public class Encrypt extends Crypto
 		byte meta = 3;
 		if (!directory && name != null && version.compareTo(Version._201501) >= 0)
 			meta++;
-		output.write(Convert.toBytes(meta));
+		hashAndWrite(Convert.toBytes(meta));
 
 		if (directory) /* total size becomes number of entries */
 			total.size = countEntries(path) + 1;
 
-		output.write(Convert.toBytes((byte)Tag.SIZE.value));
-		output.write(Convert.toBytes((short)(Long.SIZE / Byte.SIZE)));
-		output.write(Convert.toBytes(total.size));
+		hashAndWrite(Convert.toBytes((byte)Tag.SIZE.value));
+		hashAndWrite(Convert.toBytes((short)(Long.SIZE / Byte.SIZE)));
+		hashAndWrite(Convert.toBytes(total.size));
 
-		output.write(Convert.toBytes((byte)Tag.COMPRESSED.value));
-		output.write(Convert.toBytes((short)(Byte.SIZE / Byte.SIZE)));
-		output.write(Convert.toBytes(compressed));
+		hashAndWrite(Convert.toBytes((byte)Tag.COMPRESSED.value));
+		hashAndWrite(Convert.toBytes((short)(Byte.SIZE / Byte.SIZE)));
+		hashAndWrite(Convert.toBytes(compressed));
 
-		output.write(Convert.toBytes((byte)Tag.DIRECTORY.value));
-		output.write(Convert.toBytes((short)(Byte.SIZE / Byte.SIZE)));
-		output.write(Convert.toBytes(directory));
+		hashAndWrite(Convert.toBytes((byte)Tag.DIRECTORY.value));
+		hashAndWrite(Convert.toBytes((short)(Byte.SIZE / Byte.SIZE)));
+		hashAndWrite(Convert.toBytes(directory));
 
 		if (!directory && name != null && version.compareTo(Version._201501) >= 0)
 		{
-			output.write(Convert.toBytes((byte)Tag.FILENAME.value));
-			output.write(Convert.toBytes((short)name.length()));
-			output.write(name.getBytes());
+			hashAndWrite(Convert.toBytes((byte)Tag.FILENAME.value));
+			hashAndWrite(Convert.toBytes((short)name.length()));
+			hashAndWrite(name.getBytes());
 		}
 	}
 
 	private void writeRandomData() throws IOException
-	{
-		writeRandomData(false);
-	}
-
-	private void writeRandomData(final boolean h) throws IOException
 	{
 		byte[] buffer = new byte[Short.SIZE / Byte.SIZE];
 		PRNG.nextBytes(buffer);
 		final short sr = (short)(Convert.shortFromBytes(buffer) & 0x00FF);
 		buffer = new byte[sr];
 		PRNG.nextBytes(buffer);
-		if (h)
-		{
-			hashAndWrite(Convert.toBytes((byte)sr));
-			hashAndWrite(buffer);
-		}
-		else
-		{
-			output.write(Convert.toBytes((byte)sr));
-			output.write(buffer);
-		}
+		hashAndWrite(Convert.toBytes((byte)sr));
+		hashAndWrite(buffer);
 	}
 
 	private int countEntries(final String dir) throws IOException
