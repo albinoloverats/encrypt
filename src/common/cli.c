@@ -54,7 +54,7 @@ static int cli_bps_sort(const void *, const void *);
 
 extern double cli_calc_bps(cli_bps_t *bps)
 {
-	cli_bps_t copy[BPS];
+	cli_bps_t *copy = calloc(BPS, sizeof( cli_bps_t ));
 	for (int i = 0; i < BPS; i++)
 	{
 		copy[i].time = bps[i].time;
@@ -72,6 +72,7 @@ extern double cli_calc_bps(cli_bps_t *bps)
 	double val = 0.0;
 	for (int i = 0; i < BPS - 1; i++)
 		val += avg[i];
+	free(copy);
 	return val /= (BPS - 1);
 }
 
