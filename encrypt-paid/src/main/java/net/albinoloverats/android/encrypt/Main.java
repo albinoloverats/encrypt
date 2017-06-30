@@ -110,9 +110,7 @@ public class Main extends Activity
 		context = this;
 
 		if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-		{
 			requestPermissions(new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, STORAGE_PERMISSION_REQUEST);
-		}
 
 		final SharedPreferences settings = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), Context.MODE_PRIVATE);
 		cipher = settings.getString(Options.CIPHER.toString(), null);
@@ -217,13 +215,13 @@ public class Main extends Activity
 			@Override
 			public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after)
 			{
-				;
+				; /* do nothing */
 			}
 
 			@Override
 			public void onTextChanged(final CharSequence s, final int start, final int before, final int count)
 			{
-				;
+				; /* do nothing */
 			}
 		});
 		pEntry.setEnabled(false);
@@ -262,16 +260,12 @@ public class Main extends Activity
 		switch (requestCode)
 		{
 			case STORAGE_PERMISSION_REQUEST:
-			{
 				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-				{
-					; // we have permission, carry on
-				}
+					; /* we have permission, carry on */
 				else
-				{
 					finishAffinity();
-				}
-			}
+			default:
+				; /* do nothing (we shouldn't really get here) */
 		}
 	}
 
@@ -396,7 +390,6 @@ public class Main extends Activity
 	{
 		final int itemId = menuItem.getItemId();
 		for (final Version v : Version.values())
-		{
 			if (itemId == v.menu_id)
 			{
 				version = v;
@@ -404,7 +397,6 @@ public class Main extends Activity
 				menuItem.setChecked(true);
 				storePreferences();
 			}
-		}
 	}
 
 	@Override
@@ -529,10 +521,7 @@ public class Main extends Activity
 	{
 		/* kick off the actually cipher process */
 		Intent intent = null;
-		if (encrypting)
-			intent = new Intent(getBaseContext(), Encrypt.class);
-		else
-			intent = new Intent(getBaseContext(), Decrypt.class);
+		intent = new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class);
 
 		intent.putExtra("class", Main.class);
 		intent.putExtra("action", encrypting ? R.string.encrypting : R.string.decrypting);
@@ -546,10 +535,7 @@ public class Main extends Activity
 		intent.putExtra("mode", mode);
 		intent.putExtra("mac", mac);
 		intent.putExtra("key_file", key_file);
-		if (key_file)
-			intent.putExtra("key", key);
-		else
-			intent.putExtra("key", password.getBytes());
+		intent.putExtra("key", key_file ? key : password.getBytes());
 		intent.putExtra("raw", raw);
 		intent.putExtra("compress", compress);
 		intent.putExtra("follow", follow);
@@ -600,6 +586,7 @@ public class Main extends Activity
 					selected = iterator.next();
 					break;
 				}
+			/* yes we are in fact comparing object references */
 			if (choices == CIPHERS)
 				cipher = selected;
 			else if (choices == HASHES)

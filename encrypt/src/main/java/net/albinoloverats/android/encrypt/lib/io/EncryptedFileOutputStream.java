@@ -97,7 +97,7 @@ public class EncryptedFileOutputStream extends FileOutputStream
 			PRNG.nextBytes(salt);
 			eccFileOutputStream.write(salt);
 
-			PBKDF2 keyGen = new PBKDF2(keyMac);
+			final PBKDF2 keyGen = new PBKDF2(keyMac);
 			attributes = new HashMap<>();
 			attributes.put(IMac.MAC_KEY_MATERIAL, keySource);
 			attributes.put(IPBE.SALT, salt);
@@ -132,7 +132,7 @@ public class EncryptedFileOutputStream extends FileOutputStream
 
 		final int macLength = CryptoUtils.getHashAlgorithm(CryptoUtils.hashFromHmac(a)).blockSize();
 		key = new byte[macLength];
-		PBKDF2 keyGen = new PBKDF2(keyMac);
+		final PBKDF2 keyGen = new PBKDF2(keyMac);
 		attributes = new HashMap<>();
 		attributes.put(IMac.MAC_KEY_MATERIAL, keySource);
 		attributes.put(IPBE.SALT, salt);
