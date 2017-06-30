@@ -145,17 +145,17 @@ public class Decrypt extends Crypto
 			if (version != Version._201108 && !raw)
 			{
 				final byte[] check = new byte[verification.hash.hashSize()];
-				int err = source.read(check);
+				final int err = source.read(check);
 				verification.mac.update(check, 0, check.length);
 				final byte[] digest = verification.hash.digest();
 				if (err < 0 || !Arrays.equals(check, digest))
 					status = Status.WARNING_CHECKSUM;
-				skipRandomData(true);
+				skipRandomData();
 			}
 			if (useMAC)
 			{
 				final byte[] check = new byte[verification.mac.macSize()];
-				int err = source.read(check);
+				final int err = source.read(check);
 				final byte[] digest = verification.mac.digest();
 				if (err < 0 || !Arrays.equals(check, digest))
 					status = Status.WARNING_CHECKSUM;
@@ -239,11 +239,11 @@ public class Decrypt extends Crypto
 	private void readVerificationSum() throws CryptoProcessException, IOException
 	{
 		final byte buffer[] = new byte[Long.SIZE / Byte.SIZE];
-		source.read(buffer);
+		readAndHash(buffer);
 		final long x = Convert.longFromBytes(buffer);
-		source.read(buffer);
+		readAndHash(buffer);
 		final long y = Convert.longFromBytes(buffer);
-		source.read(buffer);
+		readAndHash(buffer);
 		final long z = Convert.longFromBytes(buffer);
 		if ((x ^ y) != z)
 			throw new CryptoProcessException(Status.FAILED_DECRYPTION);
@@ -252,15 +252,18 @@ public class Decrypt extends Crypto
 	private void readMetadata() throws CryptoProcessException, IOException
 	{
 		final File f = new File(path);
-		final int c = source.read();
-		for (int i = 0; i < c; i++)
+		final byte[] c = new byte[Byte.SIZE / Byte.SIZE];
+		readAndHash(c);
+		for (int i = 0; i < (short)(Convert.byteFromBytes(c) & 0x00FF); i++)
 		{
-			final Tag tag = Tag.fromValue(source.read());
+			final byte[] tv = new byte[Byte.SIZE / Byte.SIZE];
+			readAndHash(tv);
+			final Tag tag = Tag.fromValue((short)(Convert.byteFromBytes(tv) & 0x00FF));
 			final byte[] l = new byte[Short.SIZE / Byte.SIZE];
-			source.read(l);
+			readAndHash(l);
 			final int length = Convert.shortFromBytes(l);
 			final byte[] v = new byte[length];
-			source.read(v);
+			readAndHash(v);
 			switch (tag)
 			{
 				case SIZE:
@@ -307,18 +310,9 @@ public class Decrypt extends Crypto
 
 	private void skipRandomData() throws IOException
 	{
-		skipRandomData(false);
-	}
-
-	private void skipRandomData(final boolean h) throws IOException
-	{
-		final byte[] b = new byte[source.read()];
-		source.read(b);
-		if (h)
-		{
-			verification.hash.update(b);
-			verification.mac.update(b, 0, b.length);
-		}
+		final byte[] b = new byte[Byte.SIZE / Byte.SIZE];
+		readAndHash(b);
+		readAndHash(new byte[(short)(Convert.byteFromBytes(b) & 0x00FF)]);
 	}
 
 	private void decryptDirectory(final String dir) throws CryptoProcessException, IOException
