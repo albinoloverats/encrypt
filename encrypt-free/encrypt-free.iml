@@ -101,6 +101,5 @@
     <orderEntry type="library" exported="" name="support-core-utils-25.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-base-7.8.0" level="project" />
     <orderEntry type="module" module-name="encrypt-encrypt" exported="" />
-    <orderEntry type="library" exported="" name="xz-1.5" level="project" />
   </component>
 </module>
