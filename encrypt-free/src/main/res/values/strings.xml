@@ -39,6 +39,8 @@
 	<string name="choose_output">Choose Output</string>
 	<string name="choose_key">Choose Key</string>
 
+	<string name="doCanel">Tap back again to cancel</string>
+
 	<string name="location">Location</string>
 	<string name="cant_read_folder">Folder can\'t be read!</string>
 	<string name="nnew">New</string>

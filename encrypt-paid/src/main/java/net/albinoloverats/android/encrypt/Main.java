@@ -38,6 +38,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
+//import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -100,6 +101,8 @@ public class Main extends Activity
 	private String mac;
 	private String password;
 	private String key;
+
+	//private boolean cancel = false;
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState)
@@ -481,6 +484,29 @@ public class Main extends Activity
 		cancelDoubleProgressDialog();
 		doubleProgressDialog = new DoubleProgressDialog(Main.this);
 		doubleProgressDialog.setMessage(getString(R.string.please_wait));
+		doubleProgressDialog.setCanceledOnTouchOutside(false);
+		/* decide whether this is the best option or not...
+		doubleProgressDialog.setCancelable(false);
+		doubleProgressDialog.setOnKeyListener(new DialogInterface.OnKeyListener()
+		{
+			@Override
+			public boolean onKey(final DialogInterface dialog, final int keyCode, final KeyEvent event)
+			{
+				if (event.getAction() != KeyEvent.ACTION_DOWN)
+					return false;
+				if (keyCode == KeyEvent.KEYCODE_BACK)
+				{
+					if (cancel)
+						doubleProgressDialog.cancel();
+					else
+					{
+						cancel = true;
+						Toast.makeText(getApplicationContext(), getString(R.string.doCanel), Toast.LENGTH_SHORT).show();
+					}
+				}
+				return keyCode != KeyEvent.KEYCODE_BACK;
+			}
+		});*/
 		doubleProgressDialog.setOnCancelListener(new OnCancelListener()
 		{
 			@Override
