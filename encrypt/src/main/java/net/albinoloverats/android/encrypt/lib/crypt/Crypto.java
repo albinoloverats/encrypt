@@ -152,7 +152,7 @@ public abstract class Crypto extends Service implements Runnable
 							status = Status.CANCELLED;
 						if (status == Status.INIT)
 							continue;
-						sendNotifiationUpdate(notificationBuilder);
+						sendNotificationUpdate(notificationBuilder);
 					}
 					catch (final InterruptedException e)
 					{
@@ -160,7 +160,7 @@ public abstract class Crypto extends Service implements Runnable
 					}
 				}
 				while (status == Status.RUNNING);
-				sendNotifiationUpdate(notificationBuilder);
+				sendNotificationUpdate(notificationBuilder);
 			}
 		};
 		notification.start();
@@ -258,7 +258,7 @@ public abstract class Crypto extends Service implements Runnable
 		}
 	}
 
-	private void sendNotifiationUpdate(final NotificationCompat.Builder notificationBuilder)
+	private void sendNotificationUpdate(final NotificationCompat.Builder notificationBuilder)
 	{
 		final Intent intent = new Intent();
 		intent.setAction(actionTitle);
