@@ -2,8 +2,13 @@
 .SH NAME
 \fBencrypt\fR \- A simple, cross platform, file encryption application
 .SH SYNOPSIS
-\fBencrypt\fR [\fB\-c\fR \fIalgorithm\fR] [\fB\-s\fR \fIalgorithm\fR] [\fB\-m\fR
-\fImode\fR] [\fB\-k\fR \fIkey\fR|\fB\-p\fR \fIpassword\fR] [\fIsource\fR]
+\fBencrypt\fR
+[\fB\-c\fR \fIalgorithm\fR]
+[\fB\-s\fR \fIalgorithm\fR]
+[\fB\-m\fR \fImode\fR]
+[\fB\-a\fR \fImac\fR]
+[\fB\-k\fR \fIkey\fR|\fB\-p\fR \fIpassword\fR]
+[\fIsource\fR]
 [\fIdestination\fR]
 .SH DESCRIPTION
 \fBencrypt\fR is a simple, cross platform, file encryption
@@ -26,13 +31,20 @@ Display application version
 Do not use the GUI, even if it's available
 .TP
 .BR \-c ", " \-\-cipher =\fIALGORITHM\fR
-Algorithm to use to encrypt data
+Algorithm to use to encrypt data; use \fIlist\fR to show a list of available
+cipher algorithms
 .TP
 .BR \-s ", " \-\-hash =\fIALGORITHM\fR
-Hash algorithm to generate key
+Hash algorithm to generate key; use \fIlist\fR to show a list of available
+hash algorithms
 .TP
 .BR \-m ", " \-\-mode =\fIMODE\fR
-The encryption mode to use
+The encryption mode to use; use \fIlist\fR to show a list of available
+encryption modes
+.TP
+.BR \-a ", " \-\-mac =\fIMAC\fR
+The MAC to use for key derivation and message authentication; use \fIlist\fR
+to show a list of available MACs
 .TP
 .BR \-k ", " \-\-key =\fIFILE\fR
 File whose data will be used to generate the key
@@ -41,16 +53,19 @@ File whose data will be used to generate the key
 Password used to generate the key
 .TP
 .BR \-x ", " \-\-no-compress
-Do not compress the plaintext using the xz algorithm
+Do not compress the plain text using the xz algorithm
 .TP
 .BR \-f ", " \-\-follow
 Follow symlinks, the default is to store the link itself
+.SH ADVANCED OPTIONS
 .TP
 .BR \-b ", " \-\-back\-compat =\fIVERSION\fR
-Create an encrypted file that is backwards compatible with earlier versions of encrypt
+Create an encrypted file that is backwards compatible with earlier versions
+of encrypt
 .TP
 .BR \-r ", " \-\-raw
-Don’t generate or look for an encrypt header; this IS NOT recommended, but can be usefull in some (limited) situations
+Don’t generate or look for an encrypt header; this IS NOT recommended, but
+can be usefull in some (limited) situations
 .SH FILES
 .TP
 .BR ~/.encryptrc
@@ -70,7 +85,7 @@ originally used are read from the encrypted file.
 .P
 If you do not specify either a key or a password, you will be prompted to enter
 a password. This will then be used to generate a key to encrypt the data with
-(using the specified hash).
+(using the specified hash and MAC).
 .P
 To see a list of available algorithms or modes use list as the argument.
 .P
@@ -85,6 +100,8 @@ Although if you do think you've really found a bug, please first check the
 README or the CHANGELOG to see if it has already been documented and scheduled
 for the next release; then if you're still convinced, let us know at
 https://albinoloverats.net/?tracker
+.P
+And if you're willing and able to provide a fix/patch that would be even better.
 .SH COPYRIGHT
 Copyright \(co 2004\-2017 albinoloverats ~ Software Development
 .SH LICENCE

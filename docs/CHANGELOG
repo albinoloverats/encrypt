@@ -18,7 +18,17 @@ Planned Future Enhancements
 encrypt - 2017.09                                         --th Sept 2017
 -----------------
 
-TODO Write up changes...
+### New For Latest Release
+
+* Improved key derivation
+* Added MAC as well as previously used hash of data to ensure
+  authentication
+
+### Fixed For Latest Release
+
+* Android
+  - Fix permission handling
+  - TODO NullPointerException after exit
 
 
 encrypt - 2015.10                                           4th Oct 2015
