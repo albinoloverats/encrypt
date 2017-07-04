@@ -27,7 +27,7 @@ hash SHA256
 mode CFB
 
 # Set the default MAC to use for authentication.
-mac HMAC_SHA3_512
+mac HMAC_SHA512
 
 # Set the level of backwards compatibility, by version number.
 version 2017.09
