@@ -31,6 +31,10 @@
 #include <curl/curl.h>
 #include <pthread.h>
 
+#ifdef __FreeBSD__
+	#include <libgen.h>
+#endif
+
 #ifndef _WIN32
 	#include <sys/stat.h>
 	#include <sys/wait.h>

@@ -3,7 +3,7 @@
 PORTNAME     = encrypt
 PORTVERSION  = 2017.09
 CATEGORIES   = security
-MASTER_SITES = https://albinoloverats.net/projects/encrypt
+MASTER_SITES = https://albinoloverats.net/projects/encrypt/
 
 MAINTAINER   = Ashley Anderson <amanderson@albinoloverats.net>
 COMMENT      = A simple, cross platform, file encryption application
