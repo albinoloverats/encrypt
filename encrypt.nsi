@@ -19,13 +19,11 @@ Name              "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile           "${PRODUCT_NAME}-${PRODUCT_VERSION}-install.exe"
 InstallDir        "$PROGRAMFILES\${PRODUCT_NAME}"
 InstallDirRegKey  HKLM "${PRODUCT_DIR_REGKEY}" ""
-ComponentText     "Check the components you want to install and uncheck the components you don't want to install:"
 ShowInstDetails   show
 ShowUnInstDetails show
 
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_LICENSE "docs\LICENCE"
-!insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_UNPAGE_INSTFILES
 !insertmacro MUI_LANGUAGE "British"
@@ -44,14 +42,21 @@ VIAddVersionKey /LANG=${LANG_BRITISH} "LegalTrademarks"  "Copyright (c) 2004-201
 VIAddVersionKey /LANG=${LANG_BRITISH} "OriginalFilename" "${PRODUCT_NAME}-${PRODUCT_VERSION}-install.exe"
 
 Function .onInit
+	${If} ${RunningX64}
+		StrCpy $INSTDIR "$PROGRAMFILES64\${PRODUCT_NAME}"
+	${Else}
+		MessageBox MB_OK|MB_ICONEXCLAMATION \
+			"${PRODUCT_NAME} is now 64-bit and, as such, will not install of 32-bit versions of Windows."
+		Abort
+	${EndIf}
+
 	ReadRegStr $R0 HKLM "${PRODUCT_UNINST_KEY}" "UninstallString"
 	StrCmp $R0 "" done
 
 	FindProcDLL::FindProc "${PRODUCT_NAME}.exe"
 	IntCmp $R0 1 0 notRunning
 		MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION \
-			"${PRODUCT_NAME} is currently running. $\n$\nClick `OK` to \
-            continue or `Cancel` to cancel this upgrade." \
+			"${PRODUCT_NAME} is currently running. $\n$\nClick `OK` to continue or `Cancel` to cancel this upgrade." \
 			IDOK stopRunning
 		Abort
 	stopRunning:
@@ -59,8 +64,7 @@ Function .onInit
 	notRunning:
 
 	MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION \
-		"${PRODUCT_NAME} is already installed. $\n$\nClick `OK` to remove the \
-		previous version or `Cancel` to cancel this upgrade." \
+		"${PRODUCT_NAME} is already installed. $\n$\nClick `OK` to remove the previous version or `Cancel` to cancel this upgrade." \
 		IDOK uninst
 	Abort
 
@@ -71,29 +75,59 @@ Function .onInit
 	done:
 FunctionEnd
 
-Section "encrypt" SEC01
-	SectionIn RO
+Section -encrypt
 	SetOutPath "$INSTDIR"
 	SetOverwrite on
 	File "encrypt.exe"
 
-	File "C:\Program Files (x86)\Dev-Cpp\MinGW64\bin\libgcc_s_dw2-1.dll"
-	File "C:\Program Files (x86)\Dev-Cpp\MinGW64\bin\libgcc_s_sjlj-1.dll"
-
-	File "C:\extra\curl-7.40.0-devel-mingw32\bin\libcurl.dll"
-	File "C:\extra\curl-7.40.0-devel-mingw32\bin\libeay32.dll"
-	File "C:\extra\curl-7.40.0-devel-mingw32\bin\libidn-11.dll"
-	File "C:\extra\curl-7.40.0-devel-mingw32\bin\ssleay32.dll"
-	File "C:\extra\curl-7.40.0-devel-mingw32\bin\zlib1.dll"
-
-	#File "C:\extra\libgcrypt-1.6.3-1\bin\libgcrypt-20.dll"
-	File "C:\extra\libgcrypt-20.dll"
-
-	File "C:\extra\libgpg-error-1.18-1\bin\libgpg-error-0.dll"
-
-	File "C:\extra\pthreads-w32-2-9-1\dll\x86\pthreadGC2.dll"
-
-	File "C:\extra\xz-5.2.1-windows\bin_i686\liblzma.dll"
+	File "C:\msys64\mingw64\bin\libwinpthread-1.dll"
+	File "C:\msys64\mingw64\bin\libcurl-4.dll"
+	File "C:\msys64\mingw64\bin\LIBEAY32.dll"
+	File "C:\msys64\mingw64\bin\libnghttp2-14.dll"
+	File "C:\msys64\mingw64\bin\librtmp-1.dll"
+	File "C:\msys64\mingw64\bin\libgmp-10.dll"
+	File "C:\msys64\mingw64\bin\libgnutls-30.dll"
+	File "C:\msys64\mingw64\bin\libhogweed-4.dll"
+	File "C:\msys64\mingw64\bin\libnettle-6.dll"
+	File "C:\msys64\mingw64\bin\libidn-11.dll"
+	File "C:\msys64\mingw64\bin\libiconv-2.dll"
+	File "C:\msys64\mingw64\bin\libintl-8.dll"
+	File "C:\msys64\mingw64\bin\libp11-kit-0.dll"
+	File "C:\msys64\mingw64\bin\libffi-6.dll"
+	File "C:\msys64\mingw64\bin\libtasn1-6.dll"
+	File "C:\msys64\mingw64\bin\libunistring-2.dll"
+	File "C:\msys64\mingw64\bin\zlib1.dll"
+	File "C:\msys64\mingw64\bin\libssh2-1.dll"
+	File "C:\msys64\mingw64\bin\SSLEAY32.dll"
+	File "C:\msys64\mingw64\bin\libgcrypt-20.dll"
+	File "C:\msys64\mingw64\bin\libgpg-error-0.dll"
+	File "C:\msys64\mingw64\bin\libglib-2.0-0.dll"
+	File "C:\msys64\mingw64\bin\libpcre-1.dll"
+	File "C:\msys64\mingw64\bin\libgobject-2.0-0.dll"
+	File "C:\msys64\mingw64\bin\libgtk-3-0.dll"
+	File "C:\msys64\mingw64\bin\libgdk-3-0.dll"
+	File "C:\msys64\mingw64\bin\libcairo-gobject-2.dll"
+	File "C:\msys64\mingw64\bin\libcairo-2.dll"
+	File "C:\msys64\mingw64\bin\libgcc_s_seh-1.dll"
+	File "C:\msys64\mingw64\bin\libfontconfig-1.dll"
+	File "C:\msys64\mingw64\bin\libexpat-1.dll"
+	File "C:\msys64\mingw64\bin\libfreetype-6.dll"
+	File "C:\msys64\mingw64\bin\libbz2-1.dll"
+	File "C:\msys64\mingw64\bin\libharfbuzz-0.dll"
+	File "C:\msys64\mingw64\bin\libgraphite2.dll"
+	File "C:\msys64\mingw64\bin\libstdc++-6.dll"
+	File "C:\msys64\mingw64\bin\libpng16-16.dll"
+	File "C:\msys64\mingw64\bin\libpixman-1-0.dll"
+	File "C:\msys64\mingw64\bin\libepoxy-0.dll"
+	File "C:\msys64\mingw64\bin\libgdk_pixbuf-2.0-0.dll"
+	File "C:\msys64\mingw64\bin\libgio-2.0-0.dll"
+	File "C:\msys64\mingw64\bin\libgmodule-2.0-0.dll"
+	File "C:\msys64\mingw64\bin\libpango-1.0-0.dll"
+	File "C:\msys64\mingw64\bin\libpangocairo-1.0-0.dll"
+	File "C:\msys64\mingw64\bin\libpangoft2-1.0-0.dll"
+	File "C:\msys64\mingw64\bin\libpangowin32-1.0-0.dll"
+	File "C:\msys64\mingw64\bin\libatk-1.0-0.dll"
+	File "C:\msys64\mingw64\bin\liblzma-5.dll"
 
 	SetOutPath "$INSTDIR\docs"
 	File "docs\README"
@@ -118,14 +152,32 @@ Section "encrypt" SEC01
 	File "pixmaps\encrypt_button.png"
 
 	SetOutPath "$INSTDIR\etc"
-	${If} ${RunningX64}
-		File "etc\encrypt_w64.glade"
-		Rename "encrypt_w64.glade" "encrypt_win.glade"
-	${Else}
-		File "etc\encrypt_w32.glade"
-		Rename "encrypt_w32.glade" "encrypt_win.glade"
-	${EndIf}
+	File "etc\encrypt_win.glade"
 	File "etc\encryptrc"
+
+	SetOutPath "$INSTDIR\share\glib-2.0\schemas"
+	File "C:\msys64\mingw64\share\glib-2.0\schemas\gschemas.compiled"
+
+	SetOutPath "$INSTDIR\share\icons"
+	File "C:\msys64\mingw64\share\icons\Adwaita\16x16\status\dialog-password.png"
+	File "C:\msys64\mingw64\share\icons\Adwaita\22x22\status\dialog-password.png"
+	File "C:\msys64\mingw64\share\icons\Adwaita\24x24\status\dialog-password.png"
+	File "C:\msys64\mingw64\share\icons\Adwaita\256x256\status\dialog-password.png"
+	File "C:\msys64\mingw64\share\icons\Adwaita\32x32\status\dialog-password.png"
+	File "C:\msys64\mingw64\share\icons\Adwaita\48x48\status\dialog-password.png"
+	File "C:\msys64\mingw64\share\icons\Adwaita\16x16\actions\document-open.png"
+	File "C:\msys64\mingw64\share\icons\Adwaita\22x22\actions\document-open.png"
+	File "C:\msys64\mingw64\share\icons\Adwaita\24x24\actions\document-open.png"
+	File "C:\msys64\mingw64\share\icons\Adwaita\32x32\actions\document-open.png"
+	File "C:\msys64\mingw64\share\icons\Adwaita\48x48\actions\document-open.png"
+	File "C:\msys64\mingw64\share\icons\Adwaita\512x512\actions\document-open.png"
+	File "C:\msys64\mingw64\share\icons\Adwaita\16x16\actions\document-save-as.png"
+	File "C:\msys64\mingw64\share\icons\Adwaita\22x22\actions\document-save-as.png"
+	File "C:\msys64\mingw64\share\icons\Adwaita\24x24\actions\document-save-as.png"
+	File "C:\msys64\mingw64\share\icons\Adwaita\32x32\actions\document-save-as.png"
+	File "C:\msys64\mingw64\share\icons\Adwaita\48x48\actions\document-save-as.png"
+	File "C:\msys64\mingw64\share\icons\Adwaita\512x512\actions\document-save-as.png"
+
 
 	SetOutPath "$INSTDIR"
 	CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
@@ -133,55 +185,6 @@ Section "encrypt" SEC01
 	CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Licence.lnk" "$INSTDIR\docs\LICENCE.txt"
 	CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\ReadMe.lnk" "$INSTDIR\docs\README.txt"
 SectionEnd
-
-Section "GTK+3 Runtime" SEC02
-	SetOutPath $INSTDIR
-		File "..\encrypt_extras\GTK+-Runtime-3.6.1_(TARNYKO).exe"
-		ExecWait "$INSTDIR\GTK+-Runtime-3.6.1_(TARNYKO).exe"
-	Delete "$INSTDIR\GTK+-Runtime-3.6.1_(TARNYKO).exe"
-SectionEnd
-
-Section "User Guide" SEC03
-	SetOverwrite on
-
-	SetOutPath "$INSTDIR\docs\User Guide"
-	File "..\encrypt_extras\mark_condic\User Guide\index.html"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt_button.png"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt1.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt2.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt3.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt4.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt5.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt6.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt7.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt8b.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt9b.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt10.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt11.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt12.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt14.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt15.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt16.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt17.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt18.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt19.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt20.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt21.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt22.jpg"
-	File "..\encrypt_extras\mark_condic\User Guide\encrypt22b.jpg"
-
-	CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\User Guide.lnk" "$INSTDIR\docs\User Guide\index.html"
-SectionEnd
-
-LangString DES01 ${LANG_ENGLISH} "$(^Name)"
-LangString DES02 ${LANG_ENGLISH} "GTK+3 Runtime Environment (it's recommended you install this unless you know what you're doing)"
-LangString DES03 ${LANG_ENGLISH} "encrypt User Guide (kindly provided by Mark Condic)"
-
-!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-	!insertmacro MUI_DESCRIPTION_TEXT ${SEC01} $(DES01)
-	!insertmacro MUI_DESCRIPTION_TEXT ${SEC02} $(DES02)
-	!insertmacro MUI_DESCRIPTION_TEXT ${SEC03} $(DES03)
-!insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Section -AdditionalIcons
 	CreateShortCut "$SMPROGRAMS\encrypt\Uninstall.lnk" "$INSTDIR\uninst.exe"
@@ -212,18 +215,54 @@ FunctionEnd
 Section Uninstall
 	Delete "$INSTDIR\encrypt.exe"
 
-	Delete "$INSTDIR\libgcc_s_dw2-1.dll"
-
-	Delete "$INSTDIR\libcurl.dll"
-	Delete "$INSTDIR\libeay32.dll"
+	Delete "$INSTDIR\libwinpthread-1.dll"
+	Delete "$INSTDIR\libcurl-4.dll"
+	Delete "$INSTDIR\LIBEAY32.dll"
+	Delete "$INSTDIR\libnghttp2-14.dll"
+	Delete "$INSTDIR\librtmp-1.dll"
+	Delete "$INSTDIR\libgmp-10.dll"
+	Delete "$INSTDIR\libgnutls-30.dll"
+	Delete "$INSTDIR\libhogweed-4.dll"
+	Delete "$INSTDIR\libnettle-6.dll"
 	Delete "$INSTDIR\libidn-11.dll"
-	Delete "$INSTDIR\ssleay32.dll"
+	Delete "$INSTDIR\libiconv-2.dll"
+	Delete "$INSTDIR\libintl-8.dll"
+	Delete "$INSTDIR\libp11-kit-0.dll"
+	Delete "$INSTDIR\libffi-6.dll"
+	Delete "$INSTDIR\libtasn1-6.dll"
+	Delete "$INSTDIR\libunistring-2.dll"
 	Delete "$INSTDIR\zlib1.dll"
-
-	Delete "$INSTDIR\libgcrypt-11.dll"
+	Delete "$INSTDIR\libssh2-1.dll"
+	Delete "$INSTDIR\SSLEAY32.dll"
+	Delete "$INSTDIR\libgcrypt-20.dll"
 	Delete "$INSTDIR\libgpg-error-0.dll"
-	Delete "$INSTDIR\pthreadGC2.dll"
-	Delete "$INSTDIR\liblzma.dll"
+	Delete "$INSTDIR\libglib-2.0-0.dll"
+	Delete "$INSTDIR\libpcre-1.dll"
+	Delete "$INSTDIR\libgobject-2.0-0.dll"
+	Delete "$INSTDIR\libgtk-3-0.dll"
+	Delete "$INSTDIR\libgdk-3-0.dll"
+	Delete "$INSTDIR\libcairo-gobject-2.dll"
+	Delete "$INSTDIR\libcairo-2.dll"
+	Delete "$INSTDIR\libgcc_s_seh-1.dll"
+	Delete "$INSTDIR\libfontconfig-1.dll"
+	Delete "$INSTDIR\libexpat-1.dll"
+	Delete "$INSTDIR\libfreetype-6.dll"
+	Delete "$INSTDIR\libbz2-1.dll"
+	Delete "$INSTDIR\libharfbuzz-0.dll"
+	Delete "$INSTDIR\libgraphite2.dll"
+	Delete "$INSTDIR\libstdc++-6.dll"
+	Delete "$INSTDIR\libpng16-16.dll"
+	Delete "$INSTDIR\libpixman-1-0.dll"
+	Delete "$INSTDIR\libepoxy-0.dll"
+	Delete "$INSTDIR\libgdk_pixbuf-2.0-0.dll"
+	Delete "$INSTDIR\libgio-2.0-0.dll"
+	Delete "$INSTDIR\libgmodule-2.0-0.dll"
+	Delete "$INSTDIR\libpango-1.0-0.dll"
+	Delete "$INSTDIR\libpangocairo-1.0-0.dll"
+	Delete "$INSTDIR\libpangoft2-1.0-0.dll"
+	Delete "$INSTDIR\libpangowin32-1.0-0.dll"
+	Delete "$INSTDIR\libatk-1.0-0.dll"
+	Delete "$INSTDIR\liblzma-5.dll"
 
 	Delete "$INSTDIR\docs\README.txt"
 	Delete "$INSTDIR\docs\CHANGELOG.txt"
@@ -234,38 +273,58 @@ Section Uninstall
 	Delete "$INSTDIR\docs\MIT_LICENSE.txt"
 	Delete "$INSTDIR\docs\Apache_LICENSE.txt"
 
-	Delete "$INSTDIR\docs\User Guide\index.html"
-	Delete "$INSTDIR\docs\User Guide\encrypt_button.png"
-	Delete "$INSTDIR\docs\User Guide\encrypt1.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt2.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt3.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt4.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt5.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt6.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt7.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt8b.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt9b.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt10.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt11.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt12.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt14.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt15.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt16.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt17.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt18.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt19.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt20.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt21.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt22.jpg"
-	Delete "$INSTDIR\docs\User Guide\encrypt22b.jpg"
-
 	Delete "$INSTDIR\pixmaps\encrypt_button.png"
 	Delete "$INSTDIR\pixmaps\encrypt.png"
 
 	Delete "$INSTDIR\etc\encrypt_win.glade"
 	Delete "$INSTDIR\etc\encryptrc"
 
-	Delete "$INSTDIR\GTK+-Runtime-3.6.1_(TARNYKO).exe"
+	Delete "$INSTDIR\share\glib-2.0\schemas\gschemas.compiled"
+	RMDir "$INSTDIR\share\glib-2.0\schemas"
+	RMDir "$INSTDIR\share\glib-2.0"
+
+	Delete "$INSTDIR\share\icons\Adwaita\16x16\status\dialog-password.png"
+	Delete "$INSTDIR\share\icons\Adwaita\22x22\status\dialog-password.png"
+	Delete "$INSTDIR\share\icons\Adwaita\24x24\status\dialog-password.png"
+	Delete "$INSTDIR\share\icons\Adwaita\256x256\status\dialog-password.png"
+	Delete "$INSTDIR\share\icons\Adwaita\32x32\status\dialog-password.png"
+	Delete "$INSTDIR\share\icons\Adwaita\48x48\status\dialog-password.png"
+	Delete "$INSTDIR\share\icons\Adwaita\16x16\actions\document-open.png"
+	Delete "$INSTDIR\share\icons\Adwaita\22x22\actions\document-open.png"
+	Delete "$INSTDIR\share\icons\Adwaita\24x24\actions\document-open.png"
+	Delete "$INSTDIR\share\icons\Adwaita\32x32\actions\document-open.png"
+	Delete "$INSTDIR\share\icons\Adwaita\48x48\actions\document-open.png"
+	Delete "$INSTDIR\share\icons\Adwaita\512x512\actions\document-open.png"
+	Delete "$INSTDIR\share\icons\Adwaita\16x16\actions\document-save-as.png"
+	Delete "$INSTDIR\share\icons\Adwaita\22x22\actions\document-save-as.png"
+	Delete "$INSTDIR\share\icons\Adwaita\24x24\actions\document-save-as.png"
+	Delete "$INSTDIR\share\icons\Adwaita\32x32\actions\document-save-as.png"
+	Delete "$INSTDIR\share\icons\Adwaita\48x48\actions\document-save-as.png"
+	Delete "$INSTDIR\share\icons\Adwaita\512x512\actions\document-save-as.png"
+
+	RMDir "$INSTDIR\share\icons\Adwaita\16x16\status"
+	RMDir "$INSTDIR\share\icons\Adwaita\22x22\status"
+	RMDir "$INSTDIR\share\icons\Adwaita\24x24\status"
+	RMDir "$INSTDIR\share\icons\Adwaita\32x32\status"
+	RMDir "$INSTDIR\share\icons\Adwaita\48x48\status"
+	RMDir "$INSTDIR\share\icons\Adwaita\512x512\status"
+
+	RMDir "$INSTDIR\share\icons\Adwaita\16x16\actions"
+	RMDir "$INSTDIR\share\icons\Adwaita\22x22\actions"
+	RMDir "$INSTDIR\share\icons\Adwaita\24x24\actions"
+	RMDir "$INSTDIR\share\icons\Adwaita\32x32\actions"
+	RMDir "$INSTDIR\share\icons\Adwaita\48x48\actions"
+	RMDir "$INSTDIR\share\icons\Adwaita\512x512\actions"
+
+	RMDir "$INSTDIR\share\icons\Adwaita\16x16"
+	RMDir "$INSTDIR\share\icons\Adwaita\22x22"
+	RMDir "$INSTDIR\share\icons\Adwaita\24x24"
+	RMDir "$INSTDIR\share\icons\Adwaita\32x32"
+	RMDir "$INSTDIR\share\icons\Adwaita\48x48"
+	RMDir "$INSTDIR\share\icons\Adwaita\512x512"
+
+	RMDir "$INSTDIR\share\icons\Adwaita"
+	RMDir "$INSTDIR\share\icons"
 
 	Delete "$INSTDIR\uninst.exe"
 
@@ -273,13 +332,13 @@ Section Uninstall
 	Delete "$SMPROGRAMS\${PRODUCT_NAME}\ReadMe.lnk"
 	Delete "$SMPROGRAMS\${PRODUCT_NAME}\Licence.lnk"
 	Delete "$SMPROGRAMS\${PRODUCT_NAME}\encrypt.lnk"
-	Delete "$SMPROGRAMS\${PRODUCT_NAME}\User Guide.lnk"
 
 	RMDir "$SMPROGRAMS\encrypt"
-	RMDir "$INSTDIR\docs\User Guide"
+
 	RMDir "$INSTDIR\docs"
 	RMDIR "$INSTDIR\pixmaps"
 	RMDIR "$INSTDIR\etc"
+	RMDir "$INSTDIR\share"
 	RMDir "$INSTDIR"
 
 	DeleteRegKey HKLM "${PRODUCT_UNINST_KEY}"

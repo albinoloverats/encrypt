@@ -100,7 +100,7 @@ int main(int argc, char **argv)
 	if (la)
 		return EXIT_SUCCESS;
 
-#ifndef _WIN32
+#if !defined _WIN32
 	bool dude = false;
 	if (!strcmp(basename(argv[0]), ALT_NAME))
 		dude = true;
@@ -131,7 +131,7 @@ int main(int argc, char **argv)
 		}
 		free(ptr);
 	}
-	#ifndef _WIN32
+	#if !defined _WIN32
 	struct stat n;
 	fstat(STDIN_FILENO, &n);
 	struct stat t;
@@ -278,9 +278,9 @@ int main(int argc, char **argv)
 	#ifndef _WIN32
 	}
 	#endif
-#endif /* we couldn’t create the gui, so revert back to command line */
+#endif /* BUILD_GUI */ /* we couldn’t create the gui, so revert back to command line */
 
-#ifndef _WIN32 /* it’s GUI or nothing for Windows */
+#if !defined _WIN32 /* it’s GUI or nothing for Windows */
 	/*
 	 * get raw key data in form of password/phrase, key file
 	 */

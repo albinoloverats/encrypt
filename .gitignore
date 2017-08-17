@@ -2,6 +2,7 @@
 bin
 gen
 pkg
+src/encrypt_private.res
 # common files we don’t use
 src/common/rand.c
 src/common/rand.h

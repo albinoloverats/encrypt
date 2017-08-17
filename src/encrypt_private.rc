@@ -1,21 +1,12 @@
-/* THIS FILE WILL BE OVERWRITTEN BY DEV-C++ */
-/* DO NOT EDIT! */
-
 #include <windows.h> // include for version info constants
-
 
 A ICON "pixmaps/encrypt.ico"
 
-//
 // SUPPORT FOR WINDOWS XP THEMES:
 // THIS WILL MAKE THE PROGRAM USE THE COMMON CONTROLS
 // LIBRARY VERSION 6.0 (IF IT IS AVAILABLE)
-//
-1 24 "encrypt.exe.Manifest"
+1 24 "etc/encrypt.exe.Manifest"
 
-//
-// TO CHANGE VERSION INFORMATION, EDIT PROJECT OPTIONS...
-//
 1 VERSIONINFO
 FILEVERSION 2017,9,0,0
 PRODUCTVERSION 2017,9,0,0

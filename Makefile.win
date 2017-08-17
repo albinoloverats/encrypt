@@ -1,77 +1,46 @@
-# Project: encrypt
-# Makefile created by Dev-C++ 5.6.3
+.PHONY: clean distclean
 
-CPP      = g++.exe
-CC       = gcc.exe
-WINDRES  = windres.exe
+APP      = encrypt
+
+CC       = /mingw64/bin/gcc
+
+SOURCE   = src/main.c src/init.c src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
+GUI      = src/gui-gtk.c
+COMMON   = src/common/error.c src/common/ccrypt.c src/common/tlv.c src/common/version.c src/common/fs.c src/common/cli.c src/common/dir.c src/common/ecc.c src/common/non-gnu.c
 RES      = src/encrypt_private.res
-OBJ      = src/main.o src/common/error.o src/encrypt.o src/gui-gtk.o src/init.o src/common/tlv.o src/common/version.o src/decrypt.o src/common/cli.o src/common/fs.o src/crypt.o src/crypt_io.o src/common/dir.o src/common/non-gnu.o src/common/ccrypt.o src/common/ecc.o $(RES)
-LINKOBJ  = src/main.o src/common/error.o src/encrypt.o src/gui-gtk.o src/init.o src/common/tlv.o src/common/version.o src/decrypt.o src/common/cli.o src/common/fs.o src/crypt.o src/crypt_io.o src/common/dir.o src/common/non-gnu.o src/common/ccrypt.o src/common/ecc.o $(RES)
-LIBS     = -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib32" -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib32" -static-libgcc -L"C:/extra/curl-7.40.0-devel-mingw32/lib" -L"C:/extra/gtk+-bundle_3.6.4-20130921_win32/lib" -L"C:/extra/libgcrypt-1.6.3-1/lib" -L"C:/extra/libgpg-error-1.18-1/lib" -L"C:/extra/pthreads-w32-2-9-1/lib/x86" -L"C:/extra/xz-5.2.1-windows/bin_i686" -mwindows -lpthreadgc2 -lcurldll -lgcrypt -lgpg-error -llzma -latk-1.0 -lcairo -lfontconfig -lgailutil -lgdk_pixbuf-2.0 -lgdk-win32-3.0 -lgio-2.0 -lglib-2.0 -lgmodule-2.0 -lgobject-2.0 -lgthread-2.0 -lgtk-win32-3.0 -lpango-1.0 -lpangocairo-1.0 -lpangoft2-1.0 -lpangowin32-1.0 -m32 -mwindows -s
-INCS     = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.8.1/include" -I"src" -I"C:/extra/curl-7.40.0-devel-mingw32/include" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include" -I"C:/extra/libgcrypt-1.6.3-1/include" -I"C:/extra/libgpg-error-1.18-1/include" -I"C:/extra/pthreads-w32-2-9-1/include" -I"C:/extra/xz-5.2.1-windows/include" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/atk-1.0" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/cairo" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/fontconfig" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/freetype2" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/gail-3.0" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/gdk-pixbuf-2.0" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/gio-win32-2.0" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/glib-2.0" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/gtk-3.0" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/jasper" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/libcroco-0.6" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/libpng15" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/librsvg-2.0" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/libxml2" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/lzma" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/pango-1.0" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/pixman-1" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/lib/glib-2.0/include"
-CXXINCS  = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.8.1/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.8.1/include/c++" -I"src" -I"C:/extra/curl-7.40.0-devel-mingw32/include" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include" -I"C:/extra/libgcrypt-1.6.3-1/include" -I"C:/extra/libgpg-error-1.18-1/include" -I"C:/extra/pthreads-w32-2-9-1/include" -I"C:/extra/xz-5.2.1-windows/include" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/atk-1.0" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/cairo" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/fontconfig" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/freetype2" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/gail-3.0" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/gdk-pixbuf-2.0" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/gio-win32-2.0" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/glib-2.0" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/gtk-3.0" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/jasper" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/libcroco-0.6" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/libpng15" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/librsvg-2.0" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/libxml2" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/lzma" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/pango-1.0" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/include/pixman-1" -I"C:/extra/gtk+-bundle_3.6.4-20130921_win32/lib/glib-2.0/include"
-BIN      = encrypt.exe
-CXXFLAGS = $(CXXINCS) -march=i386 -mtune=i386 -O2 -m32 -std=gnu99 -mwindows -pipe
-CFLAGS   = $(INCS) -march=i386 -mtune=i386 -O2 -m32 -std=gnu99 -mwindows -pipe -DBUILD_GUI -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64
-RM       = rm.exe -f
 
-.PHONY: all all-before all-after clean clean-custom
+CFLAGS  += -Wall -Wextra -std=gnu99 `libgcrypt-config --cflags` -pipe -O2 -mwindows
+CPPFLAGS = -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DGIT_COMMIT=\"`git log | head -n1 | cut -f2 -d' '`\"
+GUIFLAGS = -DBUILD_GUI `pkg-config --cflags gtk+-3.0 gmodule-2.0`
 
-all: all-before $(BIN) all-after
+DEBUG    = -O0 -ggdb -D__DEBUG__ -D__DEBUG_GUI__ -DMALLOC_CHECK_=1
 
-clean: clean-custom
-	${RM} $(OBJ) $(BIN)
+LIBS     = `libgcrypt-config --libs` -lpthread -lcurl -llzma
+GUILIBS  = `pkg-config --libs gtk+-3.0 gmodule-2.0`
 
-$(BIN): $(OBJ)
-	$(CC) $(LINKOBJ) -o $(BIN) $(LIBS)
+NSIS     = /c/Program\ Files\ \(x86\)/NSIS/makensis.exe
+INST     = encrypt.nsi
+PKG      = encrypt-2017.09-install.exe
 
-src/main.o: src/main.c
-	$(CC) -c src/main.c -o src/main.o $(CFLAGS)
+all: gui
 
-src/common/error.o: src/common/error.c
-	$(CC) -c src/common/error.c -o src/common/error.o $(CFLAGS)
+winres:
+	 @windres -i src/encrypt_private.rc --input-format=rc -o src/encrypt_private.res -O coff
+	-@echo -e "compiled Windows application metadata"
 
-src/encrypt.o: src/encrypt.c
-	$(CC) -c src/encrypt.c -o src/encrypt.o $(CFLAGS)
+gui: winres
+	 @$(CC) $(CFLAGS) $(CPPFLAGS) $(GUIFLAGS) $(SOURCE) $(COMMON) $(GUI) $(LIBS) $(GUILIBS) $(RES) -o $(APP)
+	-@echo -e "built ‘`echo -e $(SOURCE) $(COMMON) $(GUI) | sed 's/ /’\n      ‘/g'`’ → ‘$(APP)’"
 
-src/gui-gtk.o: src/gui-gtk.c
-	$(CC) -c src/gui-gtk.c -o src/gui-gtk.o $(CFLAGS)
+debug-gui: winres
+	 @$(CC) $(CFLAGS) $(CPPFLAGS) $(GUIFLAGS) $(SOURCE) $(COMMON) $(GUI) $(LIBS) $(GUILIBS) $(RES) $(DEBUG) -o $(APP)
+	-@echo -e "built ‘`echo -e $(SOURCE) $(COMMON) $(GUI) | sed 's/ /’\n      ‘/g'`’ → ‘$(APP)’"
 
-src/init.o: src/init.c
-	$(CC) -c src/init.c -o src/init.o $(CFLAGS)
+installer:
+	 @$(NSIS) $(INST)
 
-src/common/tlv.o: src/common/tlv.c
-	$(CC) -c src/common/tlv.c -o src/common/tlv.o $(CFLAGS)
+clean:
+	 @rm -fv $(APP) $(RES)
 
-src/common/version.o: src/common/version.c
-	$(CC) -c src/common/version.c -o src/common/version.o $(CFLAGS)
-
-src/decrypt.o: src/decrypt.c
-	$(CC) -c src/decrypt.c -o src/decrypt.o $(CFLAGS)
-
-src/common/cli.o: src/common/cli.c
-	$(CC) -c src/common/cli.c -o src/common/cli.o $(CFLAGS)
-
-src/common/fs.o: src/common/fs.c
-	$(CC) -c src/common/fs.c -o src/common/fs.o $(CFLAGS)
-
-src/crypt.o: src/crypt.c
-	$(CC) -c src/crypt.c -o src/crypt.o $(CFLAGS)
-
-src/crypt_io.o: src/crypt_io.c
-	$(CC) -c src/crypt_io.c -o src/crypt_io.o $(CFLAGS)
-
-src/common/dir.o: src/common/dir.c
-	$(CC) -c src/common/dir.c -o src/common/dir.o $(CFLAGS)
-
-src/common/non-gnu.o: src/common/non-gnu.c
-	$(CC) -c src/common/non-gnu.c -o src/common/non-gnu.o $(CFLAGS)
-
-src/common/ccrypt.o: src/common/ccrypt.c
-	$(CC) -c src/common/ccrypt.c -o src/common/ccrypt.o $(CFLAGS)
-
-src/common/ecc.o: src/common/ecc.c
-	$(CC) -c src/common/ecc.c -o src/common/ecc.o $(CFLAGS)
-
-src/encrypt_private.res: src/encrypt_private.rc 
-	$(WINDRES) -i src/encrypt_private.rc -F pe-i386 --input-format=rc -o src/encrypt_private.res -O coff 
+distclean: clean
+	 @rm -fv $(PKG)

@@ -29,12 +29,12 @@
 #define CH_GET_OBJECT( builder, name, type, data )  data->name = type( gtk_builder_get_object( builder, #name ) )
 #define CH_GET_WIDGET( builder, name, data )        CH_GET_OBJECT( builder, name, GTK_WIDGET, data )
 
-#ifndef _WIN32
+#if !defined _WIN32
 	#define GLADE_UI_FILE_DEFAULT "/usr/share/encrypt/encrypt.glade"
 	#define GLADE_UI_FILE_BACKUP  "etc/encrypt.glade"
 #else
 	#define GLADE_UI_FILE_DEFAULT "encrypt\\etc\\encrypt_win.glade"
-	#define GLADE_UI_FILE_BACKUP  "etc\\encrypt_w32.glade"
+	#define GLADE_UI_FILE_BACKUP  "etc\\encrypt_win.glade"
 #endif
 
 typedef struct gtk_widgets_t

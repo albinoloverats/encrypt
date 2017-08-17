@@ -40,6 +40,7 @@
 	#include <sys/wait.h>
 #else
 	#include <windows.h>
+	#include <shellapi.h>
 #endif
 
 #ifdef __APPLE__
