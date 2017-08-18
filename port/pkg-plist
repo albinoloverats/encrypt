@@ -1,0 +1,13 @@
+share/encrypt/encrypt.glade
+share/encrypt/encryptrc
+share/encrypt/magic
+share/bash-completion/completions/encrypt
+share/zsh/functions/Completion/Unix/_encrypt
+share/pixmaps/encrypt.svg
+share/pixmaps/encrypt_button.svg
+share/applications/encrypt.desktop
+share/Thunar/sendto/encrypt.desktop
+man/man1/encrypt.1a.gz
+bin/decrypt
+bin/encrypt
+@dirrm share/encrypt
