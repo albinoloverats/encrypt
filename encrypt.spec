@@ -15,6 +15,8 @@ modern desktop or mobile operating system. The GUI, either GTK or
 native, has been desigen to be common across systems and intuitive to
 use, whilst still providing command-line capabilities for power-users.
 
+%global debug_package %{nil}
+
 %prep
 %setup -q
 
