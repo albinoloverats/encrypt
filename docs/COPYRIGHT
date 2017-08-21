@@ -14,13 +14,15 @@ licence or another:
  * The ECC functions are heavily modified from their originals, which
    were authored by Paul Flaherty and released under the terms of the
    GNU GPL version 2 or later (hence now version 3).
+ * libcurl is covered by a modified MIT licence.
+ * liblzma is in the public domain.
 
 Many of the implementations of the functions for  Windows have come from
 other projects:
  * asprintf() is from glibc and therefore (was) part of the GTK.
  * scandir() is Copyright Rich Felker, and covered by the MIT License.
 
-Liekwise for functions not available on OS X:
+Likewise for functions not available on OS X:
  * strchrnul() is from GNU libc and Copyright Free Software Foundation.
 
 Parts of the Android UI have also been taken from existing projects:
