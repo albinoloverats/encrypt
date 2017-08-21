@@ -98,8 +98,8 @@ uninstall:
 	@rm -fv ${PREFIX}/usr/bin/${APP}
 
 clean:
-	@rm -fv ${APP}
-	@rm -fv ${ALT}
+	@rm -fv ${APP} ${ALT}
+	@rm -fv gmon.out
 
 distclean: clean
 	@rm -fv ${APP}.1a.gz
