@@ -678,7 +678,7 @@ public class MainFree extends Activity
 	private void handleMessage(final Message msg)
 	{
 		final ProgressUpdate progressUpdate = ProgressUpdate.fromValue(msg.what);
-		if (progressUpdate != null)
+		if (progressUpdate != null && doubleProgressDialog != null)
 			switch (progressUpdate)
 			{
 				case DONE:
