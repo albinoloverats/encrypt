@@ -3,6 +3,9 @@ bin
 gen
 pkg
 src/encrypt_private.res
+debian/encrypt/
+build-stamp
+configure-stamp
 # common files we don’t use
 src/common/rand.c
 src/common/rand.h

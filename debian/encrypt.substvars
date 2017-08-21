@@ -1,2 +1,3 @@
-shlibs:Depends=libatk1.0-0 (>= 1.12.4), libc6 (>= 2.3), libcairo-gobject2 (>= 1.10.0), libcairo2 (>= 1.2.4), libcurl3-gnutls (>= 7.16.2), libgcrypt11 (>= 1.4.5), libgdk-pixbuf2.0-0 (>= 2.22.0), libglib2.0-0 (>= 2.12.0), libgtk-3-0 (>= 3.0.0), liblzma5 (>= 5.1.1alpha+20120614), libpango1.0-0 (>= 1.14.0)
+shlibs:Depends=libatk1.0-0 (>= 1.12.4), libc6 (>= 2.14), libcairo-gobject2 (>= 1.10.0), libcairo2 (>= 1.2.4), libcurl3-gnutls (>= 7.16.2), libgcrypt20 (>= 1.7.0), libgdk-pixbuf2.0-0 (>= 2.22.0), libglib2.0-0 (>= 2.16.0), libgtk-3-0 (>= 3.0.0), liblzma5 (>= 5.1.1alpha+20120614), libpango-1.0-0 (>= 1.14.0), libpangocairo-1.0-0 (>= 1.14.0)
 misc:Depends=
+misc:Pre-Depends=
