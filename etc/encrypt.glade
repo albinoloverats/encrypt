@@ -160,8 +160,13 @@ along with this program.	If not, see &lt;http://www.gnu.org/licenses/&gt;.</prop
 		<property name="authors">encrypt was written by Ashley Anderson
 http://albinoloverats.net/amanderson/
 
-libgcrypt is part of GNU
-http://www.gnu.org/software/libgcrypt/</property>
+libgcrypt and libgpg-error are part of GNU
+http://www.gnu.org/software/libgcrypt/
+
+liblzma is part of XZ Utils
+https://tukaani.org/xz/
+
+and libcurl is available at https://curl.haxx.se/libcurl/</property>
 		<property name="artists">The logo is part of the Crystal Icon Theme by Everaldo Coelho
 http://www.everaldo.com/</property>
 		<property name="logo">/usr/share/pixmaps/encrypt.svg</property>
