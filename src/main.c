@@ -74,14 +74,6 @@ int main(int argc, char **argv)
 	setbuf(stderr, NULL);
 	program_invocation_short_name = strdup(argv[0]);
 #endif
-	/*
-	 * start background thread to check for newer version of encrypt
-	 *
-	 * NB If (When) encrypt makes it into a package manager for some
-	 * distros this can/should be removed as it will be unnecessary
-	 */
-	version_check_for_update(ENCRYPT_VERSION, UPDATE_URL, DOWNLOAD_URL_TEMPLATE);
-
 	args_t args = init(argc, argv);
 
 	/*
@@ -99,6 +91,14 @@ int main(int argc, char **argv)
 		la = list_macs();
 	if (la)
 		return EXIT_SUCCESS;
+
+	/*
+	 * start background thread to check for newer version of encrypt
+	 *
+	 * NB If (When) encrypt makes it into a package manager for some
+	 * distros this can/should be removed as it will be unnecessary
+	 */
+	version_check_for_update(ENCRYPT_VERSION, UPDATE_URL, DOWNLOAD_URL_TEMPLATE);
 
 #if !defined _WIN32
 	bool dude = false;
