@@ -12,8 +12,8 @@ intuitive to use, while still providing command-line capabilities for
 power-users.
 
 It is currently available as a binary package for several GNU/Linux
-distributions: Arch, Debian, Fedora, Slackware; as well as Apple’s OS X,
-Microsoft Windows, and Android. It has also been tested on FreeBSD.
+distributions: Arch, Debian, Fedora, Slackware; as well as FreeBSD and
+Apple’s OS X, Microsoft Windows, and Android.
 
 It supports a wide range of algorithms (provided by GNU’s libcrypt or
 gnu-crypto), of which many are common between the two libraries and thus
@@ -29,12 +29,14 @@ Compiling
 ---------
 
 Compiling from source is as simple as running one of the following
-commands:
+commands (depending on what interface you want):
 
     make cli
     make gui
 
-Depending on whether you want a GUI or not.
+Followed by:
+
+    make install
 
 
 Changelog
@@ -42,15 +44,25 @@ Changelog
 
 ### New For Latest Release
 
-* Improved key derivation
-* Added MAC as well as previously used hash of data to ensure
-  authentication
+* All
+  - Improved key derivation
+  - Added MAC as well as previously used hash of data to ensure
+    authentication
+* FreeBSD
+  - Provide ports files and binary package
 
-### Fixed For Latest Release
+### Fixed/Changed For Latest Release
 
+* Unix
+  - Fix SIGSEGV if the source file is deleted (even while doing nothing)
+    (GTK file selection dialog - GNU/Linux; Likely an upsteam problem as
+    it appears to have been fixed)
+* Windows
+  - Build using MSYS2 to provide 64 bit binary
 * Android
   - Fix permission handling
-  - TODO NullPointerException after exit
+  - Attempt to fix NullPointerException after exit (think we've got it;
+    it is rather intermittent)
 
 
 TODO
@@ -63,8 +75,3 @@ TODO
   - Thunar (consider plugin)
   - Nautilus (or Files or whatever it’s called now)
   - Konqueror or Dolphin (maybe - it’s Qt based not GTK)
-
-### Fix
-
-* Fix SIGSEGV if the source file is deleted (even while doing nothing)
-  (GTK file selection dialog - GNU/Linux)

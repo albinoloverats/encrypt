@@ -7,8 +7,6 @@ A history of what happened before, and a taste of what’s to come…
 Planned Future Enhancements
 ---------------------------
 
-* GNU/Linux, Windows : Investigate SIGSEGV in GTK when source file is
-  deleted
 * All desktop : Continue with better desktop integration
   - GNU/Linux : Find a way to merge file/magic info into main magic.mgc
 * Android : Support for file (hard/soft) links (depends on full NIO)
@@ -20,15 +18,25 @@ encrypt - 2017.09                                         --th Sept 2017
 
 ### New For Latest Release
 
-* Improved key derivation
-* Added MAC as well as previously used hash of data to ensure
-  authentication
+* All
+  - Improved key derivation
+  - Added MAC as well as previously used hash of data to ensure
+    authentication
+* FreeBSD
+  - Provide ports files and binary package
 
-### Fixed For Latest Release
+### Fixed/Changed For Latest Release
 
+* Unix
+  - Fix SIGSEGV if the source file is deleted (even while doing nothing)
+    (GTK file selection dialog - GNU/Linux; Likely an upsteam problem as
+    it appears to have been fixed)
+* Windows
+  - Build using MSYS2 to provide 64 bit binary
 * Android
   - Fix permission handling
-  - TODO NullPointerException after exit
+  - Attempt to fix NullPointerException after exit (think we've got it;
+    it is rather intermittent)
 
 
 encrypt - 2015.10                                           4th Oct 2015
