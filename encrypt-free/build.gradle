@@ -1,4 +1,4 @@
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 android {
 	compileSdkVersion 25
@@ -9,6 +9,9 @@ android {
 		targetSdkVersion 25
 		versionCode 15
 		versionName '2017.09'
+		jackOptions {
+			enabled true
+		}
 	}
 	signingConfigs {
 		release {
@@ -23,6 +26,10 @@ android {
 		}
 	}
 	productFlavors {
+	}
+	compileOptions {
+		targetCompatibility JavaVersion.VERSION_1_8
+		sourceCompatibility JavaVersion.VERSION_1_8
 	}
 }
 
