@@ -20,7 +20,9 @@
 
 package net.albinoloverats.android.encrypt.lib.crypt;
 
+import android.app.Service;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 
 import net.albinoloverats.android.encrypt.lib.io.EncryptedFileOutputStream;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
@@ -60,8 +62,10 @@ public class Encrypt extends Crypto
 	 */
 
 	@Override
-	public int onStartCommand(final Intent intent, final int flags, final int startId)
+	public int onStartCommand(@NonNull final Intent intent, final int flags, final int startId)
 	{
+		if (intent == null)
+			return Service.START_REDELIVER_INTENT;
 		final String source = intent.getStringExtra("source");
 		final String output = intent.getStringExtra("output");
 		cipher       = intent.getStringExtra("cipher");
