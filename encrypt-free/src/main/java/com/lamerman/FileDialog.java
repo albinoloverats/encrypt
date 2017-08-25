@@ -29,12 +29,9 @@ package com.lamerman;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
-import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -143,28 +140,22 @@ public class FileDialog extends ListActivity {
 
 		selectButton = (Button) findViewById(R.id.fdButtonSelect);
 		selectButton.setEnabled(false);
-		selectButton.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				if (selectedFile != null) {
-					getIntent().putExtra(RESULT_PATH, selectedFile.getPath());
-					setResult(RESULT_OK, getIntent());
-					finish();
-				}
+		selectButton.setOnClickListener(v ->
+		{
+			if (selectedFile != null) {
+				getIntent().putExtra(RESULT_PATH, selectedFile.getPath());
+				setResult(RESULT_OK, getIntent());
+				finish();
 			}
 		});
 
 		final Button newButton = (Button) findViewById(R.id.fdButtonNew);
-		newButton.setOnClickListener(new OnClickListener() {
+		newButton.setOnClickListener(v ->
+		{
+			setCreateVisible(v);
 
-			@Override
-			public void onClick(View v) {
-				setCreateVisible(v);
-
-				mFileName.setText("");
-				mFileName.requestFocus();
-			}
+			mFileName.setText("");
+			mFileName.requestFocus();
 		});
 
 		selection = Selection.parseMode(getIntent().getIntExtra(SELECTION_MODE, Selection.CREATE.mode));
@@ -182,28 +173,18 @@ public class FileDialog extends ListActivity {
 		layoutCreate.setVisibility(View.GONE);
 
 		final Button cancelButton = (Button) findViewById(R.id.fdButtonCancel);
-		cancelButton.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				setSelectVisible(v);
-			}
-
-		});
+		cancelButton.setOnClickListener(v -> setSelectVisible(v));
 		final Button createButton = (Button) findViewById(R.id.fdButtonCreate);
-		createButton.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				if (mFileName.getText().length() > 0) {
-					final StringBuilder p = new StringBuilder(currentPath);
-					if (!currentPath.endsWith(ROOT))
-						p.append(ROOT);
-					p.append(mFileName.getText());
-					getIntent().putExtra(RESULT_PATH, p.toString());
-					setResult(RESULT_OK, getIntent());
-					finish();
-				}
+		createButton.setOnClickListener(v ->
+		{
+			if (mFileName.getText().length() > 0) {
+				final StringBuilder p = new StringBuilder(currentPath);
+				if (!currentPath.endsWith(ROOT))
+					p.append(ROOT);
+				p.append(mFileName.getText());
+				getIntent().putExtra(RESULT_PATH, p.toString());
+				setResult(RESULT_OK, getIntent());
+				finish();
 			}
 		});
 
@@ -364,12 +345,9 @@ public class FileDialog extends ListActivity {
 			} else {
 				new AlertDialog.Builder(this).setIcon(R.drawable.icon)
 						.setTitle("[" + file.getName() + "] " + getText(R.string.cant_read_folder))
-						.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+						.setPositiveButton("OK", (dialog, which) ->
+						{
 
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-
-							}
 						}).show();
 			}
 		} else {

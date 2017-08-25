@@ -26,8 +26,6 @@ import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -239,14 +237,10 @@ public class MainFree extends Activity
 
 		// get reference to encrypt/decrypt button
 		final Button encButton = (Button)findViewById(R.id.button_go);
-		encButton.setOnClickListener(new OnClickListener()
+		encButton.setOnClickListener(v ->
 		{
-			@Override
-			public void onClick(final View v)
-			{
-				createDoubleProgressDialog();
-				startService(createBackgroundTask());
-			}
+			createDoubleProgressDialog();
+			startService(createBackgroundTask());
 		});
 		encButton.setEnabled(false);
 
@@ -263,7 +257,7 @@ public class MainFree extends Activity
 		if (BuildConfig.DEBUG)
 		{
 			adRequestBuilder.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
-			adRequestBuilder.addTestDevice("463890CB55C5B59AE12223411206E40A");
+			adRequestBuilder.addTestDevice("83C822185ABF685DE06641096B1FD7C6");
 			((AdView)findViewById(R.id.ad_banner_test)).loadAd(adRequestBuilder.build());
 		}
 		else
@@ -503,14 +497,10 @@ public class MainFree extends Activity
 		doubleProgressDialog = new DoubleProgressDialog(MainFree.this);
 		doubleProgressDialog.setMessage(getString(R.string.please_wait));
 		doubleProgressDialog.setCanceledOnTouchOutside(false);
-		doubleProgressDialog.setOnCancelListener(new OnCancelListener()
+		doubleProgressDialog.setOnCancelListener(dialog ->
 		{
-			@Override
-			public void onCancel(final DialogInterface dialog)
-			{
-				stopService(new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class));
-				messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.DONE.value, Status.CANCELLED.message));
-			}
+			stopService(new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class));
+			messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.DONE.value, Status.CANCELLED.message));
 		});
 		doubleProgressDialog.setMax(1);
 		doubleProgressDialog.setProgress(0);
@@ -542,8 +532,7 @@ public class MainFree extends Activity
 	private Intent createBackgroundTask()
 	{
 		/* kick off the actually cipher process */
-		Intent intent = null;
-		intent = new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class);
+		final Intent intent = new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class);
 
 		intent.putExtra("class", MainFree.class);
 		intent.putExtra("action", encrypting ? R.string.encrypting : R.string.decrypting);

@@ -26,8 +26,6 @@ import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -236,14 +234,10 @@ public class Main extends Activity
 
 		// get reference to encrypt/decrypt button
 		final Button encButton = (Button)findViewById(R.id.button_go);
-		encButton.setOnClickListener(new OnClickListener()
+		encButton.setOnClickListener(v ->
 		{
-			@Override
-			public void onClick(final View v)
-			{
-				createDoubleProgressDialog();
-				startService(createBackgroundTask());
-			}
+			createDoubleProgressDialog();
+			startService(createBackgroundTask());
 		});
 		encButton.setEnabled(false);
 
@@ -507,14 +501,10 @@ public class Main extends Activity
 				return keyCode != KeyEvent.KEYCODE_BACK;
 			}
 		});*/
-		doubleProgressDialog.setOnCancelListener(new OnCancelListener()
+		doubleProgressDialog.setOnCancelListener(dialog ->
 		{
-			@Override
-			public void onCancel(final DialogInterface dialog)
-			{
-				stopService(new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class));
-				messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.DONE.value, Status.CANCELLED.message));
-			}
+			stopService(new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class));
+			messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.DONE.value, Status.CANCELLED.message));
 		});
 		doubleProgressDialog.setMax(1);
 		doubleProgressDialog.setProgress(0);
@@ -546,8 +536,7 @@ public class Main extends Activity
 	private Intent createBackgroundTask()
 	{
 		/* kick off the actually cipher process */
-		Intent intent = null;
-		intent = new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class);
+		final Intent intent = new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class);
 
 		intent.putExtra("class", Main.class);
 		intent.putExtra("action", encrypting ? R.string.encrypting : R.string.decrypting);
