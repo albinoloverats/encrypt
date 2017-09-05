@@ -1,55 +1,67 @@
-Compiling/Installing From Source
-================================
+Compiling/Installing
+====================
+
+Binary Installation
+-------------------
+
+Use the binary package and default package installation method for your
+system:
+
+* Arch
+  - Pacman
+* Debian
+  - dpkg
+* Fedora
+  - yum
+* Slackware
+  - installpkg
+* FreeBSD
+  - Ports
+* Windows
+  - The executable installer
+* OS X
+  - The DMG image
+* Andoird
+  - The Google Play Store
 
 
-Prerequisites
--------------
+Compiling from Source
+---------------------
 
-To compile from source on GNU/Linux you will need the following:
+### Prerequisites
+
+To compile from source you will need the following:
+
 * GTK (version 3 or newer)
 * libgcrypt
 * liblzma
 * libcurl
 * pthreads
 
+
+### Linux / FreeBSD
+
 Most of the above are installed as part of the base (or core) OS on many
-distributions (but not always).
+distributions (but not always). On FreeBSD use Makefile.bsd instead of
+Makefile. Also note that there is no configure step, so just do the
+following:
 
-
-The Process
------------
-
-NB - There is no configure step, so just do the following:
-* make gui
+* make
 * make install
 
-Or perhaps you don't want a GUI:
-* make cli
-* make install
-
-Done :-)
-
-
-For non-GNU/Linux
------------------
+### For non-GNU/Linux
 
 * Microsoft Windows
-  - It's a headache! We used Dev C++ as the frontend to gcc and God only
-    knows how we managed to get GTK linked in, but we did! And so now we
-    are not going to touch anything in case it breaks.
-  - Dev C++ can be used to download most of the necessary packages,
-    however some have to come from other sources:
-    - http://curl.haxx.se/download.html
-    - https://www.sourceware.org/pthreads-win32/
-    - http://tukaani.org/xz/
-    - http://lrn.no-ip.info/packages/i686-w64-mingw/libgcrypt/
-  - The libgcrypt-20.dll actually comes from the Gpg4win project as this
-    fixes the AES issue (http://www.gpg4win.org/)
+  - Install MSYS2 (following their instructions)
+  - Install (using MSYS2) all of the above dependencies
+  - Use Makefile.win to build encrypt.exe
+  - Use the same makefile to build the installer
 
 * Mac OS X
-  - Get Homebrew (http://mxcl.github.com/homebrew/)
-  - Install libgcrypt, xz and curl
+  - Install Homebrew (http://mxcl.github.com/homebrew/)
+  - Install (using Homebrew) libgcrypt, xz and curl
   - Use Xcode to build a native OS X application: Encrypt.app
+  - Copy Encrypt.app to Applications
 
 * Android
   - gnu-crypto.jar
