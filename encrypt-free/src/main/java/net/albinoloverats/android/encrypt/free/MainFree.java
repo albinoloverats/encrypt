@@ -37,7 +37,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
-//import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -74,8 +73,6 @@ import java.util.Set;
 
 public class MainFree extends Activity
 {
-	private static Context context; /* used for Status messages */
-
 	private static final Set<String> CIPHERS = CryptoUtils.getCipherAlgorithmNames();
 	private static final Set<String> HASHES = CryptoUtils.getHashAlgorithmNames();
 	private static final Set<String> MODES = CryptoUtils.getCipherModeNames();
@@ -111,8 +108,6 @@ public class MainFree extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		context = this;
-
 		if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
 			requestPermissions(new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, STORAGE_PERMISSION_REQUEST);
 
@@ -124,10 +119,10 @@ public class MainFree extends Activity
 
 		// setup the file chooser button
 		final Button fChooser = (Button)findViewById(R.id.button_file);
-		fChooser.setOnClickListener(new FileChooserListener(FileAction.LOAD));
+		fChooser.setOnClickListener(new FileChooserListener(FileAction.LOAD, this));
 
 		// setup the file output chooser button
-		findViewById(R.id.button_output).setOnClickListener(new FileChooserListener(FileAction.SAVE));
+		findViewById(R.id.button_output).setOnClickListener(new FileChooserListener(FileAction.SAVE, this));
 
 		// setup the hash and crypto spinners
 		final Spinner cSpinner = (Spinner)findViewById(R.id.spin_crypto);
@@ -232,7 +227,7 @@ public class MainFree extends Activity
 
 		// select key file button
 		final Button keyButton = (Button)findViewById(R.id.button_key);
-		keyButton.setOnClickListener(new FileChooserListener(FileAction.KEY));
+		keyButton.setOnClickListener(new FileChooserListener(FileAction.KEY, this));
 		keyButton.setEnabled(false);
 
 		// get reference to encrypt/decrypt button
@@ -285,11 +280,6 @@ public class MainFree extends Activity
 		storePreferences();
 		((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancelAll();
 		super.onStop();
-	}
-
-	public static Context getContext()
-	{
-		return context;
 	}
 
 	private void storePreferences()
@@ -561,10 +551,12 @@ public class MainFree extends Activity
 	private class FileChooserListener implements OnClickListener
 	{
 		private final FileAction fileAction;
+		private final Context context;
 
-		public FileChooserListener(final FileAction fileAction)
+		public FileChooserListener(final FileAction fileAction, final Context context)
 		{
 			this.fileAction = fileAction;
+			this.context = context;
 		}
 
 		@Override
