@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment version="1060" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12121"/>
@@ -26,10 +26,6 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="236">
-                                <modifierMask key="keyEquivalentModifierMask" command="YES"/>
-                            </menuItem>
-                            <menuItem title="Preferences…" enabled="NO" keyEquivalent="," id="129"/>
-                            <menuItem isSeparatorItem="YES" id="143">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
                             <menuItem title="Hide Encrypt" keyEquivalent="h" id="134">
@@ -335,8 +331,8 @@
                 <outlet property="keySource" destination="jOI-uh-YrC" id="ybR-qX-6Os"/>
                 <outlet property="keySourceFile" destination="0YY-DZ-NeN" id="Cw6-GV-B0v"/>
                 <outlet property="keySourcePassword" destination="O26-0S-kyu" id="LZi-Ve-TtQ"/>
-                <outlet property="modeCombo" destination="589" id="0r3-Xk-CJs"/>
                 <outlet property="macCombo" destination="PLD-10-FBk" id="1d3-Xk-XSs"/>
+                <outlet property="modeCombo" destination="589" id="0r3-Xk-CJs"/>
                 <outlet property="outputFileChooser" destination="555" id="732"/>
                 <outlet property="passwordField" destination="615" id="683"/>
                 <outlet property="percent_current" destination="786" id="789"/>
