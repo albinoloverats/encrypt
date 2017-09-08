@@ -157,7 +157,8 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.	If not, see &lt;http://www.gnu.org/licenses/&gt;.</property>
-		<property name="authors">encrypt was written by Ashley Anderson
+		<property name="authors">
+encrypt was written by Ashley Anderson
 http://ashley.anderson.io/
 
 libgcrypt and libgpg-error are part of GNU
@@ -168,7 +169,8 @@ https://tukaani.org/xz/
 
 libcurl is part of cURL
 https://curl.haxx.se/libcurl/</property>
-		<property name="artists">The logo is part of the Crystal Icon Theme originally by Everaldo Coelho
+		<property name="artists">
+The logo is part of the Crystal Icon Theme originally by Everaldo Coelho
 https://commons.wikimedia.org/wiki/Category:SVG_Crystal_Clear_icons</property>
 		<property name="logo">C:\\Program Files\\encrypt\\pixmaps\\encrypt.png</property>
 		<property name="license_type">gpl-3-0</property>
