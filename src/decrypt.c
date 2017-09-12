@@ -182,7 +182,7 @@ static void *process(void *ptr)
 
 	bool skip_some_random = false;
 	x_iv_e iv_type = IV_RANDOM;
-	bool kdf=  true;
+	bool kdf = true;
 	switch (c->version)
 	{
 			/*

@@ -49,6 +49,7 @@
 
 #include "version.h"
 
+static void version_download_latest(char *);
 static void version_install_latest(char *);
 static void *version_check(void *);
 static size_t version_verify(void *, size_t, size_t, void *);
@@ -69,78 +70,89 @@ version_check_t;
 
 extern void version_check_for_update(char *current_version, char *check_url, char *download_url)
 {
-	version_check_t info = { current_version, check_url, download_url };
+	version_check_t *info = malloc(sizeof( version_check_t ));
+	info->current    = strdup(current_version);
+	info->check_url  = strdup(check_url);
+	info->update_url = download_url ? strdup(download_url) : NULL;
 #ifndef __DEBUG__
 	pthread_t vt;
 	pthread_attr_t a;
 	pthread_attr_init(&a);
 	pthread_attr_setdetachstate(&a, PTHREAD_CREATE_DETACHED);
 
-	pthread_create(&vt, &a, version_check, &info);
+	pthread_create(&vt, &a, version_check, info);
 	pthread_attr_destroy(&a);
 #else
-	version_check(&info);
+	version_check(info);
 #endif
 	return;
 }
 
 static void *version_check(void *n)
 {
-	version_check_t info;
-	memcpy(&info, n, sizeof info);
+	version_check_t *info = n;
 	curl_global_init(CURL_GLOBAL_ALL);
 	CURL *ccheck = curl_easy_init();
-	curl_easy_setopt(ccheck, CURLOPT_URL, info.check_url);
+	curl_easy_setopt(ccheck, CURLOPT_URL, info->check_url);
 #ifdef WIN32
 	curl_easy_setopt(ccheck, CURLOPT_SSL_VERIFYPEER, 0L);
 #endif
 	curl_easy_setopt(ccheck, CURLOPT_NOPROGRESS, 1L);
-	curl_easy_setopt(ccheck, CURLOPT_WRITEDATA, info.current);
+	curl_easy_setopt(ccheck, CURLOPT_WRITEDATA, info->current);
 	curl_easy_setopt(ccheck, CURLOPT_WRITEFUNCTION, version_verify);
 	curl_easy_perform(ccheck);
 	curl_easy_cleanup(ccheck);
-	if (new_version_available && info.update_url)
-	{
-		/* download new version */
-		CURL *cupdate = curl_easy_init();
-		/*
-		 * default template for our projects download url is /downloads/project/version/project-version
-		 * and as the project knows and can set everything except the new version number this is sufficient
-		 */
-		snprintf(new_version_url, sizeof new_version_url - 1, info.update_url, version_available, version_available);
-		curl_easy_setopt(cupdate, CURLOPT_URL, new_version_url);
-#ifdef WIN32
-		curl_easy_setopt(cupdate, CURLOPT_SSL_VERIFYPEER, 0L);
-#endif
-		curl_easy_setopt(cupdate, CURLOPT_NOPROGRESS, 1L);
-#ifndef _WIN32
-		asprintf(&update, "%s/update-%s-XXXXXX", P_tmpdir ,version_available);
-		int64_t fd = mkstemp(update);
-		fchmod(fd, S_IRUSR | S_IWUSR | S_IXUSR);
-#else
-		char p[MAX_PATH] = { 0x0 };
-		GetTempPath(sizeof p, p);
-		asprintf(&update, "%supdate-%s.exe", p, version_available);
-		int64_t fd = open(update, O_CREAT | O_WRONLY | O_BINARY);
-#endif
-		if (fd > 0)
-		{
-			FILE *fh = fdopen(fd, "wb");
-			curl_easy_setopt(cupdate, CURLOPT_WRITEDATA, fh);
-			curl_easy_perform(cupdate);
-			curl_easy_cleanup(cupdate);
-			fclose(fh);
-			close(fd);
+	if (new_version_available && info->update_url)
+		version_download_latest(info->update_url);
 
-			version_install_latest(update);
-		}
-		free(update);
-	}
+	if (info->update_url)
+		free(info->update_url);
+	free(info->check_url);
+	free(info->current);
+	free(info);
 #ifndef __DEBUG__
 	pthread_exit(NULL);
 #else
 	return NULL;
 #endif
+}
+
+static void version_download_latest(char *update_url)
+{
+	/* download new version */
+	CURL *cupdate = curl_easy_init();
+	/*
+	 * default template for our projects download url is /downloads/project/version/project-version
+	 * and as the project knows and can set everything except the new version number this is sufficient
+	 */
+	snprintf(new_version_url, sizeof new_version_url - 1, update_url, version_available, version_available);
+	curl_easy_setopt(cupdate, CURLOPT_URL, new_version_url);
+#ifdef WIN32
+	curl_easy_setopt(cupdate, CURLOPT_SSL_VERIFYPEER, 0L);
+#endif
+	curl_easy_setopt(cupdate, CURLOPT_NOPROGRESS, 1L);
+#ifndef _WIN32
+	asprintf(&update, "%s/update-%s-XXXXXX", P_tmpdir ,version_available);
+	int64_t fd = mkstemp(update);
+	fchmod(fd, S_IRUSR | S_IWUSR | S_IXUSR);
+#else
+	char p[MAX_PATH] = { 0x0 };
+	GetTempPath(sizeof p, p);
+	asprintf(&update, "%supdate-%s.exe", p, version_available);
+	int64_t fd = open(update, O_CREAT | O_WRONLY | O_BINARY);
+#endif
+	if (fd > 0)
+	{
+		FILE *fh = fdopen(fd, "wb");
+		curl_easy_setopt(cupdate, CURLOPT_WRITEDATA, fh);
+		curl_easy_perform(cupdate);
+		curl_easy_cleanup(cupdate);
+		fclose(fh);
+		close(fd);
+
+		version_install_latest(update);
+	}
+	free(update);
 }
 
 static void version_install_latest(char *u)

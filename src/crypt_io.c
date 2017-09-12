@@ -421,11 +421,10 @@ extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l)
 	if (!io_ptr || io_ptr->fd < 0)
 		return errno = EBADF , -1;
 
-	if (io_ptr->hash_init && io_ptr->mac_init)
-	{
+	if (io_ptr->hash_init)
 		gcry_md_write(io_ptr->hash_handle, d, l);
+	if (io_ptr->mac_init)
 		gcry_mac_write(io_ptr->mac_handle, d, l);
-	}
 
 	switch (io_ptr->operation)
 	{
@@ -467,11 +466,10 @@ extern ssize_t io_read(IO_HANDLE f, void *d, size_t l)
 			r = -1;
 			break;
 	}
-	if (r >= 0 && io_ptr->hash_init && io_ptr->mac_init)
-	{
+	if (r >= 0 && io_ptr->hash_init)
 		gcry_md_write(io_ptr->hash_handle, d, r);
+	if (r >= 0 && io_ptr->mac_init)
 		gcry_mac_write(io_ptr->mac_handle, d, r);
-	}
 	return r;
 }
 
