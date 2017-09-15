@@ -34,7 +34,7 @@ NB: It has been noted that some characters, when used in the password, aren't
 completely cross-platform; for instance the character £ doesn't play well
 on Android devices.
 
-Binary packages, and GPG signatures, for version 2015.10 are available below:
+Binary packages, and GPG signatures, for version 2017.09 are available below:
 
 |OS|Package|GPG Signature|Screenshots|
 |-|-|-|-|
@@ -42,9 +42,10 @@ Binary packages, and GPG signatures, for version 2015.10 are available below:
 |[Debian]|[deb][dp]|[Signature][dg]|_See above_|
 |[Fedora]|[rpm][fp]|[Signature][fg]|_See above_|
 |[Slackware]|[tgz][kp]|[Signature][kg]|_See above_|
+|[FreeBSD]|[txz][bp]|[Signature][bg]|_See above_|
 |Windows|[exe][wp]|[Signature][wg]|[GTK+3 / Windows][ws]|
 |OS X|[dmg][xp]|[Signature][xg]|[Native OS X][xs]|
-|[Android]|[Paid][mp]/[Free][gp]|[Signature (Free)][gg]|[Kitkat][m4s]/[Cupcake][m1s]|
+|[Android]|[Paid][mp]/[Free][gp]|[Signature (Free)][gg]|[Nougat][ms]|
 |Source Code|[src][sp]|[Signature][sg]|_See above_|
 
 [GTK]: http://www.gtk.org
@@ -55,38 +56,41 @@ Binary packages, and GPG signatures, for version 2015.10 are available below:
 [Xcode]: https://developer.apple.com/xcode/
 
 [Arch Linux]: http://www.archlinux.org
-[ap]: https://albinoloverats.net/downloads/encrypt/2015.10/encrypt-2015.10-1-x86_64.pkg.tar.xz
-[ag]: https://albinoloverats.net/downloads/encrypt/2015.10/encrypt-2015.10-1-x86_64.pkg.tar.xz.asc
-[as]: https://albinoloverats.net/src/encrypt/pixmaps/screenshot_linux_idle.png
+[ap]: /downloads/encrypt/2017.09/encrypt-2017.09-1-x86_64.pkg.tar.xz
+[ag]: /downloads/encrypt/2017.09/encrypt-2017.09-1-x86_64.pkg.tar.xz.asc
+[as]: /src/encrypt/pixmaps/screenshot_linux_idle.png
 
 [Debian]: http://www.debian.org
-[dp]: https://albinoloverats.net/downloads/encrypt/2015.10/encrypt_2015.10-1_amd64.deb
-[dg]: https://albinoloverats.net/downloads/encrypt/2015.10/encrypt_2015.10-1_amd64.deb.asc
+[dp]: /downloads/encrypt/2017.09/encrypt_2017.09-1_amd64.deb
+[dg]: /downloads/encrypt/2017.09/encrypt_2017.09-1_amd64.deb.asc
 
 [Fedora]: http://fedoraproject.org
-[fp]: https://albinoloverats.net/downloads/encrypt/2015.10/encrypt-2015.10-1.x86_64.rpm
-[fg]: https://albinoloverats.net/downloads/encrypt/2015.10/encrypt-2015.10-1.x86_64.rpm.asc
+[fp]: /downloads/encrypt/2017.09/encrypt-2017.09-1.x86_64.rpm
+[fg]: /downloads/encrypt/2017.09/encrypt-2017.09-1.x86_64.rpm.asc
 
 [Slackware]: http://http://www.slackware.com
-[kp]: https://albinoloverats.net/downloads/encrypt/2015.10/encrypt-2015.10-x86_64-1aa.tgz
-[kg]: https://albinoloverats.net/downloads/encrypt/2015.10/encrypt-2015.10-x86_64-1aa.tgz.asc
+[kp]: /downloads/encrypt/2017.09/encrypt-2017.09-x86_64-1aa.tgz
+[kg]: /downloads/encrypt/2017.09/encrypt-2017.09-x86_64-1aa.tgz.asc
 
-[wp]: https://albinoloverats.net/downloads/encrypt/2015.10/encrypt-2015.10-install.exe
-[wg]: https://albinoloverats.net/downloads/encrypt/2015.10/encrypt-2015.10-install.exe.asc
-[ws]: https://albinoloverats.net/src/encrypt/pixmaps/screenshot_windows_idle.png
+[FreeBSD]: https://www.freebsd.org
+[bp]: /downloads/encrypt/2017.09/encrypt-2017.09-x86_64.txz
+[bg]: /downloads/encrypt/2017.09/encrypt-2017.09-x86_64.txz.asc
+
+[wp]: /downloads/encrypt/2017.09/encrypt-2017.09-install.exe
+[wg]: /downloads/encrypt/2017.09/encrypt-2017.09-install.exe.asc
+[ws]: /src/encrypt/pixmaps/screenshot_windows_idle.png
 
 [mp]: https://market.android.com/details?id=net.albinoloverats.android.encrypt
-[m1s]: https://albinoloverats.net/src/encrypt/pixmaps/screenshot_android-1.5_idle.png
-[m4s]: https://albinoloverats.net/src/encrypt/pixmaps/screenshot_android-4.4_idle.png
-[gp]: https://albinoloverats.net/downloads/encrypt/2015.10/encrypt-2015.10-free.apk
-[gg]: https://albinoloverats.net/downloads/encrypt/2015.10/encrypt-2015.10-free.apk.asc
+[ms]: /src/encrypt/pixmaps/screenshot_android_idle.png
+[gp]: /downloads/encrypt/2017.09/encrypt-2017.09-free.apk
+[gg]: /downloads/encrypt/2017.09/encrypt-2017.09-free.apk.asc
 
-[xp]: https://albinoloverats.net/downloads/encrypt/2015.10/encrypt-2015.10-x86_64.dmg
-[xg]: https://albinoloverats.net/downloads/encrypt/2015.10/encrypt-2015.10-x86_64.dmg.asc
-[xs]: https://albinoloverats.net/src/encrypt/pixmaps/screenshot_macosx_idle.png
+[xp]: /downloads/encrypt/2017.09/encrypt-2017.09-x86_64.dmg
+[xg]: /downloads/encrypt/2017.09/encrypt-2017.09-x86_64.dmg.asc
+[xs]: /src/encrypt/pixmaps/screenshot_macosx_idle.png
 
-[sp]: https://albinoloverats.net/downloads/encrypt/2015.10/encrypt-2015.10.tar.xz
-[sg]: https://albinoloverats.net/downloads/encrypt/2015.10/encrypt-2015.10.tar.xz.asc
+[sp]: /downloads/encrypt/2017.09/encrypt-2017.09.tar.xz
+[sg]: /downloads/encrypt/2017.09/encrypt-2017.09.tar.xz.asc
 
 [qr]: https://qrcode.kaywa.com/img.php?s=2&d=https%3A%2F%2Fmarket.android.com%2Fdetails%3Fid%3Dnet.albinoloverats.android.encrypt
 
