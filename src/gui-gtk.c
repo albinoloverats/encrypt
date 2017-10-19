@@ -612,8 +612,10 @@ static void *gui_process(void *d)
 {
 	gtk_widgets_t *data = d;
 
-	char *source = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog));
-	char *output = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog));
+	char *source = gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog);
+	char *output = gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog);
+	source = source ? _filename_utf8(source) : gui_file_hack_source;
+	output = output ? _filename_utf8(output) : gui_file_hack_output;
 
 	if (!source || !output)
 		*_status = STATUS_FAILED_IO;
