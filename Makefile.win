@@ -24,6 +24,8 @@ INST     = encrypt.nsi
 PKG      = encrypt-2017.09-install.exe
 PKG_SIG  = encrypt-2017.09-install-signed.exe
 
+SIGOPTS  = -n "encrypt" -i "https://albinoloverats.net/"
+
 all: sign
 
 winres:
@@ -35,7 +37,7 @@ gui: winres
 	-@echo -e "built ‘`echo -e $(SOURCE) $(COMMON) $(GUI) | sed 's/ /’\n      ‘/g'`’ → ‘$(APP)’"
 
 sign: gui
-	 @osslsigncode -spc authenticode.spc -key authenticode.key -t http://timestamp.verisign.com/scripts/timstamp.dll -in $(APP).exe $(APP_SIG).exe
+	 @osslsigncode $(SIGOPTS) -spc authenticode.spc -key authenticode.key -t http://timestamp.verisign.com/scripts/timstamp.dll -in $(APP).exe $(APP_SIG).exe
 	-@echo -e "signed ‘$(APP)’ → ‘$(APP_SIG)’"
 	-@mv -v $(APP_SIG) $(APP)
 
@@ -45,7 +47,7 @@ debug-gui: winres
 
 installer:
 	 @$(NSIS) $(INST)
-	 @osslsigncode -spc authenticode.spc -key authenticode.key -t http://timestamp.verisign.com/scripts/timstamp.dll -in $(PKG) $(PKG_SIG)
+	 @osslsigncode $(SIGOPTS) -spc authenticode.spc -key authenticode.key -t http://timestamp.verisign.com/scripts/timstamp.dll -in $(PKG) $(PKG_SIG)
 	-@echo -e "signed ‘$(PKG)’ → ‘$(PKG_SIG)’"
 	-@mv -v $(PKG_SIG) $(PKG)
 
