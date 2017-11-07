@@ -7,7 +7,7 @@ SOURCE   = src/main.c src/init.c src/crypt.c src/encrypt.c src/decrypt.c src/cry
 GUI      = src/gui-gtk.c
 COMMON   = src/common/error.c src/common/ccrypt.c src/common/tlv.c src/common/version.c src/common/fs.c src/common/cli.c src/common/dir.c src/common/ecc.c src/common/non-gnu.c
 
-CFLAGS  += -Wall -Wextra -std=gnu99 `libgcrypt-config --cflags` -pipe -O2
+CFLAGS  += -Wall -Wextra -std=gnu99 `libgcrypt-config --cflags` -pipe -O2 -Wrestrict -Wformat=2
 CPPFLAGS = -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DGIT_COMMIT=\"`git log | head -n1 | cut -f2 -d' '`\"
 GUIFLAGS = -DBUILD_GUI `pkg-config --cflags gtk+-3.0 gmodule-2.0`
 
@@ -36,6 +36,10 @@ gui: link
 
 debug-gui: link
 	 @${CC} ${CFLAGS} ${CPPFLAGS} ${GUIFLAGS} ${SOURCE} ${COMMON} ${GUI} ${LIBS} ${GUILIBS} ${DEBUG} -o ${APP}
+	-@echo -e "built ‘`echo -e ${SOURCE} ${COMMON} ${GUI} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
+
+debug-gui-with-encryption: link
+	 @${CC} ${CFLAGS} ${CPPFLAGS} ${GUIFLAGS} ${SOURCE} ${COMMON} ${GUI} ${LIBS} ${GUILIBS} ${DEBUG} -D__DEBUG_WITH_ENCRYPTION__ -o ${APP}
 	-@echo -e "built ‘`echo -e ${SOURCE} ${COMMON} ${GUI} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 link:
