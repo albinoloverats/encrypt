@@ -316,6 +316,9 @@ static void *process(void *ptr)
 		c->status = STATUS_SUCCESS;
 
 	pthread_exit((void *)c->status);
+#ifdef _WIN32
+	return (void *)c->status;
+#endif
 }
 
 static uint64_t read_version(crypto_t *c)

@@ -112,6 +112,9 @@ static void *version_check(void *n)
 	free(info);
 #ifndef __DEBUG__
 	pthread_exit(NULL);
+#ifdef _WIN32
+	return NULL;
+#endif
 #else
 	return NULL;
 #endif

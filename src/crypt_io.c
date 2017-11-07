@@ -120,6 +120,7 @@ extern IO_HANDLE io_open(const char *n, int f, mode_t m)
 	int64_t fd = open(n, f, m);
 #else
 	int64_t fd = open(n, f);
+	(void)m;
 #endif
 	if (fd < 0)
 		return NULL;
