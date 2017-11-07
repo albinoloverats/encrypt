@@ -214,11 +214,12 @@ extern bool io_is_stdout(IO_HANDLE ptr)
 	return io_ptr->fd == STDOUT_FILENO;
 }
 
-extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, enum gcry_mac_algos a, const uint8_t *k, size_t l, io_extra_t x)
+extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, enum gcry_mac_algos a, uint32_t i, const uint8_t *k, size_t l, io_extra_t x)
 {
 	io_private_t *io_ptr = ptr;
 	if (!io_ptr || io_ptr->fd < 0)
 		return errno = EBADF , (void)NULL;
+	uint32_t key_iterations = i;
 	/*
 	 * start setting up the encryption buffer
 	 */
@@ -246,7 +247,7 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, key_length);
 	size_t salt_length = key_length;
 	uint8_t *salt = gcry_calloc_secure(salt_length, sizeof( byte_t ));
-	if (x.x_kdf)
+	if (key_iterations)
 	{
 		if (!salt)
 			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, salt_length);
@@ -257,7 +258,7 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 		}
 		else
 			io_read(ptr, salt, salt_length);
-		gcry_kdf_derive(hash, hash_length, GCRY_KDF_PBKDF2, h, salt, salt_length, KEY_ITERATIONS, key_length, key);
+		gcry_kdf_derive(hash, hash_length, GCRY_KDF_PBKDF2, h, salt, salt_length, key_iterations, key_length, key);
 	}
 	else
 	{
@@ -279,7 +280,7 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	{
 		size_t mac_length = gcry_mac_get_algo_keylen(a);
 		uint8_t *mac = gcry_calloc_secure(mac_length, sizeof( byte_t ));
-		gcry_kdf_derive(hash, hash_length, GCRY_KDF_PBKDF2, h, salt, salt_length, KEY_ITERATIONS, mac_length, mac);
+		gcry_kdf_derive(hash, hash_length, GCRY_KDF_PBKDF2, h, salt, salt_length, key_iterations, mac_length, mac);
 		gcry_mac_setkey(io_ptr->mac_handle, mac, mac_length);
 		gcry_free(mac);
 		io_ptr->mac_init = true;

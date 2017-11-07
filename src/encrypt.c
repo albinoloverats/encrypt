@@ -229,7 +229,12 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 			break;
 		case VERSION_2015_01:
 		case VERSION_2015_10:
+			break;
 		case VERSION_2017_09:
+			z->iterations = KEY_ITERATIONS_201709;
+			break;
+		case VERSION_201X_XX:
+			z->iterations = KEY_ITERATIONS;
 		// case VERSION_CURRENT:
 			/*
 			 * do nothing, all options are available; not falling back
@@ -255,7 +260,6 @@ static void *process(void *ptr)
 
 	bool pre_random = true;
 	x_iv_e iv_type = IV_RANDOM;
-	bool kdf = true;
 	switch (c->version)
 	{
 		case VERSION_2011_08:
@@ -264,7 +268,6 @@ static void *process(void *ptr)
 			__attribute__((fallthrough)); /* allow fall-through for broken IV compatibility */
 		case VERSION_2012_11:
 			pre_random = false;
-			kdf = false;
 			break;
 		case VERSION_2013_02:
 		case VERSION_2013_11:
@@ -273,10 +276,8 @@ static void *process(void *ptr)
 			__attribute__((fallthrough)); /* allow fall-through for broken key derivation */
 		case VERSION_2015_01:
 		case VERSION_2015_10:
-			kdf = false;
-			break;
-
 		case VERSION_2017_09:
+		case VERSION_201X_XX:
 		default:
 			/* no changes */
 			break;
@@ -287,8 +288,8 @@ static void *process(void *ptr)
 	 * of the IV and salt, both of which are auto-generated during
 	 * the encryption initialisation)
 	 */
-	io_extra_t iox = { iv_type, true, kdf };
-	io_encryption_init(c->output, c->cipher, c->hash, c->mode, c->mac, c->key, c->length, iox);
+	io_extra_t iox = { iv_type, true };
+	io_encryption_init(c->output, c->cipher, c->hash, c->mode, c->mac, c->iterations, c->key, c->length, iox);
 	gcry_free(c->key);
 
 	if (!c->raw)
@@ -382,7 +383,7 @@ static void *process(void *ptr)
 		write_random_data(c);
 	}
 
-	if (kdf)
+	if (c->iterations)
 	{
 		/*
 		 * using a key derivation function also gives a MAC

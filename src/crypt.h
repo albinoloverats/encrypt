@@ -57,7 +57,9 @@
 #define HEADER_1 0xc845c2fa95e2f52dllu              /*!< The second 8 bytes of an encrypted file */
 
 #define BLOCK_SIZE     1024 /*!< Default IO block size; not currently configurable */
-#define KEY_ITERATIONS 1024 /*!< Default number of iterations for key derivation algorithm; not currently configurable */
+#define KEY_ITERATIONS_201709 1024 /*!< Default number of iterations for key derivation algorithm for version 2017.09 */
+#define KEY_ITERATIONS 32768
+/* 32,768 : 147,055μs 147.06ms 0.14s / 1,424ms */
 
 #ifndef GIT_COMMIT
 	#define GIT_COMMIT "unknown"
@@ -135,7 +137,9 @@ typedef enum
 	VERSION_2015_01,     /*!< Version 2015.01 */
 	VERSION_2015_10,     /*!< Version 2015.10 */
 	VERSION_2017_09,     /*!< Version 2017.09 */
-	VERSION_CURRENT = VERSION_2017_09 /*!< Next release / current development version */
+
+	VERSION_201X_XX,     /*!< Version 201X.XX */
+	VERSION_CURRENT = VERSION_201X_XX /*!< Next release / current development version */
 }
 version_e;
 
@@ -196,6 +200,7 @@ typedef struct
 #endif
 	uint8_t *key;                  /*!< Key data */
 	size_t length;                 /*!< Key data length */
+	uint32_t iterations;           /*!< KDF iterations */
 
 	pthread_t *thread;             /*!< Execution thread */
 	void *(*process)(void *);      /*!< Main processing function; used by execute() */

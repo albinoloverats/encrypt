@@ -72,7 +72,6 @@ typedef struct
 {
 	x_iv_e x_iv;    /*!< Whether to use the older (less correct) IV generation */
 	bool x_encrypt; /*!< Encrypt (or decrypt) */
-	bool x_kdf;     /*!< Whether to use a key derivation function or not */
 }
 io_extra_t;
 
@@ -218,6 +217,7 @@ extern off_t io_seek(IO_HANDLE f, off_t o, int w) __attribute__((nonnull(1)));
  * \param[in]  h  The ID of the hash to use for key generation
  * \param[in]  m  The ID of the mode to use
  * \param[in]  a  The ID of the MAC to use
+ * \param[in]  i  Number of iterations for key derivation function
  * \param[in]  k  Raw key data
  * \param[in]  l  The length of the key data
  * \param[in]  x  Any extra modifing options
@@ -225,7 +225,7 @@ extern off_t io_seek(IO_HANDLE f, off_t o, int w) __attribute__((nonnull(1)));
  * Initialise encryption/decryption of data read/written. This is then
  * active for the rest of the life of the IO_HANDLE.
  */
-extern void io_encryption_init(IO_HANDLE f, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, enum gcry_mac_algos a, const uint8_t *k, size_t l, io_extra_t x) __attribute__((nonnull(1, 6)));
+extern void io_encryption_init(IO_HANDLE f, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, enum gcry_mac_algos a, uint32_t i, const uint8_t *k, size_t l, io_extra_t x) __attribute__((nonnull(1, 7)));
 
 /*!
  * \brief         Compression initialisation

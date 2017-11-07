@@ -182,7 +182,6 @@ static void *process(void *ptr)
 
 	bool skip_some_random = false;
 	x_iv_e iv_type = IV_RANDOM;
-	bool kdf = true;
 	switch (c->version)
 	{
 			/*
@@ -195,7 +194,6 @@ static void *process(void *ptr)
 			__attribute__((fallthrough)); /* allow fall-through for broken IV compatibility */
 		case VERSION_2012_11:
 			skip_some_random = true;
-			kdf = false;
 			break;
 
 		case VERSION_2013_02:
@@ -205,10 +203,15 @@ static void *process(void *ptr)
 			__attribute__((fallthrough)); /* allow fall-through for broken key derivation */
 		case VERSION_2015_01:
 		case VERSION_2015_10:
-			kdf = false;
 			break;
 
 		case VERSION_2017_09:
+			c->iterations = KEY_ITERATIONS_201709;
+			break;
+
+		case VERSION_201X_XX:
+			c->iterations = KEY_ITERATIONS;
+			break;
 		default:
 			/* this will catch the all more recent versions (unknown is detected above) */
 			break;
@@ -217,8 +220,8 @@ static void *process(void *ptr)
 	 * the 2011.* versions (incorrectly) used key length instead of block
 	 * length; and up until 2017.XX a kdf was not used
 	 */
-	io_extra_t iox = { iv_type, false, kdf };
-	io_encryption_init(c->source, c->cipher, c->hash, c->mode, c->mac, c->key, c->length, iox);
+	io_extra_t iox = { iv_type, false };
+	io_encryption_init(c->source, c->cipher, c->hash, c->mode, c->mac, c->iterations, c->key, c->length, iox);
 	gcry_free(c->key);
 
 	if (!c->raw)
@@ -294,7 +297,7 @@ static void *process(void *ptr)
 	if (!c->raw)
 		skip_random_data(c); /* not entirely necessary as we already know we’ve reached the end of the file */
 
-	if (kdf)
+	if (c->iterations)
 	{
 		uint8_t *mac = NULL;
 		size_t mac_length = 0;
