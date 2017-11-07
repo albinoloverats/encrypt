@@ -401,6 +401,9 @@ static void *process(void *ptr)
 	c->status = STATUS_SUCCESS;
 
 	pthread_exit((void *)c->status);
+#ifdef _WIN32
+	return (void *)c->status;
+#endif
 }
 
 static inline void write_header(crypto_t *c)
