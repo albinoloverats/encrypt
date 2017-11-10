@@ -128,7 +128,10 @@ static void version_download_latest(char *update_url)
 	 * default template for our projects download url is /downloads/project/version/project-version
 	 * and as the project knows and can set everything except the new version number this is sufficient
 	 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
 	snprintf(new_version_url, sizeof new_version_url - 1, update_url, version_available, version_available);
+#pragma GCC diagnostic pop
 	curl_easy_setopt(cupdate, CURLOPT_URL, new_version_url);
 #ifdef WIN32
 	curl_easy_setopt(cupdate, CURLOPT_SSL_VERIFYPEER, 0L);
