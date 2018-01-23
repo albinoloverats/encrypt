@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, multi-OS encryption utility
- * Copyright © 2005-2017, albinoloverats ~ Software Development
+ * Copyright © 2005-2018, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -229,7 +229,6 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	gcry_md_open(&io_ptr->hash_handle, h, GCRY_MD_FLAG_SECURE);
 	gcry_cipher_open(&io_ptr->cipher_handle, c, m, GCRY_CIPHER_SECURE);
 	gcry_mac_open(&io_ptr->mac_handle, a, GCRY_MAC_FLAG_SECURE, NULL);
-
 	/*
 	 * generate a hash of the supplied key data
 	 */

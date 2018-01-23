@@ -138,12 +138,12 @@
 		<property name="skip_pager_hint">True</property>
 		<property name="program_name">encrypt</property>
 		<property name="version">2017.09</property>
-		<property name="copyright" translatable="yes">Copyright © 2004-2017, albinoloverats ~ Software Development</property>
+		<property name="copyright" translatable="yes">Copyright © 2004-2018, albinoloverats ~ Software Development</property>
 		<property name="website">https://albinoloverats.net/projects/encrypt</property>
 		<property name="website_label" translatable="yes">https://albinoloverats.net/projects/encrypt</property>
 		<property name="license" translatable="yes">encrypt ~ a cross platform, symetric key, file encryption application
 
-Copyright © 2004-2017, albinoloverats ~ Software Development
+Copyright © 2004-2018, albinoloverats ~ Software Development
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
