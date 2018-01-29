@@ -84,31 +84,38 @@ extern void tlv_append(TLV_HANDLE *ptr, tlv_t tlv)
 	return;
 }
 
-extern bool tlv_has_tag(TLV_HANDLE ptr, uint8_t tag)
-{
-	return tlv_value_of(ptr, tag) != NULL;
-}
-
-extern byte_t *tlv_value_of(TLV_HANDLE ptr, uint8_t tag)
+extern tlv_t *tlv_get(TLV_HANDLE ptr, uint8_t tag)
 {
 	tlv_private_t *tlv_ptr = (tlv_private_t *)ptr;
 	if (!tlv_ptr)
 		return NULL;
 	for (unsigned i = 0; i < tlv_ptr->tags; i++)
 		if (tlv_ptr->buffer[i].tag == tag)
-			return tlv_ptr->buffer[i].value;
+			return &(tlv_ptr->buffer[i]);
 	return NULL;
 }
 
-extern uint16_t tlv_size_of(TLV_HANDLE ptr, uint8_t tag)
+extern bool tlv_has_tag(TLV_HANDLE ptr, uint8_t tag)
+{
+	return tlv_get(ptr, tag) != NULL;
+}
+
+extern byte_t *tlv_value_of(TLV_HANDLE ptr, uint8_t tag, uint8_t *def)
+{
+	tlv_private_t *tlv_ptr = (tlv_private_t *)ptr;
+	if (!tlv_ptr)
+		return NULL;
+	tlv_t *t = tlv_get(ptr, tag);
+	return t ? t->value : def;
+}
+
+extern uint16_t tlv_length_of(TLV_HANDLE ptr, uint8_t tag)
 {
 	tlv_private_t *tlv_ptr = (tlv_private_t *)ptr;
 	if (!tlv_ptr)
 		return 0;
-	for (unsigned i = 0; i < tlv_ptr->tags; i++)
-		if (tlv_ptr->buffer[i].tag == tag)
-			return tlv_ptr->buffer[i].length;
-	return 0;
+	tlv_t *t = tlv_get(ptr, tag);
+	return t ? t->length : 0;
 }
 
 extern byte_t *tlv_export_aux(TLV_HANDLE ptr, bool nbo)
