@@ -421,8 +421,8 @@ static bool read_metadata(crypto_t *c)
 	else
 		c->blocksize = 0;
 
-	c->compressed = tlv_has_tag(tlv, TAG_COMPRESSED) ? *tlv_value_of(tlv, TAG_COMPRESSED) : false;
-	c->directory = tlv_has_tag(tlv, TAG_DIRECTORY) ? *tlv_value_of(tlv, TAG_DIRECTORY) : false;
+	c->compressed = tlv_has_tag(tlv, TAG_COMPRESSED) ? tlv_value_of(tlv, TAG_COMPRESSED) : false;
+	c->directory = tlv_has_tag(tlv, TAG_DIRECTORY) ? tlv_value_of(tlv, TAG_DIRECTORY) : false;
 	if (c->directory)
 	{
 		struct stat s;
@@ -442,7 +442,7 @@ static bool read_metadata(crypto_t *c)
 				/* use what's in the metadata (if it's there) */
 				if (c->name)
 					free(c->name);
-				c->name = strndup((char *)tlv_value_of(tlv, TAG_FILENAME), tlv_size_of(tlv, TAG_FILENAME));
+				c->name = strndup((char *)tlv_value_of(tlv, TAG_FILENAME), tlv_length_of(tlv, TAG_FILENAME));
 			}
 			io_release(c->output);
 			struct stat s;
