@@ -31,7 +31,7 @@
 #include <curl/curl.h>
 #include <pthread.h>
 
-#ifdef __FreeBSD__
+#if defined __FreeBSD__ || defined __sun
 	#include <libgen.h>
 #endif
 

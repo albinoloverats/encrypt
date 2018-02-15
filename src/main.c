@@ -30,7 +30,10 @@
 #include <stdbool.h>
 
 #include <sys/stat.h>
-#include <libgen.h>
+
+#if defined __FreeBSD__ || defined __sun
+	#include <libgen.h>
+#endif
 
 #include "common/common.h"
 #include "common/non-gnu.h"

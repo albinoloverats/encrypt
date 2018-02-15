@@ -22,9 +22,11 @@
 #define _NON_GNU_EXT_H_
 
 #if defined __APPLE__ || defined _WIN32
+	extern char *strchrnul(const char *string, int c);
+#endif
 
-extern char *strchrnul(const char *string, int c);
-
+#ifdef __sun
+	#define __attribute__(X)
 #endif
 
 #ifdef _WIN32

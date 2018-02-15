@@ -319,7 +319,7 @@ static void *process(void *ptr)
 		c->status = STATUS_SUCCESS;
 
 	pthread_exit((void *)c->status);
-#ifdef _WIN32
+#if defined _WIN32 || defined __sun
 	return (void *)c->status;
 #endif
 }
