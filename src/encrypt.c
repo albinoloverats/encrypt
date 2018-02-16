@@ -402,7 +402,7 @@ static void *process(void *ptr)
 	c->status = STATUS_SUCCESS;
 
 	pthread_exit((void *)c->status);
-#if defined _WIN32 || defined __sun
+#if defined _WIN32 || defined __sun || defined __clang__
 	return (void *)c->status;
 #endif
 }

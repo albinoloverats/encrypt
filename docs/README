@@ -50,6 +50,7 @@ Changelog
     authentication
 * FreeBSD
   - Provide ports files and binary package
+* Build using clang (doesn't allow for -Wrestrict)
 
 ### Fixed/Changed For Latest Release
 

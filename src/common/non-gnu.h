@@ -25,7 +25,7 @@
 	extern char *strchrnul(const char *string, int c);
 #endif
 
-#ifdef __sun
+#if defined __sun || defined __clang__
 	#define __attribute__(X)
 #endif
 

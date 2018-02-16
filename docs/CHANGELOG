@@ -26,6 +26,7 @@ encrypt - 2017.09                                         15th Sept 2017
     authentication
 * FreeBSD
   - Provide ports files and binary package
+* Build using clang (doesn't allow for -Wrestrict)
 
 ### Fixed/Changed For Latest Release
 
