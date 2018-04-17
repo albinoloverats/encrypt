@@ -53,8 +53,8 @@ char *strchrnul(const char *s, int c_in)
 {
 	/* Find the first occurrence of C in S or the final NUL byte.  */
 	const unsigned char *char_ptr;
-	const unsigned long int *longword_ptr;
-	unsigned long int longword, magic_bits, charmask;
+	const unsigned long long *longword_ptr;
+	unsigned long long longword, magic_bits, charmask;
 	unsigned char c;
 
 	c = (unsigned char)c_in;
@@ -62,7 +62,7 @@ char *strchrnul(const char *s, int c_in)
 	/* Handle the first few characters by reading one character at a time.
 	   Do this until CHAR_PTR is aligned on a longword boundary.  */
 	for (char_ptr = (const unsigned char *)s;
-		((unsigned long int)char_ptr & (sizeof (longword) - 1)) != 0;
+		((unsigned long long)char_ptr & (sizeof (longword) - 1)) != 0;
 		++char_ptr)
 		if (*char_ptr == c || *char_ptr == '\0')
 			return (void *)char_ptr;
@@ -70,7 +70,7 @@ char *strchrnul(const char *s, int c_in)
 	/* All these elucidatory comments refer to 4-byte longwords,
 	   but the theory applies equally well to 8-byte longwords.  */
 
-	longword_ptr = (unsigned long int *)char_ptr;
+	longword_ptr = (unsigned long long *)char_ptr;
 
 	/* Bits 31, 24, 16, and 8 of this number are zero.  Call these bits
 	   the "holes."  Note that there is a hole just to the left of
@@ -83,8 +83,8 @@ char *strchrnul(const char *s, int c_in)
 	   The 0-bits provide holes for carries to fall into.  */
 	switch (sizeof (longword))
 	{
-		case 4: magic_bits = 0x7efefeffL; break;
-		case 8: magic_bits = ((0x7efefefeL << 16) << 16) | 0xfefefeffL; break;
+		case 4: magic_bits = 0x7efefeffLLU; break;
+		case 8: magic_bits = ((0x7efefefeLLU << 16) << 16) | 0xfefefeffLLU; break;
 		default:
 			die(_("unsupported size of unsigned long @ %s:%d:%s [%zu])"), __FILE__, __LINE__, __func__, sizeof longword);
 	}
