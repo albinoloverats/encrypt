@@ -25,10 +25,6 @@
 
 #include "init.h"
 
-/* Convenience macros for obtaining objects from UI file */
-#define CH_GET_OBJECT( builder, name, type, data )  data->name = type( gtk_builder_get_object( builder, #name ) )
-#define CH_GET_WIDGET( builder, name, data )        CH_GET_OBJECT( builder, name, GTK_WIDGET, data )
-
 #if !defined _WIN32 && !defined __FreeBSD__
 	#define GLADE_UI_FILE_DEFAULT "/usr/share/encrypt/encrypt.glade"
 	#define GLADE_UI_FILE_BACKUP  "etc/encrypt.glade"

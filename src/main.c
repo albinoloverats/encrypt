@@ -45,6 +45,7 @@
 #ifdef _WIN32
 	#include <Shlobj.h>
 	extern char *program_invocation_short_name;
+	#include "common/dir.h"
 #endif
 
 #include "init.h"
@@ -55,6 +56,8 @@
 #ifdef BUILD_GUI
 	#include "gui.h"
 	#include "gui-gtk.h"
+
+	#define INIT_WIDGET(W) widgets->W = GTK_WIDGET(gtk_builder_get_object(builder, #W))
 #endif
 
 
@@ -75,7 +78,7 @@ int main(int argc, char **argv)
 #ifdef _WIN32
 	setbuf(stdout, NULL);
 	setbuf(stderr, NULL);
-	program_invocation_short_name = strdup(argv[0]);
+	program_invocation_short_name = dir_get_name(argv[0]);
 #endif
 	args_t args = init(argc, argv);
 
@@ -183,44 +186,44 @@ int main(int argc, char **argv)
 			/*
 			 * get widgets from UI
 			 */
-			CH_GET_WIDGET(builder, main_window, widgets);
-			CH_GET_WIDGET(builder, open_button, widgets);
-			CH_GET_WIDGET(builder, open_dialog, widgets);
-			CH_GET_WIDGET(builder, open_file_label, widgets);
-			CH_GET_WIDGET(builder, open_file_image, widgets);
-			CH_GET_WIDGET(builder, save_button, widgets);
-			CH_GET_WIDGET(builder, save_dialog, widgets);
-			CH_GET_WIDGET(builder, save_file_label, widgets);
-			CH_GET_WIDGET(builder, save_file_image, widgets);
-			CH_GET_WIDGET(builder, crypto_combo, widgets);
-			CH_GET_WIDGET(builder, hash_combo, widgets);
-			CH_GET_WIDGET(builder, mode_combo, widgets);
-			CH_GET_WIDGET(builder, mac_combo, widgets);
-			CH_GET_WIDGET(builder, password_entry, widgets);
-			CH_GET_WIDGET(builder, key_button, widgets);
-			CH_GET_WIDGET(builder, key_dialog, widgets);
-			CH_GET_WIDGET(builder, key_file_label, widgets);
-			CH_GET_WIDGET(builder, key_file_image, widgets);
-			CH_GET_WIDGET(builder, encrypt_button, widgets);
-			CH_GET_WIDGET(builder, status_bar, widgets);
-			CH_GET_WIDGET(builder, progress_dialog, widgets);
-			CH_GET_WIDGET(builder, progress_bar_total, widgets);
-			CH_GET_WIDGET(builder, progress_bar_current, widgets);
-			CH_GET_WIDGET(builder, progress_label, widgets);
-			CH_GET_WIDGET(builder, progress_cancel_button, widgets);
-			CH_GET_WIDGET(builder, progress_close_button, widgets);
-			CH_GET_WIDGET(builder, about_dialog, widgets);
-			CH_GET_WIDGET(builder, about_new_version_label, widgets);
-			CH_GET_WIDGET(builder, compress_menu_item, widgets);
-			CH_GET_WIDGET(builder, follow_menu_item, widgets);
-			CH_GET_WIDGET(builder, raw_menu_item, widgets);
-			CH_GET_WIDGET(builder, compat_menu, widgets);
-			CH_GET_WIDGET(builder, key_file_menu_item, widgets);
-			CH_GET_WIDGET(builder, key_password_menu_item, widgets);
-			CH_GET_WIDGET(builder, raw_encrypt_button, widgets);
-			CH_GET_WIDGET(builder, raw_decrypt_button, widgets);
-			CH_GET_WIDGET(builder, abort_dialog, widgets);
-			CH_GET_WIDGET(builder, abort_message, widgets);
+			INIT_WIDGET(main_window);
+			INIT_WIDGET(open_button);
+			INIT_WIDGET(open_dialog);
+			INIT_WIDGET(open_file_label);
+			INIT_WIDGET(open_file_image);
+			INIT_WIDGET(save_button);
+			INIT_WIDGET(save_dialog);
+			INIT_WIDGET(save_file_label);
+			INIT_WIDGET(save_file_image);
+			INIT_WIDGET(crypto_combo);
+			INIT_WIDGET(hash_combo);
+			INIT_WIDGET(mode_combo);
+			INIT_WIDGET(mac_combo);
+			INIT_WIDGET(password_entry);
+			INIT_WIDGET(key_button);
+			INIT_WIDGET(key_dialog);
+			INIT_WIDGET(key_file_label);
+			INIT_WIDGET(key_file_image);
+			INIT_WIDGET(encrypt_button);
+			INIT_WIDGET(status_bar);
+			INIT_WIDGET(progress_dialog);
+			INIT_WIDGET(progress_bar_total);
+			INIT_WIDGET(progress_bar_current);
+			INIT_WIDGET(progress_label);
+			INIT_WIDGET(progress_cancel_button);
+			INIT_WIDGET(progress_close_button);
+			INIT_WIDGET(about_dialog);
+			INIT_WIDGET(about_new_version_label);
+			INIT_WIDGET(compress_menu_item);
+			INIT_WIDGET(follow_menu_item);
+			INIT_WIDGET(raw_menu_item);
+			INIT_WIDGET(compat_menu);
+			INIT_WIDGET(key_file_menu_item);
+			INIT_WIDGET(key_password_menu_item);
+			INIT_WIDGET(raw_encrypt_button);
+			INIT_WIDGET(raw_decrypt_button);
+			INIT_WIDGET(abort_dialog);
+			INIT_WIDGET(abort_message);
 
 			gtk_builder_connect_signals(builder, widgets);
 			g_object_unref(G_OBJECT(builder));
