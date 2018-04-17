@@ -12,9 +12,9 @@
 [\fIdestination\fR]
 .SH DESCRIPTION
 \fBencrypt\fR is a simple, cross platform, file encryption
-application\(emsuitable for any modern desktop or mobile operating system. The
-GUI, either GTK or native, has been desigen to be common across systems and
-intuitive to use, whilst still providing command-line capabilities for
+application\(emsuitable for any modern desktop or mobile operating system.
+The GUI, either GTK or native, has been designed to be common across systems
+and intuitive to use, whilst still providing command-line capabilities for
 power-users.
 .SH OPTIONS
 .TP
@@ -65,27 +65,28 @@ of encrypt
 .TP
 .BR \-r ", " \-\-raw
 Don’t generate or look for an encrypt header; this IS NOT recommended, but
-can be usefull in some (limited) situations
+can be useful in some (limited) situations
 .SH FILES
 .TP
 .BR ~/.encryptrc
-Custom settings file. It allows defaults to be set so that they do not have to
-be specified on the command line. The GUI will change/update these in real-time.
+Custom settings file. It allows defaults to be set so that they do not have
+to be specified on the command line. The GUI will change/update these in
+real-time.
 .TP
 .BR /usr/share/encrypt/encryptrc
-And exmaple configuration file.
+And example configuration file.
 .SH NOTES
-If either the source file or destination file are omitted then stdin/stdout are
-used. When encrypting, both \fB\-s\fR and \fB\-c\fR are required\(dg to
-specify the algorithms you wish to use; when decrypting the algorithms
+If either the source file or destination file are omitted then stdin/stdout
+are used. When encrypting, both \fB\-s\fR and \fB\-c\fR are required\(dg
+to specify the algorithms you wish to use; when decrypting the algorithms
 originally used are read from the encrypted file.
 .P
 \(dg You can omit the algorithm options if you have configured defaults in
 \fB~/.encryptrc\fR
 .P
-If you do not specify either a key or a password, you will be prompted to enter
-a password. This will then be used to generate a key to encrypt the data with
-(using the specified hash and MAC).
+If you do not specify either a key or a password, you will be prompted to
+enter a password. This will then be used to generate a key to encrypt the
+data with (using the specified hash and MAC).
 .P
 To see a list of available algorithms or modes use list as the argument.
 .P
@@ -101,7 +102,8 @@ README or the CHANGELOG to see if it has already been documented and scheduled
 for the next release; then if you're still convinced, let us know at
 https://albinoloverats.net/?tracker
 .P
-And if you're willing and able to provide a fix/patch that would be even better.
+And if you're willing and able to provide a fix/patch that would be even
+better.
 .SH COPYRIGHT
 Copyright \(co 2004\-2018 albinoloverats ~ Software Development
 .SH LICENCE
@@ -110,16 +112,17 @@ the terms of the GNU General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
 version.
 .PP
-This program is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE. See the GNU General Public License for more details.
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 .PP
 You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 .PP
 Note on spelling: As albinoloverats.net is a British company and \(lqlicence\(rq
 is the correct spelling in its native language. However, the name of the
-licences, written in most cases in America, feature the American spelling of the
-word, license. As part of the title of the official licensing document it was
-thought inappropriate to alter the spelling. In British English, license is the
-verb, licence is the noun and licensee is the person who is granted a Licence.
+licences, written in most cases in America, feature the American spelling
+of the word, license. As part of the title of the official licensing document
+it was thought inappropriate to alter the spelling. In British English, license
+is the verb, licence is the noun and licensee is the person who is granted
+a Licence.
