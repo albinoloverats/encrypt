@@ -510,7 +510,7 @@ G_MODULE_EXPORT gboolean on_progress_button_clicked(GtkButton *button, gtk_widge
 
 G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_t *data)
 {
-	if (new_version_available)
+	if (version_new_available)
 	{
 		char *text = NULL;
 		asprintf(&text, NEW_VERSION_OF_AVAILABLE, version_available, APP_NAME);

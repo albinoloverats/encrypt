@@ -54,7 +54,8 @@ static void version_install_latest(char *);
 static void *version_check(void *);
 static size_t version_verify(void *, size_t, size_t, void *);
 
-bool new_version_available = false;
+bool version_new_available = false;
+bool version_checking = true;
 char version_available[0x10] = { 0x0 };
 char new_version_url[0xFF] = { 0x0 };
 
@@ -70,6 +71,7 @@ version_check_t;
 
 extern void version_check_for_update(char *current_version, char *check_url, char *download_url)
 {
+	version_checking = true;
 	version_check_t *info = malloc(sizeof( version_check_t ));
 	info->current    = strdup(current_version);
 	info->check_url  = strdup(check_url);
@@ -102,7 +104,7 @@ static void *version_check(void *n)
 	curl_easy_setopt(ccheck, CURLOPT_WRITEFUNCTION, version_verify);
 	curl_easy_perform(ccheck);
 	curl_easy_cleanup(ccheck);
-	if (new_version_available && info->update_url)
+	if (version_new_available && info->update_url)
 		version_download_latest(info->update_url);
 
 	if (info->update_url)
@@ -110,6 +112,7 @@ static void *version_check(void *n)
 	free(info->check_url);
 	free(info->current);
 	free(info);
+	version_checking = false;
 #ifndef __DEBUG__
 	pthread_exit(NULL);
 #ifdef _WIN32
@@ -163,7 +166,7 @@ static void version_download_latest(char *update_url)
 
 static void version_install_latest(char *u)
 {
-	if (!new_version_available || !u)
+	if (!version_new_available || !u)
 		return;
 #if !defined __APPLE__ && !defined _WIN32
 	char *u2 = strdup(u);
@@ -204,7 +207,7 @@ static size_t version_verify(void *p, size_t s, size_t n, void *v)
 		*l = '\0';
 	if (strcmp(b, (char *)v) > 0)
 	{
-		new_version_available = true;
+		version_new_available = true;
 		snprintf(version_available, sizeof version_available - 1, "%s", b);
 	}
 	free(b);

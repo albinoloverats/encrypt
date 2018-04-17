@@ -346,8 +346,10 @@ static void print_version(void)
 	char *app_name = is_encrypt() ? APP_NAME : ALT_NAME;
 	char *git = strndup(GIT_COMMIT, GIT_COMMIT_LENGTH);
 	fprintf(stderr, _("%s version: %s\n%*s built on: %s %s\n%*s git commit: %s\n"), app_name, ENCRYPT_VERSION, (int)strlen(app_name) - 1, "", __DATE__, __TIME__, (int)strlen(app_name) - 3, "", git);
-	sleep(1);
-	if (new_version_available)
+	struct timespec vc = { 0, MILLION }; /* 1ms == 1,000,000ns*/
+	while (version_checking)
+		nanosleep(&vc, NULL);
+	if (version_new_available)
 	{
 		fprintf(stderr, "\n");
 		fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : PROJECT_URL);

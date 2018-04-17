@@ -74,6 +74,13 @@ int main(int argc, char **argv)
 #ifdef __DEBUG__
 	fprintf(stderr, _("\n**** DEBUG BUILD ****\n\n"));
 #endif
+	/*
+	 * start background thread to check for newer version of encrypt
+	 *
+	 * NB If (When) encrypt makes it into a package manager for some
+	 * distros this can/should be removed as it will be unnecessary
+	 */
+	version_check_for_update(ENCRYPT_VERSION, UPDATE_URL, DOWNLOAD_URL_TEMPLATE);
 
 #ifdef _WIN32
 	setbuf(stdout, NULL);
@@ -97,14 +104,6 @@ int main(int argc, char **argv)
 		la = list_macs();
 	if (la)
 		return EXIT_SUCCESS;
-
-	/*
-	 * start background thread to check for newer version of encrypt
-	 *
-	 * NB If (When) encrypt makes it into a package manager for some
-	 * distros this can/should be removed as it will be unnecessary
-	 */
-	version_check_for_update(ENCRYPT_VERSION, UPDATE_URL, DOWNLOAD_URL_TEMPLATE);
 
 #if !defined _WIN32
 	bool dude = false;
@@ -354,7 +353,7 @@ int main(int argc, char **argv)
 clean_up:
 #endif
 
-	if (new_version_available)
+	if (version_new_available)
 		fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : PROJECT_URL);
 
 #ifdef __DEBUG__
