@@ -386,7 +386,7 @@ extern void show_help(void)
 	fprintf(stderr, _("  -p, --password=<password>    Password used to generate the key\n"));
 	if (is_encrypt())
 	{
-		fprintf(stderr, _("  -x, --no-compress            Do not compress the plaintext using the xz\n"));
+		fprintf(stderr, _("  -x, --no-compress            Do not compress the plain text using the xz\n"));
 		fprintf(stderr, _("                               algorithm\n"));
 		fprintf(stderr, _("  -f, --follow                 Follow symlinks, the default is to store the\n"));
 		fprintf(stderr, _("                               link itself\n"));
@@ -397,7 +397,7 @@ extern void show_help(void)
 	else
 		fprintf(stderr, _("\nAdvanced Options:\n"));
 	fprintf(stderr, _("  -r, --raw                    Don’t generate or look for an encrypt header;\n"));
-	fprintf(stderr, _("                               this IS NOT recommended, but can be usefull in\n"));
+	fprintf(stderr, _("                               this IS NOT recommended, but can be useful in\n"));
 	fprintf(stderr, _("                               some (limited) situations."));
 	fprintf(stderr, _("\nNotes:\n  • If you do not supply a key or password, you will be prompted for one.\n"));
 	if (is_encrypt())
