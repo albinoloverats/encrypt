@@ -3,11 +3,15 @@
 APP      = encrypt
 APP_SIG  = encrypt-signed
 
-CC       = /mingw64/bin/gcc
+CC       = gcc
+WRES     = windres
+NSIS     = makensis
+SIGN     = osslsigncode
 
 SOURCE   = src/main.c src/init.c src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
 GUI      = src/gui-gtk.c
 COMMON   = src/common/error.c src/common/ccrypt.c src/common/tlv.c src/common/version.c src/common/fs.c src/common/cli.c src/common/dir.c src/common/ecc.c src/common/non-gnu.c
+RC       = src/encrypt_private.rc
 RES      = src/encrypt_private.res
 
 CFLAGS  += -Wall -Wextra -std=gnu99 `libgcrypt-config --cflags` -pipe -O2 -mwindows -Wformat=0
@@ -19,17 +23,17 @@ DEBUG    = -O0 -ggdb -D__DEBUG__ -D__DEBUG_GUI__ -DMALLOC_CHECK_=1
 LIBS     = `libgcrypt-config --libs` -lpthread -lcurl -llzma
 GUILIBS  = `pkg-config --libs gtk+-3.0 gmodule-2.0`
 
-NSIS     = /c/Program\ Files\ \(x86\)/NSIS/makensis.exe
 INST     = encrypt.nsi
 PKG      = encrypt-2017.09-install.exe
 PKG_SIG  = encrypt-2017.09-install-signed.exe
 
-SIGOPTS  = -n "encrypt" -i "https://albinoloverats.net/"
+RESOPTS  = -O coff --input-format=rc
+SIGOPTS  = -n "$(APP)" -i "https://albinoloverats.net/" -spc authenticode.spc -key authenticode.key -t http://timestamp.verisign.com/scripts/timstamp.dll
 
-all: sign
+all: winres
 
 winres:
-	 @windres -i src/encrypt_private.rc --input-format=rc -o src/encrypt_private.res -O coff
+	 @$(WRES) -i $(RC) $(RESOPTS) -o $(RES)
 	-@echo -e "compiled Windows application metadata"
 
 gui: winres
@@ -37,7 +41,7 @@ gui: winres
 	-@echo -e "built ‘`echo -e $(SOURCE) $(COMMON) $(GUI) | sed 's/ /’\n      ‘/g'`’ → ‘$(APP)’"
 
 sign: gui
-	 @osslsigncode $(SIGOPTS) -spc authenticode.spc -key authenticode.key -t http://timestamp.verisign.com/scripts/timstamp.dll -in $(APP).exe $(APP_SIG).exe
+	 @$(SIGN) $(SIGOPTS) -in $(APP).exe $(APP_SIG).exe
 	-@echo -e "signed ‘$(APP)’ → ‘$(APP_SIG)’"
 	-@mv -v $(APP_SIG) $(APP)
 
@@ -47,7 +51,7 @@ debug-gui: winres
 
 installer:
 	 @$(NSIS) $(INST)
-	 @osslsigncode $(SIGOPTS) -spc authenticode.spc -key authenticode.key -t http://timestamp.verisign.com/scripts/timstamp.dll -in $(PKG) $(PKG_SIG)
+	 @$(SIGN) $(SIGOPTS) -in $(PKG) $(PKG_SIG)
 	-@echo -e "signed ‘$(PKG)’ → ‘$(PKG_SIG)’"
 	-@mv -v $(PKG_SIG) $(PKG)
 
