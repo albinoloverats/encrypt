@@ -423,6 +423,7 @@ processes your file</property>
 												<property name="can_focus">False</property>
 												<property name="label">_Follow Symlinks</property>
 												<property name="use_underline">True</property>
+												<property name="sensitive">False</property>
 												<signal name="toggled" handler="on_follow_toggle" swapped="no"/>
 											</object>
 										</child>
