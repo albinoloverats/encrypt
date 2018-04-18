@@ -88,12 +88,15 @@
 #define mkdir(dir, attr) _mkdir(dir)
 #define lstat(path, st) stat(path, st)
 #define link(old, new) CopyFile(old, new, FALSE)
+#define tmpfile temp_file
 
 extern ssize_t getline(char **lineptr, size_t *n, FILE *stream) __attribute__((nonnull(3)));
 
 extern char *strndup(const char *s, size_t l) __attribute__((nonnull(1)));
 
 extern int scandir(const char *path, struct dirent ***res, int (*sel)(const struct dirent *), int (*cmp)(const struct dirent **, const struct dirent **)) __attribute__((nonnull(1, 2)));
+
+extern FILE *temp_file(void);
 
 #endif /* _WIN32 */
 

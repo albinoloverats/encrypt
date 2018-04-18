@@ -81,7 +81,7 @@ char *strchrnul(const char *s, int c_in)
 
 	   The 1-bits make sure that carries propagate to the next 0-bit.
 	   The 0-bits provide holes for carries to fall into.  */
-	switch (sizeof (longword))
+	switch (sizeof longword)
 	{
 		case 4: magic_bits = 0x7efefeffLLU; break;
 		case 8: magic_bits = ((0x7efefefeLLU << 16) << 16) | 0xfefefeffLLU; break;
@@ -95,7 +95,7 @@ char *strchrnul(const char *s, int c_in)
 	if (sizeof (longword) > 4)
 		/* Do the shift in two steps to avoid a warning if long has 32 bits.  */
 		charmask |= (charmask << 16) << 16;
-	if (sizeof (longword) > 8)
+	if (sizeof longword > 8)
 		die(_("unsupported size of unsigned long @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof longword);
 
 	/* Instead of the traditional loop which tests each character,
@@ -321,6 +321,17 @@ extern int scandir(const char *path, struct dirent ***res, int (*sel)(const stru
 
 	*res = names;
 	return cnt;
+}
+
+extern FILE *temp_file(void)
+{
+	char p[256] = { 0x0 };
+	GetTempPath(sizeof p - 1, p);
+	int o = strlen(p);
+	uint16_t r = (uint16_t)(lrand48() | 0x0000FFFF);
+	snprintf(p + o, sizeof p - o - 1, "alr-%04x", r);
+	FILE *t = fopen(p, "wb+");
+	return t;
 }
 
 #endif /* _WIN32 */

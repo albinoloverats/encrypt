@@ -47,7 +47,7 @@
 extern void die(const char * const restrict s, ...) __attribute__((noreturn, nonnull(1), format(printf, 1, 2)));
 
 #ifdef BUILD_GUI
-extern void error_gui_init(GtkWidget *w, GtkWidget *b, GtkWidget *m) __attribute__((nonnull(1), nonnull(2), nonnull(3)));
+extern void error_gui_init(GtkWidget *w, GtkWidget *m) __attribute__((nonnull(1), nonnull(2)));
 G_MODULE_EXPORT gboolean error_gui_close(void *, void *);
 #endif
 

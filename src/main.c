@@ -221,6 +221,7 @@ int main(int argc, char **argv)
 			g_object_unref(G_OBJECT(builder));
 			gtk_widget_show(widgets->main_window);
 
+			gtk_window_set_transient_for((GtkWindow *)widgets->abort_dialog, (GtkWindow *)widgets->main_window);
 			error_gui_init(widgets->abort_dialog, widgets->abort_message);
 
 			if (args.source)

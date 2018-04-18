@@ -30,7 +30,7 @@ PKG_SIG  = encrypt-2017.09-install-signed.exe
 RESOPTS  = -O coff --input-format=rc
 SIGOPTS  = -n "$(APP)" -i "https://albinoloverats.net/" -spc authenticode.spc -key authenticode.key -t http://timestamp.verisign.com/scripts/timstamp.dll
 
-all: winres
+all: sign
 
 winres:
 	 @$(WRES) -i $(RC) $(RESOPTS) -o $(RES)
