@@ -28,7 +28,7 @@
 extern void version_check_for_update(char *current_version, char *check_url, char *download_url) __attribute__((nonnull(1, 2)));
 
 extern bool version_new_available;
-extern bool version_checking;
+extern bool version_is_checking;
 extern char version_available[];
 extern char new_version_url[];
 

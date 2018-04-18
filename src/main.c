@@ -74,14 +74,6 @@ int main(int argc, char **argv)
 #ifdef __DEBUG__
 	fprintf(stderr, _("\n**** DEBUG BUILD ****\n\n"));
 #endif
-	/*
-	 * start background thread to check for newer version of encrypt
-	 *
-	 * NB If (When) encrypt makes it into a package manager for some
-	 * distros this can/should be removed as it will be unnecessary
-	 */
-	version_check_for_update(ENCRYPT_VERSION, UPDATE_URL, DOWNLOAD_URL_TEMPLATE);
-
 #ifdef _WIN32
 	setbuf(stdout, NULL);
 	setbuf(stderr, NULL);

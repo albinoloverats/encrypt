@@ -75,6 +75,14 @@ extern args_t init(int argc, char **argv)
 	};
 
 	/*
+	 * start background thread to check for newer version of encrypt
+	 *
+	 * NB If (When) encrypt makes it into a package manager for some
+	 * distros this can/should be removed as it will be unnecessary
+	 */
+	version_check_for_update(ENCRYPT_VERSION, UPDATE_URL, DOWNLOAD_URL_TEMPLATE);
+
+	/*
 	 * check for options in rc file (~/.encryptrc)
 	 */
 	char *rc = NULL;
@@ -347,7 +355,7 @@ static void print_version(void)
 	char *git = strndup(GIT_COMMIT, GIT_COMMIT_LENGTH);
 	fprintf(stderr, _("%s version: %s\n%*s built on: %s %s\n%*s git commit: %s\n"), app_name, ENCRYPT_VERSION, (int)strlen(app_name) - 1, "", __DATE__, __TIME__, (int)strlen(app_name) - 3, "", git);
 	struct timespec vc = { 0, MILLION }; /* 1ms == 1,000,000ns*/
-	while (version_checking)
+	while (version_is_checking)
 		nanosleep(&vc, NULL);
 	if (version_new_available)
 	{

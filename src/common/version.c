@@ -49,13 +49,15 @@
 
 #include "version.h"
 
+#define TIMEOUT 10
+
 static void version_download_latest(char *);
 static void version_install_latest(char *);
 static void *version_check(void *);
 static size_t version_verify(void *, size_t, size_t, void *);
 
 bool version_new_available = false;
-bool version_checking = true;
+bool version_is_checking = false;
 char version_available[0x10] = { 0x0 };
 char new_version_url[0xFF] = { 0x0 };
 
@@ -71,7 +73,10 @@ version_check_t;
 
 extern void version_check_for_update(char *current_version, char *check_url, char *download_url)
 {
-	version_checking = true;
+	if (version_is_checking)
+		return;
+	version_is_checking = true;
+
 	version_check_t *info = malloc(sizeof( version_check_t ));
 	info->current    = strdup(current_version);
 	info->check_url  = strdup(check_url);
@@ -100,6 +105,8 @@ static void *version_check(void *n)
 	curl_easy_setopt(ccheck, CURLOPT_SSL_VERIFYPEER, 0L);
 #endif
 	curl_easy_setopt(ccheck, CURLOPT_NOPROGRESS, 1L);
+	curl_easy_setopt(ccheck, CURLOPT_CONNECTTIMEOUT, TIMEOUT);
+	//curl_easy_setopt(ccheck, CURLOPT_TIMEOUT, TIMEOUT);
 	curl_easy_setopt(ccheck, CURLOPT_WRITEDATA, info->current);
 	curl_easy_setopt(ccheck, CURLOPT_WRITEFUNCTION, version_verify);
 	curl_easy_perform(ccheck);
@@ -112,12 +119,12 @@ static void *version_check(void *n)
 	free(info->check_url);
 	free(info->current);
 	free(info);
-	version_checking = false;
+	version_is_checking = false;
 #ifndef __DEBUG__
 	pthread_exit(NULL);
-#ifdef _WIN32
+	#ifdef _WIN32
 	return NULL;
-#endif
+	#endif
 #else
 	return NULL;
 #endif
