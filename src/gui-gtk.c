@@ -83,7 +83,6 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 	 */
 	const char **ciphers = list_of_ciphers();
 	unsigned slctd_cipher = 0;
-
 	gtk_combo_box_text_remove_all((GtkComboBoxText *)data->crypto_combo);
 	gtk_combo_box_text_append_text((GtkComboBoxText *)data->crypto_combo, SELECT_CIPHER);
 	for (unsigned i = 0; ciphers[i]; i++)

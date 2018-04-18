@@ -29,7 +29,7 @@
 	#define GLADE_UI_FILE_DEFAULT "/usr/share/encrypt/encrypt.glade"
 	#define GLADE_UI_FILE_BACKUP  "etc/encrypt.glade"
 #elif defined __FreeBSD__
-    #define GLADE_UI_FILE_DEFAULT "/usr/local/share/encrypt/encrypt.glade"
+	#define GLADE_UI_FILE_DEFAULT "/usr/local/share/encrypt/encrypt.glade"
 	#define GLADE_UI_FILE_BACKUP  "etc/encrypt.glade"
 #else
 	#define GLADE_UI_FILE_DEFAULT "encrypt\\etc\\encrypt_win.glade"
@@ -75,6 +75,7 @@ typedef struct gtk_widgets_t
 	GtkWidget *raw_encrypt_button;
 	GtkWidget *raw_decrypt_button;
 	GtkWidget *abort_dialog;
+	GtkWidget *abort_button;
 	GtkWidget *abort_message;
 }
 gtk_widgets_t;

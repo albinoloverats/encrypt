@@ -91,18 +91,19 @@ extern void die(const char * const restrict s, ...)
 }
 
 #ifdef BUILD_GUI
-extern void error_gui_init(GtkWidget *w, GtkWidget *m)
+extern void error_gui_init(GtkWidget *w, GtkWidget *b, GtkWidget *m)
 {
 	error_gui_window = w;
+	error_gui_button = b;
 	error_gui_message = m;
 }
 
-extern void *error_gui_close(void *w, void *d)
+G_MODULE_EXPORT gboolean error_gui_close(void *w, void *d)
 {
 	(void)w;
 	(void)d;
 	gtk_widget_hide(error_gui_window);
-	return NULL;
+	return TRUE;
 }
 
 static void error_gui_alert(const char * const restrict msg)

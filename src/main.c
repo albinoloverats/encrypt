@@ -214,6 +214,7 @@ int main(int argc, char **argv)
 			INIT_WIDGET(raw_encrypt_button);
 			INIT_WIDGET(raw_decrypt_button);
 			INIT_WIDGET(abort_dialog);
+			INIT_WIDGET(abort_button);
 			INIT_WIDGET(abort_message);
 
 			gtk_builder_connect_signals(builder, widgets);
