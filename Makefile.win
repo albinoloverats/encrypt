@@ -5,7 +5,7 @@ APP_SIG  = encrypt-signed
 
 CC       = gcc
 WRES     = windres
-NSIS     = makensis
+NSIS     = C:/Program\ Files\ \(x86\)/NSIS/makensis.exe
 SIGN     = osslsigncode
 
 SOURCE   = src/main.c src/init.c src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
