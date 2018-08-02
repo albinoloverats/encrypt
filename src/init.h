@@ -80,7 +80,8 @@ typedef struct
 	key_source_e key_source; /*!< The expected key source (GUI only) */
 	bool compress:1;         /*!< Compress the file (with xz) before encrypting */
 	bool follow:1;           /*!< Follow symlinks or not */
-	bool nogui:1;            /*!< Skip the GUI (if it’s available) */
+	bool gui:1;              /*!< Whether or not to display the GUI (if available) */
+	bool cli:1;              /*!< Whether or not to display the CLI progress bar */
 	bool raw:1;              /*!< Whether the header should be skipped */
 }
 args_t;

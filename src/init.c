@@ -70,7 +70,8 @@ extern args_t init(int argc, char **argv)
 			KEY_SOURCE_PASSWORD,
 			true,    /* compress */
 			false,   /* follow links */
-			false,   /* disable gui */
+			true,    /* show the gui if available */
+			true,    /* show the cli if necessary */
 			false    /* skip header/verification */
 	};
 
@@ -178,13 +179,14 @@ end_line:
 			{ "back-compat", required_argument, 0, 'b' },
 			{ "follow",      no_argument,       0, 'f' },
 			{ "raw",         no_argument,       0, 'r' },
+			{ "nocli",       no_argument,       0, 'u' },
 			{ NULL,          0,                 0,  0  }
 		};
 
 		while (true)
 		{
 			int index = 0;
-			int c = getopt_long(argc, argv, "hvlgc:s:m:a:k:p:xb:fr", options, &index);
+			int c = getopt_long(argc, argv, "hvlgc:s:m:a:k:p:xb:fru", options, &index);
 			if (c == -1)
 				break;
 			switch (c)
@@ -196,7 +198,7 @@ end_line:
 				case 'l':
 					show_licence();
 				case 'g':
-					a.nogui = true;
+					a.gui = false;
 					break;
 				case 'c':
 					free(a.cipher);
@@ -242,6 +244,9 @@ end_line:
 					break;
 				case 'r':
 					a.raw = true;
+					break;
+				case 'u':
+					a.cli = false;
 					break;
 				case '?':
 				default:
@@ -385,6 +390,7 @@ extern void show_help(void)
 	fprintf(stderr, _("  -l, --licence                Display GNU GPL v3 licence header\n"));
 	fprintf(stderr, _("  -v, --version                Display application version\n"));
 	fprintf(stderr, _("  -g, --nogui                  Do not use the GUI, even if it’s available\n"));
+	fprintf(stderr, _("  -u, --nocli                  Do not display the CLI progress bar\n"));
 	if (is_encrypt())
 	{
 		fprintf(stderr, _("  -c, --cipher=<algorithm>     Algorithm to use to encrypt data\n"));

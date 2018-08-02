@@ -134,7 +134,7 @@ int main(int argc, char **argv)
 	struct stat t;
 	fstat(STDOUT_FILENO, &t);
 
-	if (args.nogui)
+	if (!args.gui)
 	  ;
 	else
 	{
@@ -326,7 +326,7 @@ int main(int argc, char **argv)
 		fstat(STDOUT_FILENO, &t);
 
 		bool ui = isatty(STDERR_FILENO) && (!io_is_stdout(c->output) || c->path || S_ISREG(t.st_mode));
-		if (ui)
+		if (ui && args.cli)
 		{
 			cli_t p = { (cli_status_e *)&c->status, &c->current, &c->total };
 			cli_display(&p);
