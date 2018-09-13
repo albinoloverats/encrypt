@@ -579,7 +579,7 @@ proc_remain:;
 			case LZMA_OK:
 				break;
 			default:
-				return -1;
+				return (ssize_t)-lr;
 		}
 
 		if (c->lzma_handle.avail_out == 0 || c->eof != EOF_NO)

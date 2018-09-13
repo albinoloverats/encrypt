@@ -60,6 +60,7 @@ static const char *STATUS_MESSAGE[] =
 	"Failed: Decryption failure! (Invalid password)",
 	"Failed: Unsupported feature!",
 	"Failed: Read/Write error!",
+	"Failed: LZMA decompression error!",
 	"Failed: Key generation error!",
 	"Failed: Invalid target file type!",
 	"Failed: An unknown error has occurred!",

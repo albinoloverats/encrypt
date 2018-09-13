@@ -564,7 +564,7 @@ static void decrypt_stream(crypto_t *c)
 		int64_t r = io_read(c->source, buffer, c->blocksize + sizeof b);
 		if (r < 0)
 		{
-			c->status = STATUS_FAILED_IO;
+			c->status = r < -1 ? STATUS_FAILED_LZMA : STATUS_FAILED_IO;
 			break;
 		}
 		memcpy(&b, buffer, sizeof b);
@@ -594,7 +594,7 @@ static void decrypt_file(crypto_t *c)
 		int64_t r = io_read(c->source, buffer, l);
 		if (r < 0)
 		{
-			c->status = STATUS_FAILED_IO;
+			c->status = r < -1 ? STATUS_FAILED_LZMA : STATUS_FAILED_IO;
 			break;
 		}
 		io_write(c->output, buffer, r);

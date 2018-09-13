@@ -94,6 +94,7 @@ typedef enum
 	STATUS_FAILED_DECRYPTION,               /*!< Failed decryption verification (likely wrong password) */
 	STATUS_FAILED_UNKNOWN_TAG,              /*!< Failed due to unknown tag */
 	STATUS_FAILED_IO,                       /*!< Read/write error */
+	STATUS_FAILED_LZMA,                     /*!< LZMA decompression error */
 	STATUS_FAILED_KEY,                      /*!< Key generation/read error */
 	STATUS_FAILED_OUTPUT_MISMATCH,          /*!< Tried to write directory into a file or vice-versa */
 	STATUS_FAILED_OTHER,                    /*!< Unknown error */

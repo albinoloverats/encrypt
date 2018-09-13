@@ -1,4 +1,5 @@
 # desktop ignore
+extra
 bin
 gen
 pkg
