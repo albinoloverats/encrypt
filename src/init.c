@@ -360,12 +360,13 @@ static void print_version(void)
 {
 	char *app_name = is_encrypt() ? APP_NAME : ALT_NAME;
 	char *git = strndup(GIT_COMMIT, GIT_COMMIT_LENGTH);
-	char *build = strdup(PRETTY_NAME);
 	struct utsname un;
 	uname(&un);
 	char *runtime = NULL;
 	asprintf(&runtime, "%s %s %s %s", un.sysname, un.release, un.version, un.machine);
-	fprintf(stderr, _("%s version: %s\n%*s built on: %s %s\n%*s git commit: %s\n%*s build: %s\n%*s runtime: %s\n"), app_name, ENCRYPT_VERSION, (int)strlen(app_name) - 1, "", __DATE__, __TIME__, (int)strlen(app_name) - 3, "", git, (int)strlen(app_name) + 2, "", build, (int)strlen(app_name), "", runtime);
+	int anl = (int)strlen(app_name);
+	fprintf(stderr, _("%s version: %s\n%*s built on: %s %s\n%*s git commit: %s\n%*s build os: %s\n%*s compiler: %s\n%*s runtime: %s\n"),
+			app_name, ENCRYPT_VERSION, anl - 1, "", __DATE__, __TIME__, anl - 3, "", git, anl - 1, "", BUILD_OS, anl - 1, "", COMPILER, anl, "", runtime);
 	free(git);
 	free(runtime);
 	struct timespec vc = { 0, MILLION }; /* 1ms == 1,000,000ns*/

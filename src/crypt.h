@@ -66,8 +66,8 @@
 #endif
 #define GIT_COMMIT_LENGTH 7
 
-#ifndef PRETTY_NAME
-	#define PRETTY_NAME "unknown"
+#ifndef BUILD_OS
+	#define BUILD_OS "unknown"
 #endif
 
 #define DEFAULT_CIPHER "AES"

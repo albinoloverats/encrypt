@@ -72,6 +72,14 @@
 	#error "Unknown endianness!"
 #endif
 
+#if defined(__clang__)
+	#define COMPILER "clang " __VERSION__
+#elif defined(__GNUC__)
+	#define COMPILER "gcc " __VERSION__
+#else
+	#define COMPILER "other unknown"
+#endif
+
 //#if !defined _WIN32 && !defined __CYGWIN__ && !defined __APPLE__
 //    #define _(s) gettext(s) /*!< Allow use of _() to refer to gettext() */
 //#else
