@@ -77,7 +77,11 @@
 #elif defined(__GNUC__)
 	#define COMPILER "gcc " __VERSION__
 #else
-	#define COMPILER "other unknown"
+	#ifdef __VERSION__
+		#define COMPILER "other" __VERSION__
+	#else
+		#define COMPILER "other unknown"
+	#endif
 #endif
 
 //#if !defined _WIN32 && !defined __CYGWIN__ && !defined __APPLE__
