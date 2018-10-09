@@ -360,7 +360,7 @@ static void print_version(void)
 {
 	char *app_name = is_encrypt() ? APP_NAME : ALT_NAME;
 	char *git = strndup(GIT_COMMIT, GIT_COMMIT_LENGTH);
-	char *build = strdup(DISTRIB_DESCRIPTION);
+	char *build = strdup(PRETTY_NAME);
 	struct utsname un;
 	uname(&un);
 	char *runtime = NULL;

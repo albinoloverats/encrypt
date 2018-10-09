@@ -66,8 +66,8 @@
 #endif
 #define GIT_COMMIT_LENGTH 7
 
-#ifndef DISTRIB_DESCRIPTION
-	#define DISTRIB_DESCRIPTION "unknown"
+#ifndef PRETTY_NAME
+	#define PRETTY_NAME "unknown"
 #endif
 
 #define DEFAULT_CIPHER "AES"
