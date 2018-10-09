@@ -28,6 +28,8 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include "sys/utsname.h"
+
 #include "common/common.h"
 #include "common/non-gnu.h"
 #include "common/error.h"
@@ -358,7 +360,14 @@ static void print_version(void)
 {
 	char *app_name = is_encrypt() ? APP_NAME : ALT_NAME;
 	char *git = strndup(GIT_COMMIT, GIT_COMMIT_LENGTH);
-	fprintf(stderr, _("%s version: %s\n%*s built on: %s %s\n%*s git commit: %s\n"), app_name, ENCRYPT_VERSION, (int)strlen(app_name) - 1, "", __DATE__, __TIME__, (int)strlen(app_name) - 3, "", git);
+	char *build = strdup(DISTRIB_DESCRIPTION);
+	struct utsname un;
+	uname(&un);
+	char *runtime = NULL;
+	asprintf(&runtime, "%s %s %s %s", un.sysname, un.release, un.version, un.machine);
+	fprintf(stderr, _("%s version: %s\n%*s built on: %s %s\n%*s git commit: %s\n%*s build: %s\n%*s runtime: %s\n"), app_name, ENCRYPT_VERSION, (int)strlen(app_name) - 1, "", __DATE__, __TIME__, (int)strlen(app_name) - 3, "", git, (int)strlen(app_name) + 2, "", build, (int)strlen(app_name), "", runtime);
+	free(git);
+	free(runtime);
 	struct timespec vc = { 0, MILLION }; /* 1ms == 1,000,000ns*/
 	while (version_is_checking)
 		nanosleep(&vc, NULL);
@@ -367,7 +376,6 @@ static void print_version(void)
 		fprintf(stderr, "\n");
 		fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : PROJECT_URL);
 	}
-	free(git);
 	return;
 }
 

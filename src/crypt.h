@@ -66,6 +66,10 @@
 #endif
 #define GIT_COMMIT_LENGTH 7
 
+#ifndef DISTRIB_DESCRIPTION
+	#define DISTRIB_DESCRIPTION "unknown"
+#endif
+
 #define DEFAULT_CIPHER "AES"
 #define DEFAULT_HASH "SHA256"
 #define DEFAULT_MODE "OFB"
