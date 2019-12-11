@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <stdarg.h>
 
 #include <string.h>
 #include <signal.h>
@@ -36,8 +37,8 @@
 #endif
 
 #include "common.h"
-
 #include "cli.h"
+#include "non-gnu.h"
 
 #define CLI_DEFAULT 80
 #define CLI_SINGLE 18
@@ -51,6 +52,43 @@ static void cli_sigwinch(int);
 #endif
 
 static int cli_bps_sort(const void *, const void *);
+static int cli_print(FILE *, char *);
+
+extern int cli_printf(const char * const restrict s, ...)
+{
+	va_list ap;
+	va_start(ap, s);
+	char *d = NULL;
+#ifndef _WIN32
+	vasprintf(&d, s, ap);
+#else
+	uint8_t l = 0xFF;
+	if ((d = calloc(l, sizeof l)))
+		vsnprintf(d, l - 1, s, ap);
+#endif
+	int x = cli_print(stdout, d);
+	va_end(ap);
+	free(d);
+	return x;
+}
+
+extern int cli_fprintf(FILE *f, const char * const restrict s, ...)
+{
+	va_list ap;
+	va_start(ap, s);
+	char *d = NULL;
+#ifndef _WIN32
+	vasprintf(&d, s, ap);
+#else
+	uint8_t l = 0xFF;
+	if ((d = calloc(l, sizeof l)))
+		vsnprintf(d, l - 1, s, ap);
+#endif
+	int x = cli_print(f, d);
+	va_end(ap);
+	free(d);
+	return x;
+}
 
 extern double cli_calc_bps(cli_bps_t *bps)
 {
@@ -178,4 +216,30 @@ static int cli_bps_sort(const void *a, const void *b)
 	const cli_bps_t *ba = (const cli_bps_t *)a;
 	const cli_bps_t *bb = (const cli_bps_t *)b;
 	return (ba->time > bb->time) - (ba->time < bb->time);
+}
+
+static int cli_print(FILE *stream, char *text)
+{
+	bool strip = !((stream == stdout && isatty(STDOUT_FILENO)) || (stream == stderr && isatty(STDERR_FILENO)));
+	size_t l = strlen(text);
+	char *copy = calloc(1, l + 1);
+	if (strip)
+	{
+		char *ptr = text;
+		for (size_t i = 0, j = 0; i < l; i++)
+		{
+			char *e = strstr(ptr, "\x1b[");
+			if (!e)
+				break;
+			memcpy(copy + j, ptr, e - ptr);
+			j += e - ptr;
+			ptr = strchr(e, 'm') + 1;
+		}
+		strcat(copy, ptr);
+	}
+	else
+		strcpy(copy, text);
+	int x = fprintf(stream, "%s", copy);
+	free(copy);
+	return x;
 }

@@ -26,6 +26,27 @@
 
 #define BPS 128
 
+#define ANSI_COLOUR_RESET          "\x1b[0m"
+#if 0
+	#define ANSI_COLOUR_BLACK          "\x1b[30m"
+	#define ANSI_COLOUR_RED            "\x1b[31m"
+	#define ANSI_COLOUR_GREEN          "\x1b[32m"
+	#define ANSI_COLOUR_YELLOW         "\x1b[33m"
+	#define ANSI_COLOUR_BLUE           "\x1b[34m"
+	#define ANSI_COLOUR_MAGENTA        "\x1b[35m"
+	#define ANSI_COLOUR_CYAN           "\x1b[36m"
+	#define ANSI_COLOUR_WHITE          "\x1b[37m"
+#else /* use bright colours */
+	#define ANSI_COLOUR_BLACK   "\x1b[90m"
+	#define ANSI_COLOUR_RED     "\x1b[91m"
+	#define ANSI_COLOUR_GREEN   "\x1b[92m"
+	#define ANSI_COLOUR_YELLOW  "\x1b[93m"
+	#define ANSI_COLOUR_BLUE    "\x1b[94m"
+	#define ANSI_COLOUR_MAGENTA "\x1b[95m"
+	#define ANSI_COLOUR_CYAN    "\x1b[96m"
+	#define ANSI_COLOUR_WHITE   "\x1b[97m"
+#endif
+
 typedef enum
 {
 	CLI_DONE,
@@ -65,6 +86,11 @@ typedef struct
 cli_bps_t;
 
 extern void cli_display(cli_t *) __attribute__((nonnull(1)));
+
 extern double cli_calc_bps(cli_bps_t *) __attribute__((nonnull(1)));
+
+extern int cli_printf(const char * const restrict s, ...) __attribute__((nonnull(1), format(printf, 1, 2)));
+
+extern int cli_fprintf(FILE *f, const char * const restrict s, ...) __attribute__((nonnull(2), format(printf, 2, 3)));
 
 #endif /* _COMMON_CLI_H_ */
