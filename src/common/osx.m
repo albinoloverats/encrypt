@@ -1,6 +1,6 @@
 /*
  * Common code which is used to call Objective-C methods on OS X
- * Copyright © 2005-2018, albinoloverats ~ Software Development
+ * Copyright © 2005-2020, albinoloverats ~ Software Development
  * email: webmaster@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
