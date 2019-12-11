@@ -6,8 +6,8 @@ android {
 	defaultConfig {
 		minSdkVersion 23
 		targetSdkVersion 25
-		versionCode 15
-		versionName '2017.09'
+		versionCode 16
+		versionName '2020.01'
 	}
 	signingConfigs {
 		release {
