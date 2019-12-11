@@ -28,13 +28,14 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "sys/utsname.h"
+#include <sys/utsname.h>
 
 #include "common/common.h"
 #include "common/non-gnu.h"
 #include "common/error.h"
 #include "common/ccrypt.h"
 #include "common/version.h"
+#include "common/cli.h"
 
 #ifdef _WIN32
 	#include <Shlobj.h>
@@ -356,17 +357,38 @@ extern void update_config(const char * const restrict o, const char * const rest
 	return;
 }
 
+/*
+encrypt version: 2017.09
+       built on: Nov 28 2018 16:16:15
+     git commit: c32661e
+       build os: Arch Linux
+       compiler: gcc 8.2.1 20180831
+        runtime: Linux 4.19.2-arch1-1-ARCH #1 SMP PREEMPT Tue Nov 13 21:16:19 UTC 2018 x86_64
+*/ /* TODO as below: split lone lines */
+static void format_version(int i, char *id, char *value)
+{
+	cli_fprintf(stderr, ANSI_COLOUR_GREEN "%*s" ANSI_COLOUR_RESET ": " ANSI_COLOUR_YELLOW "%s" ANSI_COLOUR_RESET "\n", i, id, value);
+	return;
+}
+
 static void print_version(void)
 {
 	char *app_name = is_encrypt() ? APP_NAME : ALT_NAME;
+	int i = strlen(app_name) + 8;
+	char *av = NULL;
+	asprintf(&av, _("%s version"), app_name);
 	char *git = strndup(GIT_COMMIT, GIT_COMMIT_LENGTH);
 	struct utsname un;
 	uname(&un);
 	char *runtime = NULL;
 	asprintf(&runtime, "%s %s %s %s", un.sysname, un.release, un.version, un.machine);
-	int anl = (int)strlen(app_name);
-	fprintf(stderr, _("%s version: %s\n%*s built on: %s %s\n%*s git commit: %s\n%*s build os: %s\n%*s compiler: %s\n%*s runtime: %s\n"),
-			app_name, ENCRYPT_VERSION, anl - 1, "", __DATE__, __TIME__, anl - 3, "", git, anl - 1, "", BUILD_OS, anl - 1, "", COMPILER, anl, "", runtime);
+	format_version(i, av,              ENCRYPT_VERSION);
+	format_version(i, _("built on"),   __DATE__ " " __TIME__);
+	format_version(i, _("git commit"), git);
+	format_version(i, _("build os"),   BUILD_OS);
+	format_version(i, _("compiler"),   COMPILER);
+	format_version(i, _("runtime"),    runtime);
+	free(av);
 	free(git);
 	free(runtime);
 	struct timespec vc = { 0, MILLION }; /* 1ms == 1,000,000ns*/
@@ -375,8 +397,14 @@ static void print_version(void)
 	if (version_new_available)
 	{
 		fprintf(stderr, "\n");
-		fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : PROJECT_URL);
+		cli_fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : PROJECT_URL);
 	}
+	return;
+}
+
+static void format_section(char *s)
+{
+	cli_fprintf(stderr, ANSI_COLOUR_CYAN "%s" ANSI_COLOUR_RESET ":\n", s);
 	return;
 }
 
@@ -384,7 +412,24 @@ static void print_usage(void)
 {
 	char *app_name = is_encrypt() ? APP_NAME : ALT_NAME;
 	char *app_usage = is_encrypt() ? APP_USAGE : ALT_USAGE;
-	fprintf(stderr, _("Usage:\n  %s %s\n"), app_name, app_usage);
+	format_section(_("Usage"));
+	cli_fprintf(stderr, "  " ANSI_COLOUR_GREEN "%s " ANSI_COLOUR_MAGENTA " %s" ANSI_COLOUR_RESET "\n", app_name, app_usage);
+	return;
+}
+
+static void format_help_line(int i, char s, char *l, char *v, char *t)
+{
+	size_t z = i - 8 - strlen(l);
+	cli_fprintf(stderr, "  " ANSI_COLOUR_WHITE "-%c" ANSI_COLOUR_RESET ", " ANSI_COLOUR_WHITE "--%s" ANSI_COLOUR_RESET, s, l);
+	if (v)
+	{
+		cli_fprintf(stderr, ANSI_COLOUR_WHITE "=" ANSI_COLOUR_YELLOW "<%s>" ANSI_COLOUR_RESET, v);
+		z -= 3 + strlen(v);
+	}
+	for (size_t i = 0; i < z; i++)
+		fprintf(stderr, " ");
+	cli_fprintf(stderr, ANSI_COLOUR_BLUE "%s" ANSI_COLOUR_RESET, t);
+	fprintf(stderr, "\n");
 	return;
 }
 
@@ -394,37 +439,51 @@ extern void show_help(void)
 	fprintf(stderr, "\n");
 	print_usage();
 	fprintf(stderr, "\n");
-	fprintf(stderr, _("Options:\n"));
-	fprintf(stderr, _("  -h, --help                   Display this message\n"));
-	fprintf(stderr, _("  -l, --licence                Display GNU GPL v3 licence header\n"));
-	fprintf(stderr, _("  -v, --version                Display application version\n"));
-	fprintf(stderr, _("  -g, --nogui                  Do not use the GUI, even if it’s available\n"));
-	fprintf(stderr, _("  -u, --nocli                  Do not display the CLI progress bar\n"));
+	format_section(_("Options"));
+	format_help_line(31, 'h', "help",        NULL,        _("Display this message"));
+	format_help_line(31, 'l', "licence",     NULL,        _("Display GNU GPL v3 licence header"));
+	format_help_line(31, 'v', "version",     NULL,        _("Display application version"));
+	format_help_line(31, 'g', "nogui",       NULL,        _("Do not use the GUI, even if it’s available"));
+	format_help_line(31, 'u', "nocli",       NULL,        _("Do not display the CLI progress bar"));
 	if (is_encrypt())
 	{
-		fprintf(stderr, _("  -c, --cipher=<algorithm>     Algorithm to use to encrypt data\n"));
-		fprintf(stderr, _("  -s, --hash=<algorithm>       Hash algorithm to generate key\n"));
-		fprintf(stderr, _("  -m, --mode=<mode>            The encryption mode to use\n"));
-		fprintf(stderr, _("  -a, --mac=<mac>              The MAC algorithm to use\n"));
+		format_help_line(31, 'c', "cipher",      "algorithm", _("Algorithm to use to encrypt data"));
+		format_help_line(31, 's', "hash",        "algorithm", _("Hash algorithm to generate key"));
+		format_help_line(31, 'm', "mode",        "mode",      _("The encryption mode to use"));
+		format_help_line(31, 'a', "mac",         "mac",       _("The MAC algorithm to use"));
 	}
-	fprintf(stderr, _("  -k, --key=<key file>         File whose data will be used to generate the key\n"));
-	fprintf(stderr, _("  -p, --password=<password>    Password used to generate the key\n"));
+	format_help_line(31, 'k', "key",         "key file",  _("File whose data will be used to generate the key"));
+	format_help_line(31, 'p', "password",    "password",  _("Password used to generate the key"));
 	if (is_encrypt())
 	{
+		format_help_line(31, 'x', "no-compress", NULL,        _("Do not compress the plain text using the xz algorithm"));
+		format_help_line(31, 'f', "follow",      NULL,        _("Follow symlinks, the default is to store the link itself"));
+		/* TODO Figure out how to split long lines */
+#if 0
 		fprintf(stderr, _("  -x, --no-compress            Do not compress the plain text using the xz\n"));
 		fprintf(stderr, _("                               algorithm\n"));
 		fprintf(stderr, _("  -f, --follow                 Follow symlinks, the default is to store the\n"));
 		fprintf(stderr, _("                               link itself\n"));
-		fprintf(stderr, _("\nAdvanced Options:\n"));
+#endif
+
+		fprintf(stderr, "\n");
+		format_section(_("Advnaced Options"));
+		format_help_line(31, 'b', "back-compat", "version",   _("Create an encrypted file that is backwards compatible"));
+#if 0
 		fprintf(stderr, _("  -b, --back-compat=<version>  Create an encrypted file that is backwards\n"  ));
 		fprintf(stderr, _("                               compatible\n"));
+#endif
 	}
 	else
-		fprintf(stderr, _("\nAdvanced Options:\n"));
+		format_section(_("Advnaced Options"));
+	format_help_line(31, 'r', "raw",         NULL,        _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"));
+#if 0
 	fprintf(stderr, _("  -r, --raw                    Don’t generate or look for an encrypt header;\n"));
 	fprintf(stderr, _("                               this IS NOT recommended, but can be useful in\n"));
-	fprintf(stderr, _("                               some (limited) situations."));
-	fprintf(stderr, _("\nNotes:\n  • If you do not supply a key or password, you will be prompted for one.\n"));
+	fprintf(stderr, _("                               some (limited) situations.\n"));
+#endif
+	format_section(_("Notes"));
+	fprintf(stderr, _("  • If you do not supply a key or password, you will be prompted for one.\n"));
 	if (is_encrypt())
 		fprintf(stderr, _("  • To see a list of available algorithms or modes use list as the argument.\n"));
 	fprintf(stderr, _("  • If you encrypted data using --raw then you will need to pass the algorithms\n"));

@@ -72,7 +72,7 @@ static bool list_macs(void);
 int main(int argc, char **argv)
 {
 #ifdef __DEBUG__
-	fprintf(stderr, _("\n**** DEBUG BUILD ****\n\n"));
+	cli_fprintf(stderr, "\n" ANSI_COLOUR_RED "**** %s ****" ANSI_COLOUR_RESET "\n\n", _("DEBUG BUILD"));
 #endif
 #ifdef _WIN32
 	setbuf(stdout, NULL);
@@ -337,7 +337,7 @@ int main(int argc, char **argv)
 	}
 
 	if (c->status != STATUS_SUCCESS)
-		fprintf(stderr, _("%s\n"), status(c));
+		cli_fprintf(stderr, ANSI_COLOUR_RED "%s" ANSI_COLOUR_RESET "\n", _(status(c)));
 
 	deinit(&c);
 
@@ -348,10 +348,10 @@ clean_up:
 #endif
 
 	if (version_new_available)
-		fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : PROJECT_URL);
+		cli_fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : PROJECT_URL);
 
 #ifdef __DEBUG__
-	fprintf(stderr, _("\n**** DEBUG BUILD ****\n\n"));
+	fprintf(stderr, "\n" ANSI_COLOUR_RED "**** %s ****" ANSI_COLOUR_RESET "\n\n", _("DEBUG BUILD"));
 #endif
 
 	return EXIT_SUCCESS;
