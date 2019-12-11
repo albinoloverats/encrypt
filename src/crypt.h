@@ -40,7 +40,7 @@
 #include "common/cli.h" /*!< Used for progress bar on command line */
 #include "crypt_io.h"   /*!< Necessary as IO_HANDLE type is referenced in this header */
 
-#define ENCRYPT_VERSION "2017.09" /*!< Current (display) version of encrypt application */
+#define ENCRYPT_VERSION "2020.01" /*!< Current (display) version of encrypt application */
 #define UPDATE_URL "https://albinoloverats.net/encrypt.release" /*!< URI to check for updates */
 #define PROJECT_URL "https://albinoloverats.net/projects/encrypt"
 
@@ -58,7 +58,7 @@
 
 #define BLOCK_SIZE     1024 /*!< Default IO block size; not currently configurable */
 #define KEY_ITERATIONS_201709 1024 /*!< Default number of iterations for key derivation algorithm for version 2017.09 */
-#define KEY_ITERATIONS 32768
+#define KEY_ITERATIONS 32768 /* TODO raise this to over 100,000 */
 /* 32,768 : 147,055μs 147.06ms 0.14s / 1,424ms */
 
 #ifndef GIT_COMMIT
@@ -142,9 +142,8 @@ typedef enum
 	VERSION_2015_01,     /*!< Version 2015.01 */
 	VERSION_2015_10,     /*!< Version 2015.10 */
 	VERSION_2017_09,     /*!< Version 2017.09 */
-
-	VERSION_201X_XX,     /*!< Version 201X.XX */
-	VERSION_CURRENT = VERSION_201X_XX /*!< Next release / current development version */
+	VERSION_2020_01,     /*!< Version 2020.01 */
+	VERSION_CURRENT = VERSION_2020_01 /*!< Next release / current development version */
 }
 version_e;
 

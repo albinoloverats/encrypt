@@ -88,8 +88,7 @@ static const version_t VERSIONS[] =
 	{ "2015.01", 0x63e7d49566e31bfbllu },
 	{ "2015.10", 0x0dae4a923e4ae71dllu },
 	{ "2017.09", 0x323031372e303921llu },
-
-	{ "201X.XX", 0x4d6a41784e7a4577llu },
+	{ "2020.20", 0x4d6a41784e7a4577llu },
 	{ "current", 0x4d6a41784e7a4577llu }
 };
 
