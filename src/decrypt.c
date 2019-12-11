@@ -209,7 +209,7 @@ static void *process(void *ptr)
 			c->iterations = KEY_ITERATIONS_201709;
 			break;
 
-		case VERSION_201X_XX:
+		case VERSION_2020_01:
 			c->iterations = KEY_ITERATIONS;
 			break;
 		default:
