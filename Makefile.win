@@ -24,8 +24,8 @@ LIBS     = `libgcrypt-config --libs` -lpthread -lcurl -llzma
 GUILIBS  = `pkg-config --libs gtk+-3.0 gmodule-2.0`
 
 INST     = encrypt.nsi
-PKG      = encrypt-2017.09-install.exe
-PKG_SIG  = encrypt-2017.09-install-signed.exe
+PKG      = encrypt-2020.01-install.exe
+PKG_SIG  = encrypt-2020.01-install-signed.exe
 
 RESOPTS  = -O coff --input-format=rc
 SIGOPTS  = -n "$(APP)" -i "https://albinoloverats.net/" -spc authenticode.spc -key authenticode.key -t http://timestamp.verisign.com/scripts/timstamp.dll

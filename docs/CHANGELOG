@@ -15,6 +15,13 @@ Planned Future Enhancements
   - Currently requires libgcrypt to be built from source as the provided
     version is out-f-date.
 
+encrypt - 2020.01                                        1ﬆ January 2020
+-----------------
+
+* Various bug fixes
+* Updates to use latest versions of dependencies
+
+
 encrypt - 2017.09                                         15th Sept 2017
 -----------------
 

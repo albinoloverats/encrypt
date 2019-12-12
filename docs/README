@@ -1,4 +1,4 @@
-encrypt - 2017.09                                         15th Sept 2017
+encrypt - 2020.01                                        1ﬆ January 2020
 =================
 
 
@@ -42,28 +42,8 @@ Followed by:
 Changelog
 ---------
 
-### New For Latest Release
-
-* All
-  - Improved key derivation
-  - Added MAC as well as previously used hash of data to ensure
-    authentication
-* FreeBSD
-  - Provide ports files and binary package
-* Build using clang (doesn't allow for -Wrestrict)
-
-### Fixed/Changed For Latest Release
-
-* Unix
-  - Fix SIGSEGV if the source file is deleted (even while doing nothing)
-    (GTK file selection dialog - GNU/Linux; Likely an upsteam problem as
-    it appears to have been fixed)
-* Windows
-  - Build using MSYS2 to provide 64 bit binary
-* Android
-  - Fix permission handling
-  - Attempt to fix NullPointerException after exit (think we've got it;
-    it is rather intermittent)
+* Various bug fixes
+* Updates to use latest versions of dependencies
 
 
 TODO
