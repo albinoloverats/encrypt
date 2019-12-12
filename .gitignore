@@ -1,4 +1,5 @@
 # desktop ignore
+extra
 bin
 gen
 pkg
@@ -6,6 +7,10 @@ src/encrypt_private.res
 debian/encrypt/
 build-stamp
 configure-stamp
+*.pem
+*.crt
+*.key
+*.spc
 # common files we don’t use
 src/common/rand.c
 src/common/rand.h
