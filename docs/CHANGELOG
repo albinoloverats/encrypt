@@ -18,6 +18,7 @@ Planned Future Enhancements
 encrypt - 2020.01                                        1ﬆ January 2020
 -----------------
 
+* Configurable key derivation function iterations
 * Various bug fixes
 * Updates to use latest versions of dependencies
 

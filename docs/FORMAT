@@ -1,15 +1,16 @@
-00000000: 3697 de5d 96fc a0fa c845 c2fa 95e2 f52d    6..].....E.....-    Standard file header (version 2017.09)
-00000010: 3230 3137 2e30 3921                        2017.09!
+00000000: 3697 de5d 96fc a0fa c845 c2fa 95e2 f52d    6..].....E.....-    Standard file header (version 2020.01)
+00000010: 3230 3230 2e30 312e                        2020.01.
 
 00000010:                     f9                             .           Start of error correction (f9 indicates length of ECC data)
 
-00000010:                       16 5249 4a4e 4441            ..RIJNDA    Algorithms used; preceeded by length of string
-00000020: 454c 3235 362f 5348 4135 3132 2f43 4642    EL256/SHA512/CFB    and separated by /
+00000010:                       32 5345 5250 454E             2SERPEN    Algorithms used; preceeded by length of string
+00000020: 5432 3536 2F53 4841 3235 362F 4F46 422F    T256/SHA256/OFB/    and separated by /, followed by the number of
+00000030: 3030 3830 3030 3030 3030 3030 3030 3030    0080000000000000    iterations for key derivation function
 
-00000030: 68f6 5f83 67d7 1d0c 9246 07b3 78a5 2426    h._.g....F..x.$&    Salt used for key generation (length is hash dependent)
-00000040: 713a 57a7 aa60 a38a 3fa9 f2b7 088b 8788    q:W..`..?.......
+00000040: 68f6 5f83 67d7 1d0c 9246 07b3 78a5 2426    h._.g....F..x.$&    Salt used for key generation (length is hash dependent)
+00000050: 713a 57a7 aa60 a38a 3fa9 f2b7 088b 8788    q:W..`..?.......
 
-00000050: 17e6 8fb1 2402 f1fa c6f8 b576 4a75 9acb    ....$......vJu..    IV used for encryption (length is cipher dependent)
+00000060: 17e6 8fb1 2402 f1fa c6f8 b576 4a75 9acb    ....$......vJu..    IV used for encryption (length is cipher dependent)
 
 
 ******** Data is encrypted after this point (unless debugging) ********
@@ -61,7 +62,7 @@
 
 00000540:           9cb1 cc3c a2a0 3f55 d6ae 82e1    ...(...<..?U....    MAC; whereas the payload hash isn't included in
 00000550: 5179 97fd aa9f 2490 7353 2ae8 6348 1760    Qy....$.sS*.cH.`    the advanced RAW mode, the MAC is from all
-00000560: 0c21 6739 d4d2 5512 27c6 57fd de92 1fcd    .!g9..U.'.W.....    versions from 2017.09
+00000560: 0c21 6739 d4d2 5512 27c6 57fd de92 1fcd    .!g9..U.'.W.....    versions after (and including) 2017.09
 00000570: 90d3 698f 8596 21d1 e010 7b75 6282 240d    ..i...!...{ub.$.
 00000580: 2033 5522                                   3U"
 

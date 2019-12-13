@@ -42,6 +42,7 @@ Followed by:
 Changelog
 ---------
 
+* Configurable key derivation function iterations
 * Various bug fixes
 * Updates to use latest versions of dependencies
 
