@@ -23,10 +23,10 @@
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
-#define SELECT_FILE "Select File …"
-#define SELECT_NEW "New…"
-#define SELECT_OTHER "Other…"
-#define SELECT_KEY "Select Key …"
+#define SELECT_FILE  "Select File …"
+#define SELECT_NEW   "New …"
+#define SELECT_OTHER "Other …"
+#define SELECT_KEY   "Select Key …"
 
 #define SOURCE_FILE "sourceFile"
 #define OUTPUT_FILE "outputFile"
