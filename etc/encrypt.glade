@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.20.0 -->
+<!-- Generated with glade 3.22.1 -->
 <interface>
-	<requires lib="gtk+" version="3.0"/>
+	<requires lib="gtk+" version="3.6"/>
 	<object class="GtkDialog" id="abort_dialog">
 		<property name="width_request">128</property>
 		<property name="height_request">128</property>
@@ -137,7 +137,7 @@
 		<property name="skip_taskbar_hint">True</property>
 		<property name="skip_pager_hint">True</property>
 		<property name="program_name">encrypt</property>
-		<property name="version">2017.09</property>
+		<property name="version">2020.01</property>
 		<property name="copyright" translatable="yes">Copyright © 2004-2020, albinoloverats ~ Software Development</property>
 		<property name="website">https://albinoloverats.net/projects/encrypt</property>
 		<property name="website_label" translatable="yes">https://albinoloverats.net/projects/encrypt</property>
@@ -152,11 +152,11 @@ the Free Software Foundation, either version 3 of the License, or
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.	If not, see &lt;http://www.gnu.org/licenses/&gt;.</property>
+along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</property>
 		<property name="authors">
 encrypt was written by Ashley Anderson
 http://ashley.anderson.io/
@@ -208,6 +208,12 @@ https://commons.wikimedia.org/wiki/Category:SVG_Crystal_Clear_icons</property>
 		<child>
 			<placeholder/>
 		</child>
+	</object>
+	<object class="GtkAdjustment" id="kdf_iterations">
+		<property name="upper">1.8446744073709552e+19</property>
+		<property name="step_increment">1</property>
+		<property name="page_increment">10</property>
+		<signal name="value-changed" handler="algorithm_combo_callback" swapped="no"/>
 	</object>
 	<object class="GtkImage" id="done_encrypt">
 		<property name="visible">True</property>
@@ -555,8 +561,8 @@ processes your file</property>
 								<property name="has_default">True</property>
 								<property name="receives_default">True</property>
 								<property name="has_tooltip">True</property>
-								<property name="tooltip_markup" translatable="yes">Save As ...</property>
-								<property name="tooltip_text" translatable="yes">Save As ...</property>
+								<property name="tooltip_markup" translatable="yes">Open From ...</property>
+								<property name="tooltip_text" translatable="yes">Open From ...</property>
 								<property name="image_position">right</property>
 								<signal name="clicked" handler="file_dialog_display" swapped="no"/>
 								<child>
@@ -583,7 +589,7 @@ processes your file</property>
 												<property name="can_focus">False</property>
 												<property name="xalign">0</property>
 												<property name="xpad">2</property>
-												<property name="label" translatable="yes">(None)</property>
+												<property name="label" translatable="yes">Source</property>
 												<property name="ellipsize">end</property>
 												<property name="single_line_mode">True</property>
 												<property name="max_width_chars">16</property>
@@ -656,7 +662,7 @@ processes your file</property>
 												<property name="can_focus">False</property>
 												<property name="xalign">0</property>
 												<property name="xpad">2</property>
-												<property name="label" translatable="yes">(None)</property>
+												<property name="label" translatable="yes">Destination</property>
 												<property name="ellipsize">end</property>
 												<property name="single_line_mode">True</property>
 												<property name="max_width_chars">24</property>
@@ -768,18 +774,38 @@ processes your file</property>
 								<property name="sensitive">False</property>
 								<property name="can_focus">False</property>
 								<property name="has_tooltip">True</property>
-								<property name="tooltip_markup" translatable="yes">Select Cipher Mode</property>
-								<property name="tooltip_text" translatable="yes">Select Cipher Mode</property>
+								<property name="tooltip_markup" translatable="yes">Select MAC Algorithm</property>
+								<property name="tooltip_text" translatable="yes">Select MAC Algorithm</property>
 								<property name="active">0</property>
 								<items>
 									<item translatable="yes">Select MAC Algorithm</item>
 								</items>
+								<signal name="changed" handler="algorithm_combo_callback" swapped="no"/>
 							</object>
 							<packing>
 								<property name="expand">False</property>
 								<property name="fill">True</property>
 								<property name="padding">4</property>
 								<property name="position">5</property>
+							</packing>
+						</child>
+						<child>
+							<object class="GtkSpinButton" id="kdf_spinner">
+								<property name="visible">True</property>
+								<property name="sensitive">False</property>
+								<property name="can_focus">True</property>
+								<property name="tooltip_markup" translatable="yes">KDF Iterations</property>
+								<property name="tooltip_text" translatable="yes">KDF Iterations</property>
+								<property name="placeholder_text" translatable="yes">KDF Iterations</property>
+								<property name="input_purpose">digits</property>
+								<property name="adjustment">kdf_iterations</property>
+								<property name="numeric">True</property>
+								<property name="value">1</property>
+							</object>
+							<packing>
+								<property name="expand">False</property>
+								<property name="fill">True</property>
+								<property name="position">6</property>
 							</packing>
 						</child>
 						<child>
@@ -796,13 +822,14 @@ processes your file</property>
 								<property name="invisible_char">•</property>
 								<property name="truncate_multiline">True</property>
 								<property name="primary_icon_stock">gtk-dialog-authentication</property>
+								<property name="placeholder_text" translatable="yes">Password</property>
 								<signal name="changed" handler="password_entry_callback" swapped="no"/>
 							</object>
 							<packing>
 								<property name="expand">False</property>
 								<property name="fill">True</property>
 								<property name="padding">4</property>
-								<property name="position">6</property>
+								<property name="position">7</property>
 							</packing>
 						</child>
 						<child>
@@ -815,8 +842,8 @@ processes your file</property>
 								<property name="has_default">True</property>
 								<property name="receives_default">True</property>
 								<property name="has_tooltip">True</property>
-								<property name="tooltip_markup" translatable="yes">Save As ...</property>
-								<property name="tooltip_text" translatable="yes">Save As ...</property>
+								<property name="tooltip_markup" translatable="yes">Select Key ...</property>
+								<property name="tooltip_text" translatable="yes">Select Key ...</property>
 								<property name="image_position">right</property>
 								<signal name="clicked" handler="file_dialog_display" swapped="no"/>
 								<child>
@@ -841,7 +868,7 @@ processes your file</property>
 												<property name="can_focus">False</property>
 												<property name="xalign">0</property>
 												<property name="xpad">2</property>
-												<property name="label" translatable="yes">(None)</property>
+												<property name="label" translatable="yes">Key File</property>
 												<property name="ellipsize">end</property>
 												<property name="single_line_mode">True</property>
 												<property name="max_width_chars">16</property>
@@ -873,7 +900,7 @@ processes your file</property>
 								<property name="expand">False</property>
 								<property name="fill">True</property>
 								<property name="padding">4</property>
-								<property name="position">7</property>
+								<property name="position">8</property>
 							</packing>
 						</child>
 						<child>
@@ -895,7 +922,7 @@ processes your file</property>
 								<property name="expand">False</property>
 								<property name="fill">True</property>
 								<property name="padding">4</property>
-								<property name="position">8</property>
+								<property name="position">9</property>
 							</packing>
 						</child>
 						<child>
@@ -939,7 +966,7 @@ processes your file</property>
 								<property name="expand">True</property>
 								<property name="fill">True</property>
 								<property name="padding">4</property>
-								<property name="position">9</property>
+								<property name="position">10</property>
 							</packing>
 						</child>
 					</object>

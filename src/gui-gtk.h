@@ -51,6 +51,8 @@ typedef struct gtk_widgets_t
 	GtkWidget *hash_combo;
 	GtkWidget *mode_combo;
 	GtkWidget *mac_combo;
+	GtkWidget *kdf_spinner;
+	GtkWidget *kdf_iterations;
 	GtkWidget *password_entry;
 	GtkWidget *key_button;
 	GtkWidget *key_dialog;
@@ -80,7 +82,7 @@ typedef struct gtk_widgets_t
 }
 gtk_widgets_t;
 
-extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash, char *mode, char *mac);
+extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash, char *mode, char *mac, uint64_t iter);
 extern void set_compatibility_menu(gtk_widgets_t *data, char *version);
 extern void set_key_source_menu(gtk_widgets_t *data, key_source_e source);
 

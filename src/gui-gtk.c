@@ -76,7 +76,7 @@ static key_source_e _key_source = KEY_SOURCE_PASSWORD;
 static version_e _version = VERSION_CURRENT;
 static crypto_status_e *_status = NULL;
 
-extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash, char *mode, char *mac)
+extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash, char *mode, char *mac, uint64_t iter)
 {
 	/*
 	 * ciphers
@@ -92,7 +92,6 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 		gtk_combo_box_text_append_text((GtkComboBoxText *)data->crypto_combo, ciphers[i]);
 	}
 	gtk_combo_box_set_active((GtkComboBox *)data->crypto_combo, slctd_cipher);
-
 	/*
 	 * hashes
 	 */
@@ -107,7 +106,6 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 		gtk_combo_box_text_append_text((GtkComboBoxText *)data->hash_combo, hashes[i]);
 	}
 	gtk_combo_box_set_active((GtkComboBox *)data->hash_combo, slctd_hash);
-
 	/*
 	 * modes
 	 */
@@ -122,7 +120,6 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 		gtk_combo_box_text_append_text((GtkComboBoxText *)data->mode_combo, modes[i]);
 	}
 	gtk_combo_box_set_active((GtkComboBox *)data->mode_combo, slctd_mode);
-
 	/*
 	 * MACs
 	 */
@@ -137,6 +134,10 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 		gtk_combo_box_text_append_text((GtkComboBoxText *)data->mac_combo, macs[i]);
 	}
 	gtk_combo_box_set_active((GtkComboBox *)data->mac_combo, slctd_mac);
+	/*
+	 * KDF iterations
+	 */
+	gtk_adjustment_set_value((GtkAdjustment *)data->kdf_iterations, (double)iter);
 
 	return;
 }
@@ -228,6 +229,7 @@ G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *d
 				gtk_widget_set_sensitive(data->hash_combo, FALSE);
 				gtk_widget_set_sensitive(data->mode_combo, FALSE);
 				gtk_widget_set_sensitive(data->mac_combo, FALSE);
+				gtk_widget_set_sensitive(data->kdf_spinner, FALSE);
 				gtk_widget_set_sensitive(data->key_button, FALSE);
 			}
 			gtk_widget_set_sensitive(data->encrypt_button, FALSE);
@@ -286,9 +288,10 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
 			char *h = ptr;
 			char *m = ptr;
 			char *a = ptr;
-			if ((_encrypted = is_encrypted(open_file, &c, &h, &m, &a)))
+			uint64_t iter;
+			if ((_encrypted = is_encrypted(open_file, &c, &h, &m, &a, &iter)))
 			{
-				auto_select_algorithms(data, c, h, m, a);
+				auto_select_algorithms(data, c, h, m, a, iter);
 				free(c);
 				free(h);
 				free(m);
@@ -346,6 +349,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
 		gtk_widget_set_sensitive(data->hash_combo, FALSE);
 		gtk_widget_set_sensitive(data->mode_combo, FALSE);
 		gtk_widget_set_sensitive(data->mac_combo, FALSE);
+		gtk_widget_set_sensitive(data->kdf_spinner, FALSE);
 		gtk_widget_set_sensitive(data->password_entry, en);
 		gtk_widget_set_sensitive(data->key_button, en);
 	}
@@ -355,6 +359,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
 		gtk_widget_set_sensitive(data->hash_combo, en);
 		gtk_widget_set_sensitive(data->mode_combo, en);
 		gtk_widget_set_sensitive(data->mac_combo, en);
+		gtk_widget_set_sensitive(data->kdf_spinner, en);
 		if (en)
 			algorithm_combo_callback(NULL, data);
 	}
@@ -368,10 +373,11 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_wi
 	int hash = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
 	int mode = gtk_combo_box_get_active((GtkComboBox *)data->mode_combo);
 	int mac = gtk_combo_box_get_active((GtkComboBox *)data->mac_combo);
+	uint64_t iter = (uint64_t)gtk_adjustment_get_value((GtkAdjustment *)data->kdf_iterations);
 
 	gboolean en = _files;
 
-	if (cipher && hash && mode)
+	if (cipher && hash && mode && mac && iter)
 	{
 		const char **ciphers = list_of_ciphers();
 		const char **hashes = list_of_hashes();
@@ -386,6 +392,12 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_wi
 			update_config(CONF_MODE, modes[mode - 1]);
 		if (mac > 0)
 			update_config(CONF_MAC, macs[mac - 1]);
+		if (iter > 0)
+		{
+			char i[20];
+			snprintf(i, sizeof i, "%" PRIu64, iter);
+			update_config(CONF_KDF_ITERATIONS, i);
+		}
 
 	}
 	else
@@ -645,6 +657,7 @@ static void *gui_process(void *d)
 	int h = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
 	int m = gtk_combo_box_get_active((GtkComboBox *)data->mode_combo);
 	int a = gtk_combo_box_get_active((GtkComboBox *)data->mac_combo);
+	uint64_t iter = (uint64_t)gtk_adjustment_get_value((GtkAdjustment *)data->kdf_iterations);
 	const char **ciphers = list_of_ciphers();
 	const char **hashes = list_of_hashes();
 	const char **modes = list_of_modes();
@@ -652,9 +665,9 @@ static void *gui_process(void *d)
 
 	crypto_t *x;
 	if (_encrypted)
-		x = decrypt_init(source, output, ciphers[c - 1], hashes[h - 1], modes[m - 1], macs[a - 1], key, length, _raw);
+		x = decrypt_init(source, output, ciphers[c - 1], hashes[h - 1], modes[m - 1], macs[a - 1], key, length, iter, _raw);
 	else
-		x = encrypt_init(source, output, ciphers[c - 1], hashes[h - 1], modes[m - 1], macs[a - 1], key, length, _raw, _compress, _follow, _version);
+		x = encrypt_init(source, output, ciphers[c - 1], hashes[h - 1], modes[m - 1], macs[a - 1], key, length, iter, _raw, _compress, _follow, _version);
 
 	_status = &x->status;
 

@@ -190,6 +190,8 @@ int main(int argc, char **argv)
 			INIT_WIDGET(hash_combo);
 			INIT_WIDGET(mode_combo);
 			INIT_WIDGET(mac_combo);
+			INIT_WIDGET(kdf_spinner);
+			INIT_WIDGET(kdf_iterations);
 			INIT_WIDGET(password_entry);
 			INIT_WIDGET(key_button);
 			INIT_WIDGET(key_dialog);
@@ -254,7 +256,7 @@ int main(int argc, char **argv)
 			}
 			file_dialog_okay(NULL, widgets);
 
-			auto_select_algorithms(widgets, args.cipher, args.hash, args.mode, args.mac);
+			auto_select_algorithms(widgets, args.cipher, args.hash, args.mode, args.mac, args.kdf_iterations);
 			set_compatibility_menu(widgets, args.version);
 			set_key_source_menu(widgets, args.key_source);
 
