@@ -57,8 +57,8 @@
 #define HEADER_1 0xc845c2fa95e2f52dllu              /*!< The second 8 bytes of an encrypted file */
 
 #define BLOCK_SIZE     1024 /*!< Default IO block size; not currently configurable */
-#define KEY_ITERATIONS_201709 1024 /*!< Default number of iterations for key derivation algorithm for version 2017.09 */
-#define KEY_ITERATIONS 32768 /* TODO raise this to over 100,000 */
+#define KEY_ITERATIONS_201709   1024 /*!< Default number of iterations for key derivation algorithm for version 2017.09 */
+#define KEY_ITERATIONS_DEFAULT 32768 /*!< Default number of iterations for key derivation function for version 2020.01 (now user configurable) */
 /* 32,768 : 147,055μs 147.06ms 0.14s / 1,424ms */
 
 #ifndef GIT_COMMIT
@@ -204,7 +204,7 @@ typedef struct
 #endif
 	uint8_t *key;                  /*!< Key data */
 	size_t length;                 /*!< Key data length */
-	uint32_t iterations;           /*!< KDF iterations */
+	uint64_t kdf_iterations;       /*!< KDF iterations */
 
 	pthread_t *thread;             /*!< Execution thread */
 	void *(*process)(void *);      /*!< Main processing function; used by execute() */
@@ -265,11 +265,11 @@ extern void key_free(raw_key_t **k);
 #endif
 
 
-#define IS_ENCRYPTED_ARGS_COUNT(...) IS_ENCRYPTED_ARGS_COUNT2(__VA_ARGS__, 5, 4, 3, 2, 1)
-#define IS_ENCRYPTED_ARGS_COUNT2(_1, _2, _3, _4, _5, _, ...) _
+#define IS_ENCRYPTED_ARGS_COUNT(...) IS_ENCRYPTED_ARGS_COUNT2(__VA_ARGS__, 6, 5, 4, 3, 2, 1)
+#define IS_ENCRYPTED_ARGS_COUNT2(_1, _2, _3, _4, _5, _6, _, ...) _
 
-#define is_encrypted_1(A)              is_encrypted_aux(false, A, NULL, NULL, NULL, NULL)
-#define is_encrypted_5(A, B, C, D, E)  is_encrypted_aux(true, A, B, C, D, E)
+#define is_encrypted_1(A)                 is_encrypted_aux(false, A, NULL, NULL, NULL, NULL, NULL)
+#define is_encrypted_6(A, B, C, D, E, F)  is_encrypted_aux(true, A, B, C, D, E, F)
 #define is_encrypted(...) CONCAT(is_encrypted_, IS_ENCRYPTED_ARGS_COUNT(__VA_ARGS__))(__VA_ARGS__)
 
 /*!
@@ -280,12 +280,13 @@ extern void key_free(raw_key_t **k);
  * \param[out] h  Pointer to hash (user to free when no longer needed)
  * \param[out] m  Pointer to mode (if available) (user to free when no longer needed)
  * \param[out] a  Pointer to the MAC (if available) (user to free when no longer needed)
+ * \param[out] k  The number of iterations used by the KDF (if available)
  * \return        The version of encrypted used
  *
  * Returns the version of encrypt used to encrypt the file, or 0 if it’s
  * not encrypted.
  */
-extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, char **m, char **a) __attribute__((nonnull(2)));
+extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, char **m, char **a, uint64_t *k) __attribute__((nonnull(2)));
 
 /*!
  * \brief         Log which version the file is encrypted with

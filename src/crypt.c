@@ -88,8 +88,8 @@ static const version_t VERSIONS[] =
 	{ "2015.01", 0x63e7d49566e31bfbllu },
 	{ "2015.10", 0x0dae4a923e4ae71dllu },
 	{ "2017.09", 0x323031372e303921llu },
-	{ "2020.20", 0x4d6a41784e7a4577llu },
-	{ "current", 0x4d6a41784e7a4577llu }
+	{ "2020.01", 0x323032302e30312ellu },
+	{ "current", 0x323032302e30312ellu }
 };
 
 extern void execute(crypto_t *c)
@@ -145,7 +145,7 @@ extern void key_gcry_free(raw_key_t **key)
 }
 #endif
 
-extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, char **m, char **a)
+extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, char **m, char **a, uint64_t *k)
 {
 	struct stat s;
 	stat(n, &s);
@@ -178,14 +178,23 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, cha
 		s++;
 		char *d = strchr(s, '/');
 		char *g = NULL;
+		char *i = NULL;
+		/* see if there's a cipher mode */
 		if (d)
 		{
 			*d = '\0';
 			d++;
+			/* see if there's a MAC */
 			if ((g = strchr(d, '/')))
 			{
 				*g = '\0';
 				g++;
+				/* see if there's a KDF iterations value */
+				if ((i = strchr(g, '/')))
+				{
+					*i = '\0';
+					i++;
+				}
 			}
 			else
 				g = DEFAULT_MAC;
@@ -203,6 +212,8 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, cha
 			*m = strdup(d);
 		if (*a)
 			*a = strdup(g);
+		if (k && i)
+			*k = ntohll(strtoull(i, NULL, 0));
 		gcry_free(z);
 	}
 	close(f);
