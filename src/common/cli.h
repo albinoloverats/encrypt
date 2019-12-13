@@ -72,7 +72,7 @@ cli_progress_t;
 
 typedef struct
 {
-	cli_status_e *status;
+	cli_status_e   *status;
 	cli_progress_t *current;
 	cli_progress_t *total;
 }
