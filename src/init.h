@@ -24,20 +24,21 @@
 #define APP_NAME "encrypt"
 #define ALT_NAME "decrypt"
 
-#define APP_USAGE "[source] [destination] [-c algorithm] [-s algorithm] [-m mode]\n           [-k key/-p password] [-x] [-f] [-g] [-b version]"
+#define APP_USAGE "[source] [destination] [-c algorithm] [-s algorithm] [-m mode]\n           [-i iterations] [-k key/-p password] [-x] [-f] [-g] [-b version]"
 #define ALT_USAGE "[-k key/-p password] [input] [output]"
 
 #define ENCRYPTRC ".encryptrc"
 
-#define CONF_COMPRESS    "compress"
-#define CONF_FOLLOW      "follow"
-#define CONF_KEY         "key"
-#define CONF_CIPHER      "cipher"
-#define CONF_HASH        "hash"
-#define CONF_MODE        "mode"
-#define CONF_MAC         "mac"
-#define CONF_VERSION     "version"
-#define CONF_SKIP_HEADER "raw"
+#define CONF_COMPRESS       "compress"
+#define CONF_FOLLOW         "follow"
+#define CONF_KDF_ITERATIONS "kdf-iterations"
+#define CONF_KEY            "key"
+#define CONF_CIPHER         "cipher"
+#define CONF_HASH           "hash"
+#define CONF_MODE           "mode"
+#define CONF_MAC            "mac"
+#define CONF_VERSION        "version"
+#define CONF_SKIP_HEADER    "raw"
 
 #define CONF_TRUE     "true"
 #define CONF_ON       "on"
@@ -72,6 +73,7 @@ typedef struct
 	char *hash;              /*!< The hash function selected by the user */
 	char *mode;              /*!< The encryption mode selected by the user */
 	char *mac;               /*!< The MAC selected by the user */
+	uint64_t kdf_iterations; /*!< The number of iterations for the kdf */
 	char *key;               /*!< The key file for key generation */
 	char *password;          /*!< The password for key generation */
 	char *source;            /*!< The input file/stream */

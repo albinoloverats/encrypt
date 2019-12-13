@@ -29,6 +29,7 @@
 #include <stdbool.h>
 
 #include <sys/utsname.h>
+#include <sys/ioctl.h>
 
 #include "common/common.h"
 #include "common/non-gnu.h"
@@ -44,6 +45,8 @@
 
 #include "init.h"
 #include "crypt.h"
+
+#define HELP_FORMAT_RIGHT_COLUMN 37
 
 static bool is_encrypt(void);
 
@@ -65,6 +68,7 @@ extern args_t init(int argc, char **argv)
 			strdup(DEFAULT_HASH),
 			strdup(DEFAULT_MODE),
 			strdup(DEFAULT_MAC),
+			KEY_ITERATIONS_DEFAULT,
 			NULL, /* key file */
 			NULL, /* password */
 			NULL, /* source */
@@ -140,6 +144,15 @@ extern args_t init(int argc, char **argv)
 				free(a.version);
 				a.version = parse_config_tail(CONF_VERSION, line);
 			}
+			else if (!strncmp(CONF_KDF_ITERATIONS, line, strlen(CONF_KDF_ITERATIONS)) && isspace((unsigned char)line[strlen(CONF_KDF_ITERATIONS)]))
+			{
+				char *itr = parse_config_tail(CONF_KDF_ITERATIONS, line);
+				if (itr)
+				{
+					a.kdf_iterations = strtoull(itr, NULL, 0);
+					free(itr);
+				}
+			}
 			else if (!strncmp(CONF_KEY, line, strlen(CONF_KEY)) && isspace((unsigned char)line[strlen(CONF_KEY)]))
 			{
 				char *k = parse_config_tail(CONF_KEY, line);
@@ -168,28 +181,29 @@ end_line:
 		 */
 		struct option options[] =
 		{
-			{ "help",        no_argument,       0, 'h' },
-			{ "version",     no_argument,       0, 'v' },
-			{ "licence",     no_argument,       0, 'l' },
-			{ "nogui",       no_argument,       0, 'g' },
-			{ "cipher",      required_argument, 0, 'c' },
-			{ "hash",        required_argument, 0, 's' },
-			{ "mode",        required_argument, 0, 'm' },
-			{ "mac",         required_argument, 0, 'a' },
-			{ "key",         required_argument, 0, 'k' },
-			{ "password",    required_argument, 0, 'p' },
-			{ "no-compress", no_argument,       0, 'x' },
-			{ "back-compat", required_argument, 0, 'b' },
-			{ "follow",      no_argument,       0, 'f' },
-			{ "raw",         no_argument,       0, 'r' },
-			{ "nocli",       no_argument,       0, 'u' },
-			{ NULL,          0,                 0,  0  }
+			{ "help",           no_argument,       0, 'h' },
+			{ "version",        no_argument,       0, 'v' },
+			{ "licence",        no_argument,       0, 'l' },
+			{ "nogui",          no_argument,       0, 'g' },
+			{ "cipher",         required_argument, 0, 'c' },
+			{ "hash",           required_argument, 0, 's' },
+			{ "mode",           required_argument, 0, 'm' },
+			{ "mac",            required_argument, 0, 'a' },
+			{ "kdf-iterations", required_argument, 0, 'i' },
+			{ "key",            required_argument, 0, 'k' },
+			{ "password",       required_argument, 0, 'p' },
+			{ "no-compress",    no_argument,       0, 'x' },
+			{ "back-compat",    required_argument, 0, 'b' },
+			{ "follow",         no_argument,       0, 'f' },
+			{ "raw",            no_argument,       0, 'r' },
+			{ "nocli",          no_argument,       0, 'u' },
+			{ NULL,             0,                 0,  0  }
 		};
 
 		while (true)
 		{
 			int index = 0;
-			int c = getopt_long(argc, argv, "hvlgc:s:m:a:k:p:xb:fru", options, &index);
+			int c = getopt_long(argc, argv, "hvlgc:s:m:a:i:k:p:xb:fru", options, &index);
 			if (c == -1)
 				break;
 			switch (c)
@@ -218,6 +232,9 @@ end_line:
 				case 'a':
 					free(a.mac);
 					a.mac = strdup(optarg);
+					break;
+				case 'i':
+					a.kdf_iterations = strtoull(optarg, NULL, 0);
 					break;
 				case 'k':
 					if (a.key)
@@ -404,7 +421,7 @@ static void print_version(void)
 
 static void format_section(char *s)
 {
-	cli_fprintf(stderr, ANSI_COLOUR_CYAN "%s" ANSI_COLOUR_RESET ":\n", s);
+	cli_fprintf(stderr, "\n" ANSI_COLOUR_CYAN "%s" ANSI_COLOUR_RESET ":\n", s);
 	return;
 }
 
@@ -417,18 +434,41 @@ static void print_usage(void)
 	return;
 }
 
-static void format_help_line(int i, char s, char *l, char *v, char *t)
+static void format_help_line(char s, char *l, char *v, char *t)
 {
-	size_t z = i - 8 - strlen(l);
+	size_t z = HELP_FORMAT_RIGHT_COLUMN - 8 - strlen(l);
 	cli_fprintf(stderr, "  " ANSI_COLOUR_WHITE "-%c" ANSI_COLOUR_RESET ", " ANSI_COLOUR_WHITE "--%s" ANSI_COLOUR_RESET, s, l);
 	if (v)
 	{
 		cli_fprintf(stderr, ANSI_COLOUR_WHITE "=" ANSI_COLOUR_YELLOW "<%s>" ANSI_COLOUR_RESET, v);
 		z -= 3 + strlen(v);
 	}
-	for (size_t i = 0; i < z; i++)
-		fprintf(stderr, " ");
-	cli_fprintf(stderr, ANSI_COLOUR_BLUE "%s" ANSI_COLOUR_RESET, t);
+	fprintf(stderr, "%*s", (int)z, " ");
+
+	struct winsize w;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+	cli_fprintf(stderr, ANSI_COLOUR_BLUE);
+	if (w.ws_col)
+	{
+		size_t o = 0;
+		while (true)
+		{
+			int l = w.ws_col - HELP_FORMAT_RIGHT_COLUMN - 1;
+			while (isspace(t[o]))
+				o++;
+			/* FIXME wrap on word boundry and handle UTF-8 characters properly */
+			o += fprintf(stderr, "%.*s", l, t + o);
+			if (o >= strlen(t))
+				break;
+			if (!isspace(t[o - 1]) && !isspace(t[o]))
+				fprintf(stderr, "-");
+			fprintf(stderr, "\n%*s", HELP_FORMAT_RIGHT_COLUMN, " ");
+		}
+	}
+	else
+		fprintf(stderr, "%s", t);
+	cli_fprintf(stderr, ANSI_COLOUR_RESET);
+
 	fprintf(stderr, "\n");
 	return;
 }
@@ -436,52 +476,33 @@ static void format_help_line(int i, char s, char *l, char *v, char *t)
 extern void show_help(void)
 {
 	print_version();
-	fprintf(stderr, "\n");
 	print_usage();
-	fprintf(stderr, "\n");
 	format_section(_("Options"));
-	format_help_line(31, 'h', "help",        NULL,        _("Display this message"));
-	format_help_line(31, 'l', "licence",     NULL,        _("Display GNU GPL v3 licence header"));
-	format_help_line(31, 'v', "version",     NULL,        _("Display application version"));
-	format_help_line(31, 'g', "nogui",       NULL,        _("Do not use the GUI, even if it’s available"));
-	format_help_line(31, 'u', "nocli",       NULL,        _("Do not display the CLI progress bar"));
+	format_help_line('h', "help",        NULL,        _("Display this message"));
+	format_help_line('l', "licence",     NULL,        _("Display GNU GPL v3 licence header"));
+	format_help_line('v', "version",     NULL,        _("Display application version"));
+	format_help_line('g', "nogui",       NULL,        _("Do not use the GUI, even if it’s available"));
+	format_help_line('u', "nocli",       NULL,        _("Do not display the CLI progress bar"));
 	if (is_encrypt())
 	{
-		format_help_line(31, 'c', "cipher",      "algorithm", _("Algorithm to use to encrypt data"));
-		format_help_line(31, 's', "hash",        "algorithm", _("Hash algorithm to generate key"));
-		format_help_line(31, 'm', "mode",        "mode",      _("The encryption mode to use"));
-		format_help_line(31, 'a', "mac",         "mac",       _("The MAC algorithm to use"));
+		format_help_line('c', "cipher",         "algorithm",  _("Algorithm to use to encrypt data"));
+		format_help_line('s', "hash",           "algorithm",  _("Hash algorithm to generate key"));
+		format_help_line('m', "mode",           "mode",       _("The encryption mode to use"));
+		format_help_line('a', "mac",            "mac",        _("The MAC algorithm to use"));
+		format_help_line('i', "kdf-iterations", "iterations", _("Number of iterations the KDF should use"));
 	}
-	format_help_line(31, 'k', "key",         "key file",  _("File whose data will be used to generate the key"));
-	format_help_line(31, 'p', "password",    "password",  _("Password used to generate the key"));
+	format_help_line('k', "key",         "key file",  _("File whose data will be used to generate the key"));
+	format_help_line('p', "password",    "password",  _("Password used to generate the key"));
 	if (is_encrypt())
 	{
-		format_help_line(31, 'x', "no-compress", NULL,        _("Do not compress the plain text using the xz algorithm"));
-		format_help_line(31, 'f', "follow",      NULL,        _("Follow symlinks, the default is to store the link itself"));
-		/* TODO Figure out how to split long lines */
-#if 0
-		fprintf(stderr, _("  -x, --no-compress            Do not compress the plain text using the xz\n"));
-		fprintf(stderr, _("                               algorithm\n"));
-		fprintf(stderr, _("  -f, --follow                 Follow symlinks, the default is to store the\n"));
-		fprintf(stderr, _("                               link itself\n"));
-#endif
-
-		fprintf(stderr, "\n");
+		format_help_line('x', "no-compress", NULL,        _("Do not compress the plain text using the xz algorithm"));
+		format_help_line('f', "follow",      NULL,        _("Follow symlinks, the default is to store the link itself"));
 		format_section(_("Advnaced Options"));
-		format_help_line(31, 'b', "back-compat", "version",   _("Create an encrypted file that is backwards compatible"));
-#if 0
-		fprintf(stderr, _("  -b, --back-compat=<version>  Create an encrypted file that is backwards\n"  ));
-		fprintf(stderr, _("                               compatible\n"));
-#endif
+		format_help_line('b', "back-compat", "version",   _("Create an encrypted file that is backwards compatible"));
 	}
 	else
 		format_section(_("Advnaced Options"));
-	format_help_line(31, 'r', "raw",         NULL,        _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"));
-#if 0
-	fprintf(stderr, _("  -r, --raw                    Don’t generate or look for an encrypt header;\n"));
-	fprintf(stderr, _("                               this IS NOT recommended, but can be useful in\n"));
-	fprintf(stderr, _("                               some (limited) situations.\n"));
-#endif
+	format_help_line('r', "raw",         NULL,        _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"));
 	format_section(_("Notes"));
 	fprintf(stderr, _("  • If you do not supply a key or password, you will be prompted for one.\n"));
 	if (is_encrypt())

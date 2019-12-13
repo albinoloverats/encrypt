@@ -115,7 +115,7 @@ int main(int argc, char **argv)
 		char *h = ptr;
 		char *m = ptr;
 		char *a = ptr;
-		if (is_encrypted(args.source, &c, &h, &m, &a))
+		if (is_encrypted(args.source, &c, &h, &m, &a, &args.kdf_iterations))
 		{
 			free(args.cipher);
 			free(args.hash);
@@ -309,9 +309,9 @@ int main(int argc, char **argv)
 	crypto_t *c;
 
 	if (dude || (args.source && is_encrypted(args.source)))
-		c = decrypt_init(args.source, args.output, args.cipher, args.hash, args.mode, args.mac, key, length, args.raw);
+		c = decrypt_init(args.source, args.output, args.cipher, args.hash, args.mode, args.mac, key, length, args.kdf_iterations, args.raw);
 	else
-		c = encrypt_init(args.source, args.output, args.cipher, args.hash, args.mode, args.mac, key, length, args.raw, args.compress, args.follow, parse_version(args.version));
+		c = encrypt_init(args.source, args.output, args.cipher, args.hash, args.mode, args.mac, key, length, args.kdf_iterations, args.raw, args.compress, args.follow, parse_version(args.version));
 
 	init_deinit(args);
 
