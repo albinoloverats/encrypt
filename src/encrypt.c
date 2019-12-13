@@ -79,7 +79,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
                               const char * const restrict m,
                               const char * const restrict a,
                               const void * const restrict k,
-                              size_t l, bool n, bool x, bool f, version_e v)
+                              size_t l, uint64_t n, bool r, bool x, bool f, version_e v)
 {
 	init_crypto();
 
@@ -188,7 +188,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 	 * know what they’re doing, or they’re an idiot; either way it will
 	 * override almost everything else
 	 */
-	if ((z->raw = n))
+	if ((z->raw = r))
 		v = VERSION_CURRENT;
 
 	z->version = v ? : VERSION_CURRENT;
@@ -231,10 +231,10 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 		case VERSION_2015_10:
 			break;
 		case VERSION_2017_09:
-			z->iterations = KEY_ITERATIONS_201709;
+			z->kdf_iterations = KEY_ITERATIONS_201709;
 			break;
 		case VERSION_2020_01:
-			z->iterations = KEY_ITERATIONS;
+			z->kdf_iterations = n ? : KEY_ITERATIONS_DEFAULT;
 		// case VERSION_CURRENT:
 			/*
 			 * do nothing, all options are available; not falling back
@@ -254,7 +254,6 @@ static void *process(void *ptr)
 	if (!c || c->status != STATUS_INIT)
 		return NULL;
 
-	c->status = STATUS_RUNNING;
 	if (!c->raw)
 		write_header(c);
 
@@ -289,7 +288,8 @@ static void *process(void *ptr)
 	 * the encryption initialisation)
 	 */
 	io_extra_t iox = { iv_type, true };
-	io_encryption_init(c->output, c->cipher, c->hash, c->mode, c->mac, c->iterations, c->key, c->length, iox);
+	io_encryption_init(c->output, c->cipher, c->hash, c->mode, c->mac, c->kdf_iterations, c->key, c->length, iox);
+	c->status = STATUS_RUNNING;
 	gcry_free(c->key);
 
 	if (!c->raw)
@@ -383,7 +383,7 @@ static void *process(void *ptr)
 		write_random_data(c);
 	}
 
-	if (c->iterations)
+	if (c->kdf_iterations)
 	{
 		/*
 		 * using a key derivation function also gives a MAC
@@ -418,7 +418,13 @@ static inline void write_header(crypto_t *c)
 	const char *u_hash = hash_name_from_id(c->hash);
 	const char *u_mode = mode_name_from_id(c->mode);
 	const char *u_mac = mac_name_from_id(c->mac);
-	if (c->version >= VERSION_2017_09)
+	if (c->version >= VERSION_2020_01)
+	{
+		uint64_t kdf = htonll(c->kdf_iterations);
+		if (!asprintf(&algos, "%s/%s/%s/%s/%016" PRIX64, u_cipher, u_hash, u_mode, u_mac, kdf))
+			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(u_cipher) + strlen(u_hash) + strlen(u_mode) + strlen(u_mac) + 4);
+	}
+	else if (c->version >= VERSION_2017_09)
 	{
 		if (!asprintf(&algos, "%s/%s/%s/%s", u_cipher, u_hash, u_mode, u_mac))
 			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(u_cipher) + strlen(u_hash) + strlen(u_mode) + strlen(u_mac) + 4);

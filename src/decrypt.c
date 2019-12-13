@@ -66,7 +66,7 @@ extern crypto_t *decrypt_init(const char * const restrict i,
                               const char * const restrict m,
                               const char * const restrict a,
                               const void * const restrict k,
-                              size_t l, bool n)
+                              size_t l, uint64_t n, bool r)
 {
 	init_crypto();
 
@@ -145,7 +145,9 @@ extern crypto_t *decrypt_init(const char * const restrict i,
 		close(kf);
 	}
 
-	if ((z->raw = n))
+	z->kdf_iterations = n;
+
+	if ((z->raw = r))
 	{
 		if ((z->cipher = cipher_id_from_name(c)) == GCRY_CIPHER_NONE)
 			return z->status = STATUS_FAILED_UNKNOWN_CIPHER_ALGORITHM , z;
@@ -168,7 +170,6 @@ static void *process(void *ptr)
 	if (!c || c->status != STATUS_INIT)
 		return NULL;
 
-	c->status = STATUS_RUNNING;
 	/*
 	 * read encrypt file header
 	 */
@@ -206,11 +207,11 @@ static void *process(void *ptr)
 			break;
 
 		case VERSION_2017_09:
-			c->iterations = KEY_ITERATIONS_201709;
+			c->kdf_iterations = KEY_ITERATIONS_201709;
 			break;
 
 		case VERSION_2020_01:
-			c->iterations = KEY_ITERATIONS;
+			//c->kdf_iterations = KEY_ITERATIONS_DEFAULT;
 			break;
 		default:
 			/* this will catch the all more recent versions (unknown is detected above) */
@@ -218,10 +219,12 @@ static void *process(void *ptr)
 	}
 	/*
 	 * the 2011.* versions (incorrectly) used key length instead of block
-	 * length; and up until 2017.XX a kdf was not used
+	 * length; and up until 2017.XX a kdf was not used; from 2020.01 the
+	 * kdf iterations can be user defined
 	 */
 	io_extra_t iox = { iv_type, false };
-	io_encryption_init(c->source, c->cipher, c->hash, c->mode, c->mac, c->iterations, c->key, c->length, iox);
+	io_encryption_init(c->source, c->cipher, c->hash, c->mode, c->mac, c->kdf_iterations, c->key, c->length, iox);
+	c->status = STATUS_RUNNING;
 	gcry_free(c->key);
 
 	if (!c->raw)
@@ -297,7 +300,7 @@ static void *process(void *ptr)
 	if (!c->raw)
 		skip_random_data(c); /* not entirely necessary as we already know we’ve reached the end of the file */
 
-	if (c->iterations)
+	if (c->kdf_iterations)
 	{
 		uint8_t *mac = NULL;
 		size_t mac_length = 0;
@@ -345,14 +348,23 @@ static uint64_t read_version(crypto_t *c)
 	h++;
 	char *m = strchr(h, '/');
 	char *a = NULL;
+	char *k = NULL;
+	/* see if there's a cipher mode */
 	if (m)
 	{
 		*m = '\0';
 		m++;
+		/* see if there's a MAC */
 		if ((a = strchr(m, '/')))
 		{
 			*a = '\0';
 			a++;
+			/* see if there's a KDF iterations value */
+			if ((k = strchr(a, '/')))
+			{
+				*k = '\0';
+				k++;
+			}
 		}
 	}
 	else
@@ -362,6 +374,8 @@ static uint64_t read_version(crypto_t *c)
 	c->mode = mode_id_from_name(m);
 	if (v >= VERSION_2017_09)
 		c->mac = mac_id_from_name(a);
+	if (v >= VERSION_2020_01 && k)
+		c->kdf_iterations = ntohll(strtoull(k, NULL, 0x10));
 	gcry_free(z);
 	return v;
 }

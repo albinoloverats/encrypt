@@ -44,7 +44,8 @@
  * \param[in]  a  The name of the MAC    (optional)
  * \param[in]  k  Key data
  * \param[in]  l  Size of key data
- * \param[in]  n  Raw - don’t check for a header or any verification
+ * \param[in]  n  Number of KDF iterations
+ * \param[in]  r  Raw - don’t check for a header or any verification
  * \return        A new decryption instance
  *
  * Create a new decryption instance, which if the status is INIT, is
@@ -62,6 +63,6 @@ extern crypto_t *decrypt_init(const char * const restrict i,
                               const char * const restrict m,
                               const char * const restrict a,
                               const void * const restrict k,
-                              size_t l, bool n) __attribute__((nonnull(7)));
+                              size_t l, uint64_t n, bool r) __attribute__((nonnull(7)));
 
 #endif /* ! _ENCRYPT_DECRYPT_H_ */
