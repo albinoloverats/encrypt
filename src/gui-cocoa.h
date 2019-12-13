@@ -23,10 +23,10 @@
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
-#define SELECT_FILE "Select File…"
+#define SELECT_FILE "Select File …"
 #define SELECT_NEW "New…"
 #define SELECT_OTHER "Other…"
-#define SELECT_KEY "Select Key…"
+#define SELECT_KEY "Select Key …"
 
 #define SOURCE_FILE "sourceFile"
 #define OUTPUT_FILE "outputFile"
@@ -49,6 +49,8 @@
 @property (strong, nonatomic) IBOutlet NSPopUpButtonCell *hashCombo;
 @property (strong, nonatomic) IBOutlet NSPopUpButtonCell *modeCombo;
 @property (strong, nonatomic) IBOutlet NSPopUpButtonCell *macCombo;
+@property (strong, nonatomic) IBOutlet NSTextField *kdfIterations;
+@property (strong, nonatomic) IBOutlet NSStepper *kdfIterate;
 
 @property (strong, nonatomic) IBOutlet NSMenu *keySource;
 @property (strong, nonatomic) IBOutlet NSMenuItem *keySourceFile;
@@ -88,6 +90,7 @@
 
 
 - (IBAction)ioFileChoosen:(id)pId;
+- (IBAction)kdfStepperPushed:(id)pId;
 - (IBAction)keyFileChoosen:(id)pId;
 - (IBAction)passwordFieldUpdated:(id)pId;
 - (IBAction)encryptButtonPushed:(id)pId;

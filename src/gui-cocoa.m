@@ -60,7 +60,7 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 
 	args_t args = init(0, NULL);
 
-	[self auto_select_algorithms:args.cipher:args.hash:args.mode:args.mac];
+	[self auto_select_algorithms:args.cipher:args.hash:args.mode:args.mac:args.kdf_iterations];
 
 	bool z = true;
 	for (NSMenuItem *m in [_sourceFileChooser itemArray])
@@ -219,9 +219,10 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 	char *h = ptr;
 	char *m = ptr;
 	char *a = ptr;
-	if ((encrypted = is_encrypted(open_file, &c, &h, &m, &a)))
+	uint64_t i;
+	if ((encrypted = is_encrypted(open_file, &c, &h, &m, &a, &i)))
 	{
-		[self auto_select_algorithms:c:h:m:a];
+		[self auto_select_algorithms:c:h:m:a:i];
 		free(c);
 		free(h);
 		free(m);
@@ -258,6 +259,8 @@ clean_up:
 		[_hashCombo setEnabled:en];
 		[_modeCombo setEnabled:en];
 		[_macCombo setEnabled:en];
+		[_kdfIterations setEnabled:en];
+		[_kdfIterate setEnabled:en];
 	}
 
 	[self cipherHashSelected:pId];
@@ -269,8 +272,10 @@ clean_up:
 	const char *hash = [[[_hashCombo selectedItem] title] UTF8String];
 	const char *mode = [[[_modeCombo selectedItem] title] UTF8String];
 	const char *mac = [[[_macCombo selectedItem] title] UTF8String];
+	uint64_t iter = [_kdfIterations intValue];
+	[_kdfIterate setIntValue:[_kdfIterations intValue]];
 
-	if ((cipher && strcasecmp(cipher, SELECT_CIPHER)) && (hash && strcasecmp(hash, SELECT_HASH)) && (mode && strcasecmp(mode, SELECT_MODE)) && (mac && strcasecmp(mac, SELECT_MAC)))
+	if ((cipher && strcasecmp(cipher, SELECT_CIPHER)) && (hash && strcasecmp(hash, SELECT_HASH)) && (mode && strcasecmp(mode, SELECT_MODE)) && (mac && strcasecmp(mac, SELECT_MAC)) && iter)
 	{
 		[self keySourceSelected:pId];
 		[_keyFileChooser setEnabled:true];
@@ -280,6 +285,9 @@ clean_up:
 		update_config(CONF_HASH, hash);
 		update_config(CONF_MODE, mode);
 		update_config(CONF_MAC, mac);
+		char kdf[22];
+		snprintf(kdf, sizeof kdf, "%" PRIu64, iter);
+		update_config(CONF_KDF_ITERATIONS, kdf);
 	}
 	else
 	{
@@ -290,6 +298,13 @@ clean_up:
 		[_encryptButton setEnabled:false];
 		[_decryptButton setEnabled:false];
 	}
+}
+
+- (IBAction)kdfStepperPushed:(id)pId
+{
+	[_kdfIterations setIntValue:[_kdfIterate intValue]];
+	[self cipherHashSelected:pId];
+	return;
 }
 
 - (IBAction)keySourceSelected:(id)pId
@@ -417,10 +432,12 @@ clean_up:
 		char *hash = (char *)[[[_hashCombo selectedItem] title] UTF8String];
 		char *mode = (char *)[[[_modeCombo selectedItem] title] UTF8String];
 		char *mac = (char *)[[[_macCombo selectedItem] title] UTF8String];
-		c = encrypt_init(open_file, save_file, cipher, hash, mode, mac, key, length, false, compress, follow, version);
+		uint64_t iter = [_kdfIterations intValue];
+
+		c = encrypt_init(open_file, save_file, cipher, hash, mode, mac, key, length, iter, false, compress, follow, version);
 	}
 	else
-		c = decrypt_init(open_file, save_file, NULL, NULL, NULL, NULL, key, length, false);
+		c = decrypt_init(open_file, save_file, NULL, NULL, NULL, NULL, key, length, 0, false);
 
 	free(open_file);
 	free(save_file);
@@ -450,10 +467,9 @@ clean_up:
 			pc = PERCENT * c->total.offset / c->total.size;
 
 		[_progress_total setDoubleValue:pc];
-		char *tpc = NULL;
-		asprintf(&tpc, "%3.0f %%", pc);
+		char tpc[7];
+		snprintf(tpc, sizeof tpc, "%3.0f %%", pc);
 		[_percent_total setStringValue:[NSString stringWithUTF8String:tpc]];
-		free(tpc);
 
 		if (c->total.size == 1)
 		{
@@ -464,10 +480,9 @@ clean_up:
 		{
 			double cp = PERCENT * c->current.offset / c->current.size;
 			[_progress_current setDoubleValue:cp];
-			char *cpc = NULL;
-			asprintf(&cpc, "%3.0f %%", cp);
+			char cpc[7];
+			snprintf(cpc, sizeof cpc, "%3.0f %%", cp);
 			[_percent_current setStringValue:[NSString stringWithUTF8String:cpc]];
-			free(cpc);
 		}
 
 		struct timeval tv;
@@ -521,7 +536,7 @@ clean_up:
 	[_popup setIsVisible:FALSE];
 }
 
-- (void)auto_select_algorithms:(char *)c : (char *)h : (char *)m : (char *)a
+- (void)auto_select_algorithms:(char *)c : (char *)h : (char *)m : (char *)a : (uint64_t)iter
 {
 	const char **ciphers = list_of_ciphers();
 	unsigned slctd_cipher = 0;
@@ -570,6 +585,9 @@ clean_up:
 		[_macCombo addItemWithTitle:[NSString stringWithUTF8String:macs[i]]];
 	}
 	[_macCombo selectItemAtIndex:slctd_mac];
+
+	[_kdfIterations setIntValue:(int)iter];
+	[_kdfIterate setIntValue:(int)iter];
 }
 
 @end

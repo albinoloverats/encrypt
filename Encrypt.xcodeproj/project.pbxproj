@@ -92,14 +92,14 @@
 		AB5CDADB1BB080F300E10BB0 /* ccrypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ccrypt.h; sourceTree = "<group>"; };
 		AB5CDADC1BB080F300E10BB0 /* ecc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ecc.c; sourceTree = "<group>"; };
 		AB5CDADD1BB080F300E10BB0 /* ecc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ecc.h; sourceTree = "<group>"; };
-		AB730D8E1A34A92A00BA4DC8 /* libgcrypt.20.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgcrypt.20.dylib; path = /usr/local/Cellar/libgcrypt/1.8.1/lib/libgcrypt.20.dylib; sourceTree = "<absolute>"; };
-		AB730D8F1A34A92A00BA4DC8 /* libgpg-error.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libgpg-error.0.dylib"; path = "/usr/local/Cellar/libgpg-error/1.27/lib/libgpg-error.0.dylib"; sourceTree = "<absolute>"; };
-		AB730D901A34A92A00BA4DC8 /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = /usr/local/Cellar/xz/5.2.3/lib/liblzma.5.dylib; sourceTree = "<absolute>"; };
+		AB730D8E1A34A92A00BA4DC8 /* libgcrypt.20.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgcrypt.20.dylib; path = /usr/local/Cellar/libgcrypt/1.8.5/lib/libgcrypt.20.dylib; sourceTree = "<absolute>"; };
+		AB730D8F1A34A92A00BA4DC8 /* libgpg-error.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libgpg-error.0.dylib"; path = "/usr/local/Cellar/libgpg-error/1.36/lib/libgpg-error.0.dylib"; sourceTree = "<absolute>"; };
+		AB730D901A34A92A00BA4DC8 /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = /usr/local/Cellar/xz/5.2.4/lib/liblzma.5.dylib; sourceTree = "<absolute>"; };
 		ABC4B1D31E8A9B1700645215 /* osx.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = osx.m; sourceTree = "<group>"; };
 		ABC4B1D51E8A9B2800645215 /* osx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = osx.h; sourceTree = "<group>"; };
-		ABD3BA401A34A6DA00976011 /* libgcrypt.20.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgcrypt.20.dylib; path = /usr/local/Cellar/libgcrypt/1.8.1/lib/libgcrypt.20.dylib; sourceTree = "<absolute>"; };
-		ABD3BA411A34A6DA00976011 /* libgpg-error.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libgpg-error.0.dylib"; path = "//usr/local/Cellar/libgpg-error/1.27/lib/libgpg-error.0.dylib"; sourceTree = "<absolute>"; };
-		ABD3BA421A34A6DA00976011 /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = /usr/local/Cellar/xz/5.2.3/lib/liblzma.5.dylib; sourceTree = "<absolute>"; };
+		ABD3BA401A34A6DA00976011 /* libgcrypt.20.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgcrypt.20.dylib; path = /usr/local/Cellar/libgcrypt/1.8.5/lib/libgcrypt.20.dylib; sourceTree = "<absolute>"; };
+		ABD3BA411A34A6DA00976011 /* libgpg-error.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libgpg-error.0.dylib"; path = "/usr/local/Cellar/libgpg-error/1.36/lib/libgpg-error.0.dylib"; sourceTree = "<absolute>"; };
+		ABD3BA421A34A6DA00976011 /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = /usr/local/Cellar/xz/5.2.4/lib/liblzma.5.dylib; sourceTree = "<absolute>"; };
 		ABD3BA461A34A70100976011 /* libcurl.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.dylib; path = /usr/lib/libcurl.dylib; sourceTree = SDKROOT; };
 		ABD7EC1A1A34A45E000DB1AE /* cli.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cli.c; sourceTree = "<group>"; };
 		ABD7EC1B1A34A45E000DB1AE /* cli.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cli.h; sourceTree = "<group>"; };
@@ -282,6 +282,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 2EA92F50161DDC58008DFF9B;
@@ -396,7 +397,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2017.09;
+				CURRENT_PROJECT_VERSION = 2020.01;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -446,7 +447,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 2017.09;
+				CURRENT_PROJECT_VERSION = 2020.01;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -489,12 +490,12 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/lib,
-					/usr/local/Cellar/libgcrypt/1.8.1/lib,
-					"/usr/local/Cellar/libgpg-error/1.27/lib",
-					/usr/local/Cellar/xz/5.2.3/lib,
-					/usr/local/Cellar/libgcrypt/1.8.1/lib,
-					"/usr/local/Cellar/libgpg-error/1.27/lib",
-					/usr/local/Cellar/xz/5.2.3/lib,
+					/usr/local/Cellar/libgcrypt/1.8.5/lib,
+					"/usr/local/Cellar/libgpg-error/1.36/lib",
+					/usr/local/Cellar/xz/5.2.4/lib,
+					/usr/local/Cellar/libgcrypt/1.8.5/lib,
+					"/usr/local/Cellar/libgpg-error/1.36/lib",
+					/usr/local/Cellar/xz/5.2.4/lib,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = "albinoloverats-Software-Development.${PRODUCT_NAME:rfc1034identifier}";
@@ -519,12 +520,12 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/lib,
-					/usr/local/Cellar/libgcrypt/1.8.1/lib,
-					"/usr/local/Cellar/libgpg-error/1.27/lib",
-					/usr/local/Cellar/xz/5.2.3/lib,
-					/usr/local/Cellar/libgcrypt/1.8.1/lib,
-					"/usr/local/Cellar/libgpg-error/1.27/lib",
-					/usr/local/Cellar/xz/5.2.3/lib,
+					/usr/local/Cellar/libgcrypt/1.8.5/lib,
+					"/usr/local/Cellar/libgpg-error/1.36/lib",
+					/usr/local/Cellar/xz/5.2.4/lib,
+					/usr/local/Cellar/libgcrypt/1.8.5/lib,
+					"/usr/local/Cellar/libgpg-error/1.36/lib",
+					/usr/local/Cellar/xz/5.2.4/lib,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
