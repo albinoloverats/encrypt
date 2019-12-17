@@ -28,8 +28,10 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include <sys/utsname.h>
-#include <sys/ioctl.h>
+#ifndef _WIN32
+	#include <sys/utsname.h>
+	#include <sys/ioctl.h>
+#endif
 
 #include "common/common.h"
 #include "common/non-gnu.h"
@@ -395,10 +397,14 @@ static void print_version(void)
 	char *av = NULL;
 	asprintf(&av, _("%s version"), app_name);
 	char *git = strndup(GIT_COMMIT, GIT_COMMIT_LENGTH);
+	char *runtime = NULL;
+#ifndef _WIN32
 	struct utsname un;
 	uname(&un);
-	char *runtime = NULL;
 	asprintf(&runtime, "%s %s %s %s", un.sysname, un.release, un.version, un.machine);
+#else
+	asprintf(&runtime, "%s", windows_version());
+#endif
 	format_version(i, av,              ENCRYPT_VERSION);
 	format_version(i, _("built on"),   __DATE__ " " __TIME__);
 	format_version(i, _("git commit"), git);
@@ -445,9 +451,10 @@ static void format_help_line(char s, char *l, char *v, char *t)
 	}
 	fprintf(stderr, "%*s", (int)z, " ");
 
+	cli_fprintf(stderr, ANSI_COLOUR_BLUE);
+#ifndef _WIN32
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-	cli_fprintf(stderr, ANSI_COLOUR_BLUE);
 	if (w.ws_col)
 	{
 		size_t o = 0;
@@ -466,6 +473,7 @@ static void format_help_line(char s, char *l, char *v, char *t)
 		}
 	}
 	else
+#endif /* ! _WIN32 */
 		fprintf(stderr, "%s", t);
 	cli_fprintf(stderr, ANSI_COLOUR_RESET);
 

@@ -98,6 +98,8 @@ extern int scandir(const char *path, struct dirent ***res, int (*sel)(const stru
 
 extern FILE *temp_file(void);
 
+extern char *windows_version(void);
+
 #endif /* _WIN32 */
 
 #endif /* _NON_GNU_EXT_H_ */
