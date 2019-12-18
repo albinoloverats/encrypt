@@ -394,7 +394,7 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_wi
 			update_config(CONF_MAC, macs[mac - 1]);
 		if (iter > 0)
 		{
-			char i[20];
+			char i[22];
 			snprintf(i, sizeof i, "%" PRIu64, iter);
 			update_config(CONF_KDF_ITERATIONS, i);
 		}
