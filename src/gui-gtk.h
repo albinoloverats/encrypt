@@ -52,7 +52,6 @@ typedef struct gtk_widgets_t
 	GtkWidget *mode_combo;
 	GtkWidget *mac_combo;
 	GtkWidget *kdf_spinner;
-	GtkWidget *kdf_iterations;
 	GtkWidget *password_entry;
 	GtkWidget *key_button;
 	GtkWidget *key_dialog;

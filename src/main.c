@@ -191,7 +191,6 @@ int main(int argc, char **argv)
 			INIT_WIDGET(mode_combo);
 			INIT_WIDGET(mac_combo);
 			INIT_WIDGET(kdf_spinner);
-			INIT_WIDGET(kdf_iterations);
 			INIT_WIDGET(password_entry);
 			INIT_WIDGET(key_button);
 			INIT_WIDGET(key_dialog);

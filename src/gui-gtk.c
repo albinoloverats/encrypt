@@ -137,7 +137,7 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 	/*
 	 * KDF iterations
 	 */
-	gtk_adjustment_set_value((GtkAdjustment *)data->kdf_iterations, (double)iter);
+	gtk_adjustment_set_value(gtk_spin_button_get_adjustment((GtkSpinButton *)data->kdf_spinner), (double)iter);
 
 	return;
 }
@@ -373,7 +373,7 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_wi
 	int hash = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
 	int mode = gtk_combo_box_get_active((GtkComboBox *)data->mode_combo);
 	int mac = gtk_combo_box_get_active((GtkComboBox *)data->mac_combo);
-	uint64_t iter = (uint64_t)gtk_adjustment_get_value((GtkAdjustment *)data->kdf_iterations);
+	uint64_t iter = (uint64_t)gtk_adjustment_get_value(gtk_spin_button_get_adjustment((GtkSpinButton *)data->kdf_spinner));
 
 	gboolean en = _files;
 
@@ -657,7 +657,7 @@ static void *gui_process(void *d)
 	int h = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
 	int m = gtk_combo_box_get_active((GtkComboBox *)data->mode_combo);
 	int a = gtk_combo_box_get_active((GtkComboBox *)data->mac_combo);
-	uint64_t iter = (uint64_t)gtk_adjustment_get_value((GtkAdjustment *)data->kdf_iterations);
+	uint64_t iter = (uint64_t)gtk_adjustment_get_value(gtk_spin_button_get_adjustment((GtkSpinButton *)data->kdf_spinner));
 	const char **ciphers = list_of_ciphers();
 	const char **hashes = list_of_hashes();
 	const char **modes = list_of_modes();
