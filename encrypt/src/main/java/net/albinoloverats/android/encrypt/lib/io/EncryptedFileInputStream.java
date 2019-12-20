@@ -68,7 +68,7 @@ public class EncryptedFileInputStream extends FileInputStream
 		eccFileInputStream = new ECCFileInputStream(file);
 	}
 
-	public HashMAC initialiseDecryption(final String c, final String h, final String m, final String a, final long kdfIterations, final byte[] k, final XIV ivType, final boolean useKDF) throws NoSuchAlgorithmException, InvalidKeyException, LimitReachedException, IOException
+	public HashMAC initialiseDecryption(final String c, final String h, final String m, final String a, final int kdfIterations, final byte[] k, final XIV ivType, final boolean useKDF) throws NoSuchAlgorithmException, InvalidKeyException, LimitReachedException, IOException
 	{
 		final IMessageDigest hash = CryptoUtils.getHashAlgorithm(h);
 		final IBlockCipher blockCipher = CryptoUtils.getCipherAlgorithm(c);
