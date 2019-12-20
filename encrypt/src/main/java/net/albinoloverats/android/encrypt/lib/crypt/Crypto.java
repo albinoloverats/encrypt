@@ -45,6 +45,8 @@ public abstract class Crypto extends Service implements Runnable
 	protected static final long[] HEADER = { 0x3697de5d96fca0faL, 0xc845c2fa95e2f52dL, Version.CURRENT.magicNumber };
 
 	protected static final int BLOCK_SIZE = 1024;
+	protected static final int KDF_ITERATIONS_201709  = 1024;
+	public static final int KDF_ITERATIONS_DEFAULT = 32768;
 
 	protected InputStream source;
 	protected OutputStream output;
@@ -56,6 +58,7 @@ public abstract class Crypto extends Service implements Runnable
 	protected String mode;
 	protected String mac;
 	protected byte[] key;
+	protected int kdfIterations;
 
 	protected boolean raw = false;
 

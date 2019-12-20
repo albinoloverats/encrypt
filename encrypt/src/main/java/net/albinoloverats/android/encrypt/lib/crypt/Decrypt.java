@@ -71,10 +71,11 @@ public class Decrypt extends Crypto
 		}
 		if (raw)
 		{
-			cipher = intent.getStringExtra("cipher");
-			hash   = intent.getStringExtra("hash");
-			mode   = intent.getStringExtra("mode");
-			mac    = intent.getStringExtra("mac");
+			cipher         = intent.getStringExtra("cipher");
+			hash           = intent.getStringExtra("hash");
+			mode           = intent.getStringExtra("mode");
+			mac            = intent.getStringExtra("mac");
+			kdfIterations  = intent.getIntExtra("kdf_iterations", KDF_ITERATIONS_DEFAULT);
 		}
 
 		intent.putExtra("encrypting", false);
@@ -89,6 +90,8 @@ public class Decrypt extends Crypto
 			status = Status.RUNNING;
 
 			version = raw ? Version.CURRENT : readVersion();
+			if (version == null || status != Status.RUNNING)
+				throw new Exception("Could not parse header!");
 
 			boolean extraRandom = true;
 			XIV ivType = XIV.RANDOM;
@@ -113,11 +116,15 @@ public class Decrypt extends Crypto
 					useMAC = false;
 					break;
 				case _201709:
+					kdfIterations = KDF_ITERATIONS_201709;
+					break;
+				case _202001:
 				case CURRENT:
-				default:
+					//kdfIterations = KDF_ITERATIONS_DEFAULT;
+					break;
 			}
 
-			verification = ((EncryptedFileInputStream)source).initialiseDecryption(cipher, hash, mode, mac, key, ivType, useMAC);
+			verification = ((EncryptedFileInputStream)source).initialiseDecryption(cipher, hash, mode, mac, kdfIterations, key, ivType, useMAC);
 
 			if (!raw)
 			{
@@ -195,8 +202,9 @@ public class Decrypt extends Crypto
 		}
 		catch (final Throwable t)
 		{
-			status = Status.FAILED_OTHER;
-			throw new CryptoProcessException(Status.FAILED_OTHER, t);
+			if (status == Status.RUNNING)
+				status = Status.FAILED_OTHER;
+			throw new CryptoProcessException(status, t);
 		}
 		finally
 		{
@@ -232,6 +240,18 @@ public class Decrypt extends Crypto
 			{
 				mac = mode.substring(mode.indexOf('/') + 1);
 				mode = mode.substring(0, mode.indexOf('/'));
+				if (mac.contains("/"))
+				{
+					byte[] kdf = mode.substring(mode.indexOf('/') + 1).getBytes();
+					mac = mode.substring(0, mac.indexOf('/'));
+					long kdfIter = Convert.longFromBytes(kdf);
+					if (kdfIter > Integer.MAX_VALUE)
+					{
+						status = Status.FAILED_KEY;
+						return null;
+					}
+					kdfIterations = (int)kdfIter;
+				}
 			}
 		}
 		else

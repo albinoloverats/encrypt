@@ -36,7 +36,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
-//import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -48,6 +47,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -95,6 +95,7 @@ public class Main extends Activity
 	private String hash;
 	private String mode;
 	private String mac;
+	private int kdfIterations;
 	private String password;
 	private String key;
 
@@ -114,37 +115,38 @@ public class Main extends Activity
 		hash = settings.getString(Options.HASH.toString(), null);
 		mode = settings.getString(Options.MODE.toString(), null);
 		mac = settings.getString(Options.MAC.toString(), null);
+		kdfIterations = settings.getInt(Options.KDF_ITERATIONS.toString(), Crypto.KDF_ITERATIONS_DEFAULT);
 
 		// setup the file chooser button
-		final Button fChooser = (Button)findViewById(R.id.button_file);
+		final Button fChooser = findViewById(R.id.button_file);
 		fChooser.setOnClickListener(new FileChooserListener(FileAction.LOAD, this));
 
 		// setup the file output chooser button
 		findViewById(R.id.button_output).setOnClickListener(new FileChooserListener(FileAction.SAVE, this));
 
 		// setup the hash and crypto spinners
-		final Spinner cSpinner = (Spinner)findViewById(R.id.spin_crypto);
+		final Spinner cSpinner = findViewById(R.id.spin_crypto);
 		final ArrayAdapter<CharSequence> cipherSpinAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
 		cipherSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		cSpinner.setAdapter(cipherSpinAdapter);
 		cSpinner.setOnItemSelectedListener(new SpinnerSelectedListener(CIPHERS));
 		cSpinner.setEnabled(false);
 
-		final Spinner hSpinner = (Spinner)findViewById(R.id.spin_hash);
+		final Spinner hSpinner = findViewById(R.id.spin_hash);
 		final ArrayAdapter<CharSequence> hashSpinAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
 		hashSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		hSpinner.setAdapter(hashSpinAdapter);
 		hSpinner.setOnItemSelectedListener(new SpinnerSelectedListener(HASHES));
 		hSpinner.setEnabled(false);
 
-		final Spinner mSpinner = (Spinner)findViewById(R.id.spin_mode);
+		final Spinner mSpinner = findViewById(R.id.spin_mode);
 		final ArrayAdapter<CharSequence> modeSpinAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
 		modeSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		mSpinner.setAdapter(modeSpinAdapter);
 		mSpinner.setOnItemSelectedListener(new SpinnerSelectedListener(MODES));
 		mSpinner.setEnabled(false);
 
-		final Spinner aSpinner = (Spinner)findViewById(R.id.spin_mac);
+		final Spinner aSpinner = findViewById(R.id.spin_mac);
 		final ArrayAdapter<CharSequence> macSpinAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
 		macSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		aSpinner.setAdapter(macSpinAdapter);
@@ -192,8 +194,19 @@ public class Main extends Activity
 			i++;
 		}
 
+		NumberPicker kdf = findViewById(R.id.spin_kdf);
+		kdf.setMaxValue(Integer.MAX_VALUE);
+		kdf.setMinValue(1);
+		kdf.setValue(kdfIterations);
+		kdf.setEnabled(false);
+		kdf.setOnValueChangedListener((numberPicker, oldValue, newValue) ->
+		{
+			if (newValue > 0)
+				kdfIterations = newValue;
+		});
+
 		// get reference to password text box
-		final EditText pEntry = (EditText)findViewById(R.id.text_password);
+		final EditText pEntry = findViewById(R.id.text_password);
 		pEntry.addTextChangedListener(new TextWatcher()
 		{
 			@Override
@@ -212,24 +225,24 @@ public class Main extends Activity
 			@Override
 			public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after)
 			{
-				; /* do nothing */
+				/* do nothing */
 			}
 
 			@Override
 			public void onTextChanged(final CharSequence s, final int start, final int before, final int count)
 			{
-				; /* do nothing */
+				/* do nothing */
 			}
 		});
 		pEntry.setEnabled(false);
 
 		// select key file button
-		final Button keyButton = (Button)findViewById(R.id.button_key);
+		final Button keyButton = findViewById(R.id.button_key);
 		keyButton.setOnClickListener(new FileChooserListener(FileAction.KEY, this));
 		keyButton.setEnabled(false);
 
 		// get reference to encrypt/decrypt button
-		final Button encButton = (Button)findViewById(R.id.button_go);
+		final Button encButton = findViewById(R.id.button_go);
 		encButton.setOnClickListener(v ->
 		{
 			createDoubleProgressDialog();
@@ -248,7 +261,7 @@ public class Main extends Activity
 	}
 
 	@Override
-	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
 	{
 		switch (requestCode)
 		{
@@ -258,7 +271,7 @@ public class Main extends Activity
 				else
 					finishAffinity();
 			default:
-				; /* do nothing (we shouldn't really get here) */
+				/* do nothing (we shouldn't really get here) */
 		}
 	}
 
@@ -277,6 +290,7 @@ public class Main extends Activity
 		editor.putString(Options.HASH.toString(), hash);
 		editor.putString(Options.MODE.toString(), mode);
 		editor.putString(Options.MAC.toString(), mac);
+		editor.putInt(Options.KDF_ITERATIONS.toString(), kdfIterations);
 		editor.putBoolean(Options.COMPRESS.toString(), compress);
 		editor.putBoolean(Options.FOLLOW.toString(), follow);
 		editor.putBoolean(Options.KEY.toString(), key_file);
@@ -355,8 +369,8 @@ public class Main extends Activity
 
 	private void toggleKeySource()
 	{
-		final EditText pass = (EditText)findViewById(R.id.text_password);
-		final Button key = (Button)findViewById(R.id.button_key);
+		final EditText pass = findViewById(R.id.text_password);
+		final Button key = findViewById(R.id.button_key);
 		pass.setVisibility(key_file ? View.GONE : View.VISIBLE);
 		key.setVisibility(key_file ? View.VISIBLE : View.GONE);
 	}
@@ -416,18 +430,20 @@ public class Main extends Activity
 
 	private void checkEnableButtons()
 	{
-		final Spinner cSpinner  = (Spinner)findViewById(R.id.spin_crypto);
-		final Spinner hSpinner  = (Spinner)findViewById(R.id.spin_hash);
-		final Spinner mSpinner  = (Spinner)findViewById(R.id.spin_mode);
-		final Spinner aSpinner  = (Spinner)findViewById(R.id.spin_mac);
-		final EditText password = (EditText)findViewById(R.id.text_password);
-		final Button keyButton  = (Button)findViewById(R.id.button_key);
-		final Button encButton  = (Button)findViewById(R.id.button_go);
+		final Spinner cSpinner        = findViewById(R.id.spin_crypto);
+		final Spinner hSpinner        = findViewById(R.id.spin_hash);
+		final Spinner mSpinner        = findViewById(R.id.spin_mode);
+		final Spinner aSpinner        = findViewById(R.id.spin_mac);
+		final NumberPicker kdfSpinner = findViewById(R.id.spin_kdf);
+		final EditText password       = findViewById(R.id.text_password);
+		final Button keyButton        = findViewById(R.id.button_key);
+		final Button encButton        = findViewById(R.id.button_go);
 
 		hSpinner.setEnabled(false);
 		cSpinner.setEnabled(false);
 		mSpinner.setEnabled(false);
 		aSpinner.setEnabled(false);
+		kdfSpinner.setEnabled(false);
 		password.setEnabled(false);
 		keyButton.setEnabled(false);
 		encButton.setEnabled(false);
@@ -444,7 +460,8 @@ public class Main extends Activity
 				hSpinner.setEnabled(true);
 				mSpinner.setEnabled(true);
 				aSpinner.setEnabled(true);
-				if (cipher != null && hash != null && mode != null && mac != null)
+				kdfSpinner.setEnabled(true);
+				if (cipher != null && hash != null && mode != null && mac != null && kdfIterations > 0)
 				{
 					password.setEnabled(true);
 					keyButton.setEnabled(true);

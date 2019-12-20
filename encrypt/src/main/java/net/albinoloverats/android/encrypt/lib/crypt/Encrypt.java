@@ -68,15 +68,16 @@ public class Encrypt extends Crypto
 			return Service.START_REDELIVER_INTENT;
 		final String source = intent.getStringExtra("source");
 		final String output = intent.getStringExtra("output");
-		cipher       = intent.getStringExtra("cipher");
-		hash         = intent.getStringExtra("hash");
-		mode         = intent.getStringExtra("mode");
-		mac          = intent.getStringExtra("mac");
-		key          = intent.getByteArrayExtra("key");
-		raw          = intent.getBooleanExtra("raw", raw);
-		compressed   = intent.getBooleanExtra("compress", compressed);
-		follow_links = intent.getBooleanExtra("follow", follow_links);
-		version      = Version.parseMagicNumber(intent.getLongExtra("version", Version.CURRENT.magicNumber), Version.CURRENT);
+		cipher              = intent.getStringExtra("cipher");
+		hash                = intent.getStringExtra("hash");
+		mode                = intent.getStringExtra("mode");
+		mac                 = intent.getStringExtra("mac");
+		kdfIterations       = intent.getIntExtra("kdf_iterations", KDF_ITERATIONS_DEFAULT);
+		key                 = intent.getByteArrayExtra("key");
+		raw                 = intent.getBooleanExtra("raw", raw);
+		compressed          = intent.getBooleanExtra("compress", compressed);
+		follow_links        = intent.getBooleanExtra("follow", follow_links);
+		version             = Version.parseMagicNumber(intent.getLongExtra("version", Version.CURRENT.magicNumber), Version.CURRENT);
 
 		try
 		{
@@ -136,7 +137,12 @@ public class Encrypt extends Crypto
 			case _201510:
 				break;
 			case _201709:
+				kdfIterations = KDF_ITERATIONS_201709;
+				break;
+			case _202001:
 			case CURRENT:
+				if (kdfIterations == 0)
+					kdfIterations = KDF_ITERATIONS_DEFAULT;
 				break;
 		}
 
@@ -167,7 +173,7 @@ public class Encrypt extends Crypto
 			if (version.compareTo(Version._201709) < 0)
 				useMAC = false;
 			/* we can use useMAC to indicate whether to use a proper key derivation function */
-			verification = ((EncryptedFileOutputStream)output).initialiseEncryption(cipher, hash, mode, mac, key, ivType, useMAC);
+			verification = ((EncryptedFileOutputStream)output).initialiseEncryption(cipher, hash, mode, mac, kdfIterations, key, ivType, useMAC);
 
 			if (!raw)
 			{
@@ -266,6 +272,8 @@ public class Encrypt extends Crypto
 			algorithms = algorithms.concat("/" + mode);
 		if (version.compareTo(Version._201709) >= 0)
 			algorithms = algorithms.concat("/" + mac);
+		if (version.compareTo(Version._202001) >= 0)
+			algorithms = algorithms.concat("/" + Convert.toBytes(kdfIterations));
 		output.write((byte)algorithms.length());
 		output.write(algorithms.getBytes());
 	}

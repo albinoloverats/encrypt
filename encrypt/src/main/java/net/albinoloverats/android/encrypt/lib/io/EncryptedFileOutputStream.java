@@ -47,8 +47,6 @@ import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
 public class EncryptedFileOutputStream extends FileOutputStream
 {
-	private static final int PBKDF2_ITERATIONS = 1024;
-
 	private final ECCFileOutputStream eccFileOutputStream;
 
 	private IMode cipher;
@@ -73,7 +71,7 @@ public class EncryptedFileOutputStream extends FileOutputStream
 		eccFileOutputStream = new ECCFileOutputStream(file);
 	}
 
-	public HashMAC initialiseEncryption(final String c, final String h, final String m, String a, final byte[] k, final XIV ivType, final boolean useKDF) throws NoSuchAlgorithmException, InvalidKeyException, LimitReachedException, IOException
+	public HashMAC initialiseEncryption(final String c, final String h, final String m, String a, final long kdfIterations, final byte[] k, final XIV ivType, final boolean useKDF) throws NoSuchAlgorithmException, InvalidKeyException, LimitReachedException, IOException
 	{
 		final IMessageDigest hash = CryptoUtils.getHashAlgorithm(h);
 		final IBlockCipher cipher = CryptoUtils.getCipherAlgorithm(c);
@@ -101,7 +99,7 @@ public class EncryptedFileOutputStream extends FileOutputStream
 			attributes = new HashMap<>();
 			attributes.put(IMac.MAC_KEY_MATERIAL, keySource);
 			attributes.put(IPBE.SALT, salt);
-			attributes.put(IPBE.ITERATION_COUNT, PBKDF2_ITERATIONS);
+			attributes.put(IPBE.ITERATION_COUNT, kdfIterations);
 			keyGen.init(attributes);
 			keyGen.nextBytes(key);
 		}
@@ -136,7 +134,7 @@ public class EncryptedFileOutputStream extends FileOutputStream
 		attributes = new HashMap<>();
 		attributes.put(IMac.MAC_KEY_MATERIAL, keySource);
 		attributes.put(IPBE.SALT, salt);
-		attributes.put(IPBE.ITERATION_COUNT, PBKDF2_ITERATIONS);
+		attributes.put(IPBE.ITERATION_COUNT, kdfIterations);
 		keyGen.init(attributes);
 		keyGen.nextBytes(key);
 		attributes = new HashMap<>();

@@ -29,6 +29,7 @@ public enum Options
 	HASH,
 	MODE,
 	MAC,
+	KDF_ITERATIONS,
 	COMPRESS,
 	FOLLOW,
 	KEY,

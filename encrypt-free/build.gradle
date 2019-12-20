@@ -1,17 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-	compileSdkVersion 25
-	buildToolsVersion '25.0.0'
+	compileSdkVersion 26
+	buildToolsVersion '29.0.0'
 	defaultConfig {
 		applicationId 'net.albinoloverats.android.encrypt.free'
-		minSdkVersion 23
-		targetSdkVersion 25
+		minSdkVersion 26
+		targetSdkVersion 26
 		versionCode 16
 		versionName '2020.01'
-		jackOptions {
-			enabled true
-		}
 	}
 	signingConfigs {
 		release {
@@ -34,8 +31,8 @@ android {
 }
 
 dependencies {
-	compile fileTree(dir: 'libs', include: ['*.jar'])
-	compile 'com.android.support:appcompat-v7:25.0.0'
-	compile 'com.google.android.gms:play-services-ads:7.8.0'
-	compile project(':encrypt')
+	api fileTree(dir: 'libs', include: ['*.jar'])
+	api 'com.android.support:appcompat-v7:26.0.0'
+	api 'com.google.android.gms:play-services-ads:7.8.0'
+	api project(':encrypt')
 }

@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:ads="http://schemas.android.com/apk/res-auto" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_gravity="center" android:keepScreenOn="true">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:ads="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:keepScreenOn="true">
 	<LinearLayout android:layout_width="240dp" android:layout_height="wrap_content" android:layout_gravity="center" android:orientation="vertical">
-		<Button android:id="@+id/button_file" android:layout_width="fill_parent" android:layout_height="48dp" android:layout_gravity="center" android:enabled="true" android:focusable="true" android:focusableInTouchMode="true" android:text="@string/choose_source"/>
-		<Button android:id="@+id/button_output" android:layout_width="fill_parent" android:layout_height="48dp" android:layout_gravity="center" android:text="@string/choose_output"/>
-		<Spinner android:id="@+id/spin_crypto" android:layout_width="fill_parent" android:layout_height="32dp" android:layout_gravity="center" android:layout_weight="1" android:spinnerMode="dialog"/>
-		<Spinner android:id="@+id/spin_hash" android:layout_width="fill_parent" android:layout_height="32dp" android:layout_gravity="center" android:layout_weight="1" android:spinnerMode="dialog"/>
-		<Spinner android:id="@+id/spin_mode" android:layout_width="fill_parent" android:layout_height="32dp" android:layout_gravity="center" android:layout_weight="1" android:spinnerMode="dialog"/>
-		<Spinner android:id="@+id/spin_mac" android:layout_width="fill_parent" android:layout_height="32dp" android:layout_gravity="center" android:layout_weight="1" android:spinnerMode="dialog"/>
-		<EditText android:id="@+id/text_password" android:layout_width="fill_parent" android:layout_height="48dp" android:layout_gravity="center" android:layout_weight="1" android:hint="@string/password" android:inputType="textPassword"/>
-		<Button android:id="@+id/button_key" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_gravity="center" android:enabled="true" android:focusable="true" android:focusableInTouchMode="true" android:text="@string/choose_key" android:visibility="gone"/>
-		<Button android:id="@+id/button_go" android:layout_width="fill_parent" android:layout_height="48dp" android:layout_gravity="center" android:layout_weight="1" android:drawableStart="@drawable/button" android:text="@string/encrypt" android:textStyle="bold"/>
+		<Button android:id="@+id/button_file" android:layout_width="match_parent" android:layout_height="48dp" android:layout_gravity="center" android:enabled="true" android:focusable="true" android:focusableInTouchMode="true" android:text="@string/choose_source"/>
+		<Button android:id="@+id/button_output" android:layout_width="match_parent" android:layout_height="48dp" android:layout_gravity="center" android:text="@string/choose_output"/>
+		<Spinner android:id="@+id/spin_crypto" android:layout_width="match_parent" android:layout_height="32dp" android:layout_gravity="center" android:layout_weight="1" android:spinnerMode="dialog"/>
+		<Spinner android:id="@+id/spin_hash" android:layout_width="match_parent" android:layout_height="32dp" android:layout_gravity="center" android:layout_weight="1" android:spinnerMode="dialog"/>
+		<Spinner android:id="@+id/spin_mode" android:layout_width="match_parent" android:layout_height="32dp" android:layout_gravity="center" android:layout_weight="1" android:spinnerMode="dialog"/>
+		<Spinner android:id="@+id/spin_mac" android:layout_width="match_parent" android:layout_height="32dp" android:layout_gravity="center" android:layout_weight="1" android:spinnerMode="dialog"/>
+		<NumberPicker android:id="@+id/spin_kdf" android:layout_width="match_parent" android:layout_height="32dp" android:layout_gravity="center" android:layout_weight="1" android:spinnerMode="dialog"/>
+		<EditText android:id="@+id/text_password" android:layout_width="match_parent" android:layout_height="48dp" android:layout_gravity="center" android:layout_weight="1" android:hint="@string/password" android:inputType="textPassword"/>
+		<Button android:id="@+id/button_key" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="center" android:enabled="true" android:focusable="true" android:focusableInTouchMode="true" android:text="@string/choose_key" android:visibility="gone"/>
+		<Button android:id="@+id/button_go" android:layout_width="match_parent" android:layout_height="48dp" android:layout_gravity="center" android:layout_weight="1" android:drawableStart="@drawable/button" android:text="@string/encrypt" android:textStyle="bold"/>
 	</LinearLayout>
 </ScrollView>
