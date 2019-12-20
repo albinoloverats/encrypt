@@ -31,6 +31,9 @@
 #ifndef _WIN32
 	#include <sys/utsname.h>
 	#include <sys/ioctl.h>
+	#ifdef __sun
+		#include <sys/tty.h>
+	#endif
 #endif
 
 #include "common/common.h"
