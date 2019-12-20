@@ -1,0 +1,29 @@
+i pkginfo
+d none /usr 0755 root root
+d none /usr/share 0755 root root
+d none /usr/share/man 0755 root root
+d none /usr/share/man/man1 0755 root root
+f none /usr/share/man/man1/encrypt.1a.gz 0644 root root
+d none /usr/share/pixmaps 0755 root root
+f none /usr/share/pixmaps/encrypt.svg 0644 root root
+f none /usr/share/pixmaps/encrypt_button.svg 0644 root root
+d none /usr/share/Thunar 0755 root root
+d none /usr/share/Thunar/sendto 0755 root root
+f none /usr/share/Thunar/sendto/encrypt.desktop 0644 root root
+d none /usr/share/zsh 0755 root root
+d none /usr/share/zsh/functions 0755 root root
+d none /usr/share/zsh/functions/Completion 0755 root root
+d none /usr/share/zsh/functions/Completion/Unix 0755 root root
+f none /usr/share/zsh/functions/Completion/Unix/_encrypt 0755 root root
+d none /usr/share/bash-completion 0755 root root
+d none /usr/share/bash-completion/completions 0755 root root
+f none /usr/share/bash-completion/completions/encrypt 0755 root root
+d none /usr/share/applications 0755 root root
+f none /usr/share/applications/encrypt.desktop 0644 root root
+d none /usr/share/encrypt 0755 root root
+f none /usr/share/encrypt/encrypt.glade 0644 root root
+f none /usr/share/encrypt/encryptrc 0644 root root
+f none /usr/share/encrypt/magic 0644 root root
+d none /usr/bin 0755 root root
+f none /usr/bin/encrypt 0755 root root
+l none /usr/bin/decrypt=encrypt
