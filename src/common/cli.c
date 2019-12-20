@@ -220,9 +220,10 @@ static int cli_bps_sort(const void *a, const void *b)
 
 static int cli_print(FILE *stream, char *text)
 {
-	bool strip = !((stream == stdout && isatty(STDOUT_FILENO)) || (stream == stderr && isatty(STDERR_FILENO)));
 	size_t l = strlen(text);
 	char *copy = calloc(1, l + 1);
+#ifndef _WIN32
+	bool strip = !((stream == stdout && isatty(STDOUT_FILENO)) || (stream == stderr && isatty(STDERR_FILENO)));
 	if (strip)
 	{
 		char *ptr = text;
@@ -238,6 +239,7 @@ static int cli_print(FILE *stream, char *text)
 		strcat(copy, ptr);
 	}
 	else
+#endif
 		strcpy(copy, text);
 	int x = fprintf(stream, "%s", copy);
 	free(copy);
