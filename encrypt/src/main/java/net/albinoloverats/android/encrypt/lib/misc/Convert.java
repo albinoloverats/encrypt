@@ -22,6 +22,18 @@ package net.albinoloverats.android.encrypt.lib.misc;
 
 public abstract class Convert
 {
+	public static byte[] toBytes(final String s)
+	{
+		byte[] b = new byte[s.length() / 2];
+		for (int i = 0; i < b.length; i++)
+		{
+			int j = i * 2;
+			int k = Integer.parseInt(s.substring(j, j + 2), 16);
+			b[i] = (byte)k;
+		}
+		return b;
+	}
+
 	public static byte[] toBytes(final long l)
 	{
 		final byte b[] = new byte[8];

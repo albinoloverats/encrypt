@@ -242,15 +242,13 @@ public class Decrypt extends Crypto
 				mode = mode.substring(0, mode.indexOf('/'));
 				if (mac.contains("/"))
 				{
-					byte[] kdf = mode.substring(mode.indexOf('/') + 1).getBytes();
-					mac = mode.substring(0, mac.indexOf('/'));
-					long kdfIter = Convert.longFromBytes(kdf);
-					if (kdfIter > Integer.MAX_VALUE)
-					{
-						status = Status.FAILED_KEY;
-						return null;
-					}
-					kdfIterations = (int)kdfIter;
+					String kdf = mac.substring(mac.indexOf('/') + 1);
+					mac = mac.substring(0, mac.indexOf('/'));
+					/*
+					 * tough tits if you used more than 2,147,483,647 iterations
+					 * on your desktop (where libgcrypt uses an unsigned long)
+					 */
+					kdfIterations = (int)Convert.longFromBytes(Convert.toBytes(kdf));
 				}
 			}
 		}

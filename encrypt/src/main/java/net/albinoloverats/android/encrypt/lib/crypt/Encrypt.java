@@ -273,7 +273,10 @@ public class Encrypt extends Crypto
 		if (version.compareTo(Version._201709) >= 0)
 			algorithms = algorithms.concat("/" + mac);
 		if (version.compareTo(Version._202001) >= 0)
-			algorithms = algorithms.concat("/" + Convert.toBytes(kdfIterations));
+		{
+			String kdf = String.format("%x", (long)kdfIterations);
+			algorithms = algorithms.concat("/" + kdf);
+		}
 		output.write((byte)algorithms.length());
 		output.write(algorithms.getBytes());
 	}
