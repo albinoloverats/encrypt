@@ -420,8 +420,11 @@ static inline void write_header(crypto_t *c)
 	const char *u_mac = mac_name_from_id(c->mac);
 	if (c->version >= VERSION_2020_01)
 	{
-		uint64_t kdf = htonll(c->kdf_iterations);
-		if (!asprintf(&algos, "%s/%s/%s/%s/%016" PRIX64, u_cipher, u_hash, u_mode, u_mac, kdf))
+		/*
+		 * NB KDF iters doesn't need htonll because it's displayed
+		 * as a string (albeit in hex)
+		 */
+		if (!asprintf(&algos, "%s/%s/%s/%s/%016" PRIX64, u_cipher, u_hash, u_mode, u_mac, c->kdf_iterations))
 			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(u_cipher) + strlen(u_hash) + strlen(u_mode) + strlen(u_mac) + 4);
 	}
 	else if (c->version >= VERSION_2017_09)

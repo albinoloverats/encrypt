@@ -375,7 +375,7 @@ static uint64_t read_version(crypto_t *c)
 	if (v >= VERSION_2017_09)
 		c->mac = mac_id_from_name(a);
 	if (v >= VERSION_2020_01 && k)
-		c->kdf_iterations = ntohll(strtoull(k, NULL, 0x10));
+		c->kdf_iterations = strtoull(k, NULL, 0x10);
 	gcry_free(z);
 	return v;
 }
