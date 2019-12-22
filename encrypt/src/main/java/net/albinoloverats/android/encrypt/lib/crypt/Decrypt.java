@@ -155,19 +155,19 @@ public class Decrypt extends Crypto
 
 			if (version != Version._201108 && !raw)
 			{
-				final byte[] check = new byte[verification.hash.hashSize()];
-				final int err = source.read(check);
-				verification.mac.update(check, 0, check.length);
 				final byte[] digest = verification.hash.digest();
+				final byte[] check = new byte[verification.hash.hashSize()];
+				final int err = readAndHash(check);
 				if (err < 0 || !Arrays.equals(check, digest))
 					status = Status.WARNING_CHECKSUM;
-				skipRandomData();
 			}
+			if (!raw)
+				skipRandomData();
 			if (useMAC)
 			{
-				final byte[] check = new byte[verification.mac.macSize()];
-				final int err = source.read(check);
 				final byte[] digest = verification.mac.digest();
+				final byte[] check = new byte[verification.mac.macSize()];
+				final int err = readAndHash(check);
 				if (err < 0 || !Arrays.equals(check, digest))
 					status = Status.WARNING_CHECKSUM;
 			}
