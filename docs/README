@@ -44,7 +44,10 @@ Changelog
 
 * Configurable key derivation function iterations
 * Various bug fixes
-* Updates to use latest versions of dependencies
+  - MAC calculation (desktop)
+  - Non-directory handling during decryption (desktop)
+* Updates to use latest versions of dependencies (esp Android)
+* Packaged for Solaris
 
 
 TODO
