@@ -300,7 +300,7 @@ static void *process(void *ptr)
 	if (!c->raw)
 		skip_random_data(c);
 
-	if (c->kdf_iterations)
+	if (c->kdf_iterations && c->version >= VERSION_2020_01)
 	{
 		uint8_t *mac = NULL;
 		size_t mac_length = 0;
