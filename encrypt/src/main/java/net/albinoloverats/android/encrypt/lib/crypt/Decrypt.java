@@ -163,7 +163,7 @@ public class Decrypt extends Crypto
 			}
 			if (!raw)
 				skipRandomData();
-			if (useMAC)
+			if (useMAC && version.compareTo(Version._202001) >= 0)
 			{
 				final byte[] digest = verification.mac.digest();
 				final byte[] check = new byte[verification.mac.macSize()];
