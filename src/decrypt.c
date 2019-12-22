@@ -298,7 +298,7 @@ static void *process(void *ptr)
 	}
 
 	if (!c->raw)
-		skip_random_data(c); /* not entirely necessary as we already know we’ve reached the end of the file */
+		skip_random_data(c);
 
 	if (c->kdf_iterations)
 	{

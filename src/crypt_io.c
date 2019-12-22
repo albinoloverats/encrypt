@@ -293,7 +293,7 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	io_ptr->buffer_crypt->block = gcry_cipher_get_algo_blklen(c);
 	uint8_t *iv = gcry_calloc_secure(x.x_iv == IV_BROKEN ? key_length : io_ptr->buffer_crypt->block, sizeof( byte_t ));
 	if (!iv)
-	   die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, io_ptr->buffer_crypt->block);
+		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, io_ptr->buffer_crypt->block);
 	if (x.x_iv == IV_RANDOM)
 	{
 		if (x.x_encrypt)
@@ -323,6 +323,7 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	else
 		gcry_cipher_setiv(io_ptr->cipher_handle, iv, io_ptr->buffer_crypt->block);
 
+	gcry_mac_reset(io_ptr->mac_handle);
 	const char *mac_name = mac_name_from_id(a);
 	if (io_ptr->mac_init && (!strncmp("GMAC", mac_name, strlen("GMAC")) || !strncmp("POLY1305", mac_name, strlen("POLY1305"))))
 		gcry_mac_setiv(io_ptr->mac_handle, iv, io_ptr->buffer_crypt->block);
@@ -347,6 +348,7 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	io_ptr->cipher_init = true;
 	io_ptr->hash_init = true;
 	io_ptr->operation = IO_ENCRYPT;
+
 	return;
 }
 
