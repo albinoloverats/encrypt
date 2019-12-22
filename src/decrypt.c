@@ -435,8 +435,8 @@ static bool read_metadata(crypto_t *c)
 	else
 		c->blocksize = 0;
 
-	c->compressed = tlv_has_tag(tlv, TAG_COMPRESSED) ? tlv_value_of(tlv, TAG_COMPRESSED) : false;
-	c->directory = tlv_has_tag(tlv, TAG_DIRECTORY) ? tlv_value_of(tlv, TAG_DIRECTORY) : false;
+	c->compressed = tlv_has_tag(tlv, TAG_COMPRESSED) ? tlv_value_of(tlv, TAG_COMPRESSED)[0] : false;
+	c->directory = tlv_has_tag(tlv, TAG_DIRECTORY) ? tlv_value_of(tlv, TAG_DIRECTORY)[0] : false;
 	if (c->directory)
 	{
 		struct stat s;
