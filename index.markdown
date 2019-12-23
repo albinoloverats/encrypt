@@ -28,7 +28,7 @@ It's this level of portability and simplicity which we hope will make encrypt
 more useful to people who use different operating systems in different
 situations: home, office, on the go, etc. as it uses the same algorithms
 and interface. <span style="color:#dc143c;">Be aware that the Whirlpool
-algorithm algorithm is different on desktops versus Android.</span>
+algorithm is different on desktops versus Android.</span>
 
 NB: It has been noted that some characters, when used in the password, aren't
 completely cross-platform; for instance the character £ doesn't play well
