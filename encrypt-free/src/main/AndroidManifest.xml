@@ -7,6 +7,7 @@
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
 	<application android:icon="@drawable/icon" android:label="@string/app_name" android:allowBackup="true">
+		<meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-7710699356825080~4389523659" />
 		<activity android:name=".MainFree" android:label="@string/app_name" android:screenOrientation="portrait" android:launchMode="singleTask">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />

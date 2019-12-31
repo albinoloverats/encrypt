@@ -7,7 +7,7 @@ android {
 		applicationId 'net.albinoloverats.android.encrypt.free'
 		minSdkVersion 23
 		targetSdkVersion 28
-		versionCode 16
+		versionCode 17
 		versionName '2020.01'
 	}
 	signingConfigs {

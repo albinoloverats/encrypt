@@ -55,6 +55,9 @@ import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.lamerman.FileDialog;
 import com.simaomata.DoubleProgressDialog;
 
@@ -262,6 +265,14 @@ public class MainFree extends Activity
 		version = Version.parseMagicNumber(settings.getLong(Options.VERSION.toString(), Version.CURRENT.magicNumber), Version.CURRENT);
 		toggleKeySource();
 
+		MobileAds.initialize(this, new OnInitializationCompleteListener()
+		{
+			@Override
+			public void onInitializationComplete(InitializationStatus initializationStatus)
+			{
+
+			}
+		});
 		final AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
 		if (BuildConfig.DEBUG)
 		{
