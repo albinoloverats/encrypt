@@ -22,7 +22,6 @@ package net.albinoloverats.android.encrypt.lib.crypt;
 
 import android.app.Service;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 
 import gnu.crypto.mode.ModeFactory;
 import gnu.crypto.prng.LimitReachedException;
@@ -46,7 +45,7 @@ import org.tukaani.xz.XZInputStream;
 public class Decrypt extends Crypto
 {
 	@Override
-	public int onStartCommand(@NonNull final Intent intent, final int flags, final int startId)
+	public int onStartCommand(final Intent intent, final int flags, final int startId)
 	{
 		if (intent == null)
 			return Service.START_REDELIVER_INTENT;

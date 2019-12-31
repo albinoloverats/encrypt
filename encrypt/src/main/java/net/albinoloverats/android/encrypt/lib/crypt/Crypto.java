@@ -27,7 +27,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.support.v4.app.NotificationCompat;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -39,6 +38,8 @@ import java.io.OutputStream;
 
 import net.albinoloverats.android.encrypt.lib.io.HashMAC;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
+
+import androidx.core.app.NotificationCompat;
 
 public abstract class Crypto extends Service implements Runnable
 {
@@ -121,7 +122,7 @@ public abstract class Crypto extends Service implements Runnable
 
 		actionTitle = getString(action);
 
-		final NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getBaseContext());
+		final NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getBaseContext(), null);
 		notificationBuilder.setContentTitle(actionTitle);
 		notificationBuilder.setContentText(getString(wait));
 		notificationBuilder.setSmallIcon(icon);
