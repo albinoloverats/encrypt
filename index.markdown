@@ -21,9 +21,11 @@ Binary packages, and GPG signatures, for version 2020.01 are available below (as
 |[FreeBSD]|[txz][bp]|[Signature][bg]|_See above_|
 |[Solaris]|[pkg][sp]|[Signature][sg]|_See above_|
 |[Windows]|[exe][wp]|[Signature][wg]|[GTK+3 / Windows][ws]|
-|[OS X]|[dmg][xp]|[Signature][xg]|[Native OS X][xs]|
+|[OS X]|[dmg¹][xp]|[Signature][xg]|[Native OS X][xs]|
 |[Android]|[Paid][mp]/[Free][gp]|[Signature (Free)][gg]|[Nougat][ms]|
 |Source Code|[src][rp]|[Signature][rg]|_See above_|
+
+¹ At the moment, the OS X app isn't signed by Apple and as such is likely to be quarantined when first run; to overcome this (for now) you will need to open a terminal and remove any extended attributes with the following: ```xattr -cr Encrypt.app```
 
 [GTK]: http://www.gtk.org
 [libgcrypt]: http://www.gnu.org/software/libgcrypt/
