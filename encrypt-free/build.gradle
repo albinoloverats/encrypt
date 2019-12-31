@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-	compileSdkVersion 26
+	compileSdkVersion 29
 	buildToolsVersion '29.0.0'
 	defaultConfig {
 		applicationId 'net.albinoloverats.android.encrypt.free'
-		minSdkVersion 26
-		targetSdkVersion 26
+		minSdkVersion 29
+		targetSdkVersion 29
 		versionCode 16
 		versionName '2020.01'
 	}
