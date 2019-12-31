@@ -5,7 +5,7 @@ android {
 	buildToolsVersion '28.0.3'
 	defaultConfig {
 		applicationId 'net.albinoloverats.android.encrypt.free'
-		minSdkVersion 28
+		minSdkVersion 23
 		targetSdkVersion 28
 		versionCode 16
 		versionName '2020.01'
