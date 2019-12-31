@@ -55,6 +55,8 @@ TODO
 
 ### Add
 
+* Find a way of signing OS X application so that com.apple.quarantine
+  doesn't cause problems
 * Find a way to merge file/magic info into main magic.mgc file
 * File context menu for
   - Thunar (consider plugin)
