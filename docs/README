@@ -56,7 +56,12 @@ TODO
 ### Add
 
 * Find a way of signing OS X application so that com.apple.quarantine
-  doesn't cause problems
+  doesn't cause problems; currently this requires
+
+    xattr -cr Encrypt.app
+
+  after extracting the App from the disk image.
+
 * Find a way to merge file/magic info into main magic.mgc file
 * File context menu for
   - Thunar (consider plugin)
