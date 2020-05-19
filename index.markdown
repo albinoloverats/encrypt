@@ -25,6 +25,10 @@ Binary packages, and GPG signatures, for version 2020.01 are available below (as
 |[Android]|[Paid][mp]/[Free][gp]|[Signature (Free)][gg]|[Nougat][ms]|
 |Source Code|[src][rp]|[Signature][rg]|_See above_|
 
+.
+
+A demo of using the GUI can be found within the [pixmaps](/src/encrypt/pixmaps/screencast_linux.mp4) directory as well as on [YouTube](https://youtu.be/4au0MWCjIzI).
+
 ¹ At the moment, the OS X app isn't signed by Apple and as such is likely to be quarantined when first run; to overcome this (for now) you will need to open a terminal and remove any extended attributes with the following: ```xattr -cr Encrypt.app```
 
 [GTK]: http://www.gtk.org
