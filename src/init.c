@@ -414,6 +414,10 @@ static void print_version(void)
 	format_version(i, _("build os"),   BUILD_OS);
 	format_version(i, _("compiler"),   COMPILER);
 	format_version(i, _("runtime"),    runtime);
+	char *gcv = NULL;
+	asprintf(&gcv, "%s (compiled) %s (runtime)", GCRYPT_VERSION, gcry_check_version(NULL));
+	format_version(i, _("libgcrypt"), gcv);
+	free(gcv);
 	free(av);
 	free(git);
 	free(runtime);
