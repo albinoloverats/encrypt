@@ -27,7 +27,7 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2012-2020 albinoloverats ~ Software Development. This program comes with absolutely no warranty. See the GNU General Public Licence, version 3 or later for details.</string>
+	<string>Copyright © 2012-2021 albinoloverats ~ Software Development. This program comes with absolutely no warranty. See the GNU General Public Licence, version 3 or later for details.</string>
 	<key>NSMainNibFile</key>
 	<string>Encrypt</string>
 	<key>NSPrincipalClass</key>
