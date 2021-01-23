@@ -7,42 +7,48 @@ SOURCE   = src/main.c src/init.c src/crypt.c src/encrypt.c src/decrypt.c src/cry
 GUI      = src/gui-gtk.c
 COMMON   = src/common/error.c src/common/ccrypt.c src/common/tlv.c src/common/version.c src/common/fs.c src/common/cli.c src/common/dir.c src/common/ecc.c src/common/non-gnu.c
 
-CFLAGS  += -Wall -Wextra -std=gnu99 `libgcrypt-config --cflags` -pipe -O2 -Wrestrict -Wformat=2 -Wno-unused-result
-CPPFLAGS = -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DGIT_COMMIT=\"`git log | head -n1 | cut -f2 -d' '`\" -DBUILD_OS="`grep PRETTY_NAME /etc/os-release | cut -d= -f2`"
-GUIFLAGS = -DBUILD_GUI `pkg-config --cflags gtk+-3.0 gmodule-2.0`
+CLI_CFLAGS   = ${CFLAGS} -Wall -Wextra -std=gnu99 $(shell libgcrypt-config --cflags) -pipe -O2 -Wrestrict -Wformat=2 -Wno-unused-result
+CLI_CPPFLAGS = -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DGIT_COMMIT=\"$(shell git log | head -n1 | cut -f2 -d' ')\" -DBUILD_OS=\"$(shell grep PRETTY_NAME /etc/os-release | cut -d= -f2)\"
 
-DEBUG    = -O0 -ggdb -pg -D__DEBUG__ -D__DEBUG_GUI__ -DMALLOC_CHECK_=1
+GUI_CFLAGS   = ${CLI_CFLAGS} $(shell pkg-config --cflags gtk+-3.0 gmodule-2.0)
+GUI_CPPFLAGS = ${CLI_CPPFLAGS} -DBUILD_GUI
 
-LIBS     = `libgcrypt-config --libs` -lpthread -lcurl -llzma
-GUILIBS  = `pkg-config --libs gtk+-3.0 gmodule-2.0`
+DEBUG_1      = -O0 -ggdb -pg -D__DEBUG__ -D__DEBUG_GUI__ -DMALLOC_CHECK_=1
+DEBUG_2      = ${DEBUG_1} -D__DEBUG_WITH_ENCRYPTION__
+
+CLI_LIBS     = $(shell libgcrypt-config --libs) -lpthread -lcurl -llzma
+GUI_LIBS     = ${CLI_LIBS} $(shell pkg-config --libs gtk+-3.0 gmodule-2.0)
+
+ALL_CFLAGS   = -DALL_CFLAGS=\""$(shell echo ${CLI_CFLAGS})"\"
+ALL_CPPFLAGS = -DALL_CPPFLAGS=\""$(shell echo ${CLI_CPPFLAGS} | tr "\"" "'" )"\"
 
 all: gui language man
 
-cli: link
-	 @${CC} ${CFLAGS} ${CPPFLAGS} ${SOURCE} ${COMMON} ${LIBS} -o ${APP}
+cli: symlink-decrypt
+	 @${CC}            ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${SOURCE} ${COMMON}        ${CLI_LIBS} ${ALL_CFLAGS} ${ALL_CPPFLAGS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${SOURCE} ${COMMON} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
-debug: link
-	 @${CC} ${CFLAGS} ${CPPFLAGS} ${SOURCE} ${COMMON} ${LIBS} ${DEBUG} -o ${APP}
+cli-debug: symlink-decrypt
+	 @${CC} ${DEBUG_1} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${SOURCE} ${COMMON}        ${CLI_LIBS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${SOURCE} ${COMMON} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
-debug-with-encryption: link
-	 @${CC} ${CFLAGS} ${CPPFLAGS} ${SOURCE} ${COMMON} ${LIBS} ${DEBUG} -D__DEBUG_WITH_ENCRYPTION__ -o ${APP}
+cli-debug-with-encryption: symlink-decrypt
+	 @${CC} ${DEBUG_2} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${SOURCE} ${COMMON}        ${CLI_LIBS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${SOURCE} ${COMMON} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
-gui: link
-	 @${CC} ${CFLAGS} ${CPPFLAGS} ${GUIFLAGS} ${SOURCE} ${COMMON} ${GUI} ${LIBS} ${GUILIBS} -o ${APP}
+gui: symlink-decrypt
+	 @${CC}            ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${SOURCE} ${COMMON} ${GUI} ${GUI_LIBS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${SOURCE} ${COMMON} ${GUI} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
-debug-gui: link
-	 @${CC} ${CFLAGS} ${CPPFLAGS} ${GUIFLAGS} ${SOURCE} ${COMMON} ${GUI} ${LIBS} ${GUILIBS} ${DEBUG} -o ${APP}
+gui-debug: symlink-decrypt
+	 @${CC} ${DEBUG_1} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${SOURCE} ${COMMON} ${GUI} ${GUI_LIBS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${SOURCE} ${COMMON} ${GUI} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
-debug-gui-with-encryption: link
-	 @${CC} ${CFLAGS} ${CPPFLAGS} ${GUIFLAGS} ${SOURCE} ${COMMON} ${GUI} ${LIBS} ${GUILIBS} ${DEBUG} -D__DEBUG_WITH_ENCRYPTION__ -o ${APP}
+gui-debug-with-encryption: symlink-decrypt
+	 @${CC} ${DEBUG_2} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${SOURCE} ${COMMON} ${GUI} ${GUI_LIBS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${SOURCE} ${COMMON} ${GUI} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
-link:
+symlink-decrypt:
 	 @ln -fs ${APP} ${ALT}
 	-@echo -e "linked ‘${ALT}’ → ‘${APP}’"
 

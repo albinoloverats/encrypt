@@ -413,6 +413,8 @@ static void print_version(void)
 	format_version(i, _("git commit"), git);
 	format_version(i, _("build os"),   BUILD_OS);
 	format_version(i, _("compiler"),   COMPILER);
+	format_version(i, _("cflags"),     ALL_CFLAGS);
+	format_version(i, _("cppflags"),   ALL_CPPFLAGS);
 	format_version(i, _("runtime"),    runtime);
 	char *gcv = NULL;
 	asprintf(&gcv, "%s (compiled) %s (runtime)", GCRYPT_VERSION, gcry_check_version(NULL));
