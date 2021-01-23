@@ -386,10 +386,39 @@ encrypt version: 2017.09
        build os: Arch Linux
        compiler: gcc 8.2.1 20180831
         runtime: Linux 4.19.2-arch1-1-ARCH #1 SMP PREEMPT Tue Nov 13 21:16:19 UTC 2018 x86_64
-*/ /* TODO as below: split lone lines */
+*/
 static void format_version(int i, char *id, char *value)
 {
-	cli_fprintf(stderr, ANSI_COLOUR_GREEN "%*s" ANSI_COLOUR_RESET ": " ANSI_COLOUR_YELLOW "%s" ANSI_COLOUR_RESET "\n", i, id, value);
+	cli_fprintf(stderr, ANSI_COLOUR_GREEN "%*s" ANSI_COLOUR_RESET ": " ANSI_COLOUR_YELLOW, i, id);
+
+	struct winsize ws;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
+
+	int l = strlen(value);
+	int x = ws.ws_col - i - 2;
+	if (l < x)
+		cli_fprintf(stderr, "%s", value);
+	else
+	{
+		int s = 0;
+		do
+		{
+			int e = s + x;
+			if (e > l)
+				e = l;
+			else
+				for (; e > s; e--)
+					if (isspace(value[e]))
+						break;
+			if (s)
+				cli_fprintf(stderr, "\n%*s  ", i, " ");
+			cli_fprintf(stderr, "%.*s", e - s, value + s);
+			s = e + 1;
+		}
+		while (s < l);
+	}
+
+	cli_fprintf(stderr, ANSI_COLOUR_RESET "\n");
 	return;
 }
 
