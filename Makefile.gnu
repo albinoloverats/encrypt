@@ -29,23 +29,23 @@ cli: symlink-decrypt
 	-@echo -e "built ‘`echo -e ${SOURCE} ${COMMON} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 cli-debug: symlink-decrypt
-	 @${CC} ${DEBUG_1} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${SOURCE} ${COMMON}        ${CLI_LIBS} -o ${APP}
+	 @${CC} ${DEBUG_1} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${SOURCE} ${COMMON}        ${CLI_LIBS} ${ALL_CFLAGS} ${ALL_CPPFLAGS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${SOURCE} ${COMMON} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 cli-debug-with-encryption: symlink-decrypt
-	 @${CC} ${DEBUG_2} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${SOURCE} ${COMMON}        ${CLI_LIBS} -o ${APP}
+	 @${CC} ${DEBUG_2} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${SOURCE} ${COMMON}        ${CLI_LIBS} ${ALL_CFLAGS} ${ALL_CPPFLAGS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${SOURCE} ${COMMON} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 gui: symlink-decrypt
-	 @${CC}            ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${SOURCE} ${COMMON} ${GUI} ${GUI_LIBS} -o ${APP}
+	 @${CC}            ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${SOURCE} ${COMMON} ${GUI} ${GUI_LIBS} ${ALL_CFLAGS} ${ALL_CPPFLAGS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${SOURCE} ${COMMON} ${GUI} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 gui-debug: symlink-decrypt
-	 @${CC} ${DEBUG_1} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${SOURCE} ${COMMON} ${GUI} ${GUI_LIBS} -o ${APP}
+	 @${CC} ${DEBUG_1} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${SOURCE} ${COMMON} ${GUI} ${GUI_LIBS} ${ALL_CFLAGS} ${ALL_CPPFLAGS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${SOURCE} ${COMMON} ${GUI} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 gui-debug-with-encryption: symlink-decrypt
-	 @${CC} ${DEBUG_2} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${SOURCE} ${COMMON} ${GUI} ${GUI_LIBS} -o ${APP}
+	 @${CC} ${DEBUG_2} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${SOURCE} ${COMMON} ${GUI} ${GUI_LIBS} ${ALL_CFLAGS} ${ALL_CPPFLAGS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${SOURCE} ${COMMON} ${GUI} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 symlink-decrypt:
