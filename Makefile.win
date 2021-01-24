@@ -1,34 +1,36 @@
 .PHONY: clean distclean
 
-APP      = encrypt
-APP_SIG  = encrypt-signed
+APP            = encrypt
+APP_SIG        = encrypt-signed
 
-CC       = gcc
-WRES     = windres
-NSIS     = C:/Program\ Files\ \(x86\)/NSIS/makensis.exe
-SIGN     = osslsigncode
+VERSION        = 2020.01
 
-SOURCE   = src/main.c src/init.c src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
-GUI      = src/gui-gtk.c
-COMMON   = src/common/error.c src/common/ccrypt.c src/common/tlv.c src/common/version.c src/common/fs.c src/common/cli.c src/common/dir.c src/common/ecc.c src/common/non-gnu.c
-RC       = src/encrypt_private.rc
-RES      = src/encrypt_private.res
+CC             = gcc
+WRES           = windres
+NSIS           = C:/Program\ Files\ \(x86\)/NSIS/makensis.exe
+SIGN           = osslsigncode
 
-CFLAGS  += -Wall -Wextra -std=gnu99 `libgcrypt-config --cflags` -pipe -O2 -mwindows -Wformat=0
-CPPFLAGS = -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DGIT_COMMIT=\"`git log | head -n1 | cut -f2 -d' '`\" -D__USE_MINGW_ANSI_STDIO -DBUILD_OS="\"`uname --operating-system --kernel-name --kernel-release`\""
-GUIFLAGS = -DBUILD_GUI `pkg-config --cflags gtk+-3.0 gmodule-2.0`
+COMMON_SRC     = src/common/error.c src/common/ccrypt.c src/common/tlv.c src/common/version.c src/common/fs.c src/common/cli.c src/common/dir.c src/common/ecc.c src/common/non-gnu.c
+CLI_SRC        = ${COMMON_SRC} src/main.c src/init.c src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
+GUI_SRC        = ${CLI_SRC} src/gui-gtk.c
+MISC           = src/misc.h
+RC             = src/encrypt_private.rc
+RES            = src/encrypt_private.res
 
-DEBUG    = -O0 -ggdb -D__DEBUG__ -D__DEBUG_GUI__ -DMALLOC_CHECK_=1
+GUI_CFLAGS     = ${CFLAGS} -Wall -Wextra -std=gnu99 `libgcrypt-config --cflags` -pipe -O2 -mwindows -Wformat=0 -Wno-unused-result `pkg-config --cflags gtk+-3.0 gmodule-2.0`
+GUI_CPPFLAGS   = ${CPPFLAGS} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DGIT_COMMIT=\"`git log | head -n1 | cut -f2 -d' '`\" -D__USE_MINGW_ANSI_STDIO -DBUILD_OS=\"`uname --operating-system --kernel-name --kernel-release`\" -DBUILD_GUI
 
-LIBS     = `libgcrypt-config --libs` -lpthread -lcurl -llzma
-GUILIBS  = `pkg-config --libs gtk+-3.0 gmodule-2.0`
+DEBUG_CFLAGS   = -O0 -ggdb -pg
+DEBUG_CPPFLAGS = -D__DEBUG__ -D__DEBUG_GUI__ -DMALLOC_CHECK_=1
 
-INST     = encrypt.nsi
-PKG      = encrypt-2020.01-install.exe
-PKG_SIG  = encrypt-2020.01-install-signed.exe
+GUI_LIBS       = `libgcrypt-config --libs` -lpthread -lcurl -llzma `pkg-config --libs gtk+-3.0 gmodule-2.0`
 
-RESOPTS  = -O coff --input-format=rc
-SIGOPTS  = -n "$(APP)" -i "https://albinoloverats.net/" -spc authenticode.spc -key authenticode.key -t http://timestamp.verisign.com/scripts/timstamp.dll
+INST           = encrypt.nsi
+PKG            = encrypt-${VERSION}-install.exe
+PKG_SIG        = encrypt-${VERSION}-install-signed.exe
+
+RESOPTS        = -O coff --input-format=rc
+SIGOPTS        = -n "${APP}" -i "https://albinoloverats.net/" -spc authenticode.spc -key authenticode.key -t http://timestamp.verisign.com/scripts/timstamp.dll
 
 all: sign
 
@@ -37,8 +39,10 @@ winres:
 	-@echo -e "compiled Windows application metadata"
 
 gui: winres
-	 @$(CC) $(CFLAGS) $(CPPFLAGS) $(GUIFLAGS) $(SOURCE) $(COMMON) $(GUI) $(LIBS) $(GUILIBS) $(RES) -o $(APP)
-	-@echo -e "built ‘`echo -e $(SOURCE) $(COMMON) $(GUI) | sed 's/ /’\n      ‘/g'`’ → ‘$(APP)’"
+	 @echo "#define ALL_CFLAGS   \"`echo ${GUI_CFLAGS}   | tr "\"" "'"`\""  > ${MISC}
+	 @echo "#define ALL_CPPFLAGS \"`echo ${GUI_CPPFLAGS} | tr "\"" "'"`\"" >> ${MISC}
+	 @${CC} ${GUI_LIBS} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${GUI_SRC} ${RES} -o ${APP}
+	-@echo -e "built ‘`echo -e ${GUI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 sign: gui
 	 @$(SIGN) $(SIGOPTS) -in $(APP).exe $(APP_SIG).exe
@@ -46,8 +50,10 @@ sign: gui
 	-@mv -v $(APP_SIG) $(APP)
 
 debug-gui: winres
-	 @$(CC) $(CFLAGS) $(CPPFLAGS) $(GUIFLAGS) $(SOURCE) $(COMMON) $(GUI) $(LIBS) $(GUILIBS) $(RES) $(DEBUG) -o $(APP)
-	-@echo -e "built ‘`echo -e $(SOURCE) $(COMMON) $(GUI) | sed 's/ /’\n      ‘/g'`’ → ‘$(APP)’"
+	 @echo "#define ALL_CFLAGS   \"`echo ${GUI_CFLAGS}   ${DEBUG_CFLAGS}   | tr "\"" "'"`\""    > ${MISC}
+	 @echo "#define ALL_CPPFLAGS \"`echo ${GUI_CPPFLAGS} ${DEBUG_CPPFLAGS} | tr "\"" "'"`\"" >> ${MISC}
+	 @${CC} ${GUI_LIBS} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${GUI_SRC} ${RES} ${DEBUG_CFLAGS} ${DEBUG_CPPFLAGS} -o ${APP}
+	-@echo -e "built ‘`echo -e ${GUI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 installer:
 	 @$(NSIS) $(INST)

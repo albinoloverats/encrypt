@@ -62,12 +62,12 @@
 /* 32,768 : 147,055μs 147.06ms 0.14s / 1,424ms */
 
 #ifndef GIT_COMMIT
-	#define GIT_COMMIT "unknown"
+	#define GIT_COMMIT "(unknown)"
 #endif
 #define GIT_COMMIT_LENGTH 7
 
 #ifndef BUILD_OS
-	#define BUILD_OS "unknown"
+	#define BUILD_OS "(unknown)"
 #endif
 
 #define DEFAULT_CIPHER "AES"

@@ -51,6 +51,13 @@
 #include "init.h"
 #include "crypt.h"
 
+#if __has_include("misc.h")
+	#include "misc.h"
+#else
+	#define ALL_CFLAGS   "(unknown)"
+	#define ALL_CPPFLAGS "(unknown)"
+#endif
+
 #define HELP_FORMAT_RIGHT_COLUMN 37
 
 static bool is_encrypt(void);
