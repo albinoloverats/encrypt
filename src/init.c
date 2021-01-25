@@ -397,12 +397,18 @@ encrypt version: 2017.09
 static void format_version(int i, char *id, char *value)
 {
 	cli_fprintf(stderr, ANSI_COLOUR_GREEN "%*s" ANSI_COLOUR_RESET ": " ANSI_COLOUR_YELLOW, i, id);
-
+#ifndef _WIN32
 	struct winsize ws;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
-
-	int l = strlen(value);
 	int x = ws.ws_col - i - 2;
+#else
+	//CONSOLE_SCREEN_BUFFER_INFO csbi;
+	//GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+	int x = 77 - i;// (csbi.srWindow.Right - csbi.srWindow.Left + 1) - i - 2;
+#endif
+	for (; isspace(*value); value++)
+		;
+	int l = strlen(value);
 	if (l < x)
 		cli_fprintf(stderr, "%s", value);
 	else
