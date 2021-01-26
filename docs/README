@@ -28,11 +28,9 @@ https://albinoloverats.net/projects/encrypt
 Compiling
 ---------
 
-Compiling from source is as simple as running one of the following
-commands (depending on what interface you want):
+Compiling from source is as simple as running one make
 
-    make cli
-    make gui
+    make
 
 Followed by:
 
