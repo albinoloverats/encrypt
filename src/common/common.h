@@ -78,9 +78,9 @@
 	#define COMPILER "gcc " __VERSION__
 #else
 	#ifdef __VERSION__
-		#define COMPILER "other" __VERSION__
+		#define COMPILER "(unknown) " __VERSION__
 	#else
-		#define COMPILER "other unknown"
+		#define COMPILER "(unknown) (unknown)"
 	#endif
 #endif
 

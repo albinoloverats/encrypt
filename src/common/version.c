@@ -173,6 +173,7 @@ static void version_download_latest(char *update_url)
 
 static void version_install_latest(char *u)
 {
+#if !defined VERSION_NO_INSTALL
 	if (!version_new_available || !u)
 		return;
 #if !defined __APPLE__ && !defined _WIN32
@@ -201,6 +202,7 @@ static void version_install_latest(char *u)
 	free(dmg);
 #elif defined _WIN32
 	ShellExecute(NULL, "open", u, NULL, NULL, SW_SHOWNORMAL);
+#endif
 #endif
 	return;
 }

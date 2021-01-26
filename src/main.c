@@ -31,7 +31,7 @@
 
 #include <sys/stat.h>
 
-#if defined __FreeBSD__ || defined __sun
+#if defined __FreeBSD__ || defined __sun || defined __APPLE__
 	#include <libgen.h>
 #endif
 
