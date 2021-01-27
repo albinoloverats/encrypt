@@ -51,13 +51,6 @@
 #include "init.h"
 #include "crypt.h"
 
-#if __has_include("misc.h")
-	#include "misc.h"
-#else
-	#define ALL_CFLAGS   "(unknown)"
-	#define ALL_CPPFLAGS "(unknown)"
-#endif
-
 #define HELP_FORMAT_RIGHT_COLUMN 37
 
 static bool is_encrypt(void);
@@ -65,7 +58,6 @@ static bool is_encrypt(void);
 static bool parse_config_boolean(const char *, const char *, bool);
 static char *parse_config_tail(const char *, const char *);
 
-static void print_version(void);
 static void print_usage(void);
 
 char *KEY_SOURCE[] =
@@ -394,87 +386,6 @@ encrypt version: 2017.09
        compiler: gcc 8.2.1 20180831
         runtime: Linux 4.19.2-arch1-1-ARCH #1 SMP PREEMPT Tue Nov 13 21:16:19 UTC 2018 x86_64
 */
-static void format_version(int i, char *id, char *value)
-{
-	cli_fprintf(stderr, ANSI_COLOUR_GREEN "%*s" ANSI_COLOUR_RESET ": " ANSI_COLOUR_YELLOW, i, id);
-#ifndef _WIN32
-	struct winsize ws;
-	ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
-	int x = ws.ws_col - i - 2;
-#else
-	//CONSOLE_SCREEN_BUFFER_INFO csbi;
-	//GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-	int x = 77 - i;// (csbi.srWindow.Right - csbi.srWindow.Left + 1) - i - 2;
-#endif
-	for (; isspace(*value); value++)
-		;
-	int l = strlen(value);
-	if (l < x)
-		cli_fprintf(stderr, "%s", value);
-	else
-	{
-		int s = 0;
-		do
-		{
-			int e = s + x;
-			if (e > l)
-				e = l;
-			else
-				for (; e > s; e--)
-					if (isspace(value[e]))
-						break;
-			if (s)
-				cli_fprintf(stderr, "\n%*s  ", i, " ");
-			cli_fprintf(stderr, "%.*s", e - s, value + s);
-			s = e + 1;
-		}
-		while (s < l);
-	}
-
-	cli_fprintf(stderr, ANSI_COLOUR_RESET "\n");
-	return;
-}
-
-static void print_version(void)
-{
-	char *app_name = is_encrypt() ? APP_NAME : ALT_NAME;
-	int i = strlen(app_name) + 8;
-	char *av = NULL;
-	asprintf(&av, _("%s version"), app_name);
-	char *git = strndup(GIT_COMMIT, GIT_COMMIT_LENGTH);
-	char *runtime = NULL;
-#ifndef _WIN32
-	struct utsname un;
-	uname(&un);
-	asprintf(&runtime, "%s %s %s %s", un.sysname, un.release, un.version, un.machine);
-#else
-	asprintf(&runtime, "%s", windows_version());
-#endif
-	format_version(i, av,              ENCRYPT_VERSION);
-	format_version(i, _("built on"),   __DATE__ " " __TIME__);
-	format_version(i, _("git commit"), git);
-	format_version(i, _("build os"),   BUILD_OS);
-	format_version(i, _("compiler"),   COMPILER);
-	format_version(i, _("cflags"),     ALL_CFLAGS);
-	format_version(i, _("cppflags"),   ALL_CPPFLAGS);
-	format_version(i, _("runtime"),    runtime);
-	char *gcv = NULL;
-	asprintf(&gcv, "%s (compiled) %s (runtime)", GCRYPT_VERSION, gcry_check_version(NULL));
-	format_version(i, _("libgcrypt"), gcv);
-	free(gcv);
-	free(av);
-	free(git);
-	free(runtime);
-	struct timespec vc = { 0, MILLION }; /* 1ms == 1,000,000ns*/
-	while (version_is_checking)
-		nanosleep(&vc, NULL);
-	if (version_new_available)
-	{
-		fprintf(stderr, "\n");
-		cli_fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : PROJECT_URL);
-	}
-	return;
-}
 
 static void format_section(char *s)
 {
@@ -491,6 +402,7 @@ static void print_usage(void)
 	return;
 }
 
+// TODO move to common/cli
 static void format_help_line(char s, char *l, char *v, char *t)
 {
 	size_t z = HELP_FORMAT_RIGHT_COLUMN - 8 - strlen(l);
@@ -534,7 +446,7 @@ static void format_help_line(char s, char *l, char *v, char *t)
 
 extern void show_help(void)
 {
-	print_version();
+	version_print(is_encrypt() ? APP_NAME : ALT_NAME, ENCRYPT_VERSION, PROJECT_URL);
 	print_usage();
 	format_section(_("Options"));
 	format_help_line('h', "help",        NULL,        _("Display this message"));
@@ -585,7 +497,7 @@ extern void show_usage(void)
 
 extern void show_version(void)
 {
-	print_version();
+	version_print(is_encrypt() ? APP_NAME : ALT_NAME, ENCRYPT_VERSION, PROJECT_URL);
 	exit(EXIT_SUCCESS);
 }
 

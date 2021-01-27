@@ -12,7 +12,7 @@ SIGN           = osslsigncode
 COMMON_SRC     = src/common/error.c src/common/ccrypt.c src/common/tlv.c src/common/version.c src/common/fs.c src/common/cli.c src/common/dir.c src/common/ecc.c src/common/non-gnu.c
 CLI_SRC        = ${COMMON_SRC} src/main.c src/init.c src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
 GUI_SRC        = ${CLI_SRC} src/gui-gtk.c
-MISC           = src/misc.h
+MISC           = src/common/misc.h
 RC             = src/encrypt_private.rc
 RES            = src/encrypt_private.res
 

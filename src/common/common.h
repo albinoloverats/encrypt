@@ -72,6 +72,10 @@
 	#error "Unknown endianness!"
 #endif
 
+#ifndef BUILD_OS
+	#define BUILD_OS "(unknown)"
+#endif
+
 #if defined(__clang__)
 	#define COMPILER "clang " __VERSION__
 #elif defined(__GNUC__)
@@ -83,6 +87,11 @@
 		#define COMPILER "(unknown) (unknown)"
 	#endif
 #endif
+
+#ifndef GIT_COMMIT
+	#define GIT_COMMIT "(unknown)"
+#endif
+#define GIT_COMMIT_LENGTH 7
 
 //#if !defined _WIN32 && !defined __CYGWIN__ && !defined __APPLE__
 //    #define _(s) gettext(s) /*!< Allow use of _() to refer to gettext() */

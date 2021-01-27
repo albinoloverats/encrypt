@@ -25,6 +25,7 @@
 #define NEW_VERSION_OF_AVAILABLE "Version %s of %s is available!"
 #define NEW_VERSION_URL "Version %s of %s is available from\n%s\n"
 
+extern void version_print(char *name, char *version, char *url);
 extern void version_check_for_update(char *current_version, char *check_url, char *download_url) __attribute__((nonnull(1, 2)));
 
 extern bool version_new_available;

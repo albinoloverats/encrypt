@@ -61,15 +61,6 @@
 #define KEY_ITERATIONS_DEFAULT 32768 /*!< Default number of iterations for key derivation function for version 2020.01 (now user configurable) */
 /* 32,768 : 147,055μs 147.06ms 0.14s / 1,424ms */
 
-#ifndef GIT_COMMIT
-	#define GIT_COMMIT "(unknown)"
-#endif
-#define GIT_COMMIT_LENGTH 7
-
-#ifndef BUILD_OS
-	#define BUILD_OS "(unknown)"
-#endif
-
 #define DEFAULT_CIPHER "AES"
 #define DEFAULT_HASH "SHA256"
 #define DEFAULT_MODE "OFB"

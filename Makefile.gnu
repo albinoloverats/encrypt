@@ -6,7 +6,7 @@ ALT            = decrypt
 COMMON_SRC     = src/common/error.c src/common/ccrypt.c src/common/tlv.c src/common/version.c src/common/fs.c src/common/cli.c src/common/dir.c src/common/ecc.c src/common/non-gnu.c
 CLI_SRC        = ${COMMON_SRC} src/main.c src/init.c src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
 GUI_SRC        = ${CLI_SRC} src/gui-gtk.c
-MISC           = src/misc.h
+MISC           = src/common/misc.h
 
 CLI_CFLAGS     = ${CFLAGS} -Wall -Wextra -std=gnu99 $(shell libgcrypt-config --cflags) -pipe -O2 -Wrestrict -Wformat=2 -Wno-unused-result
 CLI_CPPFLAGS   = ${CPPFLAGS} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DGIT_COMMIT=\"$(shell git log | head -n1 | cut -f2 -d' ')\" -DBUILD_OS=\"$(shell grep PRETTY_NAME /etc/os-release | cut -d= -f2)\"

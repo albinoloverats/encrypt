@@ -24,6 +24,9 @@
 #include <stddef.h>
 #include <fcntl.h>
 
+#include <errno.h>
+
+#include <ctype.h>
 #include <string.h>
 #include <stdbool.h>
 #include <inttypes.h>
@@ -38,19 +41,37 @@
 #ifndef _WIN32
 	#include <sys/stat.h>
 	#include <sys/wait.h>
+
+	#include <sys/utsname.h>
+	#include <sys/ioctl.h>
+	#ifdef __sun
+		#include <sys/tty.h>
+	#endif
 #else
 	#include <windows.h>
 	#include <shellapi.h>
+	#include <Shlobj.h>
+	extern char *program_invocation_short_name;
 #endif
 
 #ifdef __APPLE__
 	#include "osx.h"
 #endif
 
+#include "common.h"
 #include "version.h"
+#include "cli.h"
+
+#if __has_include("misc.h")
+	#include "misc.h"
+#else
+	#define ALL_CFLAGS   "(unknown)"
+	#define ALL_CPPFLAGS "(unknown)"
+#endif
 
 #define TIMEOUT 10
 
+static void version_format(int i, char *id, char *value);
 static void version_download_latest(char *);
 static void version_install_latest(char *);
 static void *version_check(void *);
@@ -70,6 +91,48 @@ typedef struct
 	char *update_url;
 }
 version_check_t;
+
+extern void version_print(char *name, char *version, char *url)
+{
+	int i = strlen(name) + 8;
+	char *av = NULL;
+	asprintf(&av, _("%s version"), name);
+	char *git = strndup(GIT_COMMIT, GIT_COMMIT_LENGTH);
+	char *runtime = NULL;
+#ifndef _WIN32
+	struct utsname un;
+	uname(&un);
+	asprintf(&runtime, "%s %s %s %s", un.sysname, un.release, un.version, un.machine);
+#else
+	asprintf(&runtime, "%s", windows_version());
+#endif
+	version_format(i, av,              version);
+	version_format(i, _("built on"),   __DATE__ " " __TIME__);
+	version_format(i, _("git commit"), git);
+	version_format(i, _("build os"),   BUILD_OS);
+	version_format(i, _("compiler"),   COMPILER);
+	version_format(i, _("cflags"),     ALL_CFLAGS);
+	version_format(i, _("cppflags"),   ALL_CPPFLAGS);
+	version_format(i, _("runtime"),    runtime);
+#ifdef GCRYPT_VERSION
+	char *gcv = NULL;
+	asprintf(&gcv, "%s (compiled) %s (runtime)", GCRYPT_VERSION, gcry_check_version(NULL));
+	version_format(i, _("libgcrypt"), gcv);
+	free(gcv);
+#endif
+	free(av);
+	free(git);
+	free(runtime);
+	struct timespec vc = { 0, MILLION }; /* 1ms == 1,000,000ns*/
+	while (version_is_checking)
+		nanosleep(&vc, NULL);
+	if (version_new_available)
+	{
+		fprintf(stderr, "\n");
+		cli_fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : url);
+	}
+	return;
+}
 
 extern void version_check_for_update(char *current_version, char *check_url, char *download_url)
 {
@@ -221,4 +284,45 @@ static size_t version_verify(void *p, size_t s, size_t n, void *v)
 	}
 	free(b);
 	return s * n;
+}
+
+static void version_format(int i, char *id, char *value)
+{
+	cli_fprintf(stderr, ANSI_COLOUR_GREEN "%*s" ANSI_COLOUR_RESET ": " ANSI_COLOUR_YELLOW, i, id);
+#ifndef _WIN32
+	struct winsize ws;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
+	int x = ws.ws_col - i - 2;
+#else
+	//CONSOLE_SCREEN_BUFFER_INFO csbi;
+	//GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+	int x = 77 - i;// (csbi.srWindow.Right - csbi.srWindow.Left + 1) - i - 2;
+#endif
+	for (; isspace(*value); value++)
+		;
+	int l = strlen(value);
+	if (l < x)
+		cli_fprintf(stderr, "%s", value);
+	else
+	{
+		int s = 0;
+		do
+		{
+			int e = s + x;
+			if (e > l)
+				e = l;
+			else
+				for (; e > s; e--)
+					if (isspace(value[e]))
+						break;
+			if (s)
+				cli_fprintf(stderr, "\n%*s  ", i, " ");
+			cli_fprintf(stderr, "%.*s", e - s, value + s);
+			s = e + 1;
+		}
+		while (s < l);
+	}
+
+	cli_fprintf(stderr, ANSI_COLOUR_RESET "\n");
+	return;
 }
