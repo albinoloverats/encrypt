@@ -51,8 +51,6 @@
 #include "init.h"
 #include "crypt.h"
 
-#define HELP_FORMAT_RIGHT_COLUMN 37
-
 static bool is_encrypt(void);
 
 static bool parse_config_boolean(const char *, const char *, bool);
@@ -378,16 +376,7 @@ extern void update_config(const char * const restrict o, const char * const rest
 	return;
 }
 
-/*
-encrypt version: 2017.09
-       built on: Nov 28 2018 16:16:15
-     git commit: c32661e
-       build os: Arch Linux
-       compiler: gcc 8.2.1 20180831
-        runtime: Linux 4.19.2-arch1-1-ARCH #1 SMP PREEMPT Tue Nov 13 21:16:19 UTC 2018 x86_64
-*/
-
-static void format_section(char *s)
+inline static void format_section(char *s)
 {
 	cli_fprintf(stderr, "\n" ANSI_COLOUR_CYAN "%s" ANSI_COLOUR_RESET ":\n", s);
 	return;
@@ -402,79 +391,49 @@ static void print_usage(void)
 	return;
 }
 
-// TODO move to common/cli
-static void format_help_line(char s, char *l, char *v, char *t)
-{
-	size_t z = HELP_FORMAT_RIGHT_COLUMN - 8 - strlen(l);
-	cli_fprintf(stderr, "  " ANSI_COLOUR_WHITE "-%c" ANSI_COLOUR_RESET ", " ANSI_COLOUR_WHITE "--%s" ANSI_COLOUR_RESET, s, l);
-	if (v)
-	{
-		cli_fprintf(stderr, ANSI_COLOUR_WHITE "=" ANSI_COLOUR_YELLOW "<%s>" ANSI_COLOUR_RESET, v);
-		z -= 3 + strlen(v);
-	}
-	fprintf(stderr, "%*s", (int)z, " ");
-
-	cli_fprintf(stderr, ANSI_COLOUR_BLUE);
-#ifndef _WIN32
-	struct winsize w;
-	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-	if (w.ws_col)
-	{
-		size_t o = 0;
-		while (true)
-		{
-			int l = w.ws_col - HELP_FORMAT_RIGHT_COLUMN - 1;
-			while (isspace(t[o]))
-				o++;
-			/* FIXME wrap on word boundry and handle UTF-8 characters properly */
-			o += fprintf(stderr, "%.*s", l, t + o);
-			if (o >= strlen(t))
-				break;
-			if (!isspace(t[o - 1]) && !isspace(t[o]))
-				fprintf(stderr, "-");
-			fprintf(stderr, "\n%*s", HELP_FORMAT_RIGHT_COLUMN, " ");
-		}
-	}
-	else
-#endif /* ! _WIN32 */
-		fprintf(stderr, "%s", t);
-	cli_fprintf(stderr, ANSI_COLOUR_RESET);
-
-	fprintf(stderr, "\n");
-	return;
-}
+/*
+encrypt version: 2017.09
+       built on: Nov 28 2018 16:16:15
+     git commit: c32661e
+       build os: Arch Linux
+       compiler: gcc 8.2.1 20180831
+        runtime: Linux 4.19.2-arch1-1-ARCH #1 SMP PREEMPT Tue Nov 13 21:16:19 UTC 2018 x86_64
+*/
 
 extern void show_help(void)
 {
 	version_print(is_encrypt() ? APP_NAME : ALT_NAME, ENCRYPT_VERSION, PROJECT_URL);
 	print_usage();
 	format_section(_("Options"));
-	format_help_line('h', "help",        NULL,        _("Display this message"));
-	format_help_line('l', "licence",     NULL,        _("Display GNU GPL v3 licence header"));
-	format_help_line('v', "version",     NULL,        _("Display application version"));
-	format_help_line('g', "nogui",       NULL,        _("Do not use the GUI, even if it’s available"));
-	format_help_line('u', "nocli",       NULL,        _("Do not display the CLI progress bar"));
+	cli_format_help('h', "help",           NULL,         _("Display this message"));
+	cli_format_help('l', "licence",        NULL,         _("Display GNU GPL v3 licence header"));
+	cli_format_help('v', "version",        NULL,         _("Display application version"));
+	cli_format_help('g', "nogui",          NULL,         _("Do not use the GUI, even if it’s available"));
+	cli_format_help('u', "nocli",          NULL,         _("Do not display the CLI progress bar"));
 	if (is_encrypt())
 	{
-		format_help_line('c', "cipher",         "algorithm",  _("Algorithm to use to encrypt data"));
-		format_help_line('s', "hash",           "algorithm",  _("Hash algorithm to generate key"));
-		format_help_line('m', "mode",           "mode",       _("The encryption mode to use"));
-		format_help_line('a', "mac",            "mac",        _("The MAC algorithm to use"));
-		format_help_line('i', "kdf-iterations", "iterations", _("Number of iterations the KDF should use"));
+		cli_format_help('c', "cipher",         "algorithm",  _("Algorithm to use to encrypt data"));
+		cli_format_help('s', "hash",           "algorithm",  _("Hash algorithm to generate key"));
+		cli_format_help('m', "mode",           "mode",       _("The encryption mode to use"));
+		cli_format_help('a', "mac",            "mac",        _("The MAC algorithm to use"));
+		cli_format_help('i', "kdf-iterations", "iterations", _("Number of iterations the KDF should use"));
 	}
-	format_help_line('k', "key",         "key file",  _("File whose data will be used to generate the key"));
-	format_help_line('p', "password",    "password",  _("Password used to generate the key"));
+	cli_format_help('k', "key",            "key file",   _("File whose data will be used to generate the key"));
+	cli_format_help('p', "password",       "password",   _("Password used to generate the key"));
 	if (is_encrypt())
 	{
-		format_help_line('x', "no-compress", NULL,        _("Do not compress the plain text using the xz algorithm"));
-		format_help_line('f', "follow",      NULL,        _("Follow symlinks, the default is to store the link itself"));
+		cli_format_help('x', "no-compress",    NULL,         _("Do not compress the plain text using the xz algorithm"));
+		cli_format_help('f', "follow",         NULL,         _("Follow symlinks, the default is to store the link itself"));
 		format_section(_("Advnaced Options"));
-		format_help_line('b', "back-compat", "version",   _("Create an encrypted file that is backwards compatible"));
+		cli_format_help('b', "back-compat",    "version",    _("Create an encrypted file that is backwards compatible"));
 	}
 	else
 		format_section(_("Advnaced Options"));
-	format_help_line('r', "raw",         NULL,        _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"));
+	cli_format_help('r', "raw",            NULL,         _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"));
 	format_section(_("Notes"));
+
+// TODO wrap these lines...
+
 	fprintf(stderr, _("  • If you do not supply a key or password, you will be prompted for one.\n"));
 	if (is_encrypt())
 		fprintf(stderr, _("  • To see a list of available algorithms or modes use list as the argument.\n"));
