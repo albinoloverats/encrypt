@@ -40,6 +40,7 @@
 #include "common/error.h"
 #include "common/ccrypt.h"
 #include "common/version.h"
+#include "common/config.h"
 #include "common/cli.h"
 
 #ifdef _WIN32
@@ -48,7 +49,6 @@
 	#include "common/dir.h"
 #endif
 
-#include "init.h"
 #include "crypt.h"
 #include "encrypt.h"
 #include "decrypt.h"
@@ -61,6 +61,10 @@
 #endif
 
 
+#define DECRYPT "decrypt"
+#define ENCRYPTRC ".encryptrc"
+
+
 extern char *gui_file_hack_source;
 extern char *gui_file_hack_output;
 
@@ -68,6 +72,7 @@ static bool list_ciphers(void);
 static bool list_hashes(void);
 static bool list_modes(void);
 static bool list_macs(void);
+
 
 int main(int argc, char **argv)
 {
@@ -79,52 +84,141 @@ int main(int argc, char **argv)
 	setbuf(stderr, NULL);
 	program_invocation_short_name = dir_get_name(argv[0]);
 #endif
-	args_t args = init(argc, argv);
+	/*
+	 * start background thread to check for newer version of encrypt
+	 *
+	 * NB If (When) encrypt makes it into a package manager for some
+	 * distros this can/should be removed as it will be unnecessary
+	 */
+	version_check_for_update(ENCRYPT_VERSION, UPDATE_URL, DOWNLOAD_URL_TEMPLATE);
+
+	char **extra = NULL;
+	config_arg_t args[] =
+	{
+#ifdef BUILD_GUI
+		{ 'g', "nogui",          NULL,         "Do not use the GUI, even if it’s available",               false, false, CONFIG_ARG_BOOLEAN, { 0x0 } },
+#endif
+		{ 'u', "nocli",          NULL,         "Do not display the CLI progress bar",                      false, false, CONFIG_ARG_BOOLEAN, { 0x0 } },
+		{ 'c', "cipher",         "algorithm",  "Algorithm to use to encrypt data",                         false, false, CONFIG_ARG_STRING,  { 0x0 } },
+		{ 's', "hash",           "algorithm",  "Hash algorithm to generate key",                           false, false, CONFIG_ARG_STRING,  { 0x0 } },
+		{ 'm', "mode",           "mode",       "The encryption mode to use",                               false, false, CONFIG_ARG_STRING,  { 0x0 } },
+		{ 'a', "mac",            "mac",        "The MAC algorithm to use",                                 false, false, CONFIG_ARG_STRING,  { 0x0 } },
+		{ 'i', "kdf-iterations", "iterations", "Number of iterations the KDF should use",                  false, false, CONFIG_ARG_NUMBER,  { 0x0 } },
+		{ 'k', "key",            "key file",   "File whose data will be used to generate the key",         false, false, CONFIG_ARG_STRING,  { 0x0 } },
+		{ 'p', "password",       "password",   "Password used to generate the key",                        false, false, CONFIG_ARG_STRING,  { 0x0 } },
+		{ 'x', "no-compress",    NULL,         "Do not compress the plain text using the xz algorithm",    false, false, CONFIG_ARG_BOOLEAN, { 0x0 } },
+		{ 'f', "follow",         NULL,         "Follow symlinks, the default is to store the link itself", false, false, CONFIG_ARG_BOOLEAN, { 0x0 } },
+		{ 'b', "back-compat",    "version",    "Create an encrypted file that is backwards compatible",    true,  false, CONFIG_ARG_STRING,  { 0x0 } },
+		{ 'r', "raw",            NULL,         "Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situation", true, false, CONFIG_ARG_BOOLEAN, { 0x0 } },
+		{ 0x0, NULL, NULL, NULL, 0, 0, 0, { 0x0 } }
+	};
+	char *notes[] =
+	{
+		"If you do not supply a key or password, you will be prompted for one.",
+		"To see a list of available algorithms or modes use list as the argument.",
+		"If you encrypted data using --raw then you will need to pass the algorithms as arguments when decrypting.",
+		NULL
+	};
+
+	config_about_t about =
+	{
+		NULL,
+		ENCRYPT_VERSION,
+		PROJECT_URL,
+		ENCRYPTRC
+	};
+#if !defined _WIN32
+	bool dude = false;
+	if (!strcmp(basename(argv[0]), DECRYPT))
+	{
+		about.name = strdup(DECRYPT);
+		dude = true;
+
+		int a = 0;
+#ifdef BUILD_GUI
+		a++;
+#endif
+		args[++a].hidden = true;
+		args[++a].hidden = true;
+		args[++a].hidden = true;
+		args[++a].hidden = true;
+		args[++a].hidden = true;
+		a += 2;
+		args[++a].hidden = true;
+		args[++a].hidden = true;
+		args[++a].hidden = true;
+	}
+	else
+#endif
+		about.name = strdup(ENCRYPT);
+	config_init(about);
+
+	int e = config_parse(argc, argv, args, extra, notes);
+
+	char *source   = e > 0 ? extra[0] : NULL;
+	char *output   = e > 1 ? extra[1] : NULL;
+
+	int a = 0;
+#ifdef BUILD_GUI
+	bool gui       = args[  a].response_value.boolean;
+#endif
+	bool cli       = args[++a].response_value.boolean;
+
+	char *cipher   = args[++a].response_value.string;
+	char *hash     = args[++a].response_value.string;
+	char *mode     = args[++a].response_value.string;
+	char *mac      = args[++a].response_value.string;
+
+	uint64_t kdf   = args[++a].response_value.number;
+
+	char *key      = args[++a].response_value.string;
+	char *password = args[++a].response_value.string;
+
+	bool compress  = args[++a].response_value.boolean;
+	bool follow    = args[++a].response_value.boolean;
+
+	char *version  = args[++a].response_value.string;
+	bool raw       = args[++a].response_value.boolean;
 
 	/*
 	 * list available algorithms if asked to (possibly both hash and
 	 * crypto)
 	 */
 	bool la = false;
-	if (args.cipher && !strcasecmp(args.cipher, "list"))
+	if (cipher && !strcasecmp(cipher, "list"))
 		la = list_ciphers();
-	if (args.hash && !strcasecmp(args.hash, "list"))
+	if (hash && !strcasecmp(hash, "list"))
 		la = list_hashes();
-	if (args.mode && !strcasecmp(args.mode, "list"))
+	if (mode && !strcasecmp(mode, "list"))
 		la = list_modes();
-	if (args.mac && !strcasecmp(args.mac, "list"))
+	if (mac && !strcasecmp(mac, "list"))
 		la = list_macs();
 	if (la)
 		return EXIT_SUCCESS;
 
-#if !defined _WIN32
-	bool dude = false;
-	if (!strcmp(basename(argv[0]), ALT_NAME))
-		dude = true;
-#endif
 
 #ifdef BUILD_GUI
 	gtk_widgets_t *widgets;
 	GtkBuilder *builder;
 	GError *error = NULL;
 
-	if (args.source)
+	if (source)
 	{
 		char *ptr = malloc(0);
 		char *c = ptr;
 		char *h = ptr;
 		char *m = ptr;
 		char *a = ptr;
-		if (is_encrypted(args.source, &c, &h, &m, &a, &args.kdf_iterations))
+		if (is_encrypted(source, &c, &h, &m, &a, &kdf))
 		{
-			free(args.cipher);
-			free(args.hash);
-			free(args.mode);
-			free(args.mac);
-			args.cipher = c;
-			args.hash = h;
-			args.mode = m;
-			args.mac = a;
+			free(cipher);
+			free(hash);
+			free(mode);
+			free(mac);
+			cipher = c;
+			hash = h;
+			mode = m;
+			mac = a;
 		}
 		free(ptr);
 	}
@@ -134,7 +228,7 @@ int main(int argc, char **argv)
 	struct stat t;
 	fstat(STDOUT_FILENO, &t);
 
-	if (!args.gui)
+	if (!gui)
 	  ;
 	else
 	{
@@ -225,45 +319,47 @@ int main(int argc, char **argv)
 			gtk_window_set_transient_for((GtkWindow *)widgets->abort_dialog, (GtkWindow *)widgets->main_window);
 			error_gui_init(widgets->abort_dialog, widgets->abort_message);
 
-			if (args.source)
+			if (source)
 			{
 	#ifndef _WIN32
-				if (args.source[0] != '/')
+				if (source[0] != '/')
 				{
 					char *cwd = getcwd(NULL, 0);
-					asprintf(&gui_file_hack_source, "%s/%s", cwd, args.source);
+					asprintf(&gui_file_hack_source, "%s/%s", cwd, source);
 					free(cwd);
 				}
 				else
 	#endif
-					gui_file_hack_source = strdup(args.source);
+					gui_file_hack_source = strdup(source);
 				gtk_file_chooser_set_filename((GtkFileChooser *)widgets->open_dialog, gui_file_hack_source);
 			}
-			if (args.output)
+			if (output)
 			{
 	#ifndef _WIN32
-				if (args.output[0] != '/')
+				if (output[0] != '/')
 				{
 					char *cwd = getcwd(NULL, 0);
-					asprintf(&gui_file_hack_output, "%s/%s", cwd, args.output);
+					asprintf(&gui_file_hack_output, "%s/%s", cwd, output);
 					free(cwd);
 				}
 				else
 	#endif
-					gui_file_hack_output = strdup(args.output);
+					gui_file_hack_output = strdup(output);
 				gtk_file_chooser_set_filename((GtkFileChooser *)widgets->save_dialog, gui_file_hack_output);
 			}
 			file_dialog_okay(NULL, widgets);
 
-			auto_select_algorithms(widgets, args.cipher, args.hash, args.mode, args.mac, args.kdf_iterations);
-			set_compatibility_menu(widgets, args.version);
-			set_key_source_menu(widgets, args.key_source);
+			auto_select_algorithms(widgets, cipher, hash, mode, mac, kdf);
+			set_compatibility_menu(widgets, version);
+			if (!strcasecmp(key, "file"))
+				set_key_source_menu(widgets, KEY_SOURCE_FILE);
+			else
+				set_key_source_menu(widgets, KEY_SOURCE_PASSWORD);
+			gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->compress_menu_item, compress);
+			gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->follow_menu_item, follow);
+			gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->raw_menu_item, raw);
 
-			gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->compress_menu_item, args.compress);
-			gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->follow_menu_item, args.follow);
-			gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->raw_menu_item, args.raw);
-
-			set_raw_buttons(widgets, args.raw);
+			set_raw_buttons(widgets, raw);
 			set_status_bar((GtkStatusbar *)widgets->status_bar, STATUS_BAR_READY);
 
 			gtk_main();
@@ -284,37 +380,33 @@ int main(int argc, char **argv)
 	/*
 	 * get raw key data in form of password/phrase, key file
 	 */
-	uint8_t *key = NULL;
-	size_t length = 0;
-	if (args.key)
+	uint8_t *key_data = NULL;
+	size_t key_length = 0;
+	if (password)
 	{
-		key = (uint8_t *)args.key;
-		length = 0;
+		key_data = (uint8_t *)password;
+		key_length = strlen(password);
 	}
-	else if (args.password)
-	{
-		key = (uint8_t *)args.password;
-		length = strlen(args.password);
-	}
+	else if (!strcasecmp(key, "password") || !strcasecmp(key, "file"))
+		key_data = (uint8_t *)key;
 	else if (isatty(STDIN_FILENO))
 	{
-		key = (uint8_t *)getpass(_("Please enter a password: "));
-		length = strlen((char *)key);
+		key_data = (uint8_t *)getpass(_("Please enter a password: "));
+		key_length = strlen((char *)key);
 		printf("\n");
 	}
 	else
-		show_usage();
+		config_show_usage(args);
+
 	/*
 	 * here we go ...
 	 */
 	crypto_t *c;
 
-	if (dude || (args.source && is_encrypted(args.source)))
-		c = decrypt_init(args.source, args.output, args.cipher, args.hash, args.mode, args.mac, key, length, args.kdf_iterations, args.raw);
+	if (dude || (source && is_encrypted(source)))
+		c = decrypt_init(source, output, cipher, hash, mode, mac, key_data, key_length, kdf, raw);
 	else
-		c = encrypt_init(args.source, args.output, args.cipher, args.hash, args.mode, args.mac, key, length, args.kdf_iterations, args.raw, args.compress, args.follow, parse_version(args.version));
-
-	init_deinit(args);
+		c = encrypt_init(source, output, cipher, hash, mode, mac, key_data, key_length, kdf, raw, compress, follow, parse_version(version));
 
 	if (c->status == STATUS_INIT)
 	{
@@ -327,7 +419,7 @@ int main(int argc, char **argv)
 		fstat(STDOUT_FILENO, &t);
 
 		bool ui = isatty(STDERR_FILENO) && (!io_is_stdout(c->output) || c->path || S_ISREG(t.st_mode));
-		if (ui && args.cli)
+		if (ui && cli)
 		{
 			cli_t p = { (cli_status_e *)&c->status, &c->current, &c->total };
 			cli_display(&p);

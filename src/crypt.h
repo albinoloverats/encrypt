@@ -40,6 +40,7 @@
 #include "common/cli.h" /*!< Used for progress bar on command line */
 #include "crypt_io.h"   /*!< Necessary as IO_HANDLE type is referenced in this header */
 
+#define ENCRYPT "encrypt"
 #define ENCRYPT_VERSION "2020.01" /*!< Current (display) version of encrypt application */
 #define UPDATE_URL "https://albinoloverats.net/encrypt.release" /*!< URI to check for updates */
 #define PROJECT_URL "https://albinoloverats.net/projects/encrypt"

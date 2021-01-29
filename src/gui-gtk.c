@@ -43,8 +43,8 @@
 #include "common/ccrypt.h"
 #include "common/version.h"
 #include "common/cli.h"
+#include "common/config.h"
 
-#include "init.h"
 #include "crypt.h"
 #include "encrypt.h"
 #include "decrypt.h"
@@ -52,6 +52,12 @@
 #define _filename_utf8(A) g_filename_to_utf8(A, -1, NULL, NULL, NULL)
 
 #define NONE_SELECTED "(None)"
+
+char *KEY_SOURCE[] =
+{
+	"file",
+	"password"
+};
 
 /*
  * FIXME There has to be a way to make gtk_file_chooser_set_filename work
@@ -524,7 +530,7 @@ G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_t *data)
 	if (version_new_available)
 	{
 		char *text = NULL;
-		asprintf(&text, NEW_VERSION_OF_AVAILABLE, version_available, APP_NAME);
+		asprintf(&text, NEW_VERSION_OF_AVAILABLE, version_available, ENCRYPT);
 		gtk_label_set_text((GtkLabel *)data->about_new_version_label, text);
 		free(text);
 	}

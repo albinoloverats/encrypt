@@ -23,7 +23,7 @@
 
 #include <gtk/gtk.h>
 
-#include "init.h"
+#include "common/config.h"
 
 #if !defined _WIN32 && !defined __FreeBSD__
 	#define GLADE_UI_FILE_DEFAULT "/usr/share/encrypt/encrypt.glade"
@@ -81,9 +81,16 @@ typedef struct gtk_widgets_t
 }
 gtk_widgets_t;
 
+typedef enum
+{
+	KEY_SOURCE_FILE,
+	KEY_SOURCE_PASSWORD
+}
+key_source_e;
+
 extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash, char *mode, char *mac, uint64_t iter);
 extern void set_compatibility_menu(gtk_widgets_t *data, char *version);
-extern void set_key_source_menu(gtk_widgets_t *data, key_source_e source);
+extern void set_key_source_menu(gtk_widgets_t *data, key_source_e key_source);
 
 G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *data);
 G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data);

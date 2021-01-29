@@ -18,16 +18,15 @@
  *
  */
 
-#ifndef _ENCRYPT_INIT_H_
-#define _ENCRYPT_INIT_H_
+#ifndef _COMMON_CONFIG_H_
+#define _COMMON_CONFIG_H_
 
-#define APP_NAME "encrypt"
-#define ALT_NAME "decrypt"
+#include <inttypes.h>
+#include <string.h>
+#include <stdbool.h>
 
 #define APP_USAGE "[source] [destination] [-c algorithm] [-s algorithm] [-m mode]\n           [-i iterations] [-k key/-p password] [-x] [-f] [-g] [-b version]"
 #define ALT_USAGE "[-k key/-p password] [input] [output]"
-
-#define ENCRYPTRC ".encryptrc"
 
 #define CONF_COMPRESS       "compress"
 #define CONF_FOLLOW         "follow"
@@ -47,46 +46,49 @@
 #define CONF_OFF      "off"
 #define CONF_DISABLED "disabled"
 
-/*!
- * \brief  Enum of available key sources
- *
- * Simple enum which indicates the source of the key material.
- */
+
 typedef enum
 {
-	KEY_SOURCE_FILE,    /*!< Key data comes from a file */
-	KEY_SOURCE_PASSWORD /*!< Key data comes from a password */
+	CONFIG_ARG_BOOLEAN,
+	CONFIG_ARG_NUMBER,
+	CONFIG_ARG_STRING
 }
-key_source_e;
+config_arg_e;
 
-extern char *KEY_SOURCE[];
+typedef union
+{
+	bool boolean;
+	uint64_t number;
+	char *string;
+}
+config_arg_u;
 
-/*!
- * \brief  Structure of expected options
- *
- * Structure returned from init() with values for any expected
- * options.
- */
 typedef struct
 {
-	char *cipher;            /*!< The cryptoraphic cipher selected by the user */
-	char *hash;              /*!< The hash function selected by the user */
-	char *mode;              /*!< The encryption mode selected by the user */
-	char *mac;               /*!< The MAC selected by the user */
-	uint64_t kdf_iterations; /*!< The number of iterations for the kdf */
-	char *key;               /*!< The key file for key generation */
-	char *password;          /*!< The password for key generation */
-	char *source;            /*!< The input file/stream */
-	char *output;            /*!< The output file/stream */
-	char *version;           /*!< The container version to use */
-	key_source_e key_source; /*!< The expected key source (GUI only) */
-	bool compress:1;         /*!< Compress the file (with xz) before encrypting */
-	bool follow:1;           /*!< Follow symlinks or not */
-	bool gui:1;              /*!< Whether or not to display the GUI (if available) */
-	bool cli:1;              /*!< Whether or not to display the CLI progress bar */
-	bool raw:1;              /*!< Whether the header should be skipped */
+	char short_option;
+	char *long_option;
+	char *option_type;
+	char *description;
+	bool advanced;
+	bool hidden;
+	config_arg_e response_type;
+	config_arg_u response_value;
 }
-args_t;
+config_arg_t;
+
+typedef struct
+{
+	char *name;
+	char *version;
+	char *url;
+	char *config;
+}
+config_about_t;
+
+
+extern void config_init(config_about_t about);
+
+extern void config_show_usage(config_arg_t *args);
 
 /*!
  * \brief           Application init function
@@ -98,9 +100,7 @@ args_t;
  * options where set. Removes a lot of the cruft from the legacy common
  * code that used to exist here.
  */
-extern args_t init(int argc, char **argv);
-
-extern void init_deinit(args_t args);
+extern int config_parse(int argc, char **argv, config_arg_t *args, char **extra, char **about);
 
 /*!
  * \brief         Update configuration file
@@ -111,6 +111,7 @@ extern void init_deinit(args_t args);
  */
 extern void update_config(const char * const restrict o, const char * const restrict v) __attribute__((nonnull(1, 2)));
 
+#if 0
 /*!
  * \brief         Show list of command line options
  *
@@ -140,5 +141,6 @@ extern void show_usage(void) __attribute__((noreturn));
  * Display the version of the application.
  */
 extern void show_version(void) __attribute__((noreturn));
+#endif
 
-#endif /* ! _INIT_H_ */
+#endif /* ! _COMMON_CONFIG_H_ */
