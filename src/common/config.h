@@ -47,11 +47,18 @@
 #define CONF_DISABLED "disabled"
 
 
+#define CONFIG_ARG_REQUIRED 0x80000000
+
 typedef enum
 {
-	CONFIG_ARG_BOOLEAN,
-	CONFIG_ARG_NUMBER,
-	CONFIG_ARG_STRING
+	CONFIG_ARG_OPT_BOOLEAN,
+	CONFIG_ARG_OPT_NUMBER,
+	CONFIG_ARG_OPT_STRING,
+
+	CONFIG_ARG_REQ_BOOLEAN = (CONFIG_ARG_OPT_BOOLEAN | CONFIG_ARG_REQUIRED),
+	CONFIG_ARG_REQ_NUMBER  = (CONFIG_ARG_OPT_NUMBER  | CONFIG_ARG_REQUIRED),
+	CONFIG_ARG_REQ_STRING  = (CONFIG_ARG_OPT_STRING  | CONFIG_ARG_REQUIRED)
+		// handle option/mandatory options
 }
 config_arg_e;
 
@@ -69,6 +76,7 @@ typedef struct
 	char *long_option;
 	char *option_type;
 	char *description;
+	bool required;
 	bool advanced;
 	bool hidden;
 	config_arg_e response_type;
@@ -88,7 +96,7 @@ config_about_t;
 
 extern void config_init(config_about_t about);
 
-extern void config_show_usage(config_arg_t *args);
+extern void config_show_usage(config_arg_t *args, char **extra);
 
 /*!
  * \brief           Application init function
@@ -100,7 +108,7 @@ extern void config_show_usage(config_arg_t *args);
  * options where set. Removes a lot of the cruft from the legacy common
  * code that used to exist here.
  */
-extern int config_parse(int argc, char **argv, config_arg_t *args, char **extra, char **about);
+extern int config_parse(int argc, char **argv, config_arg_t *args, char ***extra, char **about);
 
 /*!
  * \brief         Update configuration file

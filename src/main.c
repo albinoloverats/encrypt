@@ -93,24 +93,27 @@ int main(int argc, char **argv)
 	version_check_for_update(ENCRYPT_VERSION, UPDATE_URL, DOWNLOAD_URL_TEMPLATE);
 
 	char **extra = NULL;
+	extra = calloc(3, sizeof (char *));
+	extra[0] = strdup("source");
+	extra[1] = strdup("output");
 	config_arg_t args[] =
 	{
 #ifdef BUILD_GUI
-		{ 'g', "nogui",          NULL,         "Do not use the GUI, even if it’s available",               false, false, CONFIG_ARG_BOOLEAN, { 0x0 } },
+		{ 'g', "nogui",          NULL,         "Do not use the GUI, even if it’s available",               false, false, false, CONFIG_ARG_REQ_BOOLEAN, { 0x0 } },
 #endif
-		{ 'u', "nocli",          NULL,         "Do not display the CLI progress bar",                      false, false, CONFIG_ARG_BOOLEAN, { 0x0 } },
-		{ 'c', "cipher",         "algorithm",  "Algorithm to use to encrypt data",                         false, false, CONFIG_ARG_STRING,  { 0x0 } },
-		{ 's', "hash",           "algorithm",  "Hash algorithm to generate key",                           false, false, CONFIG_ARG_STRING,  { 0x0 } },
-		{ 'm', "mode",           "mode",       "The encryption mode to use",                               false, false, CONFIG_ARG_STRING,  { 0x0 } },
-		{ 'a', "mac",            "mac",        "The MAC algorithm to use",                                 false, false, CONFIG_ARG_STRING,  { 0x0 } },
-		{ 'i', "kdf-iterations", "iterations", "Number of iterations the KDF should use",                  false, false, CONFIG_ARG_NUMBER,  { 0x0 } },
-		{ 'k', "key",            "key file",   "File whose data will be used to generate the key",         false, false, CONFIG_ARG_STRING,  { 0x0 } },
-		{ 'p', "password",       "password",   "Password used to generate the key",                        false, false, CONFIG_ARG_STRING,  { 0x0 } },
-		{ 'x', "no-compress",    NULL,         "Do not compress the plain text using the xz algorithm",    false, false, CONFIG_ARG_BOOLEAN, { 0x0 } },
-		{ 'f', "follow",         NULL,         "Follow symlinks, the default is to store the link itself", false, false, CONFIG_ARG_BOOLEAN, { 0x0 } },
-		{ 'b', "back-compat",    "version",    "Create an encrypted file that is backwards compatible",    true,  false, CONFIG_ARG_STRING,  { 0x0 } },
-		{ 'r', "raw",            NULL,         "Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situation", true, false, CONFIG_ARG_BOOLEAN, { 0x0 } },
-		{ 0x0, NULL, NULL, NULL, 0, 0, 0, { 0x0 } }
+		{ 'u', "nocli",          NULL,         "Do not display the CLI progress bar",                      false, false, false, CONFIG_ARG_REQ_BOOLEAN, { 0x0 } },
+		{ 'c', "cipher",         "algorithm",  "Algorithm to use to encrypt data",                         false, false, false, CONFIG_ARG_REQ_STRING,  { 0x0 } },
+		{ 's', "hash",           "algorithm",  "Hash algorithm to generate key",                           false, false, false, CONFIG_ARG_REQ_STRING,  { 0x0 } },
+		{ 'm', "mode",           "mode",       "The encryption mode to use",                               false, false, false, CONFIG_ARG_REQ_STRING,  { 0x0 } },
+		{ 'a', "mac",            "mac",        "The MAC algorithm to use",                                 false, false, false, CONFIG_ARG_REQ_STRING,  { 0x0 } },
+		{ 'i', "kdf-iterations", "iterations", "Number of iterations the KDF should use",                  false, false, false, CONFIG_ARG_REQ_NUMBER,  { 0x0 } },
+		{ 'k', "key",            "key file",   "File whose data will be used to generate the key",         false, false, false, CONFIG_ARG_REQ_STRING,  { 0x0 } },
+		{ 'p', "password",       "password",   "Password used to generate the key",                        false, false, false, CONFIG_ARG_REQ_STRING,  { 0x0 } },
+		{ 'x', "no-compress",    NULL,         "Do not compress the plain text using the xz algorithm",    false, false, false, CONFIG_ARG_REQ_BOOLEAN, { 0x0 } },
+		{ 'f', "follow",         NULL,         "Follow symlinks, the default is to store the link itself", false, false, false, CONFIG_ARG_REQ_BOOLEAN, { 0x0 } },
+		{ 'b', "back-compat",    "version",    "Create an encrypted file that is backwards compatible",    false, true,  false, CONFIG_ARG_REQ_STRING,  { 0x0 } },
+		{ 'r', "raw",            NULL,         "Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situation", false, true, false, CONFIG_ARG_REQ_BOOLEAN, { 0x0 } },
+		{ 0x0, NULL, NULL, NULL, false, false, false, CONFIG_ARG_REQ_BOOLEAN, { 0x0 } }
 	};
 	char *notes[] =
 	{
@@ -153,14 +156,14 @@ int main(int argc, char **argv)
 		about.name = strdup(ENCRYPT);
 	config_init(about);
 
-	int e = config_parse(argc, argv, args, extra, notes);
+	int e = config_parse(argc, argv, args, &extra, notes);
 
 	char *source   = e > 0 ? extra[0] : NULL;
 	char *output   = e > 1 ? extra[1] : NULL;
 
-	int a = 0;
+	int a = -1;
 #ifdef BUILD_GUI
-	bool gui       = args[  a].response_value.boolean;
+	bool gui       = args[++a].response_value.boolean;
 #endif
 	bool cli       = args[++a].response_value.boolean;
 
@@ -194,8 +197,7 @@ int main(int argc, char **argv)
 	if (mac && !strcasecmp(mac, "list"))
 		la = list_macs();
 	if (la)
-		return EXIT_SUCCESS;
-
+		goto clean_up;
 
 #ifdef BUILD_GUI
 	gtk_widgets_t *widgets;
@@ -387,7 +389,7 @@ int main(int argc, char **argv)
 		key_data = (uint8_t *)password;
 		key_length = strlen(password);
 	}
-	else if (!strcasecmp(key, "password") || !strcasecmp(key, "file"))
+	else if (strcasecmp(key, "password") && strcasecmp(key, "file"))
 		key_data = (uint8_t *)key;
 	else if (isatty(STDIN_FILENO))
 	{
@@ -396,7 +398,12 @@ int main(int argc, char **argv)
 		printf("\n");
 	}
 	else
-		config_show_usage(args);
+	{
+		char *x[] = { "source", "output" };
+		config_show_usage(args, x);
+	}
+
+	fprintf(stderr, "%p %s\n", key_data, key_data);
 
 	/*
 	 * here we go ...
@@ -407,6 +414,8 @@ int main(int argc, char **argv)
 		c = decrypt_init(source, output, cipher, hash, mode, mac, key_data, key_length, kdf, raw);
 	else
 		c = encrypt_init(source, output, cipher, hash, mode, mac, key_data, key_length, kdf, raw, compress, follow, parse_version(version));
+
+	fprintf(stderr, "!\n");
 
 	if (c->status == STATUS_INIT)
 	{
@@ -432,13 +441,26 @@ int main(int argc, char **argv)
 	if (c->status != STATUS_SUCCESS)
 		cli_fprintf(stderr, ANSI_COLOUR_RED "%s" ANSI_COLOUR_RESET "\n", _(status(c)));
 
-	deinit(&c);
-
 #endif /* ! _WIN32 */
 
-#ifdef BUILD_GUI
 clean_up:
-#endif
+	if (cipher)
+		free(cipher);
+	if (hash)
+		free(hash);
+	if (mode)
+		free(mode);
+	if (mac)
+		free(mac);
+	if (key)
+		free(key);
+	if (password)
+		free(password);
+	if (version)
+		free(version);
+	for (int i = 0; i < e; i++)
+		free(extra[i]);
+	free(extra);
 
 	if (version_new_available)
 		cli_fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : PROJECT_URL);
