@@ -399,11 +399,9 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		char *x[] = { "source", "output" };
+		char *x[] = { "source", "output", NULL };
 		config_show_usage(args, x);
 	}
-
-	fprintf(stderr, "%p %s\n", key_data, key_data);
 
 	/*
 	 * here we go ...
@@ -414,8 +412,6 @@ int main(int argc, char **argv)
 		c = decrypt_init(source, output, cipher, hash, mode, mac, key_data, key_length, kdf, raw);
 	else
 		c = encrypt_init(source, output, cipher, hash, mode, mac, key_data, key_length, kdf, raw, compress, follow, parse_version(version));
-
-	fprintf(stderr, "!\n");
 
 	if (c->status == STATUS_INIT)
 	{

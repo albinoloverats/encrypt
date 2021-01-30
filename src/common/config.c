@@ -278,34 +278,34 @@ inline static void print_usage(config_arg_t *args, char **extra)
 	size_t x = 77 - strlen(about.name);// (csbi.srWindow.Right - csbi.srWindow.Left + 1) - width - 2;
 #endif
 	format_section(_("Usage"));
-	cli_fprintf(stderr, "  " ANSI_COLOUR_GREEN "%s" ANSI_COLOUR_MAGENTA, about.name);
+	cli_fprintf(stderr, "  " ANSI_COLOUR_GREEN "%s", about.name);
 	if (extra)
 	{
 		for (int i = 0; extra[i]; i++)
 			if (extra[i][0] == '+')
-				cli_fprintf(stderr, " <%s>", extra[i] + 1);
+				cli_fprintf(stderr, ANSI_COLOUR_RED " <%s>" ANSI_COLOUR_RESET, extra[i] + 1);
 			else
 			{
 				int o = 0;
 				if (extra[i][0] == '-')
 					o++;
-				cli_fprintf(stderr, " [%s]", extra[i] + o);
+				cli_fprintf(stderr, ANSI_COLOUR_YELLOW " [%s]" ANSI_COLOUR_RESET, extra[i] + o);
 			}
 	}
 	for (int i = 0, j = 0; args[i].short_option; i++)
 	{
-		char ao = args[i].required ? '<' : '[';
-		char ac = args[i].required ? '>' : ']';
-
 		if (j + 4 + (args[i].option_type ? strlen(args[i].option_type) : 0) > x)
 		{
 			cli_fprintf(stderr, "\n%*s  ", (int)strlen(about.name), " ");
 			j = 2;
 		}
-		j += cli_fprintf(stderr, " %c-%c", ao, args[i].short_option);
+		if (args[i].required)
+			j += cli_fprintf(stderr, ANSI_COLOUR_RED " <-%c", args[i].short_option);
+		else
+			j += cli_fprintf(stderr, ANSI_COLOUR_YELLOW " [-%c", args[i].short_option);
 		if (args[i].option_type)
 			j += cli_fprintf(stderr, " %s", args[i].option_type);
-		j += cli_fprintf(stderr, "%c", ac);
+		j += cli_fprintf(stderr, "%c" ANSI_COLOUR_RESET, args[i].required ? '>' : ']');
 	}
 	cli_fprintf(stderr, ANSI_COLOUR_RESET "\n");
 	return;
@@ -324,9 +324,9 @@ static void print_option(int width, char sopt, char *lopt, char *type, bool req,
 	if (type)
 	{
 		if (req)
-			cli_fprintf(stderr, ANSI_COLOUR_WHITE "=" ANSI_COLOUR_YELLOW "<%s>" ANSI_COLOUR_RESET, type);
+			cli_fprintf(stderr, ANSI_COLOUR_WHITE "=" ANSI_COLOUR_RED "<%s>" ANSI_COLOUR_RESET, type);
 		else
-			cli_fprintf(stderr, ANSI_COLOUR_WHITE "=" ANSI_COLOUR_YELLOW "[%s]" ANSI_COLOUR_RESET, type);
+			cli_fprintf(stderr, ANSI_COLOUR_YELLOW "[=%s]" ANSI_COLOUR_RESET, type);
 		z -= 3 + strlen(type);
 	}
 	fprintf(stderr, "%*s", (int)z, " ");

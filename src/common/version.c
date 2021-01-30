@@ -291,7 +291,7 @@ static size_t version_verify(void *p, size_t s, size_t n, void *v)
 
 static void version_format(int i, char *id, char *value)
 {
-	cli_fprintf(stderr, ANSI_COLOUR_GREEN "%*s" ANSI_COLOUR_RESET ": " ANSI_COLOUR_YELLOW, i, id);
+	cli_fprintf(stderr, ANSI_COLOUR_GREEN "%*s" ANSI_COLOUR_RESET ": " ANSI_COLOUR_MAGENTA, i, id);
 #ifndef _WIN32
 	struct winsize ws;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
