@@ -493,7 +493,7 @@ static void skip_random_data(crypto_t *c)
 		io_read(c->source, b, l);
 		gcry_free(b);
 	}
-	return (void)c;
+	return c;
 }
 
 static void decrypt_directory(crypto_t *c, const char *dir)
