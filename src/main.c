@@ -99,21 +99,21 @@ int main(int argc, char **argv)
 	config_arg_t args[] =
 	{
 #ifdef BUILD_GUI
-		{ 'g', "nogui",          NULL,         "Do not use the GUI, even if it’s available",               false, false, false, CONFIG_ARG_REQ_BOOLEAN, { 0x0 } },
+		{ 'g', "nogui",          NULL,            _("Do not use the GUI, even if it’s available"),               CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
 #endif
-		{ 'u', "nocli",          NULL,         "Do not display the CLI progress bar",                      false, false, false, CONFIG_ARG_REQ_BOOLEAN, { 0x0 } },
-		{ 'c', "cipher",         "algorithm",  "Algorithm to use to encrypt data",                         false, false, false, CONFIG_ARG_REQ_STRING,  { 0x0 } },
-		{ 's', "hash",           "algorithm",  "Hash algorithm to generate key",                           false, false, false, CONFIG_ARG_REQ_STRING,  { 0x0 } },
-		{ 'm', "mode",           "mode",       "The encryption mode to use",                               false, false, false, CONFIG_ARG_REQ_STRING,  { 0x0 } },
-		{ 'a', "mac",            "mac",        "The MAC algorithm to use",                                 false, false, false, CONFIG_ARG_REQ_STRING,  { 0x0 } },
-		{ 'i', "kdf-iterations", "iterations", "Number of iterations the KDF should use",                  false, false, false, CONFIG_ARG_REQ_NUMBER,  { 0x0 } },
-		{ 'k', "key",            "key file",   "File whose data will be used to generate the key",         false, false, false, CONFIG_ARG_REQ_STRING,  { 0x0 } },
-		{ 'p', "password",       "password",   "Password used to generate the key",                        false, false, false, CONFIG_ARG_REQ_STRING,  { 0x0 } },
-		{ 'x', "no-compress",    NULL,         "Do not compress the plain text using the xz algorithm",    false, false, false, CONFIG_ARG_REQ_BOOLEAN, { 0x0 } },
-		{ 'f', "follow",         NULL,         "Follow symlinks, the default is to store the link itself", false, false, false, CONFIG_ARG_REQ_BOOLEAN, { 0x0 } },
-		{ 'b', "back-compat",    "version",    "Create an encrypted file that is backwards compatible",    false, true,  false, CONFIG_ARG_REQ_STRING,  { 0x0 } },
-		{ 'r', "raw",            NULL,         "Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situation", false, true, false, CONFIG_ARG_REQ_BOOLEAN, { 0x0 } },
-		{ 0x0, NULL, NULL, NULL, false, false, false, CONFIG_ARG_REQ_BOOLEAN, { 0x0 } }
+		{ 'u', "nocli",          NULL,            _("Do not display the CLI progress bar"),                      CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
+		{ 'c', "cipher",         _("algorithm"),  _("Algorithm to use to encrypt data"),                         CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
+		{ 's', "hash",           _("algorithm"),  _("Hash algorithm to generate key"),                           CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
+		{ 'm', "mode",           _("mode"),       _("The encryption mode to use"),                               CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
+		{ 'a', "mac",            _("mac"),        _("The MAC algorithm to use"),                                 CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
+		{ 'i', "kdf-iterations", _("iterations"), _("Number of iterations the KDF should use"),                  CONFIG_ARG_REQ_NUMBER,  { 0x0 }, false, false, false },
+		{ 'k', "key",            _("key file"),   _("File whose data will be used to generate the key"),         CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
+		{ 'p', "password",       _("password"),   _("Password used to generate the key"),                        CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
+		{ 'x', "no-compress",    NULL,            _("Do not compress the plain text using the xz algorithm"),    CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
+		{ 'f', "follow",         NULL,            _("Follow symlinks, the default is to store the link itself"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
+		{ 'b', "back-compat",    _("version"),    _("Create an encrypted file that is backwards compatible"),    CONFIG_ARG_REQ_STRING,  { 0x0 }, false, true,  false },
+		{ 'r', "raw",            NULL,            _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situation"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false },
+		{ 0x0, NULL, NULL, NULL, CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false }
 	};
 	char *notes[] =
 	{
@@ -171,7 +171,6 @@ int main(int argc, char **argv)
 	char *hash     = args[++a].response_value.string;
 	char *mode     = args[++a].response_value.string;
 	char *mac      = args[++a].response_value.string;
-
 	uint64_t kdf   = args[++a].response_value.number;
 
 	char *key      = args[++a].response_value.string;
