@@ -4,6 +4,7 @@ bin
 gen
 pkg
 src/encrypt_private.res
+src/common/misc.h
 debian/encrypt/
 build-stamp
 configure-stamp
