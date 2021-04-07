@@ -26,6 +26,12 @@ all: gui language man
 
 debug: cli-debug
 
+crack:
+	 @echo "#define ALL_CFLAGS   \"$(strip $(subst \",\',"${CLI_CFLAGS}"))\""    > ${MISC}
+	 @echo "#define ALL_CPPFLAGS \"$(strip $(subst \",\',"${CLI_CPPFLAGS}"))\"" >> ${MISC}
+	 @${CC} ${CLI_LIBS} -lgmp ${CLI_CFLAGS} -O0 -ggdb -pg ${CLI_CPPFLAGS} ${COMMON_SRC} src/thpool.c src/crack.c -o crack
+	-@echo -e "built ‘`echo -e ${COMMON_SRC} src/crack.c | sed 's/ /’\n      ‘/g'`’ → ‘crack’"
+
 cli:
 	 @echo "#define ALL_CFLAGS   \"$(strip $(subst \",\',"${CLI_CFLAGS}"))\""    > ${MISC}
 	 @echo "#define ALL_CPPFLAGS \"$(strip $(subst \",\',"${CLI_CPPFLAGS}"))\"" >> ${MISC}
