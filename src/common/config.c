@@ -55,9 +55,16 @@ static void show_version(void);
 static void show_help(config_arg_t *args, char **about, char **extra);
 static void show_licence(void);
 
-static bool parse_config_boolean(const char *, const char *, bool);
+static bool    parse_config_boolean(const char *, const char *, bool);
+static int64_t parse_config_number(const char *, const char *, int64_t);
+static char   *parse_config_string(const char *, const char *, char *);
+
+static config_pair_boolean_t *parse_config_pair_boolean(const char *c, const char *l);
+static config_pair_number_t  *parse_config_pair_number(const char *c, const char *l);
+static config_pair_string_t  *parse_config_pair_string(const char *c, const char *l);
+
+static config_pair_u *parse_config_pair(const char *c, const char *l);
 static char *parse_config_tail(const char *, const char *);
-static config_pair_string_t *parse_config_pair(const char *, const char *);
 
 static bool init = false;
 static config_about_t about = { 0x0 };
@@ -118,24 +125,35 @@ extern int config_parse(int argc, char **argv, config_arg_t *args, char ***extra
 							case CONFIG_ARG_OPT_NUMBER:
 								__attribute__((fallthrough)); /* allow fall-through */
 							case CONFIG_ARG_REQ_NUMBER:
-								{
-									char *n = parse_config_tail(args[i].long_option, line);
-									if (n)
-									{
-										args[i].response_value.number = strtoull(n, NULL, 0);
-										free(n);
-									}
-								}
+								args[i].response_value.number = parse_config_number(args[i].long_option, line, args[i].response_value.number);
 								break;
 							case CONFIG_ARG_OPT_STRING:
 								__attribute__((fallthrough)); /* allow fall-through */
 							case CONFIG_ARG_REQ_STRING:
-								args[i].response_value.string = parse_config_tail(args[i].long_option, line);
+								args[i].response_value.string = parse_config_string(args[i].long_option, line, args[i].response_value.string);
+								break;
+
+							case CONFIG_ARG_PAIR_BOOLEAN:
+								{
+									config_pair_boolean_t *pair = parse_config_pair_boolean(args[i].long_option, line);
+									args[i].response_value.pair.boolean.b1 = pair->b1;
+									args[i].response_value.pair.boolean.b2 = pair->b2;
+									free(pair);
+								}
+								break;
+
+							case CONFIG_ARG_PAIR_NUMBER:
+								{
+									config_pair_number_t *pair = parse_config_pair_number(args[i].long_option, line);
+									args[i].response_value.pair.number.n1 = pair->n1;
+									args[i].response_value.pair.number.n2 = pair->n2;
+									free(pair);
+								}
 								break;
 
 							case CONFIG_ARG_PAIR_STRING:
 								{
-									config_pair_string_t *pair = parse_config_pair(args[i].long_option, line);
+									config_pair_string_t *pair = parse_config_pair_string(args[i].long_option, line);
 									args[i].response_value.pair.string.s1 = pair->s1;
 									args[i].response_value.pair.string.s2 = pair->s2;
 									free(pair);
@@ -145,14 +163,14 @@ extern int config_parse(int argc, char **argv, config_arg_t *args, char ***extra
 							case CONFIG_ARG_LIST_STRING:
 								args[i].response_value.list.count++;
 								args[i].response_value.list.items = realloc(args[i].response_value.list.items, args[i].response_value.list.count * sizeof (config_list_u));
-								args[i].response_value.list.items[args[i].response_value.list.count - 1].string = parse_config_tail(args[i].long_option, line);
+								args[i].response_value.list.items[args[i].response_value.list.count - 1].string = parse_config_string(args[i].long_option, line, NULL);
 								break;
 
 							case CONFIG_ARG_LIST_PAIR_STRING:
 								{
 									args[i].response_value.list.count++;
 									args[i].response_value.list.items = realloc(args[i].response_value.list.items, args[i].response_value.list.count * sizeof (config_list_u));
-									config_pair_string_t *pair = parse_config_pair(args[i].long_option, line);
+									config_pair_string_t *pair = parse_config_pair_string(args[i].long_option, line);
 									args[i].response_value.list.items[args[i].response_value.list.count - 1].pair.string.s1 = pair->s1;
 									args[i].response_value.list.items[args[i].response_value.list.count - 1].pair.string.s2 = pair->s2;
 									free(pair);
@@ -578,12 +596,33 @@ static bool parse_config_boolean(const char *c, const char *l, bool d)
 {
 	bool r = d;
 	char *v = parse_config_tail(c, l);
-	if (!strcasecmp(CONF_TRUE, v) || !strcasecmp(CONF_ON, v) || !strcasecmp(CONF_ENABLED, v))
-		r = true;
-	else if (!strcasecmp(CONF_FALSE, v) || !strcasecmp(CONF_OFF, v) || !strcasecmp(CONF_DISABLED, v))
-		r = false;
-	free(v);
+	if (v)
+	{
+		if (!strcasecmp(CONF_TRUE, v) || !strcasecmp(CONF_ON, v) || !strcasecmp(CONF_ENABLED, v))
+			r = true;
+		else if (!strcasecmp(CONF_FALSE, v) || !strcasecmp(CONF_OFF, v) || !strcasecmp(CONF_DISABLED, v))
+			r = false;
+		free(v);
+	}
 	return r;
+}
+
+static int64_t parse_config_number(const char *c, const char *l, int64_t d)
+{
+	int64_t r = d;
+	char *n = parse_config_tail(c, l);
+	if (n)
+	{
+		r = strtoull(n, NULL, 0);
+		free(n);
+	}
+	return r;
+}
+
+static char *parse_config_string(const char *c, const char *l, char *d)
+{
+	char *r = parse_config_tail(c, l);
+	return r ? : d;
 }
 
 static char *parse_config_tail(const char *c, const char *l)
@@ -605,9 +644,52 @@ static char *parse_config_tail(const char *c, const char *l)
 	return tail;
 }
 
-static config_pair_string_t *parse_config_pair(const char *c, const char *l)
+static config_pair_boolean_t *parse_config_pair_boolean(const char *c, const char *l)
+{
+	config_pair_boolean_t *pair = calloc(1, sizeof (config_pair_boolean_t));
+	if (!pair)
+		die("Out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, sizeof (config_pair_boolean_t));
+	config_pair_u *p = parse_config_pair(c, l);
+	/* FIXME this only verifies is a value is true, and doesn't default like above */
+	pair->b1 = (!strcasecmp(CONF_TRUE, p->string.s1) || !strcasecmp(CONF_ON, p->string.s1) || !strcasecmp(CONF_ENABLED, p->string.s1));
+	pair->b2 = (!strcasecmp(CONF_TRUE, p->string.s2) || !strcasecmp(CONF_ON, p->string.s2) || !strcasecmp(CONF_ENABLED, p->string.s2));
+	free(p->string.s1);
+	free(p->string.s2);
+	free(p);
+	return pair;
+}
+
+static config_pair_number_t *parse_config_pair_number(const char *c, const char *l)
+{
+	config_pair_number_t *pair = calloc(1, sizeof (config_pair_number_t));
+	if (!pair)
+		die("Out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, sizeof (config_pair_number_t));
+	config_pair_u *p = parse_config_pair(c, l);
+	pair->n1 = strtoull(p->string.s1, NULL, 0);
+	pair->n2 = strtoull(p->string.s2, NULL, 0);
+	free(p->string.s1);
+	free(p->string.s2);
+	free(p);
+	return pair;
+}
+
+static config_pair_string_t *parse_config_pair_string(const char *c, const char *l)
 {
 	config_pair_string_t *pair = calloc(1, sizeof (config_pair_string_t));
+	if (!pair)
+		die("Out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, sizeof (config_pair_string_t));
+	config_pair_u *p = parse_config_pair(c, l);
+	pair->s1 = p->string.s1;
+	pair->s2 = p->string.s2;
+	free(p);
+	return pair;
+}
+
+static config_pair_u *parse_config_pair(const char *c, const char *l)
+{
+	config_pair_u *pair = calloc(1, sizeof (config_pair_u));
+	if (!pair)
+		die("Out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, sizeof (config_pair_u));
 	/* get everything after the parameter name */
 	char *x = strdup(l + strlen(c));
 	if (!x)
@@ -624,7 +706,7 @@ static config_pair_string_t *parse_config_pair(const char *c, const char *l)
 	else
 		for (; i < strlen(y) && !isspace(y[i]); i++)
 			;
-	pair->s1 = strndup(y + j, i - j);
+	pair->string.s1 = strndup(y + j, i - j);
 	/* skip past all whitespace */
 	for (; i < strlen(y) && isspace((unsigned char)y[i]); i++)
 		;
@@ -634,7 +716,7 @@ static config_pair_string_t *parse_config_pair(const char *c, const char *l)
 		;//y[i] = '\0';
 	if (z[j] == '"')
 		j++;
-	pair->s2 = strndup(z + j, i + (j ? -j : 1));
+	pair->string.s2 = strndup(z + j, i + (j ? -j : 1));
 	/* all done */
 	free(x);
 	return pair;

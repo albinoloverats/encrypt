@@ -48,15 +48,31 @@ typedef enum
 	CONFIG_ARG_REQ_NUMBER       = (CONFIG_ARG_OPT_NUMBER  | CONFIG_ARG_REQUIRED),
 	CONFIG_ARG_REQ_STRING       = (CONFIG_ARG_OPT_STRING  | CONFIG_ARG_REQUIRED),
 
-	CONFIG_ARG_PAIR_STRING      = (CONFIG_ARG_REQ_STRING  | CONFIG_ARG_PAIR), // pairs of options are currently required
+	CONFIG_ARG_PAIR_BOOLEAN     = (CONFIG_ARG_REQ_BOOLEAN | CONFIG_ARG_PAIR), // pairs of options are currently required
+	CONFIG_ARG_PAIR_NUMBER      = (CONFIG_ARG_REQ_NUMBER  | CONFIG_ARG_PAIR),
+	CONFIG_ARG_PAIR_STRING      = (CONFIG_ARG_REQ_STRING  | CONFIG_ARG_PAIR),
 
-	//CONFIG_ARG_LIST_BOOLEAN     = (CONFIG_ARG_OPT_BOOLEAN | CONFIG_ARG_LIST),
-	//CONFIG_ARG_LIST_NUMBER      = (CONFIG_ARG_OPT_NUMBER  | CONFIG_ARG_LIST),
-	CONFIG_ARG_LIST_STRING      = (CONFIG_ARG_REQ_STRING  | CONFIG_ARG_LIST),  // list options are currently required
+//	CONFIG_ARG_LIST_BOOLEAN     = (CONFIG_ARG_REQ_BOOLEAN | CONFIG_ARG_LIST), // list options are currently required
+//	CONFIG_ARG_LIST_NUMBER      = (CONFIG_ARG_REQ_NUMBER  | CONFIG_ARG_LIST),
+	CONFIG_ARG_LIST_STRING      = (CONFIG_ARG_REQ_STRING  | CONFIG_ARG_LIST),
 
 	CONFIG_ARG_LIST_PAIR_STRING = (CONFIG_ARG_LIST_STRING | CONFIG_ARG_PAIR_STRING)
 }
 config_arg_e;
+
+typedef struct
+{
+	bool b1;
+	bool b2;
+}
+config_pair_boolean_t;
+
+typedef struct
+{
+	int64_t n1;
+	int64_t n2;
+}
+config_pair_number_t;
 
 typedef struct
 {
@@ -67,15 +83,16 @@ config_pair_string_t;
 
 typedef union
 {
-	// add more as necessary
+	config_pair_boolean_t boolean;
+	config_pair_number_t number;
 	config_pair_string_t string;
 }
 config_pair_u;
 
 typedef union
 {
-	//bool *boolean;
-	//uint64_t *number;
+	bool boolean;
+	uint64_t number;
 	char *string;
 	config_pair_u pair;
 }
@@ -91,7 +108,7 @@ config_list_t;
 typedef union
 {
 	bool boolean;
-	uint64_t number;
+	int64_t number;
 	char *string;
 	config_pair_u pair;
 	config_list_t list;
