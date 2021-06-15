@@ -117,9 +117,9 @@ int main(int argc, char **argv)
 	};
 	char *notes[] =
 	{
-		"If you do not supply a key or password, you will be prompted for one.",
-		"To see a list of available algorithms or modes use list as the argument.",
-		"If you encrypted data using --raw then you will need to pass the algorithms as arguments when decrypting.",
+		_("If you do not supply a key or password, you will be prompted for one."),
+		_("To see a list of available algorithms or modes use list as the argument."),
+		_("If you encrypted data using --raw then you will need to pass the algorithms as arguments when decrypting."),
 		NULL
 	};
 
