@@ -92,10 +92,6 @@ int main(int argc, char **argv)
 	 */
 	version_check_for_update(ENCRYPT_VERSION, UPDATE_URL, DOWNLOAD_URL_TEMPLATE);
 
-	char **extra = NULL;
-	extra = calloc(3, sizeof (char *));
-	extra[0] = strdup("source");
-	extra[1] = strdup("output");
 	config_arg_t args[] =
 	{
 #ifdef BUILD_GUI
@@ -114,6 +110,12 @@ int main(int argc, char **argv)
 		{ 'b', "back-compat",    _("version"),    _("Create an encrypted file that is backwards compatible"),    CONFIG_ARG_REQ_STRING,  { 0x0 }, false, true,  false },
 		{ 'r', "raw",            NULL,            _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situation"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false },
 		{ 0x0, NULL, NULL, NULL, CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false }
+	};
+	config_extra_t extra[] =
+	{
+		{ "source", CONFIG_ARG_STRING,  { 0x0 }, false, false },
+		{ "output", CONFIG_ARG_STRING,  { 0x0 }, false, false },
+		{ NULL,     CONFIG_ARG_BOOLEAN, { 0x0 }, false, false }
 	};
 	char *notes[] =
 	{
@@ -156,10 +158,10 @@ int main(int argc, char **argv)
 		about.name = strdup(ENCRYPT);
 	config_init(about);
 
-	int e = config_parse(argc, argv, args, &extra, notes);
+	config_parse(argc, argv, args, extra, notes);
 
-	char *source   = e > 0 ? extra[0] : NULL;
-	char *output   = e > 1 ? extra[1] : NULL;
+	char *source   = extra[0].response_value.string;
+	char *output   = extra[1].response_value.string;
 
 	int a = -1;
 #ifdef BUILD_GUI
@@ -397,10 +399,7 @@ int main(int argc, char **argv)
 		printf("\n");
 	}
 	else
-	{
-		char *x[] = { "source", "output", NULL };
-		config_show_usage(args, x);
-	}
+		config_show_usage(args, extra);
 
 	/*
 	 * here we go ...
@@ -453,9 +452,10 @@ clean_up:
 		free(password);
 	if (version)
 		free(version);
-	for (int i = 0; i < e; i++)
-		free(extra[i]);
-	free(extra);
+	if (extra[0].response_value.string)
+		free(extra[0].response_value.string);
+	if (extra[1].response_value.string)
+		free(extra[1].response_value.string);
 
 	if (version_new_available)
 		cli_fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : PROJECT_URL);
