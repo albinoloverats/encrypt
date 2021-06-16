@@ -126,4 +126,5 @@ distclean: clean
 	 @rm -fv ${APP}.1a.gz
 	 @rm -fvr pkg build
 	 @rm -fv ${APP}*.pkg.tar.xz
+	 @rm -fv ${APP}*.pkg.tar.zst
 	 @rm -fv ${APP}*.tgz
