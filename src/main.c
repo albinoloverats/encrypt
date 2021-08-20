@@ -178,7 +178,7 @@ int main(int argc, char **argv)
 	char *key      = args[++a].response_value.string;
 	char *password = args[++a].response_value.string;
 
-	bool compress  = args[++a].response_value.boolean;
+	bool compress  = !args[++a].response_value.boolean; // compress by default unless --no-compress is specified
 	bool follow    = args[++a].response_value.boolean;
 
 	char *version  = args[++a].response_value.string;
