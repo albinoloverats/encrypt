@@ -165,7 +165,7 @@ int main(int argc, char **argv)
 
 	int a = -1;
 #ifdef BUILD_GUI
-	bool gui       = args[++a].response_value.boolean;
+	bool gui       = !args[++a].response_value.boolean; // gui by default unless --no-gui is specified
 #endif
 	bool cli       = args[++a].response_value.boolean;
 
