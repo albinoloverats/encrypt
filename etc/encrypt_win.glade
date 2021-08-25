@@ -551,7 +551,6 @@ processes your file</property>
 						<property name="valign">center</property>
 						<property name="border_width">64</property>
 						<property name="orientation">vertical</property>
-						<property name="homogeneous">True</property>
 						<child>
 							<object class="GtkButton" id="open_button">
 								<property name="width_request">160</property>
@@ -825,7 +824,7 @@ processes your file</property>
 								<property name="visibility">False</property>
 								<property name="invisible_char">•</property>
 								<property name="truncate_multiline">True</property>
-								<property name="primary_icon_stock">gtk-dialog-authentication</property>
+								<property name="primary_icon_pixbuf">C:\\Program Files\\encrypt\\pixmaps\\encrypt_key.png</property>
 								<property name="placeholder_text" translatable="yes">Password</property>
 								<signal name="changed" handler="password_entry_callback" swapped="no"/>
 							</object>
@@ -856,8 +855,8 @@ processes your file</property>
 										<property name="can_focus">False</property>
 										<child>
 											<object class="GtkImage" id="key_file_image">
+												<property name="pixbuf">C:\\Program Files\\encrypt\\pixmaps\\encrypt_key.png</property>
 												<property name="can_focus">False</property>
-												<property name="stock">gtk-dialog-authentication</property>
 												<property name="icon_size">1</property>
 											</object>
 											<packing>
