@@ -27,8 +27,11 @@ Display GNU GPL v3 licence header
 .BR \-v ", " \-\-version
 Display application version
 .TP
-.BR \-g ", " \-\-nogui
+.BR \-g ", " \-\-no-gui
 Do not use the GUI, even if it's available
+.TP
+.BR \-u ", " \-\-no-cli
+Do not display the CLI progress bar
 .TP
 .BR \-c ", " \-\-cipher =\fIALGORITHM\fR
 Algorithm to use to encrypt data; use \fIlist\fR to show a list of available
@@ -45,6 +48,9 @@ encryption modes
 .BR \-a ", " \-\-mac =\fIMAC\fR
 The MAC to use for key derivation and message authentication; use \fIlist\fR
 to show a list of available MACs
+.TP
+.BR \-i ", " \-\-kdf-iterations =\fIITERATIONS\fR
+Number of iterations the KDF should use
 .TP
 .BR \-k ", " \-\-key =\fIFILE\fR
 File whose data will be used to generate the key

@@ -95,9 +95,9 @@ int main(int argc, char **argv)
 	config_arg_t args[] =
 	{
 #ifdef BUILD_GUI
-		{ 'g', "nogui",          NULL,            _("Do not use the GUI, even if it’s available"),               CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
+		{ 'g', "no-gui",         NULL,            _("Do not use the GUI, even if it’s available"),               CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
 #endif
-		{ 'u', "nocli",          NULL,            _("Do not display the CLI progress bar"),                      CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
+		{ 'u', "no-cli",         NULL,            _("Do not display the CLI progress bar"),                      CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
 		{ 'c', "cipher",         _("algorithm"),  _("Algorithm to use to encrypt data"),                         CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
 		{ 's', "hash",           _("algorithm"),  _("Hash algorithm to generate key"),                           CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
 		{ 'm', "mode",           _("mode"),       _("The encryption mode to use"),                               CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
