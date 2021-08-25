@@ -81,6 +81,8 @@ install:
 	-@echo -e "installed ‘pixmaps/encrypt.svg’ → ‘${PREFIX}/usr/${LOCAL}/share/pixmaps/encrypt.svg’"
 	 @install -m 644 -D -T pixmaps/encrypt_button.svg ${PREFIX}/usr/${LOCAL}/share/pixmaps/encrypt_button.svg
 	-@echo -e "installed ‘pixmaps/encrypt_button.svg’ → ‘${PREFIX}/usr/${LOCAL}/share/pixmaps/encrypt_button.svg’"
+	 @install -m 644 -D -T pixmaps/encrypt_key.png ${PREFIX}/usr/${LOCAL}/share/pixmaps/encrypt_key.png
+	-@echo -e "installed ‘pixmaps/encrypt_key.png’ → ‘${PREFIX}/usr/${LOCAL}/share/pixmaps/encrypt_key.png’"
 # next encrypt.glade
 	 @install -m 644 -D -T etc/encrypt.glade ${PREFIX}/usr/${LOCAL}/share/encrypt/encrypt.glade
 	-@echo -e "installed ‘etc/encrypt.glade’ → ‘${PREFIX}/usr/${LOCAL}/share/encrypt/encrypt.glade’"
@@ -111,6 +113,7 @@ uninstall:
 	 @rm -fv ${PREFIX}/usr/${LOCAL}/share/zsh/functions/Completion/Unix/_encrypt
 	 @rm -fv ${PREFIX}/usr/${LOCAL}/share/pixmaps/encrypt.svg
 	 @rm -fv ${PREFIX}/usr/${LOCAL}/share/pixmaps/encrypt_button.svg
+	 @rm -fv ${PREFIX}/usr/${LOCAL}/share/pixmaps/encrypt_key.png
 	 @rm -fv ${PREFIX}/usr/${LOCAL}/share/man/man1/encrypt.1a.gz
 	 @rm -fv ${PREFIX}/usr/${LOCAL}/share/applications/encrypt.desktop
 	 @rm -fv ${PREFIX}/usr/${LOCAL}/share/Thunar/sendto/encrypt.desktop

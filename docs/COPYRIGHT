@@ -8,7 +8,7 @@ licence or another:
  * The cryptographic libraries libgcrypt and gnu-crypto are Copyright of
    The Free Software Foundation and available under the terms of the GNU
    General Public License.
- * the Gimp Toolkit and the Gimp Drawing Kit (GTK and GDK) are Copyright
+ * The Gimp Toolkit and the Gimp Drawing Kit (GTK and GDK) are Copyright
    The GNOME Foundation, and are available under terms of the GNU Lesser
    General Public License.
  * The ECC functions are heavily modified from their originals, which
