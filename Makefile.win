@@ -29,7 +29,7 @@ PKG            = encrypt-${VERSION}-install.exe
 PKG_SIG        = encrypt-${VERSION}-install-signed.exe
 
 RESOPTS        = -O coff --input-format=rc
-SIGOPTS        = -n "${APP}" -i "https://albinoloverats.net/" -spc authenticode.spc -key authenticode.key -t http://timestamp.verisign.com/scripts/timstamp.dll
+SIGOPTS        = -verbose -certs signing/authenticode.spc -key signing/authenticode.key -n "${APP}" -i "https://albinoloverats.net/"
 
 all: sign
 
@@ -56,12 +56,12 @@ debug-gui: winres
 
 installer:
 	 @${NSIS} ${INST}
-	 @${SIGN} ${SIGOPTS} -in ${PKG} ${PKG_SIG}
+	 @${SIGN} ${SIGOPTS} -in ${PKG} -out ${PKG_SIG}
 	-@echo -e "signed ‘${PKG}’ → ‘${PKG_SIG}’"
 	-@mv -v ${PKG_SIG} ${PKG}
 
 clean:
-	 @rm -fv ${APP} ${APP_SIG} ${RES}
+	 @rm -fv ${APP} ${APP_SIG} ${MISC} ${RES}
 
 distclean: clean
 	 @rm -fv ${PKG} ${PKG_SIG}

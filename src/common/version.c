@@ -52,6 +52,8 @@
 	#include <shellapi.h>
 	#include <Shlobj.h>
 	extern char *program_invocation_short_name;
+
+	#include "non-gnu.h"
 #endif
 
 #ifdef __APPLE__

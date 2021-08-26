@@ -1,5 +1,6 @@
 # desktop ignore
 extra
+signing
 bin
 gen
 pkg

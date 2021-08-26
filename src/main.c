@@ -235,6 +235,9 @@ int main(int argc, char **argv)
 	  ;
 	else
 	{
+	#else
+		(void)gui;
+		(void)cli;
 	#endif /* ! _WIN32 */
 
 		if (gtk_init_check(&argc, &argv))
