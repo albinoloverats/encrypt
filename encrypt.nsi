@@ -100,7 +100,7 @@ Section -encrypt
 	File "C:\msys64\mingw64\bin\libglib-2.0-0.dll"
 	File "C:\msys64\mingw64\bin\libpcre-1.dll"
 	File "C:\msys64\mingw64\bin\libgobject-2.0-0.dll"
-	File "C:\msys64\mingw64\bin\libffi-6.dll"
+	File "C:\msys64\mingw64\bin\libffi-7.dll"
 	File "C:\msys64\mingw64\bin\libgtk-3-0.dll"
 	File "C:\msys64\mingw64\bin\libgdk-3-0.dll"
 	File "C:\msys64\mingw64\bin\libatk-1.0-0.dll"
@@ -126,6 +126,8 @@ Section -encrypt
 	File "C:\msys64\mingw64\bin\libpangoft2-1.0-0.dll"
 	File "C:\msys64\mingw64\bin\libpangowin32-1.0-0.dll"
 	File "C:\msys64\mingw64\bin\liblzma-5.dll"
+	File "C:\msys64\mingw64\bin\libssh2-1.dll"
+	File "C:\msys64\mingw64\bin\libzstd.dll"
 
 	SetOutPath "$INSTDIR\lib"
 	File /r "C:\msys64\mingw64\lib\gdk-pixbuf-2.0"
@@ -151,6 +153,7 @@ Section -encrypt
 	SetOutPath "$INSTDIR\pixmaps"
 	File "pixmaps\encrypt.png"
 	File "pixmaps\encrypt_button.png"
+	File "pixmaps\encrypt_key.png"
 
 	SetOutPath "$INSTDIR\etc"
 	File "etc\encrypt_win.glade"
@@ -214,7 +217,7 @@ Section Uninstall
 	Delete "$INSTDIR\libglib-2.0-0.dll"
 	Delete "$INSTDIR\libpcre-1.dll"
 	Delete "$INSTDIR\libgobject-2.0-0.dll"
-	Delete "$INSTDIR\libffi-6.dll"
+	Delete "$INSTDIR\libffi-7.dll"
 	Delete "$INSTDIR\libgtk-3-0.dll"
 	Delete "$INSTDIR\libgdk-3-0.dll"
 	Delete "$INSTDIR\libatk-1.0-0.dll"
@@ -240,6 +243,8 @@ Section Uninstall
 	Delete "$INSTDIR\libpangoft2-1.0-0.dll"
 	Delete "$INSTDIR\libpangowin32-1.0-0.dll"
 	Delete "$INSTDIR\liblzma-5.dll"
+	Delete "$INSTDIR\libssh2-1.dll"
+	Delete "$INSTDIR\libzstd.dll"
 
 	Delete "$INSTDIR\docs\README.txt"
 	Delete "$INSTDIR\docs\CHANGELOG.txt"
@@ -250,6 +255,7 @@ Section Uninstall
 	Delete "$INSTDIR\docs\MIT_LICENSE.txt"
 	Delete "$INSTDIR\docs\Apache_LICENSE.txt"
 
+	Delete "$INSTDIR\pixmaps\encrypt_key.png"
 	Delete "$INSTDIR\pixmaps\encrypt_button.png"
 	Delete "$INSTDIR\pixmaps\encrypt.png"
 
