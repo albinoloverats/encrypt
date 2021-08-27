@@ -308,6 +308,8 @@ int main(int argc, char **argv)
 			INIT_WIDGET(progress_cancel_button);
 			INIT_WIDGET(progress_close_button);
 			INIT_WIDGET(about_dialog);
+			INIT_WIDGET(about_version_build_info);
+			INIT_WIDGET(build_info_text_buffer);
 			INIT_WIDGET(about_new_version_label);
 			INIT_WIDGET(compress_menu_item);
 			INIT_WIDGET(follow_menu_item);

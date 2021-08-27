@@ -122,6 +122,7 @@
 			<placeholder/>
 		</child>
 	</object>
+	<object class="GtkTextBuffer" id="build_info_text_buffer"/>
 	<object class="GtkAboutDialog" id="about_dialog">
 		<property name="width_request">320</property>
 		<property name="height_request">240</property>
@@ -159,7 +160,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</property>
 		<property name="authors">
 encrypt was written by Ashley Anderson
-http://ashley.anderson.io/
+https://ashley.anderson.io/
 
 libgcrypt and libgpg-error are part of GNU
 http://www.gnu.org/software/libgcrypt/
@@ -192,8 +193,27 @@ https://commons.wikimedia.org/wiki/Category:SVG_Crystal_Clear_icons</property>
 					</packing>
 				</child>
 				<child>
+					<object class="GtkTextView" id="about_version_build_info">
+						<property name="height-request">240</property>
+						<property name="visible">True</property>
+						<property name="can_focus">False</property>
+						<property name="editable">False</property>
+						<property name="cursor-visible">False</property>
+						<property name="buffer">build_info_text_buffer</property>
+						<property name="accepts-tab">False</property>
+						<property name="input-purpose">terminal</property>
+						<property name="monospace">True</property>
+					</object>
+					<packing>
+						<property name="expand">False</property>
+						<property name="fill">True</property>
+						<property name="position">2</property>
+					</packing>
+				</child>
+				<child>
 					<object class="GtkLabel" id="about_new_version_label">
 						<property name="visible">True</property>
+						<property name="sensitive">False</property>
 						<property name="can_focus">False</property>
 						<property name="justify">center</property>
 					</object>
@@ -429,7 +449,6 @@ processes your file</property>
 												<property name="can_focus">False</property>
 												<property name="label">_Follow Symlinks</property>
 												<property name="use_underline">True</property>
-												<property name="sensitive">False</property>
 												<signal name="toggled" handler="on_follow_toggle" swapped="no"/>
 											</object>
 										</child>

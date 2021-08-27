@@ -31,6 +31,7 @@
 #include <stdbool.h>
 #include <inttypes.h>
 
+#include <gcrypt.h> // figure out how to get the gcrypt info without including the header
 #include <curl/curl.h>
 #include <pthread.h>
 
@@ -74,6 +75,7 @@
 #define TIMEOUT 10
 
 static void version_format(int i, char *id, char *value);
+static void version_format_line(char **buffer, int x, int i, char *id, char *value);
 static void version_download_latest(char *);
 static void version_install_latest(char *);
 static void *version_check(void *);
@@ -116,12 +118,12 @@ extern void version_print(char *name, char *version, char *url)
 	version_format(i, _("cflags"),     ALL_CFLAGS);
 	version_format(i, _("cppflags"),   ALL_CPPFLAGS);
 	version_format(i, _("runtime"),    runtime);
-#ifdef GCRYPT_VERSION
+//#ifdef GCRYPT_VERSION
 	char *gcv = NULL;
 	asprintf(&gcv, "%s (compiled) %s (runtime)", GCRYPT_VERSION, gcry_check_version(NULL));
 	version_format(i, _("libgcrypt"), gcv);
 	free(gcv);
-#endif
+//#endif
 	free(av);
 	free(git);
 	free(runtime);
@@ -134,6 +136,53 @@ extern void version_print(char *name, char *version, char *url)
 		cli_fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : url);
 	}
 	return;
+}
+
+extern char *version_build_info(void)
+{
+	char *info = NULL;
+
+	char *git = strndup(GIT_COMMIT, GIT_COMMIT_LENGTH);
+	char *runtime = NULL;
+#ifndef _WIN32
+	struct utsname un;
+	uname(&un);
+	asprintf(&runtime, "%s %s %s %s", un.sysname, un.release, un.version, un.machine);
+#else
+	asprintf(&runtime, "%s", windows_version());
+#endif
+
+#define AA_GW 80
+#define AA_GI 10
+
+	version_format_line(&info, AA_GW, AA_GI, _("built on"),   __DATE__ " " __TIME__);
+	version_format_line(&info, AA_GW, AA_GI, _("git commit"), git);
+	version_format_line(&info, AA_GW, AA_GI, _("build os"),   BUILD_OS);
+	version_format_line(&info, AA_GW, AA_GI, _("compiler"),   COMPILER);
+	version_format_line(&info, AA_GW, AA_GI, _("cflags"),     ALL_CFLAGS);
+	version_format_line(&info, AA_GW, AA_GI, _("cppflags"),   ALL_CPPFLAGS);
+	version_format_line(&info, AA_GW, AA_GI, _("runtime"),    runtime);
+
+	//asprintf(&info, "%s: %s\n", _("built on"),   __DATE__ " " __TIME__);
+	//asprintf(&info, "%s%s: %s\n", info, _("git commit"), git);
+	//asprintf(&info, "%s%s: %s\n", info, _("build os"),   BUILD_OS);
+	//asprintf(&info, "%s%s: %s\n", info, _("compiler"),   COMPILER);
+	//asprintf(&info, "%s%s: %s\n", info, _("cflags"),     ALL_CFLAGS);
+	//asprintf(&info, "%s%s: %s\n", info, _("cppflags"),   ALL_CPPFLAGS);
+	//asprintf(&info, "%s%s: %s\n", info, _("runtime"),    runtime);
+
+//#ifdef GCRYPT_VERSION
+	char *gcv = NULL;
+	asprintf(&gcv, "%s (compiled) %s (runtime)", GCRYPT_VERSION, gcry_check_version(NULL));
+	//asprintf(&info, "%s%s: %s\n", info, _("libgcrypt"), gcv);
+	version_format_line(&info, AA_GW, AA_GI, _("libgcrypt"), gcv);
+	free(gcv);
+//#endif
+
+	free(git);
+	free(runtime);
+
+	return info;
 }
 
 extern void version_check_for_update(char *current_version, char *check_url, char *download_url)
@@ -331,5 +380,36 @@ static void version_format(int i, char *id, char *value)
 	}
 
 	cli_fprintf(stderr, ANSI_COLOUR_RESET "\n");
+	return;
+}
+
+static void version_format_line(char **buffer, int x, int i, char *id, char *value)
+{
+	asprintf(buffer, "%s%*s: ", *buffer ? *buffer : "", i, id);
+	for (; isspace(*value); value++)
+		;
+	int l = strlen(value);
+	if (l < x)
+		asprintf(buffer, "%s%s", *buffer, value);
+	else
+	{
+		int s = 0;
+		do
+		{
+			int e = s + x;
+			if (e > l)
+				e = l;
+			else
+				for (; e > s; e--)
+					if (isspace(value[e]))
+						break;
+			if (s)
+				asprintf(buffer, "%s\n%*s  ", *buffer, i, " ");
+			asprintf(buffer, "%s%.*s", *buffer, e - s, value + s);
+			s = e + 1;
+		}
+		while (s < l);
+	}
+	asprintf(buffer, "%s\n", *buffer);
 	return;
 }
