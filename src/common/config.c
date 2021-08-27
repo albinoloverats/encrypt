@@ -288,7 +288,7 @@ end_line:
 								args[i].response_value.boolean = !args[i].response_value.boolean;
 								break;
 
-							/* TODO extend hanlding of lists and pairs and list of pairs... */
+							/* TODO extend handling of lists and pairs and list of pairs... */
 
 							case CONFIG_ARG_LIST_STRING:
 								args[i].response_value.list.count++;
@@ -373,9 +373,12 @@ inline static void print_usage(config_arg_t *args, config_extra_t *extra)
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
 	size_t x = ws.ws_col - strlen(about.name) - 2;
 #else
-	//CONSOLE_SCREEN_BUFFER_INFO csbi;
-	//GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-	size_t x = 77 - strlen(about.name);// (csbi.srWindow.Right - csbi.srWindow.Left + 1) - width - 2;
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+	int w = (csbi.srWindow.Right - csbi.srWindow.Left + 1) - strlen(about.name) - 2;
+	if (w <= 0)
+		w = 77 - strlen(about.name); // needed for MSYS2
+	size_t x = (size_t)w;
 #endif
 	format_section(_("Usage"));
 	cli_fprintf(stderr, "  " ANSI_COLOUR_GREEN "%s", about.name);
@@ -451,9 +454,11 @@ static void print_option(int width, char sopt, char *lopt, char *type, bool req,
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
 	int x = ws.ws_col - width - 2;
 #else
-	//CONSOLE_SCREEN_BUFFER_INFO csbi;
-	//GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-	int x = 77 - width;// (csbi.srWindow.Right - csbi.srWindow.Left + 1) - width - 2;
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+	int x = (csbi.srWindow.Right - csbi.srWindow.Left + 1) - width - 2;
+	if (x <= 0)
+		x = 77 - width; // needed for MSYS2
 #endif
 	for (; isspace(*desc); desc++)
 		;
@@ -486,16 +491,18 @@ static void print_option(int width, char sopt, char *lopt, char *type, bool req,
 
 static void print_notes(char *line)
 {
-	cli_fprintf(stderr, "  • ");
-	//fprintf(stderr, "  • %s\n", notes[i]);
 #ifndef _WIN32
+	cli_fprintf(stderr, "  • ");
 	struct winsize ws;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
 	int x = ws.ws_col - 5;
 #else
-	//CONSOLE_SCREEN_BUFFER_INFO csbi;
-	//GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-	int x = 72;// (csbi.srWindow.Right - csbi.srWindow.Left + 1) - width - 2;
+	cli_fprintf(stderr, "  * ");
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+	int x = (csbi.srWindow.Right - csbi.srWindow.Left + 1) - 5;
+	if (x <= 0)
+		x = 72; // needed for MSYS2
 #endif
 	for (; isspace(*line); line++)
 		;

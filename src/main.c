@@ -94,7 +94,7 @@ int main(int argc, char **argv)
 
 	config_arg_t args[] =
 	{
-#ifdef BUILD_GUI
+#if defined BUILD_GUI && !defined _WIN32
 		{ 'g', "no-gui",         NULL,            _("Do not use the GUI, even if it’s available"),               CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
 #endif
 		{ 'u', "no-cli",         NULL,            _("Do not display the CLI progress bar"),                      CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
@@ -108,7 +108,11 @@ int main(int argc, char **argv)
 		{ 'x', "no-compress",    NULL,            _("Do not compress the plain text using the xz algorithm"),    CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
 		{ 'f', "follow",         NULL,            _("Follow symlinks, the default is to store the link itself"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
 		{ 'b', "back-compat",    _("version"),    _("Create an encrypted file that is backwards compatible"),    CONFIG_ARG_REQ_STRING,  { 0x0 }, false, true,  false },
+#ifndef _WIN32
 		{ 'r', "raw",            NULL,            _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situation"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false },
+#else
+		{ 'r', "raw",            NULL,            _("Don't generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situation"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false },
+#endif
 		{ 0x0, NULL, NULL, NULL, CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false }
 	};
 	config_extra_t extra[] =
@@ -132,7 +136,7 @@ int main(int argc, char **argv)
 		PROJECT_URL,
 		ENCRYPTRC
 	};
-#if !defined _WIN32
+#ifndef _WIN32
 	bool dude = false;
 	if (!strcmp(basename(argv[0]), DECRYPT))
 	{
@@ -140,7 +144,7 @@ int main(int argc, char **argv)
 		dude = true;
 
 		int a = 0;
-#ifdef BUILD_GUI
+#if defined BUILD_GUI
 		a++;
 #endif
 		args[++a].hidden = true;
@@ -164,7 +168,7 @@ int main(int argc, char **argv)
 	char *output   = extra[1].response_value.string;
 
 	int a = -1;
-#ifdef BUILD_GUI
+#if defined BUILD_GUI && !defined _WIN32
 	bool gui       = !args[++a].response_value.boolean; // gui by default unless --no-gui is specified
 #endif
 	bool cli       = args[++a].response_value.boolean;
@@ -236,7 +240,6 @@ int main(int argc, char **argv)
 	else
 	{
 	#else
-		(void)gui;
 		(void)cli;
 	#endif /* ! _WIN32 */
 

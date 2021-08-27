@@ -299,9 +299,11 @@ static void version_format(int i, char *id, char *value)
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
 	int x = ws.ws_col - i - 2;
 #else
-	//CONSOLE_SCREEN_BUFFER_INFO csbi;
-	//GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-	int x = 77 - i;// (csbi.srWindow.Right - csbi.srWindow.Left + 1) - i - 2;
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+	int x = (csbi.srWindow.Right - csbi.srWindow.Left + 1) - i - 2;
+	if (x <= 0)
+		x = 77 - i; // needed for MSYS2
 #endif
 	for (; isspace(*value); value++)
 		;
