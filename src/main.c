@@ -84,6 +84,7 @@ int main(int argc, char **argv)
 	setbuf(stderr, NULL);
 	program_invocation_short_name = dir_get_name(argv[0]);
 #endif
+#ifndef __DEBUG
 	/*
 	 * start background thread to check for newer version of encrypt
 	 *
@@ -91,6 +92,7 @@ int main(int argc, char **argv)
 	 * distros this can/should be removed as it will be unnecessary
 	 */
 	version_check_for_update(ENCRYPT_VERSION, UPDATE_URL, DOWNLOAD_URL_TEMPLATE);
+#endif
 
 	config_arg_t args[] =
 	{
@@ -140,7 +142,7 @@ int main(int argc, char **argv)
 	bool dude = false;
 	if (!strcmp(basename(argv[0]), DECRYPT))
 	{
-		about.name = strdup(DECRYPT);
+		about.name = DECRYPT;
 		dude = true;
 
 		int a = 0;
@@ -159,7 +161,7 @@ int main(int argc, char **argv)
 	}
 	else
 #endif
-		about.name = strdup(ENCRYPT);
+		about.name = ENCRYPT;
 	config_init(about);
 
 	config_parse(argc, argv, args, extra, notes);
