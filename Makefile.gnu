@@ -29,37 +29,37 @@ debug: cli-debug
 cli:
 	 @echo "#define ALL_CFLAGS   \"$(strip $(subst \",\',"${CLI_CFLAGS}"))\""    > ${MISC}
 	 @echo "#define ALL_CPPFLAGS \"$(strip $(subst \",\',"${CLI_CPPFLAGS}"))\"" >> ${MISC}
-	 @${CC} ${CLI_LIBS} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC} -o ${APP}
+	 @${CC} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC} ${CLI_LIBS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${CLI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 cli-debug:
 	 @echo "#define ALL_CFLAGS   \"$(strip $(subst \",\',"${CLI_CFLAGS}   ${DEBUG_CFLAGS}"))\""    > ${MISC}
 	 @echo "#define ALL_CPPFLAGS \"$(strip $(subst \",\',"${CLI_CPPFLAGS} ${DEBUG_CPPFLAGS}"))\"" >> ${MISC}
-	 @${CC} ${CLI_LIBS} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC} ${DEBUG_CFLAGS} ${DEBUG_CPPFLAGS} -o ${APP}
+	 @${CC} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC} ${CLI_LIBS} ${DEBUG_CFLAGS} ${DEBUG_CPPFLAGS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${CLI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 cli-debug-with-encryption:
 	 @echo "#define ALL_CFLAGS   \"$(strip $(subst \",\',"${CLI_CFLAGS} ${DEBUG_CFLAGS}"))\"" > ${MISC}
 	 @echo "#define ALL_CPPFLAGS \"$(strip $(subst \",\',"${CLI_CPPFLAGS} ${DEBUG_ENC}"))\"" >> ${MISC}
-	 @${CC} ${CLI_LIBS} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC} ${DEBUG_CFLAGS} ${DEBUG_ENC}      -o ${APP}
+	 @${CC} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC} ${CLI_LIBS} ${DEBUG_CFLAGS} ${DEBUG_ENC}      -o ${APP}
 	-@echo -e "built ‘`echo -e ${CLI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 gui:
 	 @echo "#define ALL_CFLAGS   \"$(strip $(subst \",\',"${GUI_CFLAGS}"))\""    > ${MISC}
 	 @echo "#define ALL_CPPFLAGS \"$(strip $(subst \",\',"${GUI_CPPFLAGS}"))\"" >> ${MISC}
-	 @${CC} ${GUI_LIBS} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${GUI_SRC} -o ${APP}
+	 @${CC} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${GUI_SRC} ${GUI_LIBS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${GUI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 gui-debug:
 	 @echo "#define ALL_CFLAGS   \"$(strip $(subst \",\',"${GUI_CFLAGS}   ${DEBUG_CFLAGS}"))\""    > ${MISC}
 	 @echo "#define ALL_CPPFLAGS \"$(strip $(subst \",\',"${GUI_CPPFLAGS} ${DEBUG_CPPFLAGS}"))\"" >> ${MISC}
-	 @${CC} ${GUI_LIBS} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${GUI_SRC} ${DEBUG_CFLAGS} ${DEBUG_CPPFLAGS} -o ${APP}
+	 @${CC} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${GUI_SRC} ${GUI_LIBS} ${DEBUG_CFLAGS} ${DEBUG_CPPFLAGS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${GUI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 gui-debug-with-encryption:
 	 @echo "#define ALL_CFLAGS   \"$(strip $(subst \",\',"${GUI_CFLAGS} ${DEBUG_CFLAGS}"))\"" > ${MISC}
 	 @echo "#define ALL_CPPFLAGS \"$(strip $(subst \",\',"${GUI_CPPFLAGS} ${DEBUG_ENC}"))\"" >> ${MISC}
-	 @${CC} ${GUI_LIBS} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${GUI_SRC} ${DEBUG_CFLAGS} ${DEBUG_ENC}      -o ${APP}
+	 @${CC} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${GUI_SRC} ${GUI_LIBS} ${DEBUG_CFLAGS} ${DEBUG_ENC}      -o ${APP}
 	-@echo -e "built ‘`echo -e ${GUI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 language:
