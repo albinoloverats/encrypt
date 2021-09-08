@@ -83,13 +83,6 @@ typedef struct gtk_widgets_t
 }
 gtk_widgets_t;
 
-typedef enum
-{
-	KEY_SOURCE_FILE,
-	KEY_SOURCE_PASSWORD
-}
-key_source_e;
-
 extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash, char *mode, char *mac, uint64_t iter);
 extern void set_compatibility_menu(gtk_widgets_t *data, char *version);
 extern void set_key_source_menu(gtk_widgets_t *data, key_source_e key_source);

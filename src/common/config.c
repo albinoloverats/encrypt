@@ -247,7 +247,7 @@ end_line:
 		/*
 		 * parse command line options
 		 */
-		while (true)
+		while (argc && argv)
 		{
 			int index = 0;
 			int c = getopt_long(argc, argv, short_options, long_options, &index);

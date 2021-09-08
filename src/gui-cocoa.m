@@ -33,11 +33,11 @@
 #import "version.h"
 #import "error.h"
 #import "ccrypt.h"
+#import "config.h"
 
 #import "crypt.h"
 #import "encrypt.h"
 #import "decrypt.h"
-#import "init.h"
 
 @implementation AppDelegate
 
@@ -58,9 +58,37 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 {
 	version_check_for_update(ENCRYPT_VERSION, UPDATE_URL, DOWNLOAD_URL_TEMPLATE);
 
-	args_t args = init(0, NULL);
+	config_arg_t args[] =
+	{
+		{ 'c', "cipher",         _("algorithm"),  _("Algorithm to use to encrypt data"),                         CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
+		{ 's', "hash",           _("algorithm"),  _("Hash algorithm to generate key"),                           CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
+		{ 'm', "mode",           _("mode"),       _("The encryption mode to use"),                               CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
+		{ 'a', "mac",            _("mac"),        _("The MAC algorithm to use"),                                 CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
+		{ 'i', "kdf-iterations", _("iterations"), _("Number of iterations the KDF should use"),                  CONFIG_ARG_REQ_NUMBER,  { 0x0 }, false, false, false },
+		{ 'k', "key",            _("key file"),   _("File whose data will be used to generate the key"),         CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
+		{ 'x', "no-compress",    NULL,            _("Do not compress the plain text using the xz algorithm"),    CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
+		{ 'f', "follow",         NULL,            _("Follow symlinks, the default is to store the link itself"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
+		{ 'b', "back-compat",    _("version"),    _("Create an encrypted file that is backwards compatible"),    CONFIG_ARG_REQ_STRING,  { 0x0 }, false, true,  false },
+		{ 'r', "raw",            NULL,            _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situation"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false },
+		{ 0x0, NULL, NULL, NULL, CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false }
+	};
+	config_parse(0, NULL, args, NULL, NULL, false);
 
-	[self auto_select_algorithms:args.cipher:args.hash:args.mode:args.mac:args.kdf_iterations];
+	char *cipher =  args[0].response_value.string;
+	char *hash   =  args[1].response_value.string;
+	char *mode   =  args[2].response_value.string;
+	char *mac    =  args[3].response_value.string;
+	uint64_t kdf =  args[4].response_value.number;
+
+	char *key    =  args[5].response_value.string;
+
+	compress     = !args[6].response_value.boolean;
+	follow       =  args[7].response_value.boolean;
+
+	char *ver    =  args[8].response_value.string;
+	raw          =  args[9].response_value.boolean;
+
+	[self auto_select_algorithms:cipher:hash:mode:mac:kdf];
 
 	bool z = true;
 	for (NSMenuItem *m in [_sourceFileChooser itemArray])
@@ -121,17 +149,14 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 	}
 
 	/* set menu options based of config settings */
-	compress = args.compress;
-	[_compress setState:args.compress];
+	[_compress setState:compress];
 
-	follow = args.follow;
-	[_follow setState:args.follow];
+	[_follow setState:follow];
 
-	raw = args.raw;
-	[_raw setState:args.raw];
+	[_raw setState:raw];
 	[self toggleButtons];
 
-	version = parse_version(args.version);
+	version = parse_version(ver);
 	for (version_e v = VERSION_CURRENT; v > VERSION_UNKNOWN; v--)
 	{
 		NSMenuItem *m = [[NSMenuItem alloc] initWithTitle:[NSString stringWithUTF8String:get_version_string(v)] action:@selector(versionToggle:) keyEquivalent:@""];
@@ -143,7 +168,8 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 		[_version addItem:m];
 	}
 
-	key_source = args.key_source;
+	if (!strcasecmp(key, "file"))
+		key_source = KEY_SOURCE_FILE;
 	[self keySourceToggle];
 
 	[_statusBar setStringValue:@STATUS_BAR_READY];

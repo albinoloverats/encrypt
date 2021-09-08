@@ -53,17 +53,6 @@
 
 #define NONE_SELECTED "(None)"
 
-#define CONF_COMPRESS       "compress"
-#define CONF_FOLLOW         "follow"
-#define CONF_KDF_ITERATIONS "kdf-iterations"
-#define CONF_KEY            "key"
-#define CONF_CIPHER         "cipher"
-#define CONF_HASH           "hash"
-#define CONF_MODE           "mode"
-#define CONF_MAC            "mac"
-#define CONF_VERSION        "version"
-#define CONF_SKIP_HEADER    "raw"
-
 char *KEY_SOURCE[] =
 {
 	"file",

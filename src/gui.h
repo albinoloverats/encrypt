@@ -27,9 +27,33 @@
 #define LABEL_DECRYPT "Decrypt"
 
 #define SELECT_CIPHER "Select Cipher Algorithm"
-#define SELECT_HASH "Select Hash Algorithm"
-#define SELECT_MODE "Select Cipher Mode"
-#define SELECT_MAC "Select MAC Algorithm"
+#define SELECT_HASH   "Select Hash Algorithm"
+#define SELECT_MODE   "Select Cipher Mode"
+#define SELECT_MAC    "Select MAC Algorithm"
+
+#define CONF_COMPRESS       "compress"
+#define CONF_FOLLOW         "follow"
+#define CONF_KDF_ITERATIONS "kdf-iterations"
+#define CONF_KEY            "key"
+#define CONF_CIPHER         "cipher"
+#define CONF_HASH           "hash"
+#define CONF_MODE           "mode"
+#define CONF_MAC            "mac"
+#define CONF_VERSION        "version"
+#define CONF_SKIP_HEADER    "raw"
+
+typedef enum
+{
+	KEY_SOURCE_FILE,
+	KEY_SOURCE_PASSWORD
+}
+key_source_e;
+
+extern char *KEY_SOURCE[] =
+{
+	"file",
+	"password"
+};
 
 extern char *gui_file_hack_source;
 extern char *gui_file_hack_output;
