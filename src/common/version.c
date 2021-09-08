@@ -64,6 +64,7 @@
 #include "common.h"
 #include "version.h"
 #include "cli.h"
+#include "ccrypt.h"
 
 #if __has_include("misc.h")
 	#include "misc.h"
@@ -120,7 +121,7 @@ extern void version_print(char *name, char *version, char *url)
 	version_format(i, _("runtime"),    runtime);
 //#ifdef GCRYPT_VERSION
 	char *gcv = NULL;
-	asprintf(&gcv, "%s (compiled) %s (runtime)", GCRYPT_VERSION, gcry_check_version(NULL));
+	asprintf(&gcv, "%s (compiled) %s (runtime) %s (required)", GCRYPT_VERSION, gcry_check_version(NULL), NEED_LIBGCRYPT_VERSION);
 	version_format(i, _("libgcrypt"), gcv);
 	free(gcv);
 //#endif
