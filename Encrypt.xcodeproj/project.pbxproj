@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2E3922E0164D0F970028986B /* init.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E3922DE164D0F970028986B /* init.c */; };
 		2E63273E1680B599002A0CB5 /* tlv.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E63273A1680B599002A0CB5 /* tlv.c */; };
 		2E63273F1680B599002A0CB5 /* version.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E63273C1680B599002A0CB5 /* version.c */; };
 		2E6327451680B5A8002A0CB5 /* decrypt.c in Sources */ = {isa = PBXBuildFile; fileRef = 2E6327421680B5A8002A0CB5 /* decrypt.c */; };
@@ -55,8 +54,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		2E3922DE164D0F970028986B /* init.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = init.c; sourceTree = "<group>"; };
-		2E3922DF164D0F970028986B /* init.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = init.h; sourceTree = "<group>"; };
 		2E63273A1680B599002A0CB5 /* tlv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tlv.c; sourceTree = "<group>"; };
 		2E63273B1680B599002A0CB5 /* tlv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tlv.h; sourceTree = "<group>"; };
 		2E63273C1680B599002A0CB5 /* version.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = version.c; sourceTree = "<group>"; };
@@ -109,6 +106,8 @@
 		ABE79DA71979B4DC00857369 /* crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = crypt.h; sourceTree = "<group>"; };
 		ABECEF131A362C42002BA1BA /* non-gnu.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "non-gnu.c"; sourceTree = "<group>"; };
 		ABECEF141A362C42002BA1BA /* non-gnu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "non-gnu.h"; sourceTree = "<group>"; };
+		ABF7402026E93D0200061C87 /* config.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = config.c; sourceTree = "<group>"; };
+		ABF7402126E93D0200061C87 /* config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -205,8 +204,6 @@
 				2E79E87C16831ED700F73B01 /* gui.h */,
 				2E6327421680B5A8002A0CB5 /* decrypt.c */,
 				2E6327431680B5A8002A0CB5 /* decrypt.h */,
-				2E3922DE164D0F970028986B /* init.c */,
-				2E3922DF164D0F970028986B /* init.h */,
 				2EA92F71161DDC58008DFF9B /* gui-cocoa.h */,
 				2EA92F72161DDC58008DFF9B /* gui-cocoa.m */,
 				2E96E2D5164129B200C50460 /* encrypt.c */,
@@ -220,6 +217,8 @@
 		2EA92F66161DDC58008DFF9B /* common */ = {
 			isa = PBXGroup;
 			children = (
+				ABF7402026E93D0200061C87 /* config.c */,
+				ABF7402126E93D0200061C87 /* config.h */,
 				AB5CDADA1BB080F300E10BB0 /* ccrypt.c */,
 				AB5CDADB1BB080F300E10BB0 /* ccrypt.h */,
 				AB5CDADC1BB080F300E10BB0 /* ecc.c */,
@@ -336,7 +335,6 @@
 				ABECEF151A362C42002BA1BA /* non-gnu.c in Sources */,
 				2E96E2D9164129B200C50460 /* error.c in Sources */,
 				2E96E2DB164129B200C50460 /* encrypt.c in Sources */,
-				2E3922E0164D0F970028986B /* init.c in Sources */,
 				2E63273E1680B599002A0CB5 /* tlv.c in Sources */,
 				ABD7EC1C1A34A45E000DB1AE /* cli.c in Sources */,
 				ABC4B1D41E8A9B1700645215 /* osx.m in Sources */,
