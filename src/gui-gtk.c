@@ -53,12 +53,6 @@
 
 #define NONE_SELECTED "(None)"
 
-char *KEY_SOURCE[] =
-{
-	"file",
-	"password"
-};
-
 /*
  * FIXME There has to be a way to make gtk_file_chooser_set_filename work
  * correctly
