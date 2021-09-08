@@ -41,6 +41,12 @@
 
 @implementation AppDelegate
 
+char *KEY_SOURCE[] =
+{
+	"file",
+	"password"
+};
+
 #if 0
 char *gui_file_hack_source = NULL;
 char *gui_file_hack_output = NULL;

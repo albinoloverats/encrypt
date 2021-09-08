@@ -49,11 +49,7 @@ typedef enum
 }
 key_source_e;
 
-extern char *KEY_SOURCE[] =
-{
-	"file",
-	"password"
-};
+extern char *KEY_SOURCE[];
 
 extern char *gui_file_hack_source;
 extern char *gui_file_hack_output;
