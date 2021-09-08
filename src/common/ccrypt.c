@@ -30,7 +30,7 @@
 #include "error.h"
 #include "ccrypt.h"
 
-#define NEED_LIBGCRYPT_VERSION "1.8.6"
+#define NEED_LIBGCRYPT_VERSION "1.7.10"
 
 static int algorithm_compare(const void *, const void *);
 
