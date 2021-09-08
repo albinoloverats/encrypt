@@ -11,7 +11,7 @@ GUI_SRC        = ${CLI_SRC} src/gui-gtk.c
 MISC           = src/common/misc.h
 
 CLI_CFLAGS     = ${CFLAGS} -Wall -std=gnu99 `libgcrypt-config --cflags` -pipe -O2 -Wformat=2
-CLI_CPPFLAGS   = ${CPPFLAGS} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DGIT_COMMIT=\"`git log | head -n1 | cut -f2 -d' '`\" -DBUILD_OS="`grep PRETTY_NAME /etc/os-release | cut -d= -f2`"
+CLI_CPPFLAGS   = ${CPPFLAGS} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DUSE_GCRYPT -DGIT_COMMIT=\"`git log | head -n1 | cut -f2 -d' '`\" -DBUILD_OS="`grep PRETTY_NAME /etc/os-release | cut -d= -f2`"
 GUI_CFLAGS     = ${CLI_CFLAGS} -pthread -I/usr/include/gtk-3.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib64/dbus-1.0/include -I/usr/include/gio-unix-2.0/ -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/harfbuzz -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
 GUI_CPPFLAGS   = ${CLI_CPPFLAGS} -DBUILD_GUI
 
