@@ -20,6 +20,18 @@
 		2EA92F7F161DDCFE008DFF9B /* encrypt.icns in Resources */ = {isa = PBXBuildFile; fileRef = 2EA92F7E161DDCFE008DFF9B /* encrypt.icns */; };
 		2EAD2143177C35AC0091EA3C /* fs.c in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD2141177C35AC0091EA3C /* fs.c */; };
 		AB02FAEE26EA248100B5F7F9 /* config.c in Sources */ = {isa = PBXBuildFile; fileRef = ABF7402026E93D0200061C87 /* config.c */; };
+		AB02FAF126EA252400B5F7F9 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB02FAF026EA252400B5F7F9 /* AppKit.framework */; };
+		AB02FAF326EA252A00B5F7F9 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB02FAF226EA252A00B5F7F9 /* Cocoa.framework */; };
+		AB02FAF526EA253100B5F7F9 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB02FAF426EA253100B5F7F9 /* CoreData.framework */; };
+		AB02FAF726EA253700B5F7F9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB02FAF626EA253700B5F7F9 /* Foundation.framework */; };
+		AB02FAFC26EA25EA00B5F7F9 /* libcurl.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB02FAF826EA25EA00B5F7F9 /* libcurl.4.dylib */; };
+		AB02FAFD26EA25EA00B5F7F9 /* libgpg-error.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB02FAF926EA25EA00B5F7F9 /* libgpg-error.0.dylib */; };
+		AB02FAFE26EA25EA00B5F7F9 /* libgcrypt.20.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB02FAFA26EA25EA00B5F7F9 /* libgcrypt.20.dylib */; };
+		AB02FAFF26EA25EA00B5F7F9 /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB02FAFB26EA25EA00B5F7F9 /* liblzma.5.dylib */; };
+		AB02FB0026EA41AE00B5F7F9 /* libcurl.4.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB02FAF826EA25EA00B5F7F9 /* libcurl.4.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		AB02FB0126EA41AE00B5F7F9 /* libgcrypt.20.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB02FAFA26EA25EA00B5F7F9 /* libgcrypt.20.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		AB02FB0226EA41AE00B5F7F9 /* libgpg-error.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB02FAF926EA25EA00B5F7F9 /* libgpg-error.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		AB02FB0326EA41AE00B5F7F9 /* liblzma.5.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB02FAFB26EA25EA00B5F7F9 /* liblzma.5.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		AB386AD71A362A840011FB54 /* dir.c in Sources */ = {isa = PBXBuildFile; fileRef = AB386AD51A362A840011FB54 /* dir.c */; };
 		AB5CDADE1BB080F300E10BB0 /* ccrypt.c in Sources */ = {isa = PBXBuildFile; fileRef = AB5CDADA1BB080F300E10BB0 /* ccrypt.c */; };
 		AB5CDADF1BB080F300E10BB0 /* ecc.c in Sources */ = {isa = PBXBuildFile; fileRef = AB5CDADC1BB080F300E10BB0 /* ecc.c */; };
@@ -37,6 +49,10 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				AB02FB0026EA41AE00B5F7F9 /* libcurl.4.dylib in CopyFiles */,
+				AB02FB0126EA41AE00B5F7F9 /* libgcrypt.20.dylib in CopyFiles */,
+				AB02FB0226EA41AE00B5F7F9 /* libgpg-error.0.dylib in CopyFiles */,
+				AB02FB0326EA41AE00B5F7F9 /* liblzma.5.dylib in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -67,6 +83,14 @@
 		2EAD2141177C35AC0091EA3C /* fs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fs.c; sourceTree = "<group>"; };
 		2EAD2142177C35AC0091EA3C /* fs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fs.h; sourceTree = "<group>"; };
 		AB02FAED26EA23E200B5F7F9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/Encrypt.xib; sourceTree = "<group>"; };
+		AB02FAF026EA252400B5F7F9 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		AB02FAF226EA252A00B5F7F9 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		AB02FAF426EA253100B5F7F9 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		AB02FAF626EA253700B5F7F9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		AB02FAF826EA25EA00B5F7F9 /* libcurl.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.4.dylib; path = /usr/local/Cellar/curl/7.78.0/lib/libcurl.4.dylib; sourceTree = "<group>"; };
+		AB02FAF926EA25EA00B5F7F9 /* libgpg-error.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libgpg-error.0.dylib"; path = "/usr/local/Cellar/libgpg-error/1.42/lib/libgpg-error.0.dylib"; sourceTree = "<group>"; };
+		AB02FAFA26EA25EA00B5F7F9 /* libgcrypt.20.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgcrypt.20.dylib; path = /usr/local/Cellar/libgcrypt/1.9.4/lib/libgcrypt.20.dylib; sourceTree = "<group>"; };
+		AB02FAFB26EA25EA00B5F7F9 /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = /usr/local/Cellar/xz/5.2.5/lib/liblzma.5.dylib; sourceTree = "<group>"; };
 		AB386AD51A362A840011FB54 /* dir.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dir.c; sourceTree = "<group>"; };
 		AB386AD61A362A840011FB54 /* dir.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dir.h; sourceTree = "<group>"; };
 		AB5CDADA1BB080F300E10BB0 /* ccrypt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ccrypt.c; sourceTree = "<group>"; };
@@ -92,6 +116,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB02FAFC26EA25EA00B5F7F9 /* libcurl.4.dylib in Frameworks */,
+				AB02FAFD26EA25EA00B5F7F9 /* libgpg-error.0.dylib in Frameworks */,
+				AB02FAFE26EA25EA00B5F7F9 /* libgcrypt.20.dylib in Frameworks */,
+				AB02FAFF26EA25EA00B5F7F9 /* liblzma.5.dylib in Frameworks */,
+				AB02FAF726EA253700B5F7F9 /* Foundation.framework in Frameworks */,
+				AB02FAF526EA253100B5F7F9 /* CoreData.framework in Frameworks */,
+				AB02FAF326EA252A00B5F7F9 /* Cocoa.framework in Frameworks */,
+				AB02FAF126EA252400B5F7F9 /* AppKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +157,7 @@
 				2E9BB3081642C47C00FF52DB /* pixmaps */,
 				2EA92F65161DDC58008DFF9B /* src */,
 				2EA92F5C161DDC58008DFF9B /* Products */,
+				AB02FAEF26EA252400B5F7F9 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 			usesTabs = 1;
@@ -185,6 +218,21 @@
 				ABC4B1D51E8A9B2800645215 /* osx.h */,
 			);
 			path = common;
+			sourceTree = "<group>";
+		};
+		AB02FAEF26EA252400B5F7F9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				AB02FAF826EA25EA00B5F7F9 /* libcurl.4.dylib */,
+				AB02FAFA26EA25EA00B5F7F9 /* libgcrypt.20.dylib */,
+				AB02FAF926EA25EA00B5F7F9 /* libgpg-error.0.dylib */,
+				AB02FAFB26EA25EA00B5F7F9 /* liblzma.5.dylib */,
+				AB02FAF626EA253700B5F7F9 /* Foundation.framework */,
+				AB02FAF426EA253100B5F7F9 /* CoreData.framework */,
+				AB02FAF226EA252A00B5F7F9 /* Cocoa.framework */,
+				AB02FAF026EA252400B5F7F9 /* AppKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -263,7 +311,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/sh\n\ninstall_name_tool -id @executable_path/../Frameworks/libcurl.4.dylib      ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libcurl.4.dylib\ninstall_name_tool -id @executable_path/../Frameworks/liblzma.5.dylib      ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/liblzma.5.dylib\ninstall_name_tool -id @executable_path/../Frameworks/libgcrypt.20.dylib   ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgcrypt.20.dylib\ninstall_name_tool -id @executable_path/../Frameworks/libgpg-error.0.dylib ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgpg-error.0.dylib\n\nchmod 755 ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libcurl.4.dylib\nchmod 755 ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/liblzma.5.dylib\nchmod 755 ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgcrypt.20.dylib\nchmod 755 ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgpg-error.0.dylib\n\ninstall_name_tool -change /usr/local/lib/libcurl.4.dylib      @executable_path/../Frameworks/libcurl.4.dylib      ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/MacOS/Encrypt\ninstall_name_tool -change /usr/local/lib/liblzma.5.dylib      @executable_path/../Frameworks/liblzma.5.dylib      ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/MacOS/Encrypt\ninstall_name_tool -change /usr/local/lib/libgcrypt.20.dylib   @executable_path/../Frameworks/libgcrypt.20.dylib   ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/MacOS/Encrypt\ninstall_name_tool -change /usr/local/lib/libgpg-error.0.dylib @executable_path/../Frameworks/libgpg-error.0.dylib ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/MacOS/Encrypt\ninstall_name_tool -change /usr/local/lib/libgpg-error.0.dylib @executable_path/../Frameworks/libgpg-error.0.dylib ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgcrypt.20.dylib";
+			shellScript = "#!/bin/sh\n\ninstall_name_tool -id @executable_path/../Frameworks/libcurl.4.dylib      ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libcurl.4.dylib\ninstall_name_tool -id @executable_path/../Frameworks/liblzma.5.dylib      ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/liblzma.5.dylib\ninstall_name_tool -id @executable_path/../Frameworks/libgcrypt.20.dylib   ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgcrypt.20.dylib\ninstall_name_tool -id @executable_path/../Frameworks/libgpg-error.0.dylib ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgpg-error.0.dylib\n\nchmod 755 ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libcurl.4.dylib\nchmod 755 ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/liblzma.5.dylib\nchmod 755 ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgcrypt.20.dylib\nchmod 755 ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgpg-error.0.dylib\n\ninstall_name_tool -change /usr/local/opt/curl/lib/libcurl.4.dylib @executable_path/../Frameworks/libcurl.4.dylib      ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/MacOS/Encrypt\ninstall_name_tool -change /usr/local/lib/liblzma.5.dylib          @executable_path/../Frameworks/liblzma.5.dylib      ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/MacOS/Encrypt\ninstall_name_tool -change /usr/local/lib/libgcrypt.20.dylib       @executable_path/../Frameworks/libgcrypt.20.dylib   ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/MacOS/Encrypt\ninstall_name_tool -change /usr/local/lib/libgpg-error.0.dylib     @executable_path/../Frameworks/libgpg-error.0.dylib ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/MacOS/Encrypt\ninstall_name_tool -change /usr/local/lib/libgpg-error.0.dylib     @executable_path/../Frameworks/libgpg-error.0.dylib ${BUILT_PRODUCTS_DIR}/Encrypt.app/Contents/Frameworks/libgcrypt.20.dylib\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
