@@ -78,7 +78,7 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 		{ 'r', "raw",            NULL,            _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situation"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false },
 		{ 0x0, NULL, NULL, NULL, CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false }
 	};
-	config_parse(0, NULL, args, NULL, NULL, false);
+	config_parse(0, NULL, args);
 
 	char *cipher =  args[0].response_value.string;
 	char *hash   =  args[1].response_value.string;
