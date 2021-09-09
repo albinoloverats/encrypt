@@ -62,7 +62,6 @@
 
 
 #define DECRYPT "decrypt"
-#define ENCRYPTRC ".encryptrc"
 
 
 extern char *gui_file_hack_source;

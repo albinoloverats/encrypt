@@ -52,6 +52,8 @@ char *gui_file_hack_source = NULL;
 char *gui_file_hack_output = NULL;
 #endif
 
+static char *source = NULL;
+static char *output = NULL;
 static bool encrypted = true;
 static bool compress = true;
 static bool follow = false;
@@ -64,8 +66,17 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 {
 	version_check_for_update(ENCRYPT_VERSION, UPDATE_URL, DOWNLOAD_URL_TEMPLATE);
 
-	config_arg_t args[] =
+	config_about_t about =
 	{
+		NULL,
+		ENCRYPT_VERSION,
+		PROJECT_URL,
+		ENCRYPTRC
+	};
+	config_init(about);
+
+	config_arg_t args[] =
+	{ // TODO If there's no CLI then remove the display text
 		{ 'c', "cipher",         _("algorithm"),  _("Algorithm to use to encrypt data"),                         CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
 		{ 's', "hash",           _("algorithm"),  _("Hash algorithm to generate key"),                           CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
 		{ 'm', "mode",           _("mode"),       _("The encryption mode to use"),                               CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
@@ -96,63 +107,19 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 
 	[self auto_select_algorithms:cipher:hash:mode:mac:kdf];
 
-	bool z = true;
-	for (NSMenuItem *m in [_sourceFileChooser itemArray])
-	{
-		const char *t = [[m title] UTF8String];
-		if (!strcmp(t, SELECT_FILE) || !strcmp(t, SELECT_OTHER))
-			continue;
-		else if (z && !strlen(t))
-		{
-			z = false;
-			continue;
-		}
-		[_sourceFileChooser removeItemWithTitle:[NSString stringWithUTF8String:t]];
-	}
-
 #if 0
 	if (gui_file_hack_source)
 	{
 		[_sourceFileChooser addItemWithTitle:[NSString stringWithUTF8String:basename(gui_file_hack_source)]];
 		[NSUserDefaults.standardUserDefaults setValue:[NSUserDefaults.standardUserDefaults valueForKeyPath:@SOURCE_FILE] forKeyPath:[NSString stringWithUTF8String:gui_file_hack_source]];
 	}
-#endif
 
-	z = true;
-	for (NSMenuItem *m in [_outputFileChooser itemArray])
-	{
-		const char *t = [[m title] UTF8String];
-		if (!strcmp(t, SELECT_FILE) || !strcmp(t, SELECT_NEW) || !strcmp(t, SELECT_OTHER))
-			continue;
-		else if (z && !strlen(t))
-		{
-			z = false;
-			continue;
-		}
-		[_outputFileChooser removeItemWithTitle:[NSString stringWithUTF8String:t]];
-	}
-
-#if 0
 	if (gui_file_hack_output)
 	{
 		[_outputFileChooser addItemWithTitle:[NSString stringWithUTF8String:gui_file_hack_output]];
 		[NSUserDefaults.standardUserDefaults setValue:[NSUserDefaults.standardUserDefaults valueForKeyPath:@OUTPUT_FILE] forKeyPath:[NSString stringWithUTF8String:gui_file_hack_output]];
 	}
 #endif
-
-	z = true;
-	for (NSMenuItem *m in [_keyFileChooser itemArray])
-	{
-		const char *t = [[m title] UTF8String];
-		if (!strcmp(t, SELECT_KEY) || !strcmp(t, SELECT_OTHER))
-			continue;
-		else if (z && !strlen(t))
-		{
-			z = false;
-			continue;
-		}
-		[_keyFileChooser removeItemWithTitle:[NSString stringWithUTF8String:t]];
-	}
 
 	/* set menu options based of config settings */
 	[_compress setState:compress];
@@ -174,7 +141,7 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 		[_version addItem:m];
 	}
 
-	if (!strcasecmp(key, "file"))
+	if (key && !strcasecmp(key, "file"))
 		key_source = KEY_SOURCE_FILE;
 	[self keySourceToggle];
 
@@ -229,20 +196,74 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 	update_config(CONF_VERSION, (char *)get_version_string(version));
 }
 
+- (IBAction)ioSourceChoosen:(id)pId
+{
+	NSOpenPanel *panel = [NSOpenPanel openPanel];
+	[panel setTitle:@"Open ..."];
+	[panel setCanChooseFiles:YES];
+	[panel setCanChooseDirectories:YES];
+	[panel setCanCreateDirectories:NO];
+	[panel setAllowsMultipleSelection:NO];
+
+	NSInteger clicked = [panel runModal];
+
+	if (source)
+		free(source);
+	else
+		source = NULL;
+
+	if (clicked == NSFileHandlingPanelOKButton)
+	{
+		NSString *name = [[[panel URL] filePathURL] lastPathComponent];
+		source = (char *)[[[panel URL] filePathURL] fileSystemRepresentation];
+		[_sourceFileButton setTitle:name];
+	}
+	else
+		[_sourceFileButton setTitle:@"Source"];
+
+	[self ioFileChoosen:pId];
+}
+
+- (IBAction)ioOutputChoosen:(id)pId
+{
+	NSOpenPanel *panel = [NSOpenPanel openPanel];
+	[panel setTitle:@"Save As ..."];
+	[panel setCanChooseFiles:YES];
+	[panel setCanChooseDirectories:YES];
+	[panel setCanCreateDirectories:NO];
+	[panel setAllowsMultipleSelection:NO];
+
+	NSInteger clicked = [panel runModal];
+
+	if (output)
+		free(output);
+	else
+		output = NULL;
+
+	if (clicked == NSFileHandlingPanelOKButton)
+	{
+		NSString *name = [[[panel URL] filePathURL] lastPathComponent];
+		output = (char *)[[[panel URL] filePathURL] fileSystemRepresentation];
+		[_outputFileButton setTitle:name];
+	}
+	else
+		[_outputFileButton setTitle:@"Destination"];
+
+	[self ioFileChoosen:pId];
+}
+
 - (IBAction)ioFileChoosen:(id)pId
 {
 	Boolean en = FALSE;
-	const char *open_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@SOURCE_FILE] UTF8String];
-	const char *save_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@OUTPUT_FILE] UTF8String];
 
-	if (!open_link || !strlen(open_link))
+	if (!source || !strlen(source))
 		goto clean_up;
 
 	char *open_file = NULL;
-	if (open_link[0] == '~')
-		asprintf(&open_file, "%s/%s", getenv("HOME"), open_link + 1);
+	if (source[0] == '~')
+		asprintf(&open_file, "%s/%s", getenv("HOME"), source + 1);
 	else
-		open_file = strdup(open_link);
+		open_file = strdup(source);
 	/*
 	 * check if the file is encrypted or not
 	 */
@@ -264,14 +285,14 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 	free(open_file);
 	[_singleButton setTitle:encrypted ? @LABEL_DECRYPT : @LABEL_ENCRYPT];
 
-	if (!save_link || !strlen(save_link))
+	if (!output || !strlen(output))
 		goto clean_up;
 
 	char *save_file = NULL;
-	if (save_link[0] == '~')
-		asprintf(&save_file, "%s/%s", getenv("HOME"), save_link + 1);
+	if (output[0] == '~')
+		asprintf(&save_file, "%s/%s", getenv("HOME"), output + 1);
 	else
-		save_file = strdup(save_link);
+		save_file = strdup(output);
 	/*
 	 * if the destination exists, it has to be a regular file
 	 */
@@ -358,7 +379,7 @@ clean_up:
 	[_keySourceFile setState:key_source == KEY_SOURCE_FILE ? NSOnState : NSOffState];
 	[_keySourcePassword setState:key_source == KEY_SOURCE_PASSWORD ? NSOnState : NSOffState];
 
-	[_keyFileChooserButton setHidden:key_source != KEY_SOURCE_FILE];
+	[_keyFileButton setHidden:key_source != KEY_SOURCE_FILE];
 	[_passwordField setHidden:key_source != KEY_SOURCE_PASSWORD];
 }
 

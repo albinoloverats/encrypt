@@ -42,8 +42,8 @@
 @property (strong, nonatomic) IBOutlet NSMenuItem *raw;
 @property (strong, nonatomic) IBOutlet NSMenu *version;
 
-@property (strong, nonatomic) IBOutlet NSPopUpButtonCell *sourceFileChooser;
-@property (strong, nonatomic) IBOutlet NSPopUpButtonCell *outputFileChooser;
+@property (strong, nonatomic) IBOutlet NSButton *sourceFileButton;
+@property (strong, nonatomic) IBOutlet NSButton *outputFileButton;
 
 @property (strong, nonatomic) IBOutlet NSPopUpButtonCell *cipherCombo;
 @property (strong, nonatomic) IBOutlet NSPopUpButtonCell *hashCombo;
@@ -56,7 +56,7 @@
 @property (strong, nonatomic) IBOutlet NSMenuItem *keySourceFile;
 @property (strong, nonatomic) IBOutlet NSMenuItem *keySourcePassword;
 
-@property (strong, nonatomic) IBOutlet NSPopUpButton *keyFileChooserButton;
+@property (strong, nonatomic) IBOutlet NSButton *keyFileButton;
 @property (strong, nonatomic) IBOutlet NSPopUpButtonCell *keyFileChooser;
 @property (strong, nonatomic) IBOutlet NSSecureTextField *passwordField;
 
@@ -88,8 +88,9 @@
 - (IBAction)followToggle:(id)pId;
 - (IBAction)versionToggle:(id)pId;
 
+- (IBAction)ioSourceChoosen:(id)pId;
+- (IBAction)ioOutputChoosen:(id)pId;
 
-- (IBAction)ioFileChoosen:(id)pId;
 - (IBAction)kdfStepperPushed:(id)pId;
 - (IBAction)keyFileChoosen:(id)pId;
 - (IBAction)passwordFieldUpdated:(id)pId;

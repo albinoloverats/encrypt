@@ -3,7 +3,6 @@
     <dependencies>
         <deployment version="101500" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="18122"/>
-        <plugIn identifier="com.apple.automator.AutomatorPalette" version="18122"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -140,36 +139,32 @@
                 <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                 <subviews>
-                    <amPathPopUpButton toolTip="File to Encrypt/Decrypt" verticalHuggingPriority="750" fixedFrame="YES" canChooseDirectories="YES" canChooseFiles="YES" canChooseExistingPaths="YES" showPlaceholder="YES" placeholder="Select File …" translatesAutoresizingMaskIntoConstraints="NO" id="545">
-                        <rect key="frame" x="73" y="357" width="175" height="26"/>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Zni-bq-ogD">
+                        <rect key="frame" x="69" y="333" width="182" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
-                        <amVariablePopUpButtonCell key="cell" type="push" title="Desktop" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" continuous="YES" state="on" borderStyle="border" tag="1004" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" id="546">
+                        <buttonCell key="cell" type="push" title="Source" bezelStyle="rounded" image="NSFolder" imagePosition="left" alignment="left" alternateImage="NSApplicationIcon" borderStyle="border" toolTip="Source File" imageScaling="proportionallyDown" inset="2" id="vPL-up-Q0w">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="menu"/>
-                            <menu key="menu" title="OtherViews" id="547"/>
-                        </amVariablePopUpButtonCell>
-                        <accessibility description="File to Encrypt/Decrypt"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <accessibility description="Select Source"/>
                         <connections>
-                            <action selector="ioFileChoosen:" target="494" id="809"/>
-                            <binding destination="737" name="path" keyPath="values.sourceFile" id="805"/>
+                            <action selector="ioSourceChoosen:" target="494" id="4UK-Hj-f9S"/>
                         </connections>
-                    </amPathPopUpButton>
-                    <amPathPopUpButton toolTip="Destination File" verticalHuggingPriority="750" fixedFrame="YES" canChooseDirectories="YES" canChooseFiles="YES" canChooseNewPaths="YES" canChooseExistingPaths="YES" showPlaceholder="YES" placeholder="Select File …" translatesAutoresizingMaskIntoConstraints="NO" id="554">
-                        <rect key="frame" x="73" y="327" width="175" height="26"/>
+                    </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nOI-Mv-HDR">
+                        <rect key="frame" x="69" y="305" width="182" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
-                        <amVariablePopUpButtonCell key="cell" type="push" title="Desktop" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" continuous="YES" state="on" borderStyle="border" tag="1004" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" id="555">
+                        <buttonCell key="cell" type="push" title="Destination" bezelStyle="rounded" image="NSFolder" imagePosition="left" alignment="left" alternateImage="NSApplicationIcon" borderStyle="border" toolTip="Source File" imageScaling="proportionallyDown" inset="2" id="fUU-WY-1cp">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="menu"/>
-                            <menu key="menu" title="OtherViews" id="556"/>
-                        </amVariablePopUpButtonCell>
-                        <accessibility description="Destination File"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <accessibility description="Select Destination"/>
                         <connections>
-                            <action selector="ioFileChoosen:" target="494" id="812"/>
-                            <binding destination="737" name="path" keyPath="values.outputFile" id="741"/>
+                            <action selector="ioOutputChoosen:" target="494" id="PIR-De-adn"/>
                         </connections>
-                    </amPathPopUpButton>
+                    </button>
                     <popUpButton toolTip="Select Cryptographic Algorithm" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="563">
-                        <rect key="frame" x="73" y="297" width="175" height="26"/>
+                        <rect key="frame" x="73" y="280" width="175" height="26"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <popUpButtonCell key="cell" type="push" title="Select Cipher Algorithm" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" enabled="NO" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" selectedItem="566" id="564">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -186,7 +181,7 @@
                         </connections>
                     </popUpButton>
                     <popUpButton toolTip="Select Secure Hash" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="577">
-                        <rect key="frame" x="73" y="267" width="175" height="26"/>
+                        <rect key="frame" x="73" y="253" width="175" height="26"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <popUpButtonCell key="cell" type="push" title="Select Hash Algorithm" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" enabled="NO" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="580" id="578">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -203,7 +198,7 @@
                         </connections>
                     </popUpButton>
                     <popUpButton toolTip="Select Cipher Mode" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="588">
-                        <rect key="frame" x="73" y="237" width="175" height="26"/>
+                        <rect key="frame" x="73" y="226" width="175" height="26"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <popUpButtonCell key="cell" type="push" title="Select Cipher Mode" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" enabled="NO" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="591" id="589">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -220,7 +215,7 @@
                         </connections>
                     </popUpButton>
                     <popUpButton toolTip="Select MAC Algorithm" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FXp-B1-Sh0">
-                        <rect key="frame" x="73" y="207" width="175" height="26"/>
+                        <rect key="frame" x="73" y="199" width="175" height="26"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <popUpButtonCell key="cell" type="push" title="Select MAC Algorithm" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" enabled="NO" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="YfG-Up-6JW" id="PLD-10-FBk">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -237,7 +232,7 @@
                         </connections>
                     </popUpButton>
                     <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="N05-AW-tgG">
-                        <rect key="frame" x="75" y="180" width="155" height="21"/>
+                        <rect key="frame" x="76" y="176" width="158" height="21"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" enabled="NO" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="KDF Iterations" bezelStyle="round" id="ds5-RA-4n9">
                             <numberFormatter key="formatter" formatterBehavior="default10_4" formatWidth="-1" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="q6l-C2-jvw">
@@ -252,38 +247,20 @@
                             <action selector="cipherHashSelected:" target="494" id="Tq8-O8-P23"/>
                         </connections>
                     </textField>
-                    <amPathPopUpButton hidden="YES" toolTip="Choose Key File" verticalHuggingPriority="750" fixedFrame="YES" canChooseFiles="YES" canChooseExistingPaths="YES" showStandardPaths="YES" showPlaceholder="YES" placeholder="Select Key …" translatesAutoresizingMaskIntoConstraints="NO" id="608">
-                        <rect key="frame" x="73" y="147" width="174" height="26"/>
+                    <button hidden="YES" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rOr-VC-vJ2">
+                        <rect key="frame" x="69" y="142" width="182" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
-                        <amVariablePopUpButtonCell key="cell" type="push" title="Desktop" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" continuous="YES" state="on" borderStyle="border" tag="1004" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" id="609">
+                        <buttonCell key="cell" type="push" title="Select Key" bezelStyle="rounded" image="NSFolder" imagePosition="left" alignment="left" alternateImage="NSApplicationIcon" enabled="NO" borderStyle="border" toolTip="Source File" imageScaling="proportionallyDown" inset="2" id="AMD-XR-LhF">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="menu"/>
-                            <menu key="menu" title="OtherViews" id="610"/>
-                        </amVariablePopUpButtonCell>
-                        <accessibility description="Choose Key File"/>
-                        <connections>
-                            <action selector="keyFileChoosen:" target="494" id="714"/>
-                            <binding destination="737" name="path" keyPath="values.keyFile" id="743"/>
-                        </connections>
-                    </amPathPopUpButton>
-                    <secureTextField toolTip="Enter Passphrase" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="615">
-                        <rect key="frame" x="75" y="150" width="170" height="22"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
-                        <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" enabled="NO" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="Password" usesSingleLineMode="YES" bezelStyle="round" id="616">
                             <font key="font" metaFont="system"/>
-                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                            <allowedInputSourceLocales>
-                                <string>NSAllRomanInputSourcesLocaleIdentifier</string>
-                            </allowedInputSourceLocales>
-                        </secureTextFieldCell>
-                        <accessibility description="Enter Passphrase"/>
+                        </buttonCell>
+                        <accessibility description="Select Key File"/>
                         <connections>
-                            <action selector="passwordFieldUpdated:" target="494" id="697"/>
+                            <action selector="keyFileChoosen:" target="494" id="SPo-hX-xjf"/>
                         </connections>
-                    </secureTextField>
+                    </button>
                     <button toolTip="Encrypt/Decrypt" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="622">
-                        <rect key="frame" x="69" y="113" width="182" height="32"/>
+                        <rect key="frame" x="69" y="114" width="182" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="push" title="Encrypt" alternateTitle="Decrypt" bezelStyle="rounded" image="encrypt" imagePosition="left" alignment="center" alternateImage="NSApplicationIcon" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="623">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -295,7 +272,7 @@
                         </connections>
                     </button>
                     <button toolTip="Decrypt" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aQQ-RM-pMq">
-                        <rect key="frame" x="159" y="113" width="92" height="32"/>
+                        <rect key="frame" x="159" y="114" width="92" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="push" title="Decrypt" bezelStyle="rounded" alignment="center" alternateImage="NSApplicationIcon" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="rrK-98-PAs">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -307,7 +284,7 @@
                         </connections>
                     </button>
                     <button toolTip="Encrypt" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9vI-kY-zkZ">
-                        <rect key="frame" x="69" y="113" width="92" height="32"/>
+                        <rect key="frame" x="69" y="114" width="92" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="push" title="Encrypt" bezelStyle="rounded" alignment="center" alternateImage="NSApplicationIcon" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="JqP-UV-sA0">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -328,13 +305,29 @@
                         </textFieldCell>
                     </textField>
                     <stepper horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="iFo-sm-rWf">
-                        <rect key="frame" x="230" y="180" width="13" height="22"/>
+                        <rect key="frame" x="234" y="176" width="13" height="20"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <stepperCell key="cell" continuous="YES" enabled="NO" alignment="left" maxValue="9.2233720368547758e+18" id="aUb-UW-BQb"/>
                         <connections>
                             <action selector="kdfStepperPushed:" target="494" id="636"/>
                         </connections>
                     </stepper>
+                    <secureTextField toolTip="Enter Passphrase" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="615">
+                        <rect key="frame" x="76" y="148" width="168" height="22"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                        <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" enabled="NO" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="Password" usesSingleLineMode="YES" bezelStyle="round" id="616">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                            <allowedInputSourceLocales>
+                                <string>NSAllRomanInputSourcesLocaleIdentifier</string>
+                            </allowedInputSourceLocales>
+                        </secureTextFieldCell>
+                        <accessibility description="Enter Passphrase"/>
+                        <connections>
+                            <action selector="passwordFieldUpdated:" target="494" id="697"/>
+                        </connections>
+                    </secureTextField>
                 </subviews>
             </view>
             <connections>
@@ -354,14 +347,13 @@
                 <outlet property="hashCombo" destination="578" id="695"/>
                 <outlet property="kdfIterate" destination="iFo-sm-rWf" id="635"/>
                 <outlet property="kdfIterations" destination="N05-AW-tgG" id="634"/>
-                <outlet property="keyFileChooser" destination="609" id="701"/>
-                <outlet property="keyFileChooserButton" destination="608" id="813"/>
+                <outlet property="keyFileButton" destination="rOr-VC-vJ2" id="ygA-Kb-Emr"/>
                 <outlet property="keySource" destination="jOI-uh-YrC" id="ybR-qX-6Os"/>
                 <outlet property="keySourceFile" destination="0YY-DZ-NeN" id="Cw6-GV-B0v"/>
                 <outlet property="keySourcePassword" destination="O26-0S-kyu" id="LZi-Ve-TtQ"/>
                 <outlet property="macCombo" destination="PLD-10-FBk" id="1d3-Xk-XSs"/>
                 <outlet property="modeCombo" destination="589" id="0r3-Xk-CJs"/>
-                <outlet property="outputFileChooser" destination="555" id="732"/>
+                <outlet property="outputFileButton" destination="nOI-Mv-HDR" id="Q3h-Us-QHs"/>
                 <outlet property="passwordField" destination="615" id="683"/>
                 <outlet property="percent_current" destination="786" id="789"/>
                 <outlet property="percent_total" destination="780" id="784"/>
@@ -371,7 +363,7 @@
                 <outlet property="progress_total" destination="763" id="783"/>
                 <outlet property="raw" destination="ccE-IP-qh9" id="eiD-5L-ero"/>
                 <outlet property="singleButton" destination="622" id="iTY-aR-bZQ"/>
-                <outlet property="sourceFileChooser" destination="546" id="731"/>
+                <outlet property="sourceFileButton" destination="Zni-bq-ogD" id="8ot-Zs-lMR"/>
                 <outlet property="statusBar" destination="769" id="771"/>
                 <outlet property="version" destination="ASa-YP-e7O" id="UJx-rL-CQA"/>
                 <outlet property="window" destination="371" id="532"/>
@@ -497,6 +489,7 @@ Gw
     </objects>
     <resources>
         <image name="NSApplicationIcon" width="32" height="32"/>
+        <image name="NSFolder" width="32" height="32"/>
         <image name="NSInfo" width="32" height="32"/>
         <image name="NSStopProgressFreestandingTemplate" width="15" height="15"/>
         <image name="encrypt" width="512" height="512"/>

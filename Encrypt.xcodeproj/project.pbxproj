@@ -32,6 +32,7 @@
 		AB02FB0126EA41AE00B5F7F9 /* libgcrypt.20.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB02FAFA26EA25EA00B5F7F9 /* libgcrypt.20.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		AB02FB0226EA41AE00B5F7F9 /* libgpg-error.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB02FAF926EA25EA00B5F7F9 /* libgpg-error.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		AB02FB0326EA41AE00B5F7F9 /* liblzma.5.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB02FAFB26EA25EA00B5F7F9 /* liblzma.5.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		AB02FB0526EA48C700B5F7F9 /* Automator.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB02FB0426EA48C700B5F7F9 /* Automator.framework */; };
 		AB386AD71A362A840011FB54 /* dir.c in Sources */ = {isa = PBXBuildFile; fileRef = AB386AD51A362A840011FB54 /* dir.c */; };
 		AB5CDADE1BB080F300E10BB0 /* ccrypt.c in Sources */ = {isa = PBXBuildFile; fileRef = AB5CDADA1BB080F300E10BB0 /* ccrypt.c */; };
 		AB5CDADF1BB080F300E10BB0 /* ecc.c in Sources */ = {isa = PBXBuildFile; fileRef = AB5CDADC1BB080F300E10BB0 /* ecc.c */; };
@@ -91,6 +92,9 @@
 		AB02FAF926EA25EA00B5F7F9 /* libgpg-error.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libgpg-error.0.dylib"; path = "/usr/local/Cellar/libgpg-error/1.42/lib/libgpg-error.0.dylib"; sourceTree = "<group>"; };
 		AB02FAFA26EA25EA00B5F7F9 /* libgcrypt.20.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgcrypt.20.dylib; path = /usr/local/Cellar/libgcrypt/1.9.4/lib/libgcrypt.20.dylib; sourceTree = "<group>"; };
 		AB02FAFB26EA25EA00B5F7F9 /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = /usr/local/Cellar/xz/5.2.5/lib/liblzma.5.dylib; sourceTree = "<group>"; };
+		AB02FB0426EA48C700B5F7F9 /* Automator.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Automator.framework; path = System/Library/Frameworks/Automator.framework; sourceTree = SDKROOT; };
+		AB02FB0626EA4A9F00B5F7F9 /* FileProvider.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FileProvider.framework; path = System/Library/Frameworks/FileProvider.framework; sourceTree = SDKROOT; };
+		AB02FB0726EA4A9F00B5F7F9 /* FileProviderUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FileProviderUI.framework; path = System/Library/Frameworks/FileProviderUI.framework; sourceTree = SDKROOT; };
 		AB386AD51A362A840011FB54 /* dir.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dir.c; sourceTree = "<group>"; };
 		AB386AD61A362A840011FB54 /* dir.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dir.h; sourceTree = "<group>"; };
 		AB5CDADA1BB080F300E10BB0 /* ccrypt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ccrypt.c; sourceTree = "<group>"; };
@@ -120,10 +124,11 @@
 				AB02FAFD26EA25EA00B5F7F9 /* libgpg-error.0.dylib in Frameworks */,
 				AB02FAFE26EA25EA00B5F7F9 /* libgcrypt.20.dylib in Frameworks */,
 				AB02FAFF26EA25EA00B5F7F9 /* liblzma.5.dylib in Frameworks */,
-				AB02FAF726EA253700B5F7F9 /* Foundation.framework in Frameworks */,
-				AB02FAF526EA253100B5F7F9 /* CoreData.framework in Frameworks */,
-				AB02FAF326EA252A00B5F7F9 /* Cocoa.framework in Frameworks */,
 				AB02FAF126EA252400B5F7F9 /* AppKit.framework in Frameworks */,
+				AB02FB0526EA48C700B5F7F9 /* Automator.framework in Frameworks */,
+				AB02FAF326EA252A00B5F7F9 /* Cocoa.framework in Frameworks */,
+				AB02FAF526EA253100B5F7F9 /* CoreData.framework in Frameworks */,
+				AB02FAF726EA253700B5F7F9 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -223,6 +228,9 @@
 		AB02FAEF26EA252400B5F7F9 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AB02FB0626EA4A9F00B5F7F9 /* FileProvider.framework */,
+				AB02FB0726EA4A9F00B5F7F9 /* FileProviderUI.framework */,
+				AB02FB0426EA48C700B5F7F9 /* Automator.framework */,
 				AB02FAF826EA25EA00B5F7F9 /* libcurl.4.dylib */,
 				AB02FAFA26EA25EA00B5F7F9 /* libgcrypt.20.dylib */,
 				AB02FAF926EA25EA00B5F7F9 /* libgpg-error.0.dylib */,
