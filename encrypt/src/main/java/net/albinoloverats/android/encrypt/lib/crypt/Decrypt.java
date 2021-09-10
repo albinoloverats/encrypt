@@ -52,7 +52,7 @@ public class Decrypt extends Crypto
 		final String source = intent.getStringExtra("source");
 		final String output = intent.getStringExtra("output");
 		key = intent.getByteArrayExtra("key");
-		raw  = intent.getBooleanExtra("raw", raw);
+		raw = intent.getBooleanExtra("raw", raw);
 
 		try
 		{
@@ -118,6 +118,7 @@ public class Decrypt extends Crypto
 					kdfIterations = KDF_ITERATIONS_201709;
 					break;
 				case _202001:
+				case _202110:
 				case CURRENT:
 					//kdfIterations = KDF_ITERATIONS_DEFAULT;
 					break;
@@ -259,7 +260,7 @@ public class Decrypt extends Crypto
 
 	private void readVerificationSum() throws CryptoProcessException, IOException
 	{
-		final byte buffer[] = new byte[Long.SIZE / Byte.SIZE];
+		final byte[] buffer = new byte[Long.SIZE / Byte.SIZE];
 		readAndHash(buffer);
 		final long x = Convert.longFromBytes(buffer);
 		readAndHash(buffer);
@@ -343,7 +344,7 @@ public class Decrypt extends Crypto
 		{
 			byte[] b = new byte[Byte.SIZE / Byte.SIZE];
 			readAndHash(b);
-			final FileType t = FileType.fromID((int)b[0]);
+			final FileType t = FileType.fromID(b[0]);
 			b = new byte[Long.SIZE / Byte.SIZE];
 			readAndHash(b);
 			long l = Convert.longFromBytes(b);
@@ -385,8 +386,8 @@ public class Decrypt extends Crypto
 						FileChannel dfc = null;
 						try
 						{
-							sfc = new FileInputStream(new File(ln)).getChannel();
-							dfc = new FileOutputStream(new File(nm)).getChannel();
+							sfc = new FileInputStream(ln).getChannel();
+							dfc = new FileOutputStream(nm).getChannel();
 							dfc.transferFrom(sfc, 0, sfc.size());
 						}
 						finally

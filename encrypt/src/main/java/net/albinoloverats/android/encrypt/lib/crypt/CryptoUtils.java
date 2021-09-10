@@ -116,7 +116,7 @@ public abstract class CryptoUtils
 			final String n = ((String)o).replace("-", "").toUpperCase(Locale.ENGLISH);
 			if (n.equals("NULL") || n.length() > name.length())
 				continue;
-			if (name.substring(0, n.length()).equals(n))
+			if (name.startsWith(n))
 			{
 				final Set<Integer> keySizes = new TreeSet<>();
 				final IBlockCipher cipher = CipherFactory.getInstance(n);
@@ -145,7 +145,7 @@ public abstract class CryptoUtils
 			final String n = ((String)o).replace("-", "").toUpperCase(Locale.ENGLISH);
 			if (n.equals("NULL") || n.length() > name.length())
 				continue;
-			if (name.substring(0, n.length()).equals(n))
+			if (name.startsWith(n))
 			{
 				final Set<Integer> keySizes = new TreeSet<>();
 				final IBlockCipher cipher = CipherFactory.getInstance(n);

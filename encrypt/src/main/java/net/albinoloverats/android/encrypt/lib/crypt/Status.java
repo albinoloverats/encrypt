@@ -42,7 +42,7 @@ public enum Status
 	FAILED_OTHER("Failed An unknown error has occurred!"),
 	/* warnings - decryption finished but with possible errors */
 	WARNING_CHECKSUM("Warning: Bad checksum!\n(Possible data corruption)"),
-	WARNING_LINK("Warning: Could not extract all files!\n(Links are unsupported");
+	WARNING_LINK("Warning: Could not extract all files!\n(Symlinks are unsupported");
 
 	final public String message;
 
@@ -62,6 +62,6 @@ public enum Status
 	@Override
 	public String toString()
 	{
-		return message.substring(0, 1) + message.substring(1).replace('_', ' ').toLowerCase();
+		return message.charAt(0) + message.substring(1).replace('_', ' ').toLowerCase();
 	}
 }

@@ -41,24 +41,18 @@ import gnu.crypto.mode.ModeFactory;
 import gnu.crypto.prng.LimitReachedException;
 import gnu.crypto.util.PRNG;
 
-/*
- * If, and when, Android supports Java7 NIO:
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
- */
 
 public class Encrypt extends Crypto
 {
 	private String root = "";
-	/*
-	 * If, and when, Android supports Java7 NIO:
-	private boolean follow = false;
-	private Map<Long, Path> inodes = new HashMap<>();
-	 */
+	private final boolean follow = false;
+	private final Map<Long, Path> inodes = new HashMap<>();
 
 	@Override
 	public int onStartCommand(final Intent intent, final int flags, final int startId)
@@ -139,6 +133,7 @@ public class Encrypt extends Crypto
 				kdfIterations = KDF_ITERATIONS_201709;
 				break;
 			case _202001:
+			case _202110:
 			case CURRENT:
 				if (kdfIterations == 0)
 					kdfIterations = KDF_ITERATIONS_DEFAULT;
@@ -282,7 +277,7 @@ public class Encrypt extends Crypto
 
 	private void writeVerificationSum() throws IOException
 	{
-		final byte buffer[] = new byte[Long.SIZE / Byte.SIZE];
+		final byte[] buffer = new byte[Long.SIZE / Byte.SIZE];
 		PRNG.nextBytes(buffer);
 		final long x = Convert.longFromBytes(buffer);
 		PRNG.nextBytes(buffer);
@@ -336,7 +331,7 @@ public class Encrypt extends Crypto
 	private int countEntries(final String dir) throws IOException
 	{
 		int c = 0;
-		final File[] files =  new File(dir).listFiles();
+		final File[] files = new File(dir).listFiles();
 		if (files == null)
 			return c;
 		for (final File file : files)
@@ -363,11 +358,8 @@ public class Encrypt extends Crypto
 
 	private void encryptDirectory(final String dir) throws IOException
 	{
-		/*
-		 *  If, and when, Android supports Java7 NIO:
 		final LinkOption linkOptions = follow ? null : LinkOption.NOFOLLOW_LINKS;
-		 */
-		final File[] files =  new File(dir).listFiles();
+		final File[] files = new File(dir).listFiles();
 		if (files == null)
 			return;
 		for (final File file : files)
@@ -376,12 +368,6 @@ public class Encrypt extends Crypto
 				break;
 
 			final FileType ft;
-			if (file.isDirectory())
-				ft = FileType.DIRECTORY;
-			else if (file.isFile())
-				ft = FileType.REGULAR;
-			/*
-			 *  If, and when, Android supports Java7 NIO:
 			final Path p = FileSystems.getDefault().getPath(file.getPath());
 			Path ln = null;
 			if (Files.isDirectory(p, linkOptions))
@@ -405,7 +391,6 @@ public class Encrypt extends Crypto
 				ft = FileType.SYMLINK;
 				ln = Files.readSymbolicLink(p);
 			}
-			 */
 			else
 				continue;
 
