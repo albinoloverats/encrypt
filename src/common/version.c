@@ -323,6 +323,8 @@ static void version_install_latest(char *u)
 #elif defined _WIN32
 	ShellExecute(NULL, "open", u, NULL, NULL, SW_SHOWNORMAL);
 #endif
+#else
+	(void)u;
 #endif
 	return;
 }
