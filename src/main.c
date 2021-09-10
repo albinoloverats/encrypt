@@ -172,7 +172,7 @@ int main(int argc, char **argv)
 #if defined BUILD_GUI && !defined _WIN32
 	bool gui       = !args[++a].response_value.boolean; // gui by default unless --no-gui is specified
 #endif
-	bool cli       = args[++a].response_value.boolean;
+	bool cli       = !args[++a].response_value.boolean; // cli by default unless --no-cli is specified
 
 	char *cipher   = args[++a].response_value.string;
 	char *hash     = args[++a].response_value.string;
