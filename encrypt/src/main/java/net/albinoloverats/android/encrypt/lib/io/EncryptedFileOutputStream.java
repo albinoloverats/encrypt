@@ -20,16 +20,9 @@
 
 package net.albinoloverats.android.encrypt.lib.io;
 
-import gnu.crypto.cipher.IBlockCipher;
-import gnu.crypto.hash.IMessageDigest;
-import gnu.crypto.mac.HMac;
-import gnu.crypto.mac.IMac;
-import gnu.crypto.mode.IMode;
-import gnu.crypto.mode.ModeFactory;
-import gnu.crypto.prng.IPBE;
-import gnu.crypto.prng.LimitReachedException;
-import gnu.crypto.prng.PBKDF2;
-import gnu.crypto.util.PRNG;
+import net.albinoloverats.android.encrypt.lib.crypt.CryptoUtils;
+import net.albinoloverats.android.encrypt.lib.crypt.XIV;
+import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,9 +34,16 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.albinoloverats.android.encrypt.lib.crypt.CryptoUtils;
-import net.albinoloverats.android.encrypt.lib.crypt.XIV;
-import net.albinoloverats.android.encrypt.lib.misc.Convert;
+import gnu.crypto.cipher.IBlockCipher;
+import gnu.crypto.hash.IMessageDigest;
+import gnu.crypto.mac.HMac;
+import gnu.crypto.mac.IMac;
+import gnu.crypto.mode.IMode;
+import gnu.crypto.mode.ModeFactory;
+import gnu.crypto.prng.IPBE;
+import gnu.crypto.prng.LimitReachedException;
+import gnu.crypto.prng.PBKDF2;
+import gnu.crypto.util.PRNG;
 
 public class EncryptedFileOutputStream extends FileOutputStream
 {

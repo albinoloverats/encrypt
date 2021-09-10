@@ -23,24 +23,23 @@ package net.albinoloverats.android.encrypt.lib.crypt;
 import android.app.Service;
 import android.content.Intent;
 
-import gnu.crypto.mode.ModeFactory;
-import gnu.crypto.prng.LimitReachedException;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-
 import net.albinoloverats.android.encrypt.lib.io.EncryptedFileInputStream;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
 import org.tukaani.xz.XZFormatException;
 import org.tukaani.xz.XZInputStream;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+
+import gnu.crypto.mode.ModeFactory;
+import gnu.crypto.prng.LimitReachedException;
 
 public class Decrypt extends Crypto
 {
@@ -339,7 +338,6 @@ public class Decrypt extends Crypto
 
 	private void decryptDirectory(final String dir) throws CryptoProcessException, IOException
 	{
-		boolean linkError = false;
 		for (total.offset = 0; total.offset < total.size && status == Status.RUNNING; total.offset++)
 		{
 			byte[] b = new byte[Byte.SIZE / Byte.SIZE];
@@ -369,10 +367,6 @@ public class Decrypt extends Crypto
 					break;
 				case LINK:
 				case SYMLINK:
-					/*
-					 * When, or rather if, Android supports more
-					 * of Java NIO: we will handle links
-					 */
 					b = new byte[Long.SIZE / Byte.SIZE];
 					readAndHash(b);
 					l = Convert.longFromBytes(b);
@@ -380,31 +374,12 @@ public class Decrypt extends Crypto
 					readAndHash(b);
 					final String ln = dir + File.separator + new String(b);
 					if (t == FileType.LINK)
-					{
-						/* As with Windows, just copy the file */
-						FileChannel sfc = null;
-						FileChannel dfc = null;
-						try
-						{
-							sfc = new FileInputStream(ln).getChannel();
-							dfc = new FileOutputStream(nm).getChannel();
-							dfc.transferFrom(sfc, 0, sfc.size());
-						}
-						finally
-						{
-							if (sfc != null)
-								sfc.close();
-							if (dfc != null)
-								dfc.close();
-						}
-					}
+						Files.createLink(new File(nm).toPath(), new File(ln).toPath());
 					else
-						linkError = true;
+						Files.createSymbolicLink(new File(nm).toPath(), new File(ln).toPath());
 					break;
 			}
 		}
-		if (linkError)
-			status = Status.WARNING_LINK;
 	}
 
 	private void decryptStream() throws IOException

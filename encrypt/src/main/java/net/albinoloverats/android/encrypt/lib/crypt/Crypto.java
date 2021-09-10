@@ -28,6 +28,9 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.os.PowerManager;
 
+import net.albinoloverats.android.encrypt.lib.io.HashMAC;
+import net.albinoloverats.android.encrypt.lib.misc.Convert;
+
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -35,9 +38,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import net.albinoloverats.android.encrypt.lib.io.HashMAC;
-import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
 import androidx.core.app.NotificationCompat;
 

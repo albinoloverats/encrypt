@@ -34,19 +34,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
-import gnu.crypto.mode.ModeFactory;
-import gnu.crypto.prng.LimitReachedException;
-import gnu.crypto.util.PRNG;
-
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+
+import gnu.crypto.mode.ModeFactory;
+import gnu.crypto.prng.LimitReachedException;
+import gnu.crypto.util.PRNG;
 
 public class Encrypt extends Crypto
 {
@@ -123,7 +123,7 @@ public class Encrypt extends Crypto
 				mode = ModeFactory.CBC_MODE;
 				break;
 			case _201406:
-				if (mode == ModeFactory.CBC_MODE)
+				if (mode.equals(ModeFactory.CBC_MODE))
 					version = Version._201311;
 				break;
 			case _201501:
@@ -229,8 +229,8 @@ public class Encrypt extends Crypto
 		}
 		catch (final InvalidKeyException | LimitReachedException e)
 		{
-			status = Status.FAILED_OTHER;
-			throw new CryptoProcessException(Status.FAILED_OTHER, e);
+			status = Status.FAILED_KEY;
+			throw new CryptoProcessException(Status.FAILED_KEY, e);
 		}
 		catch (final XZFormatException e)
 		{
@@ -328,21 +328,14 @@ public class Encrypt extends Crypto
 		hashAndWrite(buffer);
 	}
 
-	private int countEntries(final String dir) throws IOException
+	private int countEntries(final String dir)
 	{
 		int c = 0;
 		final File[] files = new File(dir).listFiles();
 		if (files == null)
 			return c;
-		for (final File file : files)
-			if (file.isDirectory())
-				c += countEntries(dir + File.separator + file.getName());
-			else if (file.isFile())
-				c++;
-		/*
-		 *  If, and when, Android supports Java7 NIO:
 		final LinkOption linkOptions = follow ? null : LinkOption.NOFOLLOW_LINKS;
-		for (final File file : new File(dir).listFiles())
+		for (final File file : files)
 		{
 			final Path p = FileSystems.getDefault().getPath(file.getPath());
 			if (Files.isDirectory(p, linkOptions))
@@ -352,7 +345,6 @@ public class Encrypt extends Crypto
 			else if (Files.isSymbolicLink(p))
 				c++;
 		}
-		 */
 		return c;
 	}
 
@@ -374,16 +366,19 @@ public class Encrypt extends Crypto
 				ft = FileType.DIRECTORY;
 			else if (Files.isRegularFile(p, linkOptions))
 			{
-				//Files.isSameFile(path, path2);
-				if (inodes.containsKey(0L))
+				BasicFileAttributes bfa = Files.readAttributes(p, BasicFileAttributes.class, linkOptions);
+				String s = bfa.fileKey().toString();
+				Long inode = Long.parseLong(s.substring(s.indexOf("ino=") + 4, s.indexOf(")")));
+
+				if (inodes.containsKey(inode))
 				{
 					ft = FileType.LINK;
-					ln = inodes.get(0L);
+					ln = inodes.get(inode);
 				}
 				else
 				{
 					ft = FileType.REGULAR;
-					inodes.put(0L, p);
+					inodes.put(inode, p);
 				}
 			}
 			else if (Files.isSymbolicLink(p))
@@ -395,8 +390,8 @@ public class Encrypt extends Crypto
 				continue;
 
 			hashAndWrite(Convert.toBytes((byte)ft.value));
-			final String name = dir + File.separator + file.getName();
-			final String nm = name.substring(root.length() + 1);
+			String name = dir + File.separator + file.getName();
+			String nm = name.substring(root.length() + 1);
 			hashAndWrite(Convert.toBytes((long)nm.length()));
 			hashAndWrite(nm.getBytes());
 
@@ -407,6 +402,10 @@ public class Encrypt extends Crypto
 					break;
 				case SYMLINK:
 				case LINK:
+					name = ln.toString();
+					hashAndWrite(Convert.toBytes((long)name.length()));
+					hashAndWrite(name.getBytes());
+					break;
 				case REGULAR:
 					source = new FileInputStream(file);
 					current.offset = 0;
