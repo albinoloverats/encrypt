@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">encrypt (Free)</string>
-	<string name="version">2020.01</string>
+	<string name="version">2021.10</string>
 	<string name="encrypt">Encrypt</string>
 	<string name="decrypt">Decrypt</string>
 
