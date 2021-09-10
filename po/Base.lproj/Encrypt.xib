@@ -231,22 +231,6 @@
                             <action selector="cipherHashSelected:" target="494" id="Vdv-ti-d6y"/>
                         </connections>
                     </popUpButton>
-                    <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="N05-AW-tgG">
-                        <rect key="frame" x="76" y="176" width="158" height="21"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" enabled="NO" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="KDF Iterations" bezelStyle="round" id="ds5-RA-4n9">
-                            <numberFormatter key="formatter" formatterBehavior="default10_4" formatWidth="-1" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="q6l-C2-jvw">
-                                <real key="minimum" value="0.0"/>
-                                <real key="maximum" value="9.2233720368547758e+18"/>
-                            </numberFormatter>
-                            <font key="font" metaFont="system"/>
-                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                        <connections>
-                            <action selector="cipherHashSelected:" target="494" id="Tq8-O8-P23"/>
-                        </connections>
-                    </textField>
                     <button hidden="YES" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rOr-VC-vJ2">
                         <rect key="frame" x="69" y="142" width="182" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
@@ -304,16 +288,8 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <stepper horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="iFo-sm-rWf">
-                        <rect key="frame" x="234" y="176" width="13" height="20"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <stepperCell key="cell" continuous="YES" enabled="NO" alignment="left" maxValue="9.2233720368547758e+18" id="aUb-UW-BQb"/>
-                        <connections>
-                            <action selector="kdfStepperPushed:" target="494" id="636"/>
-                        </connections>
-                    </stepper>
                     <secureTextField toolTip="Enter Passphrase" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="615">
-                        <rect key="frame" x="76" y="148" width="168" height="22"/>
+                        <rect key="frame" x="75" y="148" width="170" height="22"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" enabled="NO" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="Password" usesSingleLineMode="YES" bezelStyle="round" id="616">
                             <font key="font" metaFont="system"/>
@@ -328,6 +304,30 @@
                             <action selector="passwordFieldUpdated:" target="494" id="697"/>
                         </connections>
                     </secureTextField>
+                    <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="N05-AW-tgG">
+                        <rect key="frame" x="75" y="175" width="147" height="21"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" enabled="NO" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="KDF Iterations" bezelStyle="round" id="ds5-RA-4n9">
+                            <numberFormatter key="formatter" formatterBehavior="default10_4" formatWidth="-1" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="q6l-C2-jvw">
+                                <real key="minimum" value="0.0"/>
+                                <real key="maximum" value="9.2233720368547758e+18"/>
+                            </numberFormatter>
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                        <connections>
+                            <action selector="cipherHashSelected:" target="494" id="Tq8-O8-P23"/>
+                        </connections>
+                    </textField>
+                    <stepper horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="iFo-sm-rWf">
+                        <rect key="frame" x="227" y="176" width="13" height="20"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <stepperCell key="cell" continuous="YES" enabled="NO" alignment="left" maxValue="9.2233720368547758e+18" id="aUb-UW-BQb"/>
+                        <connections>
+                            <action selector="kdfStepperPushed:" target="494" id="636"/>
+                        </connections>
+                    </stepper>
                 </subviews>
             </view>
             <connections>
@@ -374,7 +374,7 @@
         <window title="Please Wait ..." allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" hidesOnDeactivate="YES" visibleAtLaunch="NO" animationBehavior="default" id="746" customClass="NSPanel">
             <windowStyleMask key="styleMask" titled="YES" utility="YES"/>
             <rect key="contentRect" x="2059" y="193" width="320" height="240"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="800"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="775"/>
             <view key="contentView" identifier="Please Wait ..." id="747">
                 <rect key="frame" x="0.0" y="0.0" width="320" height="240"/>
                 <autoresizingMask key="autoresizingMask"/>
