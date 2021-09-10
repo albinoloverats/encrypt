@@ -1,7 +1,7 @@
 #!/bin/sh
 
 app=encrypt
-version=2020.01
+version=2021.10
 pkgdir=build
 
 mkdir -p ${pkgdir}/usr/{bin,share/{encrypt,applications,man/man1,pixmaps,bash-completion/completions,zsh/functions/Completion/Unix}}

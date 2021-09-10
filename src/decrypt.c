@@ -211,6 +211,7 @@ static void *process(void *ptr)
 			break;
 
 		case VERSION_2020_01:
+		case VERSION_2021_10:
 			//c->kdf_iterations = KEY_ITERATIONS_DEFAULT;
 			break;
 		default:
