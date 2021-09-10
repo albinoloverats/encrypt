@@ -628,7 +628,7 @@ public class Main extends Activity
 		@Override
 		public void onNothingSelected(final AdapterView<?> parent)
 		{
-			;
+			/* do nothing */
 		}
 	}
 
@@ -662,7 +662,7 @@ public class Main extends Activity
 
 	private static class MessageHandler extends Handler
 	{
-		private WeakReference<Main> reference;
+		private final WeakReference<Main> reference;
 
 		public MessageHandler(final Main service)
 		{

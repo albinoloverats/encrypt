@@ -96,13 +96,13 @@ public class ECCFileOutputStream extends ECCFileStream
 
 	public void write(final int b) throws IOException
 	{
-		write(Convert.toBytes((byte) (b & 0x000000FF)));
+		write(Convert.toBytes((byte)(b & 0x000000FF)));
 	}
 
 	private byte[] encode()
 	{
-		final byte encoded[] = new byte[CAPACITY];
-		byte r[] = new byte[OFFSET];
+		final byte[] encoded = new byte[CAPACITY];
+		byte[] r = new byte[OFFSET];
 		for (int i = 0; i < PAYLOAD; i++)
 		{
 			encoded[CAPACITY - 1 - i] = source[i];

@@ -53,7 +53,7 @@ public class EncryptedFileOutputStream extends FileOutputStream
 
 	private byte[] buffer = null;
 	private int blockSize = 0;
-	private int[] offset = { 0, 0 };
+	private final int[] offset = { 0, 0 };
 
 	private boolean open = true;
 

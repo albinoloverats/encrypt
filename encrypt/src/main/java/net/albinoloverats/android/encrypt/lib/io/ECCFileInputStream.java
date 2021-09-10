@@ -38,7 +38,7 @@ public class ECCFileInputStream extends ECCFileStream
 	{
 		fileInputStream = new FileInputStream(file);
 		source = new byte[CAPACITY];
-		offset = new int[] { 0, 0, 0};
+		offset = new int[] { 0, 0, 0 };
 	}
 
 	public int available() throws IOException
@@ -92,7 +92,7 @@ public class ECCFileInputStream extends ECCFileStream
 			source = new byte[CAPACITY];
 			int z = fileInputStream.read();
 			err = fileInputStream.read(source);
-			final byte tmp[] = decode();
+			final byte[] tmp = decode();
 			if (tmp == null)
 				return -getDecodeError();
 			System.arraycopy(tmp, 0, source, 0, z);
@@ -120,24 +120,24 @@ public class ECCFileInputStream extends ECCFileStream
 	{
 		reverse(source, CAPACITY);
 
-		final byte target[] = new byte[PAYLOAD];
+		final byte[] target = new byte[PAYLOAD];
 
 		for (int i = 0; i < PAYLOAD; i++)
 			target[i] = source[CAPACITY - 1 - i];
 
-		byte syn[] = new byte[CAPACITY + 1];
+		byte[] syn = new byte[CAPACITY + 1];
 		syndrome(source, syn);
 		if (syn[0] == 0)
 			return target;
 
-		int r[] = errnum(syn);
+		int[] r = errnum(syn);
 		decodeError = r[0];
 		int deter = r[1];
 		if (decodeError == 4)
 			return null;
 
 		int e0, e1, e2, n0, n1, n2, w0, w1, w2, x0;
-		byte x[] = new byte[3], z[] = new byte[4];
+		byte[] x = new byte[3], z = new byte[4];
 		int sols;
 
 		switch (decodeError)
@@ -202,7 +202,7 @@ public class ECCFileInputStream extends ECCFileStream
 				z[0] = (byte)add(z[0], mul(syn[2], mul(syn[2], syn[5])));
 				z[0] = (byte)mul(z[0], inv(deter));
 
-				sols = polysolve (z, x);
+				sols = polysolve(z, x);
 				if (sols != 3)
 				{
 					decodeError = 4;
@@ -242,7 +242,7 @@ public class ECCFileInputStream extends ECCFileStream
 		return decodeError;
 	}
 
-	private int evalpoly(final byte p[], final int x)
+	private int evalpoly(final byte[] p, final int x)
 	{
 		int y = 0;
 		for (int i = 0; i < CAPACITY; i++)
@@ -250,7 +250,7 @@ public class ECCFileInputStream extends ECCFileStream
 		return y;
 	}
 
-	private void syndrome(final byte c[], final byte s[])
+	private void syndrome(final byte[] c, final byte[] s)
 	{
 		s[0] = 0;
 		for (byte i = 1; i < 7; i++)
@@ -260,7 +260,7 @@ public class ECCFileInputStream extends ECCFileStream
 		}
 	}
 
-	private int[] errnum(final byte s[])
+	private int[] errnum(final byte[] s)
 	{
 		int det = mul(s[2], mul(s[4], s[6]));
 		det = add(det, mul(s[2], mul(s[5], s[5])));
@@ -281,7 +281,7 @@ public class ECCFileInputStream extends ECCFileStream
 		return new int[] { 4, det };
 	}
 
-	private int polysolve(final byte polynom[], final byte roots[])
+	private int polysolve(final byte[] polynom, final byte[] roots)
 	{
 		int numsol = 0;
 		for (int i = 0; i < CAPACITY; i++)

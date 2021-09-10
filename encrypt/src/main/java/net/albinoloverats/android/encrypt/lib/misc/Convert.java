@@ -36,7 +36,7 @@ public abstract class Convert
 
 	public static byte[] toBytes(final long l)
 	{
-		final byte b[] = new byte[8];
+		final byte[] b = new byte[8];
 		b[0] = (byte)((l & 0xFF00000000000000L) >> 56);
 		b[1] = (byte)((l & 0x00FF000000000000L) >> 48);
 		b[2] = (byte)((l & 0x0000FF0000000000L) >> 40);
@@ -62,7 +62,7 @@ public abstract class Convert
 
 	public static byte[] toBytes(final int i)
 	{
-		final byte b[] = new byte[4];
+		final byte[] b = new byte[4];
 		b[0] = (byte)((i & 0xFF000000) >> 24);
 		b[1] = (byte)((i & 0x00FF0000) >> 16);
 		b[2] = (byte)((i & 0x0000FF00) >> 8);
@@ -80,7 +80,7 @@ public abstract class Convert
 
 	public static byte[] toBytes(final short s)
 	{
-		final byte b[] = new byte[2];
+		final byte[] b = new byte[2];
 		b[0] = (byte)((s & 0xFF00) >> 8);
 		b[1] = (byte)(s & 0x00FF);
 		return b;
@@ -93,7 +93,7 @@ public abstract class Convert
 
 	public static byte[] toBytes(final byte x)
 	{
-		final byte b[] = new byte[1];
+		final byte[] b = new byte[1];
 		b[0] = x;
 		return b;
 	}

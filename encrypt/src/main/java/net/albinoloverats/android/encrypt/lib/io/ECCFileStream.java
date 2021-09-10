@@ -104,9 +104,9 @@ public abstract class ECCFileStream
 		return 0x000000FF & (a == 0 ? 0 : E_TO_V[(V_TO_E[a] * b) % CAPACITY]);
 	}
 
-	protected void reverse(final byte a[], final int l)
+	protected void reverse(final byte[] a, final int l)
 	{
-		for (int i = 0, j = l - 1 ; i < l / 2; i++, j--)
+		for (int i = 0, j = l - 1; i < l / 2; i++, j--)
 		{
 			a[i] ^= a[j];
 			a[j] ^= a[i];
