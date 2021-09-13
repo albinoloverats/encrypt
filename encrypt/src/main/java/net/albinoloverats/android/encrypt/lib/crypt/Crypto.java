@@ -29,15 +29,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.renderscript.ScriptGroup;
 
 import net.albinoloverats.android.encrypt.lib.io.HashMAC;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -122,11 +118,11 @@ public abstract class Crypto extends Service implements Runnable
 		final int wait = intent.getIntExtra("wait", 0);
 		final int icon = intent.getIntExtra("icon", 0);
 
-		// FIXME needs context, content resolvers, etc...
 		if (intent.getBooleanExtra("key_file", false))
-			setKey(intent.getStringExtra("key"));
+			setKey(Uri.parse(intent.getParcelableExtra("key")));
 		else
 			key = intent.getByteArrayExtra("key");
+		raw = intent.getBooleanExtra("raw", raw);
 
 		actionTitle = getString(action);
 
@@ -213,12 +209,12 @@ public abstract class Crypto extends Service implements Runnable
 		final DocumentFile documentFile = DocumentFile.fromSingleUri(context, uri);
 		if (documentFile.isDirectory())
 			return false;
-		try (InputStream in = cr.openInputStream(uri))
+		try (final InputStream in = cr.openInputStream(uri))
 		{
 			final byte[] header = new byte[Long.SIZE / Byte.SIZE];
 			for (int i = 0; i < 1; i++)
 			{
-				int err = in.read(header, 0, header.length);
+				final int err = in.read(header, 0, header.length);
 				if (err < 0 || Convert.longFromBytes(header) != HEADER[i])
 					return false;
 			}
@@ -243,12 +239,12 @@ public abstract class Crypto extends Service implements Runnable
 		}
 	}
 
-	private void setKey(final String k)
+	private void setKey(final Uri keyFile)
 	{
-		final File file = new File(k);
-		try (final FileInputStream f = new FileInputStream(file))
+		final DocumentFile documentFile = DocumentFile.fromSingleUri(this, keyFile);
+		try (final InputStream f = contentResolver.openInputStream(keyFile))
 		{
-			key = new byte[(int)file.length()];
+			key = new byte[(int)documentFile.length()];
 			f.read(key);
 		}
 		catch (final IOException e)
@@ -261,6 +257,7 @@ public abstract class Crypto extends Service implements Runnable
 	{
 		final Intent intent = new Intent();
 		intent.setAction(actionTitle);
+		intent.putExtra("current.file", current.file);
 		intent.putExtra("current.offset", current.offset);
 		intent.putExtra("current.size", current.size);
 		intent.putExtra("total.offset", total.offset);

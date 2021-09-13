@@ -23,7 +23,6 @@ package net.albinoloverats.android.encrypt.lib.io;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 

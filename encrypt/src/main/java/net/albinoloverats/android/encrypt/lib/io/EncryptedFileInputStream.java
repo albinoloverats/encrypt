@@ -24,12 +24,9 @@ import net.albinoloverats.android.encrypt.lib.crypt.CryptoUtils;
 import net.albinoloverats.android.encrypt.lib.crypt.XIV;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.channels.FileChannel;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;

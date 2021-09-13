@@ -21,7 +21,6 @@
 package net.albinoloverats.android.encrypt.lib.crypt;
 
 import android.app.Service;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 
@@ -33,12 +32,11 @@ import org.tukaani.xz.XZInputStream;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.List;
 
 import androidx.documentfile.provider.DocumentFile;
 import gnu.crypto.mode.ModeFactory;
@@ -51,10 +49,9 @@ public class Decrypt extends Crypto
 	{
 		if (intent == null)
 			return Service.START_REDELIVER_INTENT;
-		final Uri source = intent.getParcelableExtra("source");
+		final List<Uri> s = intent.getParcelableArrayListExtra("source");
+		final Uri source = s.get(0);
 		final Uri output = intent.getParcelableExtra("output");
-		key = intent.getByteArrayExtra("key");
-		raw = intent.getBooleanExtra("raw", raw);
 
 		try
 		{

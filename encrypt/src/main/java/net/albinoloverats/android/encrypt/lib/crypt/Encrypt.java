@@ -21,13 +21,8 @@
 package net.albinoloverats.android.encrypt.lib.crypt;
 
 import android.app.Service;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.provider.DocumentsContract;
-import android.provider.DocumentsProvider;
 
 import net.albinoloverats.android.encrypt.lib.io.EncryptedFileOutputStream;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
@@ -36,21 +31,12 @@ import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZFormatException;
 import org.tukaani.xz.XZOutputStream;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-import androidx.annotation.RequiresApi;
 import androidx.documentfile.provider.DocumentFile;
 import gnu.crypto.mode.ModeFactory;
 import gnu.crypto.prng.LimitReachedException;
@@ -60,44 +46,42 @@ public class Encrypt extends Crypto
 {
 	private String root = "";
 	private final boolean follow = false;
-	private final Map<Long, Path> inodes = new HashMap<>();
+	private List<Uri> fakeDir = null;
 
-	@RequiresApi(api = Build.VERSION_CODES.Q)
 	@Override
 	public int onStartCommand(final Intent intent, final int flags, final int startId)
 	{
 		if (intent == null)
 			return Service.START_REDELIVER_INTENT;
-		final Uri source    = intent.getParcelableExtra("source");
-		final Uri output    = intent.getParcelableExtra("output");
-		cipher              = intent.getStringExtra("cipher");
-		hash                = intent.getStringExtra("hash");
-		mode                = intent.getStringExtra("mode");
-		mac                 = intent.getStringExtra("mac");
-		kdfIterations       = intent.getIntExtra("kdf_iterations", KDF_ITERATIONS_DEFAULT);
-		key                 = intent.getByteArrayExtra("key");
-		raw                 = intent.getBooleanExtra("raw", raw);
-		compressed          = intent.getBooleanExtra("compress", compressed);
-		follow_links        = intent.getBooleanExtra("follow", follow_links);
-		version             = Version.parseMagicNumber(intent.getLongExtra("version", Version.CURRENT.magicNumber), Version.CURRENT);
+		final List<Uri> source = intent.getParcelableArrayListExtra("source");
+		final Uri output       = intent.getParcelableExtra("output");
+		cipher                 = intent.getStringExtra("cipher");
+		hash                   = intent.getStringExtra("hash");
+		mode                   = intent.getStringExtra("mode");
+		mac                    = intent.getStringExtra("mac");
+		kdfIterations          = intent.getIntExtra("kdf_iterations", KDF_ITERATIONS_DEFAULT);
+
+		compressed             = intent.getBooleanExtra("compress", compressed);
+		follow_links           = intent.getBooleanExtra("follow", follow_links);
+		version                = Version.parseMagicNumber(intent.getLongExtra("version", Version.CURRENT.magicNumber), Version.CURRENT);
 
 		try
 		{
 			contentResolver = getContentResolver();
-			final DocumentFile documentFile = DocumentFile.fromSingleUri(this, source);
-			name = documentFile.getName();
-			if (documentFile.isFile())
+
+			if (source.size() == 1)
 			{
+				final Uri uri = source.get(0);
+				final DocumentFile documentFile = DocumentFile.fromSingleUri(this, uri);
+				name = documentFile.getName();
 				total.size = documentFile.length();
-				this.source = contentResolver.openInputStream(source);
-			}
-			else if (documentFile.isDirectory())
-			{
-				directory = true;
-				path = documentFile.getUri();
+				this.source = contentResolver.openInputStream(uri);
 			}
 			else
-				status = Status.FAILED_IO;
+			{
+				directory = true;
+				fakeDir = source;
+			}
 			this.output = new EncryptedFileOutputStream(contentResolver.openOutputStream(output));
 		}
 		catch (final FileNotFoundException e)
@@ -193,18 +177,26 @@ public class Encrypt extends Crypto
 
 			if (directory)
 			{
-				DocumentFile df = DocumentFile.fromSingleUri(this, path);
-				String d = df.getName();
-				do
-				{
-					root = File.separator + df.getName() + root;
-				}
-				while ((df = df.getParentFile()) != null);
 				hashAndWrite(Convert.toBytes((byte)FileType.DIRECTORY.value));
-				hashAndWrite(Convert.toBytes((long)d.length()));
-				hashAndWrite(d.getBytes());
+				hashAndWrite(Convert.toBytes(1l));
+				hashAndWrite(new byte[] { '.' });
 				total.offset = 1;
-				encryptDirectory(root, path);
+				for (final Uri uri : fakeDir)
+				{
+					if (status != Status.RUNNING)
+						break;
+					DocumentFile documentFile = DocumentFile.fromSingleUri(this, uri);
+					source = contentResolver.openInputStream(uri);
+					current.file = documentFile.getName();
+					current.offset = 0;
+					current.size = documentFile.length();
+					hashAndWrite(Convert.toBytes(current.size));
+					encryptFile();
+					current.offset = current.size;
+					source.close();
+					source = null;
+					total.offset++;
+				}
 				total.offset = total.size;
 				current.offset = current.size;
 			}
@@ -273,10 +265,7 @@ public class Encrypt extends Crypto
 		if (version.compareTo(Version._201709) >= 0)
 			algorithms = algorithms.concat("/" + mac);
 		if (version.compareTo(Version._202001) >= 0)
-		{
-			String kdf = String.format("%016x", (long)kdfIterations);
-			algorithms = algorithms.concat("/" + kdf);
-		}
+			algorithms = algorithms.concat("/" + String.format("%016x", (long)kdfIterations));
 		output.write((byte)algorithms.length());
 		output.write(algorithms.getBytes());
 	}
@@ -301,16 +290,7 @@ public class Encrypt extends Crypto
 		hashAndWrite(Convert.toBytes(meta));
 
 		if (directory) /* total size becomes number of entries */
-		{
-			String dir = "";
-			DocumentFile df = DocumentFile.fromSingleUri(this, path);
-			do
-			{
-				dir = File.separator + df.getName() + dir;
-			}
-			while ((df = df.getParentFile()) != null);
-			total.size = countEntries(dir, path) + 1;
-		}
+			total.size = fakeDir.size() + 1;
 
 		hashAndWrite(Convert.toBytes((byte)Tag.SIZE.value));
 		hashAndWrite(Convert.toBytes((short)(Long.SIZE / Byte.SIZE)));
@@ -343,112 +323,11 @@ public class Encrypt extends Crypto
 		hashAndWrite(buffer);
 	}
 
-	private int countEntries(String dir, final Uri uri)
-	{
-		int c = 0;
-//		final File[] files = new File(dir).listFiles();
-
-		final DocumentFile documentFile = DocumentFile.fromSingleUri(this, uri);
-		final DocumentFile[] files = documentFile.listFiles();
-		if (files == null)
-			return c;
-		final LinkOption linkOptions = follow ? null : LinkOption.NOFOLLOW_LINKS;
-		for (final DocumentFile file : files)
-		{
-			dir += File.separator + file.getName();
-			final Path p = new File(dir).toPath();
-//			final Path p = FileSystems.getDefault().getPath(file.getPath());
-			if (Files.isDirectory(p, linkOptions))
-				c += countEntries(dir, file.getUri());
-			else if (Files.isRegularFile(p, linkOptions))
-				c++;
-			else if (Files.isSymbolicLink(p))
-				c++;
-		}
-		return c;
-	}
-
-	private void encryptDirectory(final String dir, final Uri uri) throws IOException
-	{
-		final LinkOption linkOptions = follow ? null : LinkOption.NOFOLLOW_LINKS;
-		final File[] files = new File(dir).listFiles();
-		if (files == null)
-			return;
-		for (final File file : files)
-		{
-			if (status != Status.RUNNING)
-				break;
-
-			final FileType ft;
-			final Path p = FileSystems.getDefault().getPath(file.getPath());
-			Path ln = null;
-			if (Files.isDirectory(p, linkOptions))
-				ft = FileType.DIRECTORY;
-			else if (Files.isRegularFile(p, linkOptions))
-			{
-				BasicFileAttributes bfa = Files.readAttributes(p, BasicFileAttributes.class, linkOptions);
-				String s = bfa.fileKey().toString();
-				Long inode = Long.parseLong(s.substring(s.indexOf("ino=") + 4, s.indexOf(")")));
-
-				if (inodes.containsKey(inode))
-				{
-					ft = FileType.LINK;
-					ln = inodes.get(inode);
-				}
-				else
-				{
-					ft = FileType.REGULAR;
-					inodes.put(inode, p);
-				}
-			}
-			else if (Files.isSymbolicLink(p))
-			{
-				ft = FileType.SYMLINK;
-				ln = Files.readSymbolicLink(p);
-			}
-			else
-				continue;
-
-			hashAndWrite(Convert.toBytes((byte)ft.value));
-			String name = dir + File.separator + file.getName();
-			String nm = name.substring(root.length() + 1);
-			hashAndWrite(Convert.toBytes((long)nm.length()));
-			hashAndWrite(nm.getBytes());
-
-			switch (ft)
-			{
-				case DIRECTORY:
-					encryptDirectory(name, uri);
-					break;
-				case SYMLINK:
-				case LINK:
-					name = ln.toString();
-					hashAndWrite(Convert.toBytes((long)name.length()));
-					hashAndWrite(name.getBytes());
-					break;
-				case REGULAR:
-					source = new FileInputStream(file);
-					current.offset = 0;
-					current.size = file.length();
-					hashAndWrite(Convert.toBytes(current.size));
-					encryptFile();
-					current.offset = current.size;
-					source.close();
-					source = null;
-					break;
-			}
-			total.offset++;
-		}
-	}
-
 	private void encryptFile() throws IOException
 	{
 		final byte[] buffer = new byte[BLOCK_SIZE];
 		for (current.offset = 0; current.offset < current.size && status == Status.RUNNING; current.offset += BLOCK_SIZE)
-		{
-			final int r = source.read(buffer, 0, BLOCK_SIZE);
-			hashAndWrite(buffer, r);
-		}
+			hashAndWrite(buffer, source.read(buffer, 0, BLOCK_SIZE));
 	}
 
 	private void hashAndWrite(final byte[] b) throws IOException

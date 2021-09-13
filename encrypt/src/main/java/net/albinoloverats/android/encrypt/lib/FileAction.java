@@ -20,17 +20,21 @@
 
 package net.albinoloverats.android.encrypt.lib;
 
+import android.content.Intent;
+
 public enum FileAction
 {
-	LOAD(0),
-	SAVE(1),
-	KEY(2);
+	LOAD(0, Intent.ACTION_OPEN_DOCUMENT),
+	SAVE(1, Intent.ACTION_CREATE_DOCUMENT),
+	KEY(2, Intent.ACTION_OPEN_DOCUMENT);
 
 	public int value;
+	public String intent;
 
-	FileAction(final int value)
+	FileAction(final int value, String intent)
 	{
 		this.value = value;
+		this.intent = intent;
 	}
 
 	public static FileAction fromValue(final int value)
