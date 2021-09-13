@@ -21,7 +21,13 @@
 package net.albinoloverats.android.encrypt.lib.crypt;
 
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.provider.DocumentsContract;
+import android.provider.DocumentsProvider;
 
 import net.albinoloverats.android.encrypt.lib.io.EncryptedFileOutputStream;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
@@ -44,6 +50,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.annotation.RequiresApi;
+import androidx.documentfile.provider.DocumentFile;
 import gnu.crypto.mode.ModeFactory;
 import gnu.crypto.prng.LimitReachedException;
 import gnu.crypto.util.PRNG;
@@ -54,13 +62,14 @@ public class Encrypt extends Crypto
 	private final boolean follow = false;
 	private final Map<Long, Path> inodes = new HashMap<>();
 
+	@RequiresApi(api = Build.VERSION_CODES.Q)
 	@Override
 	public int onStartCommand(final Intent intent, final int flags, final int startId)
 	{
 		if (intent == null)
 			return Service.START_REDELIVER_INTENT;
-		final String source = intent.getStringExtra("source");
-		final String output = intent.getStringExtra("output");
+		final Uri source    = intent.getParcelableExtra("source");
+		final Uri output    = intent.getParcelableExtra("output");
 		cipher              = intent.getStringExtra("cipher");
 		hash                = intent.getStringExtra("hash");
 		mode                = intent.getStringExtra("mode");
@@ -74,27 +83,22 @@ public class Encrypt extends Crypto
 
 		try
 		{
-			final File in = new File(source);
-			name = in.getName();
-			if (in.isFile())
+			contentResolver = getContentResolver();
+			final DocumentFile documentFile = DocumentFile.fromSingleUri(this, source);
+			name = documentFile.getName();
+			if (documentFile.isFile())
 			{
-				total.size = in.length();
-				this.source = new FileInputStream(in);
+				total.size = documentFile.length();
+				this.source = contentResolver.openInputStream(source);
 			}
-			else if (in.isDirectory())
+			else if (documentFile.isDirectory())
 			{
 				directory = true;
-				path = source;
+				path = documentFile.getUri();
 			}
 			else
 				status = Status.FAILED_IO;
-			final File out = new File(output);
-			if (out.isFile() || !out.exists())
-				this.output = new EncryptedFileOutputStream(out);
-			else if (out.isDirectory())
-				this.output = new EncryptedFileOutputStream(new File(out.getAbsolutePath() + File.separatorChar + name + ".X"));
-			else
-				status = Status.FAILED_IO;
+			this.output = new EncryptedFileOutputStream(contentResolver.openOutputStream(output));
 		}
 		catch (final FileNotFoundException e)
 		{
@@ -189,13 +193,18 @@ public class Encrypt extends Crypto
 
 			if (directory)
 			{
-				final File d = new File(path);
-				root = d.getParent();
+				DocumentFile df = DocumentFile.fromSingleUri(this, path);
+				String d = df.getName();
+				do
+				{
+					root = File.separator + df.getName() + root;
+				}
+				while ((df = df.getParentFile()) != null);
 				hashAndWrite(Convert.toBytes((byte)FileType.DIRECTORY.value));
-				hashAndWrite(Convert.toBytes((long)d.getName().length()));
-				hashAndWrite(d.getName().getBytes());
+				hashAndWrite(Convert.toBytes((long)d.length()));
+				hashAndWrite(d.getBytes());
 				total.offset = 1;
-				encryptDirectory(path);
+				encryptDirectory(root, path);
 				total.offset = total.size;
 				current.offset = current.size;
 			}
@@ -214,10 +223,7 @@ public class Encrypt extends Crypto
 				writeRandomData();
 			}
 			if (useMAC)
-			{
-				byte[] m = verification.mac.digest();
-				hashAndWrite(m);
-			}
+				hashAndWrite(verification.mac.digest());
 
 			if (status == Status.RUNNING)
 				status = Status.SUCCESS;
@@ -260,7 +266,7 @@ public class Encrypt extends Crypto
 		output.write(Convert.toBytes(HEADER[1]));
 		output.write(Convert.toBytes(HEADER[2]));
 		if (version.compareTo(Version._201510) >= 0 && !raw)
-			((EncryptedFileOutputStream)output).initaliseECC();
+			((EncryptedFileOutputStream)output).initialiseECC();
 		String algorithms = cipher + "/" + hash;
 		if (version.compareTo(Version._201406) >= 0)
 			algorithms = algorithms.concat("/" + mode);
@@ -295,7 +301,16 @@ public class Encrypt extends Crypto
 		hashAndWrite(Convert.toBytes(meta));
 
 		if (directory) /* total size becomes number of entries */
-			total.size = countEntries(path) + 1;
+		{
+			String dir = "";
+			DocumentFile df = DocumentFile.fromSingleUri(this, path);
+			do
+			{
+				dir = File.separator + df.getName() + dir;
+			}
+			while ((df = df.getParentFile()) != null);
+			total.size = countEntries(dir, path) + 1;
+		}
 
 		hashAndWrite(Convert.toBytes((byte)Tag.SIZE.value));
 		hashAndWrite(Convert.toBytes((short)(Long.SIZE / Byte.SIZE)));
@@ -328,18 +343,23 @@ public class Encrypt extends Crypto
 		hashAndWrite(buffer);
 	}
 
-	private int countEntries(final String dir)
+	private int countEntries(String dir, final Uri uri)
 	{
 		int c = 0;
-		final File[] files = new File(dir).listFiles();
+//		final File[] files = new File(dir).listFiles();
+
+		final DocumentFile documentFile = DocumentFile.fromSingleUri(this, uri);
+		final DocumentFile[] files = documentFile.listFiles();
 		if (files == null)
 			return c;
 		final LinkOption linkOptions = follow ? null : LinkOption.NOFOLLOW_LINKS;
-		for (final File file : files)
+		for (final DocumentFile file : files)
 		{
-			final Path p = FileSystems.getDefault().getPath(file.getPath());
+			dir += File.separator + file.getName();
+			final Path p = new File(dir).toPath();
+//			final Path p = FileSystems.getDefault().getPath(file.getPath());
 			if (Files.isDirectory(p, linkOptions))
-				c += countEntries(dir + File.separator + file.getName());
+				c += countEntries(dir, file.getUri());
 			else if (Files.isRegularFile(p, linkOptions))
 				c++;
 			else if (Files.isSymbolicLink(p))
@@ -348,7 +368,7 @@ public class Encrypt extends Crypto
 		return c;
 	}
 
-	private void encryptDirectory(final String dir) throws IOException
+	private void encryptDirectory(final String dir, final Uri uri) throws IOException
 	{
 		final LinkOption linkOptions = follow ? null : LinkOption.NOFOLLOW_LINKS;
 		final File[] files = new File(dir).listFiles();
@@ -398,7 +418,7 @@ public class Encrypt extends Crypto
 			switch (ft)
 			{
 				case DIRECTORY:
-					encryptDirectory(name);
+					encryptDirectory(name, uri);
 					break;
 				case SYMLINK:
 				case LINK:

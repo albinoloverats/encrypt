@@ -72,7 +72,7 @@ public abstract class ECCFileStream
 	protected byte[] source;
 	protected boolean initialised = false;
 
-	public void initalise()
+	public void initialise()
 	{
 		initialised = true;
 	}

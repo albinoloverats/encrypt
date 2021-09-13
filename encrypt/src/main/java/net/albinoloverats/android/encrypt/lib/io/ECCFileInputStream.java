@@ -26,17 +26,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.channels.FileChannel;
 
 public class ECCFileInputStream extends ECCFileStream
 {
-	private final FileInputStream fileInputStream;
+	private final InputStream inputStream;
 
 	private int decodeError;
 
-	public ECCFileInputStream(final File file) throws FileNotFoundException
+	public ECCFileInputStream(final InputStream stream) throws FileNotFoundException
 	{
-		fileInputStream = new FileInputStream(file);
+		inputStream = stream;
 		source = new byte[CAPACITY];
 		offset = new int[] { 0, 0, 0 };
 	}
@@ -44,18 +45,13 @@ public class ECCFileInputStream extends ECCFileStream
 	public int available() throws IOException
 	{
 		if (!initialised)
-			return fileInputStream.available();
+			return inputStream.available();
 		return offset[0];
 	}
 
 	public void close() throws IOException
 	{
-		fileInputStream.close();
-	}
-
-	public FileChannel getChannel()
-	{
-		return fileInputStream.getChannel();
+		inputStream.close();
 	}
 
 	public int read() throws IOException
@@ -69,7 +65,7 @@ public class ECCFileInputStream extends ECCFileStream
 	{
 		int err = 0;
 		if (!initialised)
-			return fileInputStream.read(bytes);
+			return inputStream.read(bytes);
 
 		offset[1] = bytes.length;
 		offset[2] = 0;
@@ -90,8 +86,8 @@ public class ECCFileInputStream extends ECCFileStream
 			offset[1] -= offset[0];
 			offset[0] = 0;
 			source = new byte[CAPACITY];
-			int z = fileInputStream.read();
-			err = fileInputStream.read(source);
+			int z = inputStream.read();
+			err = inputStream.read(source);
 			final byte[] tmp = decode();
 			if (tmp == null)
 				return -getDecodeError();

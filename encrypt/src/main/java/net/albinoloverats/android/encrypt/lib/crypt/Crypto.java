@@ -23,10 +23,13 @@ package net.albinoloverats.android.encrypt.lib.crypt;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.renderscript.ScriptGroup;
 
 import net.albinoloverats.android.encrypt.lib.io.HashMAC;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
@@ -40,6 +43,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import androidx.core.app.NotificationCompat;
+import androidx.documentfile.provider.DocumentFile;
 
 public abstract class Crypto extends Service implements Runnable
 {
@@ -49,10 +53,13 @@ public abstract class Crypto extends Service implements Runnable
 	protected static final int KDF_ITERATIONS_201709 = 1024;
 	public static final int KDF_ITERATIONS_DEFAULT = 32768;
 
+	protected ContentResolver contentResolver;
+
 	protected InputStream source;
 	protected OutputStream output;
 
-	protected String path;
+	protected Uri path;
+
 	protected String name;
 	protected String cipher;
 	protected String hash;
@@ -115,6 +122,7 @@ public abstract class Crypto extends Service implements Runnable
 		final int wait = intent.getIntExtra("wait", 0);
 		final int icon = intent.getIntExtra("icon", 0);
 
+		// FIXME needs context, content resolvers, etc...
 		if (intent.getBooleanExtra("key_file", false))
 			setKey(intent.getStringExtra("key"));
 		else
@@ -199,16 +207,14 @@ public abstract class Crypto extends Service implements Runnable
 		return null;
 	}
 
-	public static boolean fileEncrypted(final String path)
+	public static boolean fileEncrypted(Context context, final Uri uri)
 	{
-		final File f = new File(path);
-		if (f.isDirectory())
+		final ContentResolver cr = context.getContentResolver();
+		final DocumentFile documentFile = DocumentFile.fromSingleUri(context, uri);
+		if (documentFile.isDirectory())
 			return false;
-
-		FileInputStream in = null;
-		try
+		try (InputStream in = cr.openInputStream(uri))
 		{
-			in = new FileInputStream(f);
 			final byte[] header = new byte[Long.SIZE / Byte.SIZE];
 			for (int i = 0; i < 1; i++)
 			{
@@ -222,10 +228,6 @@ public abstract class Crypto extends Service implements Runnable
 		{
 			return false; // either the file doesn't exists or we can't read it for decrypting
 		}
-		finally
-		{
-			closeIgnoreException(in);
-		}
 	}
 
 	protected static void closeIgnoreException(final Closeable c)
@@ -237,28 +239,21 @@ public abstract class Crypto extends Service implements Runnable
 		}
 		catch (final IOException ignored)
 		{
+			/* no nothing */
 		}
 	}
 
 	private void setKey(final String k)
 	{
-		FileInputStream f = null;
-		ByteArrayOutputStream b = new ByteArrayOutputStream();
-		try
+		final File file = new File(k);
+		try (final FileInputStream f = new FileInputStream(file))
 		{
-			final File file = new File(k);
-			f = new FileInputStream(file);
 			key = new byte[(int)file.length()];
 			f.read(key);
 		}
 		catch (final IOException e)
 		{
 			status = Status.FAILED_KEY;
-		}
-		finally
-		{
-			closeIgnoreException(f);
-			closeIgnoreException(b);
 		}
 	}
 

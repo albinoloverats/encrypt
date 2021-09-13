@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -44,7 +45,7 @@ import gnu.crypto.prng.IPBE;
 import gnu.crypto.prng.LimitReachedException;
 import gnu.crypto.prng.PBKDF2;
 
-public class EncryptedFileInputStream extends FileInputStream
+public class EncryptedFileInputStream extends InputStream
 {
 	private final ECCFileInputStream eccFileInputStream;
 
@@ -54,9 +55,8 @@ public class EncryptedFileInputStream extends FileInputStream
 	private int blockSize = 0;
 	private final int[] offset = { 0, 0, 0 }; /* bytes available, requested, ready */
 
-	public EncryptedFileInputStream(final File file) throws FileNotFoundException
+	public EncryptedFileInputStream(final InputStream stream) throws FileNotFoundException
 	{
-		super(file);
 		try
 		{
 			super.close();
@@ -65,7 +65,7 @@ public class EncryptedFileInputStream extends FileInputStream
 		{
 			// ignored
 		}
-		eccFileInputStream = new ECCFileInputStream(file);
+		eccFileInputStream = new ECCFileInputStream(stream);
 	}
 
 	public HashMAC initialiseDecryption(final String c, final String h, final String m, final String a, final int kdfIterations, final byte[] k, final XIV ivType, final boolean useKDF) throws NoSuchAlgorithmException, InvalidKeyException, LimitReachedException, IOException
@@ -141,7 +141,7 @@ public class EncryptedFileInputStream extends FileInputStream
 
 	public void initialiseECC()
 	{
-		eccFileInputStream.initalise();
+		eccFileInputStream.initialise();
 	}
 
 	@Override
@@ -156,12 +156,6 @@ public class EncryptedFileInputStream extends FileInputStream
 	public void close() throws IOException
 	{
 		eccFileInputStream.close();
-	}
-
-	@Override
-	public FileChannel getChannel()
-	{
-		return eccFileInputStream.getChannel();
 	}
 
 	@Override

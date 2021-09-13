@@ -21,7 +21,9 @@
 package net.albinoloverats.android.encrypt.lib.crypt;
 
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.net.Uri;
 
 import net.albinoloverats.android.encrypt.lib.io.EncryptedFileInputStream;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
@@ -38,6 +40,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
+import androidx.documentfile.provider.DocumentFile;
 import gnu.crypto.mode.ModeFactory;
 import gnu.crypto.prng.LimitReachedException;
 
@@ -48,20 +51,22 @@ public class Decrypt extends Crypto
 	{
 		if (intent == null)
 			return Service.START_REDELIVER_INTENT;
-		final String source = intent.getStringExtra("source");
-		final String output = intent.getStringExtra("output");
+		final Uri source = intent.getParcelableExtra("source");
+		final Uri output = intent.getParcelableExtra("output");
 		key = intent.getByteArrayExtra("key");
 		raw = intent.getBooleanExtra("raw", raw);
 
 		try
 		{
-			final File in = new File(source);
-			this.source = new EncryptedFileInputStream(in);
-			name = in.getName();
-			final File out = new File(output);
-			if (out.exists() && !out.isDirectory())
-				this.output = new FileOutputStream(output);
-			path = output;
+			contentResolver = getContentResolver();
+			this.source = new EncryptedFileInputStream(contentResolver.openInputStream(source));
+
+			final DocumentFile documentFile = DocumentFile.fromSingleUri(this, output);
+			name = documentFile.getName();
+
+			if (documentFile.exists() && !documentFile.isDirectory())
+				this.output = contentResolver.openOutputStream(output);
+			path = documentFile.getUri();
 		}
 		catch (final FileNotFoundException e)
 		{
@@ -141,7 +146,16 @@ public class Decrypt extends Crypto
 			verification.hash.reset();
 
 			if (directory)
-				decryptDirectory(path);
+			{
+				DocumentFile df = DocumentFile.fromSingleUri(this, path);
+				String root = "";
+				do
+				{
+					root = File.separator + df.getName() + root;
+				}
+				while ((df = df.getParentFile()) != null);
+				decryptDirectory(root, path);
+			}
 			else
 			{
 				current.size = total.size;
@@ -272,7 +286,7 @@ public class Decrypt extends Crypto
 
 	private void readMetadata() throws CryptoProcessException, IOException
 	{
-		final File f = new File(path);
+		DocumentFile documentFile = DocumentFile.fromSingleUri(this, path);
 		final byte[] c = new byte[Byte.SIZE / Byte.SIZE];
 		readAndHash(c);
 		for (int i = 0; i < (short)(Convert.byteFromBytes(c) & 0x00FF); i++)
@@ -306,25 +320,28 @@ public class Decrypt extends Crypto
 		}
 		if (directory)
 		{
-			if (!f.exists())
-				f.mkdirs();
-			else if (!f.isDirectory())
+			if (!documentFile.exists())
+				documentFile.createDirectory(documentFile.getName());
+			else if (!documentFile.isDirectory())
 				throw new CryptoProcessException(Status.FAILED_OUTPUT_MISMATCH);
 		}
 		else
 		{
-			if (!f.exists() || f.isFile())
-				output = new FileOutputStream(f);
-			else if (f.isDirectory())
-				output = new FileOutputStream(f.getAbsolutePath() + File.separatorChar + (name != null ? name : "decrypted"));
+			if (!documentFile.exists() || documentFile.isFile())
+				output = contentResolver.openOutputStream(documentFile.getUri());
+			else if (documentFile.isDirectory())
+			{
+				DocumentFile newFile = documentFile.createFile("*/*", (name != null ? name : "decrypted"));
+				output = contentResolver.openOutputStream(newFile.getUri());
+			}
 			else
 				throw new CryptoProcessException(Status.FAILED_OUTPUT_MISMATCH);
 		}
 		if (output == null && !directory)
 		{
-			if (!f.exists())
-				output = new FileOutputStream(f);
-			else if (!f.isFile())
+			if (!documentFile.exists())
+				output = contentResolver.openOutputStream(documentFile.getUri());
+			else if (!documentFile.isFile())
 				throw new CryptoProcessException(Status.FAILED_OUTPUT_MISMATCH);
 		}
 	}
@@ -336,7 +353,7 @@ public class Decrypt extends Crypto
 		readAndHash(new byte[(short)(Convert.byteFromBytes(b) & 0x00FF)]);
 	}
 
-	private void decryptDirectory(final String dir) throws CryptoProcessException, IOException
+	private void decryptDirectory(final String dir, final Uri uri) throws CryptoProcessException, IOException
 	{
 		for (total.offset = 0; total.offset < total.size && status == Status.RUNNING; total.offset++)
 		{
@@ -348,18 +365,21 @@ public class Decrypt extends Crypto
 			long l = Convert.longFromBytes(b);
 			b = new byte[(int)l];
 			readAndHash(b);
-			final String nm = dir + File.separator + new String(b);
+			//final String nm = dir + File.separator + new String(b);
+			final String name = new String(b);
+			DocumentFile documentFile = DocumentFile.fromSingleUri(this, uri);
 			switch (t)
 			{
 				case DIRECTORY:
-					new File(nm).mkdirs();
+					documentFile.createDirectory(name);
 					break;
 				case REGULAR:
 					current.offset = 0;
 					b = new byte[Long.SIZE / Byte.SIZE];
 					readAndHash(b);
 					current.size = Convert.longFromBytes(b);
-					output = new FileOutputStream(nm);
+					DocumentFile newFile = documentFile.createFile("*/*", name);
+					output = contentResolver.openOutputStream(newFile.getUri());// new FileOutputStream(nm);
 					decryptFile();
 					current.offset = current.size;
 					output.close();
@@ -367,6 +387,7 @@ public class Decrypt extends Crypto
 					break;
 				case LINK:
 				case SYMLINK:
+					/*
 					b = new byte[Long.SIZE / Byte.SIZE];
 					readAndHash(b);
 					l = Convert.longFromBytes(b);
@@ -377,6 +398,7 @@ public class Decrypt extends Crypto
 						Files.createLink(new File(nm).toPath(), new File(ln).toPath());
 					else
 						Files.createSymbolicLink(new File(nm).toPath(), new File(ln).toPath());
+					*/
 					break;
 			}
 		}

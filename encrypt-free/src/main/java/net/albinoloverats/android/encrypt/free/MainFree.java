@@ -25,6 +25,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -35,6 +36,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.os.ParcelFileDescriptor;
+import android.provider.DocumentsProvider;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -75,6 +78,9 @@ import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Set;
 
+import androidx.core.app.ActivityCompat;
+import androidx.documentfile.provider.DocumentFile;
+
 public class MainFree extends Activity
 {
 	private static final Set<String> CIPHERS = CryptoUtils.getCipherAlgorithmNames();
@@ -82,6 +88,13 @@ public class MainFree extends Activity
 	private static final Set<String> MODES = CryptoUtils.getCipherModeNames();
 	private static final Set<String> MACS = CryptoUtils.getMacAlgorithmNames();
 
+	private static final String[] STORAGE_PERMISSIONS =
+	{
+		Manifest.permission.READ_EXTERNAL_STORAGE,
+		Manifest.permission.WRITE_EXTERNAL_STORAGE,
+		Manifest.permission.MANAGE_DOCUMENTS,
+		Manifest.permission_group.STORAGE
+	};
 	private static final int STORAGE_PERMISSION_REQUEST = 1;
 
 	private DoubleProgressDialog doubleProgressDialog;
@@ -94,8 +107,8 @@ public class MainFree extends Activity
 	private boolean raw = false;
 	private Version version = Version.CURRENT;
 
-	private String filenameIn;
-	private String filenameOut;
+	private Uri filenameIn;
+	private Uri filenameOut;
 	private boolean encrypting = true;
 	private String cipher;
 	private String hash;
@@ -113,8 +126,7 @@ public class MainFree extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-			requestPermissions(new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, STORAGE_PERMISSION_REQUEST);
+		checkPermissions();
 
 		final SharedPreferences settings = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), Context.MODE_PRIVATE);
 		cipher = settings.getString(Options.CIPHER.toString(), null);
@@ -307,6 +319,16 @@ public class MainFree extends Activity
 		super.onStop();
 	}
 
+	private void checkPermissions()
+	{
+		for (final String permission : STORAGE_PERMISSIONS)
+			if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED)
+			{
+				ActivityCompat.requestPermissions(this, STORAGE_PERMISSIONS, STORAGE_PERMISSION_REQUEST);
+				return;
+			}
+	}
+
 	private void storePreferences()
 	{
 		final SharedPreferences.Editor editor = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), Context.MODE_PRIVATE).edit();
@@ -433,25 +455,26 @@ public class MainFree extends Activity
 	@Override
 	public synchronized void onActivityResult(final int requestCode, final int resultCode, final Intent data)
 	{
-		if (resultCode != Activity.RESULT_OK)
+		if (resultCode != Activity.RESULT_OK || data == null)
 			return;
-
-		final String filename = data.getStringExtra(FileDialog.RESULT_PATH);
+		final Uri uri = data.getData();
+		final DocumentFile documentFile = DocumentFile.fromSingleUri(this, uri);
+		final String display = documentFile.getName();
 		final FileAction fileAction = FileAction.fromValue(requestCode);
 		if (fileAction != null)
 			switch (fileAction)
 			{
 				case LOAD:
-					filenameIn = filename;
-					((Button)findViewById(R.id.button_file)).setText(filenameIn);
+					filenameIn = uri;
+					((Button)findViewById(R.id.button_file)).setText(display);
 					break;
 				case SAVE:
-					filenameOut = filename;
-					((Button)findViewById(R.id.button_output)).setText(filenameOut);
+					filenameOut = uri;
+					((Button)findViewById(R.id.button_output)).setText(display);
 					break;
 				case KEY:
-					((Button)findViewById(R.id.button_key)).setText(filename);
-					key = filename;
+					key = uri.toString();
+					((Button)findViewById(R.id.button_key)).setText(display);
 					break;
 			}
 		checkEnableButtons();
@@ -479,7 +502,7 @@ public class MainFree extends Activity
 
 		// update encryption button text
 		if (filenameIn != null)
-			encrypting = !Crypto.fileEncrypted(filenameIn);
+			encrypting = !Crypto.fileEncrypted(this, filenameIn);
 		if (encrypting)
 		{
 			encButton.setText(R.string.encrypt);
@@ -591,9 +614,9 @@ public class MainFree extends Activity
 		@Override
 		public void onClick(final View v)
 		{
-			final Intent intent = new Intent(context, FileDialog.class);
-			intent.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory().getPath());
-			intent.putExtra(FileDialog.CAN_SELECT_DIR, fileAction != FileAction.KEY);
+			final Intent intent = new Intent(fileAction  == FileAction.SAVE ? Intent.ACTION_CREATE_DOCUMENT : Intent.ACTION_OPEN_DOCUMENT);
+			intent.addCategory(Intent.CATEGORY_OPENABLE);
+			intent.setType("*/*");
 			MainFree.this.startActivityForResult(intent, fileAction.value);
 		}
 	}

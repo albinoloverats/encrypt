@@ -24,11 +24,9 @@ import net.albinoloverats.android.encrypt.lib.crypt.CryptoUtils;
 import net.albinoloverats.android.encrypt.lib.crypt.XIV;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
+import java.io.OutputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -45,7 +43,7 @@ import gnu.crypto.prng.LimitReachedException;
 import gnu.crypto.prng.PBKDF2;
 import gnu.crypto.util.PRNG;
 
-public class EncryptedFileOutputStream extends FileOutputStream
+public class EncryptedFileOutputStream extends OutputStream
 {
 	private final ECCFileOutputStream eccFileOutputStream;
 
@@ -57,18 +55,9 @@ public class EncryptedFileOutputStream extends FileOutputStream
 
 	private boolean open = true;
 
-	public EncryptedFileOutputStream(final File file) throws FileNotFoundException
+	public EncryptedFileOutputStream(final OutputStream stream) throws FileNotFoundException
 	{
-		super(file);
-		try
-		{
-			super.close();
-		}
-		catch (final IOException e)
-		{
-			// ignored
-		}
-		eccFileOutputStream = new ECCFileOutputStream(file);
+		eccFileOutputStream = new ECCFileOutputStream(stream);
 	}
 
 	public HashMAC initialiseEncryption(final String c, final String h, final String m, String a, final int kdfIterations, final byte[] k, final XIV ivType, final boolean useKDF) throws NoSuchAlgorithmException, InvalidKeyException, LimitReachedException, IOException
@@ -85,8 +74,7 @@ public class EncryptedFileOutputStream extends FileOutputStream
 		int keyLength = CryptoUtils.getCipherAlgorithmKeySize(c) / Byte.SIZE;
 		byte[] key = new byte[keyLength];
 
-		final int saltLength = keyLength;
-		final byte[] salt = new byte[saltLength];
+		final byte[] salt = new byte[keyLength];
 
 		final IMac keyMac = CryptoUtils.getMacAlgorithm(CryptoUtils.hmacFromHash(h));
 
@@ -104,7 +92,7 @@ public class EncryptedFileOutputStream extends FileOutputStream
 			keyGen.nextBytes(key);
 		}
 		else
-			System.arraycopy(keySource, 0, key, 0, keyLength < keySource.length ? keyLength : keySource.length);
+			System.arraycopy(keySource, 0, key, 0, Math.min(keyLength, keySource.length));
 
 		attributes = new HashMap<>();
 		attributes.put(IBlockCipher.KEY_MATERIAL, key);
@@ -144,9 +132,9 @@ public class EncryptedFileOutputStream extends FileOutputStream
 		return new HashMAC(hash, mac);
 	}
 
-	public void initaliseECC()
+	public void initialiseECC()
 	{
-		eccFileOutputStream.initalise();
+		eccFileOutputStream.initialise();
 	}
 
 	@Override
@@ -166,12 +154,6 @@ public class EncryptedFileOutputStream extends FileOutputStream
 		}
 		eccFileOutputStream.close();
 		open = false;
-	}
-
-	@Override
-	public FileChannel getChannel()
-	{
-		return eccFileOutputStream.getChannel();
 	}
 
 	@Override

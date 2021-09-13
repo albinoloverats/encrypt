@@ -22,19 +22,18 @@ package net.albinoloverats.android.encrypt.lib.io;
 
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
+import java.io.OutputStream;
 
 public class ECCFileOutputStream extends ECCFileStream
 {
-	private final FileOutputStream fileOutputStream;
+	private final OutputStream outputStream;
 
-	public ECCFileOutputStream(final File file) throws FileNotFoundException
+	public ECCFileOutputStream(final OutputStream stream) throws FileNotFoundException
 	{
-		fileOutputStream = new FileOutputStream(file);
+		outputStream = stream;
 		source = new byte[PAYLOAD];
 		offset = new int[] { 0, 0 };
 	}
@@ -46,23 +45,18 @@ public class ECCFileOutputStream extends ECCFileStream
 			final int[] remainder = { 0, PAYLOAD - offset[0] };
 			final byte[] x = new byte[remainder[1]];
 			System.arraycopy(x, 0, source, offset[0], remainder[1]);
-			fileOutputStream.write(offset[0]);
-			fileOutputStream.write(encode());
+			outputStream.write(offset[0]);
+			outputStream.write(encode());
 		}
-		fileOutputStream.flush();
-		fileOutputStream.close();
-	}
-
-	public FileChannel getChannel()
-	{
-		return fileOutputStream.getChannel();
+		outputStream.flush();
+		outputStream.close();
 	}
 
 	public void write(final byte[] bytes) throws IOException
 	{
 		if (!initialised)
 		{
-			fileOutputStream.write(bytes);
+			outputStream.write(bytes);
 			return;
 		}
 
@@ -77,8 +71,8 @@ public class ECCFileOutputStream extends ECCFileStream
 				return;
 			}
 			System.arraycopy(bytes, offset[1], source, offset[0], remainder[1]);
-			fileOutputStream.write(PAYLOAD);
-			fileOutputStream.write(encode());
+			outputStream.write(PAYLOAD);
+			outputStream.write(encode());
 			offset[0] = 0;
 			source = new byte[PAYLOAD];
 			offset[1] += remainder[1];
