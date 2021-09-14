@@ -52,6 +52,9 @@ public class Decrypt extends Crypto
 	{
 		if (intent == null)
 			return Service.START_REDELIVER_INTENT;
+
+		preInit();
+
 		final List<Uri> s = intent.getParcelableArrayListExtra("source");
 		final Uri source = s.get(0);
 		final Uri output = intent.getParcelableExtra("output");

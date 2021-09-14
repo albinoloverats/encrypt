@@ -108,8 +108,7 @@ public abstract class Crypto extends Service implements Runnable
 
 	abstract protected void process() throws InterruptedException, CryptoProcessException;
 
-	@Override
-	public int onStartCommand(final Intent intent, final int flags, final int startId)
+	protected void preInit()
 	{
 		status = Status.INIT;
 
@@ -118,7 +117,11 @@ public abstract class Crypto extends Service implements Runnable
 		current.size   = 0;
 		total.offset   = 0;
 		total.size     = 0;
+	}
 
+	@Override
+	public int onStartCommand(final Intent intent, final int flags, final int startId)
+	{
 		final Class<?> clas = (Class<?>)intent.getSerializableExtra("class");
 		final int action = intent.getIntExtra("action", 0);
 		final int wait = intent.getIntExtra("wait", 0);

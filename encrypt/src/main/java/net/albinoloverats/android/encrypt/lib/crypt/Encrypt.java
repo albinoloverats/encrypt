@@ -51,6 +51,9 @@ public class Encrypt extends Crypto
 	{
 		if (intent == null)
 			return Service.START_REDELIVER_INTENT;
+
+		preInit();
+
 		final List<Uri> source = intent.getParcelableArrayListExtra("source");
 		final Uri output       = intent.getParcelableExtra("output");
 		cipher                 = intent.getStringExtra("cipher");
