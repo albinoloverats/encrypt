@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -316,35 +315,6 @@ public class Decrypt extends Crypto
 			final DocumentFile newFile = documentFile.createFile(null, name);
 			output = contentResolver.openOutputStream(newFile.getUri());
 		}
-		/*
-		final DocumentFile documentFile = DocumentFile.fromSingleUri(this, path);
-		if (directory)
-		{
-			if (!documentFile.exists())
-				documentFile.createDirectory(documentFile.getName());
-			else if (!documentFile.isDirectory())
-				throw new CryptoProcessException(Status.FAILED_OUTPUT_MISMATCH);
-		}
-		else
-		{
-			if (!documentFile.exists() || documentFile.isFile())
-				output = contentResolver.openOutputStream(documentFile.getUri());
-			else if (documentFile.isDirectory())
-			{
-				final DocumentFile newFile = documentFile.createFile("* / *", (name != null ? name : "decrypted"));
-				output = contentResolver.openOutputStream(newFile.getUri());
-			}
-			else
-				throw new CryptoProcessException(Status.FAILED_OUTPUT_MISMATCH);
-		}
-		if (output == null && !directory)
-		{
-			if (!documentFile.exists())
-				output = contentResolver.openOutputStream(documentFile.getUri());
-			else if (!documentFile.isFile())
-				throw new CryptoProcessException(Status.FAILED_OUTPUT_MISMATCH);
-		}
-		*/
 	}
 
 	private void skipRandomData() throws IOException

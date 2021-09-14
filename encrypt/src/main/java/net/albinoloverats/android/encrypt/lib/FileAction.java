@@ -20,8 +20,6 @@
 
 package net.albinoloverats.android.encrypt.lib;
 
-import android.content.Intent;
-
 public enum FileAction
 {
 	LOAD(0),

@@ -31,7 +31,6 @@ import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZFormatException;
 import org.tukaani.xz.XZOutputStream;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.InvalidKeyException;
