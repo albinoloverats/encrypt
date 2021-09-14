@@ -136,7 +136,7 @@ public class Fortuna extends BasePRNG
   public void fillBlock() throws LimitReachedException
   {
     if (pool0Count >= MIN_POOL_SIZE
-        && System.currentTimeMillis () - lastReseed > 100)
+        && System.currentTimeMillis() - lastReseed > 100)
       {
         reseedCount++;
         byte[] seed = new byte[0];
@@ -145,8 +145,7 @@ public class Fortuna extends BasePRNG
             if (reseedCount % (1 << i) == 0)
               generator.addRandomBytes(pools[i].digest());
           }
-        lastReseed = System.currentTimeMillis ();
-        pool0Count = 0;
+        lastReseed = System.currentTimeMillis();
       }
     generator.nextBytes(buffer);
   }
@@ -320,7 +319,6 @@ public class Fortuna extends BasePRNG
     {
       try
         {
-          cipher.reset ();
           cipher.init(Collections.singletonMap(IBlockCipher.KEY_MATERIAL, key));
         }
       // We expect to never get an exception here.
@@ -340,12 +338,8 @@ public class Fortuna extends BasePRNG
      */
     private void incrementCounter()
     {
-      for (int i = 0; i < counter.length; i++)
-        {
-          counter[i]++;
-          if (counter[i] != 0)
-            break;
-        }
+      for (int i = 0; i < counter.length && counter[i] != 0; i++)
+        counter[i]++;
     }
   }
 }
