@@ -211,6 +211,7 @@ public class Main extends Activity
 		{
 			if (newValue > 0)
 				kdfIterations = newValue;
+			storePreferences();
 		});
 
 		// get reference to password text box

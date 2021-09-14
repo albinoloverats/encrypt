@@ -47,6 +47,8 @@ import gnu.crypto.prng.LimitReachedException;
 
 public class Decrypt extends Crypto
 {
+	private static final String SELF = ".";
+
 	@Override
 	public int onStartCommand(final Intent intent, final int flags, final int startId)
 	{
@@ -334,7 +336,7 @@ public class Decrypt extends Crypto
 		contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 		final DocumentFile root = DocumentFile.fromTreeUri(this, uri);
 
-		directories.put(".", root);
+		directories.put(SELF, root);
 
 		for (total.offset = 0; total.offset < total.size && status == Status.RUNNING; total.offset++)
 		{
@@ -346,21 +348,30 @@ public class Decrypt extends Crypto
 			long l = Convert.longFromBytes(b);
 			b = new byte[(int)l];
 			readAndHash(b);
-			final Path path = new File(new String(b)).toPath();
-			final String parentPath = path.getParent() != null ? path.getParent().toString() : ".";
-			final String filename = path.getFileName().toString();
-			final DocumentFile parent = directories.get(parentPath);
+			String fullPath = new String(b);
+			final Path path = new File(fullPath).toPath();
+			DocumentFile parent = directories.get(path.getParent() != null ? path.getParent().toString() : SELF);
 
 			switch (t)
 			{
 				case DIRECTORY:
-					if (!directories.containsKey(parentPath))
-						directories.put(parentPath, parent.createDirectory(parentPath));
+					String p = "";
+					for (final String d : fullPath.split("/"))
+					{
+						p += d;
+						if (!directories.containsKey(p))
+						{
+							parent = parent.createDirectory(d);
+							directories.put(p, parent);
+						}
+						p += '/';
+					}
 					break;
 				case REGULAR:
 					current.offset = 0;
 					b = new byte[Long.SIZE / Byte.SIZE];
 					readAndHash(b);
+					final String filename = path.getFileName().toString();
 					current.file = filename;
 					current.size = Convert.longFromBytes(b);
 					final DocumentFile newFile = parent.createFile(null, filename);
