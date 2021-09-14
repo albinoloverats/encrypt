@@ -87,10 +87,7 @@ public class MainFree extends Activity
 	{
 		Manifest.permission.READ_EXTERNAL_STORAGE,
 		Manifest.permission.WRITE_EXTERNAL_STORAGE
-	};/*,
-		Manifest.permission.MANAGE_DOCUMENTS,
-		Manifest.permission_group.STORAGE
-	};*/
+	};
 	private static final int STORAGE_PERMISSION_REQUEST = 1;
 
 	private DoubleProgressDialog doubleProgressDialog;
@@ -133,10 +130,10 @@ public class MainFree extends Activity
 
 		// setup the file chooser button
 		final Button fChooser = findViewById(R.id.button_file);
-		fChooser.setOnClickListener(new FileChooserListener(FileAction.LOAD, this));
+		fChooser.setOnClickListener(new FileChooserListener(FileAction.LOAD));
 
 		// setup the file output chooser button
-		findViewById(R.id.button_output).setOnClickListener(new FileChooserListener(FileAction.SAVE, this));
+		findViewById(R.id.button_output).setOnClickListener(new FileChooserListener(FileAction.SAVE));
 
 		// setup the hash and crypto spinners
 		final Spinner cSpinner = findViewById(R.id.spin_crypto);
@@ -227,7 +224,7 @@ public class MainFree extends Activity
 			public void afterTextChanged(final Editable s)
 			{
 				password = ((EditText)findViewById(R.id.text_password)).getText().toString();
-				if (password == null || password.length() == 0)
+				if (password.length() == 0)
 				{
 					password = null;
 					checkEnableButtons();
@@ -252,7 +249,7 @@ public class MainFree extends Activity
 
 		// select key file button
 		final Button keyButton = findViewById(R.id.button_key);
-		keyButton.setOnClickListener(new FileChooserListener(FileAction.KEY, this));
+		keyButton.setOnClickListener(new FileChooserListener(FileAction.KEY));
 		keyButton.setEnabled(false);
 
 		// get reference to encrypt/decrypt button
@@ -448,16 +445,17 @@ public class MainFree extends Activity
 			return;
 		final ArrayList<Uri> uris = new ArrayList<>();
 		final Uri uri = data.getData();
-		final String display;
+		String display;
 		if (uri != null)
 		{
 			uris.add(uri);
 			final DocumentFile documentFile = DocumentFile.fromSingleUri(this, uri);
-			display = documentFile.getName();
+			if ((display = documentFile.getName()) == null)
+				display = uri.getLastPathSegment();
 		}
 		else
 		{
-			ClipData clipData = data.getClipData();
+			final ClipData clipData = data.getClipData();
 			for (int i = 0; i < clipData.getItemCount(); i++)
 				uris.add(clipData.getItemAt(i).getUri());
 			display = getString(R.string.multipleSelected);
@@ -601,28 +599,35 @@ public class MainFree extends Activity
 	}
 
 	/*
-	 * private on... (something) classes
+	 * private on... (something) event handlers
 	 */
 
 	private class FileChooserListener implements OnClickListener
 	{
 		private final FileAction fileAction;
-		private final Context context;
 
-		public FileChooserListener(final FileAction fileAction, final Context context)
+		public FileChooserListener(final FileAction fileAction)
 		{
 			this.fileAction = fileAction;
-			this.context = context;
 		}
 
 		@Override
 		public void onClick(final View v)
 		{
-			final Intent intent = new Intent(fileAction.intent);
-			if (fileAction.intent != Intent.ACTION_OPEN_DOCUMENT_TREE)
+			final Intent intent;
+			if (fileAction == FileAction.SAVE && !encrypting)
+				intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+			else
 			{
-				if (fileAction != FileAction.KEY)
+				if (fileAction == FileAction.SAVE)
+					intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+				else if (fileAction == FileAction.KEY)
+					intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+				else
+				{
+					intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
 					intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+				}
 				intent.addCategory(Intent.CATEGORY_OPENABLE);
 				intent.setType("*/*");
 			}

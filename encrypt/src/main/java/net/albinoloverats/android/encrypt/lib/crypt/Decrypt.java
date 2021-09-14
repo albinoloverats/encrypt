@@ -33,10 +33,14 @@ import org.tukaani.xz.XZInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import androidx.documentfile.provider.DocumentFile;
 import gnu.crypto.mode.ModeFactory;
@@ -143,16 +147,7 @@ public class Decrypt extends Crypto
 			verification.hash.reset();
 
 			if (directory)
-			{
-				DocumentFile df = DocumentFile.fromSingleUri(this, path);
-				String root = "";
-				do
-				{
-					root = File.separator + df.getName() + root;
-				}
-				while ((df = df.getParentFile()) != null);
-				decryptDirectory(root, path);
-			}
+				decryptDirectory(path);
 			else
 			{
 				current.size = total.size;
@@ -283,7 +278,6 @@ public class Decrypt extends Crypto
 
 	private void readMetadata() throws CryptoProcessException, IOException
 	{
-		DocumentFile documentFile = DocumentFile.fromSingleUri(this, path);
 		final byte[] c = new byte[Byte.SIZE / Byte.SIZE];
 		readAndHash(c);
 		for (int i = 0; i < (short)(Convert.byteFromBytes(c) & 0x00FF); i++)
@@ -315,6 +309,15 @@ public class Decrypt extends Crypto
 					break;
 			}
 		}
+		if (name != null)
+		{
+			final DocumentFile documentFile = DocumentFile.fromTreeUri(this, path);
+			contentResolver.takePersistableUriPermission(path, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+			final DocumentFile newFile = documentFile.createFile(null, name);
+			output = contentResolver.openOutputStream(newFile.getUri());
+		}
+		/*
+		final DocumentFile documentFile = DocumentFile.fromSingleUri(this, path);
 		if (directory)
 		{
 			if (!documentFile.exists())
@@ -328,7 +331,7 @@ public class Decrypt extends Crypto
 				output = contentResolver.openOutputStream(documentFile.getUri());
 			else if (documentFile.isDirectory())
 			{
-				DocumentFile newFile = documentFile.createFile("*/*", (name != null ? name : "decrypted"));
+				final DocumentFile newFile = documentFile.createFile("* / *", (name != null ? name : "decrypted"));
 				output = contentResolver.openOutputStream(newFile.getUri());
 			}
 			else
@@ -341,6 +344,7 @@ public class Decrypt extends Crypto
 			else if (!documentFile.isFile())
 				throw new CryptoProcessException(Status.FAILED_OUTPUT_MISMATCH);
 		}
+		*/
 	}
 
 	private void skipRandomData() throws IOException
@@ -350,8 +354,15 @@ public class Decrypt extends Crypto
 		readAndHash(new byte[(short)(Convert.byteFromBytes(b) & 0x00FF)]);
 	}
 
-	private void decryptDirectory(final String dir, final Uri uri) throws CryptoProcessException, IOException
+	private void decryptDirectory(final Uri uri) throws CryptoProcessException, IOException
 	{
+		final Map<String, DocumentFile> directories = new HashMap<>();
+
+		contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+		final DocumentFile root = DocumentFile.fromTreeUri(this, uri);
+
+		directories.put(".", root);
+
 		for (total.offset = 0; total.offset < total.size && status == Status.RUNNING; total.offset++)
 		{
 			byte[] b = new byte[Byte.SIZE / Byte.SIZE];
@@ -362,21 +373,25 @@ public class Decrypt extends Crypto
 			long l = Convert.longFromBytes(b);
 			b = new byte[(int)l];
 			readAndHash(b);
-			//final String nm = dir + File.separator + new String(b);
-			final String name = new String(b);
-			DocumentFile documentFile = DocumentFile.fromSingleUri(this, uri);
+			final Path path = new File(new String(b)).toPath();
+			final String parentPath = path.getParent() != null ? path.getParent().toString() : ".";
+			final String filename = path.getFileName().toString();
+			final DocumentFile parent = directories.get(parentPath);
+
 			switch (t)
 			{
 				case DIRECTORY:
-					documentFile.createDirectory(name);
+					if (!directories.containsKey(parentPath))
+						directories.put(parentPath, parent.createDirectory(parentPath));
 					break;
 				case REGULAR:
 					current.offset = 0;
 					b = new byte[Long.SIZE / Byte.SIZE];
 					readAndHash(b);
+					current.file = filename;
 					current.size = Convert.longFromBytes(b);
-					DocumentFile newFile = documentFile.createFile("*/*", name);
-					output = contentResolver.openOutputStream(newFile.getUri());// new FileOutputStream(nm);
+					final DocumentFile newFile = parent.createFile(null, filename);
+					output = contentResolver.openOutputStream(newFile.getUri());
 					decryptFile();
 					current.offset = current.size;
 					output.close();

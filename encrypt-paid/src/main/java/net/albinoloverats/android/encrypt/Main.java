@@ -25,7 +25,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -33,11 +33,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.os.ParcelFileDescriptor;
-import android.provider.DocumentsProvider;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -56,7 +53,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.lamerman.FileDialog;
 import com.simaomata.DoubleProgressDialog;
 
 import net.albinoloverats.android.encrypt.lib.FileAction;
@@ -70,6 +66,7 @@ import net.albinoloverats.android.encrypt.lib.crypt.Status;
 import net.albinoloverats.android.encrypt.lib.crypt.Version;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -86,8 +83,7 @@ public class Main extends Activity
 	private static final String[] STORAGE_PERMISSIONS =
 	{
 		Manifest.permission.READ_EXTERNAL_STORAGE,
-		Manifest.permission.WRITE_EXTERNAL_STORAGE,
-		Manifest.permission_group.STORAGE
+		Manifest.permission.WRITE_EXTERNAL_STORAGE
 	};
 	private static final int STORAGE_PERMISSION_REQUEST = 1;
 
@@ -101,7 +97,7 @@ public class Main extends Activity
 	private boolean raw = false;
 	private Version version = Version.CURRENT;
 
-	private Uri filenameIn;
+	private ArrayList<Uri> filenamesIn;
 	private Uri filenameOut;
 	private boolean encrypting = true;
 	private String cipher;
@@ -110,7 +106,7 @@ public class Main extends Activity
 	private String mac;
 	private int kdfIterations;
 	private String password;
-	private String key;
+	private Uri key;
 
 	//private boolean cancel = false;
 
@@ -131,10 +127,10 @@ public class Main extends Activity
 
 		// setup the file chooser button
 		final Button fChooser = findViewById(R.id.button_file);
-		fChooser.setOnClickListener(new FileChooserListener(FileAction.LOAD, this));
+		fChooser.setOnClickListener(new FileChooserListener(FileAction.LOAD));
 
 		// setup the file output chooser button
-		findViewById(R.id.button_output).setOnClickListener(new FileChooserListener(FileAction.SAVE, this));
+		findViewById(R.id.button_output).setOnClickListener(new FileChooserListener(FileAction.SAVE));
 
 		// setup the hash and crypto spinners
 		final Spinner cSpinner = findViewById(R.id.spin_crypto);
@@ -225,7 +221,7 @@ public class Main extends Activity
 			public void afterTextChanged(final Editable s)
 			{
 				password = ((EditText)findViewById(R.id.text_password)).getText().toString();
-				if (password == null || password.length() == 0)
+				if (password.length() == 0)
 				{
 					password = null;
 					checkEnableButtons();
@@ -250,7 +246,7 @@ public class Main extends Activity
 
 		// select key file button
 		final Button keyButton = findViewById(R.id.button_key);
-		keyButton.setOnClickListener(new FileChooserListener(FileAction.KEY, this));
+		keyButton.setOnClickListener(new FileChooserListener(FileAction.KEY));
 		keyButton.setEnabled(false);
 
 		// get reference to encrypt/decrypt button
@@ -297,12 +293,12 @@ public class Main extends Activity
 
 	private void checkPermissions()
 	{
-		if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
-			checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
-			checkSelfPermission(Manifest.permission_group.STORAGE) != PackageManager.PERMISSION_GRANTED)
-		{
-			ActivityCompat.requestPermissions(this, STORAGE_PERMISSIONS, STORAGE_PERMISSION_REQUEST);
-		}
+		for (final String permission : STORAGE_PERMISSIONS)
+			if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED)
+			{
+				ActivityCompat.requestPermissions(this, STORAGE_PERMISSIONS, STORAGE_PERMISSION_REQUEST);
+				return;
+			}
 	}
 
 	private void storePreferences()
@@ -428,15 +424,29 @@ public class Main extends Activity
 	{
 		if (resultCode != Activity.RESULT_OK || data == null)
 			return;
+		final ArrayList<Uri> uris = new ArrayList<>();
 		final Uri uri = data.getData();
-		final DocumentFile documentFile = DocumentFile.fromSingleUri(this, uri);
-		final String display = documentFile.getName();
+		String display;
+		if (uri != null)
+		{
+			uris.add(uri);
+			final DocumentFile documentFile = DocumentFile.fromSingleUri(this, uri);
+			if ((display = documentFile.getName()) == null)
+				display = uri.getLastPathSegment();
+		}
+		else
+		{
+			final ClipData clipData = data.getClipData();
+			for (int i = 0; i < clipData.getItemCount(); i++)
+				uris.add(clipData.getItemAt(i).getUri());
+			display = getString(R.string.multipleSelected);
+		}
 		final FileAction fileAction = FileAction.fromValue(requestCode);
 		if (fileAction != null)
 			switch (fileAction)
 			{
 				case LOAD:
-					filenameIn = uri;
+					filenamesIn = uris;
 					((Button)findViewById(R.id.button_file)).setText(display);
 					break;
 				case SAVE:
@@ -444,7 +454,7 @@ public class Main extends Activity
 					((Button)findViewById(R.id.button_output)).setText(display);
 					break;
 				case KEY:
-					key = uri.toString();
+					key = uri;
 					((Button)findViewById(R.id.button_key)).setText(display);
 					break;
 			}
@@ -472,12 +482,12 @@ public class Main extends Activity
 		encButton.setEnabled(false);
 
 		// update encryption button text
-		if (filenameIn != null)
-			encrypting = !Crypto.fileEncrypted(this, filenameIn);
+		if (filenamesIn != null && filenamesIn.size() == 1)
+			encrypting = !Crypto.fileEncrypted(this, filenamesIn.get(0));
 		if (encrypting)
 		{
 			encButton.setText(R.string.encrypt);
-			if (filenameIn != null && filenameOut != null)
+			if (filenamesIn != null && filenamesIn.size() >= 1 && filenameOut != null)
 			{
 				cSpinner.setEnabled(true);
 				hSpinner.setEnabled(true);
@@ -494,7 +504,7 @@ public class Main extends Activity
 		else
 		{
 			encButton.setText(R.string.decrypt);
-			if (filenameIn != null && filenameOut != null)
+			if (filenamesIn != null && filenamesIn.size() == 1 && filenameOut != null)
 			{
 				password.setEnabled(true);
 				keyButton.setEnabled(true);
@@ -510,28 +520,6 @@ public class Main extends Activity
 		doubleProgressDialog = new DoubleProgressDialog(Main.this);
 		doubleProgressDialog.setMessage(getString(R.string.please_wait));
 		doubleProgressDialog.setCanceledOnTouchOutside(false);
-		/* decide whether this is the best option or not...
-		doubleProgressDialog.setCancelable(false);
-		doubleProgressDialog.setOnKeyListener(new DialogInterface.OnKeyListener()
-		{
-			@Override
-			public boolean onKey(final DialogInterface dialog, final int keyCode, final KeyEvent event)
-			{
-				if (event.getAction() != KeyEvent.ACTION_DOWN)
-					return false;
-				if (keyCode == KeyEvent.KEYCODE_BACK)
-				{
-					if (cancel)
-						doubleProgressDialog.cancel();
-					else
-					{
-						cancel = true;
-						Toast.makeText(getApplicationContext(), getString(R.string.doCanel), Toast.LENGTH_SHORT).show();
-					}
-				}
-				return keyCode != KeyEvent.KEYCODE_BACK;
-			}
-		});*/
 		doubleProgressDialog.setOnCancelListener(dialog ->
 		{
 			stopService(new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class));
@@ -573,15 +561,17 @@ public class Main extends Activity
 		intent.putExtra("action", encrypting ? R.string.encrypting : R.string.decrypting);
 		intent.putExtra("wait", R.string.please_wait);
 		intent.putExtra("icon", R.drawable.icon_bw);
-
-		intent.putExtra("source", filenameIn);
+		intent.putParcelableArrayListExtra("source", filenamesIn);
 		intent.putExtra("output", filenameOut);
 		intent.putExtra("cipher", cipher);
 		intent.putExtra("hash", hash);
 		intent.putExtra("mode", mode);
 		intent.putExtra("mac", mac);
 		intent.putExtra("key_file", key_file);
-		intent.putExtra("key", key_file ? key : password.getBytes());
+		if (key_file)
+			intent.putExtra("key", key);
+		else
+			intent.putExtra("key", password.getBytes());
 		intent.putExtra("raw", raw);
 		intent.putExtra("compress", compress);
 		intent.putExtra("follow", follow);
@@ -590,26 +580,38 @@ public class Main extends Activity
 	}
 
 	/*
-	 * private on... (something) classes
+	 * private on... (something) event handlers
 	 */
 
 	private class FileChooserListener implements OnClickListener
 	{
 		private final FileAction fileAction;
-		private final Context context;
 
-		public FileChooserListener(final FileAction fileAction, final Context context)
+		public FileChooserListener(final FileAction fileAction)
 		{
 			this.fileAction = fileAction;
-			this.context = context;
 		}
 
 		@Override
 		public void onClick(final View v)
 		{
-			final Intent intent = new Intent(fileAction  == FileAction.SAVE ? Intent.ACTION_CREATE_DOCUMENT : Intent.ACTION_OPEN_DOCUMENT);
-			intent.addCategory(Intent.CATEGORY_OPENABLE);
-			intent.setType("*/*");
+			final Intent intent;
+			if (fileAction == FileAction.SAVE && !encrypting)
+				intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+			else
+			{
+				if (fileAction == FileAction.SAVE)
+					intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+				else if (fileAction == FileAction.KEY)
+					intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+				else
+				{
+					intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+					intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+				}
+				intent.addCategory(Intent.CATEGORY_OPENABLE);
+				intent.setType("*/*");
+			}
 			Main.this.startActivityForResult(intent, fileAction.value);
 		}
 	}
@@ -664,6 +666,7 @@ public class Main extends Activity
 		@Override
 		public void onReceive(final Context ctx, final Intent intent)
 		{
+			final String currentFile = intent.getStringExtra("current.file");
 			final long currentOffset = intent.getLongExtra("current.offset", 0L);
 			final long currentSize   = intent.getLongExtra("current.size", 0L);
 			final long totalOffset   = intent.getLongExtra("total.offset", 0L);
@@ -674,7 +677,7 @@ public class Main extends Activity
 			{
 				messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.CURRENT.value, (int)currentSize, (int)currentOffset));
 				if (totalSize != currentSize && totalSize > 1)
-					messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.TOTAL.value, (int)totalSize, (int)totalOffset));
+					messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.TOTAL.value, (int)totalSize, (int)totalOffset, currentFile));
 				else
 					messageHandler.sendMessage(messageHandler.obtainMessage(ProgressUpdate.TOTAL.value, -1, -1));
 			}
@@ -723,6 +726,9 @@ public class Main extends Activity
 						doubleProgressDialog.showSecondaryProgress();
 						doubleProgressDialog.setSecondaryMax(msg.arg1);
 						doubleProgressDialog.setSecondaryProgress(msg.arg2);
+						final String currentFile = (String)msg.obj;
+						if (currentFile != null)
+							doubleProgressDialog.setMessage(currentFile);
 					}
 					break;
 			}

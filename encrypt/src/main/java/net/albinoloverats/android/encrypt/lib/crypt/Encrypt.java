@@ -31,6 +31,7 @@ import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZFormatException;
 import org.tukaani.xz.XZOutputStream;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -44,8 +45,6 @@ import gnu.crypto.util.PRNG;
 
 public class Encrypt extends Crypto
 {
-	private String root = "";
-	private final boolean follow = false;
 	private List<Uri> fakeDir = null;
 
 	@Override
@@ -185,9 +184,17 @@ public class Encrypt extends Crypto
 				{
 					if (status != Status.RUNNING)
 						break;
-					DocumentFile documentFile = DocumentFile.fromSingleUri(this, uri);
+					final DocumentFile documentFile = DocumentFile.fromSingleUri(this, uri);
+					if (!documentFile.isFile())
+						continue;
+					final String name = documentFile.getName();
+					current.file = name;
 					source = contentResolver.openInputStream(uri);
-					current.file = documentFile.getName();
+
+					hashAndWrite(Convert.toBytes((byte)FileType.REGULAR.value));
+					hashAndWrite(Convert.toBytes((long)name.length()));
+					hashAndWrite(name.getBytes());
+
 					current.offset = 0;
 					current.size = documentFile.length();
 					hashAndWrite(Convert.toBytes(current.size));

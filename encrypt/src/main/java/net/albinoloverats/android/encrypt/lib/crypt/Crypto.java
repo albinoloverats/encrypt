@@ -113,6 +113,12 @@ public abstract class Crypto extends Service implements Runnable
 	{
 		status = Status.INIT;
 
+		current.file   = null;
+		current.offset = 0;
+		current.size   = 0;
+		total.offset   = 0;
+		total.size     = 0;
+
 		final Class<?> clas = (Class<?>)intent.getSerializableExtra("class");
 		final int action = intent.getIntExtra("action", 0);
 		final int wait = intent.getIntExtra("wait", 0);
