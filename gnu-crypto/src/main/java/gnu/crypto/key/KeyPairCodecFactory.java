@@ -43,6 +43,11 @@ package gnu.crypto.key;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
+import java.security.Key;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.util.Set;
+
 import gnu.crypto.Registry;
 import gnu.crypto.key.dh.DHKeyPairRawCodec;
 import gnu.crypto.key.dh.GnuDHPrivateKey;
@@ -56,11 +61,6 @@ import gnu.crypto.key.rsa.RSAKeyPairRawCodec;
 import gnu.crypto.key.srp6.SRPKeyPairRawCodec;
 import gnu.crypto.key.srp6.SRPPrivateKey;
 import gnu.crypto.key.srp6.SRPPublicKey;
-
-import java.util.Set;
-import java.security.Key;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 
 /**
  * <p>A <i>Factory</i> class to instantiate key encoder/decoder instances.</p>

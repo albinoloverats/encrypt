@@ -43,13 +43,13 @@ package gnu.crypto.key.dh;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import gnu.crypto.Registry;
-
 import java.math.BigInteger;
 import java.security.Key;
 
 import javax.crypto.interfaces.DHKey;
 import javax.crypto.spec.DHParameterSpec;
+
+import gnu.crypto.Registry;
 
 /**
  * <p>A base asbtract class for both public and private Diffie-Hellman keys. It

@@ -44,14 +44,14 @@ package gnu.crypto.jce.mac;
 //
 // --------------------------------------------------------------------------
 
-import gnu.crypto.Registry;
-import gnu.crypto.mac.UMac32;
-import gnu.crypto.jce.spec.UMac32ParameterSpec;
-
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.spec.AlgorithmParameterSpec;
+
+import gnu.crypto.Registry;
+import gnu.crypto.jce.spec.UMac32ParameterSpec;
+import gnu.crypto.mac.UMac32;
 
 /**
  * The implementation of the UMAC-32 <i>Service Provider Interface</i>

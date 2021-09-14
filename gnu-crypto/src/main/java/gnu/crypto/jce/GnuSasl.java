@@ -41,14 +41,14 @@ version.  */
 
 package gnu.crypto.jce;
 
-import gnu.crypto.Registry;
-import gnu.crypto.sasl.ClientFactory;
-import gnu.crypto.sasl.ServerFactory;
-
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.Provider;
 import java.util.Set;
+
+import gnu.crypto.Registry;
+import gnu.crypto.sasl.ClientFactory;
+import gnu.crypto.sasl.ServerFactory;
 
 public final class GnuSasl extends Provider
 {

@@ -44,9 +44,9 @@ package gnu.crypto.jce.spec;
 //
 // --------------------------------------------------------------------------
 
-import gnu.crypto.prng.IRandom;
-
 import java.security.spec.AlgorithmParameterSpec;
+
+import gnu.crypto.prng.IRandom;
 
 /**
  * This class represents the algorithm parameters for the Truncated

@@ -43,13 +43,13 @@ package gnu.crypto.key;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import gnu.crypto.Registry;
-
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+
+import gnu.crypto.Registry;
 
 /**
  * <p>An implementation of an incoming message for use with key agreement

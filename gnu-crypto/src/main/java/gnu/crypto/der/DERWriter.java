@@ -41,12 +41,8 @@ package gnu.crypto.der;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-
 import java.math.BigInteger;
-
 import java.text.SimpleDateFormat;
-
-import java.util.BitSet;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;

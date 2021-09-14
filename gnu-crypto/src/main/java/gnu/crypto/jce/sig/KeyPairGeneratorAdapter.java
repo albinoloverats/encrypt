@@ -43,14 +43,14 @@ package gnu.crypto.jce.sig;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import gnu.crypto.key.IKeyPairGenerator;
-import gnu.crypto.key.KeyPairGeneratorFactory;
-
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGeneratorSpi;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
+
+import gnu.crypto.key.IKeyPairGenerator;
+import gnu.crypto.key.KeyPairGeneratorFactory;
 
 /**
  * The implementation of a generic {@link java.security.KeyPairGenerator}

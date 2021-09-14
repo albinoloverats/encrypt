@@ -43,11 +43,6 @@ package gnu.crypto.key.rsa;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import gnu.crypto.Registry;
-import gnu.crypto.key.IKeyPairGenerator;
-import gnu.crypto.util.Prime;
-import gnu.crypto.util.PRNG;
-
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -55,6 +50,11 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.Map;
+
+import gnu.crypto.Registry;
+import gnu.crypto.key.IKeyPairGenerator;
+import gnu.crypto.util.PRNG;
+import gnu.crypto.util.Prime;
 
 /**
  * <p>A key-pair generator for asymetric keys to use in conjunction with the RSA

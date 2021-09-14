@@ -43,15 +43,15 @@ package gnu.crypto.key.dh;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import gnu.crypto.key.KeyAgreementException;
-import gnu.crypto.key.IncomingMessage;
-import gnu.crypto.key.OutgoingMessage;
-
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Map;
 
 import javax.crypto.interfaces.DHPublicKey;
+
+import gnu.crypto.key.IncomingMessage;
+import gnu.crypto.key.KeyAgreementException;
+import gnu.crypto.key.OutgoingMessage;
 
 /**
  * <p>This implementation is the sender's part of the ElGamal key agreement

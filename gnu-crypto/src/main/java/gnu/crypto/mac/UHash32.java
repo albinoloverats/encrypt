@@ -43,16 +43,16 @@ package gnu.crypto.mac;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import gnu.crypto.cipher.IBlockCipher;
-import gnu.crypto.prng.IRandom;
-import gnu.crypto.prng.LimitReachedException;
-import gnu.crypto.prng.UMacGenerator;
-
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.util.HashMap;
 import java.util.Map;
+
+import gnu.crypto.cipher.IBlockCipher;
+import gnu.crypto.prng.IRandom;
+import gnu.crypto.prng.LimitReachedException;
+import gnu.crypto.prng.UMacGenerator;
 
 /**
  * <p><i>UHASH</i> is a keyed hash function, which takes as input a string of

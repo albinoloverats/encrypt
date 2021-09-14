@@ -44,16 +44,15 @@ package gnu.crypto.exp;  // -*- Mode: java; c-basic-offset: 3; -*-
 //
 // ---------------------------------------------------------------------------
 
-import gnu.crypto.cipher.IBlockCipher;
-import gnu.crypto.mac.IMac;
-import gnu.crypto.util.Sequence;
-import gnu.crypto.util.Util;
-
 import java.security.InvalidKeyException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+
+import gnu.crypto.cipher.IBlockCipher;
+import gnu.crypto.mac.IMac;
+import gnu.crypto.util.Sequence;
 
 /**
  * The Helix stream cipher and message authentication code. Helix combines a

@@ -43,15 +43,15 @@ package gnu.crypto.key;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import gnu.crypto.Registry;
 import gnu.crypto.key.dh.GnuDHKeyPairGenerator;
 import gnu.crypto.key.dss.DSSKeyPairGenerator;
 import gnu.crypto.key.rsa.RSAKeyPairGenerator;
 import gnu.crypto.key.srp6.SRPKeyPairGenerator;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * <p>A Factory to instantiate asymmetric keypair generators.</p>

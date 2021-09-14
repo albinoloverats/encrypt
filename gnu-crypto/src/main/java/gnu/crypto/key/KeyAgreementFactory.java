@@ -43,21 +43,21 @@ package gnu.crypto.key;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import gnu.crypto.Registry;
-import gnu.crypto.key.dh.DiffieHellmanSender;
 import gnu.crypto.key.dh.DiffieHellmanReceiver;
-import gnu.crypto.key.dh.ElGamalSender;
+import gnu.crypto.key.dh.DiffieHellmanSender;
 import gnu.crypto.key.dh.ElGamalReceiver;
+import gnu.crypto.key.dh.ElGamalSender;
 import gnu.crypto.key.srp6.SRP6Host;
-import gnu.crypto.key.srp6.SRP6User;
 import gnu.crypto.key.srp6.SRP6SaslClient;
 import gnu.crypto.key.srp6.SRP6SaslServer;
 import gnu.crypto.key.srp6.SRP6TLSClient;
 import gnu.crypto.key.srp6.SRP6TLSServer;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import gnu.crypto.key.srp6.SRP6User;
 
 /**
  * <p>A <i>Factory</i> class to generate key agreement protocol handlers.</p>

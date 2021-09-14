@@ -41,11 +41,6 @@ version.  */
 
 package gnu.crypto.jce;
 
-import gnu.crypto.Registry;
-import gnu.crypto.hash.HashFactory;
-import gnu.crypto.key.KeyPairGeneratorFactory;
-import gnu.crypto.sig.SignatureFactory;
-
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.Provider;
@@ -53,6 +48,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
+import gnu.crypto.Registry;
+import gnu.crypto.hash.HashFactory;
+import gnu.crypto.key.KeyPairGeneratorFactory;
+import gnu.crypto.sig.SignatureFactory;
 
 /**
  * A provider for classes defined in the <code>java.security</code> package.

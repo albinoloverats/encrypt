@@ -44,16 +44,17 @@ package gnu.crypto.jce.mac;
 //
 // --------------------------------------------------------------------------
 
-import gnu.crypto.mac.IMac;
-import gnu.crypto.mac.MacFactory;
-
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.crypto.MacSpi;
+
+import gnu.crypto.mac.IMac;
+import gnu.crypto.mac.MacFactory;
 
 /**
  * <p>The implementation of a generic {@link javax.crypto.Mac} adapter class

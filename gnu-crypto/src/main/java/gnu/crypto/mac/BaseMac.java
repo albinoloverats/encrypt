@@ -43,10 +43,10 @@ package gnu.crypto.mac;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import gnu.crypto.hash.IMessageDigest;
-
-import java.util.Map;
 import java.security.InvalidKeyException;
+import java.util.Map;
+
+import gnu.crypto.hash.IMessageDigest;
 
 /**
  * <p>A base abstract class to facilitate <i>MAC</i> (Message Authentication

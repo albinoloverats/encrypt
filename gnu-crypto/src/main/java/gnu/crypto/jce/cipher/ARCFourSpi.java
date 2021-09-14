@@ -44,12 +44,6 @@ package gnu.crypto.jce.cipher;
 //
 // --------------------------------------------------------------------------
 
-import gnu.crypto.Registry;
-import gnu.crypto.prng.ARCFour;
-import gnu.crypto.prng.IRandom;
-import gnu.crypto.prng.LimitReachedException;
-import gnu.crypto.prng.PRNGFactory;
-
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -57,7 +51,6 @@ import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
-
 import java.util.HashMap;
 
 import javax.crypto.BadPaddingException;
@@ -66,6 +59,12 @@ import javax.crypto.CipherSpi;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
+
+import gnu.crypto.Registry;
+import gnu.crypto.prng.ARCFour;
+import gnu.crypto.prng.IRandom;
+import gnu.crypto.prng.LimitReachedException;
+import gnu.crypto.prng.PRNGFactory;
 
 /**
  * The <i>Service Provider Interface</i> (<b>SPI</b>) for the ARCFOUR

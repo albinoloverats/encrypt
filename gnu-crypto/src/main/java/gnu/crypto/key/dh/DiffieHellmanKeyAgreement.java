@@ -43,14 +43,14 @@ package gnu.crypto.key.dh;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
+import java.math.BigInteger;
+
+import javax.crypto.interfaces.DHPrivateKey;
+
 import gnu.crypto.Registry;
 import gnu.crypto.key.BaseKeyAgreementParty;
 import gnu.crypto.key.KeyAgreementException;
 import gnu.crypto.util.Util;
-
-import java.math.BigInteger;
-
-import javax.crypto.interfaces.DHPrivateKey;
 
 /**
  * <p>The basic version of the Diffie-Hellman key agreement is described in the

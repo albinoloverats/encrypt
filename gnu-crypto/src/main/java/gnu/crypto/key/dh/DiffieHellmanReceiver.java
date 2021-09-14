@@ -43,16 +43,16 @@ package gnu.crypto.key.dh;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import gnu.crypto.key.KeyAgreementException;
-import gnu.crypto.key.IncomingMessage;
-import gnu.crypto.key.OutgoingMessage;
-import gnu.crypto.prng.IRandom;
-
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Map;
 
 import javax.crypto.interfaces.DHPrivateKey;
+
+import gnu.crypto.key.IncomingMessage;
+import gnu.crypto.key.KeyAgreementException;
+import gnu.crypto.key.OutgoingMessage;
+import gnu.crypto.prng.IRandom;
 
 /**
  * <p>This implementation is the receiver's part of the basic version of the

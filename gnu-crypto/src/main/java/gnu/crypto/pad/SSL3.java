@@ -38,8 +38,6 @@ exception statement from your version. */
 
 package gnu.crypto.pad;
 
-import gnu.crypto.util.PRNG;
-
 /**
  * The padding scheme used by the Secure Sockets Layer, version 3. This
  * padding scheme is used in the block-ciphered struct, e.g.:

@@ -44,8 +44,9 @@ package gnu.crypto.key;  // -*- c-basic-offset: 3 -*-
 //
 // ---------------------------------------------------------------------------
 
-import gnu.crypto.util.Util;
 import java.security.Key;
+
+import gnu.crypto.util.Util;
 
 /**
  * A secret key composed of a sequence of raw, unformatted octets. This class

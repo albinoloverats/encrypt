@@ -67,6 +67,7 @@ import gnu.crypto.pki.X509CertSelectorImpl;
 import gnu.crypto.pki.X509CRLSelectorImpl;
 import gnu.crypto.pki.ext.*;
 import gnu.crypto.der.OID;
+import gnu.crypto.pki.ext.Extension;
 import gnu.crypto.util.SimpleList;
 
 /**
@@ -419,7 +420,7 @@ public class PKIXCertPathValidator extends CertPathValidatorSpi
    * @param crl The CRL being checked.
    * @param path The path this CRL is being checked against.
    * @param now The value to use as 'now'.
-   * @param pubKeySubject The subject of the public key.
+   * @param pubKeyCert The subject of the public key.
    * @param pubKey The public key to check.
    * @return True if the CRL is acceptable.
    */

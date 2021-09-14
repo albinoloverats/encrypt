@@ -44,9 +44,9 @@ package gnu.crypto.jce.spec;
 //
 // --------------------------------------------------------------------------
 
-import gnu.crypto.util.Util;
-
 import java.security.spec.AlgorithmParameterSpec;
+
+import gnu.crypto.util.Util;
 
 /**
  * Block cipher parameters in GNU Crypto are the cipher's name, its block
@@ -134,7 +134,7 @@ public class BlockCipherParameterSpec implements AlgorithmParameterSpec {
    }
 
    public String toString() {
-      return getClass().getName() + " { " + 
+      return getClass().getName() + " { " +
          ((iv != null) ? ("IV=" + Util.toString(iv)) + ", " : "")
          + "BS=" + blockSize + ", KS=" + keySize + " }";
    }

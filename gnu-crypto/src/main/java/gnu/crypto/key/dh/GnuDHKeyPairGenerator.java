@@ -43,11 +43,6 @@ package gnu.crypto.key.dh;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import gnu.crypto.Registry;
-import gnu.crypto.hash.Sha160;
-import gnu.crypto.key.IKeyPairGenerator;
-import gnu.crypto.util.PRNG;
-
 import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.security.KeyPair;
@@ -57,6 +52,11 @@ import java.security.SecureRandom;
 import java.util.Map;
 
 import javax.crypto.spec.DHGenParameterSpec;
+
+import gnu.crypto.Registry;
+import gnu.crypto.hash.Sha160;
+import gnu.crypto.key.IKeyPairGenerator;
+import gnu.crypto.util.PRNG;
 
 /**
  * <p>An implementation of a Diffie-Hellman keypair generator.</p>

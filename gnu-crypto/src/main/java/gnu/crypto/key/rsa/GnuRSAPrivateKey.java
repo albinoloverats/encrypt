@@ -43,13 +43,13 @@ package gnu.crypto.key.rsa;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import gnu.crypto.Registry;
-import gnu.crypto.key.IKeyPairCodec;
-
 import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPrivateKey;
+
+import gnu.crypto.Registry;
+import gnu.crypto.key.IKeyPairCodec;
 
 /**
  * <p>An object that embodies an RSA private key.</p>

@@ -44,14 +44,14 @@ package gnu.crypto.jce.mac;
 //
 // --------------------------------------------------------------------------
 
-import gnu.crypto.Registry;
-import gnu.crypto.mac.TMMH16;
-import gnu.crypto.jce.spec.TMMHParameterSpec;
-
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.spec.AlgorithmParameterSpec;
+
+import gnu.crypto.Registry;
+import gnu.crypto.jce.spec.TMMHParameterSpec;
+import gnu.crypto.mac.TMMH16;
 
 /**
  * The implementation of the TMMH16 <i>Service Provider Interface</i>

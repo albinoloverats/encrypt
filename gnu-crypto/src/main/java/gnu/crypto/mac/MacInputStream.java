@@ -45,8 +45,8 @@ package gnu.crypto.mac;  // -*- c-basic-offset: 3 -*-
 // ---------------------------------------------------------------------------
 
 import java.io.FilterInputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * A filtering input stream that computes a MAC (message authentication code)

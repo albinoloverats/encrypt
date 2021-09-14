@@ -43,22 +43,22 @@ package gnu.crypto.key.srp6;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import gnu.crypto.Registry;
-import gnu.crypto.hash.IMessageDigest;
-import gnu.crypto.key.KeyAgreementException;
-import gnu.crypto.key.IncomingMessage;
-import gnu.crypto.key.OutgoingMessage;
-import gnu.crypto.sasl.srp.SRP;
-import gnu.crypto.sasl.srp.SRPAuthInfoProvider;
-import gnu.crypto.sasl.srp.SRPRegistry;
-import gnu.crypto.util.Util;
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
+
+import gnu.crypto.Registry;
+import gnu.crypto.hash.IMessageDigest;
+import gnu.crypto.key.IncomingMessage;
+import gnu.crypto.key.KeyAgreementException;
+import gnu.crypto.key.OutgoingMessage;
+import gnu.crypto.sasl.srp.SRP;
+import gnu.crypto.sasl.srp.SRPAuthInfoProvider;
+import gnu.crypto.sasl.srp.SRPRegistry;
+import gnu.crypto.util.Util;
 
 /**
  * <p>The implementation of the Host in the SRP-6 key agreement protocol.</p>

@@ -43,6 +43,12 @@ package gnu.crypto.mac;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.security.InvalidKeyException;
+import java.util.HashMap;
+import java.util.Map;
+
 import gnu.crypto.Registry;
 import gnu.crypto.cipher.CipherFactory;
 import gnu.crypto.cipher.IBlockCipher;
@@ -50,12 +56,6 @@ import gnu.crypto.prng.IRandom;
 import gnu.crypto.prng.LimitReachedException;
 import gnu.crypto.prng.UMacGenerator;
 import gnu.crypto.util.Util;
-
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.security.InvalidKeyException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * <p>The implementation of the <i>UMAC</i> (Universal Message Authentication

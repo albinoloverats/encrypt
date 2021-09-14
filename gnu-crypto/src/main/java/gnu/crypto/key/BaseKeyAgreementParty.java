@@ -43,13 +43,13 @@ package gnu.crypto.key;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import gnu.crypto.prng.IRandom;
-import gnu.crypto.prng.LimitReachedException;
-import gnu.crypto.util.PRNG;
-
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Map;
+
+import gnu.crypto.prng.IRandom;
+import gnu.crypto.prng.LimitReachedException;
+import gnu.crypto.util.PRNG;
 
 /**
  * <p>A base abstract class to facilitate implementations of concrete key

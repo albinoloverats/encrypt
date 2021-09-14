@@ -43,13 +43,13 @@ package gnu.crypto.mac;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import gnu.crypto.Registry;
-import gnu.crypto.hash.HashFactory;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
+import gnu.crypto.Registry;
+import gnu.crypto.hash.HashFactory;
 
 /**
  * <p>A <i>Factory</i> to instantiate Keyed-Hash Message Authentication Code

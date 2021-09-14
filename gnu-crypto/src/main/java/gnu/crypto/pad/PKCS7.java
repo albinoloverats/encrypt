@@ -43,10 +43,10 @@ package gnu.crypto.pad;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
+import java.io.PrintWriter;
+
 import gnu.crypto.Registry;
 import gnu.crypto.util.Util;
-
-import java.io.PrintWriter;
 
 /**
  * <p>The implementation of the PKCS7 padding algorithm.</p>

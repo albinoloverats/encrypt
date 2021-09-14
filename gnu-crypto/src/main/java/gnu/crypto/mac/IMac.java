@@ -43,8 +43,8 @@ package gnu.crypto.mac;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import java.util.Map;
 import java.security.InvalidKeyException;
+import java.util.Map;
 
 /**
  * <p>The basic visible methods of any MAC (Message Authentication Code)

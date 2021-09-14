@@ -43,12 +43,12 @@ package gnu.crypto.key.srp6;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import gnu.crypto.Registry;
-import gnu.crypto.key.IKeyPairCodec;
-
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.Key;
+
+import gnu.crypto.Registry;
+import gnu.crypto.key.IKeyPairCodec;
 
 /**
  * <p>An abstract representation of a base SRP ephemeral key.</p>
