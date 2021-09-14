@@ -89,7 +89,8 @@ static const version_t VERSIONS[] =
 	{ "2015.10", 0x0dae4a923e4ae71dllu },
 	{ "2017.09", 0x323031372e303921llu },
 	{ "2020.01", 0x323032302e30312ellu },
-	{ "2021.10", 0x323032312e30312ellu }
+	{ "2021.10", 0x323032312e30312ellu },
+	{ "CURRENT", 0x323032312e30312ellu }
 };
 
 extern void execute(crypto_t *c)
