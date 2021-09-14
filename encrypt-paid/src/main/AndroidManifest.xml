@@ -13,6 +13,5 @@
 		</activity>
 		<service android:name="net.albinoloverats.android.encrypt.lib.crypt.Encrypt" android:label="Encrypt"/>
 		<service android:name="net.albinoloverats.android.encrypt.lib.crypt.Decrypt" android:label="Decrypt"/>
-		<activity android:label="@string/app_name" android:name="com.lamerman.FileDialog" android:screenOrientation="portrait"/>
 	</application>
 </manifest>

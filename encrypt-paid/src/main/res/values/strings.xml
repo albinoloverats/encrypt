@@ -41,15 +41,4 @@
 	<string name="doCancel">Tap back again to cancel</string>
 
 	<string name="multipleSelected">Multiple Items Selected</string>
-
-	<string name="location">Location</string>
-	<string name="cant_read_folder">Folder can\'t be read!</string>
-	<string name="nnew">New</string>
-	<string name="select">Select</string>
-	<string name="file_name">File name:</string>
-	<string name="cancel">Cancel</string>
-	<string name="create">Save</string>
-	<string name="no_data">No Data</string>
-	<color name="red">#b22222</color>
-	<string name="err">Error</string>
 </resources>
