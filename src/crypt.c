@@ -214,7 +214,7 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, cha
 		if (*a)
 			*a = strdup(g);
 		if (k && i)
-			*k = ntohll(strtoull(i, NULL, 0));
+			*k = strtoull(i, NULL, 0x10);
 		gcry_free(z);
 	}
 	close(f);
