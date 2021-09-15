@@ -128,7 +128,7 @@ public abstract class Crypto extends Service implements Runnable
 		final int icon = intent.getIntExtra("icon", 0);
 
 		if (intent.getBooleanExtra("key_file", false))
-			setKey(Uri.parse(intent.getParcelableExtra("key")));
+			setKey(intent.getParcelableExtra("key"));
 		else
 			key = intent.getByteArrayExtra("key");
 		raw = intent.getBooleanExtra("raw", raw);
