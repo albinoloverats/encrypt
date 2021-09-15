@@ -392,6 +392,10 @@ public class Main extends Activity
 		final Button key = findViewById(R.id.button_key);
 		pass.setVisibility(key_file ? View.GONE : View.VISIBLE);
 		key.setVisibility(key_file ? View.VISIBLE : View.GONE);
+		pass.setText("");
+		key.setText(R.string.choose_key);
+		password = null;
+		this.key = null;
 	}
 
 	/*
@@ -568,6 +572,7 @@ public class Main extends Activity
 		intent.putExtra("hash", hash);
 		intent.putExtra("mode", mode);
 		intent.putExtra("mac", mac);
+		intent.putExtra("kdf_iterations", kdfIterations);
 		intent.putExtra("key_file", key_file);
 		if (key_file)
 			intent.putExtra("key", key);
