@@ -34,7 +34,7 @@
 #define CONF_COMPRESS       "compress"
 #define CONF_FOLLOW         "follow"
 #define CONF_KDF_ITERATIONS "kdf-iterations"
-#define CONF_KEY            "key"
+#define CONF_KEY_SOURCE     "key-source"
 #define CONF_CIPHER         "cipher"
 #define CONF_HASH           "hash"
 #define CONF_MODE           "mode"

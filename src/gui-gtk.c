@@ -421,7 +421,7 @@ G_MODULE_EXPORT gboolean on_key_source_change(GtkWidget *widget, gtk_widgets_t *
 		_key_source = KEY_SOURCE_FILE;
 	else if (widget == data->key_password_menu_item)
 		_key_source = KEY_SOURCE_PASSWORD;
-	update_config(CONF_KEY, KEY_SOURCE[_key_source]);
+	update_config(CONF_KEY_SOURCE, KEY_SOURCE[_key_source]);
 
 	gtk_widget_hide(_key_source == KEY_SOURCE_PASSWORD ? data->key_button : data->password_entry);
 	gtk_widget_show(_key_source == KEY_SOURCE_PASSWORD ? data->password_entry : data->key_button);

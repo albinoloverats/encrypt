@@ -15,7 +15,7 @@ compress true
 follow false
 
 # Default key source (GUI only). Either password or file.
-key password
+key-source password
 
 # Set the default cipher to use for encryption.
 cipher AES

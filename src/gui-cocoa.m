@@ -370,7 +370,7 @@ clean_up:
 		key_source = KEY_SOURCE_PASSWORD;
 	else
 		key_source = KEY_SOURCE_FILE;
-	update_config(CONF_KEY, KEY_SOURCE[key_source]);
+	update_config(CONF_KEY_SOURCE, KEY_SOURCE[key_source]);
 	[self keySourceToggle];
 }
 
