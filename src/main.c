@@ -95,8 +95,11 @@ int main(int argc, char **argv)
 
 	config_arg_t args[] =
 	{
-#if defined BUILD_GUI && !defined _WIN32
+#ifdef BUILD_GUI
+	#ifndef _WIN32
 		{ 'g', "no-gui",         NULL,            _("Do not use the GUI, even if it’s available"),               CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
+	#endif
+		{ ' ', "key-source",     _("key source"), _("Key data source"),                                          CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, true  },
 #endif
 		{ 'u', "no-cli",         NULL,            _("Do not display the CLI progress bar"),                      CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
 		{ 'c', "cipher",         _("algorithm"),  _("Algorithm to use to encrypt data"),                         CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
@@ -145,8 +148,9 @@ int main(int argc, char **argv)
 		dude = true;
 
 		int a = 0;
-#if defined BUILD_GUI
+#ifdef BUILD_GUI
 		a++;
+		args[++a].hidden = true;
 #endif
 		args[++a].hidden = true;
 		args[++a].hidden = true;
@@ -169,25 +173,28 @@ int main(int argc, char **argv)
 	char *output   = extra[1].response_value.string;
 
 	int a = -1;
-#if defined BUILD_GUI && !defined _WIN32
-	bool gui       = !args[++a].response_value.boolean; // gui by default unless --no-gui is specified
+#ifdef BUILD_GUI
+	#ifndef _WIN32
+	bool gui         = !args[++a].response_value.boolean; // gui by default unless --no-gui is specified
+	#endif
+	char *key_source = args[++a].response_value.string;
 #endif
-	bool cli       = !args[++a].response_value.boolean; // cli by default unless --no-cli is specified
+	bool cli         = !args[++a].response_value.boolean; // cli by default unless --no-cli is specified
 
-	char *cipher   = args[++a].response_value.string;
-	char *hash     = args[++a].response_value.string;
-	char *mode     = args[++a].response_value.string;
-	char *mac      = args[++a].response_value.string;
-	uint64_t kdf   = args[++a].response_value.number;
+	char *cipher     = args[++a].response_value.string;
+	char *hash       = args[++a].response_value.string;
+	char *mode       = args[++a].response_value.string;
+	char *mac        = args[++a].response_value.string;
+	uint64_t kdf     = args[++a].response_value.number;
 
-	char *key      = args[++a].response_value.string;
-	char *password = args[++a].response_value.string;
+	char *key        = args[++a].response_value.string;
+	char *password   = args[++a].response_value.string;
 
-	bool compress  = !args[++a].response_value.boolean; // compress by default unless --no-compress is specified
-	bool follow    = args[++a].response_value.boolean;
+	bool compress    = !args[++a].response_value.boolean; // compress by default unless --no-compress is specified
+	bool follow      = args[++a].response_value.boolean;
 
-	char *version  = args[++a].response_value.string;
-	bool raw       = args[++a].response_value.boolean;
+	char *version    = args[++a].response_value.string;
+	bool raw         = args[++a].response_value.boolean;
 
 	/*
 	 * list available algorithms if asked to (possibly both hash and
@@ -204,11 +211,6 @@ int main(int argc, char **argv)
 		la = list_macs();
 	if (la)
 		goto clean_up;
-
-#ifdef BUILD_GUI
-	gtk_widgets_t *widgets;
-	GtkBuilder *builder;
-	GError *error = NULL;
 
 	if (source)
 	{
@@ -230,6 +232,12 @@ int main(int argc, char **argv)
 		}
 		free(ptr);
 	}
+
+#ifdef BUILD_GUI
+	gtk_widgets_t *widgets;
+	GtkBuilder *builder;
+	GError *error = NULL;
+
 	#if !defined _WIN32
 	struct stat n;
 	fstat(STDIN_FILENO, &n);
@@ -237,7 +245,7 @@ int main(int argc, char **argv)
 	fstat(STDOUT_FILENO, &t);
 
 	if (!gui)
-	  ;
+		;
 	else
 	{
 	#else
@@ -363,7 +371,7 @@ int main(int argc, char **argv)
 
 			auto_select_algorithms(widgets, cipher, hash, mode, mac, kdf);
 			set_compatibility_menu(widgets, version);
-			if (!strcasecmp(key, "file"))
+			if (!strcasecmp(key_source, "file"))
 				set_key_source_menu(widgets, KEY_SOURCE_FILE);
 			else
 				set_key_source_menu(widgets, KEY_SOURCE_PASSWORD);
@@ -399,12 +407,12 @@ int main(int argc, char **argv)
 		key_data = (uint8_t *)password;
 		key_length = strlen(password);
 	}
-	else if (strcasecmp(key, "password") && strcasecmp(key, "file"))
+	else if (key)
 		key_data = (uint8_t *)key;
 	else if (isatty(STDIN_FILENO))
 	{
 		key_data = (uint8_t *)getpass(_("Please enter a password: "));
-		key_length = strlen((char *)key);
+		key_length = strlen((char *)key_data);
 		printf("\n");
 	}
 	else
@@ -447,6 +455,10 @@ int main(int argc, char **argv)
 #endif /* ! _WIN32 */
 
 clean_up:
+#ifdef BUILD_GUI
+	if (key_source)
+		free(key_source);
+#endif
 	if (cipher)
 		free(cipher);
 	if (hash)
