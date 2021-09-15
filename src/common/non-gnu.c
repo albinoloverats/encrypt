@@ -187,7 +187,7 @@ extern char *strchrnul(const char *s, int c_in)
 #endif /* __APPLE__ || _WIN32 */
 
 
-#if defined __APPLE__ || defined _WIN32 || defined __sun || defined BSD
+#if defined __APPLE__ || defined _WIN32 || defined __FreeBSD__ || defined __sun
 
 #include <stdint.h>
 #include <string.h>
@@ -296,7 +296,7 @@ extern int strverscmp(const char *s1, const char *s2)
 	}
 }
 
-#endif /* __APPLE__ || _WIN32 || __sun || BSD */
+#endif /* __APPLE__ || _WIN32 || __FreeBSD__ || __sun */
 
 
 #ifdef _WIN32

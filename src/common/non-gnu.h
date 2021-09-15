@@ -29,7 +29,7 @@
 	extern char *strchrnul(const char *string, int c);
 #endif
 
-#if defined __APPLE__ || defined _WIN32 || !defined __GNUC__
+#if defined __APPLE__ || defined _WIN32 || defined __FreeBSD__ || defined __sun
 	/*
 	 * Borrowed from:
 	 * https://github.com/lattera/glibc/blob/master/string/strverscmp.c
