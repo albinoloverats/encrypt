@@ -24,11 +24,11 @@ public abstract class Convert
 {
 	public static byte[] toBytes(final String s)
 	{
-		byte[] b = new byte[s.length() / 2];
+		final byte[] b = new byte[s.length() / 2];
 		for (int i = 0; i < b.length; i++)
 		{
-			int j = i * 2;
-			int k = Integer.parseInt(s.substring(j, j + 2), 16);
+			final int j = i * 2;
+			final int k = Integer.parseInt(s.substring(j, j + 2), 16);
 			b[i] = (byte)k;
 		}
 		return b;

@@ -251,13 +251,13 @@ public class Decrypt extends Crypto
 				mode = mode.substring(0, mode.indexOf('/'));
 				if (mac.contains("/"))
 				{
-					String kdf = mac.substring(mac.indexOf('/') + 1);
+					final String kdf = mac.substring(mac.indexOf('/') + 1);
 					mac = mac.substring(0, mac.indexOf('/'));
 					/*
 					 * tough tits if you used more than 2,147,483,647 iterations
 					 * on your desktop (where libgcrypt uses an unsigned long)
 					 */
-					kdfIterations = (int)Convert.longFromBytes(Convert.toBytes(kdf));
+					kdfIterations = (int)Long.parseLong(kdf, 0x10);
 				}
 			}
 		}
