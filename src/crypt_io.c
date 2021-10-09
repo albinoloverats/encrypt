@@ -228,7 +228,8 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 
 	gcry_md_open(&io_ptr->hash_handle, h, GCRY_MD_FLAG_SECURE);
 	gcry_cipher_open(&io_ptr->cipher_handle, c, m, GCRY_CIPHER_SECURE);
-	gcry_mac_open(&io_ptr->mac_handle, a, GCRY_MAC_FLAG_SECURE, NULL);
+	if (a != GCRY_MAC_NONE)
+		gcry_mac_open(&io_ptr->mac_handle, a, GCRY_MAC_FLAG_SECURE, NULL);
 	/*
 	 * generate a hash of the supplied key data
 	 */
@@ -323,11 +324,14 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	else
 		gcry_cipher_setiv(io_ptr->cipher_handle, iv, io_ptr->buffer_crypt->block);
 
-	gcry_mac_reset(io_ptr->mac_handle);
-	const char *mac_name = mac_name_from_id(a);
-	if (io_ptr->mac_init && (!strncmp("GMAC", mac_name, strlen("GMAC")) || !strncmp("POLY1305", mac_name, strlen("POLY1305"))))
-		gcry_mac_setiv(io_ptr->mac_handle, iv, io_ptr->buffer_crypt->block);
-	gcry_free(iv);
+	if (io_ptr->mac_init)
+	{
+		gcry_mac_reset(io_ptr->mac_handle);
+		const char *mac_name = mac_name_from_id(a);
+		if (io_ptr->mac_init && (!strncmp("GMAC", mac_name, strlen("GMAC")) || !strncmp("POLY1305", mac_name, strlen("POLY1305"))))
+			gcry_mac_setiv(io_ptr->mac_handle, iv, io_ptr->buffer_crypt->block);
+		gcry_free(iv);
+	}
 
 	/*
 	 * set the rest of the buffer
@@ -385,6 +389,8 @@ extern void io_encryption_mac(IO_HANDLE ptr, uint8_t **b, size_t *l)
 		return errno = EBADF , (void)NULL;
 	if (!io_ptr->mac_init)
 		return *l = 0 , (void)NULL;
+	if (!io_ptr->mac_init)
+		return;
 	*l = gcry_mac_get_algo_maclen(gcry_mac_get_algo(io_ptr->mac_handle));
 	uint8_t *x = gcry_realloc(*b, *l);
 	if (!x)
