@@ -26,10 +26,14 @@
 #include <fcntl.h>
 #include <stdarg.h>
 
+#include <pthread.h>
+
 #include <string.h>
 #include <stdbool.h>
 
 #include <sys/stat.h>
+
+#include <gcrypt.h>
 
 #if defined __FreeBSD__ || defined __sun || defined __APPLE__
 	#include <libgen.h>

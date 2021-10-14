@@ -18,15 +18,18 @@
  *
  */
 
+#include <errno.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <getopt.h>
-#include <errno.h>
 
 #include <ctype.h>
 #include <string.h>
 #include <stdbool.h>
+
+#include <gcrypt.h>
 
 #ifndef _WIN32
 	#include <sys/utsname.h>

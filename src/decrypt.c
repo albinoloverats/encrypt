@@ -28,6 +28,8 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
+#include <pthread.h>
+
 #include <inttypes.h> /* used instead of stdint as this defines the PRI… format placeholders (include <stdint.h> itself) */
 #include <stdbool.h>
 #include <string.h>
