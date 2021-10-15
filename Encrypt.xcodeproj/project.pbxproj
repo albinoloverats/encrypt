@@ -89,8 +89,8 @@
 		AB02FAF426EA253100B5F7F9 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		AB02FAF626EA253700B5F7F9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		AB02FAF826EA25EA00B5F7F9 /* libcurl.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.4.dylib; path = /usr/local/Cellar/curl/7.78.0/lib/libcurl.4.dylib; sourceTree = "<group>"; };
-		AB02FAF926EA25EA00B5F7F9 /* libgpg-error.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libgpg-error.0.dylib"; path = "/usr/local/Cellar/libgpg-error/1.42/lib/libgpg-error.0.dylib"; sourceTree = "<group>"; };
-		AB02FAFA26EA25EA00B5F7F9 /* libgcrypt.20.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgcrypt.20.dylib; path = /usr/local/Cellar/libgcrypt/1.9.4/lib/libgcrypt.20.dylib; sourceTree = "<group>"; };
+		AB02FAF926EA25EA00B5F7F9 /* libgpg-error.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libgpg-error.0.dylib"; path = "/usr/local/Cellar/libgpg-error/1.42_1/lib/libgpg-error.0.dylib"; sourceTree = "<group>"; };
+		AB02FAFA26EA25EA00B5F7F9 /* libgcrypt.20.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgcrypt.20.dylib; path = /usr/local/Cellar/libgcrypt/1.9.4_1/lib/libgcrypt.20.dylib; sourceTree = "<group>"; };
 		AB02FAFB26EA25EA00B5F7F9 /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = /usr/local/Cellar/xz/5.2.5/lib/liblzma.5.dylib; sourceTree = "<group>"; };
 		AB02FB0426EA48C700B5F7F9 /* Automator.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Automator.framework; path = System/Library/Frameworks/Automator.framework; sourceTree = SDKROOT; };
 		AB02FB0626EA4A9F00B5F7F9 /* FileProvider.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FileProvider.framework; path = System/Library/Frameworks/FileProvider.framework; sourceTree = SDKROOT; };
@@ -507,8 +507,8 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/lib,
-					/usr/local/Cellar/libgcrypt/1.9.4/lib,
-					"/usr/local/Cellar/libgpg-error/1.42/lib",
+					/usr/local/Cellar/libgcrypt/1.9.4_1/lib,
+					"/usr/local/Cellar/libgpg-error/1.42_1/lib",
 					/usr/local/Cellar/xz/5.2.5/lib,
 					/usr/local/Cellar/curl/7.78.0/lib,
 				);
@@ -536,8 +536,8 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/lib,
-					/usr/local/Cellar/libgcrypt/1.9.4/lib,
-					"/usr/local/Cellar/libgpg-error/1.42/lib",
+					/usr/local/Cellar/libgcrypt/1.9.4_1/lib,
+					"/usr/local/Cellar/libgpg-error/1.42_1/lib",
 					/usr/local/Cellar/xz/5.2.5/lib,
 					/usr/local/Cellar/curl/7.78.0/lib,
 				);
