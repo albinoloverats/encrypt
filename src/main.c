@@ -117,9 +117,9 @@ int main(int argc, char **argv)
 		{ 'f', "follow",         NULL,            _("Follow symlinks, the default is to store the link itself"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
 		{ 'b', "back-compat",    _("version"),    _("Create an encrypted file that is backwards compatible"),    CONFIG_ARG_REQ_STRING,  { 0x0 }, false, true,  false },
 #ifndef _WIN32
-		{ 'r', "raw",            NULL,            _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situation"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false },
+		{ 'r', "raw",            NULL,            _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false },
 #else
-		{ 'r', "raw",            NULL,            _("Don't generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situation"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false },
+		{ 'r', "raw",            NULL,            _("Don't generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false },
 #endif
 		{ 0x0, NULL, NULL, NULL, CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false }
 	};
