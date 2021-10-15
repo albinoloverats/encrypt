@@ -1,16 +1,43 @@
-encrypt is a small application which has been designed, from the beginning (all three of them so far), to be as simple to use as is practical. The idea is small and simple, yet with encryption that aims to be a strong as possible, while also giving the user the choice about how their data is secured.
+encrypt is a small application which has been designed, from the
+beginning (all three of them so far), to be as simple to use as is
+practical. The idea is small and simple, yet with encryption that aims
+to be a strong as possible, while also giving the user the choice about
+how their data is secured.
 
-It is mostly written in C, and uses the [GTK][] for the GUI (version 3.0 or later), to help increase the portability and usefulness across many different operating systems. All of the cryptographic functions are provided by [libgcrypt][]; this increases the number of available algorithms for the end user, and also ensures that the implementations are correct and (largely) free of (serious) bugs :-)
+It is mostly written in C, and uses the [GTK][] for the GUI (version 3.0
+or later), to help increase the portability and usefulness across many
+different operating systems. All of the cryptographic functions are
+provided by [libgcrypt][]; this increases the number of available
+algorithms for the end user, and also ensures that the implementations
+are correct and (largely) free of (serious) bugs :-)
 
-Not only do we have an Android version, but we also now have a native release for Mac OS X! (Of course if you would prefer, you can still build an X11 version using Homebrew and following the typical *nix instructions in the documentation.)
+Not only do we have an Android version, but we also now have a native
+release for Mac OS X! (Of course if you would prefer, you can still
+build an X11 version using Homebrew and following the typical *nix
+instructions in the documentation.)
 
-Currently we provide 64 bit binary packages&mdash;with GUI&mdash;for Arch, Debian, Fedora, Slackware, FreeBSD, Solaris 11, Apple's OS X, as well as now Microsoft Windows. The DEB package should be compatible with the latest version of Ubuntu, and the RPM is _(mostly)_ compatible with SUSE (it might complain that it cannot satisfy the cURL dependency but this can be ignored; you just won't be prompted when a new version of encrypt is available). The Windows package, whilst built an tested on Windows 7, should also work on later versions.  Finally, we're working on an ebuild file for Gentoo.
+Currently we provide 64 bit binary packages&mdash;with GUI&mdash;for
+Arch, Debian, Fedora, Slackware, FreeBSD, Solaris 11, Apple's OS X, as
+well as now Microsoft Windows. The DEB package should be compatible with
+the latest version of Ubuntu, and the RPM is _(mostly)_ compatible with
+SUSE (it might complain that it cannot satisfy the cURL dependency but
+this can be ignored; you just won't be prompted when a new version of
+encrypt is available). The Windows package, whilst built an tested on
+Windows 7, should also work on later versions.  Finally, we're working
+on an ebuild file for Gentoo.
 
-It's this level of portability and simplicity which we hope will make encrypt more useful to people who use different operating systems in different situations: home, office, on the go, etc. as it uses the same algorithms and interface. <span style="color:#dc143c;">Be aware that the Whirlpool algorithm is different on desktops versus Android.</span>
+It's this level of portability and simplicity which we hope will make
+encrypt more useful to people who use different operating systems in
+different situations: home, office, on the go, etc. as it uses the same
+algorithms and interface. <span style="color:#dc143c;">Be aware that the
+Whirlpool algorithm is different on desktops versus Android.</span>
 
-NB: It has been noted that some characters, when used in the password, aren't completely cross-platform; for instance the character £ doesn't play well on Android devices.
+NB: It has been noted that some characters, when used in the password,
+aren't completely cross-platform; for instance the character £ doesn't
+play well on Android devices.
 
-Binary packages, and GPG signatures, for version 2020.01 are available below (as well as at [Sourceforge]):
+Binary packages, and GPG signatures, for version 2020.01 are available
+below (as well as at [Sourceforge]):
 
 |OS|Package|GPG Signature|Screenshots|
 |-|-|-|-|
@@ -27,9 +54,15 @@ Binary packages, and GPG signatures, for version 2020.01 are available below (as
 
 .
 
-A demo of using the GUI can be found within the [pixmaps](/src/encrypt/pixmaps/screencast_linux.mp4) directory as well as on [YouTube](https://youtu.be/4au0MWCjIzI).
+A demo of using the CLI can be found over on
+[asciinema](https://asciinema.org/a/175955), whereas a GUI demo can be
+found within the [pixmaps](/src/encrypt/pixmaps/screencast_linux.mp4)
+directory as well as on [YouTube](https://youtu.be/4au0MWCjIzI).
 
-¹ At the moment, the OS X app isn't signed by Apple and as such is likely to be quarantined when first run; to overcome this (for now) you will need to open a terminal and remove any extended attributes with the following: ```xattr -cr Encrypt.app```
+¹ At the moment, the OS X app isn't signed by Apple and as such is
+likely to be quarantined when first run; to overcome this (for now) you
+will need to open a terminal and remove any extended attributes with the
+following: ```xattr -cr Encrypt.app```
 
 [GTK]: http://www.gtk.org
 [libgcrypt]: http://www.gnu.org/software/libgcrypt/
