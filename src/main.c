@@ -106,10 +106,10 @@ int main(int argc, char **argv)
 		{ ' ', "key-source",     _("key source"), _("Key data source"),                                          CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, true  },
 #endif
 		{ 'u', "no-cli",         NULL,            _("Do not display the CLI progress bar"),                      CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
-		{ 'c', "cipher",         _("algorithm"),  _("Algorithm to use to encrypt data"),                         CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
-		{ 's', "hash",           _("algorithm"),  _("Hash algorithm to generate key"),                           CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
-		{ 'm', "mode",           _("mode"),       _("The encryption mode to use"),                               CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
-		{ 'a', "mac",            _("mac"),        _("The MAC algorithm to use"),                                 CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
+		{ 'c', "cipher",         _("algorithm"),  _("Algorithm to use to encrypt data; use 'list' to show available cipher algorithms"), CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
+		{ 's', "hash",           _("algorithm"),  _("Hash algorithm to generate key; use 'list' to show available hash algorithms"),     CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
+		{ 'm', "mode",           _("mode"),       _("The encryption mode to use; use 'list' to show available cipher modes"),            CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
+		{ 'a', "mac",            _("mac"),        _("The MAC algorithm to use; use 'list' to show available MACs"),                      CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
 		{ 'i', "kdf-iterations", _("iterations"), _("Number of iterations the KDF should use"),                  CONFIG_ARG_REQ_NUMBER,  { 0x0 }, false, false, false },
 		{ 'k', "key",            _("key file"),   _("File whose data will be used to generate the key"),         CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
 		{ 'p', "password",       _("password"),   _("Password used to generate the key"),                        CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
@@ -131,9 +131,12 @@ int main(int argc, char **argv)
 	};
 	char *notes[] =
 	{
-		_("If you do not supply a key or password, you will be prompted for one."),
-		_("To see a list of available algorithms or modes use list as the argument."),
+		_("If you do not supply a key or password, you will be prompted for one. This will then be used to generate a key to encrypt the data with (using the specified hash and MAC)."),
+		_("To see available algorithms or modes use list as the argument."),
+		_("If either the source file or destination file are omitted then stdin/stdout are used."),
+		_("When encrypting, -c, -s -m, and -a are required to specify the algorithms you wish to use; when decrypting the algorithms originally used are read from the encrypted file, (although you can omit the algorithm options if you have configured defaults in ~/.encryptrc)."),
 		_("If you encrypted data using --raw then you will need to pass the algorithms as arguments when decrypting."),
+		_("You can toggle compression and how symbolic links are handled in the configuration file ~/.encryptrc"),
 		NULL
 	};
 

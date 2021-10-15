@@ -2,14 +2,17 @@
 .SH NAME
 \fBencrypt\fR \- A simple, cross platform, file encryption application
 .SH SYNOPSIS
-\fBencrypt\fR
+\fBencrypt\fR [\fIsource\fR] [\fIoutput\fR]
 [\fB\-c\fR \fIalgorithm\fR]
 [\fB\-s\fR \fIalgorithm\fR]
 [\fB\-m\fR \fImode\fR]
 [\fB\-a\fR \fImac\fR]
-[\fB\-k\fR \fIkey\fR|\fB\-p\fR \fIpassword\fR]
-[\fIsource\fR]
-[\fIdestination\fR]
+[\fB\-i\fR \fIiterations\fR]
+[\fB\-k\fR \fIkey file\fR|\fB\-p\fR \fIpassword\fR]
+[\fB\-x\fR]
+[\fB\-f\fR]
+[\fB\-b\fR \fIversion\fR]
+[\fB\-r\fR]
 .SH DESCRIPTION
 \fBencrypt\fR is a simple, cross platform, file encryption
 application\(emsuitable for any modern desktop or mobile operating system.
@@ -34,20 +37,18 @@ Do not use the GUI, even if it's available
 Do not display the CLI progress bar
 .TP
 .BR \-c ", " \-\-cipher =\fIALGORITHM\fR
-Algorithm to use to encrypt data; use \fIlist\fR to show a list of available
-cipher algorithms
+Algorithm to use to encrypt data; use \fIlist\fR to show available cipher
+algorithms
 .TP
 .BR \-s ", " \-\-hash =\fIALGORITHM\fR
-Hash algorithm to generate key; use \fIlist\fR to show a list of available
-hash algorithms
+Hash algorithm to generate key; use \fIlist\fR to show available hash algorithms
 .TP
 .BR \-m ", " \-\-mode =\fIMODE\fR
-The encryption mode to use; use \fIlist\fR to show a list of available
-encryption modes
+The encryption mode to use; use \fIlist\fR to show available encryption modes
 .TP
 .BR \-a ", " \-\-mac =\fIMAC\fR
 The MAC to use for key derivation and message authentication; use \fIlist\fR
-to show a list of available MACs
+to show available MACs
 .TP
 .BR \-i ", " \-\-kdf-iterations =\fIITERATIONS\fR
 Number of iterations the KDF should use
@@ -62,7 +63,7 @@ Password used to generate the key
 Do not compress the plain text using the xz algorithm
 .TP
 .BR \-f ", " \-\-follow
-Follow symlinks, the default is to store the link itself
+Follow symlinks; the default is to store the link itself
 .SH ADVANCED OPTIONS
 .TP
 .BR \-b ", " \-\-back\-compat =\fIVERSION\fR
@@ -82,26 +83,31 @@ real-time.
 .BR /usr/share/encrypt/encryptrc
 And example configuration file.
 .SH NOTES
+If you do not supply a key or password, you will be prompted for one. This
+will then be used to generate a key to encrypt the data with (using the
+specified hash and MAC).
+.P
+To see available algorithms or modes use \fIlist\fR as the argument.
+.P
 If either the source file or destination file are omitted then stdin/stdout
-are used. When encrypting, both \fB\-s\fR and \fB\-c\fR are required\(dg
-to specify the algorithms you wish to use; when decrypting the algorithms
-originally used are read from the encrypted file.
+are used.
 .P
-\(dg You can omit the algorithm options if you have configured defaults in
-\fB~/.encryptrc\fR
+When encrypting, \fB\-c\fR, \fB\-s\fR \fB\-m\fR, and \fB\-a\fR are required\(dg to specify
+the algorithms you wish to use; when decrypting the algorithms originally
+used are read from the encrypted file.
 .P
-If you do not specify either a key or a password, you will be prompted to
-enter a password. This will then be used to generate a key to encrypt the
-data with (using the specified hash and MAC).
-.P
-To see a list of available algorithms or modes use list as the argument.
+If you encrypted data using \fB\-\-raw\fR then you will need to pass the algorithms
+as arguments when decrypting.
 .P
 You can toggle compression and how symbolic links are handled in the
 configuration file \fB~/.encryptrc\fR
+.P
+\(dg You can omit the algorithm options if you have configured defaults in
+\fB~/.encryptrc\fR
 .SH AUTHOR
 Written by Ashley Morgan Anderson
 .SH BUGS
-There are no bugs only features yet to be documented :p
+There are no bugs, only features yet to be documented :p
 .P
 Although if you do think you've really found a bug, please first check the
 README or the CHANGELOG to see if it has already been documented and scheduled
