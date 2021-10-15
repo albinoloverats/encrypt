@@ -236,7 +236,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 			z->kdf_iterations = KEY_ITERATIONS_201709;
 			break;
 		case VERSION_2020_01:
-		case VERSION_2021_10:
+		case VERSION_2022_01:
 			z->kdf_iterations = n ? : KEY_ITERATIONS_DEFAULT;
 		// case VERSION_CURRENT:
 			/*
@@ -280,7 +280,7 @@ static void *process(void *ptr)
 		case VERSION_2015_10:
 		case VERSION_2017_09:
 		case VERSION_2020_01:
-		case VERSION_2021_10:
+		case VERSION_2022_01:
 		default:
 			/* no changes */
 			break;

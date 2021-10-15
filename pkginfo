@@ -1,6 +1,6 @@
 PKG="encrypt"
 NAME="encrypt"
-VERSION="2021.10"
+VERSION="2022.01"
 ARCH="i386"
 CLASSES="none"
 CATEGORY="utility"

@@ -8,8 +8,8 @@ A ICON "pixmaps/encrypt.ico"
 1 24 "etc/encrypt.exe.Manifest"
 
 1 VERSIONINFO
-FILEVERSION 2021,10,0,0
-PRODUCTVERSION 2021,10,0,0
+FILEVERSION 2022,1,0,0
+PRODUCTVERSION 2022,1,0,0
 FILETYPE VFT_APP
 {
   BLOCK "StringFileInfo"
@@ -17,14 +17,14 @@ FILETYPE VFT_APP
     BLOCK "080904E4"
     {
       VALUE "CompanyName", "albinoloverats ~ Software Development"
-      VALUE "FileVersion", "2021.10"
+      VALUE "FileVersion", "2022.01"
       VALUE "FileDescription", "encrypt is a simple, cross platform utility for securing your personal files"
       VALUE "InternalName", "encrypt"
       VALUE "LegalCopyright", "Copyright (c) 2004-2021, albinoloverats ~ Software Development"
       VALUE "LegalTrademarks", ""
       VALUE "OriginalFilename", "encrypt.exe"
       VALUE "ProductName", "encrypt"
-      VALUE "ProductVersion", "2021.10"
+      VALUE "ProductVersion", "2022.01"
     }
   }
   BLOCK "VarFileInfo"

@@ -2,7 +2,7 @@
 
 APP            = encrypt
 APP_SIG        = encrypt-signed
-VERSION        = 2021.10
+VERSION        = 2022.01
 
 CC             = gcc
 WRES           = windres

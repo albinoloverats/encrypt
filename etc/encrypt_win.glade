@@ -138,7 +138,7 @@
 		<property name="skip_taskbar_hint">True</property>
 		<property name="skip_pager_hint">True</property>
 		<property name="program_name">encrypt</property>
-		<property name="version">2021.10</property>
+		<property name="version">2022.01</property>
 		<property name="copyright" translatable="yes">Copyright © 2004-2021, albinoloverats ~ Software Development</property>
 		<property name="website">https://albinoloverats.net/projects/encrypt</property>
 		<property name="website_label" translatable="yes">https://albinoloverats.net/projects/encrypt</property>
