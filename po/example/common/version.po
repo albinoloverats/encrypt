@@ -1,14 +1,81 @@
-#: src/common/version.h:23
-#| Version %s is available!
-msgid "Version %s is available!"
+#: src/common/version.c:106
+#| %s version
+msgid "%s version"
 msgstr ""
 
-#: src/common/version.h:24
-#| Version %s of %s is available!
-msgid "Version %s of %s is available!"
+#: src/common/version.c:117
+#| built on
+msgid "built on"
 msgstr ""
 
-#: src/common/version.h:25
-#| Version %s of %s is available from\n%s\n
-msgid "Version of %s is available from\n%s\n"
+#: src/common/version.c:118
+#| git commit
+msgid "git commit"
 msgstr ""
+
+#: src/common/version.c:119
+#| build os
+msgid "build os"
+msgstr ""
+
+#: src/common/version.c:120
+#| compiler
+msgid "compiler"
+msgstr ""
+
+#: src/common/version.c:121
+#| cflags
+msgid "cflags"
+msgstr ""
+
+#: src/common/version.c:122
+#| cppflags
+msgid "cppflags"
+msgstr ""
+
+#: src/common/version.c:123
+#| runtime
+msgid "runtime"
+msgstr ""
+
+#: src/common/version.c:127
+#| libgcrypt
+msgid "libgcrypt"
+msgstr ""
+
+#: src/common/version.c:161
+#| built on
+#. See translation above
+
+#: src/common/version.c:162
+#| git commit
+#. See translation above
+
+#: src/common/version.c:163
+#| build os
+#. See translation above
+
+#: src/common/version.c:164
+#| compiler
+#. See translation above
+
+#: src/common/version.c:165
+#| cflags
+#. See translation above
+
+#: src/common/version.c:166
+#| cppflags
+#. See translation above
+
+#: src/common/version.c:167
+#| runtime
+#. See translation above
+
+#: src/common/version.c:172
+#| libgcrypt
+#. See translation above
+
+#: src/common/version.c:173
+#| libgcrypt
+#. See translation above
+

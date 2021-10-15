@@ -1,46 +1,67 @@
-## Typically the IO functions will use the default error code and message
-## from the standard system calls.
+#: src/common/config.c:87
+#| Call config_init() first\n
+msgid "Call config_init() first\n"
+msgstr ""
 
-#: src/crypt_io.c:229
+#: src/common/config.c:100
 #| Out of memory @ %s:%d:%s [%zu]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypt_io.c:241
+#: src/common/config.c:103
 #| Out of memory @ %s:%d:%s [%zu]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypt_io.c:249
+#: src/common/config.c:208
 #| Out of memory @ %s:%d:%s [%zu]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypt_io.c:255
+#: src/common/config.c:211
 #| Out of memory @ %s:%d:%s [%zu]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypt_io.c:299
+#: src/common/config.c:341
 #| Out of memory @ %s:%d:%s [%zu]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypt_io.c:314
+#: src/common/config.c:392
+#| Usage
+msgid "Usage"
+msgstr ""
+
+#: src/common/config.c:591
+#| Options
+msgid "Options"
+msgstr ""
+
+#: src/common/config.c:601
+#| Advnaced Options
+msgid "Advnaced Options"
+msgstr ""
+
+#: src/common/config.c:609
+#| Notes
+msgid "Notes"
+msgstr ""
+
+#:src/common/config.c:620
+#. See common/common.po for the licence header text
+
+#:src/common/config.c:630
+#| Call config_init() first\n
+#. See translation above
+
+#: src/common/config.c:636
 #| Out of memory @ %s:%d:%s [%zu]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypt_io.c:342
+#: src/common/config.c:639
 #| Out of memory @ %s:%d:%s [%zu]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypt_io.c:381
+#: src/common/config.c:731
 #| Out of memory @ %s:%d:%s [%zu]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/crypt_io.c:399
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/crypt_io.c:663
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/crypt_io.c:767
+#: src/common/config.c:737
 #| Out of memory @ %s:%d:%s [%zu]
 #. See common/common.po for the definitive “Out of memory …” message translation

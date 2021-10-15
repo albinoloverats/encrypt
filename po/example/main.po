@@ -1,28 +1,178 @@
-#: src/main.c:69
-#| \n**** DEBUG BUILD ****\n\n
-msgid "\n**** DEBUG BUILD ****\n\n"
+#: src/main.c:83
+#| DEBUG BUILD
+msgid "DEBUG BUILD"
 msgstr ""
 
-#: src/main.c:153
+#: src/main.c:104
+#| Do not use the GUI, even if it’s available
+msgid "Do not use the GUI, even if it’s available"
+msgstr ""
+
+#: src/main.c:106
+#| key source
+msgid "key source"
+msgstr ""
+
+#: src/main.c:106
+#| Key data source
+msgid "Key data source"
+msgstr ""
+
+#: src/main.c:108
+#| Do not display the CLI progress bar
+msgid "Do not display the CLI progress bar"
+msgstr ""
+
+#: src/main.c:109
+#| algorithm
+msgid "algorithm"
+msgstr ""
+
+#: src/main.c:109
+#| Algorithm to use to encrypt data; use 'list' to show available cipher algorithms
+msgid "Algorithm to use to encrypt data; use 'list' to show available cipher algorithms"
+msgstr ""
+
+#: src/main.c:110
+#| algorithm
+#. See translation above
+
+#: src/main.c:110
+#| Hash algorithm to generate key; use 'list' to show available hash algorithms
+msgid "Hash algorithm to generate key; use 'list' to show available hash algorithms"
+msgstr ""
+
+#: src/main.c:111
+#| mode
+msgid "mode"
+msgstr ""
+
+#: src/main.c:111
+#| The encryption mode to use; use 'list' to show available cipher modes
+msgid "The encryption mode to use; use 'list' to show available cipher modes"
+msgstr ""
+
+#: src/main.c:112
+#| mac
+msgid "mac"
+msgstr ""
+
+#: src/main.c:112
+#| The MAC algorithm to use; use 'list' to show available MACs
+msgid "The MAC algorithm to use; use 'list' to show available MACs"
+msgstr ""
+
+#: src/main.c:113
+#| iterations
+msgid "iterations"
+msgstr ""
+
+#: src/main.c:113
+#| Number of iterations the KDF should use
+msgid "Number of iterations the KDF should use"
+msgstr ""
+
+#: src/main.c:114
+#| key file
+msgid "key file"
+msgstr ""
+
+#: src/main.c:114
+#| File whose data will be used to generate the key
+msgid "File whose data will be used to generate the key"
+msgstr ""
+
+#: src/main.c:115
+#| password
+msgid "password"
+msgstr ""
+
+#: src/main.c:115
+#| Password used to generate the key
+msgid "Password used to generate the key"
+msgstr ""
+
+#: src/main.c:116
+#| Do not compress the plain text using the xz algorithm
+msgid "Do not compress the plain text using the xz algorithm"
+msgstr ""
+
+#: src/main.c:117
+#| Follow symlinks, the default is to store the link itself
+msgid "Follow symlinks, the default is to store the link itself"
+msgstr ""
+
+#: src/main.c:118
+#| version
+msgid "version"
+msgstr ""
+
+#: src/main.c:118
+#| Create an encrypted file that is backwards compatible
+msgid "Create an encrypted file that is backwards compatible"
+msgstr ""
+
+#: src/main.c:120
+#| Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations
+msgid "Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"
+msgstr ""
+
+#: src/main.c:122
+#| Don't generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations
+msgid "Don't generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"
+msgstr ""
+
+#: src/main.c:134
+#! If you do not supply a key or password, you will be prompted for one. This will then be used to generate a key to encrypt the data with (using the specified hash and MAC).
+msgid "If you do not supply a key or password, you will be prompted for one. This will then be used to generate a key to encrypt the data with (using the specified hash and MAC)."
+msgstr ""
+
+#: src/main.c:135
+#| To see available algorithms or modes use list as the argument.
+msgid "To see available algorithms or modes use list as the argument."
+msgstr ""
+
+#: src/main.c:136
+#| If either the source file or destination file are omitted then stdin/stdout are used.
+msgid "If either the source file or destination file are omitted then stdin/stdout are used."
+msgstr ""
+
+#: src/main.c:137
+#! When encrypting, -c, -s -m, and -a are required to specify the algorithms you wish to use; when decrypting the algorithms originally used are read from the encrypted file, (although you can omit the algorithm options if you have configured defaults in ~/.encryptrc).
+msgid "When encrypting, -c, -s -m, and -a are required to specify the algorithms you wish to use; when decrypting the algorithms originally used are read from the encrypted file, (although you can omit the algorithm options if you have configured defaults in ~/.encryptrc)."
+msgstr ""
+
+#: src/main.c:138
+#| If you encrypted data using --raw then you will need to pass the algorithms as arguments when decrypting.
+msgid "If you encrypted data using --raw then you will need to pass the algorithms as arguments when decrypting."
+msgstr ""
+
+#: src/main.c:139
+#| You can toggle compression and how symbolic links are handled in the configuration file ~/.encryptrc
+msgid "You can toggle compression and how symbolic links are handled in the configuration file ~/.encryptrc"
+msgstr ""
+
+#: src/main.c:274
+#| Out of memory @ %s:%d:%s [%zu]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/main.c:166
+#: src/main.c:287
 #. This is a GTK error; not translated here. If the GTK translations are
 #. installed the message should be translated.
 
-#: src/main.c:271
+#: src/main.c:400
 #| Could not create GUI - falling back to command line\n
 msgid "Could not create GUI - falling back to command line\n"
 msgstr ""
 
-#: src/main.c:295
+#: src/main.c:421
 #| Please enter a password:
 msgid "Please enter a password: "
 msgstr ""
 
-#: src/main.c:335
+#: src/main.c:460
 #. This is the (error) message from the en/decryption process. The messages are
-#. stored in the variable STATUS_MESSAGES in src/crypto.c:68-90 although it's
+#. stored in the variable STATUS_MESSAGES in src/crypto.c:49-71 although it's
 #. likely only the failures and warnings will need translating, as the success
 #. messages are not displayed.
 #| Failed: Invalid initialisation parameters!
@@ -37,8 +187,7 @@ msgstr ""
 #| Failed: Invalid target file type!
 #| Failed: An unknown error has occurred!
 
-#: src/main.c:346
-#. See common/version.po for vew version message translation
 
-#: src/main.c:349
+#: src/main.c:492
+#| DEBUG BUILD
 #. See translation above

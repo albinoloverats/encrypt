@@ -1,29 +1,39 @@
-#: src/decrypt.c:68
+#: src/decrypt.c:77
+#| Out of memory @ %s:%d:%s [%zu]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/decrypt.c:124
+#: src/decrypt.c:133
+#| Out of memory @ %s:%d:%s [%zu]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/decrypt.c:136
+#: src/decrypt.c:145
+#| Out of memory @ %s:%d:%s [%zu]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/decrypt.c:363
+#: src/decrypt.c:420
+#| Out of memory @ %s:%d:%s [%d]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/decrypt.c:438
+#: src/decrypt.c:495
+#| Out of memory @ %s:%d:%s [%hhu]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/decrypt.c:458
+#: src/decrypt.c:515
+#| Out of memory @ %s:%d:%s [%" PRIu64 "]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/decrypt.c:462
+#: src/decrypt.c:519
+#| Out of memory @ %s:%d:%s [%" PRIu64 "]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/decrypt.c:475
+#: src/decrypt.c:532
+#| Out of memory @ %s:%d:%s [%" PRIu64 "]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/decrypt.c:489
+#: src/decrypt.c:546
+#| Out of memory @ %s:%d:%s [%zu]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/decrypt.c:520
+#: src/decrypt.c:577
+#| Out of memory @ %s:%d:%s [%" PRIu64 "]
 #. See common/common.po for the definitive “Out of memory …” message translation

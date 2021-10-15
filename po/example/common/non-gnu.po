@@ -1,19 +1,24 @@
 #: src/common/non-gnu.c:89
-#| unsupported size of unsigned long @ %s:%d:%s [%d]
-msgid "unsupported size of unsigned long @ %s:%d:%s [%d]"
+#| unsupported size of unsigned long @ %s:%d:%s [%zu]
+msgid "unsupported size of unsigned long @ %s:%d:%s [%zu]"
 msgstr ""
 
 #: src/common/non-gnu.c:99
+#| unsupported size of unsigned long @ %s:%d:%s [%zu]
 #. See translation above
 
-#: src/common/non-gnu.c:213
+#: src/common/non-gnu.c:325
+#| Out of memory @ %s:%d:%s [%zu]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/common/non-gnu.c:229
+#: src/common/non-gnu.c:341
+#| Out of memory @ %s:%d:%s [%zu]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/common/non-gnu.c:297
+#: src/common/non-gnu.c:409
+#| Out of memory @ %s:%d:%s [%zu]
 #. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/common/non-gnu.c:302
+#: src/common/non-gnu.c:414
+#| Out of memory @ %s:%d:%s [%zu]
 #. See common/common.po for the definitive “Out of memory …” message translation
