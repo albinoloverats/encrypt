@@ -289,9 +289,17 @@ static void cli_display_bar(cli_progress_t *t, cli_progress_t *c, cli_bps_t *bps
 			sprintf(progress_bar + strlen(progress_bar), " %5.1f MB/s", val / MEGABYTE);
 		else if (val < BILLION)
 			sprintf(progress_bar + strlen(progress_bar), " %5.1f GB/s", val / GIGABYTE);
-#if 0
-		else /* if you’re getting these kinds of speeds please, please can I have your machine ;-) */
+#if 1           /* if you’re getting these kinds of speeds please, please can I have your machine ;-) */
+		else if (val < THOUSAND_BILLION)
 			sprintf(progress_bar + strlen(progress_bar), " %5.1f TB/s", val / TERABYTE);
+		else if (val < TRILLION)
+			sprintf(progress_bar + strlen(progress_bar), " %5.1f PB/s", val / PETABYTE);
+		else //if (val < THOUSAND_TRILLION)
+			sprintf(progress_bar + strlen(progress_bar), " %5.1f EB/s", val / EXABYTE);
+//		else if (val < QUADRILLION)
+//			sprintf(progress_bar + strlen(progress_bar), " %5.1f ZB/s", val / ZETTABYTE);
+//		else
+//			sprintf(progress_bar + strlen(progress_bar), " %5.1f YB/s", val / YOTTABYTE);
 #else
 		else
 			strcat(progress_bar, "  ---.- B/s");
