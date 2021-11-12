@@ -590,6 +590,7 @@ static void encrypt_directory(crypto_t *c, const char *dir)
 			char *filename = NULL;
 			if (!asprintf(&filename, "%s/%s", dir, eps[i]->d_name))
 				die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, strlen(dir) + l + 2);
+			c->current.display = eps[i]->d_name;
 			file_type_e tp;
 			struct stat s;
 			c->follow_links ? stat(filename, &s) : lstat(filename, &s);

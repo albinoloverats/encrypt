@@ -517,7 +517,7 @@ static void decrypt_directory(crypto_t *c, const char *dir)
 		char *fullpath = NULL;
 		if (!asprintf(&fullpath, "%s/%s", dir, filename))
 			die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, strlen(dir) + l + 2 * sizeof( byte_t ));
-		gcry_free(filename);
+		c->current.display = filename;
 		switch (tp)
 		{
 			case FILE_DIRECTORY:
@@ -562,6 +562,7 @@ static void decrypt_directory(crypto_t *c, const char *dir)
 				c->current.offset = c->total.size;
 				break;
 		}
+		gcry_free(filename);
 		gcry_free(fullpath);
 	}
 	if (lnerr)
