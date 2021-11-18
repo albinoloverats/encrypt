@@ -54,6 +54,7 @@
 	#define DOWNLOAD_URL_TEMPLATE NULL
 #endif
 
+#define FINISHING_UP "Finishing up...."
 
 #define HEADER_0 0x3697de5d96fca0fallu              /*!< The first 8 bytes of an encrypted file */
 #define HEADER_1 0xc845c2fa95e2f52dllu              /*!< The second 8 bytes of an encrypted file */

@@ -127,6 +127,10 @@ extern crypto_t *decrypt_init(const char * const restrict i,
 	else
 		z->output = IO_STDOUT_FILENO;
 
+	char *sl;
+	if ((sl = strrchr(z->path, '/')))
+		*sl = '\0';
+
 	if (l)
 	{
 		if (!(z->key = gcry_malloc_secure(l)))
@@ -270,7 +274,10 @@ static void *process(void *ptr)
 	io_encryption_checksum_init(c->source, c->hash);
 
 	if (c->directory)
+	{
 		decrypt_directory(c, c->path);
+		c->current.display = FINISHING_UP;
+	}
 	else
 	{
 		c->current.size = c->total.size;
@@ -517,7 +524,7 @@ static void decrypt_directory(crypto_t *c, const char *dir)
 		char *fullpath = NULL;
 		if (!asprintf(&fullpath, "%s/%s", dir, filename))
 			die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, strlen(dir) + l + 2 * sizeof( byte_t ));
-		c->current.display = filename;
+		c->current.display = fullpath;
 		switch (tp)
 		{
 			case FILE_DIRECTORY:
@@ -562,6 +569,7 @@ static void decrypt_directory(crypto_t *c, const char *dir)
 				c->current.offset = c->total.size;
 				break;
 		}
+		c->current.display = NULL;
 		gcry_free(filename);
 		gcry_free(fullpath);
 	}

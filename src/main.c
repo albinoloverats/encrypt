@@ -453,7 +453,10 @@ int main(int argc, char **argv)
 		}
 		else
 			while (c->status == STATUS_INIT || c->status == STATUS_RUNNING)
-				sleep(1);
+			{
+				struct timespec s = { 0, 10 * MILLION }; /* 10 milliseconds */
+				nanosleep(&s, NULL);
+			}
 	}
 
 	if (c->status != STATUS_SUCCESS)

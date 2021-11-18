@@ -350,6 +350,7 @@ static void *process(void *ptr)
 		if (!(c->misc = gcry_calloc_secure(c->total.size, sizeof( link_count_t ))))
 			die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, c->total.size * sizeof( link_count_t ));
 		encrypt_directory(c, c->path);
+		c->current.display = FINISHING_UP;
 		for (uint64_t i = 0; i < c->total.size; i++)
 			if (((link_count_t *)c->misc)[i].path)
 				gcry_free(((link_count_t *)c->misc)[i].path);
@@ -590,7 +591,7 @@ static void encrypt_directory(crypto_t *c, const char *dir)
 			char *filename = NULL;
 			if (!asprintf(&filename, "%s/%s", dir, eps[i]->d_name))
 				die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, strlen(dir) + l + 2);
-			c->current.display = eps[i]->d_name;
+			c->current.display = filename;
 			file_type_e tp;
 			struct stat s;
 			c->follow_links ? stat(filename, &s) : lstat(filename, &s);
@@ -679,6 +680,7 @@ static void encrypt_directory(crypto_t *c, const char *dir)
 			}
 			gcry_free(filename);
 			c->total.offset++;
+			c->current.display = NULL;
 		}
 		/*
 		 * no more files in this directory
