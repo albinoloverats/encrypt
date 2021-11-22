@@ -533,8 +533,20 @@ clean_up:
 		{
 			double cp = PERCENT * c->current.offset / c->current.size;
 			[_progress_current setDoubleValue:cp];
-			char cpc[7];
-			snprintf(cpc, sizeof cpc, "%3.0f %%", cp);
+
+			char name[CLI_TRUNCATED_DISPLAY_LONG] = { 0x0 };
+			char *nm = c->current.display ? c->current.display : CLI_UNKNOWN;
+			if (strlen(nm) < CLI_TRUNCATED_DISPLAY_LONG)
+				strcpy(name, nm);
+			else
+			{
+				strncpy(name, nm, CLI_TRUNCATED_DISPLAY_SHORT);
+				strcat(name, CLI_TRUNCATED_ELLIPSE);
+				strcat(name, nm + (strlen(nm) - CLI_TRUNCATED_DISPLAY_SHORT));
+			}
+
+			char cpc[CLI_TRUNCATED_DISPLAY_LONG * 2];
+			snprintf(cpc, sizeof cpc, "%s%s%3.0f %%", c->current.display ? name : "", c->current.display ? " : " : "", cp);
 			[_percent_current setStringValue:[NSString stringWithUTF8String:cpc]];
 		}
 
