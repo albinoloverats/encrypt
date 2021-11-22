@@ -26,6 +26,9 @@
 #define LABEL_ENCRYPT "Encrypt"
 #define LABEL_DECRYPT "Decrypt"
 
+#define LABEL_CANCEL "Cancel"
+#define LABEL_CLOSE  "Close"
+
 #define SELECT_CIPHER "Select Cipher Algorithm"
 #define SELECT_HASH   "Select Hash Algorithm"
 #define SELECT_MODE   "Select Cipher Mode"

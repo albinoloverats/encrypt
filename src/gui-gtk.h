@@ -64,7 +64,6 @@ typedef struct gtk_widgets_t
 	GtkWidget *progress_bar_current;
 	GtkWidget *progress_label;
 	GtkWidget *progress_cancel_button;
-	GtkWidget *progress_close_button;
 	GtkWidget *about_dialog;
 	GtkWidget *about_version_build_info;
 	GtkWidget *build_info_text_buffer;

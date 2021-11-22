@@ -127,9 +127,12 @@ extern crypto_t *decrypt_init(const char * const restrict i,
 	else
 		z->output = IO_STDOUT_FILENO;
 
-	char *sl;
-	if ((sl = strrchr(z->path, '/')))
-		*sl = '\0';
+	if (z->path)
+	{
+		char *sl;
+		if ((sl = strrchr(z->path, '/')))
+			*sl = '\0';
+	}
 
 	if (l)
 	{

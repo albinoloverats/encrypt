@@ -51,11 +51,6 @@
 #define CLI_DEFAULT 80 /* Expected default terminal width */
 #define CLI_LARGE   75
 
-#define CLI_TRUNCATED_DISPLAY_LONG  25
-#define CLI_TRUNCATED_DISPLAY_SHORT 10
-#define CLI_TRUNCATED_ELLIPSE   "...."
-#define CLI_UNKNOWN "(unknown)"
-
 #ifndef _WIN32
 static int cli_width = CLI_DEFAULT;
 static int cli_size_width = 0;
@@ -282,8 +277,6 @@ static void cli_display_bars(cli_progress_t *t, cli_progress_t *c, cli_bps_t *bp
 			if (cli_width > CLI_DEFAULT)
 				strcat(name, nm + (strlen(nm) - CLI_TRUNCATED_DISPLAY_SHORT));
 		}
-		//free(nm);
-
 		fprintf(stderr, "\x1B[1F"); // go up 1 line
 		cli_display_bar(name, c, current);
 		cli_display_bps(bps);

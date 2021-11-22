@@ -322,7 +322,6 @@ int main(int argc, char **argv)
 			INIT_WIDGET(progress_bar_current);
 			INIT_WIDGET(progress_label);
 			INIT_WIDGET(progress_cancel_button);
-			INIT_WIDGET(progress_close_button);
 			INIT_WIDGET(about_dialog);
 			INIT_WIDGET(about_version_build_info);
 			INIT_WIDGET(build_info_text_buffer);

@@ -47,6 +47,11 @@
 	#define ANSI_COLOUR_WHITE   "\x1b[97m"
 #endif
 
+#define CLI_TRUNCATED_DISPLAY_LONG  25
+#define CLI_TRUNCATED_DISPLAY_SHORT 10
+#define CLI_TRUNCATED_ELLIPSE   "...."
+#define CLI_UNKNOWN "(unknown)"
+
 typedef enum
 {
 	CLI_DONE,

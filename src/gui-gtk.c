@@ -67,8 +67,7 @@ char *gui_file_hack_source = NULL;
 char *gui_file_hack_output = NULL;
 static char *cwd = NULL;
 
-inline static void set_progress_bar(GtkProgressBar *, double);
-inline static void set_progress_button(GtkButton *, bool);
+inline static void set_progress_bar(GtkProgressBar *, char *, double);
 
 static void *gui_process(void *);
 inline static void gui_display(crypto_t *, gtk_widgets_t *);
@@ -495,13 +494,10 @@ G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widge
 G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widgets_t *data)
 {
 	gtk_widget_show(data->progress_dialog);
-
-	set_progress_button((GtkButton *)data->progress_cancel_button, true);
-	set_progress_button((GtkButton *)data->progress_close_button, false);
-	set_progress_bar((GtkProgressBar *)data->progress_bar_total, 0.0f);
-	set_progress_bar((GtkProgressBar *)data->progress_bar_current, 0.0f);
+	gtk_button_set_label((GtkButton *)data->progress_cancel_button, LABEL_CANCEL);
+	set_progress_bar((GtkProgressBar *)data->progress_bar_total, NULL, 0.0f);
+	set_progress_bar((GtkProgressBar *)data->progress_bar_current, NULL, 0.0f);
 	gtk_widget_show(data->progress_bar_current);
-
 	if (_raw)
 	{
 		if (button == (GtkButton *)data->raw_encrypt_button)
@@ -509,9 +505,7 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
 		else if (button == (GtkButton *)data->raw_decrypt_button)
 			_encrypted = true;
 	}
-
 	gui_process(data);
-
 	return (void)button, TRUE;
 }
 
@@ -608,24 +602,25 @@ extern void set_status_bar(GtkStatusbar *status_bar, const char *status)
 	return;
 }
 
-inline static void set_progress_bar(GtkProgressBar *progress_bar, double percent)
+inline static void set_progress_bar(GtkProgressBar *progress_bar, char *text, double percent)
 {
 	gtk_progress_bar_set_fraction(progress_bar, (double)percent / PERCENT);
 	char *pc = NULL;
-	asprintf(&pc, "%3.0f %%", percent);
+
+	char name[CLI_TRUNCATED_DISPLAY_LONG] = { 0x0 };
+	char *nm = text ? : CLI_UNKNOWN;
+	if (strlen(nm) < CLI_TRUNCATED_DISPLAY_LONG)
+		strcpy(name, nm);
+	else
+	{
+		strncpy(name, nm, CLI_TRUNCATED_DISPLAY_SHORT);
+		strcat(name, CLI_TRUNCATED_ELLIPSE);
+		strcat(name, nm + (strlen(nm) - CLI_TRUNCATED_DISPLAY_SHORT));
+	}
+
+	asprintf(&pc, "%s%s%3.0f %%", text ? name : "", text ? " : " : "", percent);
 	gtk_progress_bar_set_text(progress_bar, pc);
 	free(pc);
-
-	return;
-}
-
-inline static void set_progress_button(GtkButton *button, bool on)
-{
-	gtk_widget_set_sensitive((GtkWidget *)button, on);
-	if (on)
-		gtk_widget_show((GtkWidget *)button);
-	else
-		gtk_widget_hide((GtkWidget *)button);
 
 	return;
 }
@@ -693,14 +688,12 @@ static void *gui_process(void *d)
 
 	if (x->status == STATUS_SUCCESS)
 	{
-		set_progress_bar((GtkProgressBar *)data->progress_bar_total, PERCENT);
-		set_progress_bar((GtkProgressBar *)data->progress_bar_current, PERCENT);
+		set_progress_bar((GtkProgressBar *)data->progress_bar_total, NULL, PERCENT);
+		set_progress_bar((GtkProgressBar *)data->progress_bar_current, NULL, PERCENT);
 	}
 
 	set_status_bar((GtkStatusbar *)data->status_bar, status(x));
-
-	set_progress_button((GtkButton *)data->progress_cancel_button, false);
-	set_progress_button((GtkButton *)data->progress_close_button, true);
+	gtk_button_set_label((GtkButton *)data->progress_cancel_button, LABEL_CLOSE);
 
 	deinit(&x);
 
@@ -730,12 +723,12 @@ inline static void gui_display(crypto_t *c, gtk_widgets_t *data)
 		double pc = (PERCENT * c->total.offset + PERCENT * c->current.offset / c->current.size) / c->total.size;
 		if (c->total.offset == c->total.size)
 			pc = PERCENT * c->total.offset / c->total.size;
-		set_progress_bar((GtkProgressBar *)data->progress_bar_total, pc);
+		set_progress_bar((GtkProgressBar *)data->progress_bar_total, NULL, pc);
 
 		if (c->total.size == 1)
 			gtk_widget_hide(data->progress_bar_current);
 		else
-			set_progress_bar((GtkProgressBar *)data->progress_bar_current, PERCENT * c->current.offset / c->current.size);
+			set_progress_bar((GtkProgressBar *)data->progress_bar_current, c->current.display, PERCENT * c->current.offset / c->current.size);
 
 		struct timeval tv;
 		gettimeofday(&tv, NULL);
