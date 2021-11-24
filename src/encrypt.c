@@ -295,6 +295,7 @@ static void *process(void *ptr)
 	io_encryption_init(c->output, c->cipher, c->hash, c->mode, c->mac, c->kdf_iterations, c->key, c->length, iox);
 	c->status = STATUS_RUNNING;
 	gcry_free(c->key);
+	c->key = NULL;
 
 	if (!c->raw)
 	{
@@ -355,6 +356,7 @@ static void *process(void *ptr)
 			if (((link_count_t *)c->misc)[i].path)
 				gcry_free(((link_count_t *)c->misc)[i].path);
 		gcry_free(c->misc);
+		c->misc = NULL;
 		if (cwd)
 		{
 			chdir(cwd);
@@ -406,8 +408,11 @@ static void *process(void *ptr)
 	io_sync(c->output);
 	c->status = STATUS_SUCCESS;
 
+#ifndef __DEBUG__
 	pthread_exit((void *)c->status);
-#if defined _WIN32 || defined __sun || defined __clang__
+#endif
+
+#if defined _WIN32 || defined __sun || defined __clang__ || defined __DEBUG__
 	return (void *)c->status;
 #endif
 }

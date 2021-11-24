@@ -97,6 +97,7 @@ static const version_t VERSIONS[] =
 
 extern void execute(crypto_t *c)
 {
+#ifndef __DEBUG__
 	pthread_t *t = gcry_calloc_secure(1, sizeof( pthread_t ));
 	pthread_attr_t a;
 	pthread_attr_init(&a);
@@ -104,6 +105,9 @@ extern void execute(crypto_t *c)
 	pthread_create(t, &a, c->process, c);
 	c->thread = t;
 	pthread_attr_destroy(&a);
+#else
+	c->process(c);
+#endif
 	return;
 }
 
@@ -130,6 +134,10 @@ extern void deinit(crypto_t **c)
 		io_close(z->source);
 	if (z->output)
 		io_close(z->output);
+	if (z->key)
+		gcry_free(z->key);
+	if (z->misc)
+		gcry_free(z->misc);
 	gcry_free(z);
 	z = NULL;
 	*c = NULL;

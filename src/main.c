@@ -437,6 +437,7 @@ int main(int argc, char **argv)
 	if (c->status == STATUS_INIT)
 	{
 		execute(c);
+#ifndef __DEBUG__
 		/*
 		 * only display the UI if not outputting to stdout (and if stderr
 		 * is a terminal)
@@ -456,6 +457,9 @@ int main(int argc, char **argv)
 				struct timespec s = { 0, 10 * MILLION }; /* 10 milliseconds */
 				nanosleep(&s, NULL);
 			}
+#else
+		(void)cli;
+#endif
 	}
 
 	if (c->status != STATUS_SUCCESS)
@@ -464,6 +468,7 @@ int main(int argc, char **argv)
 #endif /* ! _WIN32 */
 
 clean_up:
+	deinit(&c);
 #ifdef BUILD_GUI
 	if (key_source)
 		free(key_source);
