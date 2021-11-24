@@ -54,6 +54,7 @@ char *gui_file_hack_output = NULL;
 
 static char *source = NULL;
 static char *output = NULL;
+static char *key_file = NULL;
 static bool encrypted = true;
 static bool compress = true;
 static bool follow = false;
@@ -208,14 +209,15 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 	NSInteger clicked = [panel runModal];
 
 	if (source)
+	{
 		free(source);
-	else
 		source = NULL;
+	}
 
 	if (clicked == NSFileHandlingPanelOKButton)
 	{
 		NSString *name = [[[panel URL] filePathURL] lastPathComponent];
-		source = (char *)[[[panel URL] filePathURL] fileSystemRepresentation];
+		source = strdup((char *)[[[panel URL] filePathURL] fileSystemRepresentation]);
 		[_sourceFileButton setTitle:name];
 	}
 	else
@@ -226,24 +228,22 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 
 - (IBAction)ioOutputChoosen:(id)pId
 {
-	NSOpenPanel *panel = [NSOpenPanel openPanel];
+	NSSavePanel *panel = [NSSavePanel savePanel];
 	[panel setTitle:@"Save As ..."];
-	[panel setCanChooseFiles:YES];
-	[panel setCanChooseDirectories:YES];
-	[panel setCanCreateDirectories:NO];
-	[panel setAllowsMultipleSelection:NO];
+	[panel setCanCreateDirectories:YES];
 
 	NSInteger clicked = [panel runModal];
 
 	if (output)
+	{
 		free(output);
-	else
 		output = NULL;
+	}
 
 	if (clicked == NSFileHandlingPanelOKButton)
 	{
 		NSString *name = [[[panel URL] filePathURL] lastPathComponent];
-		output = (char *)[[[panel URL] filePathURL] fileSystemRepresentation];
+		output = strdup((char *)[[[panel URL] filePathURL] fileSystemRepresentation]);
 		[_outputFileButton setTitle:name];
 	}
 	else
@@ -328,10 +328,11 @@ clean_up:
 	uint64_t iter = [_kdfIterations intValue];
 	[_kdfIterate setIntValue:[_kdfIterations intValue]];
 
-	if ((cipher && strcasecmp(cipher, SELECT_CIPHER)) && (hash && strcasecmp(hash, SELECT_HASH)) && (mode && strcasecmp(mode, SELECT_MODE)) && (mac && strcasecmp(mac, SELECT_MAC)) && iter)
+	if (source && output && (cipher && strcasecmp(cipher, SELECT_CIPHER)) && (hash && strcasecmp(hash, SELECT_HASH)) && (mode && strcasecmp(mode, SELECT_MODE)) && (mac && strcasecmp(mac, SELECT_MAC)) && iter)
 	{
 		[self keySourceSelected:pId];
 		[_keyFileChooser setEnabled:true];
+		[_keyFileButton setEnabled:true];
 		[_passwordField setEnabled:true];
 
 		update_config(CONF_CIPHER, cipher);
@@ -346,6 +347,7 @@ clean_up:
 	{
 		// Unselected either cipher/hash/mode, disable all options below
 		[_keyFileChooser setEnabled:false];
+		[_keyFileButton setEnabled:false];
 		[_passwordField setEnabled:false];
 		[_singleButton setEnabled:false];
 		[_encryptButton setEnabled:false];
@@ -385,27 +387,55 @@ clean_up:
 
 - (IBAction)keyFileChoosen:(id)pId
 {
-	const char *key_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@KEYSRC_FILE] UTF8String];
+	NSOpenPanel *panel = [NSOpenPanel openPanel];
+	[panel setTitle:@"Select key ..."];
+	[panel setCanChooseFiles:YES];
+	[panel setCanChooseDirectories:NO];
+	[panel setCanCreateDirectories:NO];
+	[panel setAllowsMultipleSelection:NO];
+
+	NSInteger clicked = [panel runModal];
+
+	if (key_file)
+	{
+		free(key_file);
+		key_file = NULL;
+	}
+
 	BOOL en = FALSE;
-
-	if (!key_link || !strlen(key_link))
-		goto clean_up;
-
-	char *key_file = NULL;
-	if (key_link[0] == '~')
-		asprintf(&key_file, "%s/%s", getenv("HOME"), key_link + 1);
+	if (clicked == NSFileHandlingPanelOKButton)
+	{
+		NSString *name = [[[panel URL] filePathURL] lastPathComponent];
+		key_file = strdup((char *)[[[panel URL] filePathURL] fileSystemRepresentation]);
+		[_keyFileButton setTitle:name];
+		en = TRUE;
+	}
 	else
-		key_file = strdup(key_link);
+		[_keyFileButton setTitle:@"Select Key ..."];
 
-	struct stat s;
-	stat(key_file, &s);
-	free(key_file);
-	if (!S_ISREG(s.st_mode))
-		goto clean_up;
-
-	en = TRUE;
-
-clean_up:
+//	[self ioFileChoosen:pId];
+//
+//	const char *key_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@KEYSRC_FILE] UTF8String];
+//	BOOL en = FALSE;
+//
+//	if (!key_link || !strlen(key_link))
+//		goto clean_up;
+//
+//	char *key_file = NULL;
+//	if (key_link[0] == '~')
+//		asprintf(&key_file, "%s/%s", getenv("HOME"), key_link + 1);
+//	else
+//		key_file = strdup(key_link);
+//
+//	struct stat s;
+//	stat(key_file, &s);
+//	free(key_file);
+//	if (!S_ISREG(s.st_mode))
+//		goto clean_up;
+//
+//	en = TRUE;
+//
+//clean_up:
 
 	[_singleButton setEnabled:en];
 	[_encryptButton setEnabled:en];
@@ -424,31 +454,16 @@ clean_up:
 - (IBAction)encryptButtonPushed:(id)pId
 {
 	[_popup setIsVisible:TRUE];
+	[_popup setAllowsConcurrentViewDrawing:YES];
+
 	[_progress_current setHidden:FALSE];
 	[_percent_current setHidden:FALSE];
+
 	[self performSelectorInBackground:@selector(display_gui:)withObject:pId];
 }
 
 - (void)display_gui:(id)pId
 {
-	/*
-	 * open files
-	 */
-	const char *open_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@SOURCE_FILE] UTF8String];
-	const char *save_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@OUTPUT_FILE] UTF8String];
-
-	char *open_file = NULL;
-	if (open_link[0] == '~')
-		asprintf(&open_file, "%s/%s", getenv("HOME"), open_link + 1);
-	else
-		open_file = strdup(open_link);
-
-	char *save_file = NULL;
-	if (save_link[0] == '~')
-		asprintf(&save_file, "%s/%s", getenv("HOME"), save_link + 1);
-	else
-		save_file = strdup(save_link);
-
 	/*
 	 * get raw key data
 	 */
@@ -456,20 +471,12 @@ clean_up:
 	size_t length;
 	if (key_source == KEY_SOURCE_FILE)
 	{
-		const char *key_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@KEYSRC_FILE] UTF8String];
-
-		char *key_file = NULL;
-		if (key_link[0] == '~')
-			asprintf(&key_file, "%s/%s", getenv("HOME"), key_link + 1);
-		else
-			key_file = strdup(key_link);
-		key = (uint8_t *)strdup(key_file);
-		free(key_file);
+		key = (uint8_t *)key_file;
 		length = 0;
 	}
 	else
 	{
-		key = (uint8_t *)strdup([[_passwordField stringValue] UTF8String]);
+		key = (uint8_t *)[[_passwordField stringValue] UTF8String];
 		length = strlen((char *)key);
 	}
 
@@ -487,25 +494,27 @@ clean_up:
 		char *mac = (char *)[[[_macCombo selectedItem] title] UTF8String];
 		uint64_t iter = [_kdfIterations intValue];
 
-		c = encrypt_init(open_file, save_file, cipher, hash, mode, mac, key, length, iter, false, compress, follow, version);
+		c = encrypt_init(source, output, cipher, hash, mode, mac, key, length, iter, false, compress, follow, version);
 	}
 	else
-		c = decrypt_init(open_file, save_file, NULL, NULL, NULL, NULL, key, length, 0, false);
+		c = decrypt_init(source, output, NULL, NULL, NULL, NULL, key, length, 0, false);
 
-	free(open_file);
-	free(save_file);
-	free(key);
+	if (c->status != STATUS_INIT)
+		goto tidy;
 
 	running = true;
-
 	execute(c);
 
 	cli_bps_t bps[BPS];
 	memset(bps, 0x00, BPS * sizeof( cli_bps_t ));
 	int b = 0;
 
+	dispatch_time_t oneSecond = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(NSEC_PER_SEC));
+
 	while (c->status == STATUS_INIT || c->status == STATUS_RUNNING)
 	{
+		[_popup update];
+
 		if (!running)
 			c->status = STATUS_CANCELLED;
 
@@ -515,14 +524,16 @@ clean_up:
 		if (c->status == STATUS_INIT)
 			continue;
 
-		double pc = (PERCENT * c->total.offset + PERCENT * c->current.offset / c->current.size) / c->total.size;
-		if (c->total.offset == c->total.size)
-			pc = PERCENT * c->total.offset / c->total.size;
+		dispatch_after(oneSecond, dispatch_get_main_queue(), ^{
+			double pc = (PERCENT * c->total.offset + PERCENT * c->current.offset / c->current.size) / c->total.size;
+			if (c->total.offset == c->total.size)
+				pc = PERCENT * c->total.offset / c->total.size;
+			[self.progress_total setDoubleValue:pc];
 
-		[_progress_total setDoubleValue:pc];
-		char tpc[7];
-		snprintf(tpc, sizeof tpc, "%3.0f %%", pc);
-		[_percent_total setStringValue:[NSString stringWithUTF8String:tpc]];
+			char tpc[7];
+			snprintf(tpc, sizeof tpc, "%3.0f %%", pc);
+			[self.percent_total setStringValue:[NSString stringWithUTF8String:tpc]];
+		});
 
 		if (c->total.size == 1)
 		{
@@ -531,23 +542,26 @@ clean_up:
 		}
 		else
 		{
-			double cp = PERCENT * c->current.offset / c->current.size;
-			[_progress_current setDoubleValue:cp];
+			dispatch_after(oneSecond, dispatch_get_main_queue(), ^{
+				double cp = PERCENT * c->current.offset / c->current.size;
+				[self.progress_current setDoubleValue:cp];
 
-			char name[CLI_TRUNCATED_DISPLAY_LONG] = { 0x0 };
-			char *nm = c->current.display ? c->current.display : CLI_UNKNOWN;
-			if (strlen(nm) < CLI_TRUNCATED_DISPLAY_LONG)
-				strcpy(name, nm);
-			else
-			{
-				strncpy(name, nm, CLI_TRUNCATED_DISPLAY_SHORT);
-				strcat(name, CLI_TRUNCATED_ELLIPSE);
-				strcat(name, nm + (strlen(nm) - CLI_TRUNCATED_DISPLAY_SHORT));
-			}
+				char name[CLI_TRUNCATED_DISPLAY_LONG] = { 0x0 };
+				char *nm = c->current.display ? c->current.display : CLI_UNKNOWN;
+				if (strlen(nm) < CLI_TRUNCATED_DISPLAY_LONG)
+					strcpy(name, nm);
+				else
+				{
+					strncpy(name, nm, CLI_TRUNCATED_DISPLAY_SHORT);
+					strcat(name, CLI_TRUNCATED_ELLIPSE);
+					strcat(name, nm + (strlen(nm) - CLI_TRUNCATED_DISPLAY_SHORT));
+				}
 
-			char cpc[CLI_TRUNCATED_DISPLAY_LONG * 2];
-			snprintf(cpc, sizeof cpc, "%s%s%3.0f %%", c->current.display ? name : "", c->current.display ? " : " : "", cp);
-			[_percent_current setStringValue:[NSString stringWithUTF8String:cpc]];
+				char cpc[CLI_TRUNCATED_DISPLAY_LONG * 2];
+				snprintf(cpc, sizeof cpc, "%s%s%3.0f %%", c->current.display ? name : "", c->current.display ? " : " : "", cp);
+				[self.percent_current setStringValue:[NSString stringWithUTF8String:cpc]];
+
+			});
 		}
 
 		struct timeval tv;
@@ -581,6 +595,7 @@ clean_up:
 		free(bps_label);
 	}
 
+tidy:
 	[_progress_label setStringValue:[NSString stringWithUTF8String:status(c)]];
 	[_statusBar setStringValue:[NSString stringWithUTF8String:status(c)]];
 	[_closeButton setHidden:FALSE];
