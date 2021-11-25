@@ -471,8 +471,9 @@ int main(int argc, char **argv)
 
 #endif /* ! _WIN32 */
 
-clean_up:
 	deinit(&c);
+
+clean_up:
 #ifdef BUILD_GUI
 	if (key_source)
 		free(key_source);
