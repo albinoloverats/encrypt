@@ -523,7 +523,7 @@ G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_t *data)
 {
 
 	char *build_info = version_build_info();
-	gtk_text_buffer_set_text((GtkTextBuffer *) data->build_info_text_buffer, build_info, -1);
+	gtk_text_buffer_set_text((GtkTextBuffer *)data->build_info_text_buffer, build_info, -1);
 	free(build_info);
 
 	if (version_new_available)

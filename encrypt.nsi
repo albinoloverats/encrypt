@@ -15,7 +15,7 @@
 !define EXPLORER_COMMAND   "command"
 
 SetCompressor     lzma
-Name              "${PRODUCT_NAME} ${PRODUCT_VERSION}"
+Name              "${PRODUCT_NAME}"
 OutFile           "${PRODUCT_NAME}-${PRODUCT_VERSION}-install.exe"
 InstallDir        "$PROGRAMFILES\${PRODUCT_NAME}"
 InstallDirRegKey  HKLM "${PRODUCT_DIR_REGKEY}" ""
@@ -166,31 +166,29 @@ Section -encrypt
 	File /r "C:\msys64\mingw64\share\icons\Adwaita"
 	File /r "C:\msys64\mingw64\share\icons\hicolor"
 
-	SetOutPath "$INSTDIR"
-	CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
-	CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\encrypt.lnk" "$INSTDIR\encrypt.exe"
-	CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Licence.lnk" "$INSTDIR\docs\LICENCE.txt"
-	CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\ReadMe.lnk" "$INSTDIR\docs\README.txt"
-SectionEnd
+	CreateShortCut "$SMPROGRAMS\encrypt.lnk" "$INSTDIR\encrypt.exe"
 
-Section -AdditionalIcons
-	CreateShortCut "$SMPROGRAMS\encrypt\Uninstall.lnk" "$INSTDIR\uninst.exe"
+	#CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
+	#CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\encrypt.lnk"   "$INSTDIR\encrypt.exe"
+	#CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Licence.lnk"   "$INSTDIR\docs\LICENCE.txt"
+	#CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\ReadMe.lnk"    "$INSTDIR\docs\README.txt"
 SectionEnd
 
 Section -Post
 	WriteUninstaller "$INSTDIR\uninst.exe"
 	WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" ""                 "$INSTDIR\encrypt.exe"
-	WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayName"      "$(^Name)"
+	WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayName"      "${PRODUCT_NAME}"
 	WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "UninstallString"  "$INSTDIR\uninst.exe"
 	WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayIcon"      "$INSTDIR\encrypt.exe"
 	WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayVersion"   "${PRODUCT_VERSION}"
 	WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "URLInfoAbout"     "${PRODUCT_WEB_SITE}"
 	WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "Publisher"        "${PRODUCT_PUBLISHER}"
 	WriteRegStr HKCR "${EXPLORER_CONTEXT}\${EXPLORER_COMMAND}" "" '$INSTDIR\encrypt.exe "%1"'
+	#CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Uninstall.lnk" "$INSTDIR\uninst.exe"
 SectionEnd
 
 Function un.onInit
-	MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Are you sure you want to completely remove $(^Name) and all of its components?" IDYES +2
+	MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Are you sure you want to completely remove ${PRODUCT_NAME} and all of its components?" IDYES +2
 	Abort
 FunctionEnd
 
@@ -274,12 +272,14 @@ Section Uninstall
 
 	Delete "$INSTDIR\uninst.exe"
 
-	Delete "$SMPROGRAMS\${PRODUCT_NAME}\Uninstall.lnk"
-	Delete "$SMPROGRAMS\${PRODUCT_NAME}\ReadMe.lnk"
-	Delete "$SMPROGRAMS\${PRODUCT_NAME}\Licence.lnk"
-	Delete "$SMPROGRAMS\${PRODUCT_NAME}\encrypt.lnk"
+	#Delete "$SMPROGRAMS\${PRODUCT_NAME}\Uninstall.lnk"
+	#Delete "$SMPROGRAMS\${PRODUCT_NAME}\ReadMe.lnk"
+	#Delete "$SMPROGRAMS\${PRODUCT_NAME}\Licence.lnk"
+	#Delete "$SMPROGRAMS\${PRODUCT_NAME}\encrypt.lnk"
 
-	RMDir "$SMPROGRAMS\encrypt"
+	#RMDir "$SMPROGRAMS\${PRODUCT_NAME}"
+
+	Delete "$SMPROGRAMS\encrypt.lnk"
 
 	RMDir "$INSTDIR\docs"
 	RMDIR "$INSTDIR\pixmaps"

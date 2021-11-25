@@ -469,9 +469,8 @@ int main(int argc, char **argv)
 	if (c->status != STATUS_SUCCESS)
 		cli_fprintf(stderr, ANSI_COLOUR_RED "%s" ANSI_COLOUR_RESET "\n", _(status(c)));
 
-#endif /* ! _WIN32 */
-
 	deinit(&c);
+#endif /* ! _WIN32 */
 
 clean_up:
 #ifdef BUILD_GUI
