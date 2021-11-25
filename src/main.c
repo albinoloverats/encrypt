@@ -104,6 +104,7 @@ int main(int argc, char **argv)
 		{ 'g', "no-gui",         NULL,            _("Do not use the GUI, even if it’s available"),               CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
 	#endif
 		{ ' ', "key-source",     _("key source"), _("Key data source"),                                          CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, true  },
+		{ ' ', "compress",       NULL,            _("Compress the plain text using the xz algorithm"),           CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, true  },
 #endif
 		{ 'u', "no-cli",         NULL,            _("Do not display the CLI progress bar"),                      CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
 		{ 'c', "cipher",         _("algorithm"),  _("Algorithm to use to encrypt data; use 'list' to show available cipher algorithms"), CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
@@ -158,6 +159,7 @@ int main(int argc, char **argv)
 #ifdef BUILD_GUI
 		a++;
 		args[++a].hidden = true;
+		args[++a].hidden = true;
 #endif
 		args[++a].hidden = true;
 		args[++a].hidden = true;
@@ -180,28 +182,30 @@ int main(int argc, char **argv)
 	char *output   = extra[1].response_value.string;
 
 	int a = -1;
+	bool compress;
 #ifdef BUILD_GUI
 	#ifndef _WIN32
 	bool gui         = !args[++a].response_value.boolean; // gui by default unless --no-gui is specified
 	#endif
-	char *key_source = args[++a].response_value.string;
+	char *key_source =  args[++a].response_value.string;
+	compress         =  args[++a].response_value.boolean; // compress by default unless --no-compress is specified
 #endif
 	bool cli         = !args[++a].response_value.boolean; // cli by default unless --no-cli is specified
 
-	char *cipher     = args[++a].response_value.string;
-	char *hash       = args[++a].response_value.string;
-	char *mode       = args[++a].response_value.string;
-	char *mac        = args[++a].response_value.string;
-	uint64_t kdf     = args[++a].response_value.number;
+	char *cipher     =  args[++a].response_value.string;
+	char *hash       =  args[++a].response_value.string;
+	char *mode       =  args[++a].response_value.string;
+	char *mac        =  args[++a].response_value.string;
+	uint64_t kdf     =  args[++a].response_value.number;
 
-	char *key        = args[++a].response_value.string;
-	char *password   = args[++a].response_value.string;
+	char *key        =  args[++a].response_value.string;
+	char *password   =  args[++a].response_value.string;
 
-	bool compress    = !args[++a].response_value.boolean; // compress by default unless --no-compress is specified
-	bool follow      = args[++a].response_value.boolean;
+	compress         = !args[++a].response_value.boolean; // compress by default unless --no-compress is specified
+	bool follow      =  args[++a].response_value.boolean;
 
-	char *version    = args[++a].response_value.string;
-	bool raw         = args[++a].response_value.boolean;
+	char *version    =  args[++a].response_value.string;
+	bool raw         =  args[++a].response_value.boolean;
 
 	/*
 	 * list available algorithms if asked to (possibly both hash and

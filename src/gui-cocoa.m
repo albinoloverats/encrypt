@@ -83,8 +83,8 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 		{ 'm', "mode",           _("mode"),       _("The encryption mode to use"),                               CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
 		{ 'a', "mac",            _("mac"),        _("The MAC algorithm to use"),                                 CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
 		{ 'i', "kdf-iterations", _("iterations"), _("Number of iterations the KDF should use"),                  CONFIG_ARG_REQ_NUMBER,  { 0x0 }, false, false, false },
-		{ 'k', "key",            _("key file"),   _("File whose data will be used to generate the key"),         CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
-		{ 'x', "no-compress",    NULL,            _("Do not compress the plain text using the xz algorithm"),    CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
+		{ ' ', "key-source",     _("key source"), _("Key data source"),                                          CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, true  },
+		{ 'x', "compress",       NULL,            _("Compress the plain text using the xz algorithm"),           CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, true  },
 		{ 'f', "follow",         NULL,            _("Follow symlinks, the default is to store the link itself"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
 		{ 'b', "back-compat",    _("version"),    _("Create an encrypted file that is backwards compatible"),    CONFIG_ARG_REQ_STRING,  { 0x0 }, false, true,  false },
 		{ 'r', "raw",            NULL,            _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situation"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false },
@@ -92,19 +92,19 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 	};
 	config_parse(0, NULL, args);
 
-	char *cipher =  args[0].response_value.string;
-	char *hash   =  args[1].response_value.string;
-	char *mode   =  args[2].response_value.string;
-	char *mac    =  args[3].response_value.string;
-	uint64_t kdf =  args[4].response_value.number;
+	char *cipher = args[0].response_value.string;
+	char *hash   = args[1].response_value.string;
+	char *mode   = args[2].response_value.string;
+	char *mac    = args[3].response_value.string;
+	uint64_t kdf = args[4].response_value.number;
 
-	char *key    =  args[5].response_value.string;
+	char *ks     = args[5].response_value.string;
 
-	compress     = !args[6].response_value.boolean;
-	follow       =  args[7].response_value.boolean;
+	compress     = args[6].response_value.boolean;
+	follow       = args[7].response_value.boolean;
 
-	char *ver    =  args[8].response_value.string;
-	raw          =  args[9].response_value.boolean;
+	char *ver    = args[8].response_value.string;
+	raw          = args[9].response_value.boolean;
 
 	[self auto_select_algorithms:cipher:hash:mode:mac:kdf];
 
@@ -142,7 +142,7 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 		[_version addItem:m];
 	}
 
-	if (key && !strcasecmp(key, "file"))
+	if (ks && !strcasecmp(ks, "file"))
 		key_source = KEY_SOURCE_FILE;
 	[self keySourceToggle];
 
@@ -413,30 +413,6 @@ clean_up:
 	else
 		[_keyFileButton setTitle:@"Select Key ..."];
 
-//	[self ioFileChoosen:pId];
-//
-//	const char *key_link = [[NSUserDefaults.standardUserDefaults valueForKeyPath:@KEYSRC_FILE] UTF8String];
-//	BOOL en = FALSE;
-//
-//	if (!key_link || !strlen(key_link))
-//		goto clean_up;
-//
-//	char *key_file = NULL;
-//	if (key_link[0] == '~')
-//		asprintf(&key_file, "%s/%s", getenv("HOME"), key_link + 1);
-//	else
-//		key_file = strdup(key_link);
-//
-//	struct stat s;
-//	stat(key_file, &s);
-//	free(key_file);
-//	if (!S_ISREG(s.st_mode))
-//		goto clean_up;
-//
-//	en = TRUE;
-//
-//clean_up:
-
 	[_singleButton setEnabled:en];
 	[_encryptButton setEnabled:en];
 	[_decryptButton setEnabled:en];
@@ -499,6 +475,8 @@ clean_up:
 	else
 		c = decrypt_init(source, output, NULL, NULL, NULL, NULL, key, length, 0, false);
 
+	dispatch_time_t oneSecond = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(NSEC_PER_SEC));
+
 	if (c->status != STATUS_INIT)
 		goto tidy;
 
@@ -509,12 +487,8 @@ clean_up:
 	memset(bps, 0x00, BPS * sizeof( cli_bps_t ));
 	int b = 0;
 
-	dispatch_time_t oneSecond = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(NSEC_PER_SEC));
-
 	while (c->status == STATUS_INIT || c->status == STATUS_RUNNING)
 	{
-		[_popup update];
-
 		if (!running)
 			c->status = STATUS_CANCELLED;
 
@@ -560,7 +534,6 @@ clean_up:
 				char cpc[CLI_TRUNCATED_DISPLAY_LONG * 2];
 				snprintf(cpc, sizeof cpc, "%s%s%3.0f %%", c->current.display ? name : "", c->current.display ? " : " : "", cp);
 				[self.percent_current setStringValue:[NSString stringWithUTF8String:cpc]];
-
 			});
 		}
 
@@ -573,30 +546,34 @@ clean_up:
 		if (b >= BPS)
 			b = 0;
 
-		char *bps_label = NULL;
-		if (isnan(val) || val == 0.0f || val >= BILLION)
-			asprintf(&bps_label, "---.- B/s");
-		else
-		{
-			if (val < THOUSAND)
-				asprintf(&bps_label, "%5.1f B/s", val);
-			else if (val < MILLION)
-				asprintf(&bps_label, "%5.1f KB/s", val / KILOBYTE);
-			else if (val < THOUSAND_MILLION)
-				asprintf(&bps_label, "%5.1f MB/s", val / MEGABYTE);
-			else if (val < BILLION)
-				asprintf(&bps_label, "%5.1f GB/s", val / GIGABYTE);
-			// we were getting some erratic values because of this
-//            else
-//                asprintf(&bps_label, "%5.1f TB/s", val / TERABYTE);
-		}
-		if (bps_label)
-			[_progress_label setStringValue:[NSString stringWithUTF8String:bps_label]];
-		free(bps_label);
+		dispatch_after(oneSecond, dispatch_get_main_queue(), ^{
+			char *bps_label = NULL;
+			if (isnan(val) || val == 0.0f || val >= BILLION)
+				asprintf(&bps_label, "---.- B/s");
+			else
+			{
+				if (val < THOUSAND)
+					asprintf(&bps_label, "%5.1f B/s", val);
+				else if (val < MILLION)
+					asprintf(&bps_label, "%5.1f KB/s", val / KILOBYTE);
+				else if (val < THOUSAND_MILLION)
+					asprintf(&bps_label, "%5.1f MB/s", val / MEGABYTE);
+				else if (val < BILLION)
+					asprintf(&bps_label, "%5.1f GB/s", val / GIGABYTE);
+				// we were getting some erratic values because of this
+//                else
+//                    asprintf(&bps_label, "%5.1f TB/s", val / TERABYTE);
+			}
+			if (bps_label)
+				[self.progress_label setStringValue:[NSString stringWithUTF8String:bps_label]];
+			free(bps_label);
+		});
 	}
 
 tidy:
-	[_progress_label setStringValue:[NSString stringWithUTF8String:status(c)]];
+	dispatch_after(oneSecond, dispatch_get_main_queue(), ^{
+		[self.progress_label setStringValue:[NSString stringWithUTF8String:status(c)]];
+	});
 	[_statusBar setStringValue:[NSString stringWithUTF8String:status(c)]];
 	[_closeButton setHidden:FALSE];
 	[_cancelButton setHidden:TRUE];
