@@ -20,13 +20,15 @@ DEBUG_ENC      = ${DEBUG_CPPFLAGS} -D__DEBUG_WITH_ENCRYPTION__
 CLI_LIBS       = $(shell libgcrypt-config --libs) -lpthread -lcurl -llzma
 GUI_LIBS       = ${CLI_LIBS} $(shell pkg-config --libs gtk+-3.0 gmodule-2.0)
 
-all: gui language man
-	 @ln -fs ${APP} ${ALT}
-	-@echo -e "linked ‘${ALT}’ → ‘${APP}’"
+all: gui symlink language man
 
 debug: cli-debug
 
-cli:
+symlink:
+	 @ln -fs ${APP} ${ALT}
+	-@echo -e "linked ‘${ALT}’ → ‘${APP}’"
+
+cli: symlink
 	 @echo "#define ALL_CFLAGS   \"$(strip $(subst \",\',"${CLI_CFLAGS}"))\""    > ${MISC}
 	 @echo "#define ALL_CPPFLAGS \"$(strip $(subst \",\',"${CLI_CPPFLAGS}"))\"" >> ${MISC}
 	 @${CC} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC} ${CLI_LIBS} -o ${APP}
