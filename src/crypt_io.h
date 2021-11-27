@@ -34,7 +34,7 @@
 #include <stdint.h> /*!< Necessary include as c99 standard integer types are referenced in this header */
 #include <stdbool.h> /*!< Necessary include as c99 boolean type is referenced in this header */
 
-#define IO_STDIN_FILENO io_use_stdin() /*!< Macro wrapper for io_use_stdin() */
+#define IO_STDIN_FILENO  io_use_stdin() /*!< Macro wrapper for io_use_stdin() */
 #define IO_STDOUT_FILENO io_use_stdout() /*!< Macro wrapper for io_use_stdout() */
 #define IO_UNINITIALISED io_dummy_handle() /*!< Macro wrapper for io_dummy_handle() */
 

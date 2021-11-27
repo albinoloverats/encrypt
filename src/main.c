@@ -32,6 +32,7 @@
 #include <stdbool.h>
 
 #include <sys/stat.h>
+#include <sys/wait.h>
 
 #include <gcrypt.h>
 
@@ -76,6 +77,7 @@ static bool list_hashes(void);
 static bool list_modes(void);
 static bool list_macs(void);
 
+static int self_test(void) __attribute__((noreturn));
 
 int main(int argc, char **argv)
 {
@@ -122,6 +124,7 @@ int main(int argc, char **argv)
 #else
 		{ 'r', "raw",            NULL,            _("Don't generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false },
 #endif
+		{ ' ', "self-test",      NULL,            _("Perform self-test routine"),                                CONFIG_ARG_BOOLEAN,     { 0x0 }, false, true,  true  },
 		{ 0x0, NULL, NULL, NULL, CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false }
 	};
 	config_extra_t extra[] =
@@ -206,6 +209,10 @@ int main(int argc, char **argv)
 
 	char *version    =  args[++a].response_value.string;
 	bool raw         =  args[++a].response_value.boolean;
+	bool test        =  args[++a].response_value.boolean;
+
+	if (test)
+		self_test();
 
 	/*
 	 * list available algorithms if asked to (possibly both hash and
@@ -536,4 +543,116 @@ static bool list_macs(void)
 	for (int i = 0; l[i]; i++)
 		fprintf(stderr, "%s\n", l[i]);
 	return true;
+}
+
+static int self_test(void)
+{
+	const char **l = list_of_ciphers();
+	unsigned int i, x;
+	for (i = 0; l[i]; i++)
+		;
+	gcry_create_nonce(&x, sizeof x);
+	x %= i;
+	const char *cipher = l[x];
+	l = list_of_hashes();
+	for (i = 0; l[i]; i++)
+		;
+	gcry_create_nonce(&x, sizeof x);
+	x %= i;
+	const char *hash = l[x];
+	l = list_of_modes();
+	for (i = 0; l[i]; i++)
+		;
+	gcry_create_nonce(&x, sizeof x);
+	x %= i;
+	const char *mode = l[x];
+	l = list_of_macs();
+	for (i = 0; l[i]; i++)
+		;
+	gcry_create_nonce(&x, sizeof x);
+	x %= i;
+	const char *mac = l[x];
+
+	uint16_t key_len;
+	gcry_create_nonce(&key_len, sizeof key_len);
+	key_len %= 0x0400;
+	uint8_t *key = malloc(key_len);
+	gcry_create_nonce(key, key_len);
+
+	uint32_t kdf;
+	gcry_create_nonce(&kdf, sizeof kdf);
+	kdf %= 0x0000FFFF;
+
+	uint32_t buffer_len;
+	gcry_create_nonce(&buffer_len, sizeof buffer_len);
+	buffer_len %= 0x00FFFFFF;
+	uint8_t *buffer_plain = malloc(buffer_len);
+	uint8_t *buffer_check = malloc(buffer_len);
+	gcry_create_nonce(buffer_plain, buffer_len);
+
+	fprintf(stderr, _("Test cipher        : %s\n"), cipher);
+	fprintf(stderr, _("Test hash          : %s\n"), hash);
+	fprintf(stderr, _("Test mode          : %s\n"), mode);
+	fprintf(stderr, _("Test MAC           : %s\n"), mac);
+	fprintf(stderr, _("Test KDF iterations: %" PRIu32 "\n"), kdf);
+	fprintf(stderr, _("Test key size      : %" PRIu16 "\n"), key_len);
+	fprintf(stderr, _("Test buffer size   : %" PRIu32 "\n"), buffer_len);
+
+	crypto_t *test_encrypt = encrypt_init(NULL, NULL, cipher, hash, mode, mac, key, key_len, kdf, false, true, false, VERSION_CURRENT);
+	crypto_t *test_decrypt = decrypt_init(NULL, NULL, cipher, hash, mode, mac, key, key_len, kdf, false);
+
+	FILE *tmp_plain  = tmpfile();
+	FILE *tmp_cipher = tmpfile();
+	FILE *tmp_check  = tmpfile();
+
+	fwrite(buffer_plain, buffer_len, 1, tmp_plain);
+	fseek(tmp_plain, 0, SEEK_SET);
+
+	int64_t fd = fileno(tmp_plain);
+	memcpy(test_encrypt->source, &fd, sizeof fd);
+	fd = fileno(tmp_cipher);
+	memcpy(test_encrypt->output, &fd, sizeof fd);
+	memcpy(test_decrypt->source, &fd, sizeof fd);
+	fd = fileno(tmp_check);
+	memcpy(test_decrypt->output, &fd, sizeof fd);
+
+	fprintf(stderr, _("\nTesting encryption..."));
+	execute(test_encrypt);
+#ifndef __DEBUG__
+	cli_t p = { (cli_status_e *)&test_encrypt->status, &test_encrypt->current, &test_encrypt->total };
+	cli_display(&p);
+#endif
+
+	fseek(tmp_plain,  0, SEEK_SET);
+	fseek(tmp_cipher, 0, SEEK_SET);
+
+	fprintf(stderr, _("Testing decryption..."));
+	execute(test_decrypt);
+#ifndef __DEBUG__
+	p.status  = (cli_status_e *)&test_decrypt->status;
+	p.current = &test_decrypt->current;
+	p.total   = &test_decrypt->total;
+	cli_display(&p);
+#endif
+
+	fseek(tmp_check, 0, SEEK_SET);
+	fread(buffer_check, buffer_len, 1, tmp_check);
+
+	fclose(tmp_plain);
+	fclose(tmp_cipher);
+	fclose(tmp_check);
+
+	int r;
+	if (memcmp(buffer_plain, buffer_check, buffer_len))
+		r = EXIT_FAILURE , fprintf(stderr, _("\nFail: Result not equal to original!\n"));
+	else
+		r = EXIT_SUCCESS , fprintf(stderr, _("\nSelf-test passed.\n"));
+
+	free(buffer_plain);
+	free(buffer_check);
+
+	deinit(&test_encrypt);
+	deinit(&test_decrypt);
+
+	exit(r);
 }
