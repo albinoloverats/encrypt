@@ -159,21 +159,21 @@ int main(int argc, char **argv)
 		about.name = DECRYPT;
 		dude = true;
 
-		int a = 0;
+		int x = 0;
 #ifdef BUILD_GUI
-		a++;
-		args[++a].hidden = true;
-		args[++a].hidden = true;
+		x++;
+		args[++x].hidden = true;
+		args[++x].hidden = true;
 #endif
-		args[++a].hidden = true;
-		args[++a].hidden = true;
-		args[++a].hidden = true;
-		args[++a].hidden = true;
-		args[++a].hidden = true;
-		a += 2;
-		args[++a].hidden = true;
-		args[++a].hidden = true;
-		args[++a].hidden = true;
+		args[++x].hidden = true;
+		args[++x].hidden = true;
+		args[++x].hidden = true;
+		args[++x].hidden = true;
+		args[++x].hidden = true;
+		x += 2;
+		args[++x].hidden = true;
+		args[++x].hidden = true;
+		args[++x].hidden = true;
 	}
 	else
 #endif
@@ -185,32 +185,32 @@ int main(int argc, char **argv)
 	char *source   = extra[0].response_value.string;
 	char *output   = extra[1].response_value.string;
 
-	int a = -1;
+	int x = -1;
 	bool compress;
 #ifdef BUILD_GUI
 	#ifndef _WIN32
-	bool gui         = !args[++a].response_value.boolean; // gui by default unless --no-gui is specified
+	bool gui         = !args[++x].response_value.boolean; // gui by default unless --no-gui is specified
 	#endif
-	char *key_source =  args[++a].response_value.string;
-	compress         =  args[++a].response_value.boolean; // compress by default unless --no-compress is specified
+	char *key_source =  args[++x].response_value.string;
+	compress         =  args[++x].response_value.boolean; // compress by default unless --no-compress is specified
 #endif
-	bool cli         = !args[++a].response_value.boolean; // cli by default unless --no-cli is specified
+	bool cli         = !args[++x].response_value.boolean; // cli by default unless --no-cli is specified
 
-	char *cipher     =  args[++a].response_value.string;
-	char *hash       =  args[++a].response_value.string;
-	char *mode       =  args[++a].response_value.string;
-	char *mac        =  args[++a].response_value.string;
-	uint64_t kdf     =  args[++a].response_value.number;
+	char *cipher     =  args[++x].response_value.string;
+	char *hash       =  args[++x].response_value.string;
+	char *mode       =  args[++x].response_value.string;
+	char *mac        =  args[++x].response_value.string;
+	uint64_t kdf     =  args[++x].response_value.number;
 
-	char *key        =  args[++a].response_value.string;
-	char *password   =  args[++a].response_value.string;
+	char *key        =  args[++x].response_value.string;
+	char *password   =  args[++x].response_value.string;
 
-	compress         = !args[++a].response_value.boolean; // compress by default unless --no-compress is specified
-	bool follow      =  args[++a].response_value.boolean;
+	compress         = !args[++x].response_value.boolean; // compress by default unless --no-compress is specified
+	bool follow      =  args[++x].response_value.boolean;
 
-	char *version    =  args[++a].response_value.string;
-	bool raw         =  args[++a].response_value.boolean;
-	bool test        =  args[++a].response_value.boolean;
+	char *version    =  args[++x].response_value.string;
+	bool raw         =  args[++x].response_value.boolean;
+	bool test        =  args[++x].response_value.boolean;
 
 	if (test)
 		self_test();
@@ -454,7 +454,6 @@ int main(int argc, char **argv)
 		 * only display the UI if not outputting to stdout (and if stderr
 		 * is a terminal)
 		 */
-		struct stat t;
 		fstat(STDOUT_FILENO, &t);
 
 		bool ui = isatty(STDERR_FILENO) && (!io_is_stdout(c->output) || c->path || S_ISREG(t.st_mode));

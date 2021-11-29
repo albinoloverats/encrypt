@@ -311,9 +311,10 @@ static int cli_print(FILE *stream, char *text)
 #ifndef _WIN32
 	bool strip = !((stream == stdout && isatty(STDOUT_FILENO)) || (stream == stderr && isatty(STDERR_FILENO)));
 #else
+	#ifdef __DEBUG__
 	bool strip = cli_inited != 1;
-	#ifndef __DEBUG__
-		strip = false;
+	#else
+	bool strip = false;
 	#endif
 #endif
 	if (strip)

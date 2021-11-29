@@ -378,7 +378,7 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_wi
 	int hash = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
 	int mode = gtk_combo_box_get_active((GtkComboBox *)data->mode_combo);
 	int mac = gtk_combo_box_get_active((GtkComboBox *)data->mac_combo);
-	uint64_t iter = (uint64_t)gtk_adjustment_get_value(gtk_spin_button_get_adjustment((GtkSpinButton *)data->kdf_spinner));
+	int64_t iter = (int64_t)gtk_adjustment_get_value(gtk_spin_button_get_adjustment((GtkSpinButton *)data->kdf_spinner));
 
 	gboolean en = _files;
 

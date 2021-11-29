@@ -325,9 +325,9 @@ static void *process(void *ptr)
 		/*
 		 * strip leading directories and trailing /
 		 */
-		char ps = c->path[strlen(c->path) - 1];
-		if (ps == '/')
-			ps = '\0';
+		char *ps = c->path + (strlen(c->path) - 1);
+		if (*ps == '/')
+			*ps = '\0';
 		char *cwd = NULL;
 #ifndef _WIN32
 		char *dir = strrchr(c->path, '/');

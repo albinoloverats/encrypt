@@ -158,9 +158,9 @@ extern void key_gcry_free(raw_key_t **key)
 
 extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, char **m, char **a, uint64_t *k)
 {
-	struct stat s;
-	stat(n, &s);
-	if (S_ISDIR(s.st_mode))
+	struct stat st;
+	stat(n, &st);
+	if (S_ISDIR(st.st_mode))
 		return VERSION_UNKNOWN;
 	int64_t f = open(n, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR);
 	if (f < 0)
@@ -177,8 +177,8 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, cha
 		if (version >= VERSION_2015_10)
 		{
 			/* skips past ECC length byte */
-			uint8_t b;
-			read(f, &b, sizeof b);
+			uint8_t eb;
+			read(f, &eb, sizeof eb);
 		}
 		uint8_t l;
 		read(f, &l, sizeof l);

@@ -216,12 +216,12 @@ extern bool io_is_stdout(IO_HANDLE ptr)
 	return io_ptr->fd == STDOUT_FILENO;
 }
 
-extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, enum gcry_mac_algos a, uint64_t i, const uint8_t *k, size_t l, io_extra_t x)
+extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, enum gcry_mac_algos a, uint64_t itr, const uint8_t *k, size_t l, io_extra_t x)
 {
 	io_private_t *io_ptr = ptr;
 	if (!io_ptr || io_ptr->fd < 0)
 		return errno = EBADF , (void)NULL;
-	uint64_t key_iterations = i;
+	uint64_t key_iterations = itr;
 	/*
 	 * start setting up the encryption buffer
 	 */
@@ -391,8 +391,6 @@ extern void io_encryption_mac(IO_HANDLE ptr, uint8_t **b, size_t *l)
 		return errno = EBADF , (void)NULL;
 	if (!io_ptr->mac_init)
 		return *l = 0 , (void)NULL;
-	if (!io_ptr->mac_init)
-		return;
 	*l = gcry_mac_get_algo_maclen(gcry_mac_get_algo(io_ptr->mac_handle));
 	uint8_t *x = gcry_realloc(*b, *l);
 	if (!x)
@@ -628,11 +626,11 @@ static ssize_t enc_write(io_private_t *f, const void *d, size_t l)
 	{
 		if (remainder[0] < remainder[1])
 		{
-			memcpy(f->buffer_crypt->stream + f->buffer_crypt->offset[0], d + f->buffer_crypt->offset[1], remainder[0]);
+			memcpy(f->buffer_crypt->stream + f->buffer_crypt->offset[0], (uint8_t *)d + f->buffer_crypt->offset[1], remainder[0]);
 			f->buffer_crypt->offset[0] += remainder[0];
 			return l;
 		}
-		memcpy(f->buffer_crypt->stream + f->buffer_crypt->offset[0], d + f->buffer_crypt->offset[1], remainder[1]);
+		memcpy(f->buffer_crypt->stream + f->buffer_crypt->offset[0], (uint8_t *)d + f->buffer_crypt->offset[1], remainder[1]);
 #if !defined __DEBUG__ || defined __DEBUG_WITH_ENCRYPTION__
 		gcry_cipher_encrypt(f->cipher_handle, f->buffer_crypt->stream, f->buffer_crypt->block, NULL, 0);
 #endif
@@ -656,7 +654,7 @@ static ssize_t enc_read(io_private_t *f, void *d, size_t l)
 	{
 		if (f->buffer_crypt->offset[0] >= f->buffer_crypt->offset[1])
 		{
-			memcpy(d + f->buffer_crypt->offset[2], f->buffer_crypt->stream, f->buffer_crypt->offset[1]);
+			memcpy((uint8_t *)d + f->buffer_crypt->offset[2], f->buffer_crypt->stream, f->buffer_crypt->offset[1]);
 			f->buffer_crypt->offset[0] -= f->buffer_crypt->offset[1];
 			uint8_t *x = gcry_calloc_secure(f->buffer_crypt->block, sizeof( uint8_t ));
 			if (!x)
@@ -668,7 +666,7 @@ static ssize_t enc_read(io_private_t *f, void *d, size_t l)
 			return l;
 		}
 
-		memcpy(d + f->buffer_crypt->offset[2], f->buffer_crypt->stream, f->buffer_crypt->offset[0]);
+		memcpy((uint8_t *)d + f->buffer_crypt->offset[2], f->buffer_crypt->stream, f->buffer_crypt->offset[0]);
 		f->buffer_crypt->offset[2] += f->buffer_crypt->offset[0];
 		f->buffer_crypt->offset[1] -= f->buffer_crypt->offset[0];
 		f->buffer_crypt->offset[0] = 0;
@@ -724,11 +722,11 @@ static ssize_t ecc_write(io_private_t *f, const void *d, size_t l)
 	{
 		if (remainder[0] < remainder[1])
 		{
-			memcpy(f->buffer_ecc->stream + f->buffer_ecc->offset[0], d + f->buffer_ecc->offset[1], remainder[0]);
+			memcpy(f->buffer_ecc->stream + f->buffer_ecc->offset[0], (uint8_t *)d + f->buffer_ecc->offset[1], remainder[0]);
 			f->buffer_ecc->offset[0] += remainder[0];
 			return l;
 		}
-		memcpy(f->buffer_ecc->stream + f->buffer_ecc->offset[0], d + f->buffer_ecc->offset[1], remainder[1]);
+		memcpy(f->buffer_ecc->stream + f->buffer_ecc->offset[0], (uint8_t *)d + f->buffer_ecc->offset[1], remainder[1]);
 
 		uint8_t tmp[ECC_CAPACITY] = { 0x0 };
 		ecc_encode(f->buffer_ecc->stream, tmp);
@@ -760,7 +758,7 @@ static ssize_t ecc_read(io_private_t *f, void *d, size_t l)
 	{
 		if (f->buffer_ecc->offset[0] >= f->buffer_ecc->offset[1])
 		{
-			memcpy(d + f->buffer_ecc->offset[2], f->buffer_ecc->stream, f->buffer_ecc->offset[1]);
+			memcpy((uint8_t *)d + f->buffer_ecc->offset[2], f->buffer_ecc->stream, f->buffer_ecc->offset[1]);
 			f->buffer_ecc->offset[0] -= f->buffer_ecc->offset[1];
 			uint8_t *x = calloc(f->buffer_ecc->block, sizeof( uint8_t ));
 			if (!x)
@@ -772,7 +770,7 @@ static ssize_t ecc_read(io_private_t *f, void *d, size_t l)
 			return l;
 		}
 
-		memcpy(d + f->buffer_ecc->offset[2], f->buffer_ecc->stream, f->buffer_ecc->offset[0]);
+		memcpy((uint8_t *)d + f->buffer_ecc->offset[2], f->buffer_ecc->stream, f->buffer_ecc->offset[0]);
 		f->buffer_ecc->offset[2] += f->buffer_ecc->offset[0];
 		f->buffer_ecc->offset[1] -= f->buffer_ecc->offset[0];
 		f->buffer_ecc->offset[0] = 0;
