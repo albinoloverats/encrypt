@@ -81,6 +81,7 @@ static int self_test(void) __attribute__((noreturn));
 
 int main(int argc, char **argv)
 {
+	error_init();
 #ifdef __DEBUG__
 	cli_fprintf(stderr, "\n" ANSI_COLOUR_RED "**** %s ****" ANSI_COLOUR_RESET "\n\n", _("DEBUG BUILD"));
 #endif

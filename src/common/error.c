@@ -19,6 +19,7 @@
  */
 
 #include <errno.h>
+#include <signal.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,6 +44,66 @@ static void error_gui_alert(const char * const restrict);
 static GtkWidget *error_gui_window;
 static GtkWidget *error_gui_message;
 #endif
+
+extern void on_error(int) __attribute__((noreturn));
+
+static bool error_inited = false;
+
+volatile sig_atomic_t fatal_error_in_progress = 0;
+
+extern void on_error(int s)
+{
+	if (fatal_error_in_progress)
+		raise(s);
+	fatal_error_in_progress = 1;
+
+	char m[32] = { 0x0 };
+	snprintf(m, sizeof m, "Received fatal signal [%d] ", s);
+	psignal(s, m);
+
+#ifdef BUILD_GUI
+	error_gui_alert(m);
+#endif
+
+#if !defined _WIN32 && !defined __CYGWIN__ && !defined __FreeBSD__
+	void *bt[BACKTRACE_BUFFER_LIMIT];
+	int c = backtrace(bt, BACKTRACE_BUFFER_LIMIT);
+	char **sym = backtrace_symbols(bt, c);
+	if (sym)
+	{
+		for (int i = 0; i < c; i++)
+			fprintf(stderr, "%s\n", sym[i]);
+		free(sym);
+	}
+#endif
+
+	signal(s, SIG_DFL);
+	raise(s);
+
+	exit(EXIT_FAILURE); // this shouldn't happen as the raise above will handle things
+}
+
+extern void error_init(void)
+{
+	if (error_inited)
+		return;
+
+	signal(SIGILL,  on_error);
+	signal(SIGSEGV, on_error);
+	signal(SIGBUS,  on_error);
+	signal(SIGABRT, on_error);
+	signal(SIGSYS,  on_error);
+
+	/*
+	SIGTERM,
+	SIGINT,
+	SIGQUIT,
+	*/
+
+	error_inited = true;
+
+	return;
+}
 
 extern void die(const char * const restrict s, ...)
 {
@@ -89,6 +150,7 @@ extern void die(const char * const restrict s, ...)
 #ifdef BUILD_GUI
 extern void error_gui_init(GtkWidget *w, GtkWidget *m)
 {
+	error_init();
 	error_gui_window = w;
 	error_gui_message = m;
 }

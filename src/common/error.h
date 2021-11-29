@@ -37,6 +37,8 @@
 
 #define BACKTRACE_BUFFER_LIMIT 1024 /*!< Maximum number of elements in the backtrace buffer */
 
+extern void error_init(void);
+
 /*!
  * \brief         Display fatal error to user and quit application
  * \param[in]  s  String format, followed by optional additional variables
