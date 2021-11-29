@@ -1,0 +1,12 @@
+image: gcc:10.2
+
+pipelines:
+  default:
+      - step:
+          name: Build
+          script:
+            - make cli
+      - step:
+          name: Test
+          script:
+            - ./encrypt --self-test
