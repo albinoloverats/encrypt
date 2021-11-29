@@ -454,6 +454,7 @@ int main(int argc, char **argv)
 		 * only display the UI if not outputting to stdout (and if stderr
 		 * is a terminal)
 		 */
+		struct stat t;
 		fstat(STDOUT_FILENO, &t);
 
 		bool ui = isatty(STDERR_FILENO) && (!io_is_stdout(c->output) || c->path || S_ISREG(t.st_mode));
