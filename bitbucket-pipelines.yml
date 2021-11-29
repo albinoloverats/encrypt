@@ -3,12 +3,9 @@ image: gcc:10.2
 pipelines:
   default:
     - step:
-        name: Setup
-        script:
-        - apt-get update && apt-get install -y libgcrypt20 libgcrypt20-dev
-    - step:
         name: Build
         script:
+        - apt-get update && apt-get install -y libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl3-gnutls libcurl4-gnutls-dev
         - make cli
     - step:
         name: Test
