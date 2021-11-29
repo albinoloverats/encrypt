@@ -22,13 +22,15 @@ GUI_LIBS       = ${CLI_LIBS} `pkg-config --libs gtk+-3.0 gmodule-2.0`
 
 STAGEDIR       = ../stage
 
-all: gui man
+all: gui symlink man
+
+debug: cli-debug symlink
+
+symlink:
 	 @ln -fs ${APP} ${ALT}
 	-@echo -e "linked ‘${ALT}’ → ‘${APP}’"
 
-debug: cli-debug
-
-cli:
+cli: symlink
 	 @echo "#define ALL_CFLAGS   ${CLI_CFLAGS}  " | tr "\"" "'" | sed 's/FLAGS   /FLAGS   "/' | sed 's/$$/"/' >  ${MISC}
 	 @echo "#define ALL_CPPFLAGS ${CLI_CPPFLAGS}" | tr "\"" "'" | sed 's/FLAGS /FLAGS "/'     | sed 's/$$/"/' >> ${MISC}
 	 @${CC} ${CLI_LIBS} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC} -o ${APP}

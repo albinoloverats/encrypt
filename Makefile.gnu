@@ -22,7 +22,7 @@ GUI_LIBS       = ${CLI_LIBS} $(shell pkg-config --libs gtk+-3.0 gmodule-2.0)
 
 all: gui symlink language man
 
-debug: cli-debug
+debug: cli-debug symlink
 
 symlink:
 	 @ln -fs ${APP} ${ALT}

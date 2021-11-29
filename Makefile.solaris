@@ -22,13 +22,15 @@ DEBUG_ENC      = ${DEBUG_CPPFLAGS} -D__DEBUG_WITH_ENCRYPTION__
 CLI_LIBS       = `libgcrypt-config --libs` -lpthread -lcurl -llzma
 GUI_LIBS       = ${CLI_LIBS} -lgtk-3 -lgdk-3 -lz -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lgmodule-2.0 -pthread -lglib-2.0
 
-all: gui language man
+all: gui symlink language man
+
+debug: cli-debug symlink
+
+symlink:
 	 @ln -fs ${APP} ${ALT}
 	-@echo -e "linked ‘${ALT}’ → ‘${APP}’"
 
-debug: cli-debug
-
-cli:
+cli: symlink
 	 @echo "#define ALL_CFLAGS   ${CLI_CFLAGS}  " | tr "\"" "'" | sed 's/FLAGS   /FLAGS   "/' | sed 's/$$/"/' >  ${MISC}
 	 @echo "#define ALL_CPPFLAGS ${CLI_CPPFLAGS}" | tr "\"" "'" | sed 's/FLAGS /FLAGS "/'     | sed 's/$$/"/' >> ${MISC}
 	 @${CC} ${CLI_LIBS} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC}                                   -o ${APP}
