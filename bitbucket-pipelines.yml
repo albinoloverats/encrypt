@@ -2,11 +2,15 @@ image: gcc:10.2
 
 pipelines:
   default:
-      - step:
-          name: Build
-          script:
-            - make cli
-      - step:
-          name: Test
-          script:
-            - ./encrypt --self-test
+    - step:
+        name: Setup
+        script:
+        - apt-get update && apt-get install -y libgcrypt20-dev
+    - step:
+        name: Build
+        script:
+        - make cli
+    - step:
+        name: Test
+        script:
+          - ./encrypt --self-test
