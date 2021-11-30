@@ -328,7 +328,9 @@ clean_up:
 	uint64_t iter = [_kdfIterations intValue];
 	[_kdfIterate setIntValue:[_kdfIterations intValue]];
 
-	if (source && output && (cipher && strcasecmp(cipher, SELECT_CIPHER)) && (hash && strcasecmp(hash, SELECT_HASH)) && (mode && strcasecmp(mode, SELECT_MODE)) && (mac && strcasecmp(mac, SELECT_MAC)) && iter)
+	bool mode_okay = mode_valid_for_cipher(cipher_id_from_name(cipher), mode_id_from_name(mode));
+
+	if (source && output && (cipher && strcasecmp(cipher, SELECT_CIPHER)) && (hash && strcasecmp(hash, SELECT_HASH)) && (mode && strcasecmp(mode, SELECT_MODE)) && (mac && strcasecmp(mac, SELECT_MAC)) && iter && mode_okay)
 	{
 		[self keySourceSelected:pId];
 		[_keyFileChooser setEnabled:true];
@@ -353,6 +355,8 @@ clean_up:
 		[_encryptButton setEnabled:false];
 		[_decryptButton setEnabled:false];
 	}
+
+	[_statusBar setStringValue: mode_okay ? @STATUS_BAR_READY : @STATUS_BAD_MODE];
 }
 
 - (IBAction)kdfStepperPushed:(id)pId
