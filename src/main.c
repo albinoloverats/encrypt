@@ -562,10 +562,14 @@ static int self_test(void)
 	x %= i;
 	const char *hash = l[x];
 	l = list_of_modes();
-	for (i = 0; l[i]; i++)
-		;
-	gcry_create_nonce(&x, sizeof x);
-	x %= i;
+	do
+	{
+		for (i = 0; l[i]; i++)
+			;
+		gcry_create_nonce(&x, sizeof x);
+		x %= i;
+	}
+	while (!mode_valid_for_cipher(cipher_id_from_name(cipher), mode_id_from_name(l[x])));
 	const char *mode = l[x];
 	l = list_of_macs();
 	for (i = 0; l[i]; i++)

@@ -182,6 +182,9 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 	if ((z->mac = mac_id_from_name(a)) == GCRY_MAC_NONE)
 		return z->status = STATUS_FAILED_UNKNOWN_MAC_ALGORITHM , z;
 
+	if (!mode_valid_for_cipher(z->cipher, z->mode))
+		return z->status = STATUS_FAILED_CIPHER_MODE_MISMATCH, z;
+
 	z->blocksize = BLOCK_SIZE;
 	z->compressed = x;
 	z->follow_links = f;

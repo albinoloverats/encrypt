@@ -43,17 +43,26 @@ static bool algorithm_is_duplicate(const char * const restrict);
 typedef struct
 {
 	enum gcry_cipher_modes id;
-	const char name[4];
+	const char name[9];
 }
 block_mode_t;
 
 static const block_mode_t MODES[] =
 {
-	{ GCRY_CIPHER_MODE_ECB, "ECB" },
-	{ GCRY_CIPHER_MODE_CBC, "CBC" },
-	{ GCRY_CIPHER_MODE_CFB, "CFB" },
-	{ GCRY_CIPHER_MODE_OFB, "OFB" },
-	{ GCRY_CIPHER_MODE_CTR, "CTR" },
+	//{ GCRY_CIPHER_MODE_AESWRAP,  "AESWRAP"  }, // This will require more work in crypt_io
+	{ GCRY_CIPHER_MODE_CBC,      "CBC"      },
+	{ GCRY_CIPHER_MODE_CCM,      "CCM"      },
+	{ GCRY_CIPHER_MODE_CFB,      "CFB"      },
+	{ GCRY_CIPHER_MODE_CFB8,     "CFB8"     },
+	{ GCRY_CIPHER_MODE_CTR,      "CTR"      },
+	{ GCRY_CIPHER_MODE_EAX,      "EAX"      },
+	{ GCRY_CIPHER_MODE_ECB,      "ECB"      },
+	{ GCRY_CIPHER_MODE_GCM,      "GCM"      },
+	{ GCRY_CIPHER_MODE_OCB,      "OCB"      },
+	{ GCRY_CIPHER_MODE_OFB,      "OFB"      },
+	{ GCRY_CIPHER_MODE_POLY1305, "POLY1305" },
+	{ GCRY_CIPHER_MODE_STREAM,   "STREAM"   },
+	{ GCRY_CIPHER_MODE_XTS,      "XTS"      },
 };
 
 
@@ -322,6 +331,91 @@ extern const char *mode_name_from_id(enum gcry_cipher_modes m)
 extern const char *mac_name_from_id(enum gcry_mac_algos m)
 {
 	return gcry_mac_algo_name(m);
+}
+
+extern bool mode_valid_for_cipher(enum gcry_cipher_algos c, enum gcry_cipher_modes m)
+{
+	/*
+	 * The cipher mode to use must be specified via mode. See Available
+	 * cipher modes, for a list of supported cipher modes and the
+	 * according constants.
+	 *
+	 * Note that some modes are incompatible with some algorithms - in
+	 * particular, stream mode (GCRY_CIPHER_MODE_STREAM) only works with
+	 * stream ciphers.
+	 *
+	 * Poly1305 AEAD mode (GCRY_CIPHER_MODE_POLY1305) only works with
+	 * ChaCha20 stream cipher.
+	 *
+	 * The block cipher modes (GCRY_CIPHER_MODE_ECB,
+	 * GCRY_CIPHER_MODE_CBC,GCRY_CIPHER_MODE_CFB, GCRY_CIPHER_MODE_OFB,
+	 * GCRY_CIPHER_MODE_CTR and GCRY_CIPHER_MODE_EAX) will work with any
+	 * block cipher algorithm.
+	 *
+	 * GCM mode (GCRY_CIPHER_MODE_CCM), CCM mode (GCRY_CIPHER_MODE_GCM),
+	 * OCB mode (GCRY_CIPHER_MODE_OCB), and XTS mode
+	 * (GCRY_CIPHER_MODE_XTS) will only work with block cipher
+	 * algorithms which have the block size of 16 bytes.
+	 */
+	if (m == GCRY_CIPHER_MODE_POLY1305 && c != GCRY_CIPHER_CHACHA20)
+		return false;
+	switch (c)
+	{
+		case GCRY_CIPHER_ARCFOUR:
+		case GCRY_CIPHER_SALSA20:
+		case GCRY_CIPHER_SALSA20R12:
+		case GCRY_CIPHER_CHACHA20:
+			return m == GCRY_CIPHER_MODE_STREAM;
+		default:
+			break;
+	}
+	switch (m)
+	{
+		case GCRY_CIPHER_MODE_CCM:
+		case GCRY_CIPHER_MODE_GCM:
+		case GCRY_CIPHER_MODE_OCB:
+		case GCRY_CIPHER_MODE_XTS:
+			return !(gcry_cipher_get_algo_blklen(c) % 16);
+		case GCRY_CIPHER_MODE_STREAM:
+			/*
+			 * Stream mode, only to be used with stream cipher
+			 * algorithms.
+			 */
+			switch (c)
+			{
+				case GCRY_CIPHER_ARCFOUR:
+				case GCRY_CIPHER_SALSA20:
+				case GCRY_CIPHER_SALSA20R12:
+				case GCRY_CIPHER_CHACHA20:
+					return true;
+				default:
+					return false;
+			}
+			break;
+		case GCRY_CIPHER_MODE_AESWRAP:
+			/*
+			 * This mode is used to implement the AES-Wrap algorithm
+			 * according to RFC-3394. It may be used with any 128 bit
+			 * block length algorithm, however the specs require one of
+			 * the 3 AES algorithms.
+			 */
+			switch (c)
+			{
+				case GCRY_CIPHER_AES128:
+				case GCRY_CIPHER_AES192:
+				case GCRY_CIPHER_AES256:
+					return true;
+				default:
+					return false;
+			}
+		default:
+			break;
+	}
+	/*
+	 * Hopefully whatever's left is a block cipher and a block cipher
+	 * mode.
+	 */
+	return true;
 }
 
 static int algorithm_compare(const void *a, const void *b)

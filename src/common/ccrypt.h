@@ -174,4 +174,16 @@ extern const char *mac_name_from_id(enum gcry_mac_algos m) __attribute__((pure))
  */
 extern const char *mode_name_from_id(enum gcry_cipher_modes m) __attribute__((pure));
 
+/*!
+ * \brief         Verify whether a give cipher and mode are suitable
+ * \param[in]  c  The cipher to check
+ * \param[in]  m  The cipher mode
+ * \return        True if the mode is suitable for the cipher, false
+ *                otherwise
+ *
+ * Check if the given cipher mode is usable for the given cipher. For
+ * instance stream ciphers require a stream capable mode.
+ */
+extern bool mode_valid_for_cipher(enum gcry_cipher_algos c, enum gcry_cipher_modes m);
+
 #endif /* _COMMON_CRYPT_H_ */

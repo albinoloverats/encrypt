@@ -54,7 +54,7 @@
 	#define DOWNLOAD_URL_TEMPLATE NULL
 #endif
 
-#define FINISHING_UP "Finishing up...."
+#define FINISHING_UP "Finishing up"
 
 #define HEADER_0 0x3697de5d96fca0fallu              /*!< The first 8 bytes of an encrypted file */
 #define HEADER_1 0xc845c2fa95e2f52dllu              /*!< The second 8 bytes of an encrypted file */
@@ -89,6 +89,7 @@ typedef enum
 	STATUS_FAILED_UNKNOWN_HASH_ALGORITHM,   /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
 	STATUS_FAILED_UNKNOWN_CIPHER_MODE,      /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
 	STATUS_FAILED_UNKNOWN_MAC_ALGORITHM,    /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
+	STATUS_FAILED_CIPHER_MODE_MISMATCH,     /*!< Cipher mode not compatible with cipher algorithm */
 	STATUS_FAILED_DECRYPTION,               /*!< Failed decryption verification (likely wrong password) */
 	STATUS_FAILED_UNKNOWN_TAG,              /*!< Failed due to unknown tag */
 	STATUS_FAILED_IO,                       /*!< Read/write error */

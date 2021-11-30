@@ -404,6 +404,11 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_wi
 			update_config(CONF_KDF_ITERATIONS, i);
 		}
 
+		if (!(en = mode_valid_for_cipher(cipher_id_from_name(ciphers[cipher - 1]), mode_id_from_name(modes[mode - 1]))))
+			set_status_bar((GtkStatusbar *)data->status_bar, _(STATUS_BAD_MODE));
+		else
+			set_status_bar((GtkStatusbar *)data->status_bar, _(STATUS_BAR_READY));
+
 	}
 	else
 		en = FALSE;

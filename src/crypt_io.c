@@ -244,6 +244,12 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	 * set the key as the hash of supplied data
 	 */
 	size_t key_length = gcry_cipher_get_algo_keylen(c);
+	/*
+	 * The XTS mode requires doubling key-length, for example, using
+	 * 512-bit key with AES-256 (GCRY_CIPHER_AES256).
+	 */
+	if (m == GCRY_CIPHER_MODE_XTS)
+		key_length *= 2;
 	uint8_t *key = gcry_calloc_secure(key_length, sizeof( byte_t ));
 	if (!key)
 		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, key_length);
@@ -294,14 +300,14 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	 * length; versions after 2014.06 randomly generate the IV instead
 	 */
 	io_ptr->buffer_crypt->block = gcry_cipher_get_algo_blklen(c);
-	uint8_t *iv = gcry_calloc_secure(x.x_iv == IV_BROKEN ? key_length : io_ptr->buffer_crypt->block, sizeof( byte_t ));
+	uint8_t *iv = gcry_calloc_secure(x.x_iv == IV_BROKEN || m == GCRY_CIPHER_MODE_STREAM ? key_length : io_ptr->buffer_crypt->block, sizeof( byte_t ));
 	if (!iv)
 		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, io_ptr->buffer_crypt->block);
 	if (x.x_iv == IV_RANDOM)
 	{
 		if (x.x_encrypt)
 		{
-			gcry_create_nonce(iv, io_ptr->buffer_crypt->block);
+			gcry_create_nonce(iv, m == GCRY_CIPHER_MODE_STREAM ? key_length : io_ptr->buffer_crypt->block);
 			io_write(ptr, iv, io_ptr->buffer_crypt->block);
 		}
 		else
@@ -324,7 +330,7 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	if (m == GCRY_CIPHER_MODE_CTR)
 		gcry_cipher_setctr(io_ptr->cipher_handle, iv, io_ptr->buffer_crypt->block);
 	else
-		gcry_cipher_setiv(io_ptr->cipher_handle, iv, io_ptr->buffer_crypt->block);
+		gcry_cipher_setiv(io_ptr->cipher_handle, iv, m == GCRY_CIPHER_MODE_STREAM ? key_length : io_ptr->buffer_crypt->block);
 
 	if (io_ptr->mac_init)
 	{
@@ -610,6 +616,7 @@ static ssize_t enc_write(io_private_t *f, const void *d, size_t l)
 		memset(f->buffer_crypt->stream + f->buffer_crypt->offset[0], 0x00, remainder[1]);
 #else
 		gcry_create_nonce(f->buffer_crypt->stream + f->buffer_crypt->offset[0], remainder[1]);
+		gcry_cipher_final(f->cipher_handle);
 		gcry_cipher_encrypt(f->cipher_handle, f->buffer_crypt->stream, f->buffer_crypt->block, NULL, 0);
 #endif
 		ssize_t e = ecc_write(f, f->buffer_crypt->stream, f->buffer_crypt->block);

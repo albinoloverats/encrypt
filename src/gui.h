@@ -22,6 +22,7 @@
 #define _ENCRYPT_GUI_H_
 
 #define STATUS_BAR_READY "Ready"
+#define STATUS_BAD_MODE  "Mode incompatible with cipher"
 
 #define LABEL_ENCRYPT "Encrypt"
 #define LABEL_DECRYPT "Decrypt"
