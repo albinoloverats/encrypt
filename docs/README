@@ -48,6 +48,14 @@ Changelog
 * Packaged for Solaris
 
 
+Status
+------
+
+[![C/C++ CI](https://github.com/albinoloverats/encrypt/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/albinoloverats/encrypt/actions/workflows/c-cpp.yml)
+[![Gitlab Pipelines](https://gitlab.com/albinoloverats/encrypt/badges/desktop/pipeline.svg)](https://gitlab.com/albinoloverats/encrypt/-/commits/desktop)
+![Bitbucket Pipelines](https://img.shields.io/bitbucket/pipelines/albinoloverats/encrypt/desktop)
+
+
 TODO
 ----
 
