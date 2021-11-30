@@ -166,13 +166,11 @@ public abstract class CryptoUtils
 
 	public static Set<String> getCipherModeNames()
 	{
-		final Set<String> modes = new TreeSet<>();
-		modes.add(ModeFactory.ECB_MODE.toUpperCase(Locale.ENGLISH));
-		modes.add(ModeFactory.CBC_MODE.toUpperCase(Locale.ENGLISH));
-		modes.add(ModeFactory.CFB_MODE.toUpperCase(Locale.ENGLISH));
-		modes.add(ModeFactory.OFB_MODE.toUpperCase(Locale.ENGLISH));
-		modes.add(ModeFactory.CTR_MODE.toUpperCase(Locale.ENGLISH));
-		return modes;
+		final Set<?> s = ModeFactory.getNames();
+		final Set<String> m = new TreeSet<>();
+		for (final Object o : s)
+			m.add(((String)o).toUpperCase(Locale.ENGLISH));
+		return m;
 	}
 
 	public static Set<String> getMacAlgorithmNames()
