@@ -1,0 +1,17 @@
+image: gcc
+
+build:
+  stage: build
+  before_script:
+    - apt-get update && apt-get install -y libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl3-gnutls libcurl4-gnutls-dev
+  script:
+    - make cli
+  artifacts:
+    paths:
+      - encrypt
+
+# run tests using the binary built before
+test:
+  stage: test
+  script:
+    - ./encrypt --self-test
