@@ -58,7 +58,7 @@ static const block_mode_t MODES[] =
 	{ GCRY_CIPHER_MODE_EAX,      "EAX"      },
 	{ GCRY_CIPHER_MODE_ECB,      "ECB"      },
 	{ GCRY_CIPHER_MODE_GCM,      "GCM"      },
-	{ GCRY_CIPHER_MODE_OCB,      "OCB"      },
+	//{ GCRY_CIPHER_MODE_OCB,      "OCB"      },
 	{ GCRY_CIPHER_MODE_OFB,      "OFB"      },
 	{ GCRY_CIPHER_MODE_POLY1305, "POLY1305" },
 	{ GCRY_CIPHER_MODE_STREAM,   "STREAM"   },
