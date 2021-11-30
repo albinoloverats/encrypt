@@ -357,8 +357,8 @@ extern bool mode_valid_for_cipher(enum gcry_cipher_algos c, enum gcry_cipher_mod
 	 * (GCRY_CIPHER_MODE_XTS) will only work with block cipher
 	 * algorithms which have the block size of 16 bytes.
 	 */
-	if (m == GCRY_CIPHER_MODE_POLY1305 && c != GCRY_CIPHER_CHACHA20)
-		return false;
+	if (m == GCRY_CIPHER_MODE_POLY1305)
+		return c == GCRY_CIPHER_CHACHA20;
 	switch (c)
 	{
 		case GCRY_CIPHER_ARCFOUR:
