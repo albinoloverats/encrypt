@@ -80,6 +80,8 @@ extern void on_error(int s)
 	signal(s, SIG_DFL);
 	raise(s);
 
+	fprintf(stderr, "\e[?25h\n"); /* restore cursor */
+
 	exit(EXIT_FAILURE); // this shouldn't happen as the raise above will handle things
 }
 

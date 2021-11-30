@@ -216,11 +216,11 @@ extern bool io_is_stdout(IO_HANDLE ptr)
 	return io_ptr->fd == STDOUT_FILENO;
 }
 
-extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, enum gcry_mac_algos a, uint64_t itr, const uint8_t *k, size_t l, io_extra_t x)
+extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, enum gcry_mac_algos a, uint64_t itr, const uint8_t *k, size_t l, io_extra_t x)
 {
 	io_private_t *io_ptr = ptr;
 	if (!io_ptr || io_ptr->fd < 0)
-		return errno = EBADF , (void)NULL;
+		return (errno = EBADF , false);
 	uint64_t key_iterations = itr;
 	/*
 	 * start setting up the encryption buffer
@@ -229,7 +229,9 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( buffer_t ));
 
 	gcry_md_open(&io_ptr->hash_handle, h, GCRY_MD_FLAG_SECURE);
-	gcry_cipher_open(&io_ptr->cipher_handle, c, m, GCRY_CIPHER_SECURE);
+	gcry_error_t e = gcry_cipher_open(&io_ptr->cipher_handle, c, m, GCRY_CIPHER_SECURE);
+	if (e != GPG_ERR_NO_ERROR)
+		return (errno = EINVAL , false);
 	if (a != GCRY_MAC_NONE)
 		gcry_mac_open(&io_ptr->mac_handle, a, GCRY_MAC_FLAG_SECURE, NULL);
 	/*
@@ -361,7 +363,7 @@ extern void io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	io_ptr->hash_init = true;
 	io_ptr->operation = IO_ENCRYPT;
 
-	return;
+	return true;
 }
 
 extern void io_encryption_checksum_init(IO_HANDLE ptr, enum gcry_md_algos h)

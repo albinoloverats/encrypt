@@ -233,7 +233,9 @@ static void *process(void *ptr)
 	 * kdf iterations can be user defined
 	 */
 	io_extra_t iox = { iv_type, false };
-	io_encryption_init(c->source, c->cipher, c->hash, c->mode, c->mac, c->kdf_iterations, c->key, c->length, iox);
+	if (!io_encryption_init(c->source, c->cipher, c->hash, c->mode, c->mac, c->kdf_iterations, c->key, c->length, iox))
+		return (c->status = STATUS_FAILED_GCRYPT_INIT , (void *)c->status);
+
 	c->status = STATUS_RUNNING;
 	gcry_free(c->key);
 	c->key = NULL;

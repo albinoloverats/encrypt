@@ -59,6 +59,7 @@ static const char *STATUS_MESSAGE[] =
 	"Failed: Unsupported hash algorithm!",
 	"Failed: Unsupported cipher mode!",
 	"Failed: Unsupported MAC algorithm!",
+	"Failed: Library gcrypt initialisation error",
 	"Failed: Cipher mode incompatible with cipher algorithm",
 	"Failed: Decryption failure! (Invalid password)",
 	"Failed: Unsupported feature!",

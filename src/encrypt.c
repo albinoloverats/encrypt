@@ -295,7 +295,9 @@ static void *process(void *ptr)
 	 * the encryption initialisation)
 	 */
 	io_extra_t iox = { iv_type, true };
-	io_encryption_init(c->output, c->cipher, c->hash, c->mode, c->mac, c->kdf_iterations, c->key, c->length, iox);
+	if (!io_encryption_init(c->output, c->cipher, c->hash, c->mode, c->mac, c->kdf_iterations, c->key, c->length, iox))
+		return (c->status = STATUS_FAILED_GCRYPT_INIT , (void *)c->status);
+
 	c->status = STATUS_RUNNING;
 	gcry_free(c->key);
 	c->key = NULL;
