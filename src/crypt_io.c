@@ -229,8 +229,7 @@ extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( buffer_t ));
 
 	gcry_md_open(&io_ptr->hash_handle, h, GCRY_MD_FLAG_SECURE);
-	gcry_error_t e = gcry_cipher_open(&io_ptr->cipher_handle, c, m, GCRY_CIPHER_SECURE);
-	if (e != GPG_ERR_NO_ERROR)
+	if (gcry_cipher_open(&io_ptr->cipher_handle, c, m, GCRY_CIPHER_SECURE) != GPG_ERR_NO_ERROR)
 		return (errno = EINVAL , false);
 	if (a != GCRY_MAC_NONE)
 		gcry_mac_open(&io_ptr->mac_handle, a, GCRY_MAC_FLAG_SECURE, NULL);

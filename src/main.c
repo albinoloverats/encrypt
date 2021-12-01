@@ -562,17 +562,14 @@ static int self_test(void)
 	x %= i;
 	const char *hash = l[x];
 	l = list_of_modes();
-	enum gcry_cipher_modes m;
 	do
 	{
 		for (i = 0; l[i]; i++)
 			;
 		gcry_create_nonce(&x, sizeof x);
 		x %= i;
-		m = mode_id_from_name(l[x]);
-		// locally I have GCRY_CIPHER_MODE_EAX (14) but it's not available everywhere; don't test with it
 	}
-	while (m >= 14 || !mode_valid_for_cipher(cipher_id_from_name(cipher), m));
+	while (!mode_valid_for_cipher(cipher_id_from_name(cipher), mode_id_from_name(l[x])));
 	const char *mode = l[x];
 	l = list_of_macs();
 	for (i = 0; l[i]; i++)

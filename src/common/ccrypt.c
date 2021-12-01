@@ -175,8 +175,16 @@ extern const char **list_of_modes(void)
 		unsigned m = sizeof MODES / sizeof( block_mode_t );
 		if (!(l = gcry_calloc_secure(m + 1, sizeof( char * ))))
 			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
-		for (unsigned i = 0; i < m; i++)
-			l[i] = MODES[i].name;
+		for (unsigned i = 0, j = 0; i < m; i++)
+		{
+			gcry_cipher_hd_t c;
+			gcry_error_t e;
+			if ((e = gcry_cipher_open(&c, GCRY_CIPHER_AES, MODES[i].id, 0)) == GPG_ERR_NO_ERROR)
+				l[j++] = MODES[i].name;
+			else if ((e = gcry_cipher_open(&c, GCRY_CIPHER_CHACHA20, MODES[i].id, 0)) == GPG_ERR_NO_ERROR)
+				l[j++] = MODES[i].name;
+			gcry_cipher_close(c);
+		}
 	}
 	return (const char **)l;
 }
