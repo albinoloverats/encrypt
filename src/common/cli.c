@@ -59,6 +59,8 @@ static void cli_display_bars(cli_progress_t *, cli_progress_t *, cli_bps_t *);
 static void cli_sigwinch(int);
 #endif
 
+extern void on_quit(int) __attribute__((noreturn));
+
 static void cli_init(void);
 static int cli_inited = -1; // -1 (no), 0 (failed), 1 (okay)
 
@@ -338,10 +340,22 @@ static int cli_print(FILE *stream, char *text)
 	return x;
 }
 
+extern void on_quit(int s)
+{
+	fprintf(stderr, "\e[?25h\n"); /* restore cursor */
+	signal(s, SIG_DFL);
+	raise(s);
+	exit(EXIT_FAILURE); // this shouldn't happen as the raise above will handle things
+}
+
 static void cli_init(void)
 {
 	if (cli_inited >= 0)
 		return;
+	signal(SIGTERM, on_quit);
+	signal(SIGINT,  on_quit);
+	signal(SIGQUIT, on_quit);
+
 #ifndef _WIN32
 	setlocale(LC_NUMERIC, "");
 #else

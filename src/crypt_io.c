@@ -350,10 +350,10 @@ extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	}
 	gcry_free(hash);
 
-	if (m == GCRY_CIPHER_MODE_CTR)
+	if (m == GCRY_CIPHER_MODE_CTR || m == GCRY_CIPHER_MODE_STREAM)
 		gcry_cipher_setctr(io_ptr->cipher_handle, iv, io_ptr->buffer_crypt->block);
 	else
-		gcry_cipher_setiv(io_ptr->cipher_handle, iv, m == GCRY_CIPHER_MODE_STREAM ? key_length : io_ptr->buffer_crypt->block);
+		gcry_cipher_setiv(io_ptr->cipher_handle, iv, io_ptr->buffer_crypt->block);
 
 	if (io_ptr->mac_init)
 	{

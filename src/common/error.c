@@ -57,6 +57,8 @@ extern void on_error(int s)
 		raise(s);
 	fatal_error_in_progress = 1;
 
+	fprintf(stderr, "\e[?25h\n"); /* restore cursor */
+
 	char m[32] = { 0x0 };
 	snprintf(m, sizeof m, "Received fatal signal [%d] ", s);
 	psignal(s, m);
@@ -79,9 +81,6 @@ extern void on_error(int s)
 
 	signal(s, SIG_DFL);
 	raise(s);
-
-	fprintf(stderr, "\e[?25h\n"); /* restore cursor */
-
 	exit(EXIT_FAILURE); // this shouldn't happen as the raise above will handle things
 }
 
@@ -95,12 +94,6 @@ extern void error_init(void)
 	signal(SIGBUS,  on_error);
 	signal(SIGABRT, on_error);
 	signal(SIGSYS,  on_error);
-
-	/*
-	SIGTERM,
-	SIGINT,
-	SIGQUIT,
-	*/
 
 	error_inited = true;
 
