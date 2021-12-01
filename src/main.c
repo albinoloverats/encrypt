@@ -106,8 +106,8 @@ int main(int argc, char **argv)
 	#ifndef _WIN32
 		{ 'g', "no-gui",         NULL,            _("Do not use the GUI, even if it’s available"),               CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
 	#endif
-		{ ' ', "key-source",     _("key source"), _("Key data source"),                                          CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, true  },
-		{ ' ', "compress",       NULL,            _("Compress the plain text using the xz algorithm"),           CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, true  },
+		{ 0x1, "key-source",     _("key source"), _("Key data source"),                                          CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, true  },
+		{ 0x2, "compress",       NULL,            _("Compress the plain text using the xz algorithm"),           CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, true  },
 #endif
 		{ 'u', "no-cli",         NULL,            _("Do not display the CLI progress bar"),                      CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
 		{ 'c', "cipher",         _("algorithm"),  _("Algorithm to use to encrypt data; use 'list' to show available cipher algorithms"), CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
 #else
 		{ 'r', "raw",            NULL,            _("Don't generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false },
 #endif
-		{ ' ', "self-test",      NULL,            _("Perform self-test routine"),                                CONFIG_ARG_BOOLEAN,     { 0x0 }, false, true,  true  },
+		{ 0x3, "self-test",      NULL,            _("Perform self-test routine"),                                CONFIG_ARG_BOOLEAN,     { 0x0 }, false, true,  true  },
 		{ 0x0, NULL, NULL, NULL, CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false }
 	};
 	config_extra_t extra[] =
@@ -562,14 +562,17 @@ static int self_test(void)
 	x %= i;
 	const char *hash = l[x];
 	l = list_of_modes();
+	enum gcry_cipher_modes m;
 	do
 	{
 		for (i = 0; l[i]; i++)
 			;
 		gcry_create_nonce(&x, sizeof x);
 		x %= i;
+		m = mode_id_from_name(l[x]);
+		// locally I have GCRY_CIPHER_MODE_EAX (14) but it's not available everywhere; don't test with it
 	}
-	while (!mode_valid_for_cipher(cipher_id_from_name(cipher), mode_id_from_name(l[x])));
+	while (m >= 14 || !mode_valid_for_cipher(cipher_id_from_name(cipher), m));
 	const char *mode = l[x];
 	l = list_of_macs();
 	for (i = 0; l[i]; i++)

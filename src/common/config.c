@@ -230,9 +230,12 @@ end_line:
 
 		for (int i = 0; args[i].short_option; i++)
 		{
-			char S[] = "X";
-			S[0] = args[i].short_option;
-			strcat(short_options, S);
+			if (isalnum(args[i].short_option))
+			{
+				char S[] = "X";
+				S[0] = args[i].short_option;
+				strcat(short_options, S);
+			}
 			if (args[i].response_type != CONFIG_ARG_REQ_BOOLEAN && args[i].response_type != CONFIG_ARG_OPT_BOOLEAN)
 				strcat(short_options, ":");
 			long_options[i + 3].name = args[i].long_option;
