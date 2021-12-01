@@ -259,12 +259,29 @@ extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	 * set the key as the hash of supplied data
 	 */
 	size_t key_length = gcry_cipher_get_algo_keylen(c);
-	/*
-	 * The XTS mode requires doubling key-length, for example, using
-	 * 512-bit key with AES-256 (GCRY_CIPHER_AES256).
-	 */
-	if (m == 13) // GCRY_CIPHER_MODE_XTS)
-		key_length *= 2;
+	switch (m)
+	{
+#if 0
+		case GCRY_CIPHER_MODE_CCM:
+			{
+				uint64_t cp[3];
+				cp[0] = tv[i].plainlen;
+				cp[1] = tv[i].aadlen;
+				cp[2] = tv[i].cipherlen - tv[i].plainlen;
+				gcry_cipher_ctl(io_ptr->cipher_handle, GCRYCTL_SET_CCM_LENGTHS, cp, sizeof cp);
+			}
+			break;
+#endif
+		case 13: // GCRY_CIPHER_MODE_XTS:
+			/*
+			 * The XTS mode requires doubling key-length, for example, using
+			 * 512-bit key with AES-256 (GCRY_CIPHER_AES256).
+			 */
+			key_length *= 2;
+			break;
+		default:
+			break;
+	}
 	uint8_t *key = gcry_calloc_secure(key_length, sizeof( byte_t ));
 	if (!key)
 		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, key_length);

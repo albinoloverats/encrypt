@@ -51,7 +51,7 @@ static const block_mode_t MODES[] =
 {
 	//{ GCRY_CIPHER_MODE_AESWRAP,        "AESWRAP"  }, // This will require more work in crypt_io
 	{ GCRY_CIPHER_MODE_CBC,            "CBC"      },
-	{ GCRY_CIPHER_MODE_CCM,            "CCM"      },
+	//{ GCRY_CIPHER_MODE_CCM,            "CCM"      }, // ditto
 	{ GCRY_CIPHER_MODE_CFB,            "CFB"      },
 	{ GCRY_CIPHER_MODE_CFB8,           "CFB8"     },
 	{ GCRY_CIPHER_MODE_CTR,            "CTR"      },
@@ -59,7 +59,7 @@ static const block_mode_t MODES[] =
 	{ GCRY_CIPHER_MODE_ECB,            "ECB"      },
 	{ GCRY_CIPHER_MODE_GCM,            "GCM"      },
 	{ 16 /*GCRY_CIPHER_MODE_GCM_SIV*/, "GCM_SIV"  }, // not available anywhere but in git source
-	//{ GCRY_CIPHER_MODE_OCB,            "OCB"      },
+	//{ GCRY_CIPHER_MODE_OCB,            "OCB"      }, // requires more work
 	{ GCRY_CIPHER_MODE_OFB,            "OFB"      },
 	{ GCRY_CIPHER_MODE_POLY1305,       "POLY1305" },
 	{ 15 /*GCRY_CIPHER_MODE_SIV*/,     "SIV"      }, // ditto
