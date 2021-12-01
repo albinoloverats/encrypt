@@ -129,8 +129,8 @@ extern crypto_t *decrypt_init(const char * const restrict i,
 
 	if (z->path)
 	{
-		char *sl;
-		if ((sl = strrchr(z->path, '/')))
+		char *sl = z->path + strlen(z->path) - 1;
+		if (*sl == '/')
 			*sl = '\0';
 	}
 

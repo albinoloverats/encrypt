@@ -43,6 +43,7 @@
 #include "common/ccrypt.h"
 #include "common/version.h"
 #include "common/cli.h"
+#include "common/dir.h"
 #include "common/config.h"
 
 #include "crypt.h"
@@ -280,7 +281,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
 		stat(open_file, &s);
 		char *dir = open_file;
 		if (S_ISREG(s.st_mode))
-			dir = basename(open_file);
+			dir = dir_get_path(open_file);
 		if (S_ISREG(s.st_mode) || S_ISDIR(s.st_mode))
 		{
 			gtk_label_set_text((GtkLabel *)data->open_file_label, basename(open_file));
@@ -382,27 +383,21 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_wi
 
 	gboolean en = _files;
 
-	if (cipher && hash && mode && mac && iter)
+	if (cipher > 0 && hash > 0 && mode > 0 && mac > 0 && iter > 0)
 	{
 		const char **ciphers = list_of_ciphers();
 		const char **hashes = list_of_hashes();
 		const char **modes = list_of_modes();
 		const char **macs = list_of_macs();
 
-		if (cipher > 0)
-			update_config(CONF_CIPHER, ciphers[cipher - 1]);
-		if (hash > 0)
-			update_config(CONF_HASH, hashes[hash - 1]);
-		if (mode > 0)
-			update_config(CONF_MODE, modes[mode - 1]);
-		if (mac > 0)
-			update_config(CONF_MAC, macs[mac - 1]);
-		if (iter > 0)
-		{
-			char i[22];
-			snprintf(i, sizeof i, "%" PRIu64, iter);
-			update_config(CONF_KDF_ITERATIONS, i);
-		}
+		update_config(CONF_CIPHER, ciphers[cipher - 1]);
+		update_config(CONF_HASH, hashes[hash - 1]);
+		update_config(CONF_MODE, modes[mode - 1]);
+		update_config(CONF_MAC, macs[mac - 1]);
+
+		char i[22];
+		snprintf(i, sizeof i, "%" PRIu64, iter);
+		update_config(CONF_KDF_ITERATIONS, i);
 
 		if (!(en = mode_valid_for_cipher(cipher_id_from_name(ciphers[cipher - 1]), mode_id_from_name(modes[mode - 1]))))
 			set_status_bar((GtkStatusbar *)data->status_bar, _(STATUS_BAD_MODE));
