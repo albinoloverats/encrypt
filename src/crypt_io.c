@@ -238,10 +238,24 @@ extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	 * generate a hash of the supplied key data
 	 */
 	size_t hash_length = gcry_md_get_algo_dlen(h);
+	if (!hash_length)
+	{
+		if (h == GCRY_MD_SHAKE128 || h == GCRY_MD_SHAKE256)
+			hash_length = 64;
+		else
+			return (errno = EINVAL , false);
+	}
 	uint8_t *hash = gcry_malloc_secure(hash_length);
 	if (!hash)
 		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, hash_length);
-	gcry_md_hash_buffer(gcry_md_get_algo(io_ptr->hash_handle), hash, k, l);
+	if (h == GCRY_MD_SHAKE128 || h == GCRY_MD_SHAKE256)
+	{
+		gcry_md_write(io_ptr->hash_handle, k, l);
+		gcry_md_final(io_ptr->hash_handle);
+		gcry_md_extract(io_ptr->hash_handle, h, hash, hash_length);
+	}
+	else
+		gcry_md_hash_buffer(gcry_md_get_algo(io_ptr->hash_handle), hash, k, l);
 	/*
 	 * set the key as the hash of supplied data
 	 */
@@ -323,6 +337,13 @@ extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 		/*
 		 * set the IV as the hash of the hash
 		 */
+		if (h == GCRY_MD_SHAKE128 || h == GCRY_MD_SHAKE256)
+		{
+			gcry_md_write(io_ptr->hash_handle, hash, hash_length);
+			gcry_md_final(io_ptr->hash_handle);
+			gcry_md_extract(io_ptr->hash_handle, h, iv_hash, hash_length);
+		}
+		else
 		gcry_md_hash_buffer(gcry_md_get_algo(io_ptr->hash_handle), iv_hash, hash, hash_length);
 		memcpy(iv, iv_hash, io_ptr->buffer_crypt->block < hash_length ? io_ptr->buffer_crypt->block : hash_length);
 		gcry_free(iv_hash);
@@ -384,11 +405,17 @@ extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l)
 	if (!io_ptr->hash_init)
 		return *l = 0 , (void)NULL;
 	*l = gcry_md_get_algo_dlen(gcry_md_get_algo(io_ptr->hash_handle));
+	enum gcry_md_algos h = gcry_md_get_algo(io_ptr->hash_handle);
+	if (!*l && (h == GCRY_MD_SHAKE128 || h == GCRY_MD_SHAKE256))
+		*l = 64;
 	uint8_t *x = gcry_realloc(*b, *l);
 	if (!x)
 		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, *l);
 	*b = x;
-	memcpy(*b, gcry_md_read(io_ptr->hash_handle, gcry_md_get_algo(io_ptr->hash_handle)), *l);
+	if (h == GCRY_MD_SHAKE128 || h == GCRY_MD_SHAKE256)
+		gcry_md_extract(io_ptr->hash_handle, h, *b, *l);
+	else
+		memcpy(*b, gcry_md_read(io_ptr->hash_handle, h), *l);
 	return;
 }
 
