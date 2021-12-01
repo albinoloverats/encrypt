@@ -263,7 +263,7 @@ extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	 * The XTS mode requires doubling key-length, for example, using
 	 * 512-bit key with AES-256 (GCRY_CIPHER_AES256).
 	 */
-	if (m == GCRY_CIPHER_MODE_XTS)
+	if (m == 13) // GCRY_CIPHER_MODE_XTS)
 		key_length *= 2;
 	uint8_t *key = gcry_calloc_secure(key_length, sizeof( byte_t ));
 	if (!key)

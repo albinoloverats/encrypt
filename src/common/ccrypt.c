@@ -384,7 +384,7 @@ extern bool mode_valid_for_cipher(enum gcry_cipher_algos c, enum gcry_cipher_mod
 		case GCRY_CIPHER_MODE_CCM:
 		case GCRY_CIPHER_MODE_GCM:
 		case GCRY_CIPHER_MODE_OCB:
-		case GCRY_CIPHER_MODE_XTS:
+		case 13: // GCRY_CIPHER_MODE_XTS: C'mon Slackware :-/
 			return !(gcry_cipher_get_algo_blklen(c) % 16);
 		case GCRY_CIPHER_MODE_STREAM:
 			/*
