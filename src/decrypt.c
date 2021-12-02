@@ -520,9 +520,8 @@ static void decrypt_directory(crypto_t *c, const char *dir)
 	bool lnerr = false;
 	for (c->total.offset = 0; c->total.offset < c->total.size && c->status == STATUS_RUNNING; c->total.offset++)
 	{
-		file_type_e tp;
+		file_type_e tp = 0x0;
 		io_read(c->source, &tp, sizeof( byte_t ));
-
 		uint64_t l;
 		io_read(c->source, &l, sizeof l);
 		l = ntohll(l);

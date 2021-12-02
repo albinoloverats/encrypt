@@ -306,6 +306,8 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 
 clean_up:
 
+	[self cipherHashSelected:pId];
+
 	if (!encrypted)
 	{
 		[_cipherCombo setEnabled:en];
@@ -315,8 +317,15 @@ clean_up:
 		[_kdfIterations setEnabled:en];
 		[_kdfIterate setEnabled:en];
 	}
-
-	[self cipherHashSelected:pId];
+	else
+	{
+		[_cipherCombo setEnabled:FALSE];
+		[_hashCombo setEnabled:FALSE];
+		[_modeCombo setEnabled:FALSE];
+		[_macCombo setEnabled:FALSE];
+		[_kdfIterations setEnabled:FALSE];
+		[_kdfIterate setEnabled:FALSE];
+	}
 }
 
 - (IBAction)cipherHashSelected:(id)pId
@@ -465,19 +474,17 @@ clean_up:
 	else if (raw && _decryptButton == pId)
 		encrypted = true;
 
+	char *cipher = (char *)[[[_cipherCombo selectedItem] title] UTF8String];
+	char *hash = (char *)[[[_hashCombo selectedItem] title] UTF8String];
+	char *mode = (char *)[[[_modeCombo selectedItem] title] UTF8String];
+	char *mac = (char *)[[[_macCombo selectedItem] title] UTF8String];
+	uint64_t iter = [_kdfIterations intValue];
+
 	crypto_t *c;
 	if (!encrypted)
-	{
-		char *cipher = (char *)[[[_cipherCombo selectedItem] title] UTF8String];
-		char *hash = (char *)[[[_hashCombo selectedItem] title] UTF8String];
-		char *mode = (char *)[[[_modeCombo selectedItem] title] UTF8String];
-		char *mac = (char *)[[[_macCombo selectedItem] title] UTF8String];
-		uint64_t iter = [_kdfIterations intValue];
-
-		c = encrypt_init(source, output, cipher, hash, mode, mac, key, length, iter, false, compress, follow, version);
-	}
+		c = encrypt_init(source, output, cipher, hash, mode, mac, key, length, iter, raw, compress, follow, version);
 	else
-		c = decrypt_init(source, output, NULL, NULL, NULL, NULL, key, length, 0, false);
+		c = decrypt_init(source, output, cipher, hash, mode, mac, key, length, iter, raw);
 
 	dispatch_time_t oneSecond = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(NSEC_PER_SEC));
 
