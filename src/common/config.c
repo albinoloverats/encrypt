@@ -601,7 +601,7 @@ static void show_help(config_arg_t *args, char **notes, config_extra_t *extra)
 	if (has_advanced)
 	{
 		cli_fprintf(stderr, "\n");
-		format_section(_("Advnaced Options"));
+		format_section(_("Advanced Options"));
 		for (int i = 0; args[i].short_option; i++)
 			if (!args[i].hidden && args[i].advanced)
 				print_option(indent, args[i].short_option, args[i].long_option, args[i].option_type ? : NULL, args[i].response_type & CONFIG_ARG_REQUIRED, args[i].description);
