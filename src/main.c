@@ -292,7 +292,7 @@ int main(int argc, char **argv)
 	#endif /* ! _WIN32 */
 			if (!gtk_builder_add_from_file(builder, glade_ui_file, &error))
 			{
-				fprintf(stderr, "%s", error->message);
+				cli_fprintf(stderr, "%s", error->message);
 				g_error_free(error);
 				error = NULL;
 				if (!gtk_builder_add_from_file(builder, GLADE_UI_FILE_BACKUP, &error))
@@ -408,7 +408,7 @@ int main(int argc, char **argv)
 
 		}
 		else
-			fprintf(stderr, _("Could not create GUI - falling back to command line\n"));
+			cli_fprintf(stderr, _("Could not create GUI - falling back to command line\n"));
 	#ifndef _WIN32
 	}
 	#endif
@@ -431,7 +431,7 @@ int main(int argc, char **argv)
 	{
 		key_data = (uint8_t *)getpass(_("Please enter a password: "));
 		key_length = strlen((char *)key_data);
-		printf("\n");
+		//cli_printf("\n");
 	}
 	else
 		config_show_usage(args, extra);
@@ -508,7 +508,7 @@ clean_up:
 		cli_fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : PROJECT_URL);
 
 #ifdef __DEBUG__
-	fprintf(stderr, "\n" ANSI_COLOUR_RED "**** %s ****" ANSI_COLOUR_RESET "\n\n", _("DEBUG BUILD"));
+	cli_fprintf(stderr, "\n" ANSI_COLOUR_RED "**** %s ****" ANSI_COLOUR_RESET "\n\n", _("DEBUG BUILD"));
 #endif
 
 	return EXIT_SUCCESS;
@@ -518,7 +518,7 @@ static bool list_ciphers(void)
 {
 	const char **l = list_of_ciphers();
 	for (int i = 0; l[i] ; i++)
-		fprintf(stderr, "%s\n", l[i]);
+		cli_fprintf(stderr, "%s\n", l[i]);
 	return true;
 }
 
@@ -526,7 +526,7 @@ static bool list_hashes(void)
 {
 	const char **l = list_of_hashes();
 	for (int i = 0; l[i]; i++)
-		fprintf(stderr, "%s\n", l[i]);
+		cli_fprintf(stderr, "%s\n", l[i]);
 	return true;
 }
 
@@ -534,7 +534,7 @@ static bool list_modes(void)
 {
 	const char **l = list_of_modes();
 	for (int i = 0; l[i]; i++)
-		fprintf(stderr, "%s\n", l[i]);
+		cli_fprintf(stderr, "%s\n", l[i]);
 	return true;
 }
 
@@ -542,7 +542,7 @@ static bool list_macs(void)
 {
 	const char **l = list_of_macs();
 	for (int i = 0; l[i]; i++)
-		fprintf(stderr, "%s\n", l[i]);
+		cli_fprintf(stderr, "%s\n", l[i]);
 	return true;
 }
 
@@ -595,13 +595,13 @@ static int self_test(void)
 	uint8_t *buffer_check = malloc(buffer_len);
 	gcry_create_nonce(buffer_plain, buffer_len);
 
-	fprintf(stderr, _("Test cipher        : %s\n"), cipher);
-	fprintf(stderr, _("Test hash          : %s\n"), hash);
-	fprintf(stderr, _("Test mode          : %s\n"), mode);
-	fprintf(stderr, _("Test MAC           : %s\n"), mac);
-	fprintf(stderr, _("Test KDF iterations: %" PRIu32 "\n"), kdf);
-	fprintf(stderr, _("Test key size      : %" PRIu16 "\n"), key_len);
-	fprintf(stderr, _("Test buffer size   : %" PRIu32 "\n"), buffer_len);
+	cli_fprintf(stderr, _("Test cipher        : %s\n"), cipher);
+	cli_fprintf(stderr, _("Test hash          : %s\n"), hash);
+	cli_fprintf(stderr, _("Test mode          : %s\n"), mode);
+	cli_fprintf(stderr, _("Test MAC           : %s\n"), mac);
+	cli_fprintf(stderr, _("Test KDF iterations: %" PRIu32 "\n"), kdf);
+	cli_fprintf(stderr, _("Test key size      : %" PRIu16 "\n"), key_len);
+	cli_fprintf(stderr, _("Test buffer size   : %" PRIu32 "\n"), buffer_len);
 
 	crypto_t *test_encrypt = encrypt_init(NULL, NULL, cipher, hash, mode, mac, key, key_len, kdf, false, true, false, VERSION_CURRENT);
 	crypto_t *test_decrypt = decrypt_init(NULL, NULL, cipher, hash, mode, mac, key, key_len, kdf, false);
@@ -621,7 +621,7 @@ static int self_test(void)
 	fd = fileno(tmp_check);
 	memcpy(test_decrypt->output, &fd, sizeof fd);
 
-	fprintf(stderr, _("\nTesting encryption..."));
+	cli_fprintf(stderr, _("\nTesting encryption..."));
 	execute(test_encrypt);
 #ifndef __DEBUG__
 	cli_t p = { (cli_status_e *)&test_encrypt->status, &test_encrypt->current, &test_encrypt->total };
@@ -631,7 +631,7 @@ static int self_test(void)
 	fseek(tmp_plain,  0, SEEK_SET);
 	fseek(tmp_cipher, 0, SEEK_SET);
 
-	fprintf(stderr, _("Testing decryption..."));
+	cli_fprintf(stderr, _("Testing decryption..."));
 	execute(test_decrypt);
 #ifndef __DEBUG__
 	p.status  = (cli_status_e *)&test_decrypt->status;
@@ -649,9 +649,9 @@ static int self_test(void)
 
 	int r;
 	if (memcmp(buffer_plain, buffer_check, buffer_len))
-		r = EXIT_FAILURE , fprintf(stderr, _("\nFail: Result not equal to original!\n"));
+		r = EXIT_FAILURE , cli_fprintf(stderr, _("\nFail: Result not equal to original!\n"));
 	else
-		r = EXIT_SUCCESS , fprintf(stderr, _("\nSelf-test passed.\n"));
+		r = EXIT_SUCCESS , cli_fprintf(stderr, _("\nSelf-test passed.\n"));
 
 	free(buffer_plain);
 	free(buffer_check);

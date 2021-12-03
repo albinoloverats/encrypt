@@ -84,7 +84,7 @@ extern int config_parse_aux(int argc, char **argv, config_arg_t *args, config_ex
 {
 	if (!init)
 	{
-		fprintf(stderr, _("Call config_init() first\n"));
+		cli_fprintf(stderr, _("Call config_init() first\n"));
 		return -1;
 	}
 	/*
@@ -620,7 +620,7 @@ static void show_help(config_arg_t *args, char **notes, config_extra_t *extra)
 
 static void show_licence(void)
 {
-	fprintf(stderr, _(TEXT_LICENCE));
+	cli_fprintf(stderr, _(TEXT_LICENCE));
 	while (version_is_checking)
 		sleep(1);
 	exit(EXIT_SUCCESS);
@@ -630,7 +630,7 @@ extern void update_config(const char * const restrict o, const char * const rest
 {
 	if (!init)
 	{
-		fprintf(stderr, _("Call config_init() first\n"));
+		cli_fprintf(stderr, _("Call config_init() first\n"));
 		return;
 	}
 	char *rc = NULL;
@@ -668,7 +668,7 @@ extern void update_config(const char * const restrict o, const char * const rest
 					asprintf(&line, "%s %s\n", o, v);
 					found = true;
 				}
-				fprintf(t, "%s", line);
+				cli_fprintf(t, "%s", line);
 				free(line);
 				line = NULL;
 				len = 0;
@@ -684,7 +684,7 @@ extern void update_config(const char * const restrict o, const char * const rest
 		if (!found)
 		{
 			fseek(f, 0, SEEK_END);
-			fprintf(f, "\n%s %s\n", o, v);
+			cli_fprintf(f, "\n%s %s\n", o, v);
 		}
 		fclose(f);
 		free(line);
