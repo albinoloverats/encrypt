@@ -29,8 +29,7 @@
 #include "non-gnu.h"
 #include "error.h"
 #include "ccrypt.h"
-
-static int algorithm_compare(const void *, const void *);
+#include "list.h"
 
 static const char *correct_sha1(const char * const restrict);
 static const char *correct_aes_rijndael(const char * const restrict);
@@ -95,7 +94,7 @@ extern void init_crypto(void)
 	return;
 }
 
-extern const char **list_of_ciphers(void)
+extern LIST_HANDLE list_of_ciphers(void)
 {
 	init_crypto();
 
@@ -111,27 +110,22 @@ extern const char **list_of_ciphers(void)
 		}
 		id++;
 	}
-	static const char **l = NULL;
+	static LIST_HANDLE *l = NULL;
 	if (!l)
 	{
-		if (!(l = gcry_calloc_secure(len + 1, sizeof( char * ))))
-			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
-		int j = 0;
+		l = list_init((int (*)(const void *, const void *))strcmp, false, true);
 		for (int i = 0; i < len; i++)
 		{
 			const char *n = cipher_name_from_id(lid[i]);
 			if (!n)
 				continue;
-			l[j] = strdup(n);
-			j++;
+			list_add(l, n);
 		}
-		//l[j] = NULL;
-		qsort(l, j, sizeof( char * ), algorithm_compare);
 	}
-	return (const char **)l;
+	return l;
 }
 
-extern const char **list_of_hashes(void)
+extern LIST_HANDLE list_of_hashes(void)
 {
 	init_crypto();
 
@@ -147,49 +141,43 @@ extern const char **list_of_hashes(void)
 		}
 		id++;
 	}
-	static const char **l = NULL;
+	static LIST_HANDLE *l = NULL;
 	if (!l)
 	{
-		if (!(l = gcry_calloc_secure(len + 1, sizeof( char * ))))
-			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
-		int j = 0;
+		l = list_init((int (*)(const void *, const void *))strcmp, false, true);
 		for (int i = 0; i < len; i++)
 		{
 			const char *n = hash_name_from_id(lid[i]);
 			if (!n)
 				continue;
-			l[j] = strdup(n);
-			j++;
+			list_add(l, n);
 		}
-		//l[j] = NULL;
-		qsort(l, j, sizeof( char * ), algorithm_compare);
 	}
-	return (const char **)l;
+	return l;
 }
 
-extern const char **list_of_modes(void)
+extern LIST_HANDLE list_of_modes(void)
 {
-	static const char **l = NULL;
+	static LIST_HANDLE *l = NULL;
 	if (!l)
 	{
 		unsigned m = sizeof MODES / sizeof( block_mode_t );
-		if (!(l = gcry_calloc_secure(m + 1, sizeof( char * ))))
-			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
-		for (unsigned i = 0, j = 0; i < m; i++)
+		l = list_init((int (*)(const void *, const void *))strcmp, false, true);
+		for (unsigned i = 0; i < m; i++)
 		{
 			gcry_cipher_hd_t c;
 			gcry_error_t e;
 			if ((e = gcry_cipher_open(&c, GCRY_CIPHER_AES, MODES[i].id, 0)) == GPG_ERR_NO_ERROR)
-				l[j++] = MODES[i].name;
+				list_add(l, MODES[i].name);
 			else if ((e = gcry_cipher_open(&c, GCRY_CIPHER_CHACHA20, MODES[i].id, 0)) == GPG_ERR_NO_ERROR)
-				l[j++] = MODES[i].name;
+				list_add(l, MODES[i].name);
 			gcry_cipher_close(c);
 		}
 	}
-	return (const char **)l;
+	return l;
 }
 
-extern const char **list_of_macs(void)
+extern LIST_HANDLE list_of_macs(void)
 {
 	init_crypto();
 
@@ -205,24 +193,19 @@ extern const char **list_of_macs(void)
 		}
 		id++;
 	}
-	static const char **l = NULL;
+	static LIST_HANDLE *l = NULL;
 	if (!l)
 	{
-		if (!(l = gcry_calloc_secure(len + 1, sizeof( char * ))))
-			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( char * ));
-		int j = 0;
+		l = list_init((int (*)(const void *, const void *))strcmp, false, true);
 		for (int i = 0; i < len; i++)
 		{
 			const char *n = gcry_mac_algo_name(lid[i]);
 			if (!n || !strcmp("?", n))
 				continue;
-			l[j] = strdup(n);
-			j++;
+			list_add(l, n);
 		}
-		//l[j] = NULL;
-		qsort(l, j, sizeof( char * ), algorithm_compare);
 	}
-	return (const char **)l;
+	return l;
 }
 
 extern enum gcry_cipher_algos cipher_id_from_name(const char * const restrict n)
@@ -426,11 +409,6 @@ extern bool mode_valid_for_cipher(enum gcry_cipher_algos c, enum gcry_cipher_mod
 	 * mode.
 	 */
 	return true;
-}
-
-static int algorithm_compare(const void *a, const void *b)
-{
-	return strcmp(*(char **)a, *(char **)b);
 }
 
 static const char *correct_sha1(const char * const restrict n)

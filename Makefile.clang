@@ -5,7 +5,7 @@ CC       = clang
 APP      = encrypt
 ALT      = decrypt
 
-COMMON_SRC     = src/common/error.c src/common/ccrypt.c src/common/tlv.c src/common/version.c src/common/config.c src/common/fs.c src/common/cli.c src/common/dir.c src/common/ecc.c src/common/non-gnu.c
+COMMON_SRC     = src/common/error.c src/common/ccrypt.c src/common/list.c src/common/tlv.c src/common/version.c src/common/config.c src/common/fs.c src/common/cli.c src/common/dir.c src/common/ecc.c src/common/non-gnu.c
 CLI_SRC        = ${COMMON_SRC} src/main.c src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
 GUI_SRC        = ${CLI_SRC} src/gui-gtk.c
 MISC           = src/common/misc.h

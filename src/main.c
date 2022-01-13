@@ -47,6 +47,7 @@
 #include "common/version.h"
 #include "common/config.h"
 #include "common/cli.h"
+#include "common/list.h"
 
 #ifdef _WIN32
 	#include <Shlobj.h>
@@ -516,67 +517,66 @@ clean_up:
 
 static bool list_ciphers(void)
 {
-	const char **l = list_of_ciphers();
-	for (int i = 0; l[i] ; i++)
-		cli_fprintf(stderr, "%s\n", l[i]);
+	LIST_HANDLE l = list_of_ciphers();
+	list_iterate(l);
+	while (list_has_next(l))
+		cli_eprintf("%s\n", (char *)list_get_next(l));
 	return true;
 }
 
 static bool list_hashes(void)
 {
-	const char **l = list_of_hashes();
-	for (int i = 0; l[i]; i++)
-		cli_fprintf(stderr, "%s\n", l[i]);
+	LIST_HANDLE l = list_of_hashes();
+	list_iterate(l);
+	while (list_has_next(l))
+		cli_eprintf("%s\n", (char *)list_get_next(l));
 	return true;
 }
 
 static bool list_modes(void)
 {
-	const char **l = list_of_modes();
-	for (int i = 0; l[i]; i++)
-		cli_fprintf(stderr, "%s\n", l[i]);
+	LIST_HANDLE l = list_of_modes();
+	list_iterate(l);
+	while (list_has_next(l))
+		cli_eprintf("%s\n", (char *)list_get_next(l));
 	return true;
 }
 
 static bool list_macs(void)
 {
-	const char **l = list_of_macs();
-	for (int i = 0; l[i]; i++)
-		cli_fprintf(stderr, "%s\n", l[i]);
+	LIST_HANDLE l = list_of_macs();
+	list_iterate(l);
+	while (list_has_next(l))
+		cli_eprintf("%s\n", (char *)list_get_next(l));
 	return true;
 }
 
 static int self_test(void)
 {
-	const char **l = list_of_ciphers();
-	unsigned int i, x;
-	for (i = 0; l[i]; i++)
-		;
+	LIST_HANDLE l = list_of_ciphers();
+	unsigned int x;
 	gcry_create_nonce(&x, sizeof x);
-	x %= i;
-	const char *cipher = l[x];
+	x %= list_size(l);
+	const char *cipher = list_get(l, x);
+
 	l = list_of_hashes();
-	for (i = 0; l[i]; i++)
-		;
 	gcry_create_nonce(&x, sizeof x);
-	x %= i;
-	const char *hash = l[x];
+	x %= list_size(l);
+	const char *hash = list_get(l, x);
+
 	l = list_of_modes();
 	do
 	{
-		for (i = 0; l[i]; i++)
-			;
 		gcry_create_nonce(&x, sizeof x);
-		x %= i;
+		x %= list_size(l);
 	}
-	while (!mode_valid_for_cipher(cipher_id_from_name(cipher), mode_id_from_name(l[x])));
-	const char *mode = l[x];
+	while (!mode_valid_for_cipher(cipher_id_from_name(cipher), mode_id_from_name(list_get(l, x))));
+	const char *mode = list_get(l, x);
+
 	l = list_of_macs();
-	for (i = 0; l[i]; i++)
-		;
 	gcry_create_nonce(&x, sizeof x);
-	x %= i;
-	const char *mac = l[x];
+	x %= list_size(l);
+	const char *mac = list_get(l, x);
 
 	uint16_t key_len;
 	gcry_create_nonce(&key_len, sizeof key_len);

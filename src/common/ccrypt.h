@@ -23,6 +23,8 @@
 
 #include <gcrypt.h>
 
+#include "list.h"
+
 #define NEED_LIBGCRYPT_VERSION "1.7.10"
 #define MOSTLY_NEEDED_LIBGCRYPT "1.8.2"
 
@@ -48,13 +50,13 @@ extern void init_crypto(void);
 
 /*!
  * \brief         Get list of usable ciphers
- * \return        An array of char* of cipher names
+ * \return        A list of char* cipher names
  *
- * Get an array of strings which lists the names of usable cipher
- * algorithms. NB: The array is allocated statically and SHOULD NOT be
+ * Get a list of strings which lists the names of usable cipher
+ * algorithms. NB: The list is allocated statically and SHOULD NOT be
  * free’d (or otherwise altered).
  */
-extern const char **list_of_ciphers(void) __attribute__((pure));
+extern LIST_HANDLE list_of_ciphers(void) __attribute__((pure));
 
 /*!
  * \brief         Get list of usable hashes
@@ -64,7 +66,7 @@ extern const char **list_of_ciphers(void) __attribute__((pure));
  * algorithms. NB: The array is allocated statically and SHOULD NOT be
  * free’d (or otherwise altered).
  */
-extern const char **list_of_hashes(void) __attribute__((pure));
+extern LIST_HANDLE list_of_hashes(void) __attribute__((pure));
 
 /*!
  * \brief         Get list of available cipher modes
@@ -74,7 +76,7 @@ extern const char **list_of_hashes(void) __attribute__((pure));
  * modes. NB: The array is allocated statically and SHOULD NOT be
  * free’d (or otherwise altered).
  */
-extern const char **list_of_modes(void) __attribute__((pure));
+extern LIST_HANDLE list_of_modes(void) __attribute__((pure));
 
 /*!
  * \brief         Get list of available MAC algorithms
@@ -84,7 +86,7 @@ extern const char **list_of_modes(void) __attribute__((pure));
  * algorithms. NB: The array is allocated statically and SHOULD NOT be
  * free’d (or otherwise altered).
  */
-extern const char **list_of_macs(void) __attribute__((pure));
+extern LIST_HANDLE list_of_macs(void) __attribute__((pure));
 
 /*!
  * \brief         Get cipher ID, given its name
