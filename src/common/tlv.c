@@ -32,6 +32,10 @@
 #include "non-gnu.h"
 #include "tlv.h"
 
+/*
+ * TODO the TLV list could/should use linked list
+ */
+
 typedef struct
 {
 	size_t  tags;

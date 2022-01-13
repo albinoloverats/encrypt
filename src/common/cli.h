@@ -21,6 +21,8 @@
 #ifndef _COMMON_CLI_H_
 #define _COMMON_CLI_H_
 
+#include <stdio.h>
+
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -96,6 +98,8 @@ extern void cli_display(cli_t *) __attribute__((nonnull(1)));
 extern double cli_calc_bps(cli_bps_t *) __attribute__((nonnull(1)));
 
 extern int cli_printf(const char * const restrict s, ...) __attribute__((nonnull(1), format(printf, 1, 2)));
+
+extern int cli_eprintf(const char * const restrict s, ...) __attribute__((nonnull(1), format(printf, 1, 2)));
 
 extern int cli_fprintf(FILE *f, const char * const restrict s, ...) __attribute__((nonnull(2), format(printf, 2, 3)));
 

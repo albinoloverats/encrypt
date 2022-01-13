@@ -81,7 +81,7 @@ extern void on_error(int s)
 
 	signal(s, SIG_DFL);
 	raise(s);
-	exit(EXIT_FAILURE); // this shouldn't happen as the raise above will handle things
+	__builtin_unreachable();
 }
 
 extern void error_init(void)

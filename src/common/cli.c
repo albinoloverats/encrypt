@@ -86,6 +86,25 @@ extern int cli_printf(const char * const restrict s, ...)
 	return x;
 }
 
+extern int cli_eprintf(const char * const restrict s, ...)
+{
+	cli_init();
+	va_list ap;
+	va_start(ap, s);
+	char *d = NULL;
+#ifndef _WIN32
+	vasprintf(&d, s, ap);
+#else
+	uint8_t l = 0xFF;
+	if ((d = calloc(l, sizeof l)))
+		vsnprintf(d, l - 1, s, ap);
+#endif
+	int x = cli_print(stderr, d);
+	va_end(ap);
+	free(d);
+	return x;
+}
+
 extern int cli_fprintf(FILE *f, const char * const restrict s, ...)
 {
 	cli_init();
