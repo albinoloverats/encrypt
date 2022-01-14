@@ -56,7 +56,7 @@
 
 
 static void show_version(void);
-static void show_help(config_arg_t *args, LIST about, LIST extra);
+static void show_help(LIST args, LIST about, LIST extra);
 static void show_licence(void);
 
 static bool    parse_config_boolean(const char *, const char *, bool);
@@ -81,10 +81,14 @@ extern void config_init(config_about_t a)
 	return;
 }
 
-/*
- * TODO Use LIST for args
- */
-extern int config_parse_aux(int argc, char **argv, config_arg_t *args, LIST extra, LIST notes, bool warn)
+extern int config_arg_comp(const void *a, const void *b)
+{
+	const config_arg_t *x = a;
+	const config_arg_t *y = b;
+	return x->short_option - y->short_option;
+}
+
+extern int config_parse_aux(int argc, char **argv, LIST args, LIST extra, LIST notes, bool warn)
 {
 	if (!init)
 	{
@@ -121,73 +125,77 @@ extern int config_parse_aux(int argc, char **argv, config_arg_t *args, LIST extr
 					goto end_line;
 
 				// TODO handle unknown config file settings
-				for (int i = 0; args[i].short_option; i++)
-					if (args[i].long_option && !strncmp(args[i].long_option, line, strlen(args[i].long_option)) && isspace((unsigned char)line[strlen(args[i].long_option)]))
-						switch (args[i].response_type)
+				list_iterate(args);
+				while (list_has_next(args))
+				{
+					config_arg_t *arg = (config_arg_t *)list_get_next(args);
+					if (arg->long_option && !strncmp(arg->long_option, line, strlen(arg->long_option)) && isspace((unsigned char)line[strlen(arg->long_option)]))
+						switch (arg->response_type)
 						{
 							case CONFIG_ARG_OPT_BOOLEAN:
 								(void)0; // for Slackware's older GCC
 								__attribute__((fallthrough)); /* allow fall-through */
 							case CONFIG_ARG_REQ_BOOLEAN:
-								args[i].response_value.boolean = parse_config_boolean(args[i].long_option, line, args[i].response_value.boolean);
+								arg->response_value.boolean = parse_config_boolean(arg->long_option, line, arg->response_value.boolean);
 								break;
 							case CONFIG_ARG_OPT_NUMBER:
 								(void)0; // for Slackware's older GCC
 								__attribute__((fallthrough)); /* allow fall-through */
 							case CONFIG_ARG_REQ_NUMBER:
-								args[i].response_value.number = parse_config_number(args[i].long_option, line, args[i].response_value.number);
+								arg->response_value.number = parse_config_number(arg->long_option, line, arg->response_value.number);
 								break;
 							case CONFIG_ARG_OPT_STRING:
 								(void)0; // for Slackware's older GCC
 								__attribute__((fallthrough)); /* allow fall-through */
 							case CONFIG_ARG_REQ_STRING:
-								args[i].response_value.string = parse_config_string(args[i].long_option, line, args[i].response_value.string);
+								arg->response_value.string = parse_config_string(arg->long_option, line, arg->response_value.string);
 								break;
 
 							case CONFIG_ARG_PAIR_BOOLEAN:
 								{
-									config_pair_boolean_t *pair = parse_config_pair_boolean(args[i].long_option, line);
-									args[i].response_value.pair.boolean.b1 = pair->b1;
-									args[i].response_value.pair.boolean.b2 = pair->b2;
+									config_pair_boolean_t *pair = parse_config_pair_boolean(arg->long_option, line);
+									arg->response_value.pair.boolean.b1 = pair->b1;
+									arg->response_value.pair.boolean.b2 = pair->b2;
 									free(pair);
 								}
 								break;
 
 							case CONFIG_ARG_PAIR_NUMBER:
 								{
-									config_pair_number_t *pair = parse_config_pair_number(args[i].long_option, line);
-									args[i].response_value.pair.number.n1 = pair->n1;
-									args[i].response_value.pair.number.n2 = pair->n2;
+									config_pair_number_t *pair = parse_config_pair_number(arg->long_option, line);
+									arg->response_value.pair.number.n1 = pair->n1;
+									arg->response_value.pair.number.n2 = pair->n2;
 									free(pair);
 								}
 								break;
 
 							case CONFIG_ARG_PAIR_STRING:
 								{
-									config_pair_string_t *pair = parse_config_pair_string(args[i].long_option, line);
-									args[i].response_value.pair.string.s1 = pair->s1;
-									args[i].response_value.pair.string.s2 = pair->s2;
+									config_pair_string_t *pair = parse_config_pair_string(arg->long_option, line);
+									arg->response_value.pair.string.s1 = pair->s1;
+									arg->response_value.pair.string.s2 = pair->s2;
 									free(pair);
 								}
 								break;
 
 							case CONFIG_ARG_LIST_STRING:
-								args[i].response_value.list.count++;
-								args[i].response_value.list.items = realloc(args[i].response_value.list.items, args[i].response_value.list.count * sizeof (config_list_u));
-								args[i].response_value.list.items[args[i].response_value.list.count - 1].string = parse_config_string(args[i].long_option, line, NULL);
+								arg->response_value.list.count++;
+								arg->response_value.list.items = realloc(arg->response_value.list.items, arg->response_value.list.count * sizeof (config_list_u));
+								arg->response_value.list.items[arg->response_value.list.count - 1].string = parse_config_string(arg->long_option, line, NULL);
 								break;
 
 							case CONFIG_ARG_LIST_PAIR_STRING:
 								{
-									args[i].response_value.list.count++;
-									args[i].response_value.list.items = realloc(args[i].response_value.list.items, args[i].response_value.list.count * sizeof (config_list_u));
-									config_pair_string_t *pair = parse_config_pair_string(args[i].long_option, line);
-									args[i].response_value.list.items[args[i].response_value.list.count - 1].pair.string.s1 = pair->s1;
-									args[i].response_value.list.items[args[i].response_value.list.count - 1].pair.string.s2 = pair->s2;
+									arg->response_value.list.count++;
+									arg->response_value.list.items = realloc(arg->response_value.list.items, arg->response_value.list.count * sizeof (config_list_u));
+									config_pair_string_t *pair = parse_config_pair_string(arg->long_option, line);
+									arg->response_value.list.items[arg->response_value.list.count - 1].pair.string.s1 = pair->s1;
+									arg->response_value.list.items[arg->response_value.list.count - 1].pair.string.s2 = pair->s2;
 									free(pair);
 								}
 								break;
 						}
+				}
 end_line:
 				free(line);
 				line = NULL;
@@ -205,9 +213,7 @@ end_line:
 		 * build and populate the getopt structure
 		 */
 		char *short_options;
-		int optlen = 4;
-		for (int i = 0; args[i].short_option; i++, optlen += 1)
-			;
+		int optlen = 4 + list_size(args);
 		if (!(short_options = calloc(optlen * 2, sizeof (char))))
 			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, optlen * 2 * sizeof (char));
 		struct option *long_options;
@@ -232,26 +238,27 @@ end_line:
 		long_options[2].flag    = NULL;
 		long_options[2].val     = 'l';
 
-		for (int i = 0; args[i].short_option; i++)
+		for (size_t i = 0; i < list_size(args); i++)
 		{
-			if (isalnum(args[i].short_option))
+			const config_arg_t *arg = list_get(args, i);
+			if (isalnum(arg->short_option))
 			{
 				char S[] = "X";
-				S[0] = args[i].short_option;
+				S[0] = arg->short_option;
 				strcat(short_options, S);
 			}
-			if (args[i].response_type != CONFIG_ARG_REQ_BOOLEAN && args[i].response_type != CONFIG_ARG_OPT_BOOLEAN)
+			if (arg->response_type != CONFIG_ARG_REQ_BOOLEAN && arg->response_type != CONFIG_ARG_OPT_BOOLEAN)
 				strcat(short_options, ":");
-			long_options[i + 3].name = args[i].long_option;
+			long_options[i + 3].name = arg->long_option;
 
-			if (args[i].response_type == CONFIG_ARG_REQ_BOOLEAN || args[i].response_type == CONFIG_ARG_OPT_BOOLEAN)
+			if (arg->response_type == CONFIG_ARG_REQ_BOOLEAN || arg->response_type == CONFIG_ARG_OPT_BOOLEAN)
 				long_options[i + 3].has_arg = no_argument;
-			else if (args[i].response_type & CONFIG_ARG_REQUIRED)
+			else if (arg->response_type & CONFIG_ARG_REQUIRED)
 				long_options[i + 3].has_arg = required_argument;
 			else
 				long_options[i + 3].has_arg = optional_argument;
 			long_options[i + 3].flag = NULL;
-			long_options[i + 3].val  = args[i].short_option;
+			long_options[i + 3].val  = arg->short_option;
 		}
 
 		/*
@@ -273,62 +280,68 @@ end_line:
 			else if (c == '?' && warn)
 				config_show_usage(args, extra);
 			else
-				for (int i = 0; args[i].short_option; i++)
-					if (c == args[i].short_option)
+			{
+				list_iterate(args);
+				while (list_has_next(args))
+				{
+					config_arg_t *arg = (config_arg_t *)list_get_next(args);
+					if (c == arg->short_option)
 					{
 						unknown = false;
-						switch (args[i].response_type)
+						switch (arg->response_type)
 						{
 							case CONFIG_ARG_OPT_NUMBER:
 								if (!optarg)
 									break;
 								__attribute__((fallthrough)); /* allow fall-through; argument was seen and has a value */
 							case CONFIG_ARG_REQ_NUMBER:
-								args[i].response_value.number = strtoull(optarg, NULL, 0);
+								arg->response_value.number = strtoull(optarg, NULL, 0);
 								break;
 							case CONFIG_ARG_OPT_STRING:
 								if (!optarg)
 									break;
 								__attribute__((fallthrough)); /* allow fall-through; argument was seen and has a value */
 							case CONFIG_ARG_REQ_STRING:
-								if (args[i].response_value.string)
-									free(args[i].response_value.string);
-								args[i].response_value.string = strdup(optarg);
+								if (arg->response_value.string)
+									free(arg->response_value.string);
+								arg->response_value.string = strdup(optarg);
 								break;
 							case CONFIG_ARG_OPT_BOOLEAN:
 								(void)0; // for Slackware's older GCC
 								__attribute__((fallthrough)); /* allow fall-through; argument was seen */
 							case CONFIG_ARG_REQ_BOOLEAN:
-								args[i].response_value.boolean = !args[i].response_value.boolean;
+								arg->response_value.boolean = !arg->response_value.boolean;
 								break;
 
 							/* TODO extend handling of lists and pairs and list of pairs... */
 
 							case CONFIG_ARG_LIST_STRING:
-								args[i].response_value.list.count++;
-								args[i].response_value.list.items = realloc(args[i].response_value.list.items, args[i].response_value.list.count * sizeof (config_list_u));
+								arg->response_value.list.count++;
+								arg->response_value.list.items = realloc(arg->response_value.list.items, arg->response_value.list.count * sizeof (config_list_u));
 								if (strchr(optarg, ','))
 								{
 									char *s = strdup(optarg);
-									args[i].response_value.list.items[args[i].response_value.list.count - 1].string = strdup(strtok(s, ","));
+									arg->response_value.list.items[arg->response_value.list.count - 1].string = strdup(strtok(s, ","));
 									char *t = NULL;
 									while ((t = strtok(NULL, ",")))
 									{
-										args[i].response_value.list.count++;
-										args[i].response_value.list.items = realloc(args[i].response_value.list.items, args[i].response_value.list.count * sizeof (config_list_u));
-										args[i].response_value.list.items[args[i].response_value.list.count - 1].string = strdup(t);
+										arg->response_value.list.count++;
+										arg->response_value.list.items = realloc(arg->response_value.list.items, arg->response_value.list.count * sizeof (config_list_u));
+										arg->response_value.list.items[arg->response_value.list.count - 1].string = strdup(t);
 									}
 									free(s);
 								}
 								else
-									args[i].response_value.list.items[args[i].response_value.list.count - 1].string = strdup(optarg);
+									arg->response_value.list.items[arg->response_value.list.count - 1].string = strdup(optarg);
 								break;
 
 							default:
-								args[i].response_value.boolean = !args[i].response_value.boolean;
+								arg->response_value.boolean = !arg->response_value.boolean;
 								break;
 						}
 					}
+				}
+			}
 			if (unknown && warn)
 				config_show_usage(args, extra);
 		}
@@ -387,7 +400,7 @@ static void show_version(void)
 	exit(EXIT_SUCCESS);
 }
 
-inline static void print_usage(config_arg_t *args, LIST extra)
+inline static void print_usage(LIST args, LIST extra)
 {
 #ifndef _WIN32
 	struct winsize ws;
@@ -417,28 +430,32 @@ inline static void print_usage(config_arg_t *args, LIST extra)
 			j -= (strlen(ANSI_COLOUR_RESET) + strlen(ANSI_COLOUR_WHITE));
 	}
 	if (args)
-		for (int i = 0; args[i].short_option; i++)
+	{
+		list_iterate(args);
+		while (list_has_next(args))
 		{
-			if (!args[i].hidden)
+			const config_arg_t *arg = list_get_next(args);
+			if (!arg->hidden)
 			{
-				if ((int)(j + 4 + (args[i].option_type ? strlen(args[i].option_type) : 0)) > max_width)
+				if ((int)(j + 4 + (arg->option_type ? strlen(arg->option_type) : 0)) > max_width)
 					j = cli_fprintf(stderr, "\n%*s  ", (int)strlen(about.name), " ");
-				if (args[i].required)
-					j += cli_fprintf(stderr, ANSI_COLOUR_RED " <-%c", args[i].short_option);
+				if (arg->required)
+					j += cli_fprintf(stderr, ANSI_COLOUR_RED " <-%c", arg->short_option);
 				else
-					j += cli_fprintf(stderr, ANSI_COLOUR_YELLOW " [-%c", args[i].short_option);
-				if (args[i].option_type)
-					j += cli_fprintf(stderr, " %s", args[i].option_type);
-				j += cli_fprintf(stderr, "%c" ANSI_COLOUR_RESET, args[i].required ? '>' : ']');
+					j += cli_fprintf(stderr, ANSI_COLOUR_YELLOW " [-%c", arg->short_option);
+				if (arg->option_type)
+					j += cli_fprintf(stderr, " %s", arg->option_type);
+				j += cli_fprintf(stderr, "%c" ANSI_COLOUR_RESET, arg->required ? '>' : ']');
 				if (isatty(STDERR_FILENO))
 					j -= (strlen(ANSI_COLOUR_RESET) + strlen(ANSI_COLOUR_WHITE));
 			}
 		}
+	}
 	cli_fprintf(stderr, ANSI_COLOUR_RESET "\n");
 	return;
 }
 
-extern void config_show_usage(config_arg_t *args, LIST extra)
+extern void config_show_usage(LIST args, LIST extra)
 {
 	print_usage(args, extra);
 	while (version_is_checking)
@@ -584,7 +601,7 @@ static void print_notes(const char *line)
 	return;
 }
 
-static void show_help(config_arg_t *args, LIST notes, LIST extra)
+static void show_help(LIST args, LIST notes, LIST extra)
 {
 	version_print(about.name, about.version, about.url);
 	cli_fprintf(stderr, "\n");
@@ -592,13 +609,15 @@ static void show_help(config_arg_t *args, LIST notes, LIST extra)
 
 	int indent = 10;
 	bool has_advanced = false;
-	for (int i = 0; args[i].short_option; i++)
+	list_iterate(args);
+	while (list_has_next(args))
 	{
-		int w = 10 + (args[i].long_option ? strlen(args[i].long_option) : 0);
-		if (args[i].option_type)
-			w += 3 + strlen(args[i].option_type);
+		const config_arg_t *arg = list_get_next(args);
+		int w = 10 + (arg->long_option ? strlen(arg->long_option) : 0);
+		if (arg->option_type)
+			w += 3 + strlen(arg->option_type);
 		indent = indent > w ? indent : w;
-		if (args[i].advanced && !args[i].hidden)
+		if (arg->advanced && !arg->hidden)
 			has_advanced = true;
 	}
 
@@ -607,16 +626,24 @@ static void show_help(config_arg_t *args, LIST notes, LIST extra)
 	print_option(indent, 'h', "help",    NULL, false, "Display this message");
 	print_option(indent, 'l', "licence", NULL, false, "Display GNU GPL v3 licence header");
 	print_option(indent, 'v', "version", NULL, false, "Display application version");
-	for (int i = 0; args[i].short_option; i++)
-		if (!args[i].hidden && !args[i].advanced)
-			print_option(indent, args[i].short_option, args[i].long_option, args[i].option_type ? : NULL, args[i].response_type & CONFIG_ARG_REQUIRED, args[i].description);
+	list_iterate(args);
+	while (list_has_next(args))
+	{
+		const config_arg_t *arg = list_get_next(args);
+		if (!arg->hidden && !arg->advanced)
+			print_option(indent, arg->short_option, arg->long_option, arg->option_type ? : NULL, arg->response_type & CONFIG_ARG_REQUIRED, arg->description);
+	}
 	if (has_advanced)
 	{
 		cli_fprintf(stderr, "\n");
 		format_section(_("Advanced Options"));
-		for (int i = 0; args[i].short_option; i++)
-			if (!args[i].hidden && args[i].advanced)
-				print_option(indent, args[i].short_option, args[i].long_option, args[i].option_type ? : NULL, args[i].response_type & CONFIG_ARG_REQUIRED, args[i].description);
+		list_iterate(args);
+		while (list_has_next(args))
+		{
+			const config_arg_t *arg = list_get_next(args);
+			if (!arg->hidden && arg->advanced)
+				print_option(indent, arg->short_option, arg->long_option, arg->option_type ? : NULL, arg->response_type & CONFIG_ARG_REQUIRED, arg->description);
+		}
 	}
 	if (notes)
 	{

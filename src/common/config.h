@@ -158,7 +158,7 @@ config_about_t;
 
 extern void config_init(config_about_t about);
 
-extern void config_show_usage(config_arg_t *args, LIST extra);
+extern void config_show_usage(LIST args, LIST extra);
 
 #define CONFIG_PARSE_COUNT(...) CONFIG_PARSE_COUNT2(__VA_ARGS__, 6, 5, 4, 3, 2, 1)
 #define CONFIG_PARSE_COUNT2(_1, _2, _3, _4, _5, _6, _, ...) _
@@ -183,7 +183,7 @@ extern void config_show_usage(config_arg_t *args, LIST extra);
  * options where set. Removes a lot of the cruft from the legacy common
  * code that used to exist here.
  */
-extern int config_parse_aux(int c, char **v, config_arg_t *a, LIST x, LIST t, bool w);
+extern int config_parse_aux(int c, char **v, LIST a, LIST x, LIST t, bool w);
 
 /*!
  * \brief         Update configuration file
@@ -193,6 +193,18 @@ extern int config_parse_aux(int c, char **v, config_arg_t *a, LIST x, LIST t, bo
  * Set or update the given configuration option with the given value.
  */
 extern void update_config(const char * const restrict o, const char * const restrict v) __attribute__((nonnull(1, 2)));
+
+
+/*!
+ * \brief         Compare config_arg_t's
+ * \param[in]  a  First config_arg_t
+ * \param[in]  b  Second config_arg_t
+ * \return        The difference between the two
+ *
+ * Compare two config_arg_t using the short_option. Used to ensure that
+ * only one of each argument is in the LIST.
+ */
+extern int config_arg_comp(const void *a, const void *b);
 
 #if 0
 /*!

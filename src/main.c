@@ -101,34 +101,81 @@ int main(int argc, char **argv)
 	version_check_for_update(ENCRYPT_VERSION, UPDATE_URL, DOWNLOAD_URL_TEMPLATE);
 #endif
 
-	config_arg_t args[] =
-	{
+	LIST args = list_init(config_arg_comp, false, false);
 #ifdef BUILD_GUI
 	#ifndef _WIN32
-		{ 'g', "no-gui",         NULL,            _("Do not use the GUI, even if it’s available"),               CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
+	{
+		static config_arg_t x = { 'g', "no-gui",         NULL,            _("Do not use the GUI, even if it’s available"),               CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false };
+		list_add(args, &x);
+	}
 	#endif
-		{ 0x1, "key-source",     _("key source"), _("Key data source"),                                          CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, true  },
-		{ 0x2, "compress",       NULL,            _("Compress the plain text using the xz algorithm"),           CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, true  },
+	{
+		static config_arg_t x = { 0x1, "key-source",     _("key source"), _("Key data source"),                                          CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, true  };
+		list_add(args, &x);
+	}
+	{
+		static config_arg_t x = { 0x2, "compress",       NULL,            _("Compress the plain text using the xz algorithm"),           CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, true  };
+		list_add(args, &x);
+	}
 #endif
-		{ 'u', "no-cli",         NULL,            _("Do not display the CLI progress bar"),                      CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
-		{ 'c', "cipher",         _("algorithm"),  _("Algorithm to use to encrypt data; use 'list' to show available cipher algorithms"), CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
-		{ 's', "hash",           _("algorithm"),  _("Hash algorithm to generate key; use 'list' to show available hash algorithms"),     CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
-		{ 'm', "mode",           _("mode"),       _("The encryption mode to use; use 'list' to show available cipher modes"),            CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
-		{ 'a', "mac",            _("mac"),        _("The MAC algorithm to use; use 'list' to show available MACs"),                      CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
-		{ 'i', "kdf-iterations", _("iterations"), _("Number of iterations the KDF should use"),                  CONFIG_ARG_REQ_NUMBER,  { 0x0 }, false, false, false },
-		{ 'k', "key",            _("key file"),   _("File whose data will be used to generate the key"),         CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
-		{ 'p', "password",       _("password"),   _("Password used to generate the key"),                        CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
-		{ 'x', "no-compress",    NULL,            _("Do not compress the plain text using the xz algorithm"),    CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
-		{ 'f', "follow",         NULL,            _("Follow symlinks, the default is to store the link itself"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
-		{ 'b', "back-compat",    _("version"),    _("Create an encrypted file that is backwards compatible"),    CONFIG_ARG_REQ_STRING,  { 0x0 }, false, true,  false },
+	{
+		static config_arg_t x = { 'u', "no-cli",         NULL,            _("Do not display the CLI progress bar"),                      CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false };
+		list_add(args, &x);
+	}
+	{
+		static config_arg_t x = { 'c', "cipher",         _("algorithm"),  _("Algorithm to use to encrypt data; use 'list' to show available cipher algorithms"), CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false };
+		list_add(args, &x);
+	}
+	{
+		static config_arg_t x = { 's', "hash",           _("algorithm"),  _("Hash algorithm to generate key; use 'list' to show available hash algorithms"),     CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false };
+		list_add(args, &x);
+	}
+	{
+		static config_arg_t x = { 'm', "mode",           _("mode"),       _("The encryption mode to use; use 'list' to show available cipher modes"),            CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false };
+		list_add(args, &x);
+	}
+	{
+		static config_arg_t x = { 'a', "mac",            _("mac"),        _("The MAC algorithm to use; use 'list' to show available MACs"),                      CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false };
+		list_add(args, &x);
+	}
+	{
+		static config_arg_t x = { 'i', "kdf-iterations", _("iterations"), _("Number of iterations the KDF should use"),                  CONFIG_ARG_REQ_NUMBER,  { 0x0 }, false, false, false };
+		list_add(args, &x);
+	}
+	{
+		static config_arg_t x = { 'k', "key",            _("key file"),   _("File whose data will be used to generate the key"),         CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false };
+		list_add(args, &x);
+	}
+	{
+		static config_arg_t x = { 'p', "password",       _("password"),   _("Password used to generate the key"),                        CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false };
+		list_add(args, &x);
+	}
+	{
+		static config_arg_t x = { 'x', "no-compress",    NULL,            _("Do not compress the plain text using the xz algorithm"),    CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false };
+		list_add(args, &x);
+	}
+	{
+		static config_arg_t x = { 'f', "follow",         NULL,            _("Follow symlinks, the default is to store the link itself"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false };
+		list_add(args, &x);
+	}
+	{
+		static config_arg_t x = { 'b', "back-compat",    _("version"),    _("Create an encrypted file that is backwards compatible"),    CONFIG_ARG_REQ_STRING,  { 0x0 }, false, true,  false };
+		list_add(args, &x);
+	}
+	{
 #ifndef _WIN32
-		{ 'r', "raw",            NULL,            _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false },
+		static config_arg_t x = { 'r', "raw",            NULL,            _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false };
+		list_add(args, &x);
 #else
-		{ 'r', "raw",            NULL,            _("Don't generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false },
+		static config_arg_t x = { 'r', "raw",            NULL,            _("Don't generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false };
+		list_add(args, &x);
 #endif
-		{ 0x3, "self-test",      NULL,            _("Perform self-test routine"),                                CONFIG_ARG_BOOLEAN,     { 0x0 }, false, true,  true  },
-		{ 0x0, NULL, NULL, NULL, CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false }
-	};
+	}
+	{
+		static config_arg_t x = { 0x3, "self-test",      NULL,            _("Perform self-test routine"),                                CONFIG_ARG_BOOLEAN,     { 0x0 }, false, true,  true  };
+		list_add(args, &x);
+	}
+
 	LIST extra = list_default();
 	{
 		static config_extra_t x = { "source", CONFIG_ARG_STRING,  { 0x0 }, false, false };
@@ -164,18 +211,18 @@ int main(int argc, char **argv)
 		int x = 0;
 #ifdef BUILD_GUI
 		x++;
-		args[++x].hidden = true;
-		args[++x].hidden = true;
+		((config_arg_t *)list_get(args, ++x))->hidden = true;
+		((config_arg_t *)list_get(args, ++x))->hidden = true;
 #endif
-		args[++x].hidden = true;
-		args[++x].hidden = true;
-		args[++x].hidden = true;
-		args[++x].hidden = true;
-		args[++x].hidden = true;
+		((config_arg_t *)list_get(args, ++x))->hidden = true;
+		((config_arg_t *)list_get(args, ++x))->hidden = true;
+		((config_arg_t *)list_get(args, ++x))->hidden = true;
+		((config_arg_t *)list_get(args, ++x))->hidden = true;
+		((config_arg_t *)list_get(args, ++x))->hidden = true;
 		x += 2;
-		args[++x].hidden = true;
-		args[++x].hidden = true;
-		args[++x].hidden = true;
+		((config_arg_t *)list_get(args, ++x))->hidden = true;
+		((config_arg_t *)list_get(args, ++x))->hidden = true;
+		((config_arg_t *)list_get(args, ++x))->hidden = true;
 	}
 	else
 #endif
@@ -193,28 +240,28 @@ int main(int argc, char **argv)
 	bool compress;
 #ifdef BUILD_GUI
 	#ifndef _WIN32
-	bool gui         = !args[++x].response_value.boolean; // gui by default unless --no-gui is specified
+	bool gui         = !((config_arg_t *)list_get(args, ++x))->response_value.boolean; // gui by default unless --no-gui is specified
 	#endif
-	char *key_source =  args[++x].response_value.string;
-	compress         =  args[++x].response_value.boolean; // compress by default unless --no-compress is specified
+	char *key_source =  ((config_arg_t *)list_get(args, ++x))->response_value.string;
+	compress         =  ((config_arg_t *)list_get(args, ++x))->response_value.boolean; // compress by default unless --no-compress is specified
 #endif
-	bool cli         = !args[++x].response_value.boolean; // cli by default unless --no-cli is specified
+	bool cli         = !((config_arg_t *)list_get(args, ++x))->response_value.boolean; // cli by default unless --no-cli is specified
 
-	char *cipher     =  args[++x].response_value.string;
-	char *hash       =  args[++x].response_value.string;
-	char *mode       =  args[++x].response_value.string;
-	char *mac        =  args[++x].response_value.string;
-	uint64_t kdf     =  args[++x].response_value.number;
+	char *cipher     =  ((config_arg_t *)list_get(args, ++x))->response_value.string;
+	char *hash       =  ((config_arg_t *)list_get(args, ++x))->response_value.string;
+	char *mode       =  ((config_arg_t *)list_get(args, ++x))->response_value.string;
+	char *mac        =  ((config_arg_t *)list_get(args, ++x))->response_value.string;
+	uint64_t kdf     =  ((config_arg_t *)list_get(args, ++x))->response_value.number;
 
-	char *key        =  args[++x].response_value.string;
-	char *password   =  args[++x].response_value.string;
+	char *key        =  ((config_arg_t *)list_get(args, ++x))->response_value.string;
+	char *password   =  ((config_arg_t *)list_get(args, ++x))->response_value.string;
 
-	compress         = !args[++x].response_value.boolean; // compress by default unless --no-compress is specified
-	bool follow      =  args[++x].response_value.boolean;
+	compress         = !((config_arg_t *)list_get(args, ++x))->response_value.boolean; // compress by default unless --no-compress is specified
+	bool follow      =  ((config_arg_t *)list_get(args, ++x))->response_value.boolean;
 
-	char *version    =  args[++x].response_value.string;
-	bool raw         =  args[++x].response_value.boolean;
-	bool test        =  args[++x].response_value.boolean;
+	char *version    =  ((config_arg_t *)list_get(args, ++x))->response_value.string;
+	bool raw         =  ((config_arg_t *)list_get(args, ++x))->response_value.boolean;
+	bool test        =  ((config_arg_t *)list_get(args, ++x))->response_value.boolean;
 
 	if (test)
 		self_test();
@@ -439,6 +486,8 @@ int main(int argc, char **argv)
 	}
 	else
 		config_show_usage(args, extra);
+
+	list_deinit(args);
 
 	/*
 	 * here we go ...
