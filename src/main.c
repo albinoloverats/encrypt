@@ -550,7 +550,7 @@ static bool list_macs(void)
 static void self_test(void)
 {
 	/*
-	 * choose cipher to test wth
+	 * choose cipher to test with
 	 */
 	LIST l = list_of_ciphers();
 	unsigned int x;

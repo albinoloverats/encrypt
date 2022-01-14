@@ -503,7 +503,7 @@ static void print_option(int indent, char sopt, char *lopt, char *type, bool req
 	int max_width = (csbi.srWindow.Right - csbi.srWindow.Left + 1) - 2;
 #endif
 	if (max_width <= 0 || !isatty(STDERR_FILENO))
-		max_width = 77; // needed for MSYS2, but also sensible default if output is bein redirected
+		max_width = 77; // needed for MSYS2, but also sensible default if output is being redirected
 	int width = max_width - indent;
 	for (; isspace(*desc); desc++)
 		;
@@ -572,7 +572,7 @@ static void print_notes(const char *line)
 	int max_width = (csbi.srWindow.Right - csbi.srWindow.Left + 1) - 5;
 #endif
 	if (max_width <= 0 || !isatty(STDERR_FILENO))
-		max_width = 72; // needed for MSYS2, but also sensible default if output is bein redirected
+		max_width = 72; // needed for MSYS2, but also sensible default if output is being redirected
 	for (; isspace(*line); line++)
 		;
 	int l = strlen(line);
