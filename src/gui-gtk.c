@@ -87,7 +87,7 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 	/*
 	 * ciphers
 	 */
-	LIST_HANDLE ciphers = list_of_ciphers();
+	LIST ciphers = list_of_ciphers();
 	unsigned slctd_cipher = 0;
 	gtk_combo_box_text_remove_all((GtkComboBoxText *)data->crypto_combo);
 	gtk_combo_box_text_append_text((GtkComboBoxText *)data->crypto_combo, SELECT_CIPHER);
@@ -102,7 +102,7 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 	/*
 	 * hashes
 	 */
-	LIST_HANDLE hashes = list_of_hashes();
+	LIST hashes = list_of_hashes();
 	unsigned slctd_hash = 0;
 	gtk_combo_box_text_remove_all((GtkComboBoxText *)data->hash_combo);
 	gtk_combo_box_text_append_text((GtkComboBoxText *)data->hash_combo, SELECT_HASH);
@@ -117,7 +117,7 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 	/*
 	 * modes
 	 */
-	LIST_HANDLE modes = list_of_modes();
+	LIST modes = list_of_modes();
 	unsigned slctd_mode = 0;
 	gtk_combo_box_text_remove_all((GtkComboBoxText *)data->mode_combo);
 	gtk_combo_box_text_append_text((GtkComboBoxText *)data->mode_combo, SELECT_MODE);
@@ -133,7 +133,7 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 	/*
 	 * MACs
 	 */
-	LIST_HANDLE macs = list_of_macs();
+	LIST macs = list_of_macs();
 	unsigned slctd_mac = 0;
 	gtk_combo_box_text_remove_all((GtkComboBoxText *)data->mac_combo);
 	gtk_combo_box_text_append_text((GtkComboBoxText *)data->mac_combo, SELECT_MAC);
@@ -391,10 +391,10 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_wi
 
 	if (cipher > 0 && hash > 0 && mode > 0 && mac > 0 && iter > 0)
 	{
-		LIST_HANDLE ciphers = list_of_ciphers();
-		LIST_HANDLE hashes  = list_of_hashes();
-		LIST_HANDLE modes   = list_of_modes();
-		LIST_HANDLE macs    = list_of_macs();
+		LIST ciphers = list_of_ciphers();
+		LIST hashes  = list_of_hashes();
+		LIST modes   = list_of_modes();
+		LIST macs    = list_of_macs();
 
 		update_config(CONF_CIPHER, list_get(ciphers, cipher - 1));
 		update_config(CONF_HASH,   list_get(hashes,  hash - 1));
@@ -670,10 +670,10 @@ static void *gui_process(void *d)
 	int m = gtk_combo_box_get_active((GtkComboBox *)data->mode_combo);
 	int a = gtk_combo_box_get_active((GtkComboBox *)data->mac_combo);
 	uint64_t iter = (uint64_t)gtk_adjustment_get_value(gtk_spin_button_get_adjustment((GtkSpinButton *)data->kdf_spinner));
-	LIST_HANDLE ciphers = list_of_ciphers();
-	LIST_HANDLE hashes  = list_of_hashes();
-	LIST_HANDLE modes   = list_of_modes();
-	LIST_HANDLE macs    = list_of_macs();
+	LIST ciphers = list_of_ciphers();
+	LIST hashes  = list_of_hashes();
+	LIST modes   = list_of_modes();
+	LIST macs    = list_of_macs();
 
 	crypto_t *x;
 	if (_encrypted)

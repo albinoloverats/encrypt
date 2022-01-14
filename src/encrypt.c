@@ -492,7 +492,7 @@ static inline void write_metadata(crypto_t *c)
 		io_seek(c->source, 0, SEEK_SET);
 	}
 
-	TLV_HANDLE tlv = tlv_init();
+	TLV tlv = tlv_init();
 	if (io_is_stdin(c->source))
 	{
 		uint64_t i = htonll(c->blocksize);

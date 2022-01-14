@@ -35,7 +35,7 @@
  * Common linked list implementation.
  */
 
-typedef void * LIST_HANDLE;
+typedef void * LIST;
 
 
 #if 0
@@ -71,7 +71,7 @@ typedef void * LIST_HANDLE;
  * list_default() if you are happy with no comparator and allowing
  * duplicates in your list.
  */
-extern LIST_HANDLE list_init(int c(const void *, const void *), bool d, bool s) __attribute__((malloc));
+extern LIST list_init(int c(const void *, const void *), bool d, bool s) __attribute__((malloc));
 
 /*!
  * \brief         Destroy a linked list
@@ -84,7 +84,7 @@ extern LIST_HANDLE list_init(int c(const void *, const void *), bool d, bool s) 
  * NB: Does not free any data within the list, this is the users
  * responsibility.
  */
-extern void list_deinit(LIST_HANDLE *h) __attribute__((nonnull(1)));
+extern void list_deinit(LIST *h) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Get the number of items in the list
@@ -92,9 +92,9 @@ extern void list_deinit(LIST_HANDLE *h) __attribute__((nonnull(1)));
  * \return        The number of items in the list
  *
  * Get the number of item in the list. This is a constant time lookup as
- * the number of items is kept as metadata within the LIST_HANDLE.
+ * the number of items is kept as metadata within the LIST.
  */
-extern size_t list_size(LIST_HANDLE h) __attribute__((nonnull(1)));
+extern size_t list_size(LIST h) __attribute__((nonnull(1)));
 
 //#define LIST_SIZE(l) (((ptrdiff_t)l)+4)
 
@@ -106,7 +106,7 @@ extern size_t list_size(LIST_HANDLE h) __attribute__((nonnull(1)));
  * Add a new item to the end of the list. If the list is sorted then
  * this just calls list_add().
  */
-extern void list_append(LIST_HANDLE h, const void *d) __attribute__((nonnull(1, 2)));
+extern void list_append(LIST h, const void *d) __attribute__((nonnull(1, 2)));
 
 /*!
  * \brief         Insert an item into the list
@@ -117,7 +117,7 @@ extern void list_append(LIST_HANDLE h, const void *d) __attribute__((nonnull(1, 
  * Insert an item into the middle of the list, at the given index. If
  * this list is sorted then this just call list_add().
  */
-extern void list_insert(LIST_HANDLE h, size_t i, const void *d) __attribute__((nonnull(1, 3)));
+extern void list_insert(LIST h, size_t i, const void *d) __attribute__((nonnull(1, 3)));
 
 /*!
  * \brief         Add an item to the sorted list
@@ -127,7 +127,7 @@ extern void list_insert(LIST_HANDLE h, size_t i, const void *d) __attribute__((n
  * Add a new item to the list in sorted order. If the list is not sorted
  * then this just calls list_append().
  */
-extern void list_add(LIST_HANDLE h, const void *) __attribute__((nonnull(1, 2)));
+extern void list_add(LIST h, const void *) __attribute__((nonnull(1, 2)));
 
 /*!
  * \brief         Check if the list contains the item
@@ -139,7 +139,7 @@ extern void list_add(LIST_HANDLE h, const void *) __attribute__((nonnull(1, 2)))
  * during initialisation then that is used instead of just comparing the
  * pointer.
  */
-extern bool list_contains(LIST_HANDLE h, const void *d) __attribute__((nonnull(1, 2)));
+extern bool list_contains(LIST h, const void *d) __attribute__((nonnull(1, 2)));
 
 /*!
  * \brief         Remove an item from within the list
@@ -153,7 +153,7 @@ extern bool list_contains(LIST_HANDLE h, const void *d) __attribute__((nonnull(1
  * initialisation then that is used instead of just comparing the
  * pointer.
  */
-extern const void *list_remove_item(LIST_HANDLE h, const void *d) __attribute__((nonnull(1, 2)));
+extern const void *list_remove_item(LIST h, const void *d) __attribute__((nonnull(1, 2)));
 
 /*!
  * \brief         Remove an item from within the list
@@ -164,7 +164,7 @@ extern const void *list_remove_item(LIST_HANDLE h, const void *d) __attribute__(
  * Remove the item at the given index from the list. The item is
  * returned to allow the user to free it if necessary.
  */
-extern const void *list_remove_index(LIST_HANDLE h, size_t i) __attribute__((nonnull(1)));
+extern const void *list_remove_index(LIST h, size_t i) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Get an item from the list
@@ -174,7 +174,7 @@ extern const void *list_remove_index(LIST_HANDLE h, size_t i) __attribute__((non
  *
  * Retrieve the item at the given index within the list.
  */
-extern const void *list_get(LIST_HANDLE h, size_t i) __attribute__((nonnull(1)));
+extern const void *list_get(LIST h, size_t i) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Set the list up for iterating
@@ -183,7 +183,7 @@ extern const void *list_get(LIST_HANDLE h, size_t i) __attribute__((nonnull(1)))
  * Set the list up to be iterated over; returns the iterator to the
  * beginning on subsequent calls.
  */
-extern void list_iterate(LIST_HANDLE h) __attribute__((nonnull(1)));
+extern void list_iterate(LIST h) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Get the next item in the list
@@ -192,7 +192,7 @@ extern void list_iterate(LIST_HANDLE h) __attribute__((nonnull(1)));
  *
  * Allow iterating through the list, this returns the next item.
  */
-extern const void *list_get_next(LIST_HANDLE h) __attribute__((nonnull(1)));
+extern const void *list_get_next(LIST h) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Indicates if there is another item in the list
@@ -202,6 +202,6 @@ extern const void *list_get_next(LIST_HANDLE h) __attribute__((nonnull(1)));
  * Allow iterating through the list, this returns whether there is
  * another item.
  */
-extern bool list_has_next(LIST_HANDLE h) __attribute__((nonnull(1)));
+extern bool list_has_next(LIST h) __attribute__((nonnull(1)));
 
 #endif

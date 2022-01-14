@@ -607,7 +607,7 @@ tidy:
 
 - (void)auto_select_algorithms:(char *)c : (char *)h : (char *)m : (char *)a : (uint64_t)iter
 {
-	LIST_HANDLE ciphers = list_of_ciphers();
+	LIST ciphers = list_of_ciphers();
 	unsigned slctd_cipher = 0;
 	[_cipherCombo removeAllItems];
 	[_cipherCombo addItemWithTitle:[NSString stringWithUTF8String:SELECT_CIPHER]];
@@ -620,7 +620,7 @@ tidy:
 	}
 	[_cipherCombo selectItemAtIndex:slctd_cipher];
 
-	LIST_HANDLE hashes = list_of_hashes();
+	LIST hashes = list_of_hashes();
 	unsigned slctd_hash = 0;
 	[_hashCombo removeAllItems];
 	[_hashCombo addItemWithTitle:[NSString stringWithUTF8String:SELECT_HASH]];
@@ -633,7 +633,7 @@ tidy:
 	}
 	[_hashCombo selectItemAtIndex:slctd_hash];
 
-	LIST_HANDLE modes = list_of_modes();
+	LIST modes = list_of_modes();
 	unsigned slctd_mode = 0;
 	[_modeCombo removeAllItems];
 	[_modeCombo addItemWithTitle:[NSString stringWithUTF8String:SELECT_MODE]];
@@ -646,7 +646,7 @@ tidy:
 	}
 	[_modeCombo selectItemAtIndex:slctd_mode];
 
-	LIST_HANDLE macs = list_of_macs();
+	LIST macs = list_of_macs();
 	unsigned slctd_mac = 0;
 	[_macCombo removeAllItems];
 	[_macCombo addItemWithTitle:[NSString stringWithUTF8String:SELECT_MAC]];

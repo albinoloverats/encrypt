@@ -44,7 +44,7 @@ typedef struct list_t
 }
 list_private_t;
 
-extern LIST_HANDLE list_init(int comparison_fn_t(const void *, const void *), bool dupes, bool sorted)
+extern LIST list_init(int comparison_fn_t(const void *, const void *), bool dupes, bool sorted)
 {
 	list_private_t *list = calloc(sizeof( list_private_t ), sizeof( byte_t ));
 	list->size = calloc(sizeof( size_t ), 1);
@@ -54,7 +54,7 @@ extern LIST_HANDLE list_init(int comparison_fn_t(const void *, const void *), bo
 	return list;
 }
 
-extern void list_deinit(LIST_HANDLE *ptr)
+extern void list_deinit(LIST *ptr)
 {
 	list_private_t *list_ptr = (list_private_t *)*ptr;
 	if (!list_ptr)
@@ -75,7 +75,7 @@ extern void list_deinit(LIST_HANDLE *ptr)
 /*
  * TODO see whether this could be better as a macro
  */
-extern size_t list_size(LIST_HANDLE ptr)
+extern size_t list_size(LIST ptr)
 {
 	list_private_t *list_ptr = (list_private_t *)ptr;
 	if (!list_ptr)
@@ -83,7 +83,7 @@ extern size_t list_size(LIST_HANDLE ptr)
 	return *list_ptr->size;
 }
 
-extern void list_append(LIST_HANDLE ptr, const void *d)
+extern void list_append(LIST ptr, const void *d)
 {
 	list_private_t *list_ptr = (list_private_t *)ptr;
 	if (!list_ptr)
@@ -107,7 +107,7 @@ extern void list_append(LIST_HANDLE ptr, const void *d)
 	return;
 }
 
-extern void list_insert(LIST_HANDLE ptr, size_t i, const void *d)
+extern void list_insert(LIST ptr, size_t i, const void *d)
 {
 	list_private_t *list_ptr = (list_private_t *)ptr;
 	if (!list_ptr)
@@ -144,7 +144,7 @@ extern void list_insert(LIST_HANDLE ptr, size_t i, const void *d)
 	return;
 }
 
-extern void list_add(LIST_HANDLE ptr, const void *d)
+extern void list_add(LIST ptr, const void *d)
 {
 	list_private_t *list_ptr = (list_private_t *)ptr;
 	if (!list_ptr)
@@ -209,7 +209,7 @@ extern void list_add(LIST_HANDLE ptr, const void *d)
 	return;
 }
 
-extern const void *list_get(LIST_HANDLE ptr, size_t i)
+extern const void *list_get(LIST ptr, size_t i)
 {
 	list_private_t *list_ptr = (list_private_t *)ptr;
 	if (!list_ptr)
@@ -222,7 +222,7 @@ extern const void *list_get(LIST_HANDLE ptr, size_t i)
 	return item->data;
 }
 
-extern bool list_contains(LIST_HANDLE ptr, const void *d)
+extern bool list_contains(LIST ptr, const void *d)
 {
 	list_private_t *list_ptr = (list_private_t *)ptr;
 	if (!list_ptr)
@@ -240,7 +240,7 @@ extern bool list_contains(LIST_HANDLE ptr, const void *d)
 	return false;
 }
 
-extern const void *list_remove_item(LIST_HANDLE ptr, const void *d)
+extern const void *list_remove_item(LIST ptr, const void *d)
 {
 	list_private_t *list_ptr = (list_private_t *)ptr;
 	if (!list_ptr)
@@ -273,7 +273,7 @@ extern const void *list_remove_item(LIST_HANDLE ptr, const void *d)
 	return data;
 }
 
-extern const void *list_remove_index(LIST_HANDLE ptr, size_t i)
+extern const void *list_remove_index(LIST ptr, size_t i)
 {
 	list_private_t *list_ptr = (list_private_t *)ptr;
 	if (!list_ptr)
@@ -298,7 +298,7 @@ extern const void *list_remove_index(LIST_HANDLE ptr, size_t i)
 	return data;
 }
 
-extern void list_iterate(LIST_HANDLE ptr)
+extern void list_iterate(LIST ptr)
 {
 	list_private_t *list_ptr = (list_private_t *)ptr;
 	if (!list_ptr)
@@ -307,7 +307,7 @@ extern void list_iterate(LIST_HANDLE ptr)
 	return;
 }
 
-extern const void *list_get_next(LIST_HANDLE ptr)
+extern const void *list_get_next(LIST ptr)
 {
 	list_private_t *list_ptr = (list_private_t *)ptr;
 	if (!list_ptr)
@@ -319,7 +319,7 @@ extern const void *list_get_next(LIST_HANDLE ptr)
 	return next->data;
 }
 
-extern bool list_has_next(LIST_HANDLE ptr)
+extern bool list_has_next(LIST ptr)
 {
 	list_private_t *list_ptr = (list_private_t *)ptr;
 	if (!list_ptr)
