@@ -108,14 +108,6 @@ extern size_t list_size(LIST h) __attribute__((nonnull(1)));
  */
 extern void list_append(LIST h, const void *d) __attribute__((nonnull(1, 2)));
 
-#if 0
-#define LIST_APPEND(h, t, d)    \
-{                               \
-	static t D = d;         \
-	list_append(h, &D);     \
-}
-#endif
-
 /*!
  * \brief         Insert an item into the list
  * \param[in]  h  A pointer to the list
