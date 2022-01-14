@@ -72,6 +72,9 @@ extern void list_deinit(LIST_HANDLE *ptr)
 	return;
 }
 
+/*
+ * TODO see whether this could be better as a macro
+ */
 extern size_t list_size(LIST_HANDLE ptr)
 {
 	list_private_t *list_ptr = (list_private_t *)ptr;

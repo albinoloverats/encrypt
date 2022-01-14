@@ -87,57 +87,63 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 	/*
 	 * ciphers
 	 */
-	const char **ciphers = list_of_ciphers();
+	LIST_HANDLE ciphers = list_of_ciphers();
 	unsigned slctd_cipher = 0;
 	gtk_combo_box_text_remove_all((GtkComboBoxText *)data->crypto_combo);
 	gtk_combo_box_text_append_text((GtkComboBoxText *)data->crypto_combo, SELECT_CIPHER);
-	for (unsigned i = 0; ciphers[i]; i++)
+	for (unsigned i = 0; i < list_size(ciphers); i++)
 	{
-		if (cipher && !strcasecmp(ciphers[i], cipher))
+		const char *c = list_get(ciphers, i);
+		if (cipher && !strcasecmp(c, cipher))
 			slctd_cipher = i + 1;
-		gtk_combo_box_text_append_text((GtkComboBoxText *)data->crypto_combo, ciphers[i]);
+		gtk_combo_box_text_append_text((GtkComboBoxText *)data->crypto_combo, c);
 	}
 	gtk_combo_box_set_active((GtkComboBox *)data->crypto_combo, slctd_cipher);
 	/*
 	 * hashes
 	 */
-	const char **hashes = list_of_hashes();
+	LIST_HANDLE hashes = list_of_hashes();
 	unsigned slctd_hash = 0;
 	gtk_combo_box_text_remove_all((GtkComboBoxText *)data->hash_combo);
 	gtk_combo_box_text_append_text((GtkComboBoxText *)data->hash_combo, SELECT_HASH);
-	for (unsigned i = 0; hashes[i]; i++)
+	for (unsigned i = 0; i < list_size(hashes); i++)
 	{
-		if (hash && !strcasecmp(hashes[i], hash))
+		const char *h = list_get(hashes, i);
+		if (hash && !strcasecmp(h, hash))
 			slctd_hash = i + 1;
-		gtk_combo_box_text_append_text((GtkComboBoxText *)data->hash_combo, hashes[i]);
+		gtk_combo_box_text_append_text((GtkComboBoxText *)data->hash_combo, h);
 	}
 	gtk_combo_box_set_active((GtkComboBox *)data->hash_combo, slctd_hash);
 	/*
 	 * modes
 	 */
-	const char **modes = list_of_modes();
+	LIST_HANDLE modes = list_of_modes();
 	unsigned slctd_mode = 0;
 	gtk_combo_box_text_remove_all((GtkComboBoxText *)data->mode_combo);
 	gtk_combo_box_text_append_text((GtkComboBoxText *)data->mode_combo, SELECT_MODE);
-	for (unsigned i = 0; modes[i]; i++)
+	list_iterate(modes);
+	for (unsigned i = 0; i < list_size(modes); i++)
 	{
-		if (mode && !strcasecmp(modes[i], mode))
+		const char *m = list_get(modes, i);
+		if (mode && !strcasecmp(m, mode))
 			slctd_mode = i + 1;
-		gtk_combo_box_text_append_text((GtkComboBoxText *)data->mode_combo, modes[i]);
+		gtk_combo_box_text_append_text((GtkComboBoxText *)data->mode_combo, m);
 	}
 	gtk_combo_box_set_active((GtkComboBox *)data->mode_combo, slctd_mode);
 	/*
 	 * MACs
 	 */
-	const char **macs = list_of_macs();
+	LIST_HANDLE macs = list_of_macs();
 	unsigned slctd_mac = 0;
 	gtk_combo_box_text_remove_all((GtkComboBoxText *)data->mac_combo);
 	gtk_combo_box_text_append_text((GtkComboBoxText *)data->mac_combo, SELECT_MAC);
-	for (unsigned i = 0; macs[i]; i++)
+	list_iterate(macs);
+	for (unsigned i = 0; i < list_size(macs); i++)
 	{
-		if (hash && !strcasecmp(macs[i], mac))
+		const char *m = list_get(macs, i);
+		if (hash && !strcasecmp(m, mac))
 			slctd_mac = i + 1;
-		gtk_combo_box_text_append_text((GtkComboBoxText *)data->mac_combo, macs[i]);
+		gtk_combo_box_text_append_text((GtkComboBoxText *)data->mac_combo, m);
 	}
 	gtk_combo_box_set_active((GtkComboBox *)data->mac_combo, slctd_mac);
 	/*
@@ -385,21 +391,21 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_wi
 
 	if (cipher > 0 && hash > 0 && mode > 0 && mac > 0 && iter > 0)
 	{
-		const char **ciphers = list_of_ciphers();
-		const char **hashes = list_of_hashes();
-		const char **modes = list_of_modes();
-		const char **macs = list_of_macs();
+		LIST_HANDLE ciphers = list_of_ciphers();
+		LIST_HANDLE hashes  = list_of_hashes();
+		LIST_HANDLE modes   = list_of_modes();
+		LIST_HANDLE macs    = list_of_macs();
 
-		update_config(CONF_CIPHER, ciphers[cipher - 1]);
-		update_config(CONF_HASH, hashes[hash - 1]);
-		update_config(CONF_MODE, modes[mode - 1]);
-		update_config(CONF_MAC, macs[mac - 1]);
+		update_config(CONF_CIPHER, list_get(ciphers, cipher - 1));
+		update_config(CONF_HASH,   list_get(hashes,  hash - 1));
+		update_config(CONF_MODE,   list_get(modes,   mode - 1));
+		update_config(CONF_MAC,    list_get(macs,    mac - 1));
 
 		char i[22];
 		snprintf(i, sizeof i, "%" PRIu64, iter);
 		update_config(CONF_KDF_ITERATIONS, i);
 
-		if (!(en = mode_valid_for_cipher(cipher_id_from_name(ciphers[cipher - 1]), mode_id_from_name(modes[mode - 1]))))
+		if (!(en = mode_valid_for_cipher(cipher_id_from_name(list_get(ciphers, cipher - 1)), mode_id_from_name(list_get(modes, mode - 1)))))
 			set_status_bar((GtkStatusbar *)data->status_bar, _(STATUS_BAD_MODE));
 		else
 			set_status_bar((GtkStatusbar *)data->status_bar, _(STATUS_BAR_READY));
@@ -664,16 +670,16 @@ static void *gui_process(void *d)
 	int m = gtk_combo_box_get_active((GtkComboBox *)data->mode_combo);
 	int a = gtk_combo_box_get_active((GtkComboBox *)data->mac_combo);
 	uint64_t iter = (uint64_t)gtk_adjustment_get_value(gtk_spin_button_get_adjustment((GtkSpinButton *)data->kdf_spinner));
-	const char **ciphers = list_of_ciphers();
-	const char **hashes = list_of_hashes();
-	const char **modes = list_of_modes();
-	const char **macs = list_of_macs();
+	LIST_HANDLE ciphers = list_of_ciphers();
+	LIST_HANDLE hashes  = list_of_hashes();
+	LIST_HANDLE modes   = list_of_modes();
+	LIST_HANDLE macs    = list_of_macs();
 
 	crypto_t *x;
 	if (_encrypted)
-		x = decrypt_init(source, output, ciphers[c - 1], hashes[h - 1], modes[m - 1], macs[a - 1], key, length, iter, _raw);
+		x = decrypt_init(source, output, list_get(ciphers, c - 1), list_get(hashes, h - 1), list_get(modes, m - 1), list_get(macs, a - 1), key, length, iter, _raw);
 	else
-		x = encrypt_init(source, output, ciphers[c - 1], hashes[h - 1], modes[m - 1], macs[a - 1], key, length, iter, _raw, _compress, _follow, _version);
+		x = encrypt_init(source, output, list_get(ciphers, c - 1), list_get(hashes, h - 1), list_get(modes, m - 1), list_get(macs, a - 1), key, length, iter, _raw, _compress, _follow, _version);
 
 	_status = &x->status;
 

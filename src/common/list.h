@@ -96,6 +96,8 @@ extern void list_deinit(LIST_HANDLE *h) __attribute__((nonnull(1)));
  */
 extern size_t list_size(LIST_HANDLE h) __attribute__((nonnull(1)));
 
+//#define LIST_SIZE(l) (((ptrdiff_t)l)+4)
+
 /*!
  * \brief         Add an item to the end of the list
  * \param[in]  h  A pointer to the list

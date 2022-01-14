@@ -34,6 +34,7 @@
 #import "error.h"
 #import "ccrypt.h"
 #import "config.h"
+#import "list.h"
 
 #import "crypt.h"
 #import "encrypt.h"
@@ -606,51 +607,55 @@ tidy:
 
 - (void)auto_select_algorithms:(char *)c : (char *)h : (char *)m : (char *)a : (uint64_t)iter
 {
-	const char **ciphers = list_of_ciphers();
+	LIST_HANDLE ciphers = list_of_ciphers();
 	unsigned slctd_cipher = 0;
 	[_cipherCombo removeAllItems];
 	[_cipherCombo addItemWithTitle:[NSString stringWithUTF8String:SELECT_CIPHER]];
-	for (unsigned i = 0; ciphers[i]; i++)
+	for (unsigned i = 0; i < list_size(ciphers); i++)
 	{
-		if (c && !strcasecmp(ciphers[i], c))
+		const char *cipher = list_get(ciphers, i);
+		if (c && !strcasecmp(cipher, c))
 			slctd_cipher = i + 1;
-		[_cipherCombo addItemWithTitle:[NSString stringWithUTF8String:ciphers[i]]];
+		[_cipherCombo addItemWithTitle:[NSString stringWithUTF8String:cipher]];
 	}
 	[_cipherCombo selectItemAtIndex:slctd_cipher];
 
-	const char **hashes = list_of_hashes();
+	LIST_HANDLE hashes = list_of_hashes();
 	unsigned slctd_hash = 0;
 	[_hashCombo removeAllItems];
 	[_hashCombo addItemWithTitle:[NSString stringWithUTF8String:SELECT_HASH]];
-	for (unsigned  i = 0; hashes[i]; i++)
+	for (unsigned  i = 0; i < list_get(hashes); i++)
 	{
-		if (h && !strcasecmp(hashes[i], h))
+		const char *hash = list_get(hashes, i);
+		if (h && !strcasecmp(hash, h))
 			slctd_hash = i + 1;
-		[_hashCombo addItemWithTitle:[NSString stringWithUTF8String:hashes[i]]];
+		[_hashCombo addItemWithTitle:[NSString stringWithUTF8String:hash]];
 	}
 	[_hashCombo selectItemAtIndex:slctd_hash];
 
-	const char **modes = list_of_modes();
+	LIST_HANDLE modes = list_of_modes();
 	unsigned slctd_mode = 0;
 	[_modeCombo removeAllItems];
 	[_modeCombo addItemWithTitle:[NSString stringWithUTF8String:SELECT_MODE]];
-	for (unsigned  i = 0; modes[i]; i++)
+	for (unsigned  i = 0; i < list_size(modes); i++)
 	{
-		if (m && !strcasecmp(modes[i], m))
+		const char *mode = list_get(modes, i);
+		if (m && !strcasecmp(mode, m))
 			slctd_mode = i + 1;
-		[_modeCombo addItemWithTitle:[NSString stringWithUTF8String:modes[i]]];
+		[_modeCombo addItemWithTitle:[NSString stringWithUTF8String:mode]];
 	}
 	[_modeCombo selectItemAtIndex:slctd_mode];
 
-	const char **macs = list_of_macs();
+	LIST_HANDLE macs = list_of_macs();
 	unsigned slctd_mac = 0;
 	[_macCombo removeAllItems];
 	[_macCombo addItemWithTitle:[NSString stringWithUTF8String:SELECT_MAC]];
-	for (unsigned  i = 0; macs[i]; i++)
+	for (unsigned  i = 0; i < list_size(macs); i++)
 	{
-		if (h && !strcasecmp(macs[i], a))
+		const char *mac = list_get(macs, i);
+		if (h && !strcasecmp(mac, a))
 			slctd_mac = i + 1;
-		[_macCombo addItemWithTitle:[NSString stringWithUTF8String:macs[i]]];
+		[_macCombo addItemWithTitle:[NSString stringWithUTF8String:mac]];
 	}
 	[_macCombo selectItemAtIndex:slctd_mac];
 
