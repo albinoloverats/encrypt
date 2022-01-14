@@ -26,6 +26,7 @@
 #include <stdbool.h>
 
 #include "common.h"
+#include "list.h"
 
 
 #define CONF_TRUE     "true"
@@ -157,7 +158,7 @@ config_about_t;
 
 extern void config_init(config_about_t about);
 
-extern void config_show_usage(config_arg_t *args, config_extra_t *extra);
+extern void config_show_usage(config_arg_t *args, LIST extra);
 
 #define CONFIG_PARSE_COUNT(...) CONFIG_PARSE_COUNT2(__VA_ARGS__, 6, 5, 4, 3, 2, 1)
 #define CONFIG_PARSE_COUNT2(_1, _2, _3, _4, _5, _6, _, ...) _
@@ -182,7 +183,7 @@ extern void config_show_usage(config_arg_t *args, config_extra_t *extra);
  * options where set. Removes a lot of the cruft from the legacy common
  * code that used to exist here.
  */
-extern int config_parse_aux(int c, char **v, config_arg_t *a, config_extra_t *x, LIST t, bool w);
+extern int config_parse_aux(int c, char **v, config_arg_t *a, LIST x, LIST t, bool w);
 
 /*!
  * \brief         Update configuration file

@@ -46,6 +46,7 @@
 #include "version.h"
 #include "cli.h"
 #include "config.h"
+#include "list.h"
 
 #ifdef _WIN32
 	#include <Shlobj.h>
@@ -55,7 +56,7 @@
 
 
 static void show_version(void);
-static void show_help(config_arg_t *args, LIST about, config_extra_t *extra);
+static void show_help(config_arg_t *args, LIST about, LIST extra);
 static void show_licence(void);
 
 static bool    parse_config_boolean(const char *, const char *, bool);
@@ -81,9 +82,9 @@ extern void config_init(config_about_t a)
 }
 
 /*
- * TODO Use LIST for args and extra bits, probably notes too
+ * TODO Use LIST for args
  */
-extern int config_parse_aux(int argc, char **argv, config_arg_t *args, config_extra_t *extra, LIST notes, bool warn)
+extern int config_parse_aux(int argc, char **argv, config_arg_t *args, LIST extra, LIST notes, bool warn)
 {
 	if (!init)
 	{
@@ -337,33 +338,37 @@ end_line:
 	int r = 0;
 	if (extra)
 	{
-		for (int i = 0; extra[i].description && optind < argc; i++, optind++)
+		for (int i = 0; list_has_next(extra) && optind < argc; i++, optind++)
 		{
-			extra[i].seen = true;
-			switch (extra[i].response_type)
+			config_extra_t *x = (config_extra_t *)list_get_next(extra);
+			x->seen = true;
+			switch (x->response_type)
 			{
 				case CONFIG_ARG_STRING:
-					if (!(extra[i].response_value.string = strdup(argv[optind])))
+					if (!(x->response_value.string = strdup(argv[optind])))
 						die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(argv[optind]));
 					break;
 				case CONFIG_ARG_NUMBER:
-					extra[i].response_value.number = strtoull(argv[optind], NULL, 0);
+					x->response_value.number = strtoull(argv[optind], NULL, 0);
 					break;
 				case CONFIG_ARG_BOOLEAN:
 					(void)0; // for Slackware's older GCC
 					__attribute__((fallthrough)); /* allow fall-through; argument was seen */
 				default:
-					extra[i].response_value.boolean = true;
+					x->response_value.boolean = true;
 					break;
 			}
 		}
 		r = argc - optind;
-		for (int i = 0; extra[i].description; i++)
-			if (extra[i].required && !extra[i].seen && warn)
+		for (size_t i = 0; i < list_size(extra); i++)
+		{
+			const config_extra_t *x = list_get(extra, i);
+			if (x->required && !x->seen && warn)
 			{
-				cli_fprintf(stderr, "Missing required argument \"%s\"\n", extra[i].description);
+				cli_fprintf(stderr, "Missing required argument \"%s\"\n", x->description);
 				config_show_usage(args, extra);
 			}
+		}
 	}
 	return r;
 }
@@ -382,7 +387,7 @@ static void show_version(void)
 	exit(EXIT_SUCCESS);
 }
 
-inline static void print_usage(config_arg_t *args, config_extra_t *extra)
+inline static void print_usage(config_arg_t *args, LIST extra)
 {
 #ifndef _WIN32
 	struct winsize ws;
@@ -399,11 +404,15 @@ inline static void print_usage(config_arg_t *args, config_extra_t *extra)
 	int j = cli_fprintf(stderr, "  " ANSI_COLOUR_GREEN "%s", about.name) - strlen(ANSI_COLOUR_GREEN) - 2;
 	if (extra)
 	{
-		for (int i = 0; extra[i].description; i++)
-			if (extra[i].required)
-				j += cli_fprintf(stderr, ANSI_COLOUR_RED " <%s>" ANSI_COLOUR_RESET, extra[i].description);
+		list_iterate(extra);
+		while (list_has_next(extra))
+		{
+			const config_extra_t *x = (config_extra_t *)list_get_next(extra);
+			if (x->required)
+				j += cli_fprintf(stderr, ANSI_COLOUR_RED " <%s>" ANSI_COLOUR_RESET, x->description);
 			else
-				j+= cli_fprintf(stderr, ANSI_COLOUR_YELLOW " [%s]" ANSI_COLOUR_RESET, extra[i].description);
+				j+= cli_fprintf(stderr, ANSI_COLOUR_YELLOW " [%s]" ANSI_COLOUR_RESET, x->description);
+		}
 		if (isatty(STDERR_FILENO))
 			j -= (strlen(ANSI_COLOUR_RESET) + strlen(ANSI_COLOUR_WHITE));
 	}
@@ -429,7 +438,7 @@ inline static void print_usage(config_arg_t *args, config_extra_t *extra)
 	return;
 }
 
-extern void config_show_usage(config_arg_t *args, config_extra_t *extra)
+extern void config_show_usage(config_arg_t *args, LIST extra)
 {
 	print_usage(args, extra);
 	while (version_is_checking)
@@ -575,7 +584,7 @@ static void print_notes(const char *line)
 	return;
 }
 
-static void show_help(config_arg_t *args, LIST notes, config_extra_t *extra)
+static void show_help(config_arg_t *args, LIST notes, LIST extra)
 {
 	version_print(about.name, about.version, about.url);
 	cli_fprintf(stderr, "\n");

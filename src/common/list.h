@@ -108,6 +108,14 @@ extern size_t list_size(LIST h) __attribute__((nonnull(1)));
  */
 extern void list_append(LIST h, const void *d) __attribute__((nonnull(1, 2)));
 
+#if 0
+#define LIST_APPEND(h, t, d)    \
+{                               \
+	static t D = d;         \
+	list_append(h, &D);     \
+}
+#endif
+
 /*!
  * \brief         Insert an item into the list
  * \param[in]  h  A pointer to the list
@@ -127,7 +135,7 @@ extern void list_insert(LIST h, size_t i, const void *d) __attribute__((nonnull(
  * Add a new item to the list in sorted order. If the list is not sorted
  * then this just calls list_append().
  */
-extern void list_add(LIST h, const void *) __attribute__((nonnull(1, 2)));
+extern void list_add(LIST h, const void *d) __attribute__((nonnull(1, 2)));
 
 /*!
  * \brief         Check if the list contains the item

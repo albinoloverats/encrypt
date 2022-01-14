@@ -129,12 +129,16 @@ int main(int argc, char **argv)
 		{ 0x3, "self-test",      NULL,            _("Perform self-test routine"),                                CONFIG_ARG_BOOLEAN,     { 0x0 }, false, true,  true  },
 		{ 0x0, NULL, NULL, NULL, CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false }
 	};
-	config_extra_t extra[] =
+	LIST extra = list_default();
 	{
-		{ "source", CONFIG_ARG_STRING,  { 0x0 }, false, false },
-		{ "output", CONFIG_ARG_STRING,  { 0x0 }, false, false },
-		{ NULL,     CONFIG_ARG_BOOLEAN, { 0x0 }, false, false }
-	};
+		static config_extra_t x = { "source", CONFIG_ARG_STRING,  { 0x0 }, false, false };
+		list_add(extra, &x);
+	}
+	{
+		static config_extra_t x = { "output", CONFIG_ARG_STRING,  { 0x0 }, false, false };
+		list_add(extra, &x);
+	}
+
 	LIST notes = list_default();
 	list_add(notes, _("If you do not supply a key or password, you will be prompted for one. This will then be used to generate a key to encrypt the data with (using the specified hash and MAC)."));
 	list_add(notes, _("To see available algorithms or modes use list as the argument."));
@@ -182,8 +186,8 @@ int main(int argc, char **argv)
 
 	list_deinit(&notes);
 
-	char *source   = extra[0].response_value.string;
-	char *output   = extra[1].response_value.string;
+	char *source   = ((config_extra_t *)list_get(extra, 0))->response_value.string;
+	char *output   = ((config_extra_t *)list_get(extra, 1))->response_value.string;
 
 	int x = -1;
 	bool compress;
@@ -499,10 +503,13 @@ clean_up:
 		free(password);
 	if (version)
 		free(version);
-	if (extra[0].response_value.string)
-		free(extra[0].response_value.string);
-	if (extra[1].response_value.string)
-		free(extra[1].response_value.string);
+
+	if (((config_extra_t *)list_get(extra, 0))->response_value.string)
+		free(((config_extra_t *)list_get(extra, 0))->response_value.string);
+	if (((config_extra_t *)list_get(extra, 1))->response_value.string)
+		free(((config_extra_t *)list_get(extra, 1))->response_value.string);
+
+	list_deinit(&extra);
 
 	if (version_new_available)
 		cli_fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : PROJECT_URL);
