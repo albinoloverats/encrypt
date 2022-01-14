@@ -31,6 +31,20 @@
 #include "ccrypt.h"
 #include "list.h"
 
+#define MOSTLY_NEEDED_LIBGCRYPT "1.8.2"
+
+#define NAME_SHA1 "SHA1"
+#define NAME_SHA160 "SHA160"
+#define NAME_TIGER "TIGER"
+#define NAME_TIGER192 "TIGER192"
+
+#define NAME_AES "AES"
+#define NAME_RIJNDAEL "RIJNDAEL"
+#define NAME_BLOWFISH "BLOWFISH"
+#define NAME_BLOWFISH128 "BLOWFISH128"
+#define NAME_TWOFISH "TWOFISH"
+#define NAME_TWOFISH256 "TWOFISH256"
+
 static const char *correct_sha1(const char * const restrict);
 static const char *correct_aes_rijndael(const char * const restrict);
 static const char *correct_blowfish128(const char * const restrict);
