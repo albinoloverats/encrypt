@@ -158,6 +158,8 @@ extern LIST_HANDLE list_of_hashes(void)
 
 extern LIST_HANDLE list_of_modes(void)
 {
+	init_crypto();
+
 	static LIST_HANDLE *l = NULL;
 	if (!l)
 	{

@@ -78,7 +78,7 @@ static bool list_hashes(void);
 static bool list_modes(void);
 static bool list_macs(void);
 
-static int self_test(void) __attribute__((noreturn));
+static void self_test(void) __attribute__((noreturn));
 
 int main(int argc, char **argv)
 {
@@ -551,19 +551,26 @@ static bool list_macs(void)
 	return true;
 }
 
-static int self_test(void)
+static void self_test(void)
 {
+	/*
+	 * choose cipher to test wth
+	 */
 	LIST_HANDLE l = list_of_ciphers();
 	unsigned int x;
 	gcry_create_nonce(&x, sizeof x);
 	x %= list_size(l);
 	const char *cipher = list_get(l, x);
-
+	/*
+	 * choose hash to test with
+	 */
 	l = list_of_hashes();
 	gcry_create_nonce(&x, sizeof x);
 	x %= list_size(l);
 	const char *hash = list_get(l, x);
-
+	/*
+	 * choose mode to test with
+	 */
 	l = list_of_modes();
 	do
 	{
@@ -572,22 +579,30 @@ static int self_test(void)
 	}
 	while (!mode_valid_for_cipher(cipher_id_from_name(cipher), mode_id_from_name(list_get(l, x))));
 	const char *mode = list_get(l, x);
-
+	/*
+	 * choose mac to test with
+	 */
 	l = list_of_macs();
 	gcry_create_nonce(&x, sizeof x);
 	x %= list_size(l);
 	const char *mac = list_get(l, x);
-
+	/*
+	 * choose key length (not too long)
+	 */
 	uint16_t key_len;
 	gcry_create_nonce(&key_len, sizeof key_len);
 	key_len %= 0x0400;
 	uint8_t *key = malloc(key_len);
 	gcry_create_nonce(key, key_len);
-
+	/*
+	 * create nonce (again, not too long)
+	 */
 	uint32_t kdf;
 	gcry_create_nonce(&kdf, sizeof kdf);
 	kdf %= 0x0000FFFF;
-
+	/*
+	 * get some data to encrypt/decrypt
+	 */
 	uint32_t buffer_len;
 	gcry_create_nonce(&buffer_len, sizeof buffer_len);
 	buffer_len %= 0x00FFFFFF;
@@ -599,9 +614,9 @@ static int self_test(void)
 	cli_fprintf(stderr, _("Test hash          : %s\n"), hash);
 	cli_fprintf(stderr, _("Test mode          : %s\n"), mode);
 	cli_fprintf(stderr, _("Test MAC           : %s\n"), mac);
-	cli_fprintf(stderr, _("Test KDF iterations: %" PRIu32 "\n"), kdf);
-	cli_fprintf(stderr, _("Test key size      : %" PRIu16 "\n"), key_len);
-	cli_fprintf(stderr, _("Test buffer size   : %" PRIu32 "\n"), buffer_len);
+	cli_fprintf(stderr, _("Test KDF iterations: %'10" PRIu32 "\n"), kdf);
+	cli_fprintf(stderr, _("Test key size      : %'10" PRIu16 "\n"), key_len);
+	cli_fprintf(stderr, _("Test buffer size   : %'10" PRIu32 "\n"), buffer_len);
 
 	crypto_t *test_encrypt = encrypt_init(NULL, NULL, cipher, hash, mode, mac, key, key_len, kdf, false, true, false, VERSION_CURRENT);
 	crypto_t *test_decrypt = decrypt_init(NULL, NULL, cipher, hash, mode, mac, key, key_len, kdf, false);
@@ -612,7 +627,9 @@ static int self_test(void)
 
 	fwrite(buffer_plain, buffer_len, 1, tmp_plain);
 	fseek(tmp_plain, 0, SEEK_SET);
-
+	/*
+	 * dirty hack to set fd in the crypt_io structure
+	 */
 	int64_t fd = fileno(tmp_plain);
 	memcpy(test_encrypt->source, &fd, sizeof fd);
 	fd = fileno(tmp_cipher);
