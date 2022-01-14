@@ -508,6 +508,17 @@ static void print_option(int indent, char sopt, char *lopt, char *type, bool req
 	for (; isspace(*desc); desc++)
 		;
 	int l = strlen(desc);
+
+#ifdef _WIN32
+	char *tmp = calloc(l + 1, 1);
+	for (int i = 0; i < l; i++)
+		if (!strncmp(desc + i, "‘", strlen("‘")) || !strncmp(desc + i, "’", strlen("‘")))
+			tmp[i] = '\'';
+		else
+			tmp[i] = desc[i];
+	desc = tmp;
+#endif
+
 	cli_fprintf(stderr, ANSI_COLOUR_BLUE);
 	if (l < width)
 		cli_fprintf(stderr, "%s", desc);
