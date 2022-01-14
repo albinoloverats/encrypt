@@ -55,7 +55,7 @@
 
 
 static void show_version(void);
-static void show_help(config_arg_t *args, char **about, config_extra_t *extra);
+static void show_help(config_arg_t *args, LIST about, config_extra_t *extra);
 static void show_licence(void);
 
 static bool    parse_config_boolean(const char *, const char *, bool);
@@ -80,7 +80,10 @@ extern void config_init(config_about_t a)
 	return;
 }
 
-extern int config_parse_aux(int argc, char **argv, config_arg_t *args, config_extra_t *extra, char **notes, bool warn)
+/*
+ * TODO Use LIST for args and extra bits, probably notes too
+ */
+extern int config_parse_aux(int argc, char **argv, config_arg_t *args, config_extra_t *extra, LIST notes, bool warn)
 {
 	if (!init)
 	{
@@ -518,7 +521,7 @@ static void print_option(int indent, char sopt, char *lopt, char *type, bool req
 	return;
 }
 
-static void print_notes(char *line)
+static void print_notes(const char *line)
 {
 #ifndef _WIN32
 	cli_fprintf(stderr, "  • ");
@@ -572,7 +575,7 @@ static void print_notes(char *line)
 	return;
 }
 
-static void show_help(config_arg_t *args, char **notes, config_extra_t *extra)
+static void show_help(config_arg_t *args, LIST notes, config_extra_t *extra)
 {
 	version_print(about.name, about.version, about.url);
 	cli_fprintf(stderr, "\n");
@@ -610,8 +613,9 @@ static void show_help(config_arg_t *args, char **notes, config_extra_t *extra)
 	{
 		cli_fprintf(stderr, "\n");
 		format_section(_("Notes"));
-		for (int i = 0; notes[i] ; i++)
-			print_notes(notes[i]);
+		list_iterate(notes);
+		while (list_has_next(notes))
+			print_notes(list_get_next(notes));
 	}
 	while (version_is_checking)
 		sleep(1);

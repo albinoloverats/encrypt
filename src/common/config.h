@@ -182,7 +182,7 @@ extern void config_show_usage(config_arg_t *args, config_extra_t *extra);
  * options where set. Removes a lot of the cruft from the legacy common
  * code that used to exist here.
  */
-extern int config_parse_aux(int c, char **v, config_arg_t *a, config_extra_t *x, char **t, bool w);
+extern int config_parse_aux(int c, char **v, config_arg_t *a, config_extra_t *x, LIST t, bool w);
 
 /*!
  * \brief         Update configuration file

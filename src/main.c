@@ -135,16 +135,13 @@ int main(int argc, char **argv)
 		{ "output", CONFIG_ARG_STRING,  { 0x0 }, false, false },
 		{ NULL,     CONFIG_ARG_BOOLEAN, { 0x0 }, false, false }
 	};
-	char *notes[] =
-	{
-		_("If you do not supply a key or password, you will be prompted for one. This will then be used to generate a key to encrypt the data with (using the specified hash and MAC)."),
-		_("To see available algorithms or modes use list as the argument."),
-		_("If either the source file or destination file are omitted then stdin/stdout are used."),
-		_("When encrypting, -c, -s -m, and -a are required to specify the algorithms you wish to use; when decrypting the algorithms originally used are read from the encrypted file, (although you can omit the algorithm options if you have configured defaults in ~/.encryptrc)."),
-		_("If you encrypted data using --raw then you will need to pass the algorithms as arguments when decrypting."),
-		_("You can toggle compression and how symbolic links are handled in the configuration file ~/.encryptrc"),
-		NULL
-	};
+	LIST notes = list_default();
+	list_add(notes, _("If you do not supply a key or password, you will be prompted for one. This will then be used to generate a key to encrypt the data with (using the specified hash and MAC)."));
+	list_add(notes, _("To see available algorithms or modes use list as the argument."));
+	list_add(notes, _("If either the source file or destination file are omitted then stdin/stdout are used."));
+	list_add(notes, _("When encrypting, -c, -s -m, and -a are required to specify the algorithms you wish to use; when decrypting the algorithms originally used are read from the encrypted file, (although you can omit the algorithm options if you have configured defaults in ~/.encryptrc)."));
+	list_add(notes, _("If you encrypted data using --raw then you will need to pass the algorithms as arguments when decrypting."));
+	list_add(notes, _("You can toggle compression and how symbolic links are handled in the configuration file ~/.encryptrc"));
 
 	config_about_t about =
 	{
@@ -182,6 +179,8 @@ int main(int argc, char **argv)
 	config_init(about);
 
 	config_parse(argc, argv, args, extra, notes);
+
+	list_deinit(&notes);
 
 	char *source   = extra[0].response_value.string;
 	char *output   = extra[1].response_value.string;
@@ -517,7 +516,7 @@ clean_up:
 
 static bool list_ciphers(void)
 {
-	LIST_HANDLE l = list_of_ciphers();
+	LIST l = list_of_ciphers();
 	list_iterate(l);
 	while (list_has_next(l))
 		cli_eprintf("%s\n", (char *)list_get_next(l));
@@ -526,7 +525,7 @@ static bool list_ciphers(void)
 
 static bool list_hashes(void)
 {
-	LIST_HANDLE l = list_of_hashes();
+	LIST l = list_of_hashes();
 	list_iterate(l);
 	while (list_has_next(l))
 		cli_eprintf("%s\n", (char *)list_get_next(l));
@@ -535,7 +534,7 @@ static bool list_hashes(void)
 
 static bool list_modes(void)
 {
-	LIST_HANDLE l = list_of_modes();
+	LIST l = list_of_modes();
 	list_iterate(l);
 	while (list_has_next(l))
 		cli_eprintf("%s\n", (char *)list_get_next(l));
@@ -544,7 +543,7 @@ static bool list_modes(void)
 
 static bool list_macs(void)
 {
-	LIST_HANDLE l = list_of_macs();
+	LIST l = list_of_macs();
 	list_iterate(l);
 	while (list_has_next(l))
 		cli_eprintf("%s\n", (char *)list_get_next(l));
@@ -556,7 +555,7 @@ static void self_test(void)
 	/*
 	 * choose cipher to test wth
 	 */
-	LIST_HANDLE l = list_of_ciphers();
+	LIST l = list_of_ciphers();
 	unsigned int x;
 	gcry_create_nonce(&x, sizeof x);
 	x %= list_size(l);
