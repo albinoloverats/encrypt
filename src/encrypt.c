@@ -325,8 +325,7 @@ static void *process(void *ptr)
 
 	if (c->directory)
 	{
-		file_type_e tp = FILE_DIRECTORY;
-		io_write(c->output, &tp, sizeof( byte_t ));
+		io_write(c->output, &((file_type_e){FILE_DIRECTORY}), sizeof( byte_t ));
 		/*
 		 * strip leading directories and trailing /
 		 */

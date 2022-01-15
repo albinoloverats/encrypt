@@ -266,8 +266,7 @@ end_line:
 		 */
 		while (argc && argv)
 		{
-			int index = 0;
-			int c = getopt_long(argc, argv, short_options, long_options, &index);
+			int c = getopt_long(argc, argv, short_options, long_options, &((int){0}));
 			if (c == -1)
 				break;
 			bool unknown = true;
