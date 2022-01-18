@@ -77,35 +77,33 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 	};
 	config_init(about);
 
-	config_arg_t args[] =
-	{ // TODO If there's no CLI then remove the display text
-		{ 'c', "cipher",         _("algorithm"),  _("Algorithm to use to encrypt data"),                         CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
-		{ 's', "hash",           _("algorithm"),  _("Hash algorithm to generate key"),                           CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
-		{ 'm', "mode",           _("mode"),       _("The encryption mode to use"),                               CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
-		{ 'a', "mac",            _("mac"),        _("The MAC algorithm to use"),                                 CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false },
-		{ 'i', "kdf-iterations", _("iterations"), _("Number of iterations the KDF should use"),                  CONFIG_ARG_REQ_NUMBER,  { 0x0 }, false, false, false },
-		{ ' ', "key-source",     _("key source"), _("Key data source"),                                          CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, true  },
-		{ 'x', "compress",       NULL,            _("Compress the plain text using the xz algorithm"),           CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, true  },
-		{ 'f', "follow",         NULL,            _("Follow symlinks, the default is to store the link itself"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false },
-		{ 'b', "back-compat",    _("version"),    _("Create an encrypted file that is backwards compatible"),    CONFIG_ARG_REQ_STRING,  { 0x0 }, false, true,  false },
-		{ 'r', "raw",            NULL,            _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situation"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false },
-		{ 0x0, NULL, NULL, NULL, CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false }
-	};
+	LIST args = list_init(config_arg_comp, false, false);
+	// TODO If there's no CLI then remove the display text
+	list_add(args, &((config_arg_t){ 'c', "cipher",         _("algorithm"),  _("Algorithm to use to encrypt data; use ‘list’ to show available cipher algorithms"),                                      CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false }));
+	list_add(args, &((config_arg_t){ 's', "hash",           _("algorithm"),  _("Hash algorithm to generate key; use ‘list’ to show available hash algorithms"),                                          CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false }));
+	list_add(args, &((config_arg_t){ 'm', "mode",           _("mode"),       _("The encryption mode to use; use ‘list’ to show available cipher modes"),                                                 CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false }));
+	list_add(args, &((config_arg_t){ 'a', "mac",            _("mac"),        _("The MAC algorithm to use; use ‘list’ to show available MACs"),                                                           CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false }));
+	list_add(args, &((config_arg_t){ 'i', "kdf-iterations", _("iterations"), _("Number of iterations the KDF should use"),                                                                               CONFIG_ARG_REQ_NUMBER,  { 0x0 }, false, false, false }));
+	list_add(args, &((config_arg_t){ 0x1, "key-source",     _("key source"), _("Key data source"),                                                                                                       CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, true  }));
+	list_add(args, &((config_arg_t){ 0x2, "compress",       NULL,            _("Compress the plain text using the xz algorithm"),                                                                        CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, true  }));
+	list_add(args, &((config_arg_t){ 'f', "follow",         NULL,            _("Follow symlinks, the default is to store the link itself"),                                                              CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false }));
+	list_add(args, &((config_arg_t){ 'b', "back-compat",    _("version"),    _("Create an encrypted file that is backwards compatible"),                                                                 CONFIG_ARG_REQ_STRING,  { 0x0 }, false, true,  false }));
+	list_add(args, &((config_arg_t){ 'r', "raw",            NULL,            _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false  }));
 	config_parse(0, NULL, args);
 
-	char *cipher = args[0].response_value.string;
-	char *hash   = args[1].response_value.string;
-	char *mode   = args[2].response_value.string;
-	char *mac    = args[3].response_value.string;
-	uint64_t kdf = args[4].response_value.number;
+	char *cipher =  ((config_arg_t *)list_get(args, 0))->response_value.string;
+	char *hash   =  ((config_arg_t *)list_get(args, 1))->response_value.string;
+	char *mode   =  ((config_arg_t *)list_get(args, 2))->response_value.string;
+	char *mac    =  ((config_arg_t *)list_get(args, 3))->response_value.string;
+	uint64_t kdf =  ((config_arg_t *)list_get(args, 4))->response_value.number;
 
-	char *ks     = args[5].response_value.string;
+	char *ks     =  ((config_arg_t *)list_get(args, 5))->response_value.string;
 
-	compress     = args[6].response_value.boolean;
-	follow       = args[7].response_value.boolean;
+	compress     = !((config_arg_t *)list_get(args, 6))->response_value.boolean; // compress by default unless --no-compress is specified
+	follow       =  ((config_arg_t *)list_get(args, 7))->response_value.boolean;
 
-	char *ver    = args[8].response_value.string;
-	raw          = args[9].response_value.boolean;
+	char *ver    =  ((config_arg_t *)list_get(args, 8))->response_value.string;
+	raw          =  ((config_arg_t *)list_get(args, 9))->response_value.boolean;
 
 	[self auto_select_algorithms:cipher:hash:mode:mac:kdf];
 
@@ -624,7 +622,7 @@ tidy:
 	unsigned slctd_hash = 0;
 	[_hashCombo removeAllItems];
 	[_hashCombo addItemWithTitle:[NSString stringWithUTF8String:SELECT_HASH]];
-	for (unsigned  i = 0; i < list_get(hashes); i++)
+	for (unsigned  i = 0; i < list_size(hashes); i++)
 	{
 		const char *hash = list_get(hashes, i);
 		if (h && !strcasecmp(hash, h))
