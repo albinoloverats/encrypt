@@ -66,6 +66,8 @@ static char *encrypt_link(crypto_t *, char *, struct stat);
 static void encrypt_stream(crypto_t *);
 static void encrypt_file(crypto_t *);
 
+static int comp_links(const void *a, const void *b);
+
 typedef struct
 {
 	dev_t dev;
@@ -352,15 +354,19 @@ static void *process(void *ptr)
 		io_write(c->output, &l, sizeof l);
 		io_write(c->output, c->path, strlen(c->path));
 		c->total.offset = 1;
-		if (!(c->misc = gcry_calloc_secure(c->total.size, sizeof( link_count_t ))))
-			die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, c->total.size * sizeof( link_count_t ));
+		c->misc = list_init(comp_links, false, false);
 		encrypt_directory(c, c->path);
 		c->current.display = FINISHING_UP;
-		for (uint64_t i = 0; i < c->total.size; i++)
-			if (((link_count_t *)c->misc)[i].path)
-				gcry_free(((link_count_t *)c->misc)[i].path);
-		gcry_free(c->misc);
-		c->misc = NULL;
+		list_iterate(c->misc);
+		while (list_has_next(c->misc))
+		{
+			link_count_t *l = (link_count_t *)list_get_next(c->misc);
+			if (l->path)
+				free(l->path);
+		}
+		while (list_size(c->misc) > 0)
+			free((link_count_t *)list_remove_index(c->misc, 0));
+		list_deinit(&c->misc);
 		if (cwd)
 		{
 			chdir(cwd);
@@ -703,15 +709,21 @@ static void encrypt_directory(crypto_t *c, const char *dir)
 
 static char *encrypt_link(crypto_t *c, char *filename, struct stat s)
 {
-	link_count_t *ln = (link_count_t *)c->misc;
+	LIST links = c->misc;
+	link_count_t *link = calloc(1, sizeof (link_count_t));
+	link->dev   = s.st_dev;
+	link->inode = s.st_ino;
+	link->path  = strdup(filename);
 #ifndef _WIN32
-	for (uint64_t i = 0; i < c->total.offset; i++)
-		if (ln[i].dev == s.st_dev && ln[i].inode == s.st_ino)
-			return ln[i].path;
+	link_count_t *existing = NULL;
+	if ((existing = (link_count_t *)list_contains(links, link)))
+	{
+		free(link->path);
+		free(link);
+		return existing->path;
+	}
 #endif
-	ln[c->total.offset].dev = s.st_dev;
-	ln[c->total.offset].inode = s.st_ino;
-	ln[c->total.offset].path = strdup(filename);
+	list_add(links, link);
 	return NULL;
 }
 
@@ -768,4 +780,13 @@ static void encrypt_file(crypto_t *c)
 		io_write(c->output, buffer, r);
 	}
 	return;
+}
+
+static int comp_links(const void *a, const void *b)
+{
+	const link_count_t *x = a;
+	const link_count_t *y = b;
+	if (x->dev != y->dev)
+		return x->dev - y->dev;
+	return x->inode - y->inode;
 }
