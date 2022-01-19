@@ -133,13 +133,15 @@ extern void list_add(LIST h, const void *d) __attribute__((nonnull(1, 2)));
  * \brief         Check if the list contains the item
  * \param[in]  h  A pointer to the list
  * \param[in]  d  The item to check for
- * \return        True if the list contains the item, false otherwise
+ * \return        A pointer to the item already in the list, NULL
+ *                otherwise
  *
  * Check whether the list contains the item. If a comparator was set
  * during initialisation then that is used instead of just comparing the
- * pointer.
+ * pointer. Returns a pointer to the existing item or NULL if it doesn't
+ * exist in the list.
  */
-extern bool list_contains(LIST h, const void *d) __attribute__((nonnull(1, 2)));
+extern const void *list_contains(LIST h, const void *d) __attribute__((nonnull(1, 2)));
 
 /*!
  * \brief         Remove an item from within the list
@@ -170,7 +172,7 @@ extern const void *list_remove_index(LIST h, size_t i) __attribute__((nonnull(1)
  * \brief         Get an item from the list
  * \param[in]  h  A pointer to the list
  * \param[in]  i  The index of the item to get
- * \return        The item and the give index
+ * \return        The item at the give index
  *
  * Retrieve the item at the given index within the list.
  */

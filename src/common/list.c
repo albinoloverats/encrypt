@@ -222,22 +222,22 @@ extern const void *list_get(LIST ptr, size_t i)
 	return item->data;
 }
 
-extern bool list_contains(LIST ptr, const void *d)
+extern const void *list_contains(LIST ptr, const void *d)
 {
 	list_private_t *list_ptr = (list_private_t *)ptr;
 	if (!list_ptr)
-		return false;
+		return NULL;
 	if (!*list_ptr->size)
-		return false;
+		return NULL;
 	list_t *item = list_ptr->head;
 	do
 	{
 		if (item->data == d || (list_ptr->compare && !list_ptr->compare(d, item->data)))
-			return true;
+			return item->data;
 		item = item->next;
 	}
 	while (item);
-	return false;
+	return NULL;
 }
 
 extern const void *list_remove_item(LIST ptr, const void *d)
