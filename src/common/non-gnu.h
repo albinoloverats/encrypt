@@ -76,6 +76,13 @@
 #ifndef SIGQUIT
 	#define SIGQUIT SIGBREAK /*!< If value doesn’t exist on Windows, use next closest match */
 #endif
+#ifndef SIGSYS
+	#define SIGSYS SIGILL    /*!< If value doesn’t exist on Windows, use next closest match */
+#endif
+#ifndef SIGBUS
+	#define SIGBUS SIGSEGV   /*!< If value doesn’t exist on Windows, use next closest match */
+#endif
+
 #ifndef ECANCELED
 	#define ECANCELED 125 /*!< Make sure the missing error code exists */
 #endif
@@ -111,6 +118,8 @@ extern int scandir(const char *path, struct dirent ***res, int (*sel)(const stru
 extern FILE *temp_file(void);
 
 extern char *windows_version(void);
+
+extern void psignal(int sig, const char *s);
 
 #endif /* _WIN32 */
 
