@@ -350,6 +350,7 @@ end_line:
 	int r = 0;
 	if (extra)
 	{
+		list_iterate(extra);
 		for (int i = 0; list_has_next(extra) && optind < argc; i++, optind++)
 		{
 			config_extra_t *x = (config_extra_t *)list_get_next(extra);
