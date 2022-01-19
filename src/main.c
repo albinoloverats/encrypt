@@ -79,6 +79,14 @@ static bool list_macs(void);
 
 static void self_test(void) __attribute__((noreturn));
 
+static config_about_t about =
+{
+	NULL,
+	ENCRYPT_VERSION,
+	PROJECT_URL,
+	ENCRYPTRC
+};
+
 int main(int argc, char **argv)
 {
 	error_init();
@@ -134,13 +142,6 @@ int main(int argc, char **argv)
 	list_add(notes, _("If you encrypted data using --raw then you will need to pass the algorithms as arguments when decrypting."));
 	list_add(notes, _("You can toggle compression and how symbolic links are handled in the configuration file ~/.encryptrc"));
 
-	config_about_t about =
-	{
-		NULL,
-		ENCRYPT_VERSION,
-		PROJECT_URL,
-		ENCRYPTRC
-	};
 #ifndef _WIN32
 	bool dude = false;
 	if (!strcmp(basename(argv[0]), DECRYPT))
@@ -605,13 +606,16 @@ static void self_test(void)
 	uint8_t *buffer_check = malloc(buffer_len);
 	gcry_create_nonce(buffer_plain, buffer_len);
 
-	cli_fprintf(stderr, _("Test cipher        : %s\n"), cipher);
-	cli_fprintf(stderr, _("Test hash          : %s\n"), hash);
-	cli_fprintf(stderr, _("Test mode          : %s\n"), mode);
-	cli_fprintf(stderr, _("Test MAC           : %s\n"), mac);
-	cli_fprintf(stderr, _("Test KDF iterations: %'10" PRIu32 "\n"), kdf);
-	cli_fprintf(stderr, _("Test key size      : %'10" PRIu16 "\n"), key_len);
-	cli_fprintf(stderr, _("Test buffer size   : %'10" PRIu32 "\n"), buffer_len);
+	version_print(about.name, about.version, about.url);
+
+	cli_eprintf("\n");
+	cli_eprintf(_("Test cipher        : %s\n"), cipher);
+	cli_eprintf(_("Test hash          : %s\n"), hash);
+	cli_eprintf(_("Test mode          : %s\n"), mode);
+	cli_eprintf(_("Test MAC           : %s\n"), mac);
+	cli_eprintf(_("Test KDF iterations: %'10" PRIu32 "\n"), kdf);
+	cli_eprintf(_("Test key size      : %'10" PRIu16 "\n"), key_len);
+	cli_eprintf(_("Test buffer size   : %'10" PRIu32 "\n"), buffer_len);
 
 	crypto_t *test_encrypt = encrypt_init(NULL, NULL, cipher, hash, mode, mac, key, key_len, kdf, false, true, false, VERSION_CURRENT);
 	crypto_t *test_decrypt = decrypt_init(NULL, NULL, cipher, hash, mode, mac, key, key_len, kdf, false);
@@ -633,7 +637,7 @@ static void self_test(void)
 	fd = fileno(tmp_check);
 	memcpy(test_decrypt->output, &fd, sizeof fd);
 
-	cli_fprintf(stderr, _("\nTesting encryption..."));
+	cli_eprintf(_("\nTesting encryption..."));
 	execute(test_encrypt);
 #ifndef __DEBUG__
 	cli_t p = { (cli_status_e *)&test_encrypt->status, &test_encrypt->current, &test_encrypt->total };
@@ -643,7 +647,7 @@ static void self_test(void)
 	fseek(tmp_plain,  0, SEEK_SET);
 	fseek(tmp_cipher, 0, SEEK_SET);
 
-	cli_fprintf(stderr, _("Testing decryption..."));
+	cli_eprintf(_("Testing decryption..."));
 	execute(test_decrypt);
 #ifndef __DEBUG__
 	p.status  = (cli_status_e *)&test_decrypt->status;
@@ -661,9 +665,9 @@ static void self_test(void)
 
 	int r;
 	if (memcmp(buffer_plain, buffer_check, buffer_len))
-		r = EXIT_FAILURE , cli_fprintf(stderr, _("\nFail: Result not equal to original!\n"));
+		r = EXIT_FAILURE , cli_eprintf(_("\nFail: Result not equal to original!\n"));
 	else
-		r = EXIT_SUCCESS , cli_fprintf(stderr, _("\nSelf-test passed.\n"));
+		r = EXIT_SUCCESS , cli_eprintf(_("\nSelf-test passed.\n"));
 
 	free(buffer_plain);
 	free(buffer_check);
