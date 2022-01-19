@@ -51,11 +51,11 @@
 #define CLI_DEFAULT 80 /* Expected default terminal width */
 #define CLI_LARGE   75
 
-#ifndef _WIN32
 static int cli_width = CLI_DEFAULT;
 static int cli_size_width = 0;
 
 static void cli_display_bars(cli_progress_t *, cli_progress_t *, cli_bps_t *);
+#ifndef _WIN32
 static void cli_sigwinch(int);
 #endif
 
@@ -73,13 +73,7 @@ extern int cli_printf(const char * const restrict s, ...)
 	va_list ap;
 	va_start(ap, s);
 	char *d = NULL;
-#ifndef _WIN32
 	vasprintf(&d, s, ap);
-#else
-	uint8_t l = 0xFF;
-	if ((d = calloc(l, sizeof l)))
-		vsnprintf(d, l - 1, s, ap);
-#endif
 	int x = cli_print(stdout, d);
 	va_end(ap);
 	free(d);
@@ -92,13 +86,7 @@ extern int cli_eprintf(const char * const restrict s, ...)
 	va_list ap;
 	va_start(ap, s);
 	char *d = NULL;
-#ifndef _WIN32
 	vasprintf(&d, s, ap);
-#else
-	uint8_t l = 0xFF;
-	if ((d = calloc(l, sizeof l)))
-		vsnprintf(d, l - 1, s, ap);
-#endif
 	int x = cli_print(stderr, d);
 	va_end(ap);
 	free(d);
@@ -111,13 +99,7 @@ extern int cli_fprintf(FILE *f, const char * const restrict s, ...)
 	va_list ap;
 	va_start(ap, s);
 	char *d = NULL;
-#ifndef _WIN32
 	vasprintf(&d, s, ap);
-#else
-	uint8_t l = 0xFF;
-	if ((d = calloc(l, sizeof l)))
-		vsnprintf(d, l - 1, s, ap);
-#endif
 	int x = cli_print(f, d);
 	va_end(ap);
 	free(d);
@@ -181,11 +163,13 @@ extern double cli_calc_bps(cli_bps_t *bps)
 	return val /= (BPS - 1);
 }
 
-#ifndef _WIN32
+//#ifndef _WIN32
 extern void cli_display(cli_t *p)
 {
 	cli_init();
+#ifndef _WIN32
 	cli_sigwinch(SIGWINCH);
+#endif
 	cli_size_width = 0;
 
 	cli_bps_t bps[BPS];
@@ -308,6 +292,7 @@ static void cli_display_bars(cli_progress_t *t, cli_progress_t *c, cli_bps_t *bp
 	return;
 }
 
+#ifndef _WIN32
 static void cli_sigwinch(int s)
 {
 	struct winsize ws;
@@ -375,9 +360,8 @@ static void cli_init(void)
 	signal(SIGINT,  on_quit);
 	signal(SIGQUIT, on_quit);
 
-#ifndef _WIN32
 	setlocale(LC_NUMERIC, "");
-#else
+#ifdef _WIN32
 	// Set output mode to handle virtual terminal sequences
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (hOut == INVALID_HANDLE_VALUE)
