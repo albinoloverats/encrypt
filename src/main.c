@@ -32,7 +32,6 @@
 #include <stdbool.h>
 
 #include <sys/stat.h>
-#include <sys/wait.h>
 
 #include <gcrypt.h>
 
