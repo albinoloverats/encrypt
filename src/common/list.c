@@ -1,6 +1,6 @@
 /*
  * Common code for dealing with linked lists.
- * Copyright © 2021-2021, albinoloverats ~ Software Development
+ * Copyright © 2021-2022, albinoloverats ~ Software Development
  * email: webmaster@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
