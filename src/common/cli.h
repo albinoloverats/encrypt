@@ -21,12 +21,22 @@
 #ifndef _COMMON_CLI_H_
 #define _COMMON_CLI_H_
 
+/*!
+ * \file    cli.h
+ * \author  albinoloverats ~ Software Development
+ * \date    2014-2022
+ * \brief   Common console output functions
+ *
+ * Various functions to help with console output.
+ */
+
+
 #include <stdio.h>
 
 #include <stdint.h>
 #include <stdbool.h>
 
-#define BPS 128
+#define BPS 128 /*!< Bytes per second history length */
 
 #define ANSI_COLOUR_RESET          "\x1b[0m"
 #if _WIN32
@@ -54,6 +64,11 @@
 #define CLI_TRUNCATED_ELLIPSE   "...."
 #define CLI_UNKNOWN "(unknown)"
 
+/*!
+ * \brief Initialisation status of CLI
+ *
+ * Indicates the stage of output of the progress bars.
+ */
 typedef enum
 {
 	CLI_DONE,
@@ -78,6 +93,11 @@ typedef struct
 }
 cli_progress_t;
 
+/*!
+ * \brief Progress bar structure
+ *
+ * Pointers for progress status and level of completion.
+ */
 typedef struct
 {
 	cli_status_e   *status;
@@ -86,6 +106,12 @@ typedef struct
 }
 cli_t;
 
+/*!
+ * \brief Bytes per second structure
+ *
+ * A count of how many bytes have been processed and at what time. Is
+ * used to calculate transfer speed.
+ */
 typedef struct
 {
 	uint64_t time;

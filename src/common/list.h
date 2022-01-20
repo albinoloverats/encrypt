@@ -21,11 +21,6 @@
 #ifndef _COMMON_LIST_H_
 #define _COMMON_LIST_H_
 
-#include <stddef.h>
-#include <stdbool.h>
-
-#include "common.h"
-
 /*!
  * \file    list.h
  * \author  albinoloverats ~ Software Development
@@ -35,7 +30,12 @@
  * Common linked list implementation.
  */
 
-typedef void * LIST;
+#include <stddef.h>
+#include <stdbool.h>
+
+#include "common.h"
+
+typedef void * LIST; /*!< The user visible LIST type */
 
 
 #if 0
