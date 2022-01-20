@@ -36,8 +36,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define BPS 128 /*!< Bytes per second history length */
-
 #define ANSI_COLOUR_RESET          "\x1b[0m"
 #if _WIN32
 	#define ANSI_COLOUR_BLACK   "\x1b[30m"
@@ -89,22 +87,27 @@ typedef struct
 {
 	uint64_t offset;  /*!< Progress */
 	uint64_t size;    /*!< Maximum */
-	char    *display; /*!< Extra text to display withni the progress bar */
+	char    *display; /*!< Extra text to display within the progress bar */
 }
 cli_progress_t;
 
 /*!
  * \brief Progress bar structure
  *
- * Pointers for progress status and level of completion.
+ * Pointers for progress status and level of completion. It allows for
+ * current item progress and overall progress. The status is largely
+ * used to ensure that the progress bar shows as 100% when complete
+ * instead of showing (maybe only) 99%.
  */
 typedef struct
 {
-	cli_status_e   *status;
-	cli_progress_t *current;
-	cli_progress_t *total;
+	cli_status_e   *status;  /*!< Progress bar status */
+	cli_progress_t *current; /*!< Current item progress */
+	cli_progress_t *total;   /*!< Overall progress */
 }
 cli_t;
+
+#define BPS 128 /*!< Bytes per second history length */
 
 /*!
  * \brief Bytes per second structure
@@ -114,25 +117,102 @@ cli_t;
  */
 typedef struct
 {
-	uint64_t time;
-	uint64_t bytes;
+	uint64_t time;  /*!< The time at which this reading was taken */
+	uint64_t bytes; /*!< The number of bytes process */
 }
 cli_bps_t;
 
-extern void cli_display(cli_t *) __attribute__((nonnull(1)));
+/*!
+ * \brief         Display a progress bar
+ * \param[in]  c  The CLI progress bar instance
+ *
+ * Display a progress bar on stderr with the given levels of progress.
+ * If only one bar is needed then that is all that will be shown, but if
+ * you need progress for current item and overall progress then you get
+ * two.
+ */
+extern void cli_display(cli_t *c) __attribute__((nonnull(1)));
 
-extern double cli_calc_bps(cli_bps_t *) __attribute__((nonnull(1)));
+/*!
+ * \brief         Calculate the number of bytes per second
+ * \param[in]  c  The bytes per second history
+ * \return        The number of bytes per second
+ *
+ * Calculate the speed of a transfer given a list of cli_bps_t readings.
+ * Currently this is required to be 128.
+ */
+extern double cli_calc_bps(cli_bps_t *c) __attribute__((nonnull(1)));
 
+/*!
+ * \brief         Formatted output to stdout
+ * \param[in]  s  The format template
+ * \return        The number of bytes written
+ *
+ * Prints the optional arguments under the control of the template
+ * string to the stream stdout. It returns the number of characters
+ * printed, or a negative value if there was an output error.
+ */
 extern int cli_printf(const char * const restrict s, ...) __attribute__((nonnull(1), format(printf, 1, 2)));
 
+/*!
+ * \brief         Formatted output to stderr
+ * \param[in]  s  The format template
+ * \return        The number of bytes written
+ *
+ * Prints the optional arguments under the control of the template
+ * string to the stream stderr. It returns the number of characters
+ * printed, or a negative value if there was an output error.
+ */
 extern int cli_eprintf(const char * const restrict s, ...) __attribute__((nonnull(1), format(printf, 1, 2)));
 
+/*!
+ * \brief         Formatted output to the given stream
+ * \param[in]  f  The output stream
+ * \param[in]  s  The format template
+ * \return        The number of bytes written
+ *
+ * Prints the optional arguments under the control of the template
+ * string to the stream s. It returns the number of characters printed,
+ * or a negative value if there was an output error.
+ */
 extern int cli_fprintf(FILE *f, const char * const restrict s, ...) __attribute__((nonnull(2), format(printf, 2, 3)));
 
+/*!
+ * \brief         Hexadecimal output to stdout
+ * \param[in]  x  The binary data to print
+ * \param[in]  z  The length of the binary data
+ * \return        The number of bytes written
+ *
+ * Prints binary data in a hexadecimal fashion to stdout. Output is
+ * currently wrapped to 16 bytes per line. It returns the number of
+ * characters printed, or a negative value if there was an output error.
+ */
 extern int cli_printx(const uint8_t * const restrict x, size_t z) __attribute__((nonnull(1)));
 
+/*!
+ * \brief         Hexadecimal output to stderr
+ * \param[in]  x  The binary data to print
+ * \param[in]  z  The length of the binary data
+ * \return        The number of bytes written
+ *
+ * Prints binary data in a hexadecimal fashion to stderr. Output is
+ * currently wrapped to 16 bytes per line. It returns the number of
+ * characters printed, or a negative value if there was an output error.
+ */
 extern int cli_eprintx(const uint8_t * const restrict x, size_t z) __attribute__((nonnull(1)));
 
+/*!
+ * \brief         Hexadecimal output to the given stream
+ * \param[in]  f  The output stream
+ * \param[in]  x  The binary data to print
+ * \param[in]  z  The length of the binary data
+ * \return        The number of bytes written
+ *
+ * Prints binary data in a hexadecimal fashion to the given stream.
+ * Output is currently wrapped to 16 bytes per line. It returns the
+ * number of characters printed, or a negative value if there was an
+ * output error.
+ */
 extern int cli_fprintx(FILE *f, const uint8_t * const restrict x, size_t z) __attribute__((nonnull(2)));
 
 #endif /* _COMMON_CLI_H_ */
