@@ -105,6 +105,8 @@ extern int cli_fprintf(FILE *f, const char * const restrict s, ...) __attribute_
 
 extern int cli_printx(const uint8_t * const restrict x, size_t z) __attribute__((nonnull(1)));
 
+extern int cli_eprintx(const uint8_t * const restrict x, size_t z) __attribute__((nonnull(1)));
+
 extern int cli_fprintx(FILE *f, const uint8_t * const restrict x, size_t z) __attribute__((nonnull(2)));
 
 #endif /* _COMMON_CLI_H_ */

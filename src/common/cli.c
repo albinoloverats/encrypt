@@ -112,6 +112,12 @@ extern int cli_printx(const uint8_t * const restrict x, size_t z)
 	return cli_fprintx(stdout, x, z);
 }
 
+extern int cli_eprintx(const uint8_t * const restrict x, size_t z)
+{
+	cli_init();
+	return cli_fprintx(stderr, x, z);
+}
+
 extern int cli_fprintx(FILE *f, const uint8_t * const restrict x, size_t z)
 {
 	cli_init();

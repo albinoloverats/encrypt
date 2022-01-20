@@ -33,6 +33,8 @@ SIGOPTS        = -verbose -certs signing/authenticode.spc -key signing/authentic
 
 all: sign
 
+debug: debug-gui
+
 winres:
 	 @${WRES} -i ${RC} ${RESOPTS} -o ${RES}
 	-@echo -e "compiled Windows application metadata"
@@ -64,4 +66,4 @@ clean:
 	 @rm -fv ${APP} ${APP_SIG} ${MISC} ${RES}
 
 distclean: clean
-	 @rm -fv ${PKG} ${PKG_SIG}
+	 @rm -fv ${PKG} ${PKG_SIG} gmon.out

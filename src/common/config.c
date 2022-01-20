@@ -92,7 +92,7 @@ extern int config_parse_aux(int argc, char **argv, LIST args, LIST extra, LIST n
 {
 	if (!init)
 	{
-		cli_fprintf(stderr, _("Call config_init() first\n"));
+		cli_eprintf(_("Call config_init() first\n"));
 		return -1;
 	}
 	/*
@@ -378,7 +378,7 @@ end_line:
 			const config_extra_t *x = list_get(extra, i);
 			if (x->required && !x->seen && warn)
 			{
-				cli_fprintf(stderr, "Missing required argument \"%s\"\n", x->description);
+				cli_eprintf("Missing required argument \"%s\"\n", x->description);
 				config_show_usage(args, extra);
 			}
 		}
@@ -388,7 +388,7 @@ end_line:
 
 inline static void format_section(char *s)
 {
-	cli_fprintf(stderr, ANSI_COLOUR_CYAN "%s" ANSI_COLOUR_RESET ":\n", s);
+	cli_eprintf(ANSI_COLOUR_CYAN "%s" ANSI_COLOUR_RESET ":\n", s);
 	return;
 }
 
@@ -414,7 +414,7 @@ inline static void print_usage(LIST args, LIST extra)
 	if (max_width <= 0 || !isatty(STDERR_FILENO))
 		max_width = 77 - strlen(about.name); // needed for MSYS2
 	format_section(_("Usage"));
-	int j = cli_fprintf(stderr, "  " ANSI_COLOUR_GREEN "%s", about.name) - strlen(ANSI_COLOUR_GREEN) - 2;
+	int j = cli_eprintf("  " ANSI_COLOUR_GREEN "%s", about.name) - strlen(ANSI_COLOUR_GREEN) - 2;
 	if (extra)
 	{
 		list_iterate(extra);
@@ -422,9 +422,9 @@ inline static void print_usage(LIST args, LIST extra)
 		{
 			const config_extra_t *x = (config_extra_t *)list_get_next(extra);
 			if (x->required)
-				j += cli_fprintf(stderr, ANSI_COLOUR_RED " <%s>" ANSI_COLOUR_RESET, x->description);
+				j += cli_eprintf(ANSI_COLOUR_RED " <%s>" ANSI_COLOUR_RESET, x->description);
 			else
-				j+= cli_fprintf(stderr, ANSI_COLOUR_YELLOW " [%s]" ANSI_COLOUR_RESET, x->description);
+				j+= cli_eprintf(ANSI_COLOUR_YELLOW " [%s]" ANSI_COLOUR_RESET, x->description);
 		}
 		if (isatty(STDERR_FILENO))
 			j -= (strlen(ANSI_COLOUR_RESET) + strlen(ANSI_COLOUR_WHITE));
@@ -438,20 +438,20 @@ inline static void print_usage(LIST args, LIST extra)
 			if (!arg->hidden)
 			{
 				if ((int)(j + 4 + (arg->option_type ? strlen(arg->option_type) : 0)) > max_width)
-					j = cli_fprintf(stderr, "\n%*s  ", (int)strlen(about.name), " ");
+					j = cli_eprintf("\n%*s  ", (int)strlen(about.name), " ");
 				if (arg->required)
-					j += cli_fprintf(stderr, ANSI_COLOUR_RED " <-%c", arg->short_option);
+					j += cli_eprintf(ANSI_COLOUR_RED " <-%c", arg->short_option);
 				else
-					j += cli_fprintf(stderr, ANSI_COLOUR_YELLOW " [-%c", arg->short_option);
+					j += cli_eprintf(ANSI_COLOUR_YELLOW " [-%c", arg->short_option);
 				if (arg->option_type)
-					j += cli_fprintf(stderr, " %s", arg->option_type);
-				j += cli_fprintf(stderr, "%c" ANSI_COLOUR_RESET, arg->required ? '>' : ']');
+					j += cli_eprintf(" %s", arg->option_type);
+				j += cli_eprintf("%c" ANSI_COLOUR_RESET, arg->required ? '>' : ']');
 				if (isatty(STDERR_FILENO))
 					j -= (strlen(ANSI_COLOUR_RESET) + strlen(ANSI_COLOUR_WHITE));
 			}
 		}
 	}
-	cli_fprintf(stderr, ANSI_COLOUR_RESET "\n");
+	cli_eprintf(ANSI_COLOUR_RESET "\n");
 	return;
 }
 
@@ -470,28 +470,28 @@ static void print_option(int indent, char sopt, char *lopt, char *type, bool req
 		z -= strlen(lopt);
 	else
 		z += 4;
-	cli_fprintf(stderr, "  " ANSI_COLOUR_WHITE "-%c" ANSI_COLOUR_RESET, sopt);
+	cli_eprintf("  " ANSI_COLOUR_WHITE "-%c" ANSI_COLOUR_RESET, sopt);
 	if (lopt)
-		cli_fprintf(stderr, ", " ANSI_COLOUR_WHITE "--%s" ANSI_COLOUR_RESET, lopt);
+		cli_eprintf(", " ANSI_COLOUR_WHITE "--%s" ANSI_COLOUR_RESET, lopt);
 	if (type)
 	{
 		if (req)
 		{
 			if (lopt)
-				cli_fprintf(stderr, ANSI_COLOUR_WHITE "=" ANSI_COLOUR_RED "<%s>" ANSI_COLOUR_RESET, type);
+				cli_eprintf(ANSI_COLOUR_WHITE "=" ANSI_COLOUR_RED "<%s>" ANSI_COLOUR_RESET, type);
 			else
-				cli_fprintf(stderr, " " ANSI_COLOUR_RED "<%s>" ANSI_COLOUR_RESET, type);
+				cli_eprintf(" " ANSI_COLOUR_RED "<%s>" ANSI_COLOUR_RESET, type);
 		}
 		else
 		{
 			if (lopt)
-				cli_fprintf(stderr, ANSI_COLOUR_YELLOW "[=%s]" ANSI_COLOUR_RESET, type);
+				cli_eprintf(ANSI_COLOUR_YELLOW "[=%s]" ANSI_COLOUR_RESET, type);
 			else
-				cli_fprintf(stderr, ANSI_COLOUR_YELLOW " [%s]" ANSI_COLOUR_RESET, type);
+				cli_eprintf(ANSI_COLOUR_YELLOW " [%s]" ANSI_COLOUR_RESET, type);
 		}
 		z -= 3 + strlen(type);
 	}
-	cli_fprintf(stderr, "%*s", (int)z, " ");
+	cli_eprintf("%*s", (int)z, " ");
 
 #ifndef _WIN32
 	struct winsize ws;
@@ -511,19 +511,22 @@ static void print_option(int indent, char sopt, char *lopt, char *type, bool req
 
 #ifdef _WIN32
 	char *tmp = calloc(l + 1, 1);
-	for (int i = 0; i < l; i++)
+	for (int i = 0, j = 0; i < l; i++, j++)
 		if (!strncmp(desc + i, "‘", strlen("‘")) || !strncmp(desc + i, "’", strlen("‘")))
-			tmp[i] = '\'';
+		{
+			tmp[j] = '\'';
+			i += strlen("‘") - 1;
+		}
 		else
-			tmp[i] = desc[i];
+			tmp[j] = desc[i];
 	desc = tmp;
 #endif
 
-	cli_fprintf(stderr, ANSI_COLOUR_BLUE);
+	cli_eprintf(ANSI_COLOUR_BLUE);
 	if (l < width)
-		cli_fprintf(stderr, "%s", desc);
+		cli_eprintf("%s", desc);
 	else if (width <= indent)
-		cli_fprintf(stderr, "\n  %s\n", desc);
+		cli_eprintf("\n  %s\n", desc);
 	else
 	{
 		int s = 0;
@@ -545,28 +548,31 @@ static void print_option(int indent, char sopt, char *lopt, char *type, bool req
 				for (int e2 = s; e2 < s + max_width; e2++)
 					if (isspace(desc[e2]) || desc[e2] == 0x00)
 						e = e2;
-				cli_fprintf(stderr, "\n  ");
+				cli_eprintf("\n  ");
 			}
 			else if (s)
-				cli_fprintf(stderr, "\n%*s", indent, " ");
-			cli_fprintf(stderr, "%.*s", e - s, desc + s);
+				cli_eprintf("\n%*s", indent, " ");
+			cli_eprintf("%.*s", e - s, desc + s);
 			s = e + 1;
 		}
 		while (s < l);
 	}
-	cli_fprintf(stderr, ANSI_COLOUR_RESET "\n");
+#ifdef _WIN32
+	free(tmp);
+#endif
+	cli_eprintf(ANSI_COLOUR_RESET "\n");
 	return;
 }
 
 static void print_notes(const char *line)
 {
 #ifndef _WIN32
-	cli_fprintf(stderr, "  • ");
+	cli_eprintf("  • ");
 	struct winsize ws;
 	ioctl(STDERR_FILENO, TIOCGWINSZ, &ws);
 	int max_width = ws.ws_col - 5;
 #else
-	cli_fprintf(stderr, "  * ");
+	cli_eprintf("  * ");
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
 	int max_width = (csbi.srWindow.Right - csbi.srWindow.Left + 1) - 5;
@@ -577,7 +583,7 @@ static void print_notes(const char *line)
 		;
 	int l = strlen(line);
 	if (l < max_width)
-		cli_fprintf(stderr, "%s", line);
+		cli_eprintf("%s", line);
 	else
 	{
 		int s = 0;
@@ -599,23 +605,23 @@ static void print_notes(const char *line)
 				for (e = s; ; e++)
 					if (isspace(line[e]) || line[e] == 0x00)
 						break;
-				cli_fprintf(stderr, "\n  ");
+				cli_eprintf("\n  ");
 			}
 			else if (s)
-				cli_fprintf(stderr, "\n%*s", 4, " ");
-			cli_fprintf(stderr, "%.*s", e - s, line + s);
+				cli_eprintf("\n%*s", 4, " ");
+			cli_eprintf("%.*s", e - s, line + s);
 			s = e + 1;
 		}
 		while (s < l);
 	}
-	cli_fprintf(stderr, ANSI_COLOUR_RESET "\n");
+	cli_eprintf(ANSI_COLOUR_RESET "\n");
 	return;
 }
 
 static void show_help(LIST args, LIST notes, LIST extra)
 {
 	version_print(about.name, about.version, about.url);
-	cli_fprintf(stderr, "\n");
+	cli_eprintf("\n");
 	print_usage(args, extra);
 
 	int indent = 10;
@@ -632,7 +638,7 @@ static void show_help(LIST args, LIST notes, LIST extra)
 			has_advanced = true;
 	}
 
-	cli_fprintf(stderr, "\n");
+	cli_eprintf("\n");
 	format_section(_("Options"));
 	print_option(indent, 'h', "help",    NULL, false, "Display this message");
 	print_option(indent, 'l', "licence", NULL, false, "Display GNU GPL v3 licence header");
@@ -646,7 +652,7 @@ static void show_help(LIST args, LIST notes, LIST extra)
 	}
 	if (has_advanced)
 	{
-		cli_fprintf(stderr, "\n");
+		cli_eprintf("\n");
 		format_section(_("Advanced Options"));
 		list_iterate(args);
 		while (list_has_next(args))
@@ -658,7 +664,7 @@ static void show_help(LIST args, LIST notes, LIST extra)
 	}
 	if (notes)
 	{
-		cli_fprintf(stderr, "\n");
+		cli_eprintf("\n");
 		format_section(_("Notes"));
 		list_iterate(notes);
 		while (list_has_next(notes))
@@ -671,7 +677,7 @@ static void show_help(LIST args, LIST notes, LIST extra)
 
 static void show_licence(void)
 {
-	cli_fprintf(stderr, _(TEXT_LICENCE));
+	cli_eprintf(_(TEXT_LICENCE));
 	while (version_is_checking)
 		sleep(1);
 	exit(EXIT_SUCCESS);
@@ -681,7 +687,7 @@ extern void update_config(const char * const restrict o, const char * const rest
 {
 	if (!init)
 	{
-		cli_fprintf(stderr, _("Call config_init() first\n"));
+		cli_eprintf(_("Call config_init() first\n"));
 		return;
 	}
 	char *rc = NULL;
