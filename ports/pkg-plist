@@ -5,6 +5,7 @@ share/bash-completion/completions/encrypt
 share/zsh/functions/Completion/Unix/_encrypt
 share/pixmaps/encrypt.svg
 share/pixmaps/encrypt_button.svg
+share/pixmaps/encrypt_key.png
 share/applications/encrypt.desktop
 share/Thunar/sendto/encrypt.desktop
 man/man1/encrypt.1a.gz
