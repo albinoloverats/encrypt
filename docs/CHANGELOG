@@ -12,8 +12,17 @@ Planned Future Enhancements
 * Android : Support for file (hard/soft) links (depends on full NIO)
 * All : Bug fixes as necessary ;-)
 
+encrypt - 2022.01                                      25th January 2022
 
-encrypt - 2020.01                                        1ﬆ January 2020
+* Update/Fix file handling on OS X
+* Update file handling on Android
+* Update debugging information and improve error handling (all desktop)
+* Compile against latest version of dependencies (particularly libgcrypt
+  and gnu-crypto)
+* Add self-test routine (desktop CLI)
+
+
+encrypt - 2020.01                                       1st January 2020
 -----------------
 
 * Configurable key derivation function iterations

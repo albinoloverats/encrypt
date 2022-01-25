@@ -1,4 +1,4 @@
-encrypt - 2022.01                                        -- January 2022
+encrypt - 2022.01                                      25th January 2022
 =================
 
 
@@ -40,12 +40,12 @@ Followed by:
 Changelog
 ---------
 
-* Configurable key derivation function iterations
-* Various bug fixes
-  - MAC calculation (desktop)
-  - Non-directory handling during decryption (desktop)
-* Updates to use latest versions of dependencies (esp Android)
-* Packaged for Solaris
+* Update/Fix file handling on OS X
+* Update file handling on Android
+* Update debugging information and improve error handling (all desktop)
+* Compile against latest version of dependencies (particularly libgcrypt
+  and gnu-crypto)
+* Add self-test routine (desktop CLI)
 
 
 Status
