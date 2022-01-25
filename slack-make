@@ -12,4 +12,4 @@ mkdir ${pkgdir}/install
 cp slack-desc ${pkgdir}/install
 
 cd  ${pkgdir}
-makepkg -l y -c n ../${app}-${version}-x86_64-1aa.tgz
+/sbin/makepkg -l y -c n ../${app}-${version}-x86_64-1aa.tgz
