@@ -43,5 +43,6 @@ rm -rf %{buildroot}
 /usr/share/man/man1/encrypt.1a.gz
 /usr/share/pixmaps/encrypt.svg
 /usr/share/pixmaps/encrypt_button.svg
+/usr/share/pixmaps/encrypt_key.png
 /usr/share/bash-completion/completions/encrypt
 /usr/share/zsh/functions/Completion/Unix/_encrypt
