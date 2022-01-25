@@ -71,60 +71,60 @@ man:
 
 install:
 # install the main executable, also link decrypt
-	 @install -c -m 755   ${APP}   ${STAGEDIR}/${PREFIX}/bin/
-	-@echo -e "installed ‘${APP}’ ‘${STAGEDIR}/${PREFIX}/bin/${APP}’"
-	 @ln -f ${STAGEDIR}/${PREFIX}/bin/${APP}   ${STAGEDIR}/${PREFIX}/bin/${ALT}
+	 @install -c -m 755   ${APP}   ${STAGEDIR}/${DESTDIR}/bin/
+	-@echo -e "installed ‘${APP}’ ‘${STAGEDIR}/${DESTDIR}/bin/${APP}’"
+	 @ln -f ${STAGEDIR}/${DESTDIR}/bin/${APP}   ${STAGEDIR}/${DESTDIR}/bin/${ALT}
 	-@echo -e "linked ‘${ALT}’ →  ‘${APP}’"
 # install the pixmaps
-	 @mkdir -p ${STAGEDIR}/${PREFIX}/share/pixmaps/
-	 @install -c -m 644   pixmaps/encrypt.svg          ${STAGEDIR}/${PREFIX}/share/pixmaps/
-	-@echo -e "installed ‘pixmaps/encrypt.svg’ →      ‘${STAGEDIR}/${PREFIX}/share/pixmaps/encrypt.svg’"
-	 @install -c -m 644   pixmaps/encrypt_button.svg   ${STAGEDIR}/${PREFIX}/share/pixmaps/
-	-@echo -e "installed ‘pixmaps/encrypt_button.svg’ ‘${STAGEDIR}/${PREFIX}/share/pixmaps/encrypt_button.svg’"
+	 @mkdir -p ${STAGEDIR}/${DESTDIR}/share/pixmaps/
+	 @install -c -m 644   pixmaps/encrypt.svg          ${STAGEDIR}/${DESTDIR}/share/pixmaps/
+	-@echo -e "installed ‘pixmaps/encrypt.svg’ →      ‘${STAGEDIR}/${DESTDIR}/share/pixmaps/encrypt.svg’"
+	 @install -c -m 644   pixmaps/encrypt_button.svg   ${STAGEDIR}/${DESTDIR}/share/pixmaps/
+	-@echo -e "installed ‘pixmaps/encrypt_button.svg’ ‘${STAGEDIR}/${DESTDIR}/share/pixmaps/encrypt_button.svg’"
 # next encrypt.glade
-	 @mkdir -pv ${STAGEDIR}/${PREFIX}/share/encrypt/
-	 @install -c -m 644   etc/encrypt.glade   ${STAGEDIR}/${PREFIX}/share/encrypt/
-	-@echo -e "installed ‘etc/encrypt.glade’ ‘${STAGEDIR}/${PREFIX}/share/encrypt/encrypt.glade’"
+	 @mkdir -pv ${STAGEDIR}/${DESTDIR}/share/encrypt/
+	 @install -c -m 644   etc/encrypt.glade   ${STAGEDIR}/${DESTDIR}/share/encrypt/
+	-@echo -e "installed ‘etc/encrypt.glade’ ‘${STAGEDIR}/${DESTDIR}/share/encrypt/encrypt.glade’"
 # and an example rc file
-	 @install -c -m 644   etc/encryptrc   ${STAGEDIR}/${PREFIX}/share/encrypt/
-	-@echo -e "installed ‘etc/encryptrc’ ‘${STAGEDIR}/${PREFIX}/share/encrypt/encryptrc’"
+	 @install -c -m 644   etc/encryptrc   ${STAGEDIR}/${DESTDIR}/share/encrypt/
+	-@echo -e "installed ‘etc/encryptrc’ ‘${STAGEDIR}/${DESTDIR}/share/encrypt/encryptrc’"
 # ditto, but this time for the man page
-	 @install -c -m 644   encrypt.1a.gz   ${STAGEDIR}/${PREFIX}/man/man1/
-	-@echo -e "installed ‘encrypt.1a.gz’ '${STAGEDIR}/${PREFIX}/man/man1/encrypt.1a.gz’"
+	 @install -c -m 644   encrypt.1a.gz   ${STAGEDIR}/${DESTDIR}/man/man1/
+	-@echo -e "installed ‘encrypt.1a.gz’ '${STAGEDIR}/${DESTDIR}/man/man1/encrypt.1a.gz’"
 # and then the desktop files
-	 @mkdir -p ${STAGEDIR}/${PREFIX}/share/applications/
-	 @install -c -m 644   etc/encrypt.desktop         ${STAGEDIR}/${PREFIX}/share/applications/
-	-@echo -e "installed ‘etc/encrypt.desktop’ →     ‘${STAGEDIR}/${PREFIX}/share/applications/encrypt.desktop’"
-	 @mkdir -p ${STAGEDIR}/${PREFIX}/share/Thunar/sendto/
-	 @install -c -m 644   etc/thunar-sendto.desktop   ${STAGEDIR}/${PREFIX}/share/Thunar/sendto/
-	 @mv ${STAGEDIR}/${PREFIX}/share/Thunar/sendto/thunar-sendto.desktop ${STAGEDIR}/${PREFIX}/share/Thunar/sendto/encrypt.desktop
-	-@echo -e "installed ‘etc/thunar-sendto.desktop’ ‘${STAGEDIR}/${PREFIX}/share/Thunar/sendto/encrypt.desktop’"
+	 @mkdir -p ${STAGEDIR}/${DESTDIR}/share/applications/
+	 @install -c -m 644   etc/encrypt.desktop         ${STAGEDIR}/${DESTDIR}/share/applications/
+	-@echo -e "installed ‘etc/encrypt.desktop’ →     ‘${STAGEDIR}/${DESTDIR}/share/applications/encrypt.desktop’"
+	 @mkdir -p ${STAGEDIR}/${DESTDIR}/share/Thunar/sendto/
+	 @install -c -m 644   etc/thunar-sendto.desktop   ${STAGEDIR}/${DESTDIR}/share/Thunar/sendto/
+	 @mv ${STAGEDIR}/${DESTDIR}/share/Thunar/sendto/thunar-sendto.desktop ${STAGEDIR}/${DESTDIR}/share/Thunar/sendto/encrypt.desktop
+	-@echo -e "installed ‘etc/thunar-sendto.desktop’ ‘${STAGEDIR}/${DESTDIR}/share/Thunar/sendto/encrypt.desktop’"
 # and the (example) magic pattern (if all else fails, copy to ~/.magic)
 # TODO on Fedora concat to /share/misc/magic and then recompile
-	 @install -c -m 644   etc/magic   ${STAGEDIR}/${PREFIX}/share/encrypt/
-	-@echo -e "installed ‘etc/magic’ ‘${STAGEDIR}/${PREFIX}/share/encrypt/magic’"
+	 @install -c -m 644   etc/magic   ${STAGEDIR}/${DESTDIR}/share/encrypt/
+	-@echo -e "installed ‘etc/magic’ ‘${STAGEDIR}/${DESTDIR}/share/encrypt/magic’"
 # and finally the auto-complete scripts
 	 @mkdir etc/autocomplete
 	 @cp etc/autocomplete.bash etc/autocomplete/encrypt
 	 @cp etc/autocomplete.zsh etc/autocomplete/_encrypt
-	 @mkdir -p ${STAGEDIR}/${PREFIX}/share/bash-completion/completions/
-	 @mkdir -p ${STAGEDIR}/${PREFIX}/share/zsh/functions/Completion/Unix/
-	 @install -c -m 755   etc/autocomplete/encrypt  ${STAGEDIR}/${PREFIX}/share/bash-completion/completions/
-	-@echo -e "installed ‘etc/autocomplete.bash’   ‘${STAGEDIR}/${PREFIX}/share/bash-completion/completions/encrypt’"
-	 @install -c -m 755   etc/autocomplete/_encrypt ${STAGEDIR}/${PREFIX}/share/zsh/functions/Completion/Unix/
-	-@echo -e "installed ‘etc/autocomplete.zsh’   →‘${STAGEDIR}/${PREFIX}/share/zsh/functions/Completion/Unix/_encrypt’"
+	 @mkdir -p ${STAGEDIR}/${DESTDIR}/share/bash-completion/completions/
+	 @mkdir -p ${STAGEDIR}/${DESTDIR}/share/zsh/functions/Completion/Unix/
+	 @install -c -m 755   etc/autocomplete/encrypt  ${STAGEDIR}/${DESTDIR}/share/bash-completion/completions/
+	-@echo -e "installed ‘etc/autocomplete.bash’   ‘${STAGEDIR}/${DESTDIR}/share/bash-completion/completions/encrypt’"
+	 @install -c -m 755   etc/autocomplete/_encrypt ${STAGEDIR}/${DESTDIR}/share/zsh/functions/Completion/Unix/
+	-@echo -e "installed ‘etc/autocomplete.zsh’   →‘${STAGEDIR}/${DESTDIR}/share/zsh/functions/Completion/Unix/_encrypt’"
 
 uninstall:
-	 @rm -fvr ${STAGEDIR}/${PREFIX}/share/encrypt
-	 @rm -fv ${STAGEDIR}/${PREFIX}/share/bash-completion/completions/encrypt
-	 @rm -fv ${STAGEDIR}/${PREFIX}/share/zsh/functions/Completion/Unix/_encrypt
-	 @rm -fv ${STAGEDIR}/${PREFIX}/share/pixmaps/encrypt.svg
-	 @rm -fv ${STAGEDIR}/${PREFIX}/share/pixmaps/encrypt_button.svg
-	 @rm -fv ${STAGEDIR}/${PREFIX}/man/man1/encrypt.1a.gz
-	 @rm -fv ${STAGEDIR}/${PREFIX}/share/applications/encrypt.desktop
-	 @rm -fv ${STAGEDIR}/${PREFIX}/share/Thunar/sendto/encrypt.desktop
-	 @rm -fv ${STAGEDIR}/${PREFIX}/bin/${ALT}
-	 @rm -fv ${STAGEDIR}/${PREFIX}/bin/${APP}
+	 @rm -fvr ${STAGEDIR}/${DESTDIR}/share/encrypt
+	 @rm -fv ${STAGEDIR}/${DESTDIR}/share/bash-completion/completions/encrypt
+	 @rm -fv ${STAGEDIR}/${DESTDIR}/share/zsh/functions/Completion/Unix/_encrypt
+	 @rm -fv ${STAGEDIR}/${DESTDIR}/share/pixmaps/encrypt.svg
+	 @rm -fv ${STAGEDIR}/${DESTDIR}/share/pixmaps/encrypt_button.svg
+	 @rm -fv ${STAGEDIR}/${DESTDIR}/man/man1/encrypt.1a.gz
+	 @rm -fv ${STAGEDIR}/${DESTDIR}/share/applications/encrypt.desktop
+	 @rm -fv ${STAGEDIR}/${DESTDIR}/share/Thunar/sendto/encrypt.desktop
+	 @rm -fv ${STAGEDIR}/${DESTDIR}/bin/${ALT}
+	 @rm -fv ${STAGEDIR}/${DESTDIR}/bin/${APP}
 
 clean:
 	 @rm -fv ${MISC}

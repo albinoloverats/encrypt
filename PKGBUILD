@@ -24,5 +24,5 @@ build() {
 package() {
   cd ${startdir}
   mkdir -p ${pkgdir}/usr/{bin,share/{encrypt,applications,man/man1,pixmaps,bash-completion/completions,zsh/functions/Completion/Unix}}
-  make -f Makefile install PREFIX=${pkgdir}
+  make -f Makefile install DESTDIR=${pkgdir}
 }

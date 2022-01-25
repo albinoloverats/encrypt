@@ -26,7 +26,7 @@ make -f Makefile all OS_OPTS=-DFEDORA_PATH_HACK
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/{bin,share/{encrypt,applications,man/man1,pixmaps,bash-completion/completions,zsh/functions/Completion/Unix}}
-make install PREFIX=%{buildroot}
+make install DESTDIR=%{buildroot}
 
 %clean
 rm -rf %{buildroot}
