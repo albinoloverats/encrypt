@@ -12,6 +12,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-DEPEND="gtk3"
+DEPEND="x11-libs/gtk+ dev-libs/libgcryp net-misc/curl app-arch/xz-utils"
 RDEPEND="${DEPEND}"
 BDEPEND=""
+
