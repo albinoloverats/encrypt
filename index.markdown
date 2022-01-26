@@ -49,7 +49,7 @@ below (as well as at [Sourceforge]):
 |[FreeBSD]|[txz][bp]|[Signature][bg]|_See above_|
 |[Solaris]|[pkg][sp]|[Signature][sg]|_See above_|
 |[Windows]|[exe][wp]|[Signature][wg]|[GTK+3 / Windows][ws]|
-|[OS X]|[dmg¹][xp]|[Signature][xg]|[Native OS X][xs]|
+|[OS X]|[pkg¹][xp]|[Signature][xg]|[Native OS X][xs]|
 |[Android]|[Paid][mp]/[Free][gp]|[Signature (Free)][gg]|[Nougat][ms]|
 |Source Code|[src][rp]|[Signature][rg]|_See above_|
 
@@ -60,10 +60,9 @@ A demo of using the CLI can be found over on
 found within the [pixmaps](/src/encrypt/pixmaps/screencast_linux.mp4)
 directory as well as on [YouTube](https://youtu.be/4au0MWCjIzI).
 
-¹ At the moment, the OS X app isn't signed by Apple and as such is
-likely to be quarantined when first run; to overcome this (for now) you
-will need to open a terminal and remove any extended attributes with the
-following: ```xattr -cr Encrypt.app```
+¹ At the moment, the OS X app isn't signed by Apple and as such you will
+be presented with a warning about encrypt being untrusted. This can be
+overridden in the security settings.
 
 [GTK]: http://www.gtk.org
 [libgcrypt]: http://www.gnu.org/software/libgcrypt/
@@ -109,8 +108,8 @@ following: ```xattr -cr Encrypt.app```
 [gg]: /downloads/encrypt/2022.01/encrypt-2022.01-free.apk.asc
 
 [OS X]: https://www.apple.com
-[xp]: /downloads/encrypt/2022.01/encrypt-2022.01.dmg
-[xg]: /downloads/encrypt/2022.01/encrypt-2022.01.dmg.asc
+[xp]: /downloads/encrypt/2022.01/encrypt-2022.01-install.pkg
+[xg]: /downloads/encrypt/2022.01/encrypt-2022.01-install.pkg.asc
 [xs]: /src/encrypt/pixmaps/screenshot_macosx_idle.png
 
 [rp]: /downloads/encrypt/2022.01/encrypt-2022.01.tar.xz
