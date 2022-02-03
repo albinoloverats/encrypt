@@ -32,7 +32,7 @@ typedef struct _list_t
 }
 list_t;
 
-typedef struct list_t
+typedef struct
 {
 	list_t *head;
 	list_t *next;
@@ -43,6 +43,13 @@ typedef struct list_t
 	bool sorted;
 }
 list_private_t;
+
+typedef struct
+{
+	list_private_t *list; // this might not be necessary
+	list_t *next;
+}
+iterator_t;
 
 extern LIST list_init(int comparison_fn_t(const void *, const void *), bool dupes, bool sorted)
 {
@@ -298,31 +305,42 @@ extern const void *list_remove_index(LIST ptr, size_t i)
 	return data;
 }
 
-extern void list_iterate(LIST ptr)
+extern ITER list_iterator(LIST ptr)
 {
 	list_private_t *list_ptr = (list_private_t *)ptr;
 	if (!list_ptr)
-		return;
-	list_ptr->next = list_ptr->head;
-	return;
+		return NULL;
+	iterator_t *iter = malloc(sizeof (iterator_t));
+	iter->list = list_ptr;
+	iter->next = list_ptr->head;
+	return iter;
 }
 
 extern const void *list_get_next(LIST ptr)
 {
-	list_private_t *list_ptr = (list_private_t *)ptr;
-	if (!list_ptr)
+	iterator_t *iter_ptr = (iterator_t *)ptr;
+	if (!iter_ptr)
 		return NULL;
-	list_t *next = list_ptr->next;
+	list_t *next = iter_ptr->next;
 	if (!next)
 		return NULL;
-	list_ptr->next = next->next;
+	iter_ptr->next = next->next;
 	return next->data;
 }
 
 extern bool list_has_next(LIST ptr)
 {
+	iterator_t *iter_ptr = (iterator_t *)ptr;
+	if (!iter_ptr)
+		return false;
+	return iter_ptr->next;
+}
+
+extern void list_add_comparator(LIST ptr, int c(const void *, const void *))
+{
 	list_private_t *list_ptr = (list_private_t *)ptr;
 	if (!list_ptr)
-		return false;
-	return list_ptr->next;
+		return;
+	list_ptr->compare = c;
+	return;
 }

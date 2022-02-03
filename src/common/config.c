@@ -125,10 +125,10 @@ extern int config_parse_aux(int argc, char **argv, LIST args, LIST extra, LIST n
 					goto end_line;
 
 				// TODO handle unknown config file settings
-				list_iterate(args);
-				while (list_has_next(args))
+				ITER iter = list_iterator(args);
+				while (list_has_next(iter))
 				{
-					config_arg_t *arg = (config_arg_t *)list_get_next(args);
+					config_arg_t *arg = (config_arg_t *)list_get_next(iter);
 					if (arg->long_option && !strncmp(arg->long_option, line, strlen(arg->long_option)) && isspace((unsigned char)line[strlen(arg->long_option)]))
 						switch (arg->response_type)
 						{
@@ -179,23 +179,19 @@ extern int config_parse_aux(int argc, char **argv, LIST args, LIST extra, LIST n
 								break;
 
 							case CONFIG_ARG_LIST_STRING:
-								arg->response_value.list.count++;
-								arg->response_value.list.items = realloc(arg->response_value.list.items, arg->response_value.list.count * sizeof (config_list_u));
-								arg->response_value.list.items[arg->response_value.list.count - 1].string = parse_config_string(arg->long_option, line, NULL);
+								if (!arg->response_value.list)
+									arg->response_value.list = list_default();
+								list_append(arg->response_value.list, parse_config_string(arg->long_option, line, NULL));
 								break;
 
 							case CONFIG_ARG_LIST_PAIR_STRING:
-								{
-									arg->response_value.list.count++;
-									arg->response_value.list.items = realloc(arg->response_value.list.items, arg->response_value.list.count * sizeof (config_list_u));
-									config_pair_string_t *pair = parse_config_pair_string(arg->long_option, line);
-									arg->response_value.list.items[arg->response_value.list.count - 1].pair.string.s1 = pair->s1;
-									arg->response_value.list.items[arg->response_value.list.count - 1].pair.string.s2 = pair->s2;
-									free(pair);
-								}
+								if (!arg->response_value.list)
+									arg->response_value.list = list_default();
+								list_append(arg->response_value.list, parse_config_pair_string(arg->long_option, line));
 								break;
 						}
 				}
+				free(iter);
 end_line:
 				free(line);
 				line = NULL;
@@ -280,10 +276,10 @@ end_line:
 				config_show_usage(args, extra);
 			else
 			{
-				list_iterate(args);
-				while (list_has_next(args))
+				ITER iter = list_iterator(args);
+				while (list_has_next(iter))
 				{
-					config_arg_t *arg = (config_arg_t *)list_get_next(args);
+					config_arg_t *arg = (config_arg_t *)list_get_next(iter);
 					if (c == arg->short_option)
 					{
 						unknown = false;
@@ -315,23 +311,21 @@ end_line:
 							/* TODO extend handling of lists and pairs and list of pairs... */
 
 							case CONFIG_ARG_LIST_STRING:
-								arg->response_value.list.count++;
-								arg->response_value.list.items = realloc(arg->response_value.list.items, arg->response_value.list.count * sizeof (config_list_u));
+
+								if (!arg->response_value.list)
+									arg->response_value.list = list_default();
+
 								if (strchr(optarg, ','))
 								{
 									char *s = strdup(optarg);
-									arg->response_value.list.items[arg->response_value.list.count - 1].string = strdup(strtok(s, ","));
+									list_append(arg->response_value.list, strdup(strtok(s, ",")));
 									char *t = NULL;
 									while ((t = strtok(NULL, ",")))
-									{
-										arg->response_value.list.count++;
-										arg->response_value.list.items = realloc(arg->response_value.list.items, arg->response_value.list.count * sizeof (config_list_u));
-										arg->response_value.list.items[arg->response_value.list.count - 1].string = strdup(t);
-									}
+										list_append(arg->response_value.list, strdup(t));
 									free(s);
 								}
 								else
-									arg->response_value.list.items[arg->response_value.list.count - 1].string = strdup(optarg);
+									list_append(arg->response_value.list, strdup(optarg));
 								break;
 
 							default:
@@ -340,6 +334,7 @@ end_line:
 						}
 					}
 				}
+				free(iter);
 			}
 			if (unknown && warn)
 				config_show_usage(args, extra);
@@ -350,10 +345,10 @@ end_line:
 	int r = 0;
 	if (extra)
 	{
-		list_iterate(extra);
-		for (int i = 0; list_has_next(extra) && optind < argc; i++, optind++)
+		ITER iter = list_iterator(extra);
+		for (int i = 0; list_has_next(iter) && optind < argc; i++, optind++)
 		{
-			config_extra_t *x = (config_extra_t *)list_get_next(extra);
+			config_extra_t *x = (config_extra_t *)list_get_next(iter);
 			x->seen = true;
 			switch (x->response_type)
 			{
@@ -372,10 +367,12 @@ end_line:
 					break;
 			}
 		}
+		free(iter);
 		r = argc - optind;
-		for (size_t i = 0; i < list_size(extra); i++)
+		iter = list_iterator(extra);
+		while (list_has_next(iter))
 		{
-			const config_extra_t *x = list_get(extra, i);
+			const config_extra_t *x = (config_extra_t *)list_get_next(iter);
 			if (x->required && !x->seen && warn)
 			{
 				cli_eprintf("Missing required argument \"%s\"\n", x->description);
@@ -417,10 +414,10 @@ inline static void print_usage(LIST args, LIST extra)
 	int j = cli_eprintf("  " ANSI_COLOUR_GREEN "%s", about.name) - strlen(ANSI_COLOUR_GREEN) - 2;
 	if (extra)
 	{
-		list_iterate(extra);
-		while (list_has_next(extra))
+		ITER iter = list_iterator(extra);
+		while (list_has_next(iter))
 		{
-			const config_extra_t *x = (config_extra_t *)list_get_next(extra);
+			const config_extra_t *x = (config_extra_t *)list_get_next(iter);
 			if (x->required)
 				j += cli_eprintf(ANSI_COLOUR_RED " <%s>" ANSI_COLOUR_RESET, x->description);
 			else
@@ -428,13 +425,14 @@ inline static void print_usage(LIST args, LIST extra)
 		}
 		if (isatty(STDERR_FILENO))
 			j -= (strlen(ANSI_COLOUR_RESET) + strlen(ANSI_COLOUR_WHITE));
+		free(iter);
 	}
 	if (args)
 	{
-		list_iterate(args);
-		while (list_has_next(args))
+		ITER iter = list_iterator(args);
+		while (list_has_next(iter))
 		{
-			const config_arg_t *arg = list_get_next(args);
+			const config_arg_t *arg = list_get_next(iter);
 			if (!arg->hidden)
 			{
 				if ((int)(j + 4 + (arg->option_type ? strlen(arg->option_type) : 0)) > max_width)
@@ -450,6 +448,7 @@ inline static void print_usage(LIST args, LIST extra)
 					j -= (strlen(ANSI_COLOUR_RESET) + strlen(ANSI_COLOUR_WHITE));
 			}
 		}
+		free(iter);
 	}
 	cli_eprintf(ANSI_COLOUR_RESET "\n");
 	return;
@@ -626,10 +625,10 @@ static void show_help(LIST args, LIST notes, LIST extra)
 
 	int indent = 10;
 	bool has_advanced = false;
-	list_iterate(args);
-	while (list_has_next(args))
+	ITER iter = list_iterator(args);
+	while (list_has_next(iter))
 	{
-		const config_arg_t *arg = list_get_next(args);
+		const config_arg_t *arg = list_get_next(iter);
 		int w = 10 + (arg->long_option ? strlen(arg->long_option) : 0);
 		if (arg->option_type)
 			w += 3 + strlen(arg->option_type);
@@ -637,38 +636,42 @@ static void show_help(LIST args, LIST notes, LIST extra)
 		if (arg->advanced && !arg->hidden)
 			has_advanced = true;
 	}
+	free(iter);
 
 	cli_eprintf("\n");
 	format_section(_("Options"));
 	print_option(indent, 'h', "help",    NULL, false, "Display this message");
 	print_option(indent, 'l', "licence", NULL, false, "Display GNU GPL v3 licence header");
 	print_option(indent, 'v', "version", NULL, false, "Display application version");
-	list_iterate(args);
-	while (list_has_next(args))
+	iter = list_iterator(args);
+	while (list_has_next(iter))
 	{
-		const config_arg_t *arg = list_get_next(args);
+		const config_arg_t *arg = list_get_next(iter);
 		if (!arg->hidden && !arg->advanced)
 			print_option(indent, arg->short_option, arg->long_option, arg->option_type ? : NULL, arg->response_type & CONFIG_ARG_REQUIRED, arg->description);
 	}
+	free(iter);
 	if (has_advanced)
 	{
 		cli_eprintf("\n");
 		format_section(_("Advanced Options"));
-		list_iterate(args);
-		while (list_has_next(args))
+		iter = list_iterator(args);
+		while (list_has_next(iter))
 		{
-			const config_arg_t *arg = list_get_next(args);
+			const config_arg_t *arg = list_get_next(iter);
 			if (!arg->hidden && arg->advanced)
 				print_option(indent, arg->short_option, arg->long_option, arg->option_type ? : NULL, arg->response_type & CONFIG_ARG_REQUIRED, arg->description);
 		}
+		free(iter);
 	}
 	if (notes)
 	{
 		cli_eprintf("\n");
 		format_section(_("Notes"));
-		list_iterate(notes);
-		while (list_has_next(notes))
-			print_notes(list_get_next(notes));
+		iter = list_iterator(notes);
+		while (list_has_next(iter))
+			print_notes(list_get_next(iter));
+		free(iter);
 	}
 	while (version_is_checking)
 		sleep(1);

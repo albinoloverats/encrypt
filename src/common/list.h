@@ -37,6 +37,7 @@
 
 typedef void * LIST; /*!< The user visible LIST type */
 
+typedef void * ITER;
 
 #if 0
 #define LIST_INIT_ARGS_COUNT(...) LIST_INIT_ARGS_COUNT2(__VA_ARGS__, 2, 1) /*!< Function overloading argument count (part 1) */
@@ -181,29 +182,39 @@ extern const void *list_get(LIST h, size_t i) __attribute__((nonnull(1)));
 /*!
  * \brief         Set the list up for iterating
  * \param[in]  h  A pointer to the list
+ * \return        An iterator for the list
  *
- * Set the list up to be iterated over; returns the iterator to the
- * beginning on subsequent calls.
+ * Set the list up to be iterated over. The iterator should be freed
+ * after use.
  */
-extern void list_iterate(LIST h) __attribute__((nonnull(1)));
+extern ITER list_iterator(LIST h) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Get the next item in the list
- * \param[in]  h  A pointer to the list
+ * \param[in]  h  A pointer to the iterator
  * \return        The next item in the list
  *
  * Allow iterating through the list, this returns the next item.
  */
-extern const void *list_get_next(LIST h) __attribute__((nonnull(1)));
+extern const void *list_get_next(ITER h) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Indicates if there is another item in the list
- * \param[in]  h  A pointer to the list
+ * \param[in]  h  A pointer to the iterator
  * \return        Returns true if there is another item
  *
  * Allow iterating through the list, this returns whether there is
  * another item.
  */
-extern bool list_has_next(LIST h) __attribute__((nonnull(1)));
+extern bool list_has_next(ITER h) __attribute__((nonnull(1)));
+
+/*!
+ * \brief         Add comparator to the list
+ * \param[in]  h  A pointer to the list
+ * \param[in]  c  The comparator to add
+ *
+ * Add a comparator to the list so that items can be compared.
+ */
+extern void list_add_comparator(LIST h, int c(const void *, const void *)) __attribute__((nonnull(1, 2)));
 
 #endif

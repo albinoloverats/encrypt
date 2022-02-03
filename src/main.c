@@ -514,36 +514,36 @@ clean_up:
 static bool list_ciphers(void)
 {
 	LIST l = list_of_ciphers();
-	list_iterate(l);
-	while (list_has_next(l))
-		cli_eprintf("%s\n", (char *)list_get_next(l));
+	ITER i = list_iterator(l);
+	while (list_has_next(i))
+		cli_eprintf("%s\n", (char *)list_get_next(i));
 	return true;
 }
 
 static bool list_hashes(void)
 {
 	LIST l = list_of_hashes();
-	list_iterate(l);
-	while (list_has_next(l))
-		cli_eprintf("%s\n", (char *)list_get_next(l));
+	ITER i = list_iterator(l);
+	while (list_has_next(i))
+		cli_eprintf("%s\n", (char *)list_get_next(i));
 	return true;
 }
 
 static bool list_modes(void)
 {
 	LIST l = list_of_modes();
-	list_iterate(l);
-	while (list_has_next(l))
-		cli_eprintf("%s\n", (char *)list_get_next(l));
+	ITER i = list_iterator(l);
+	while (list_has_next(i))
+		cli_eprintf("%s\n", (char *)list_get_next(i));
 	return true;
 }
 
 static bool list_macs(void)
 {
 	LIST l = list_of_macs();
-	list_iterate(l);
-	while (list_has_next(l))
-		cli_eprintf("%s\n", (char *)list_get_next(l));
+	ITER i = list_iterator(l);
+	while (list_has_next(i))
+		cli_eprintf("%s\n", (char *)list_get_next(i));
 	return true;
 }
 

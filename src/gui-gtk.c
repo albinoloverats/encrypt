@@ -121,7 +121,6 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 	unsigned slctd_mode = 0;
 	gtk_combo_box_text_remove_all((GtkComboBoxText *)data->mode_combo);
 	gtk_combo_box_text_append_text((GtkComboBoxText *)data->mode_combo, SELECT_MODE);
-	list_iterate(modes);
 	for (unsigned i = 0; i < list_size(modes); i++)
 	{
 		const char *m = list_get(modes, i);
@@ -137,7 +136,6 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 	unsigned slctd_mac = 0;
 	gtk_combo_box_text_remove_all((GtkComboBoxText *)data->mac_combo);
 	gtk_combo_box_text_append_text((GtkComboBoxText *)data->mac_combo, SELECT_MAC);
-	list_iterate(macs);
 	for (unsigned i = 0; i < list_size(macs); i++)
 	{
 		const char *m = list_get(macs, i);

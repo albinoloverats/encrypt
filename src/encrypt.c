@@ -357,10 +357,10 @@ static void *process(void *ptr)
 		c->misc = list_init(comp_links, false, false);
 		encrypt_directory(c, c->path);
 		c->current.display = FINISHING_UP;
-		list_iterate(c->misc);
-		while (list_has_next(c->misc))
+		ITER iter = list_iterator(c->misc);
+		while (list_has_next(iter))
 		{
-			link_count_t *l = (link_count_t *)list_get_next(c->misc);
+			link_count_t *l = (link_count_t *)list_get_next(iter);
 			if (l->path)
 				free(l->path);
 		}

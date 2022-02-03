@@ -105,20 +105,13 @@ typedef union
 }
 config_list_u;
 
-typedef struct
-{
-	size_t count;
-	config_list_u *items;
-}
-config_list_t;
-
 typedef union
 {
 	bool boolean;
 	int64_t number;
 	char *string;
 	config_pair_u pair;
-	config_list_t list;
+	LIST *list;
 }
 config_arg_u;
 
