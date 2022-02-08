@@ -111,28 +111,28 @@ int main(int argc, char **argv)
 	LIST args = list_init(config_arg_comp, false, false);
 #ifdef BUILD_GUI
 	#ifndef _WIN32
-	list_add(args, &((config_arg_t){ 'g', "no-gui",         NULL,            _("Do not use the GUI, even if it’s available"),                                                                            CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false }));
+	list_add(args, &((config_arg_t){ 'g', "no-gui",         NULL,            _("Do not use the GUI, even if it’s available"),                                                                            CONFIG_ARG_REQ_BOOLEAN, { .string=NULL }, false, false, false }));
 	#endif
-	list_add(args, &((config_arg_t){ 0x1, "key-source",     _("key source"), _("Key data source"),                                                                                                       CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, true  }));
-	list_add(args, &((config_arg_t){ 0x2, "compress",       NULL,            _("Compress the plain text using the xz algorithm"),                                                                        CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, true  }));
+	list_add(args, &((config_arg_t){ 0x1, "key-source",     _("key source"), _("Key data source"),                                                                                                       CONFIG_ARG_REQ_STRING,  { .string=NULL }, false, false, true  }));
+	list_add(args, &((config_arg_t){ 0x2, "compress",       NULL,            _("Compress the plain text using the xz algorithm"),                                                                        CONFIG_ARG_REQ_STRING,  { .string=NULL }, false, false, true  }));
 #endif
-	list_add(args, &((config_arg_t){ 'u', "no-cli",         NULL,            _("Do not display the CLI progress bar"),                                                                                   CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false }));
-	list_add(args, &((config_arg_t){ 'c', "cipher",         _("algorithm"),  _("Algorithm to use to encrypt data; use ‘list’ to show available cipher algorithms"),                                      CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false }));
-	list_add(args, &((config_arg_t){ 's', "hash",           _("algorithm"),  _("Hash algorithm to generate key; use ‘list’ to show available hash algorithms"),                                          CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false }));
-	list_add(args, &((config_arg_t){ 'm', "mode",           _("mode"),       _("The encryption mode to use; use ‘list’ to show available cipher modes"),                                                 CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false }));
-	list_add(args, &((config_arg_t){ 'a', "mac",            _("mac"),        _("The MAC algorithm to use; use ‘list’ to show available MACs"),                                                           CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false }));
-	list_add(args, &((config_arg_t){ 'i', "kdf-iterations", _("iterations"), _("Number of iterations the KDF should use"),                                                                               CONFIG_ARG_REQ_NUMBER,  { 0x0 }, false, false, false }));
-	list_add(args, &((config_arg_t){ 'k', "key",            _("key file"),   _("File whose data will be used to generate the key"),                                                                      CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false }));
-	list_add(args, &((config_arg_t){ 'p', "password",       _("password"),   _("Password used to generate the key"),                                                                                     CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false }));
-	list_add(args, &((config_arg_t){ 'x', "no-compress",    NULL,            _("Do not compress the plain text using the xz algorithm"),                                                                 CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false }));
-	list_add(args, &((config_arg_t){ 'f', "follow",         NULL,            _("Follow symlinks, the default is to store the link itself"),                                                              CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false }));
-	list_add(args, &((config_arg_t){ 'b', "back-compat",    _("version"),    _("Create an encrypted file that is backwards compatible"),                                                                 CONFIG_ARG_REQ_STRING,  { 0x0 }, false, true,  false }));
-	list_add(args, &((config_arg_t){ 'r', "raw",            NULL,            _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false  }));
-	list_add(args, &((config_arg_t){ 0x3, "self-test",      NULL,            _("Perform self-test routine"),                                                                                             CONFIG_ARG_BOOLEAN,     { 0x0 }, false, true,  true  }));
+	list_add(args, &((config_arg_t){ 'u', "no-cli",         NULL,            _("Do not display the CLI progress bar"),                                                                                   CONFIG_ARG_REQ_BOOLEAN, { .string=NULL }, false, false, false }));
+	list_add(args, &((config_arg_t){ 'c', "cipher",         _("algorithm"),  _("Algorithm to use to encrypt data; use ‘list’ to show available cipher algorithms"),                                      CONFIG_ARG_REQ_STRING,  { .string=NULL }, false, false, false }));
+	list_add(args, &((config_arg_t){ 's', "hash",           _("algorithm"),  _("Hash algorithm to generate key; use ‘list’ to show available hash algorithms"),                                          CONFIG_ARG_REQ_STRING,  { .string=NULL }, false, false, false }));
+	list_add(args, &((config_arg_t){ 'm', "mode",           _("mode"),       _("The encryption mode to use; use ‘list’ to show available cipher modes"),                                                 CONFIG_ARG_REQ_STRING,  { .string=NULL }, false, false, false }));
+	list_add(args, &((config_arg_t){ 'a', "mac",            _("mac"),        _("The MAC algorithm to use; use ‘list’ to show available MACs"),                                                           CONFIG_ARG_REQ_STRING,  { .string=NULL }, false, false, false }));
+	list_add(args, &((config_arg_t){ 'i', "kdf-iterations", _("iterations"), _("Number of iterations the KDF should use"),                                                                               CONFIG_ARG_REQ_NUMBER,  { .string=NULL }, false, false, false }));
+	list_add(args, &((config_arg_t){ 'k', "key",            _("key file"),   _("File whose data will be used to generate the key"),                                                                      CONFIG_ARG_REQ_STRING,  { .string=NULL }, false, false, false }));
+	list_add(args, &((config_arg_t){ 'p', "password",       _("password"),   _("Password used to generate the key"),                                                                                     CONFIG_ARG_REQ_STRING,  { .string=NULL }, false, false, false }));
+	list_add(args, &((config_arg_t){ 'x', "no-compress",    NULL,            _("Do not compress the plain text using the xz algorithm"),                                                                 CONFIG_ARG_REQ_BOOLEAN, { .string=NULL }, false, false, false }));
+	list_add(args, &((config_arg_t){ 'f', "follow",         NULL,            _("Follow symlinks, the default is to store the link itself"),                                                              CONFIG_ARG_REQ_BOOLEAN, { .string=NULL }, false, false, false }));
+	list_add(args, &((config_arg_t){ 'b', "back-compat",    _("version"),    _("Create an encrypted file that is backwards compatible"),                                                                 CONFIG_ARG_REQ_STRING,  { .string=NULL }, false, true,  false }));
+	list_add(args, &((config_arg_t){ 'r', "raw",            NULL,            _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"), CONFIG_ARG_REQ_BOOLEAN, { .string=NULL }, false, true, false  }));
+	list_add(args, &((config_arg_t){ 0x3, "self-test",      NULL,            _("Perform self-test routine"),                                                                                             CONFIG_ARG_BOOLEAN,     { .string=NULL }, false, true,  true  }));
 
 	LIST extra = list_default();
-	list_add(extra, &((config_extra_t){ "source", CONFIG_ARG_STRING,  { 0x0 }, false, false }));
-	list_add(extra, &((config_extra_t){ "output", CONFIG_ARG_STRING,  { 0x0 }, false, false }));
+	list_add(extra, &((config_extra_t){ "source", CONFIG_ARG_STRING,  { .string=NULL }, false, false }));
+	list_add(extra, &((config_extra_t){ "output", CONFIG_ARG_STRING,  { .string=NULL }, false, false }));
 
 	LIST notes = list_default();
 	list_add(notes, _("If you do not supply a key or password, you will be prompted for one. This will then be used to generate a key to encrypt the data with (using the specified hash and MAC)."));
@@ -168,6 +168,7 @@ int main(int argc, char **argv)
 	else
 #endif
 		about.name = ENCRYPT;
+
 	config_init(about);
 
 	config_parse(argc, argv, args, extra, notes);
