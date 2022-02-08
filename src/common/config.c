@@ -302,7 +302,10 @@ end_line:
 								__attribute__((fallthrough)); /* allow fall-through; argument was seen and has a value */
 							case CONFIG_ARG_REQ_STRING:
 								if (arg->response_value.string)
+{
+fprintf(stderr, "free 8 : %s : [%s] <== [%s]\n", arg->description, arg->response_value.string, optarg);
 									free(arg->response_value.string);
+}
 								arg->response_value.string = strdup(optarg);
 								break;
 							case CONFIG_ARG_OPT_BOOLEAN:

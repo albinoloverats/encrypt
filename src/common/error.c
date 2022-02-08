@@ -79,9 +79,13 @@ extern void on_error(int s)
 	}
 #endif
 
+#ifndef __APPLE__
 	signal(s, SIG_DFL);
 	raise(s);
 	__builtin_unreachable();
+#else
+	exit(errno);
+#endif
 }
 
 extern void error_init(void)

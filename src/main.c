@@ -124,15 +124,20 @@ int main(int argc, char **argv)
 	list_add(args, &((config_arg_t){ 'i', "kdf-iterations", _("iterations"), _("Number of iterations the KDF should use"),                                                                               CONFIG_ARG_REQ_NUMBER,  { 0x0 }, false, false, false }));
 	list_add(args, &((config_arg_t){ 'k', "key",            _("key file"),   _("File whose data will be used to generate the key"),                                                                      CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false }));
 	list_add(args, &((config_arg_t){ 'p', "password",       _("password"),   _("Password used to generate the key"),                                                                                     CONFIG_ARG_REQ_STRING,  { 0x0 }, false, false, false }));
+fprintf(stderr, "[%p]\n", ((config_arg_t *)list_get(args, 7))->response_value.string);
 	list_add(args, &((config_arg_t){ 'x', "no-compress",    NULL,            _("Do not compress the plain text using the xz algorithm"),                                                                 CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false }));
 	list_add(args, &((config_arg_t){ 'f', "follow",         NULL,            _("Follow symlinks, the default is to store the link itself"),                                                              CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, false, false }));
 	list_add(args, &((config_arg_t){ 'b', "back-compat",    _("version"),    _("Create an encrypted file that is backwards compatible"),                                                                 CONFIG_ARG_REQ_STRING,  { 0x0 }, false, true,  false }));
 	list_add(args, &((config_arg_t){ 'r', "raw",            NULL,            _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"), CONFIG_ARG_REQ_BOOLEAN, { 0x0 }, false, true, false  }));
 	list_add(args, &((config_arg_t){ 0x3, "self-test",      NULL,            _("Perform self-test routine"),                                                                                             CONFIG_ARG_BOOLEAN,     { 0x0 }, false, true,  true  }));
 
+fprintf(stderr, "[%p]\n", ((config_arg_t *)list_get(args, 7))->response_value.string);
+
 	LIST extra = list_default();
 	list_add(extra, &((config_extra_t){ "source", CONFIG_ARG_STRING,  { 0x0 }, false, false }));
 	list_add(extra, &((config_extra_t){ "output", CONFIG_ARG_STRING,  { 0x0 }, false, false }));
+
+fprintf(stderr, "[%p]\n", ((config_arg_t *)list_get(args, 7))->response_value.string);
 
 	LIST notes = list_default();
 	list_add(notes, _("If you do not supply a key or password, you will be prompted for one. This will then be used to generate a key to encrypt the data with (using the specified hash and MAC)."));
@@ -141,6 +146,8 @@ int main(int argc, char **argv)
 	list_add(notes, _("When encrypting, -c, -s -m, and -a are required to specify the algorithms you wish to use; when decrypting the algorithms originally used are read from the encrypted file, (although you can omit the algorithm options if you have configured defaults in ~/.encryptrc)."));
 	list_add(notes, _("If you encrypted data using --raw then you will need to pass the algorithms as arguments when decrypting."));
 	list_add(notes, _("You can toggle compression and how symbolic links are handled in the configuration file ~/.encryptrc"));
+
+fprintf(stderr, "[%p]\n", ((config_arg_t *)list_get(args, 7))->response_value.string);
 
 #ifndef _WIN32
 	bool dude = false;
@@ -168,7 +175,12 @@ int main(int argc, char **argv)
 	else
 #endif
 		about.name = ENCRYPT;
+
+fprintf(stderr, "[%p]\n", ((config_arg_t *)list_get(args, 7))->response_value.string);
+
 	config_init(about);
+
+fprintf(stderr, "[%p]\n", ((config_arg_t *)list_get(args, 7))->response_value.string);
 
 	config_parse(argc, argv, args, extra, notes);
 
