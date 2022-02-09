@@ -46,7 +46,7 @@ typedef enum
 	CONFIG_ARG_BOOLEAN,
 	CONFIG_ARG_NUMBER,
 	CONFIG_ARG_STRING,
-	// these are for symantic clearity
+	// these are for semantic clarity
 	CONFIG_ARG_OPT_BOOLEAN      = CONFIG_ARG_BOOLEAN,
 	CONFIG_ARG_OPT_NUMBER       = CONFIG_ARG_NUMBER,
 	CONFIG_ARG_OPT_STRING       = CONFIG_ARG_STRING,
@@ -115,27 +115,38 @@ typedef union
 }
 config_arg_u;
 
+/*!
+ * \brief  A named command line parameter.
+ *
+ * A named command line parameter; for instance --help
+ */
 typedef struct
 {
-	char short_option;
-	char *long_option;
-	char *option_type;
-	char *description;
-	config_arg_e response_type;
-	config_arg_u response_value;
-	bool required:1;
-	bool advanced:1;
-	bool hidden:1;
+	char short_option;           /*!< The command line short option */
+	char *long_option;           /*!< The command line long option */
+	char *option_type;           /*!< What the expected parameter should be */
+	char *description;           /*!< A description of the argument */
+	config_arg_e response_type;  /*!< The expected response type */
+	config_arg_u response_value; /*!< The response value */
+	bool required:1;             /*!< Whether this option is required */
+	bool advanced:1;             /*!< Whether this option is considered advanced */
+	bool hidden:1;               /*!< Whether this option should be hidden */
 }
 config_arg_t;
 
+/*!
+ * \brief  An unnamed command line parameter.
+ *
+ * An unnamed command line parameter; for instance when passing a file
+ * name to a program: vim config.c
+ */
 typedef struct
 {
-	char *description;
-	config_arg_e response_type;
-	config_arg_u response_value;
-	bool required:1;
-	bool seen:1;
+	char *description;           /*!< A description of the argument */
+	config_arg_e response_type;  /*!< The expected response type */
+	config_arg_u response_value; /*!< The response value */
+	bool required:1;             /*!< Whether this option is required */
+	bool seen:1;                 /*!< Whether this argument was detected */
 }
 config_extra_t;
 
