@@ -76,6 +76,12 @@ typedef struct
 }
 link_count_t;
 
+static void free_link(void *l)
+{
+	free(((link_count_t *)l)->path);
+	free(l);
+}
+
 extern crypto_t *encrypt_init(const char * const restrict i,
                               const char * const restrict o,
                               const char * const restrict c,
@@ -357,16 +363,7 @@ static void *process(void *ptr)
 		c->misc = list_init(comp_links, false, false);
 		encrypt_directory(c, c->path);
 		c->current.display = FINISHING_UP;
-		ITER iter = list_iterator(c->misc);
-		while (list_has_next(iter))
-		{
-			link_count_t *l = (link_count_t *)list_get_next(iter);
-			if (l->path)
-				free(l->path);
-		}
-		while (list_size(c->misc) > 0)
-			free((link_count_t *)list_remove_index(c->misc, 0));
-		list_deinit(&c->misc);
+		list_deinit(&c->misc, free_link);
 		if (cwd)
 		{
 			chdir(cwd);
