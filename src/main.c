@@ -131,8 +131,8 @@ int main(int argc, char **argv)
 	list_add(args, &((config_arg_t){ 0x3, "self-test",      NULL,            _("Perform self-test routine"),                                                                                             CONFIG_ARG_BOOLEAN,     { .boolean = false }, false, true,  true  }));
 
 	LIST extra = list_default();
-	list_add(extra, &((config_extra_t){ "source", CONFIG_ARG_STRING,  { .string=NULL }, false, false }));
-	list_add(extra, &((config_extra_t){ "output", CONFIG_ARG_STRING,  { .string=NULL }, false, false }));
+	list_add(extra, &((config_extra_t){ "source", CONFIG_ARG_STRING,  { .string = NULL }, false, false }));
+	list_add(extra, &((config_extra_t){ "output", CONFIG_ARG_STRING,  { .string = NULL }, false, false }));
 
 	LIST notes = list_default();
 	list_add(notes, _("If you do not supply a key or password, you will be prompted for one. This will then be used to generate a key to encrypt the data with (using the specified hash and MAC)."));
