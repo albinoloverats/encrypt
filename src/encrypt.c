@@ -499,31 +499,31 @@ static inline void write_metadata(crypto_t *c)
 	{
 		uint64_t i = htonll(c->blocksize);
 		tlv_t t = { TAG_BLOCKED, sizeof i, &i };
-		tlv_append(&tlv, t);
+		tlv_append(tlv, t);
 	}
 	else
 	{
 		c->blocksize = 0;
 		uint64_t i = htonll(c->total.size);
 		tlv_t t = { TAG_SIZE, sizeof i, &i };
-		tlv_append(&tlv, t);
+		tlv_append(tlv, t);
 	}
 	if (c->compressed)
 	{
 		bool b = c->compressed;
 		tlv_t t = { TAG_COMPRESSED, sizeof b, &b };
-		tlv_append(&tlv, t);
+		tlv_append(tlv, t);
 	}
 	if (c->directory)
 	{
 		bool b = c->directory;
 		tlv_t t = { TAG_DIRECTORY, sizeof b, &b };
-		tlv_append(&tlv, t);
+		tlv_append(tlv, t);
 	}
 	if (!c->directory && c->name && c->version >= VERSION_2015_01)
 	{   /* after 2012.11 unknown tags are ignored, and this tag doesn't impact anything */
 		tlv_t t = { TAG_FILENAME, strlen(c->name), c->name };
-		tlv_append(&tlv, t);
+		tlv_append(tlv, t);
 	}
 	uint8_t h = tlv_count(tlv);
 	io_write(c->output, &h, sizeof h);

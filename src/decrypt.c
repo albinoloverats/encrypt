@@ -435,7 +435,7 @@ static bool read_metadata(crypto_t *c)
 		if (!(t.value = gcry_malloc_secure(t.length)))
 			die(_("Out of memory @ %s:%d:%s [%d]"), __FILE__, __LINE__, __func__, t.length);
 		io_read(c->source, t.value, t.length);
-		tlv_append(&tlv, t);
+		tlv_append(tlv, t);
 		gcry_free(t.value);
 	}
 
