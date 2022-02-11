@@ -75,9 +75,9 @@ extern void tlv_deinit(TLV *h) __attribute__((nonnull(1)));
  * \param[in]  h  A pointer to the TLV
  * \param[in]  t  The TLV triple to add
  *
- * Add a new TLV triple to the end of an existing TLV array. Does not
- * (currently) check for duplicates. Potentially modifies the address of
- * the TLV in accordance with the rules of realloc().
+ * Add a new TLV triple to the end of an existing TLV array. It takes a
+ * copy of t (including the value pointer) so remember to free that
+ * yourself. Duplicate tags are ignored.
  */
 extern void tlv_append(TLV h, tlv_t t) __attribute__((nonnull(1)));
 

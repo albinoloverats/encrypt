@@ -131,6 +131,7 @@ typedef struct
 	bool required:1;             /*!< Whether this option is required */
 	bool advanced:1;             /*!< Whether this option is considered advanced */
 	bool hidden:1;               /*!< Whether this option should be hidden */
+	bool seen:1;                 /*!< Whether the argument was detected */
 }
 config_named_t;
 

@@ -429,7 +429,7 @@ int main(int argc, char **argv)
 	else
 		config_show_usage(args, extra);
 
-	list_deinit(args);
+	list_deinit(&args);
 
 	/*
 	 * here we go ...

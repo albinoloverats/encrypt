@@ -33,6 +33,9 @@
 #include "tlv.h"
 #include "list.h"
 
+/*
+ * TODO this could be simplified to just a LIST
+ */
 typedef struct
 {
 	LIST    tags;
@@ -57,7 +60,7 @@ extern void tlv_deinit(TLV *ptr)
 		return;
 	if (tlv_ptr->export)
 		free(tlv_ptr->export);
-	list_deinit(tlv_ptr->tags, tlv_free);
+	list_deinit(&tlv_ptr->tags, tlv_free);
 	free(tlv_ptr);
 	tlv_ptr = NULL;
 	*ptr = NULL;
