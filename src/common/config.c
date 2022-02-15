@@ -365,6 +365,13 @@ end_line:
 	free(long_options);
 
 	int r = 0;
+	ITER iter = list_iterator(args);
+	while (list_has_next(iter))
+	{
+		config_named_t *arg = (config_named_t *)list_get_next(iter);
+		if (arg->seen)
+			r++;
+	}
 	if (extra)
 	{
 		ITER iter = list_iterator(extra);
@@ -372,6 +379,7 @@ end_line:
 		{
 			config_unnamed_t *x = (config_unnamed_t *)list_get_next(iter);
 			x->seen = true;
+			r++;
 			switch (x->response_type)
 			{
 				case CONFIG_ARG_STRING:
@@ -390,7 +398,6 @@ end_line:
 			}
 		}
 		free(iter);
-		r = argc - optind;
 		iter = list_iterator(extra);
 		while (list_has_next(iter))
 		{

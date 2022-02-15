@@ -318,7 +318,7 @@ extern ITER list_iterator(LIST ptr)
 	return iter;
 }
 
-extern const void *list_get_next(LIST ptr)
+extern const void *list_get_next(ITER ptr)
 {
 	iterator_t *iter_ptr = (iterator_t *)ptr;
 	if (!iter_ptr)
@@ -330,7 +330,7 @@ extern const void *list_get_next(LIST ptr)
 	return next->data;
 }
 
-extern bool list_has_next(LIST ptr)
+extern bool list_has_next(ITER ptr)
 {
 	iterator_t *iter_ptr = (iterator_t *)ptr;
 	if (!iter_ptr)
