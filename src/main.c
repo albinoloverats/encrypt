@@ -173,7 +173,7 @@ int main(int argc, char **argv)
 
 	config_parse(argc, argv, args, extra, notes);
 
-	list_deinit(&notes);
+	list_deinit(notes);
 
 	char *source   = ((config_unnamed_t *)list_get(extra, 0))->response_value.string;
 	char *output   = ((config_unnamed_t *)list_get(extra, 1))->response_value.string;
@@ -429,7 +429,7 @@ int main(int argc, char **argv)
 	else
 		config_show_usage(args, extra);
 
-	list_deinit(&args);
+	list_deinit(args);
 
 	/*
 	 * here we go ...
@@ -500,7 +500,7 @@ clean_up:
 	if (((config_unnamed_t *)list_get(extra, 1))->response_value.string)
 		free(((config_unnamed_t *)list_get(extra, 1))->response_value.string);
 
-	list_deinit(&extra);
+	list_deinit(extra);
 
 	if (version_new_available)
 		cli_fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : PROJECT_URL);

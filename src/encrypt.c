@@ -363,7 +363,7 @@ static void *process(void *ptr)
 		c->misc = list_init(comp_links, false, false);
 		encrypt_directory(c, c->path);
 		c->current.display = FINISHING_UP;
-		list_deinit(&c->misc, free_link);
+		list_deinit(c->misc, free_link);
 		if (cwd)
 		{
 			chdir(cwd);
@@ -528,7 +528,7 @@ static inline void write_metadata(crypto_t *c)
 	uint8_t h = tlv_count(tlv);
 	io_write(c->output, &h, sizeof h);
 	io_write(c->output, tlv_export(tlv), tlv_size(tlv));
-	tlv_deinit(&tlv);
+	tlv_deinit(tlv);
 	return;
 }
 

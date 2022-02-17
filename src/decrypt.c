@@ -496,7 +496,7 @@ static bool read_metadata(crypto_t *c)
 		}
 	}
 
-	tlv_deinit(&tlv);
+	tlv_deinit(tlv);
 	return c->status == STATUS_RUNNING;
 }
 
