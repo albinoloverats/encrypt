@@ -43,7 +43,6 @@
 #include "common/error.h"
 #include "common/ccrypt.h"
 #include "common/tlv.h"
-#include "common/fs.h"
 #include "common/dir.h"
 
 #include "crypt.h"
@@ -461,7 +460,7 @@ static bool read_metadata(crypto_t *c)
 		struct stat s;
 		stat(c->path, &s);
 		if ((errno == ENOENT || S_ISDIR(s.st_mode)) && !io_is_initialised(c->output))
-			recursive_mkdir(c->path, S_IRUSR | S_IWUSR | S_IXUSR);
+			dir_mk_recursive(c->path, S_IRUSR | S_IWUSR | S_IXUSR);
 		else
 			c->status = STATUS_FAILED_OUTPUT_MISMATCH;
 	}
@@ -536,7 +535,7 @@ static void decrypt_directory(crypto_t *c, const char *dir)
 		switch (tp)
 		{
 			case FILE_DIRECTORY:
-				recursive_mkdir(fullpath, S_IRUSR | S_IWUSR | S_IXUSR);
+				dir_mk_recursive(fullpath, S_IRUSR | S_IWUSR | S_IXUSR);
 				break;
 			case FILE_SYMLINK:
 			case FILE_LINK:
