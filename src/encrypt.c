@@ -525,9 +525,9 @@ static inline void write_metadata(crypto_t *c)
 		tlv_t t = { TAG_FILENAME, strlen(c->name), c->name };
 		tlv_append(tlv, t);
 	}
-	uint8_t h = tlv_count(tlv);
+	uint8_t h = tlv_size(tlv);
 	io_write(c->output, &h, sizeof h);
-	io_write(c->output, tlv_export(tlv), tlv_size(tlv));
+	io_write(c->output, tlv_export(tlv), tlv_length(tlv));
 	tlv_deinit(tlv);
 	return;
 }

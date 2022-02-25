@@ -83,7 +83,7 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 	list_add(args, &((config_named_t){ 's', "hash",           _("algorithm"),  _("Hash algorithm to generate key; use ‘list’ to show available hash algorithms"),                                          CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, false, false }));
 	list_add(args, &((config_named_t){ 'm', "mode",           _("mode"),       _("The encryption mode to use; use ‘list’ to show available cipher modes"),                                                 CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, false, false }));
 	list_add(args, &((config_named_t){ 'a', "mac",            _("mac"),        _("The MAC algorithm to use; use ‘list’ to show available MACs"),                                                           CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, false, false }));
-	list_add(args, &((config_named_t){ 'i', "kdf-iterations", _("iterations"), _("Number of iterations the KDF should use"),                                                                               CONFIG_ARG_REQ_NUMBER,  { .number  = 0     }, false, false, false, false }));
+	list_add(args, &((config_named_t){ 'i', "kdf-iterations", _("iterations"), _("Number of iterations the KDF should use"),                                                                               CONFIG_ARG_REQ_INTEGER, { .integer = 0     }, false, false, false, false }));
 	list_add(args, &((config_named_t){ 0x1, "key-source",     _("key source"), _("Key data source"),                                                                                                       CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, true,  false }));
 	list_add(args, &((config_named_t){ 0x2, "compress",       NULL,            _("Compress the plain text using the xz algorithm"),                                                                        CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, true,  false }));
 	list_add(args, &((config_named_t){ 'f', "follow",         NULL,            _("Follow symlinks, the default is to store the link itself"),                                                              CONFIG_ARG_REQ_BOOLEAN, { .boolean = false }, false, false, false, false }));
@@ -95,7 +95,7 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 	char *hash   =  ((config_named_t *)list_get(args, 1))->response_value.string;
 	char *mode   =  ((config_named_t *)list_get(args, 2))->response_value.string;
 	char *mac    =  ((config_named_t *)list_get(args, 3))->response_value.string;
-	uint64_t kdf =  ((config_named_t *)list_get(args, 4))->response_value.number;
+	uint64_t kdf =  ((config_named_t *)list_get(args, 4))->response_value.integer;
 
 	char *ks     =  ((config_named_t *)list_get(args, 5))->response_value.string;
 
