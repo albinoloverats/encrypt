@@ -8,7 +8,7 @@ CLI_SRC        = ${COMMON_SRC} src/main.c src/crypt.c src/encrypt.c src/decrypt.
 GUI_SRC        = ${CLI_SRC} src/gui-gtk.c
 MISC           = src/common/misc.h
 
-CLI_CFLAGS     = ${CFLAGS} -Wall -Wextra -std=gnu99 $(shell libgcrypt-config --cflags) -pipe -O2 -Wrestrict -Wformat=2 -Wno-unused-result
+CLI_CFLAGS     = ${CFLAGS} -Wall -Wextra -fanalyzer -std=gnu99 $(shell libgcrypt-config --cflags) -pipe -O2 -Wrestrict -Wformat=2 -Wno-unused-result
 CLI_CPPFLAGS   = ${CPPFLAGS} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DUSE_GCRYPT -DGIT_COMMIT=\"$(shell git log | head -n1 | cut -f2 -d' ')\" -DBUILD_OS=\"$(shell grep PRETTY_NAME /etc/os-release | cut -d= -f2)\"
 GUI_CFLAGS     = ${CLI_CFLAGS} $(shell pkg-config --cflags gtk+-3.0 gmodule-2.0)
 GUI_CPPFLAGS   = ${CLI_CPPFLAGS} -DBUILD_GUI
