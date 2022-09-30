@@ -42,6 +42,7 @@
 
 #include "common.h"
 #include "cli.h"
+#include "error.h"
 #include "dir.h"
 #include "non-gnu.h"
 
@@ -148,6 +149,8 @@ extern double cli_calc_bps(cli_bps_t *bps)
 {
 	cli_init();
 	cli_bps_t *copy = calloc(BPS, sizeof( cli_bps_t ));
+	if (!copy)
+		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, BPS * sizeof( cli_bps_t ));
 	for (int i = 0; i < BPS; i++)
 	{
 		copy[i].time = bps[i].time;
@@ -320,6 +323,8 @@ static int cli_print(FILE *stream, char *text)
 {
 	size_t l = strlen(text);
 	char *copy = calloc(1, l + 1);
+	if (!copy)
+		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, l + 1);
 #ifndef _WIN32
 	bool strip = !((stream == stdout && isatty(STDOUT_FILENO)) || (stream == stderr && isatty(STDERR_FILENO)));
 #else
@@ -355,7 +360,7 @@ extern void on_quit(int s)
 	fprintf(stderr, "\e[?25h\n"); /* restore cursor */
 	signal(s, SIG_DFL);
 	raise(s);
-	exit(EXIT_FAILURE); // this shouldn't happen as the raise above will handle things
+	_exit(EXIT_FAILURE); // this shouldn't happen as the raise above will handle things
 }
 
 static void cli_init(void)

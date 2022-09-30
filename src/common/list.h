@@ -121,32 +121,40 @@ extern size_t list_size(LIST h) __attribute__((nonnull(1)));
  * \brief         Add an item to the end of the list
  * \param[in]  h  A pointer to the list
  * \param[in]  d  The item to add to the list
+ * \reutrn        Whether the item was added
  *
  * Add a new item to the end of the list. If the list is sorted then
- * this just calls list_add().
+ * this just calls list_add(). If duplicates are not allowed, this will
+ * return false if the item already exists and was not re-added.
  */
-extern void list_append(LIST h, const void *d) __attribute__((nonnull(1, 2)));
+extern bool list_append(LIST h, const void *d) __attribute__((nonnull(1, 2)));
 
 /*!
  * \brief         Insert an item into the list
  * \param[in]  h  A pointer to the list
  * \param[in]  i  The index where to insert the item
  * \param[in]  d  The item to be inserted
+ * \reutrn        Whether the item was added
  *
  * Insert an item into the middle of the list, at the given index. If
- * this list is sorted then this just call list_add().
+ * this list is sorted then this just call list_add(). If duplicates are
+ * not allowed, this will return false if the item already exists and
+ * was not re-added.
  */
-extern void list_insert(LIST h, size_t i, const void *d) __attribute__((nonnull(1, 3)));
+extern bool list_insert(LIST h, size_t i, const void *d) __attribute__((nonnull(1, 3)));
 
 /*!
  * \brief         Add an item to the sorted list
  * \param[in]  h  A pointer to the list
  * \param[in]  d  The item to add to the list
+ * \reutrn        Whether the item was added
  *
  * Add a new item to the list in sorted order. If the list is not sorted
- * then this just calls list_append().
+ * then this just calls list_append(). If duplicates are not allowed,
+ * this will return false if the item already exists and was not
+ * re-added.
  */
-extern void list_add(LIST h, const void *d) __attribute__((nonnull(1, 2)));
+extern bool list_add(LIST h, const void *d) __attribute__((nonnull(1, 2)));
 
 /*!
  * \brief         Check if the list contains the item

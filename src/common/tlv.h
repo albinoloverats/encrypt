@@ -76,12 +76,14 @@ extern void tlv_deinit(TLV h) __attribute__((nonnull(1)));
  * \brief         Append a new TLV triple to the array
  * \param[in]  h  A pointer to the TLV
  * \param[in]  t  The TLV triple to add
+ * \reutrn        True if the value was added
  *
  * Add a new TLV triple to the end of an existing TLV array. It takes a
  * copy of t (including the value pointer) so remember to free that
- * yourself. Duplicate tags are ignored.
+ * yourself. Duplicate tags are ignored. Will return true if the item
+ * was added, false if it was a duplicate and ignored.
  */
-extern void tlv_append(TLV h, tlv_t t) __attribute__((nonnull(1)));
+extern bool tlv_append(TLV h, tlv_t t) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Remove a TLV triple from the array

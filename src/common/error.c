@@ -47,6 +47,8 @@ static GtkWidget *error_gui_message;
 
 extern void on_error(int) __attribute__((noreturn));
 
+static char *itoa(int);
+
 static bool error_inited = false;
 
 volatile sig_atomic_t fatal_error_in_progress = 0;
@@ -57,10 +59,12 @@ extern void on_error(int s)
 		raise(s);
 	fatal_error_in_progress = 1;
 
-	fprintf(stderr, "\e[?25h\n"); /* restore cursor */
+	write(STDERR_FILENO, "\e[?25h\n", strlen("\e[?25h\n"));
 
 	char m[32] = { 0x0 };
-	snprintf(m, sizeof m, "Received fatal signal [%d] ", s);
+	strcat(m, "Received fatal signal [");
+	strcat(m, itoa(s));
+	strcat(m, "]");
 	psignal(s, m);
 
 #ifdef BUILD_GUI
@@ -74,8 +78,10 @@ extern void on_error(int s)
 	if (sym)
 	{
 		for (int i = 0; i < c; i++)
-			fprintf(stderr, "%s\n", sym[i]);
-		free(sym);
+		{
+			write(STDERR_FILENO, sym[i], strlen(sym[i]));
+			write(STDERR_FILENO, "\n", 1);
+		}
 	}
 #endif
 
@@ -127,7 +133,7 @@ extern void die(const char * const restrict s, ...)
 	if (ex)
 	{
 		char * const restrict e = strdup(strerror(ex));
-		for (uint32_t i = 0; i < strlen(e); i++)
+		for (uint32_t i = 0; e && i < strlen(e); i++)
 			e[i] = tolower((unsigned char)e[i]);
 		fprintf(stderr, "%s\n", e);
 		free(e);
@@ -172,3 +178,33 @@ static void error_gui_alert(const char * const restrict msg)
 	return;
 }
 #endif
+
+#define INT_DIGITS 19       /* enough for 64 bit integer */
+
+static char *itoa(int i)
+{
+	/* Room for INT_DIGITS digits, - and '\0' */
+	static char buf[INT_DIGITS + 2];
+	char *p = buf + INT_DIGITS + 1; /* points to terminating '\0' */
+	if (i >= 0)
+	{
+		do
+		{
+			*--p = '0' + (i % 10);
+			i /= 10;
+		}
+		while (i != 0);
+		return p;
+	}
+	else
+	{          /* i < 0 */
+		do
+		{
+			*--p = '0' - (i % 10);
+			i /= 10;
+		}
+		while (i != 0);
+		*--p = '-';
+	}
+	return p;
+}

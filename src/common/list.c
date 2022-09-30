@@ -24,6 +24,7 @@
 
 #include "common.h"
 #include "list.h"
+#include "error.h"
 
 typedef struct _item_t
 {
@@ -52,6 +53,8 @@ iterator_t;
 extern LIST list_init(int comparison_fn_t(const void *, const void *), bool dupes, bool sorted)
 {
 	list_t *list = calloc(sizeof( list_t ), sizeof( byte_t ));
+	if (!list)
+		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( list_t ));
 	list->size = 0;
 	list->compare = comparison_fn_t;
 	list->duplicates = dupes;
@@ -88,19 +91,18 @@ extern size_t list_size(LIST ptr)
 	return list_ptr->size;
 }
 
-extern void list_append(LIST ptr, const void *d)
+extern bool list_append(LIST ptr, const void *d)
 {
 	list_t *list_ptr = (list_t *)ptr;
 	if (!list_ptr)
-		return;
+		return false;
 	if (list_ptr->sorted)
-	{
-		list_add(ptr, d);
-		return;
-	}
+		return list_add(ptr, d);
 	if (!list_ptr->duplicates && list_contains(ptr, d))
-		return;
+		return false;
 	item_t *new = calloc(sizeof( item_t ), sizeof( byte_t ));
+	if (!new)
+		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( item_t ));
 	new->data = d;
 	item_t *end = list_ptr->tail;
 	if (end)
@@ -109,27 +111,23 @@ extern void list_append(LIST ptr, const void *d)
 		list_ptr->head = new;
 	list_ptr->tail = new;
 	list_ptr->size++;
-	return;
+	return true;
 }
 
-extern void list_insert(LIST ptr, size_t i, const void *d)
+extern bool list_insert(LIST ptr, size_t i, const void *d)
 {
 	list_t *list_ptr = (list_t *)ptr;
 	if (!list_ptr)
-		return;
+		return false;
 	if (list_ptr->sorted)
-	{
-		list_add(ptr, d);
-		return;
-	}
+		return list_add(ptr, d);
 	if (i >= list_ptr->size)
-	{
-		list_append(ptr, d);
-		return;
-	}
+		return list_append(ptr, d);
 	if (!list_ptr->duplicates && list_contains(ptr, d))
-		return;
+		return false;
 	item_t *new = calloc(sizeof( item_t ), sizeof( byte_t ));
+	if (!new)
+		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( item_t ));
 	new->data = d;
 	item_t *prev = list_ptr->head;
 	if (i == 0)
@@ -146,22 +144,21 @@ extern void list_insert(LIST ptr, size_t i, const void *d)
 		new->next = next;
 	}
 	list_ptr->size++;
-	return;
+	return true;
 }
 
-extern void list_add(LIST ptr, const void *d)
+extern bool list_add(LIST ptr, const void *d)
 {
 	list_t *list_ptr = (list_t *)ptr;
 	if (!list_ptr)
-		return;
+		return false;
 	if (!list_ptr->sorted)
-	{
-		list_append(ptr, d);
-		return;
-	}
+		return list_append(ptr, d);
 	if (!list_ptr->duplicates && list_contains(ptr, d))
-		return;
+		return false;
 	item_t *new = calloc(sizeof( item_t ), sizeof( byte_t ));
+	if (!new)
+		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( item_t ));
 	new->data = d;
 	if (list_ptr->size == 0)
 	{
@@ -189,14 +186,15 @@ extern void list_add(LIST ptr, const void *d)
 		bool added = false;
 		do
 		{
-			int p = list_ptr->compare(new->data, this->data);
-			if (p < 0)
+			if (list_ptr->compare(new->data, this->data) < 0)
 			{
 				new->next = this;
 				if (this == list_ptr->head)
 					list_ptr->head = new;
 				else if (prev)
 					prev->next = new;
+				else
+					die(_("We’ve reached an unreachable location in the code @ %s:%d:%s"), __FILE__, __LINE__, __func__);
 				added = true;
 				break;
 			}
@@ -211,7 +209,7 @@ extern void list_add(LIST ptr, const void *d)
 		}
 	}
 	list_ptr->size++;
-	return;
+	return true;
 }
 
 extern const void *list_get(LIST ptr, size_t i)
@@ -309,6 +307,8 @@ extern ITER list_iterator(LIST ptr)
 	if (!list_ptr)
 		return NULL;
 	iterator_t *iter = malloc(sizeof (iterator_t));
+	if (!iter)
+		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( iterator_t ));
 	iter->next = list_ptr->head;
 	return iter;
 }
