@@ -211,4 +211,5 @@ static void tlv_free(void *tlv)
 {
 	free(((tlv_t *)tlv)->value);
 	free(tlv);
+	return;
 }

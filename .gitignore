@@ -17,6 +17,8 @@ configure-stamp
 # common files we don’t use
 src/common/rand.c
 src/common/rand.h
+src/common/map.c
+src/common/map.h
 # android ignores
 .gradle
 .idea

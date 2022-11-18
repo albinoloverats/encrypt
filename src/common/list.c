@@ -87,7 +87,7 @@ extern size_t list_size(LIST ptr)
 {
 	list_t *list_ptr = (list_t *)ptr;
 	if (!list_ptr)
-		return 0;
+		return -1;
 	return list_ptr->size;
 }
 
