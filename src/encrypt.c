@@ -364,6 +364,7 @@ static void *process(void *ptr)
 		encrypt_directory(c, c->path);
 		c->current.display = FINISHING_UP;
 		list_deinit(c->misc, free_link);
+		c->misc = NULL;
 		if (cwd)
 		{
 			chdir(cwd);

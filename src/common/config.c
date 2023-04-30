@@ -421,6 +421,12 @@ end_line:
 		config_named_t *arg = (config_named_t *)list_get_next(iter);
 		if (arg->seen)
 			r++;
+		else if (arg->required && !arg->seen && warn)
+		{
+			cli_eprintf("Missing required argument \"%s\"\n", arg->description);
+			config_show_usage(args, extra);
+		}
+
 	}
 	free(iter);
 	if (extra)

@@ -226,6 +226,8 @@ extern LIST list_of_macs(void)
 
 extern enum gcry_cipher_algos cipher_id_from_name(const char * const restrict n)
 {
+	if (!n)
+		return GCRY_CIPHER_NONE;
 	int list[0xff] = { 0x00 };
 	int len = 0;
 	enum gcry_cipher_algos id = GCRY_CIPHER_NONE;
@@ -251,6 +253,8 @@ extern enum gcry_cipher_algos cipher_id_from_name(const char * const restrict n)
 
 extern enum gcry_md_algos hash_id_from_name(const char * const restrict n)
 {
+	if (!n)
+		return GCRY_MD_NONE;
 	int list[0xff] = { 0x00 };
 	int len = 0;
 	enum gcry_md_algos id = GCRY_MD_NONE;
@@ -276,6 +280,8 @@ extern enum gcry_md_algos hash_id_from_name(const char * const restrict n)
 
 extern enum gcry_cipher_modes mode_id_from_name(const char * const restrict n)
 {
+	if (!n)
+		return GCRY_CIPHER_MODE_NONE;
 	for (unsigned i = 0; i < sizeof MODES / sizeof( block_mode_t ); i++)
 		if (!strcasecmp(n, MODES[i].name))
 			return MODES[i].id;
@@ -284,6 +290,8 @@ extern enum gcry_cipher_modes mode_id_from_name(const char * const restrict n)
 
 extern enum gcry_mac_algos mac_id_from_name(const char * const restrict n)
 {
+	if (!n)
+		return GCRY_MAC_NONE;
 	int list[0xff] = { 0x00 };
 	int len = 0;
 	enum gcry_mac_algos id = GCRY_MAC_NONE;
