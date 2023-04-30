@@ -54,23 +54,32 @@
 #endif
 
 
-
 static void show_version(LIST args, LIST notes, LIST extra) __attribute__((noreturn));
 static void show_help(LIST args, LIST notes, LIST extra) __attribute__((noreturn));
 static void show_licence(LIST args, LIST notes, LIST extra) __attribute__((noreturn));
 
-static bool    parse_config_boolean(const char *, const char *, bool);
-static int64_t parse_config_integer(const char *, const char *, int64_t);
-static _Float128 parse_config_decimal(const char *, const char *, _Float128);
-static char   *parse_config_string(const char *, const char *, char *);
+inline static bool is_argument(char, const char *, const char *);
+inline static void format_section(char *);
+inline static void print_usage(LIST, LIST);
 
-static pair_boolean_t  *parse_pair_boolean(const char *c, const char *l);
-static pair_integer_t  *parse_pair_integer(const char *c, const char *l);
-static pair_decimal_t  *parse_pair_decimal(const char *c, const char *l);
-static pair_string_t   *parse_pair_string(const char *c, const char *l);
+static bool  parse_boolean(const char *, const char *, bool      *);
+static bool  parse_integer(const char *, const char *, int64_t   *);
+static bool  parse_decimal(const char *, const char *, _Float128 *);
+static char *parse_string (const char *, const char *, char      *);
+
+static bool parse_pair_boolean(const char *c, const char *l, pair_boolean_t *);
+static bool parse_pair_integer(const char *c, const char *l, pair_integer_t *);
+static bool parse_pair_decimal(const char *c, const char *l, pair_decimal_t *);
+static bool parse_pair_string (const char *c, const char *l, pair_string_t  *);
 
 static pair_u *parse_pair(const char *c, const char *l);
-static char *parse_config_tail(const char *, const char *);
+static char *parse_tail(const char *, const char *);
+
+static void parse_list_boolean(const char *, LIST list);
+static void parse_list_integer(const char *, LIST list);
+static void parse_list_decimal(const char *, LIST list);
+
+static void parse_list(config_arg_e, const char *, LIST);
 
 static bool init = false;
 static config_about_t about = { 0x0 };
@@ -83,11 +92,38 @@ extern void config_init(config_about_t a)
 	return;
 }
 
-extern int config_arg_comp(const void *a, const void *b)
+extern int config_named_compare(const void *a, const void *b)
 {
 	const config_named_t *x = a;
 	const config_named_t *y = b;
 	return x->short_option - y->short_option;
+}
+
+extern int config_unnamed_compare(const void *a, const void *b)
+{
+	const config_unnamed_t *x = a;
+	const config_unnamed_t *y = b;
+	return strcmp(x->description, y->description);
+}
+
+extern void config_named_free(void *f)
+{
+	config_named_t *x = (config_named_t *)f;
+	if (x->response.type & CONFIG_ARG_LIST)
+		list_deinit(x->response.value.list, free);
+	else if (x->response.type & CONFIG_ARG_STRING)
+		free(x->response.value.string);
+	free(x);
+	return;
+}
+
+extern void config_unnamed_free(void *f)
+{
+	config_unnamed_t *x = (config_unnamed_t *)f;
+	if (x->response.type & CONFIG_ARG_STRING)
+		free(x->response.value.string);
+	free(x);
+	return;
 }
 
 extern int config_parse_aux(int argc, char **argv, LIST args, LIST extra, LIST notes, bool warn)
@@ -135,30 +171,27 @@ extern int config_parse_aux(int argc, char **argv, LIST args, LIST extra, LIST n
 				{
 					config_named_t *arg = (config_named_t *)list_get_next(iter);
 					if (arg->long_option && !strncmp(arg->long_option, line, strlen(arg->long_option)) && isspace((unsigned char)line[strlen(arg->long_option)]))
-						switch (arg->response_type)
+						switch (arg->response.type)
 						{
 							case CONFIG_ARG_OPT_BOOLEAN:
 								(void)0; // for Slackware's older GCC
 								__attribute__((fallthrough)); /* allow fall-through */
 							case CONFIG_ARG_REQ_BOOLEAN:
-								arg->seen = true;
-								arg->response_value.boolean = parse_config_boolean(arg->long_option, line, arg->response_value.boolean);
+								arg->seen = parse_boolean(arg->long_option, line, &arg->response.value.boolean);
 								break;
 
 							case CONFIG_ARG_OPT_INTEGER:
 								(void)0; // for Slackware's older GCC
 								__attribute__((fallthrough)); /* allow fall-through */
 							case CONFIG_ARG_REQ_INTEGER:
-								arg->seen = true;
-								arg->response_value.integer = parse_config_integer(arg->long_option, line, arg->response_value.integer);
+								arg->seen = parse_integer(arg->long_option, line, &arg->response.value.integer);
 								break;
 
 							case CONFIG_ARG_OPT_DECIMAL:
 								(void)0; // for Slackware's older GCC
 								__attribute__((fallthrough)); /* allow fall-through */
 							case CONFIG_ARG_REQ_DECIMAL:
-								arg->seen = true;
-								arg->response_value.decimal = parse_config_decimal(arg->long_option, line, arg->response_value.decimal);
+								arg->seen = parse_decimal(arg->long_option, line, &arg->response.value.decimal);
 								break;
 
 							case CONFIG_ARG_OPT_STRING:
@@ -166,62 +199,59 @@ extern int config_parse_aux(int argc, char **argv, LIST args, LIST extra, LIST n
 								__attribute__((fallthrough)); /* allow fall-through */
 							case CONFIG_ARG_REQ_STRING:
 								arg->seen = true;
-								arg->response_value.string = parse_config_string(arg->long_option, line, arg->response_value.string);
+								arg->response.value.string = parse_string(arg->long_option, line, arg->response.value.string);
 								break;
 
 							case CONFIG_ARG_PAIR_BOOLEAN:
-								{
-									arg->seen = true;
-									pair_boolean_t *pair = parse_pair_boolean(arg->long_option, line);
-									arg->response_value.pair.boolean.b1 = pair->b1;
-									arg->response_value.pair.boolean.b2 = pair->b2;
-									free(pair);
-								}
+								arg->seen = parse_pair_boolean(arg->long_option, line, &arg->response.value.pair.boolean);
 								break;
 
 							case CONFIG_ARG_PAIR_INTEGER:
-								{
-									arg->seen = true;
-									pair_integer_t *pair = parse_pair_integer(arg->long_option, line);
-									arg->response_value.pair.integer.i1 = pair->i1;
-									arg->response_value.pair.integer.i2 = pair->i2;
-									free(pair);
-								}
+								arg->seen = parse_pair_integer(arg->long_option, line, &arg->response.value.pair.integer);
 								break;
 
 							case CONFIG_ARG_PAIR_DECIMAL:
-								{
-									arg->seen = true;
-									pair_decimal_t *pair = parse_pair_decimal(arg->long_option, line);
-									arg->response_value.pair.decimal.d1 = pair->d1;
-									arg->response_value.pair.decimal.d2 = pair->d2;
-									free(pair);
-								}
+								arg->seen = parse_pair_decimal(arg->long_option, line, &arg->response.value.pair.decimal);
 								break;
 
 							case CONFIG_ARG_PAIR_STRING:
-								{
-									arg->seen = true;
-									pair_string_t *pair = parse_pair_string(arg->long_option, line);
-									arg->response_value.pair.string.s1 = pair->s1;
-									arg->response_value.pair.string.s2 = pair->s2;
-									free(pair);
-								}
+								arg->seen = parse_pair_string(arg->long_option, line, &arg->response.value.pair.string);
 								break;
 
 							case CONFIG_ARG_LIST_STRING:
+								if (!arg->seen && arg->response.value.list)
+								{
+									free(arg->response.value.list);
+									arg->response.value.list = NULL;
+								}
 								arg->seen = true;
-								if (!arg->response_value.list)
-									arg->response_value.list = list_default();
-								list_append(arg->response_value.list, parse_config_string(arg->long_option, line, NULL));
+								if (!arg->response.value.list)
+									arg->response.value.list = list_default();
+								list_append(arg->response.value.list, parse_string(arg->long_option, line, NULL));
 								break;
 
 							case CONFIG_ARG_LIST_PAIR_STRING:
-								arg->seen = true;
-								if (!arg->response_value.list)
-									arg->response_value.list = list_default();
-								list_append(arg->response_value.list, parse_pair_string(arg->long_option, line));
+								{
+									if (!arg->seen && arg->response.value.list)
+									{
+										free(arg->response.value.list);
+										arg->response.value.list = NULL;
+									}
+									arg->seen = true;
+									if (!arg->response.value.list)
+										arg->response.value.list = list_default();
+									// would this not be a map?
+									pair_string_t *pair = malloc(sizeof( pair_string_t ));
+									if (!pair)
+										die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( pair_string_t ));
+									if (parse_pair_string(arg->long_option, line, pair))
+										if (!list_append(arg->response.value.list, pair))
+											free(pair);
+								}
 								break;
+
+							default:
+								// ignore anything else for now
 						}
 				}
 				free(iter);
@@ -236,183 +266,226 @@ end_line:
 		free(rc);
 	}
 
-	/*
-	 * build and populate the getopt structure
-	 */
-	char *short_options;
-	int optlen = 4 + (args ? list_size(args) : 0);
-	if (!(short_options = calloc(optlen * 2, sizeof (char))))
-		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, optlen * 2 * sizeof (char));
-	struct option *long_options;
-	if (!(long_options = calloc(optlen + 1, sizeof (struct option))))
-		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, (optlen + 1) * sizeof (struct option));
-
-	strcat(short_options, "h");
-	long_options[0].name    = "help";
-	long_options[0].has_arg = no_argument;
-	long_options[0].flag    = NULL;
-	long_options[0].val     = 'h';
-
-	strcat(short_options, "v");
-	long_options[1].name    = "version";
-	long_options[1].has_arg = no_argument;
-	long_options[1].flag    = NULL;
-	long_options[1].val     = 'v';
-
-	strcat(short_options, "l");
-	long_options[2].name    = "licence";
-	long_options[2].has_arg = no_argument;
-	long_options[2].flag    = NULL;
-	long_options[2].val     = 'l';
-
-	for (size_t i = 0; args && i < list_size(args); i++)
+	LIST largs = list_init((void *)strcmp, true, false);
+	for (int i = 1; i < argc; i++) // from 1, skip invokation name
 	{
-		const config_named_t *arg = list_get(args, i);
-		if (isalnum(arg->short_option))
+		char *x = argv[i];
+		if (x[0] == '-' && x[1] == '-')
 		{
-			char S[] = "X";
-			S[0] = arg->short_option;
-			strcat(short_options, S);
+			// long option, check for '='
+			char *o = strchr(x, '=');
+			if (o)
+			{
+				list_append(largs, strndup(x, o - x));
+				list_append(largs, strdup(o + 1));
+			}
+			else
+				list_append(largs, strdup(argv[i]));
 		}
-		if (arg->response_type != CONFIG_ARG_REQ_BOOLEAN && arg->response_type != CONFIG_ARG_OPT_BOOLEAN)
-			strcat(short_options, ":");
-		long_options[i + 3].name = arg->long_option;
-
-		if (arg->response_type == CONFIG_ARG_REQ_BOOLEAN || arg->response_type == CONFIG_ARG_OPT_BOOLEAN)
-			long_options[i + 3].has_arg = no_argument;
-		else if (arg->response_type & CONFIG_ARG_REQUIRED)
-			long_options[i + 3].has_arg = required_argument;
+		else if (x[0] == '-' && strlen(x) > 2)
+		{
+			// short option, check for anything after '-x...'
+			list_append(largs, strndup(x, 2));
+			list_append(largs, strdup(x + 2));
+		}
 		else
-			long_options[i + 3].has_arg = optional_argument;
-		long_options[i + 3].flag = NULL;
-		long_options[i + 3].val  = arg->short_option;
+			list_append(largs, strdup(argv[i]));
 	}
+	/* handle help et al first */
+	if (list_contains(largs, "-h") || list_contains(largs, "--help"))
+		show_help(args, notes, extra);
+	if (list_contains(largs, "-v") || list_contains(largs, "--version"))
+		show_version(args, notes, extra);
+	if (list_contains(largs, "-l") || list_contains(largs, "--licence"))
+		show_licence(args, notes, extra);
 
-	/*
-	 * parse command line options
-	 */
-	while (argc && argv)
+	for (size_t i = 0, j = 0; i < list_size(largs); i++)
 	{
-		int c = getopt_long(argc, argv, short_options, long_options, &((int){0}));
-		if (c == -1)
-			break;
 		bool unknown = true;
-		if (c == 'h' || c == 'v' || c == 'l')
+		const char *curr = list_get(largs, i);
+		const char *next = list_get(largs, i + 1);
+
+		ITER iter = list_iterator(args);
+		while (list_has_next(iter))
 		{
-			free(short_options);
-			free(long_options);
-			switch (c)
+			config_named_t *arg = (config_named_t *)list_get_next(iter);
+			if (is_argument(arg->short_option, arg->long_option, curr))
 			{
-				case 'h':
-					show_help(args, notes, extra);
-				case 'v':
-					show_version(args, notes, extra);
-				case 'l':
-					show_licence(args, notes, extra);
-			}
-		}
-		else if (c == '?' && warn)
-		{
-			free(short_options);
-			free(long_options);
-			config_show_usage(args, extra);
-		}
-		else if (args)
-		{
-			ITER iter = list_iterator(args);
-			while (list_has_next(iter))
-			{
-				config_named_t *arg = (config_named_t *)list_get_next(iter);
-				if (c == arg->short_option)
+				unknown = false;
+				if (next && (arg->response.type & CONFIG_ARG_REQUIRED || next[0] != '-'))
+					i++;
+				else
+					next = NULL;
+				switch (arg->response.type)
 				{
-					unknown = false;
-					switch (arg->response_type)
-					{
-						case CONFIG_ARG_OPT_INTEGER:
-							arg->seen = true;
-							if (!optarg)
-								break;
-							__attribute__((fallthrough)); /* allow fall-through; argument was seen and has a value */
-						case CONFIG_ARG_REQ_INTEGER:
-							arg->seen = true;
-							arg->response_value.integer = strtoull(optarg, NULL, 0);
+					case CONFIG_ARG_OPT_BOOLEAN:
+						(void)0; // for Slackware's older GCC
+						__attribute__((fallthrough)); /* allow fall-through; argument was seen */
+					case CONFIG_ARG_REQ_BOOLEAN:
+						arg->seen = true;
+						if (next)
+							parse_boolean(NULL, next, &arg->response.value.boolean);
+						else
+							arg->response.value.boolean = !arg->response.value.boolean;
+						break;
+
+					case CONFIG_ARG_OPT_INTEGER:
+						arg->seen = true;
+						if (!next)
 							break;
+						__attribute__((fallthrough)); /* allow fall-through; argument was seen and has a value */
+					case CONFIG_ARG_REQ_INTEGER:
+						arg->seen = parse_integer(NULL, next, &arg->response.value.integer);
+						break;
 
-						case CONFIG_ARG_OPT_DECIMAL:
-							arg->seen = true;
-							if (!optarg)
-								break;
-							__attribute__((fallthrough)); /* allow fall-through; argument was seen and has a value */
-						case CONFIG_ARG_REQ_DECIMAL:
-							arg->seen = true;
-							arg->response_value.decimal = strtof128(optarg, NULL);
+					case CONFIG_ARG_OPT_DECIMAL:
+						arg->seen = true;
+						if (!next)
 							break;
+						__attribute__((fallthrough)); /* allow fall-through; argument was seen and has a value */
+					case CONFIG_ARG_REQ_DECIMAL:
+						arg->seen = parse_decimal(NULL, next, &arg->response.value.decimal);
+						break;
 
-						case CONFIG_ARG_OPT_STRING:
-							arg->seen = true;
-							if (!optarg)
-								break;
-							__attribute__((fallthrough)); /* allow fall-through; argument was seen and has a value */
-						case CONFIG_ARG_REQ_STRING:
-							arg->seen = true;
-							if (arg->response_value.string)
-								free(arg->response_value.string);
-							if (!(arg->response_value.string = strdup(optarg)))
-								die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(optarg) + 1);
+					case CONFIG_ARG_OPT_STRING:
+						arg->seen = true;
+						if (!next)
 							break;
+						__attribute__((fallthrough)); /* allow fall-through; argument was seen and has a value */
+					case CONFIG_ARG_REQ_STRING:
+						arg->seen = true;
+						if (arg->response.value.string)
+							free(arg->response.value.string);
+						if (!(arg->response.value.string = strdup(next)))
+							die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(next) + 1);
+						break;
 
-						case CONFIG_ARG_OPT_BOOLEAN:
-							(void)0; // for Slackware's older GCC
-							__attribute__((fallthrough)); /* allow fall-through; argument was seen */
-						case CONFIG_ARG_REQ_BOOLEAN:
-							arg->seen = true;
-							arg->response_value.boolean = !arg->response_value.boolean;
-							break;
+					case CONFIG_ARG_LIST_BOOLEAN:
+						if (!arg->seen && arg->response.value.list)
+						{
+							free(arg->response.value.list);
+							arg->response.value.list = NULL;
+						}
+						arg->seen = true;
+						if (!arg->response.value.list)
+							arg->response.value.list = list_default();
+						if (strchr(next, ','))
+							parse_list(CONFIG_ARG_BOOLEAN, next, arg->response.value.list);
+						else
+							parse_list_boolean(next, arg->response.value.list);
+						break;
 
-						/* TODO extend handling of lists and pairs and list of pairs... */
+					case CONFIG_ARG_LIST_INTEGER:
+						if (!arg->seen && arg->response.value.list)
+						{
+							free(arg->response.value.list);
+							arg->response.value.list = NULL;
+						}
+						arg->seen = true;
+						if (!arg->response.value.list)
+							arg->response.value.list = list_default();
+						if (strchr(next, ','))
+							parse_list(CONFIG_ARG_INTEGER, next, arg->response.value.list);
+						else
+							parse_list_integer(next, arg->response.value.list);
+						break;
 
-						case CONFIG_ARG_LIST_STRING:
-							arg->seen = true;
-							if (!arg->response_value.list)
-								arg->response_value.list = list_default();
-							if (strchr(optarg, ','))
+					case CONFIG_ARG_LIST_DECIMAL:
+						if (!arg->seen && arg->response.value.list)
+						{
+							free(arg->response.value.list);
+							arg->response.value.list = NULL;
+						}
+						arg->seen = true;
+						if (!arg->response.value.list)
+							arg->response.value.list = list_default();
+						if (strchr(next, ','))
+							parse_list(CONFIG_ARG_DECIMAL, next, arg->response.value.list);
+						else
+							parse_list_decimal(next, arg->response.value.list);
+						break;
+
+					case CONFIG_ARG_LIST_STRING:
+						if (!arg->seen && arg->response.value.list)
+						{
+							free(arg->response.value.list);
+							arg->response.value.list = NULL;
+						}
+						arg->seen = true;
+						if (!arg->response.value.list)
+							arg->response.value.list = list_default();
+						if (strchr(next, ','))
+						{
+							char *s = strdup(next);
+							if (!s)
+								die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(next) + 1);
+							char *u = strdup(strtok(s, ","));
+							if (!list_append(arg->response.value.list, u))
+								free(u);
+							char *t = NULL;
+							while ((t = strtok(NULL, ",")))
 							{
-								char *s = strdup(optarg);
-								if (!s)
-									die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(optarg) + 1);
-								char *u = strdup(strtok(s, ","));
-								if (!list_append(arg->response_value.list, u))
-									free(u);
-								char *t = NULL;
-								while ((t = strtok(NULL, ",")))
-								{
-									char *v = strdup(t);
-									if (!list_append(arg->response_value.list, v))
-										free(v);
-								}
-								free(s);
+								char *v = strdup(t);
+								if (!list_append(arg->response.value.list, v))
+									free(v);
 							}
-							else
-							{
-								char *x = strdup(optarg);
-								if (!list_append(arg->response_value.list, x))
-									free(x);
-							}
-							break;
+							free(s);
+						}
+						else
+						{
+							char *x = strdup(next);
+							if (!list_append(arg->response.value.list, x))
+								free(x);
+						}
+						break;
 
-						default:
-							arg->response_value.boolean = !arg->response_value.boolean;
-							break;
-					}
+					/* TODO extend handling of pairs and list of pairs... */
+
+					default:
+						arg->response.value.boolean = !arg->response.value.boolean;
+						break;
 				}
+				break;
 			}
-			free(iter);
 		}
-		if (unknown && warn)
-			config_show_usage(args, extra);
+		free(iter);
+
+		if (unknown)
+		{
+			if (extra)
+			{
+				if (j >= list_size(extra))
+				{
+					config_unnamed_t *new = calloc(sizeof( config_unnamed_t ), 1);
+					new->response.type = CONFIG_ARG_STRING;
+					list_append(extra, new);
+				}
+				config_unnamed_t *x = (config_unnamed_t *)list_get(extra, j);
+				switch (x->response.type)
+				{
+					case CONFIG_ARG_BOOLEAN:
+						x->seen = parse_boolean(NULL, curr, &x->response.value.boolean);
+						break;
+					case CONFIG_ARG_INTEGER:
+						x->seen = parse_integer(NULL, curr, &x->response.value.integer);
+						break;
+					case CONFIG_ARG_DECIMAL:
+						x->seen = parse_decimal(NULL, curr, &x->response.value.decimal);
+						break;
+					case CONFIG_ARG_STRING:
+						if (!(x->response.value.string = strdup(curr)))
+							die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(curr));
+						break;
+					default:
+						break;
+				}
+				j++;
+			}
+			else if (warn)
+				config_show_usage(args, extra);
+		}
 	}
-	free(short_options);
-	free(long_options);
+	list_deinit(largs, free);
 
 	int r = 0;
 	ITER iter = list_iterator(args);
@@ -429,47 +502,25 @@ end_line:
 
 	}
 	free(iter);
-	if (extra)
+	iter = list_iterator(extra);
+	while (list_has_next(iter))
 	{
-		ITER iter = list_iterator(extra);
-		for (int i = 0; list_has_next(iter) && optind < argc; i++, optind++)
-		{
-			config_unnamed_t *x = (config_unnamed_t *)list_get_next(iter);
-			x->seen = true;
+		config_unnamed_t *arg = (config_unnamed_t *)list_get_next(iter);
+		if (arg->seen)
 			r++;
-			switch (x->response_type)
-			{
-				case CONFIG_ARG_STRING:
-					if (!(x->response_value.string = strdup(argv[optind])))
-						die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(argv[optind]));
-					break;
-				case CONFIG_ARG_INTEGER:
-					x->response_value.integer = strtoull(argv[optind], NULL, 0);
-					break;
-				case CONFIG_ARG_DECIMAL:
-					x->response_value.decimal = strtof128(argv[optind], NULL);
-					break;
-				case CONFIG_ARG_BOOLEAN:
-					(void)0; // for Slackware's older GCC
-					__attribute__((fallthrough)); /* allow fall-through; argument was seen */
-				default:
-					x->response_value.boolean = true;
-					break;
-			}
-		}
-		free(iter);
-		iter = list_iterator(extra);
-		while (list_has_next(iter))
-		{
-			const config_unnamed_t *x = (config_unnamed_t *)list_get_next(iter);
-			if (x->required && !x->seen && warn)
-			{
-				cli_eprintf("Missing required argument \"%s\"\n", x->description);
-				config_show_usage(args, extra);
-			}
-		}
 	}
+	free(iter);
+
 	return r;
+}
+
+inline static bool is_argument(char s, const char *l, const char *a)
+{
+	if (strlen(a) == 2 && a[0] == '-' && a[1] == s)
+		return true;
+	if (strlen(a) > 2 && a[0] == '-' && a[1] == '-')
+		return !strcmp(l, a + 2);
+	return false;
 }
 
 inline static void format_section(char *s)
@@ -554,7 +605,7 @@ extern void config_show_usage(LIST args, LIST extra)
 	exit(EXIT_SUCCESS);
 }
 
-static void print_option(int indent, char sopt, char *lopt, char *type, bool req, char *desc)
+static void print_option(int indent, char sopt, char *lopt, char *type, char *def, bool req, char *desc)
 {
 	size_t z = indent - 8;
 	if (lopt)
@@ -614,12 +665,17 @@ static void print_option(int indent, char sopt, char *lopt, char *type, bool req
 			tmp[j] = desc[i];
 	desc = tmp;
 #endif
+	char *x_desc = NULL;
+	if (def)
+		asprintf(&x_desc, "%s" ANSI_COLOUR_WHITE " (default:" ANSI_COLOUR_GREEN " %s" ANSI_COLOUR_WHITE ")", desc, def);
+	else
+		x_desc = desc;
 
 	cli_eprintf(ANSI_COLOUR_BLUE);
 	if (l < width)
-		cli_eprintf("%s", desc);
+		cli_eprintf("%s", x_desc);
 	else if (width <= indent)
-		cli_eprintf("\n  %s\n", desc);
+		cli_eprintf("\n  %s\n", x_desc);
 	else
 	{
 		int s = 0;
@@ -631,7 +687,7 @@ static void print_option(int indent, char sopt, char *lopt, char *type, bool req
 				e = l;
 			else
 				for (too_long = true; e > s; e--)
-					if (isspace(desc[e]))
+					if (isspace(x_desc[e]))
 					{
 						too_long = false;
 						break;
@@ -639,13 +695,13 @@ static void print_option(int indent, char sopt, char *lopt, char *type, bool req
 			if (too_long)
 			{
 				for (int e2 = s; e2 < s + max_width; e2++)
-					if (isspace(desc[e2]) || desc[e2] == 0x00)
+					if (isspace(x_desc[e2]) || x_desc[e2] == 0x00)
 						e = e2;
 				cli_eprintf("\n  ");
 			}
 			else if (s)
 				cli_eprintf("\n%*s", indent, " ");
-			cli_eprintf("%.*s", e - s, desc + s);
+			cli_eprintf("%.*s", e - s, x_desc + s);
 			s = e + 1;
 		}
 		while (s < l);
@@ -653,6 +709,8 @@ static void print_option(int indent, char sopt, char *lopt, char *type, bool req
 #ifdef _WIN32
 	free(tmp);
 #endif
+	if (def)
+		free(x_desc);
 	cli_eprintf(ANSI_COLOUR_RESET "\n");
 	return;
 }
@@ -711,6 +769,43 @@ static void print_notes(const char *line)
 	return;
 }
 
+static char *parse_default(config_arg_e type, config_arg_u value)
+{
+	char *d = NULL;
+	switch (type)
+	{
+		case CONFIG_ARG_OPT_BOOLEAN:
+			(void)0; // for Slackware's older GCC
+			__attribute__((fallthrough)); /* allow fall-through */
+		case CONFIG_ARG_REQ_BOOLEAN:
+			d = strdup(value.boolean ? "true" : "false");
+			break;
+		case CONFIG_ARG_OPT_INTEGER:
+			(void)0; // for Slackware's older GCC
+			__attribute__((fallthrough)); /* allow fall-through */
+		case CONFIG_ARG_REQ_INTEGER:
+			asprintf(&d, "%" PRIi64, (int64_t)value.integer);
+			break;
+		case CONFIG_ARG_OPT_DECIMAL:
+			(void)0; // for Slackware's older GCC
+			__attribute__((fallthrough)); /* allow fall-through */
+		case CONFIG_ARG_REQ_DECIMAL:
+			{
+				char buf[0xFF] = { 0x00 };
+				strfromf128(buf, sizeof buf, "%.9f", (_Float128)value.decimal);
+				asprintf(&d, "%s", buf);
+			}
+			break;
+		default: // all other defaults to be displayed should be string
+			{
+				if (value.string)
+					d = strdup((char *)value.string);
+			}
+			break;
+	}
+	return d;
+}
+
 static void show_help(LIST args, LIST notes, LIST extra)
 {
 	version_print(about.name, about.version, about.url);
@@ -739,9 +834,9 @@ static void show_help(LIST args, LIST notes, LIST extra)
 
 	cli_eprintf("\n");
 	format_section(_("Options"));
-	print_option(indent, 'h', "help",    NULL, false, "Display this message");
-	print_option(indent, 'l', "licence", NULL, false, "Display GNU GPL v3 licence header");
-	print_option(indent, 'v', "version", NULL, false, "Display application version");
+	print_option(indent, 'h', "help",    NULL, NULL, false, "Display this message");
+	print_option(indent, 'l', "licence", NULL, NULL, false, "Display GNU GPL v3 licence header");
+	print_option(indent, 'v', "version", NULL, NULL, false, "Display application version");
 	if (args)
 	{
 		ITER iter = list_iterator(args);
@@ -749,7 +844,12 @@ static void show_help(LIST args, LIST notes, LIST extra)
 		{
 			const config_named_t *arg = list_get_next(iter);
 			if (!arg->hidden && !arg->advanced)
-				print_option(indent, arg->short_option, arg->long_option, arg->option_type ? : NULL, arg->response_type & CONFIG_ARG_REQUIRED, arg->description);
+			{
+				char *def = parse_default(arg->response.type, arg->response.value);
+				print_option(indent, arg->short_option, arg->long_option, arg->option_type ? : NULL, def, arg->response.type & CONFIG_ARG_REQUIRED, arg->description);
+				if (def)
+					free(def);
+			}
 		}
 		free(iter);
 	}
@@ -762,7 +862,12 @@ static void show_help(LIST args, LIST notes, LIST extra)
 		{
 			const config_named_t *arg = list_get_next(iter);
 			if (!arg->hidden && arg->advanced)
-				print_option(indent, arg->short_option, arg->long_option, arg->option_type ? : NULL, arg->response_type & CONFIG_ARG_REQUIRED, arg->description);
+			{
+				char *def = parse_default(arg->response.type, arg->response.value);
+				print_option(indent, arg->short_option, arg->long_option, arg->option_type ? : NULL, def, arg->response.type & CONFIG_ARG_REQUIRED, arg->description);
+				if (def)
+					free(def);
+			}
 		}
 		free(iter);
 	}
@@ -862,54 +967,80 @@ extern void update_config(const char * const restrict o, const char * const rest
 	return;
 }
 
-static bool parse_config_boolean(const char *c, const char *l, bool d)
+static bool parse_boolean(const char *c, const char *l, bool *v)
 {
-	bool r = d;
-	char *v = parse_config_tail(c, l);
-	if (v)
+	bool r = false;
+	char *n = parse_tail(c, l);
+	if (n)
 	{
-		if (!strcasecmp(CONF_TRUE, v) || !strcasecmp(CONF_ON, v) || !strcasecmp(CONF_ENABLED, v) || !strcasecmp(CONF_YES, v))
+		if (!strcasecmp(CONF_TRUE, n)
+		 || !strcasecmp(CONF_ON, n)
+		 || !strcasecmp(CONF_ENABLED, n)
+		 || !strcasecmp(CONF_YES, n)
+		 || !strcmp(CONF_ONE, n))
+		{
+			*v = true;
 			r = true;
-		else if (!strcasecmp(CONF_FALSE, v) || !strcasecmp(CONF_OFF, v) || !strcasecmp(CONF_DISABLED, v) || !strcasecmp(CONF_NO, v))
-			r = false;
-		free(v);
-	}
-	return r;
-}
-
-static int64_t parse_config_integer(const char *c, const char *l, int64_t d)
-{
-	int64_t r = d;
-	char *n = parse_config_tail(c, l);
-	if (n)
-	{
-		r = strtoull(n, NULL, 0);
+		}
+		else if (!strcasecmp(CONF_FALSE, n) ||
+			 !strcasecmp(CONF_OFF, n) ||
+			 !strcasecmp(CONF_DISABLED, n) ||
+			 !strcasecmp(CONF_NO, n) ||
+			 !strcmp(CONF_ZERO, n))
+		{
+			*v = false;
+			r = true;
+		}
 		free(n);
 	}
+	if (!r)
+		cli_eprintf("invalid boolean value [%s]\n", l);
 	return r;
 }
 
-static _Float128 parse_config_decimal(const char *c, const char *l, _Float128 d)
+static bool parse_integer(const char *c, const char *l, int64_t *v)
 {
-	_Float128 r = d;
-	char *n = parse_config_tail(c, l);
+	bool r = false;
+	char *n = parse_tail(c, l);
 	if (n)
 	{
-		r = strtof128(n, NULL);
+		char *e = NULL;
+		*v = strtoull(n, &e, 0);
+		if (e != n)
+			r = true;
 		free(n);
 	}
+	if (!r)
+		cli_eprintf("invalid integer value [%s]\n", l);
 	return r;
 }
 
-static char *parse_config_string(const char *c, const char *l, char *d)
+static bool parse_decimal(const char *c, const char *l, _Float128 *v)
 {
-	char *r = parse_config_tail(c, l);
-	return r ? : d;
+	bool r = false;
+	char *n = parse_tail(c, l);
+	if (n)
+	{
+		char *e = NULL;
+		*v = strtof128(n, &e);
+		if (e != n)
+			r = true;
+		free(n);
+	}
+	if (!r)
+		cli_eprintf("invalid decimal value [%s]\n", l);
+	return r;
 }
 
-static char *parse_config_tail(const char *c, const char *l)
+static char *parse_string(const char *c, const char *l, char *v)
 {
-	char *x = strdup(l + strlen(c));
+	char *r = parse_tail(c, l);
+	return r ? : v;
+}
+
+static char *parse_tail(const char *c, const char *l)
+{
+	char *x = strdup(l + (c ? strlen(c) : 0));
 	if (!x)
 		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(l) - strlen(c) + 1);
 	size_t i = 0;
@@ -928,59 +1059,46 @@ static char *parse_config_tail(const char *c, const char *l)
 	return tail;
 }
 
-static pair_boolean_t *parse_pair_boolean(const char *c, const char *l)
+static bool parse_pair_boolean(const char *c, const char *l, pair_boolean_t *pair)
 {
-	pair_boolean_t *pair = calloc(1, sizeof (pair_boolean_t));
-	if (!pair)
-		die("Out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, sizeof (pair_boolean_t));
 	pair_u *p = parse_pair(c, l);
-	/* FIXME this only verifies is a value is true, and doesn't default like above */
-	pair->b1 = (!strcasecmp(CONF_TRUE, p->string.s1) || !strcasecmp(CONF_ON, p->string.s1) || !strcasecmp(CONF_ENABLED, p->string.s1));
-	pair->b2 = (!strcasecmp(CONF_TRUE, p->string.s2) || !strcasecmp(CONF_ON, p->string.s2) || !strcasecmp(CONF_ENABLED, p->string.s2));
+	bool p1 = parse_boolean(NULL, p->string.s1, &pair->b1);
+	bool p2 = parse_boolean(NULL, p->string.s2, &pair->b2);
 	free(p->string.s1);
 	free(p->string.s2);
 	free(p);
-	return pair;
+	return p1 && p2;
 }
 
-static pair_integer_t *parse_pair_integer(const char *c, const char *l)
+static bool parse_pair_integer(const char *c, const char *l, pair_integer_t *pair)
 {
-	pair_integer_t *pair = calloc(1, sizeof (pair_integer_t));
-	if (!pair)
-		die("Out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, sizeof (pair_integer_t));
 	pair_u *p = parse_pair(c, l);
-	pair->i1 = strtoull(p->string.s1, NULL, 0);
-	pair->i2 = strtoull(p->string.s2, NULL, 0);
+	bool p1 = parse_integer(NULL, p->string.s1, &pair->i1);
+	bool p2 = parse_integer(NULL, p->string.s2, &pair->i2);
 	free(p->string.s1);
 	free(p->string.s2);
 	free(p);
-	return pair;
+	return p1 && p2;
 }
 
-static pair_decimal_t *parse_pair_decimal(const char *c, const char *l)
+static bool parse_pair_decimal(const char *c, const char *l, pair_decimal_t *pair)
 {
-	pair_decimal_t *pair = calloc(1, sizeof (pair_decimal_t));
-	if (!pair)
-		die("Out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, sizeof (pair_integer_t));
 	pair_u *p = parse_pair(c, l);
-	pair->d1 = strtof128(p->string.s1, NULL);
-	pair->d2 = strtof128(p->string.s2, NULL);
+	bool p1 = parse_decimal(NULL, p->string.s1, &pair->d1);
+	bool p2 = parse_decimal(NULL, p->string.s2, &pair->d2);
 	free(p->string.s1);
 	free(p->string.s2);
 	free(p);
-	return pair;
+	return p1 && p2;
 }
 
-static pair_string_t *parse_pair_string(const char *c, const char *l)
+static bool parse_pair_string(const char *c, const char *l, pair_string_t *pair)
 {
-	pair_string_t *pair = calloc(1, sizeof (pair_string_t));
-	if (!pair)
-		die("Out of memory @ %s:%d:%s [%zu]", __FILE__, __LINE__, __func__, sizeof (pair_string_t));
 	pair_u *p = parse_pair(c, l);
 	pair->s1 = p->string.s1;
 	pair->s2 = p->string.s2;
 	free(p);
-	return pair;
+	return pair->s1 && pair->s2;
 }
 
 static pair_u *parse_pair(const char *c, const char *l)
@@ -1020,4 +1138,81 @@ static pair_u *parse_pair(const char *c, const char *l)
 	/* all done */
 	free(x);
 	return pair;
+}
+
+static void parse_list_boolean(const char *text, LIST list)
+{
+	bool *r = malloc(sizeof( bool ));
+	if (!r)
+		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( bool ));
+	if (parse_boolean(NULL, text, r))
+	{
+		if (!list_append(list, r))
+			free(r);
+	}
+	else
+		free(r);
+	return;
+}
+
+static void parse_list_integer(const char *text, LIST list)
+{
+	int64_t *r = malloc(sizeof( int64_t ));
+	if (!r)
+		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( int64_t ));
+	if (parse_integer(NULL, text, r))
+	{
+		if (!list_append(list, r))
+			free(r);
+	}
+	else
+		free(r);
+	return;
+}
+
+static void parse_list_decimal(const char *text, LIST list)
+{
+	_Float128 *r = malloc(sizeof( _Float128 ));
+	if (!r)
+		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( _Float128 ));
+	if (parse_decimal(NULL, text, r))
+	{
+		if (!list_append(list, r))
+			free(r);
+	}
+	else
+		free(r);
+	return;
+}
+
+static void parse_list(config_arg_e type, const char *text, LIST list)
+{
+	char *s = strdup(text);
+	if (!s)
+		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(text) + 1);
+	char *t = s;
+	char *u = s;
+	while ((t = strtok(u, ",")))
+	{
+		switch (type)
+		{
+			case CONFIG_ARG_BOOLEAN:
+				parse_list_boolean(t, list);
+				break;
+
+			case CONFIG_ARG_INTEGER:
+				parse_list_integer(t, list);
+				break;
+
+			case CONFIG_ARG_DECIMAL:
+				parse_list_decimal(t, list);
+				break;
+
+			default:
+				break;
+		}
+		u = NULL;
+	}
+	free(s);
+	return;
 }

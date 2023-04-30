@@ -351,6 +351,7 @@ static int cli_print(FILE *stream, char *text)
 	else
 		strcpy(copy, text);
 	int x = fprintf(stream, "%s", copy);
+	fprintf(stream, "\n");
 	free(copy);
 	return x;
 }

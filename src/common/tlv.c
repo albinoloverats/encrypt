@@ -108,8 +108,7 @@ extern const tlv_t *tlv_get(TLV ptr, uint8_t tag)
 	tlv_private_t *tlv_ptr = (tlv_private_t *)ptr;
 	if (!tlv_ptr)
 		return NULL;
-	tlv_t t = { tag, 0, NULL };
-	return list_contains(tlv_ptr->tags, &t);
+	return list_contains(tlv_ptr->tags, &((tlv_t){ tag, 0, NULL }));
 }
 
 extern bool tlv_has_tag(TLV ptr, uint8_t tag)
