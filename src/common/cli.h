@@ -57,6 +57,7 @@
 	#define ANSI_COLOUR_WHITE   "\x1b[97m"
 #endif
 
+#define CLI_MAX_WIDTH 77
 #define CLI_TRUNCATED_DISPLAY_LONG  25
 #define CLI_TRUNCATED_DISPLAY_SHORT 10
 #define CLI_TRUNCATED_ELLIPSE   "...."

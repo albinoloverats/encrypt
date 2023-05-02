@@ -46,7 +46,7 @@
 #include "dir.h"
 #include "non-gnu.h"
 
-#define CLI_HELP_FORMAT_RIGHT_COLUMN 37
+//#define CLI_HELP_FORMAT_RIGHT_COLUMN 37
 
 #define CLI_SMALL   62
 #define CLI_DEFAULT 80 /* Expected default terminal width */
@@ -351,7 +351,7 @@ static int cli_print(FILE *stream, char *text)
 	else
 		strcpy(copy, text);
 	int x = fprintf(stream, "%s", copy);
-	fprintf(stream, "\n");
+	//fprintf(stream, "\n");
 	free(copy);
 	return x;
 }
