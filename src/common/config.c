@@ -251,7 +251,7 @@ extern int config_parse_aux(int argc, char **argv, LIST args, LIST extra, LIST n
 								break;
 
 							default:
-								// ignore anything else for now
+								break;
 						}
 				}
 				free(iter);
