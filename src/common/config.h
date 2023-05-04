@@ -26,6 +26,7 @@
 #include <stdbool.h>
 
 #include "common.h"
+#include "non-gnu.h"
 #include "pair.h"
 #include "list.h"
 
@@ -82,7 +83,7 @@ typedef union
 {
 	bool boolean;
 	int64_t integer;
-	_Float128 decimal;
+	__float128 decimal;
 	char *string;
 	pair_u pair;
 	LIST *list;

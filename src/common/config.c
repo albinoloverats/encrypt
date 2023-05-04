@@ -46,6 +46,7 @@
 #include "version.h"
 #include "cli.h"
 #include "config.h"
+#include "pair.h"
 #include "list.h"
 
 #ifdef _WIN32
@@ -64,7 +65,7 @@ inline static void print_usage(LIST, LIST);
 
 static bool  parse_boolean(const char *, const char *, bool      *);
 static bool  parse_integer(const char *, const char *, int64_t   *);
-static bool  parse_decimal(const char *, const char *, _Float128 *);
+static bool  parse_decimal(const char *, const char *, __float128 *);
 static char *parse_string (const char *, const char *, char      *);
 
 static bool parse_pair_boolean(const char *c, const char *l, pair_boolean_t *);
@@ -793,7 +794,7 @@ static char *parse_default(config_arg_e type, config_arg_u value)
 		case CONFIG_ARG_REQ_DECIMAL:
 			{
 				char buf[0xFF] = { 0x00 };
-				strfromf128(buf, sizeof buf, "%.9f", (_Float128)value.decimal);
+				strfromf128(buf, sizeof buf, "%.9f", (__float128)value.decimal);
 				asprintf(&d, "%s", buf);
 			}
 			break;
@@ -1016,7 +1017,7 @@ static bool parse_integer(const char *c, const char *l, int64_t *v)
 	return r;
 }
 
-static bool parse_decimal(const char *c, const char *l, _Float128 *v)
+static bool parse_decimal(const char *c, const char *l, __float128 *v)
 {
 	bool r = false;
 	char *n = parse_tail(c, l);
@@ -1173,9 +1174,9 @@ static void parse_list_integer(const char *text, LIST list)
 
 static void parse_list_decimal(const char *text, LIST list)
 {
-	_Float128 *r = malloc(sizeof( _Float128 ));
+	__float128 *r = malloc(sizeof( __float128 ));
 	if (!r)
-		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( _Float128 ));
+		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( __float128 ));
 	if (parse_decimal(NULL, text, r))
 	{
 		if (!list_append(list, r))

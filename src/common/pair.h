@@ -49,8 +49,8 @@ pair_integer_t;
 
 typedef struct
 {
-	_Float128 d1;
-	_Float128 d2;
+	__float128 d1;
+	__float128 d2;
 }
 pair_decimal_t;
 
