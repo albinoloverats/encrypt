@@ -60,6 +60,8 @@ static void cli_display_bars(cli_progress_t *, cli_progress_t *, cli_bps_t *);
 static void cli_sigwinch(int);
 #endif
 
+#define CLI_DO_INIT if (!cli_inited) cli_init();
+
 extern void on_quit(int) __attribute__((noreturn));
 
 static void cli_init(void);
@@ -70,7 +72,8 @@ static int cli_print(FILE *, char *);
 
 extern int cli_printf(const char * const restrict s, ...)
 {
-	cli_init();
+	CLI_DO_INIT;
+
 	va_list ap;
 	va_start(ap, s);
 	char *d = NULL;
@@ -83,7 +86,8 @@ extern int cli_printf(const char * const restrict s, ...)
 
 extern int cli_eprintf(const char * const restrict s, ...)
 {
-	cli_init();
+	CLI_DO_INIT;
+
 	va_list ap;
 	va_start(ap, s);
 	char *d = NULL;
@@ -96,7 +100,8 @@ extern int cli_eprintf(const char * const restrict s, ...)
 
 extern int cli_fprintf(FILE *f, const char * const restrict s, ...)
 {
-	cli_init();
+	CLI_DO_INIT;
+
 	va_list ap;
 	va_start(ap, s);
 	char *d = NULL;
@@ -109,19 +114,22 @@ extern int cli_fprintf(FILE *f, const char * const restrict s, ...)
 
 extern int cli_printx(const uint8_t * const restrict x, size_t z)
 {
-	cli_init();
+	CLI_DO_INIT;
+
 	return cli_fprintx(stdout, x, z);
 }
 
 extern int cli_eprintx(const uint8_t * const restrict x, size_t z)
 {
-	cli_init();
+	CLI_DO_INIT;
+
 	return cli_fprintx(stderr, x, z);
 }
 
 extern int cli_fprintx(FILE *f, const uint8_t * const restrict x, size_t z)
 {
-	cli_init();
+	CLI_DO_INIT;
+
 #define CLI_PRINTX_W 16
 	// TODO allow variable width lines
 	int l = 0, o = 0;
@@ -147,7 +155,8 @@ extern int cli_fprintx(FILE *f, const uint8_t * const restrict x, size_t z)
 
 extern double cli_calc_bps(cli_bps_t *bps)
 {
-	cli_init();
+	CLI_DO_INIT;
+
 	cli_bps_t *copy = calloc(BPS, sizeof( cli_bps_t ));
 	if (!copy)
 		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, BPS * sizeof( cli_bps_t ));
@@ -175,7 +184,8 @@ extern double cli_calc_bps(cli_bps_t *bps)
 //#ifndef _WIN32
 extern void cli_display(cli_t *p)
 {
-	cli_init();
+	CLI_DO_INIT;
+
 #ifndef _WIN32
 	cli_sigwinch(SIGWINCH);
 #endif

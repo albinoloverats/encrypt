@@ -55,9 +55,9 @@
 #endif
 
 
-static void show_version(LIST args, LIST notes, LIST extra) __attribute__((noreturn));
-static void show_help(LIST args, LIST notes, LIST extra) __attribute__((noreturn));
-static void show_licence(LIST args, LIST notes, LIST extra) __attribute__((noreturn));
+static void show_version(LIST args, LIST largs, LIST notes, LIST extra) __attribute__((noreturn));
+static void show_help(LIST args, LIST largs, LIST notes, LIST extra) __attribute__((noreturn));
+static void show_licence(LIST args, LIST largs, LIST notes, LIST extra) __attribute__((noreturn));
 
 inline static bool is_argument(char, const char *, const char *);
 inline static void format_section(char *);
@@ -74,6 +74,7 @@ static bool parse_pair_decimal(const char *c, const char *l, pair_decimal_t *);
 static bool parse_pair_string (const char *c, const char *l, pair_string_t  *);
 
 static pair_u *parse_pair(const char *c, const char *l);
+
 static char *parse_tail(const char *, const char *);
 
 static void parse_list_boolean(const char *, LIST list);
@@ -134,6 +135,40 @@ extern int config_parse_aux(int argc, char **argv, LIST args, LIST extra, LIST n
 		cli_eprintf(_("Call config_init() first\n"));
 		return -1;
 	}
+
+	LIST largs = list_init((void *)strcmp, true, false);
+	for (int i = 1; i < argc; i++) // from 1, skip invokation name
+	{
+		char *x = argv[i];
+		if (x[0] == '-' && x[1] == '-')
+		{
+			// long option, check for '='
+			char *o = strchr(x, '=');
+			if (o)
+			{
+				list_append(largs, strndup(x, o - x));
+				list_append(largs, strdup(o + 1));
+			}
+			else
+				list_append(largs, strdup(argv[i]));
+		}
+		else if (x[0] == '-' && strlen(x) > 2)
+		{
+			// short option, check for anything after '-x...'
+			list_append(largs, strndup(x, 2));
+			list_append(largs, strdup(x + 2));
+		}
+		else
+			list_append(largs, strdup(argv[i]));
+	}
+	/* handle help et al first */
+	if (list_contains(largs, "-h") || list_contains(largs, "--help"))
+		show_help(args, largs, notes, extra);
+	if (list_contains(largs, "-v") || list_contains(largs, "--version"))
+		show_version(args, largs, notes, extra);
+	if (list_contains(largs, "-l") || list_contains(largs, "--licence"))
+		show_licence(args, largs, notes, extra);
+
 	/*
 	 * check for options in rc file
 	 */
@@ -174,6 +209,9 @@ extern int config_parse_aux(int argc, char **argv, LIST args, LIST extra, LIST n
 					if (arg->long_option && !strncmp(arg->long_option, line, strlen(arg->long_option)) && isspace((unsigned char)line[strlen(arg->long_option)]))
 						switch (arg->response.type)
 						{
+							/*
+							 * optional values
+							 */
 							case CONFIG_ARG_OPT_BOOLEAN:
 								(void)0; // for Slackware's older GCC
 								__attribute__((fallthrough)); /* allow fall-through */
@@ -200,9 +238,14 @@ extern int config_parse_aux(int argc, char **argv, LIST args, LIST extra, LIST n
 								__attribute__((fallthrough)); /* allow fall-through */
 							case CONFIG_ARG_REQ_STRING:
 								arg->seen = true;
+								if (arg->response.value.string)
+									free(arg->response.value.string);
 								arg->response.value.string = parse_string(arg->long_option, line, arg->response.value.string);
 								break;
 
+							/*
+							 * pairs of values
+							 */
 							case CONFIG_ARG_PAIR_BOOLEAN:
 								arg->seen = parse_pair_boolean(arg->long_option, line, &arg->response.value.pair.boolean);
 								break;
@@ -219,6 +262,54 @@ extern int config_parse_aux(int argc, char **argv, LIST args, LIST extra, LIST n
 								arg->seen = parse_pair_string(arg->long_option, line, &arg->response.value.pair.string);
 								break;
 
+							/*
+							 * lists of values
+							 */
+							case CONFIG_ARG_LIST_BOOLEAN:
+								if (!arg->seen && arg->response.value.list)
+								{
+									free(arg->response.value.list);
+									arg->response.value.list = NULL;
+								}
+								arg->seen = true;
+								if (!arg->response.value.list)
+									arg->response.value.list = list_default();
+								if (strchr(line, ','))
+									parse_list(CONFIG_ARG_BOOLEAN, line + strlen(arg->long_option) + 1, arg->response.value.list);
+								else
+									parse_list_boolean(line + strlen(arg->long_option) + 1, arg->response.value.list);
+								break;
+
+							case CONFIG_ARG_LIST_INTEGER:
+								if (!arg->seen && arg->response.value.list)
+								{
+									free(arg->response.value.list);
+									arg->response.value.list = NULL;
+								}
+								arg->seen = true;
+								if (!arg->response.value.list)
+									arg->response.value.list = list_default();
+								if (strchr(line, ','))
+									parse_list(CONFIG_ARG_INTEGER, line + strlen(arg->long_option) + 1, arg->response.value.list);
+								else
+									parse_list_integer(line + strlen(arg->long_option) + 1, arg->response.value.list);
+								break;
+
+							case CONFIG_ARG_LIST_DECIMAL:
+								if (!arg->seen && arg->response.value.list)
+								{
+									free(arg->response.value.list);
+									arg->response.value.list = NULL;
+								}
+								arg->seen = true;
+								if (!arg->response.value.list)
+									arg->response.value.list = list_default();
+								if (strchr(line, ','))
+									parse_list(CONFIG_ARG_DECIMAL, line + strlen(arg->long_option) + 1, arg->response.value.list);
+								else
+									parse_list_decimal(line + strlen(arg->long_option) + 1, arg->response.value.list);
+								break;
+
 							case CONFIG_ARG_LIST_STRING:
 								if (!arg->seen && arg->response.value.list)
 								{
@@ -228,9 +319,15 @@ extern int config_parse_aux(int argc, char **argv, LIST args, LIST extra, LIST n
 								arg->seen = true;
 								if (!arg->response.value.list)
 									arg->response.value.list = list_default();
-								list_append(arg->response.value.list, parse_string(arg->long_option, line, NULL));
+								if (strchr(line, ','))
+									parse_list(CONFIG_ARG_STRING, line + strlen(arg->long_option) + 1, arg->response.value.list);
+								else
+									list_append(arg->response.value.list, parse_string(arg->long_option, line, NULL));
 								break;
 
+							/*
+							 * lists of pairs
+							 */
 							case CONFIG_ARG_LIST_PAIR_STRING:
 								{
 									if (!arg->seen && arg->response.value.list)
@@ -266,39 +363,6 @@ end_line:
 		}
 		free(rc);
 	}
-
-	LIST largs = list_init((void *)strcmp, true, false);
-	for (int i = 1; i < argc; i++) // from 1, skip invokation name
-	{
-		char *x = argv[i];
-		if (x[0] == '-' && x[1] == '-')
-		{
-			// long option, check for '='
-			char *o = strchr(x, '=');
-			if (o)
-			{
-				list_append(largs, strndup(x, o - x));
-				list_append(largs, strdup(o + 1));
-			}
-			else
-				list_append(largs, strdup(argv[i]));
-		}
-		else if (x[0] == '-' && strlen(x) > 2)
-		{
-			// short option, check for anything after '-x...'
-			list_append(largs, strndup(x, 2));
-			list_append(largs, strdup(x + 2));
-		}
-		else
-			list_append(largs, strdup(argv[i]));
-	}
-	/* handle help et al first */
-	if (list_contains(largs, "-h") || list_contains(largs, "--help"))
-		show_help(args, notes, extra);
-	if (list_contains(largs, "-v") || list_contains(largs, "--version"))
-		show_version(args, notes, extra);
-	if (list_contains(largs, "-l") || list_contains(largs, "--licence"))
-		show_licence(args, notes, extra);
 
 	for (size_t i = 0, j = 0; i < list_size(largs); i++)
 	{
@@ -530,12 +594,13 @@ inline static void format_section(char *s)
 	return;
 }
 
-static void show_version(LIST args, LIST notes, LIST extra)
+static void show_version(LIST args, LIST largs, LIST notes, LIST extra)
 {
 	version_print(about.name, about.version, about.url);
 	while (version_is_checking)
 		sleep(1);
 	list_deinit(args);
+	list_deinit(largs, free);
 	list_deinit(notes);
 	list_deinit(extra);
 	exit(EXIT_SUCCESS);
@@ -798,17 +863,21 @@ static char *parse_default(config_arg_e type, config_arg_u value)
 				asprintf(&d, "%s", buf);
 			}
 			break;
+		case CONFIG_ARG_OPT_STRING:
+			(void)0; // for Slackware's older GCC
+			__attribute__((fallthrough)); /* allow fall-through */
+		case CONFIG_ARG_REQ_STRING:
+			d = strdup(value.string ? : "(null)");
+			break;
 		default: // all other defaults to be displayed should be string
-			{
-				if (value.string)
-					d = strdup((char *)value.string);
-			}
+			if (value.string)
+				d = strdup((char *)value.string);
 			break;
 	}
 	return d;
 }
 
-static void show_help(LIST args, LIST notes, LIST extra)
+static void show_help(LIST args, LIST largs, LIST notes, LIST extra)
 {
 	version_print(about.name, about.version, about.url);
 	cli_eprintf("\n");
@@ -885,17 +954,19 @@ static void show_help(LIST args, LIST notes, LIST extra)
 	while (version_is_checking)
 		sleep(1);
 	list_deinit(args);
+	list_deinit(largs, free);
 	list_deinit(notes);
 	list_deinit(extra);
 	exit(EXIT_SUCCESS);
 }
 
-static void show_licence(LIST args, LIST notes, LIST extra)
+static void show_licence(LIST args, LIST largs, LIST notes, LIST extra)
 {
 	cli_eprintf(_(TEXT_LICENCE));
 	while (version_is_checking)
 		sleep(1);
 	list_deinit(args);
+	list_deinit(largs, free);
 	list_deinit(notes);
 	list_deinit(extra);
 	exit(EXIT_SUCCESS);
@@ -1042,6 +1113,8 @@ static char *parse_string(const char *c, const char *l, char *v)
 
 static char *parse_tail(const char *c, const char *l)
 {
+	if (!l)
+		return NULL;
 	char *x = strdup(l + (c ? strlen(c) : 0));
 	if (!x)
 		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(l) - strlen(c) + 1);
@@ -1189,6 +1262,8 @@ static void parse_list_decimal(const char *text, LIST list)
 
 static void parse_list(config_arg_e type, const char *text, LIST list)
 {
+	while (*text && isspace(*text))
+		text++;
 	char *s = strdup(text);
 	if (!s)
 		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(text) + 1);
@@ -1208,6 +1283,12 @@ static void parse_list(config_arg_e type, const char *text, LIST list)
 
 			case CONFIG_ARG_DECIMAL:
 				parse_list_decimal(t, list);
+				break;
+
+			case CONFIG_ARG_STRING:
+				char *v = strdup(t);
+				if (!list_append(list, v))
+					free(v);
 				break;
 
 			default:
