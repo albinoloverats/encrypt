@@ -60,7 +60,7 @@ static void cli_display_bars(cli_progress_t *, cli_progress_t *, cli_bps_t *);
 static void cli_sigwinch(int);
 #endif
 
-#define CLI_DO_INIT if (!cli_inited) cli_init();
+#define CLI_DO_INIT if (cli_inited != 1) cli_init();
 
 extern void on_quit(int) __attribute__((noreturn));
 
