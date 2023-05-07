@@ -1286,9 +1286,11 @@ static void parse_list(config_arg_e type, const char *text, LIST list)
 				break;
 
 			case CONFIG_ARG_STRING:
-				char *v = strdup(t);
-				if (!list_append(list, v))
-					free(v);
+				{
+					char *v = strdup(t);
+					if (!list_append(list, v))
+						free(v);
+				}
 				break;
 
 			default:
