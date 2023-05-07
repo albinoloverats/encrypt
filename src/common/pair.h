@@ -33,6 +33,8 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
+#include "non-gnu.h"
+
 typedef struct
 {
 	bool b1;

@@ -41,9 +41,13 @@
 	#define __attribute__(X)
 #endif
 
-#ifdef __clang__
-	#define strfromf128 strfroml
-	#define strtof128 strtold
+#if defined __APPLE__ || defined __clang__
+	#define __float128  double
+	#define strtof128   strtod
+
+	#if defined __APPLE__
+		#define strfromf128 snprintf
+	#endif
 #endif
 
 #ifdef _WIN32
