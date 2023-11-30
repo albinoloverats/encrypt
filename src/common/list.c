@@ -23,6 +23,7 @@
 #include <stdbool.h>
 
 #include "common.h"
+#include "non-gnu.h"
 #include "list.h"
 #include "error.h"
 
