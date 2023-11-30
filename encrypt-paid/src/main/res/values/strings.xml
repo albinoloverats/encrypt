@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">encrypt</string>
-	<string name="version">2022.01</string>
+	<string name="version">2024.01</string>
 	<string name="encrypt">Encrypt</string>
 	<string name="decrypt">Decrypt</string>
 
 	<string name="please_wait">Please wait …</string>
 	<string name="about">About</string>
 	<string name="description">encrypt ~ a cross platform, symmetric key, file encryption application</string>
-	<string name="copyright">Copyright © 2004–2022, albinoloverats ~ Software Development</string>
+	<string name="copyright">Copyright © 2004–2024, albinoloverats ~ Software Development</string>
 	<string name="url">https://albinoloverats.net/projects/encrypt</string>
 
 	<string name="options">Options</string>

@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS) encryption utility
- * Copyright © 2005-2022, albinoloverats ~ Software Development
+ * Copyright © 2005-2024, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -128,6 +128,7 @@ public class Decrypt extends Crypto
 					break;
 				case _202001:
 				case _202201:
+				case _202401:
 				case CURRENT:
 					//kdfIterations = KDF_ITERATIONS_DEFAULT;
 					break;
