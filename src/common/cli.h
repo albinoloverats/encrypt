@@ -216,4 +216,16 @@ extern int cli_eprintx(const uint8_t * const restrict x, size_t z) __attribute__
  */
 extern int cli_fprintx(FILE *f, const uint8_t * const restrict x, size_t z) __attribute__((nonnull(2)));
 
+/*!
+ * \brief         Formatted output to stderr
+ * \param[in]  s  The format template
+ * \return        The number of bytes written
+ *
+ * Similar to cli_eprintf with the addition of appending a new line.
+ * There is the possibility of prepending the date and time but systemd
+ * does that for us (in our use-case).
+ */
+extern int logger(const char * const restrict s, ...) __attribute__((nonnull(1), format(printf, 1, 2)));
+// TODO Add more log-like functions (hex, to file, etc)
+
 #endif /* _COMMON_CLI_H_ */

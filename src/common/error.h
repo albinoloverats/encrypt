@@ -25,7 +25,7 @@
  * \file    error.h
  * \author  albinoloverats ~ Software Development
  * \date    2009-2022
- * \brief   Common logging code shared between projects
+ * \brief   Common error handling code shared between projects
  *
  * Common error handling code, currently only fatal end of execution,
  * likely due to out of memory or similar.

@@ -44,10 +44,7 @@
 #if defined __APPLE__ || defined __clang__
 	#define __float128  double
 	#define strtof128   strtod
-
-	#if defined __APPLE__
-		#define strfromf128 snprintf
-	#endif
+	#define strfromf128 snprintf
 #endif
 
 #ifdef _WIN32

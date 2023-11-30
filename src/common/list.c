@@ -341,3 +341,17 @@ extern void list_add_comparator(LIST ptr, int c(const void *, const void *))
 	list_ptr->compare = c;
 	return;
 }
+
+extern int list_compare_integer(void *a, void *b)
+{
+	const int64_t *x = a;
+	const int64_t *y = b;
+	return *x - *y;
+}
+
+extern int list_compare_decimal(void *a, void *b)
+{
+	const __float128 *x = a;
+	const __float128 *y = b;
+	return *x - *y;
+}

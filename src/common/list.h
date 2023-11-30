@@ -63,6 +63,26 @@ typedef void * ITER;
  * \brief         Create a new linked list
  * \return        A new linked list
  *
+ * Create a new linked list instance that is intended to contain integer
+ * values. It allows duplicates and will sort the list according to
+ * their value. Returns NULL on error.
+ */
+#define list_integer() list_init((void *)list_compare_integer, true, true)
+
+/*!
+ * \brief         Create a new linked list
+ * \return        A new linked list
+ *
+ * Create a new linked list instance that is intended to contain decimal
+ * values. It allows duplicates and will sort the list according to
+ * their values. Returns NULL on error.
+ */
+#define list_decimal() list_init((void *)list_compare_integer, true, true)
+
+/*!
+ * \brief         Create a new linked list
+ * \return        A new linked list
+ *
  * Create a new linked list instance that is intended to contain string
  * values. It allows duplicates and will sort the list according to
  * strcmp. Returns NULL on error.
@@ -241,5 +261,9 @@ extern bool list_has_next(ITER h) __attribute__((nonnull(1)));
  * Add a comparator to the list so that items can be compared.
  */
 extern void list_add_comparator(LIST h, int c(const void *, const void *)) __attribute__((nonnull(1, 2)));
+
+extern int list_compare_integer(void *a, void *b);
+
+extern int list_compare_decimal(void *a, void *b);
 
 #endif

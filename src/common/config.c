@@ -175,7 +175,8 @@ extern int config_parse_aux(int argc, char **argv, LIST args, LIST extra, LIST n
 	if (args && about.config != NULL)
 	{
 		char *rc = NULL;
-#ifndef _WIN32
+#ifndef __DEBUG__
+	#ifndef _WIN32
 		if (about.config[0] == '/' || (about.config[0] == '.' && about.config[1] == '/'))
 		{
 			if (!(rc = strdup(about.config)))
@@ -183,12 +184,16 @@ extern int config_parse_aux(int argc, char **argv, LIST args, LIST extra, LIST n
 		}
 		else if (!asprintf(&rc, "%s/%s", getenv("HOME") ? : ".", about.config))
 			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(getenv("HOME")) + strlen(about.config) + 2);
-#else
+	#else
 		if (!(rc = calloc(MAX_PATH, sizeof( char ))))
 			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, MAX_PATH);
 		SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, rc);
 		strcat(rc, "\\");
 		strcat(rc, about.config);
+	#endif
+#else
+		if (!(rc = strdup(about.config)))
+			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(about.config) + 1);
 #endif
 		FILE *f = fopen(rc, "rb");
 		if (f)
@@ -567,14 +572,17 @@ end_line:
 
 	}
 	free(iter);
-	iter = list_iterator(extra);
-	while (list_has_next(iter))
+	if (extra)
 	{
-		config_unnamed_t *arg = (config_unnamed_t *)list_get_next(iter);
-		if (arg->seen)
-			r++;
+		iter = list_iterator(extra);
+		while (list_has_next(iter))
+		{
+			config_unnamed_t *arg = (config_unnamed_t *)list_get_next(iter);
+			if (arg->seen)
+				r++;
+		}
+		free(iter);
 	}
-	free(iter);
 
 	return r;
 }
