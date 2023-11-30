@@ -41,7 +41,7 @@
 #include "crypt_io.h"   /*!< Necessary as IO_HANDLE type is referenced in this header */
 
 #define ENCRYPT "encrypt"
-#define ENCRYPT_VERSION "2022.01" /*!< Current (display) version of encrypt application */
+#define ENCRYPT_VERSION "2024.01" /*!< Current (display) version of encrypt application */
 #define UPDATE_URL "https://albinoloverats.net/encrypt.release" /*!< URI to check for updates */
 #define PROJECT_URL "https://albinoloverats.net/projects/encrypt"
 #define ENCRYPTRC ".encryptrc"
@@ -140,7 +140,8 @@ typedef enum
 	VERSION_2017_09,     /*!< Version 2017.09 */
 	VERSION_2020_01,     /*!< Version 2020.01 */
 	VERSION_2022_01,     /*!< Version 2022.01 */
-	VERSION_CURRENT = VERSION_2022_01 /*!< Next release / current development version */
+	VERSION_2024_01,     /*!< Version 2024.01 */
+	VERSION_CURRENT = VERSION_2024_01 /*!< Next release / current development version */
 }
 version_e;
 
