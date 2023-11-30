@@ -435,6 +435,11 @@ extern int scandir(const char *path, struct dirent ***res, int (*sel)(const stru
 	return cnt;
 }
 
+extern int alphasort(const struct dirent **a, const struct dirent **b)
+{
+	return strcoll((*a)->d_name, (*b)->d_name);
+}
+
 extern FILE *temp_file(void)
 {
 	char p[256] = { 0x0 };

@@ -49,7 +49,7 @@ static GtkWidget *error_gui_message;
 
 extern void on_error(int) __attribute__((noreturn));
 
-static char *itoa(int);
+static char *int_to_ascii(int);
 
 static volatile sig_atomic_t error_inited = 0;
 
@@ -66,7 +66,7 @@ extern void on_error(int s)
 
 	char m[32] = { 0x0 };
 	strcat(m, "Received fatal signal [");
-	strcat(m, itoa(s));
+	strcat(m, int_to_ascii(s));
 	strcat(m, "]");
 	psignal(s, m);
 
@@ -187,7 +187,7 @@ static void error_gui_alert(const char * const restrict msg)
 
 #define INT_DIGITS 19       /* enough for 64 bit integer */
 
-static char *itoa(int i)
+static char *int_to_ascii(int i)
 {
 	/* Room for INT_DIGITS digits, - and '\0' */
 	static char buf[INT_DIGITS + 2];
