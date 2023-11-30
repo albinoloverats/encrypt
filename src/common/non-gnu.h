@@ -41,7 +41,7 @@
 	#define __attribute__(X)
 #endif
 
-#if defined __APPLE__ || defined __clang__
+#if defined __APPLE__ || defined __clang__ || defined __sun
 	#define __float128  double
 	#define strtof128   strtod
 	#define strfromf128 snprintf
