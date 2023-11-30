@@ -1,6 +1,6 @@
 /*
  * Common code for providing a cmomand line progress bar
- * Copyright © 2005-2022, albinoloverats ~ Software Development
+ * Copyright © 2005-2024, albinoloverats ~ Software Development
  * email: webmaster@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify

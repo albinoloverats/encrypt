@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, multi-OS encryption utility
- * Copyright © 2005-2022, albinoloverats ~ Software Development
+ * Copyright © 2005-2024, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -220,6 +220,7 @@ static void *process(void *ptr)
 
 		case VERSION_2020_01:
 		case VERSION_2022_01:
+		case VERSION_2024_01:
 			//c->kdf_iterations = KEY_ITERATIONS_DEFAULT;
 			break;
 		default:

@@ -1,7 +1,7 @@
 # $FreeBSD$
 
 PORTNAME=     encrypt
-DISTVERSION=  2022.01
+DISTVERSION=  2024.01
 CATEGORIES=   security
 MASTER_SITES= https://albinoloverats.net/downloads/${PORTNAME}/${DISTVERSION}/
 DISTNAME=     ${PORTNAME}-${DISTVERSION}

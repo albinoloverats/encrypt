@@ -1,6 +1,6 @@
 /*
  * Common code for dealing with pairs of values.
- * Copyright © 2022-2022, albinoloverats ~ Software Development
+ * Copyright © 2022-2024, albinoloverats ~ Software Development
  * email: webmaster@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 /*!
  * \file    pair.h
  * \author  albinoloverats ~ Software Development
- * \date    2022-2022
+ * \date    2022-2024
  * \brief   Common pair-o-values code shared between projects
  *
  * Common map implementation.

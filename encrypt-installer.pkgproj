@@ -38,7 +38,7 @@
 									<key>GID</key>
 									<integer>80</integer>
 									<key>PATH</key>
-									<string>/Users/ashley/src/Encrypt-2022.01/Encrypt.app</string>
+									<string>/Users/ashley/src/Encrypt-2024.01/Encrypt.app</string>
 									<key>PATH_TYPE</key>
 									<integer>0</integer>
 									<key>PERMISSIONS</key>
@@ -625,7 +625,7 @@
 						<key>LANGUAGE</key>
 						<string>English</string>
 						<key>VALUE</key>
-						<string>encrypt 2022.01</string>
+						<string>encrypt 2024.01</string>
 					</dict>
 				</array>
 			</dict>

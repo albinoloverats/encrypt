@@ -4,7 +4,7 @@ It was downloaded from https://albinoloverats.net/encrypt
 
 Upstream Author: albinoloverats ~ Software Development <encrypt@albinoloverats.net>
 
-Copyright: Copyright © 2004-2022, albinoloverats ~ Software Development
+Copyright: Copyright © 2004-2024, albinoloverats ~ Software Development
 
 License:
     This program is free software: you can redistribute it and/or modify
@@ -23,7 +23,7 @@ License:
 On Debian systems, the complete text of the GNU General
 Public License can be found in `/usr/share/common-licenses/GPL'.
 
-The Debian packaging is © 2022, Ashley Anderson <amanderson@albinoloverats.net> and
+The Debian packaging is © 2024, Ashley Anderson <amanderson@albinoloverats.net> and
 is licensed under the GPL, see above.
 
 

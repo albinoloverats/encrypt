@@ -12,6 +12,10 @@ Planned Future Enhancements
 * Android : Support for file (hard/soft) links (depends on full NIO)
 * All : Bug fixes as necessary ;-)
 
+encrypt - 2024.01                                      ---- ------- 2024
+
+TODO: fill this in
+
 encrypt - 2022.01                                      25th January 2022
 
 * Update/Fix file handling on OS X

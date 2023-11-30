@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# $File: encrypt,v 2017.09 2016/06/20 00:00:00 chl Exp $
+# $File: encrypt,v 2024.01 2023/11/30 17:37:39 chl Exp $
 # encrypt:  file(1) magic for encrypt
 #
 # Type: encrypt
@@ -17,5 +17,11 @@
 >16		bequad		0x0dae4a923e4ae71d	(version 2015.10)
 >25		pstring		x					(algorithms: %s)
 >16		bequad		0x323031372e303921	(version 2017.09)
+>25		pstring		x					(algorithms: %s)
+>16		bequad		0x323032302e30312e	(version 2020.01)
+>25		pstring		x					(algorithms: %s)
+>16		bequad		0x323032312e30312e	(version 2022.01)
+>25		pstring		x					(algorithms: %s)
+>16		bequad		0x2e4155524f52412e	(version 2024.01)
 >25		pstring		x					(algorithms: %s)
 !:mime	application/x-encrypt
