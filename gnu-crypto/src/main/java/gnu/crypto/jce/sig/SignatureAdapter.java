@@ -43,6 +43,11 @@ package gnu.crypto.jce.sig;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
+import gnu.crypto.sig.BaseSignature;
+import gnu.crypto.sig.ISignature;
+import gnu.crypto.sig.ISignatureCodec;
+import gnu.crypto.sig.SignatureFactory;
+
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
@@ -53,11 +58,6 @@ import java.security.SignatureException;
 import java.security.SignatureSpi;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.HashMap;
-
-import gnu.crypto.sig.BaseSignature;
-import gnu.crypto.sig.ISignature;
-import gnu.crypto.sig.ISignatureCodec;
-import gnu.crypto.sig.SignatureFactory;
 
 /**
  * The implementation of a generic {@link java.security.Signature} adapter class

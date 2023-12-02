@@ -44,6 +44,9 @@ package gnu.crypto.jce.cipher;
 //
 // --------------------------------------------------------------------------
 
+import gnu.crypto.Registry;
+import gnu.crypto.jce.spec.BlockCipherParameterSpec;
+
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -51,9 +54,6 @@ import java.security.Key;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
-
-import gnu.crypto.Registry;
-import gnu.crypto.jce.spec.BlockCipherParameterSpec;
 
 /**
  * The implementation of the AES <i>Service Provider Interface</i>

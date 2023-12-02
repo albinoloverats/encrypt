@@ -43,14 +43,14 @@ package gnu.crypto.jce.sig;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
+import gnu.crypto.Registry;
+import gnu.crypto.key.rsa.RSAKeyPairGenerator;
+
 import java.security.InvalidAlgorithmParameterException;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.HashMap;
-
-import gnu.crypto.Registry;
-import gnu.crypto.key.rsa.RSAKeyPairGenerator;
 
 /**
  * The implementation of a {@link java.security.KeyPairGenerator} adapter class

@@ -125,20 +125,16 @@ public class PBKDF2 extends BasePRNG implements Cloneable {
          salt = s;
       }
 
-      if (attributes.containsKey(IMac.MAC_KEY_MATERIAL)) {
-         macAttrib.put(IMac.MAC_KEY_MATERIAL, attributes.get(IMac.MAC_KEY_MATERIAL));
-      } else {
-         char[] password = (char[])attributes.get(IPBE.PASSWORD);
-         if (password != null) {
-            try {
-               macAttrib.put(IMac.MAC_KEY_MATERIAL, new String(password).getBytes("UTF-8"));
-            } catch (UnsupportedEncodingException uee) {
-               throw new Error(uee.getMessage());
-            }
-         } else if (!initialised) {
-            throw new IllegalArgumentException("no password specified");
-         } // otherwise re-use previous password.
-      }
+      char[] password = (char[]) attributes.get(IPBE.PASSWORD);
+      if (password != null) {
+         try {
+            macAttrib.put(IMac.MAC_KEY_MATERIAL, new String(password).getBytes("UTF-8"));
+         } catch (UnsupportedEncodingException uee) {
+            throw new Error(uee.getMessage());
+         }
+      } else if (!initialised) {
+         throw new IllegalArgumentException("no password specified");
+      } // otherwise re-use previous password.
 
       try {
          mac.init(macAttrib);

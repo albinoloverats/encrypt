@@ -43,14 +43,14 @@ package gnu.crypto.key.srp6;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import java.math.BigInteger;
-
 import gnu.crypto.Registry;
 import gnu.crypto.hash.IMessageDigest;
 import gnu.crypto.key.BaseKeyAgreementParty;
 import gnu.crypto.key.KeyAgreementException;
 import gnu.crypto.sasl.srp.SRP;
 import gnu.crypto.util.Util;
+
+import java.math.BigInteger;
 
 /**
  * <p>The Secure Remote Password (SRP) key agreement protocol, also known as

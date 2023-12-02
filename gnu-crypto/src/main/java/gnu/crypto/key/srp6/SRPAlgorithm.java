@@ -43,10 +43,10 @@ package gnu.crypto.key.srp6;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import java.math.BigInteger;
-
 import gnu.crypto.sasl.srp.SRPRegistry;
 import gnu.crypto.util.Prime;
+
+import java.math.BigInteger;
 
 /**
  * <p>Utilities for use with SRP-6 based methods and protocols.</p>

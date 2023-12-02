@@ -41,10 +41,14 @@ exception statement from your version.  */
 
 package gnu.crypto.jce.key;
 
+import gnu.crypto.cipher.CipherFactory;
+import gnu.crypto.cipher.IBlockCipher;
+
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidParameterException;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
+
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -52,9 +56,6 @@ import java.util.List;
 import javax.crypto.KeyGeneratorSpi;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-
-import gnu.crypto.cipher.CipherFactory;
-import gnu.crypto.cipher.IBlockCipher;
 
 public class SecretKeyGeneratorImpl extends KeyGeneratorSpi
 {

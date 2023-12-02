@@ -44,13 +44,14 @@ package gnu.crypto.jce.params;
 //
 // --------------------------------------------------------------------------
 
+import gnu.crypto.jce.spec.BlockCipherParameterSpec;
+
 import java.io.IOException;
 import java.math.BigInteger;
+
 import java.security.AlgorithmParametersSpi;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
-
-import gnu.crypto.jce.spec.BlockCipherParameterSpec;
 
 /**
  * An implementation of algorithm parameters for the GNU Crypto block

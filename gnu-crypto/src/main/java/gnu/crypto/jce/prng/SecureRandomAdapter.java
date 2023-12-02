@@ -43,11 +43,11 @@ package gnu.crypto.jce.prng;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import java.security.SecureRandomSpi;
-import java.util.HashMap;
-
 import gnu.crypto.prng.LimitReachedException;
 import gnu.crypto.prng.MDGenerator;
+
+import java.security.SecureRandomSpi;
+import java.util.HashMap;
 
 /**
  * <p>The implementation of a generic {@link java.security.SecureRandom} adapter

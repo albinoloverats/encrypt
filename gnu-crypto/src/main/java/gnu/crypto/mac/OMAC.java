@@ -43,16 +43,18 @@ package gnu.crypto.mac;  // -*- mode: java; c-basic-offset: 3 -*-
 // do so, delete this exception statement from your version.
 // ---------------------------------------------------------------------------
 
-import java.security.InvalidKeyException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 import gnu.crypto.Registry;
 import gnu.crypto.cipher.CipherFactory;
 import gnu.crypto.cipher.IBlockCipher;
 import gnu.crypto.mode.IMode;
+import gnu.crypto.mode.ModeFactory;
 import gnu.crypto.util.Util;
+
+import java.security.InvalidKeyException;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>The One-Key CBC MAC, OMAC. This message authentication code is based on

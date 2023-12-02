@@ -43,12 +43,12 @@ package gnu.crypto.key.dh;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import java.math.BigInteger;
-
 import gnu.crypto.Registry;
 import gnu.crypto.key.BaseKeyAgreementParty;
 import gnu.crypto.key.KeyAgreementException;
 import gnu.crypto.util.Util;
+
+import java.math.BigInteger;
 
 /**
  * <p>The ElGamal key agreement, also known as the half-certified Diffie-Hellman

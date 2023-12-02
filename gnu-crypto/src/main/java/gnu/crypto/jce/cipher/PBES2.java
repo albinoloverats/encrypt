@@ -44,6 +44,11 @@ package gnu.crypto.jce.cipher;  // -*- c-basic-offset: 3; -*-
 //
 // ---------------------------------------------------------------------------
 
+import gnu.crypto.prng.IPBE;
+import gnu.crypto.prng.IRandom;
+import gnu.crypto.prng.LimitReachedException;
+import gnu.crypto.prng.PRNGFactory;
+
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -54,11 +59,6 @@ import java.util.HashMap;
 
 import javax.crypto.interfaces.PBEKey;
 import javax.crypto.spec.SecretKeySpec;
-
-import gnu.crypto.prng.IPBE;
-import gnu.crypto.prng.IRandom;
-import gnu.crypto.prng.LimitReachedException;
-import gnu.crypto.prng.PRNGFactory;
 
 /**
  * <p>.</p>

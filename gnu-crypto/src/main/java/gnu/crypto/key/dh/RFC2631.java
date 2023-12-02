@@ -43,12 +43,12 @@ package gnu.crypto.key.dh;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
+import gnu.crypto.hash.Sha160;
+import gnu.crypto.util.Prime;
+import gnu.crypto.util.PRNG;
+
 import java.math.BigInteger;
 import java.security.SecureRandom;
-
-import gnu.crypto.hash.Sha160;
-import gnu.crypto.util.PRNG;
-import gnu.crypto.util.Prime;
 
 /**
  * <p>An implementation of the Diffie-Hellman parameter generation as defined in

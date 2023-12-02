@@ -43,14 +43,14 @@ package gnu.crypto.mac;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import java.security.InvalidKeyException;
-import java.util.HashMap;
-import java.util.Map;
-
 import gnu.crypto.Registry;
 import gnu.crypto.hash.IMessageDigest;
 import gnu.crypto.hash.MD5;
 import gnu.crypto.util.Util;
+
+import java.security.InvalidKeyException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>The implementation of the <i>HMAC</i> (Keyed-Hash Message Authentication

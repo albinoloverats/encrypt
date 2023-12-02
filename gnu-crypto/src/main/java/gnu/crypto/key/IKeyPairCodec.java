@@ -43,10 +43,10 @@ package gnu.crypto.key;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
+import gnu.crypto.Registry;
+
 import java.security.PrivateKey;
 import java.security.PublicKey;
-
-import gnu.crypto.Registry;
 
 /**
  * <p>The visible methods of an object that knows how to encode and decode

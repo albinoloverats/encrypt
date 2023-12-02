@@ -44,6 +44,15 @@ package gnu.crypto.jce.cipher;
 //
 // --------------------------------------------------------------------------
 
+import gnu.crypto.cipher.IBlockCipher;
+import gnu.crypto.cipher.CipherFactory;
+import gnu.crypto.jce.spec.BlockCipherParameterSpec;
+import gnu.crypto.mode.IMode;
+import gnu.crypto.mode.ModeFactory;
+import gnu.crypto.pad.IPad;
+import gnu.crypto.pad.PadFactory;
+import gnu.crypto.pad.WrongPaddingException;
+
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -62,15 +71,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
-
-import gnu.crypto.cipher.CipherFactory;
-import gnu.crypto.cipher.IBlockCipher;
-import gnu.crypto.jce.spec.BlockCipherParameterSpec;
-import gnu.crypto.mode.IMode;
-import gnu.crypto.mode.ModeFactory;
-import gnu.crypto.pad.IPad;
-import gnu.crypto.pad.PadFactory;
-import gnu.crypto.pad.WrongPaddingException;
 
 /**
  * <p>The implementation of a generic {@link Cipher} <i>Adapter</i> class to

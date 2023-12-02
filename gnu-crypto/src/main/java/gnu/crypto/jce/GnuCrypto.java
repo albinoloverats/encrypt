@@ -44,15 +44,15 @@ package gnu.crypto.jce;
 //
 // --------------------------------------------------------------------------
 
+import gnu.crypto.Registry;
+import gnu.crypto.cipher.CipherFactory;
+import gnu.crypto.mac.MacFactory;
+
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.Provider;
 import java.util.HashSet;
 import java.util.Set;
-
-import gnu.crypto.Registry;
-import gnu.crypto.cipher.CipherFactory;
-import gnu.crypto.mac.MacFactory;
 
 /**
  * <p>The GNU Crypto implementation of the Java Cryptographic Extension (JCE)

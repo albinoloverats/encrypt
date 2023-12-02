@@ -43,12 +43,13 @@ package gnu.crypto.jce.prng;  // -*- mode: java; c-basic-offset: 3 -*-
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import java.net.MalformedURLException;
-import java.security.SecureRandomSpi;
-
+import gnu.crypto.Registry;
 import gnu.crypto.prng.CSPRNG;
 import gnu.crypto.prng.IRandom;
 import gnu.crypto.prng.LimitReachedException;
+
+import java.net.MalformedURLException;
+import java.security.SecureRandomSpi;
 
 /**
  * The implementation of the continuously-seeded SecureRandom

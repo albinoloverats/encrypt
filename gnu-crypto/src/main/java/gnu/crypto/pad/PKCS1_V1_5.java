@@ -43,12 +43,12 @@ package gnu.crypto.pad;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import java.io.PrintWriter;
-
 import gnu.crypto.Registry;
 import gnu.crypto.sig.rsa.EME_PKCS1_V1_5;
 import gnu.crypto.util.PRNG;
 import gnu.crypto.util.Util;
+
+import java.io.PrintWriter;
 
 /**
  * <p>A padding algorithm implementation of the EME-PKCS1-V1.5 encoding/decoding

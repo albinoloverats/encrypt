@@ -43,13 +43,13 @@ package gnu.crypto.key.srp6;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import java.math.BigInteger;
-
 import gnu.crypto.hash.IMessageDigest;
-import gnu.crypto.key.IncomingMessage;
 import gnu.crypto.key.KeyAgreementException;
+import gnu.crypto.key.IncomingMessage;
 import gnu.crypto.key.OutgoingMessage;
 import gnu.crypto.util.Util;
+
+import java.math.BigInteger;
 
 /**
  * <p>A variation of the SRP-6 protocol as used in the SASL-SRP mechanism, for

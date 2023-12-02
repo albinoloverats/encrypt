@@ -41,11 +41,11 @@ exception statement from your version.  */
 
 package gnu.crypto.jce.key;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
 import gnu.crypto.Registry;
 import gnu.crypto.cipher.DES;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 public class DESKeyGeneratorImpl extends SecretKeyGeneratorImpl
 {

@@ -43,12 +43,12 @@ package gnu.crypto.mac;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import java.security.InvalidKeyException;
-import java.util.Map;
-
 import gnu.crypto.Registry;
 import gnu.crypto.prng.IRandom;
 import gnu.crypto.prng.LimitReachedException;
+
+import java.security.InvalidKeyException;
+import java.util.Map;
 
 /**
  * <p><i>TMMH</i> is a <i>universal</i> hash function suitable for message

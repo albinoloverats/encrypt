@@ -45,18 +45,21 @@ package gnu.crypto.jce.keyring;  // -*- c-basic-offset: 3 -*-
 // ---------------------------------------------------------------------------
 
 import java.io.BufferedInputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.IOException;
 import java.io.OutputStream;
+
 import java.security.Key;
-import java.security.KeyStoreException;
 import java.security.KeyStoreSpi;
+import java.security.KeyStoreException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -67,11 +70,11 @@ import java.util.NoSuchElementException;
 import javax.crypto.SecretKey;
 
 import gnu.crypto.Registry;
-import gnu.crypto.keyring.GnuPrivateKeyring;
-import gnu.crypto.keyring.GnuPublicKeyring;
 import gnu.crypto.keyring.IKeyring;
 import gnu.crypto.keyring.IPrivateKeyring;
 import gnu.crypto.keyring.IPublicKeyring;
+import gnu.crypto.keyring.GnuPrivateKeyring;
+import gnu.crypto.keyring.GnuPublicKeyring;
 import gnu.crypto.keyring.MalformedKeyringException;
 import gnu.crypto.keyring.PrimitiveEntry;
 

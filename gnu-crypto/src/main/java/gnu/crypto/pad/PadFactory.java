@@ -43,11 +43,11 @@ package gnu.crypto.pad;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
+import gnu.crypto.Registry;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import gnu.crypto.Registry;
 
 /**
  * <p>A Factory to instantiate padding schemes.</p>

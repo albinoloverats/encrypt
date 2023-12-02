@@ -43,16 +43,16 @@ package gnu.crypto.key.srp6;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
+import gnu.crypto.Registry;
+import gnu.crypto.key.IKeyPairGenerator;
+import gnu.crypto.util.PRNG;
+import gnu.crypto.util.Prime;
+
 import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.SecureRandom;
 import java.util.Map;
-
-import gnu.crypto.Registry;
-import gnu.crypto.key.IKeyPairGenerator;
-import gnu.crypto.util.PRNG;
-import gnu.crypto.util.Prime;
 
 /**
  *

@@ -43,11 +43,11 @@ package gnu.crypto.jce.hash;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
+import gnu.crypto.hash.IMessageDigest;
+import gnu.crypto.hash.HashFactory;
+
 import java.security.DigestException;
 import java.security.MessageDigestSpi;
-
-import gnu.crypto.hash.HashFactory;
-import gnu.crypto.hash.IMessageDigest;
 
 /**
  * The implementation of a generic {@link java.security.MessageDigest} adapter

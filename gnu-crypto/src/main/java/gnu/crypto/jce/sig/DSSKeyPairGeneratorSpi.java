@@ -43,14 +43,14 @@ package gnu.crypto.jce.sig;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
+import gnu.crypto.Registry;
+import gnu.crypto.key.dss.DSSKeyPairGenerator;
+
 import java.security.InvalidAlgorithmParameterException;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.DSAParameterSpec;
 import java.util.HashMap;
-
-import gnu.crypto.Registry;
-import gnu.crypto.key.dss.DSSKeyPairGenerator;
 
 /**
  * The implementation of a {@link java.security.KeyPairGenerator} adapter class

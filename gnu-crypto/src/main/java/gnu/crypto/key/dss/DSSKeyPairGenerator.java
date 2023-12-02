@@ -43,6 +43,11 @@ package gnu.crypto.key.dss;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
+import gnu.crypto.Registry;
+import gnu.crypto.hash.Sha160;
+import gnu.crypto.key.IKeyPairGenerator;
+import gnu.crypto.util.PRNG;
+
 import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.security.KeyPair;
@@ -51,11 +56,6 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.DSAParameterSpec;
 import java.util.Map;
-
-import gnu.crypto.Registry;
-import gnu.crypto.hash.Sha160;
-import gnu.crypto.key.IKeyPairGenerator;
-import gnu.crypto.util.PRNG;
 
 /**
  * <p>A key-pair generator for asymetric keys to use in conjunction with the DSS

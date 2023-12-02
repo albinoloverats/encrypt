@@ -43,14 +43,14 @@ package gnu.crypto.mac;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
+import gnu.crypto.Registry;
+import gnu.crypto.cipher.CipherFactory;
+import gnu.crypto.cipher.IBlockCipher;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
-import gnu.crypto.Registry;
-import gnu.crypto.cipher.CipherFactory;
-import gnu.crypto.cipher.IBlockCipher;
 
 /**
  * <p>A <i>Factory</i> that instantiates instances of every supported Message

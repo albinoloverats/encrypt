@@ -43,14 +43,14 @@ package gnu.crypto.jce.prng;
 // do so, delete this exception statement from your version.
 // ----------------------------------------------------------------------------
 
-import java.security.SecureRandomSpi;
-import java.util.HashMap;
-
 import gnu.crypto.Registry;
 import gnu.crypto.prng.ARCFour;
 import gnu.crypto.prng.IRandom;
 import gnu.crypto.prng.LimitReachedException;
 import gnu.crypto.prng.PRNGFactory;
+
+import java.security.SecureRandomSpi;
+import java.util.HashMap;
 
 /**
  * Implementation of the <i>Service Provider Interface</i> (<b>SPI</b>)
