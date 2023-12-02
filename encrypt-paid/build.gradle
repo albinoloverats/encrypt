@@ -1,37 +1,39 @@
 apply plugin: 'com.android.application'
 
 android {
-	compileSdkVersion 30
-	buildToolsVersion '30.0.2'
-	defaultConfig {
-		applicationId 'net.albinoloverats.android.encrypt'
-		minSdkVersion 26
-		targetSdkVersion 30
-		versionCode 19
-		versionName '2024.01'
-	}
-	signingConfigs {
-		release {
-		}
-	}
-	buildTypes {
-		release {
-			signingConfig signingConfigs.release
-		}
-		debug {
-			debuggable true
-		}
-	}
-	productFlavors {
-	}
-	compileOptions {
-		targetCompatibility JavaVersion.VERSION_11
-		sourceCompatibility JavaVersion.VERSION_11
-	}
+    defaultConfig {
+        applicationId 'net.albinoloverats.android.encrypt'
+        minSdkVersion 28
+        targetSdkVersion 33
+        compileSdk 34
+        versionCode 19
+        versionName '2024.01'
+    }
+    signingConfigs {
+        release {
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+        debug {
+            debuggable true
+        }
+    }
+    productFlavors {
+    }
+    compileOptions {
+        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_11
+    }
+    namespace 'net.albinoloverats.android.encrypt'
 }
 
 dependencies {
-	api fileTree(dir: 'libs', include: ['*.jar'])
-	api 'com.android.support:appcompat-v7:30.0.2'
-	api project(':encrypt')
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    api 'com.android.support:appcompat-v7:30.0.2'
+    api project(':encrypt')
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
 }

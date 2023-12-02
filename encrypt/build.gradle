@@ -1,11 +1,10 @@
 apply plugin: 'com.android.library'
 
 android {
-	compileSdkVersion 30
-	buildToolsVersion '30.0.2'
 	defaultConfig {
-		minSdkVersion 26
-		targetSdkVersion 30
+		minSdkVersion 28
+		targetSdkVersion 33
+		compileSdk 34
 	}
 	signingConfigs {
 		release {
@@ -22,6 +21,7 @@ android {
 		targetCompatibility JavaVersion.VERSION_11
 		sourceCompatibility JavaVersion.VERSION_11
 	}
+	namespace 'net.albinoloverats.android.encrypt.lib'
 }
 
 dependencies {
@@ -29,4 +29,6 @@ dependencies {
 	api 'com.android.support:appcompat-v7:30.0.2'
 	api 'org.tukaani:xz:1.8@jar'
 	api project(':gnu-crypto')
+	compileOnly 'org.projectlombok:lombok:1.18.30'
+	annotationProcessor 'org.projectlombok:lombok:1.18.30'
 }
