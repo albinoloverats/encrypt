@@ -20,7 +20,10 @@
 
 package net.albinoloverats.android.encrypt.lib.misc;
 
-public abstract class Convert
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
+public final class Convert
 {
 	public static byte[] toBytes(final String s)
 	{

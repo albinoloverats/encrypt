@@ -22,7 +22,6 @@ package net.albinoloverats.android.encrypt.lib.io;
 
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -30,7 +29,7 @@ public class ECCFileOutputStream extends ECCFileStream
 {
 	private final OutputStream outputStream;
 
-	public ECCFileOutputStream(final OutputStream stream) throws FileNotFoundException
+	public ECCFileOutputStream(final OutputStream stream)
 	{
 		outputStream = stream;
 		source = new byte[PAYLOAD];
@@ -41,9 +40,8 @@ public class ECCFileOutputStream extends ECCFileStream
 	{
 		if (initialised)
 		{
-			final int[] remainder = { 0, PAYLOAD - offset[0] };
-			final byte[] x = new byte[remainder[1]];
-			System.arraycopy(x, 0, source, offset[0], remainder[1]);
+			final int i = PAYLOAD - offset[0];
+			System.arraycopy(new byte[i], 0, source, offset[0], i);
 			outputStream.write(offset[0]);
 			outputStream.write(encode());
 		}
@@ -95,18 +93,17 @@ public class ECCFileOutputStream extends ECCFileStream
 	private byte[] encode()
 	{
 		final byte[] encoded = new byte[CAPACITY];
-		byte[] r = new byte[OFFSET];
+		final byte[] r = new byte[OFFSET];
 		for (int i = 0; i < PAYLOAD; i++)
 		{
 			encoded[CAPACITY - 1 - i] = source[i];
-			byte rtmp = (byte)add(source[i], r[5]);
+			final byte rtmp = (byte)add(source[i], r[5]);
 			for (int j = 5; j > 0; j--)
 				r[j] = (byte)add(mul(rtmp, GEE[j]), r[j - 1]);
 			r[0] = (byte)mul(rtmp, GEE[0]);
 		}
-		for (int i = 0; i < OFFSET; i++)
-			encoded[i] = r[i];
-		reverse(encoded, CAPACITY);
+		System.arraycopy(r, 0, encoded, 0, OFFSET);
+		reverse(encoded);
 		return encoded;
 	}
 }

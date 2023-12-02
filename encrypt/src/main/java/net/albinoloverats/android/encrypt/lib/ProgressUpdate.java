@@ -20,18 +20,16 @@
 
 package net.albinoloverats.android.encrypt.lib;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public enum ProgressUpdate
 {
 	DONE(0),
 	TOTAL(1),
 	CURRENT(2);
 
-	public int value;
-
-	ProgressUpdate(final int value)
-	{
-		this.value = value;
-	}
+	public final int value;
 
 	public static ProgressUpdate fromValue(final int value)
 	{

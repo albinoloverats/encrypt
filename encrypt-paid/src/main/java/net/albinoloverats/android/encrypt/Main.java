@@ -21,6 +21,7 @@
 package net.albinoloverats.android.encrypt;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.NotificationManager;
@@ -30,6 +31,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -52,9 +54,9 @@ import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import androidx.core.app.ActivityCompat;
+import androidx.documentfile.provider.DocumentFile;
 import com.simaomata.DoubleProgressDialog;
-
 import net.albinoloverats.android.encrypt.lib.FileAction;
 import net.albinoloverats.android.encrypt.lib.Options;
 import net.albinoloverats.android.encrypt.lib.ProgressUpdate;
@@ -70,9 +72,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
-import androidx.core.app.ActivityCompat;
-import androidx.documentfile.provider.DocumentFile;
-
 public class Main extends Activity
 {
 	private static final Set<String> CIPHERS = CryptoUtils.getCipherAlgorithmNames();
@@ -81,10 +80,10 @@ public class Main extends Activity
 	private static final Set<String> MACS = CryptoUtils.getMacAlgorithmNames();
 
 	private static final String[] STORAGE_PERMISSIONS =
-	{
-		Manifest.permission.READ_EXTERNAL_STORAGE,
-		Manifest.permission.WRITE_EXTERNAL_STORAGE
-	};
+		{
+			Manifest.permission.READ_EXTERNAL_STORAGE,
+			Manifest.permission.WRITE_EXTERNAL_STORAGE
+		};
 	private static final int STORAGE_PERMISSION_REQUEST = 1;
 
 	private DoubleProgressDialog doubleProgressDialog;
@@ -125,14 +124,14 @@ public class Main extends Activity
 		mac = settings.getString(Options.MAC.toString(), null);
 		kdfIterations = settings.getInt(Options.KDF_ITERATIONS.toString(), Crypto.KDF_ITERATIONS_DEFAULT);
 
-		// setup the file chooser button
-		final Button fChooser = findViewById(R.id.button_file);
+		// set up the file chooser button
+		final View fChooser = findViewById(R.id.button_file);
 		fChooser.setOnClickListener(new FileChooserListener(FileAction.LOAD));
 
-		// setup the file output chooser button
+		// set up the file output chooser button
 		findViewById(R.id.button_output).setOnClickListener(new FileChooserListener(FileAction.SAVE));
 
-		// setup the hash and crypto spinners
+		// set up the hash and crypto spinners
 		final Spinner cSpinner = findViewById(R.id.spin_crypto);
 		final ArrayAdapter<CharSequence> cipherSpinAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
 		cipherSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -202,7 +201,7 @@ public class Main extends Activity
 			i++;
 		}
 
-		NumberPicker kdf = findViewById(R.id.spin_kdf);
+		final NumberPicker kdf = findViewById(R.id.spin_kdf);
 		kdf.setMaxValue(Integer.MAX_VALUE);
 		kdf.setMinValue(1);
 		kdf.setValue(kdfIterations);
@@ -222,7 +221,7 @@ public class Main extends Activity
 			public void afterTextChanged(final Editable s)
 			{
 				password = ((EditText)findViewById(R.id.text_password)).getText().toString();
-				if (password.length() == 0)
+				if (password.isEmpty())
 				{
 					password = null;
 					checkEnableButtons();
@@ -270,18 +269,11 @@ public class Main extends Activity
 	}
 
 	@Override
-	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+	public void onRequestPermissionsResult(final int requestCode, final String[] permissions, final int[] grantResults)
 	{
-		switch (requestCode)
-		{
-			case STORAGE_PERMISSION_REQUEST:
-				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-					; /* we have permission, carry on */
-				else
-					finishAffinity();
-			default:
-				/* do nothing (we shouldn't really get here) */
-		}
+		if (requestCode == STORAGE_PERMISSION_REQUEST)
+			if (!(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED))
+				finishAffinity();
 	}
 
 	@Override
@@ -304,7 +296,7 @@ public class Main extends Activity
 
 	private void storePreferences()
 	{
-		final SharedPreferences.Editor editor = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), Context.MODE_PRIVATE).edit();
+		final Editor editor = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), Context.MODE_PRIVATE).edit();
 		editor.putString(Options.CIPHER.toString(), cipher);
 		editor.putString(Options.HASH.toString(), hash);
 		editor.putString(Options.MODE.toString(), mode);
@@ -315,7 +307,7 @@ public class Main extends Activity
 		editor.putBoolean(Options.KEY.toString(), key_file);
 		editor.putBoolean(Options.RAW.toString(), raw);
 		editor.putLong(Options.VERSION.toString(), version.magicNumber);
-		editor.commit();
+		editor.apply();
 	}
 
 	@Override
@@ -342,6 +334,7 @@ public class Main extends Activity
 		return true;
 	}
 
+	@SuppressLint("NonConstantResourceId")
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem menuItem)
 	{
@@ -436,7 +429,7 @@ public class Main extends Activity
 		{
 			uris.add(uri);
 			final DocumentFile documentFile = DocumentFile.fromSingleUri(this, uri);
-			if ((display = documentFile.getName()) == null)
+			if (documentFile == null || (display = documentFile.getName()) == null)
 				display = uri.getLastPathSegment();
 		}
 		else
@@ -468,14 +461,14 @@ public class Main extends Activity
 
 	private void checkEnableButtons()
 	{
-		final Spinner cSpinner        = findViewById(R.id.spin_crypto);
-		final Spinner hSpinner        = findViewById(R.id.spin_hash);
-		final Spinner mSpinner        = findViewById(R.id.spin_mode);
-		final Spinner aSpinner        = findViewById(R.id.spin_mac);
+		final Spinner cSpinner = findViewById(R.id.spin_crypto);
+		final Spinner hSpinner = findViewById(R.id.spin_hash);
+		final Spinner mSpinner = findViewById(R.id.spin_mode);
+		final Spinner aSpinner = findViewById(R.id.spin_mac);
 		final NumberPicker kdfSpinner = findViewById(R.id.spin_kdf);
-		final EditText password       = findViewById(R.id.text_password);
-		final Button keyButton        = findViewById(R.id.button_key);
-		final Button encButton        = findViewById(R.id.button_go);
+		final EditText password = findViewById(R.id.text_password);
+		final Button keyButton = findViewById(R.id.button_key);
+		final Button encButton = findViewById(R.id.button_go);
 
 		hSpinner.setEnabled(false);
 		cSpinner.setEnabled(false);
@@ -492,7 +485,7 @@ public class Main extends Activity
 		if (encrypting)
 		{
 			encButton.setText(R.string.encrypt);
-			if (filenamesIn != null && filenamesIn.size() >= 1 && filenameOut != null)
+			if (filenamesIn != null && !filenamesIn.isEmpty() && filenameOut != null)
 			{
 				cSpinner.setEnabled(true);
 				hSpinner.setEnabled(true);
@@ -559,7 +552,7 @@ public class Main extends Activity
 
 	private Intent createBackgroundTask()
 	{
-		/* kick off the actually cipher process */
+		/* kick off the actual cipher process */
 		final Intent intent = new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class);
 
 		intent.putExtra("class", Main.class);
@@ -674,10 +667,10 @@ public class Main extends Activity
 		{
 			final String currentFile = intent.getStringExtra("current.file");
 			final long currentOffset = intent.getLongExtra("current.offset", 0L);
-			final long currentSize   = intent.getLongExtra("current.size", 0L);
-			final long totalOffset   = intent.getLongExtra("total.offset", 0L);
-			final long totalSize     = intent.getLongExtra("total.size", 0L);
-			final Status status      = Status.parseStatus(intent.getStringExtra("status"));
+			final long currentSize = intent.getLongExtra("current.size", 0L);
+			final long totalOffset = intent.getLongExtra("total.offset", 0L);
+			final long totalSize = intent.getLongExtra("total.size", 0L);
+			final Status status = Status.parseStatus(intent.getStringExtra("status"));
 
 			if (status == Status.INIT || status == Status.RUNNING)
 			{

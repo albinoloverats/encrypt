@@ -29,7 +29,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.PowerManager;
-
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationCompat.Builder;
+import androidx.documentfile.provider.DocumentFile;
 import net.albinoloverats.android.encrypt.lib.io.HashMAC;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
@@ -37,14 +39,11 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import androidx.core.app.NotificationCompat;
-import androidx.documentfile.provider.DocumentFile;
+import java.util.List;
 
 public abstract class Crypto extends Service implements Runnable
 {
 	protected static final long[] HEADER = { 0x3697de5d96fca0faL, 0xc845c2fa95e2f52dL, Version.CURRENT.magicNumber };
-
 	protected static final int BLOCK_SIZE = 1024;
 	protected static final int KDF_ITERATIONS_201709 = 1024;
 	public static final int KDF_ITERATIONS_DEFAULT = 32768;
@@ -112,37 +111,37 @@ public abstract class Crypto extends Service implements Runnable
 	{
 		status = Status.INIT;
 
-		current.file   = null;
+		current.file = null;
 		current.offset = 0;
-		current.size   = 0;
-		total.offset   = 0;
-		total.size     = 0;
+		current.size = 0;
+		total.offset = 0;
+		total.size = 0;
 	}
 
 	@Override
 	public int onStartCommand(final Intent intent, final int flags, final int startId)
 	{
-		final Class<?> clas = (Class<?>)intent.getSerializableExtra("class");
+		final Class<?> clas = getClass(intent);
 		final int action = intent.getIntExtra("action", 0);
 		final int wait = intent.getIntExtra("wait", 0);
 		final int icon = intent.getIntExtra("icon", 0);
 
 		if (intent.getBooleanExtra("key_file", false))
-			setKey(intent.getParcelableExtra("key"));
+			setKey(getKey(intent));
 		else
 			key = intent.getByteArrayExtra("key");
 		raw = intent.getBooleanExtra("raw", raw);
 
 		actionTitle = getString(action);
 
-		final NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getBaseContext(), null);
+		final Builder notificationBuilder = new NotificationCompat.Builder(getBaseContext(), actionTitle);
 		notificationBuilder.setContentTitle(actionTitle);
 		notificationBuilder.setContentText(getString(wait));
 		notificationBuilder.setSmallIcon(icon);
 
 		final Intent notificationIntent = new Intent(this, clas);
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-		notificationBuilder.setContentIntent(PendingIntent.getActivity(this, 0, notificationIntent, 0));
+		notificationBuilder.setContentIntent(PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE));
 
 		if (status == Status.INIT)
 		{
@@ -212,11 +211,11 @@ public abstract class Crypto extends Service implements Runnable
 		return null;
 	}
 
-	public static boolean fileEncrypted(Context context, final Uri uri)
+	public static boolean fileEncrypted(final Context context, final Uri uri)
 	{
 		final ContentResolver cr = context.getContentResolver();
 		final DocumentFile documentFile = DocumentFile.fromSingleUri(context, uri);
-		if (documentFile.isDirectory())
+		if (documentFile == null || documentFile.isDirectory())
 			return false;
 		try (final InputStream in = cr.openInputStream(uri))
 		{
@@ -231,7 +230,7 @@ public abstract class Crypto extends Service implements Runnable
 		}
 		catch (final IOException ignored)
 		{
-			return false; // either the file doesn't exists or we can't read it for decrypting
+			return false; // either the file doesn't exist or we can't read it for decrypting
 		}
 	}
 
@@ -253,8 +252,11 @@ public abstract class Crypto extends Service implements Runnable
 		final DocumentFile documentFile = DocumentFile.fromSingleUri(this, keyFile);
 		try (final InputStream f = contentResolver.openInputStream(keyFile))
 		{
+			if (documentFile == null)
+				throw new IOException("Could not find file: " + keyFile);
 			key = new byte[(int)documentFile.length()];
-			f.read(key);
+			if (f.read(key) < 0)
+				throw new IOException("Could not read key data from " + keyFile);
 		}
 		catch (final IOException e)
 		{
@@ -282,5 +284,49 @@ public abstract class Crypto extends Service implements Runnable
 			pct = (int)(100 * current.offset / current.size);
 		notificationBuilder.setProgress(100, pct, false);
 		((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).notify(0, notificationBuilder.build());
+	}
+
+	/*
+	 * These next methods are purely because my phone is Android 9/SDK 28.
+	 * When I get a new phone I will remove the deprecated method calls.
+	 */
+	private static Class<?> getClass(final Intent intent)
+	{
+		final Class<?> clas;
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
+			clas = intent.getSerializableExtra("class", Class.class);
+		else
+			clas = (Class<?>)intent.getSerializableExtra("class");
+		return clas;
+	}
+
+	private static Uri getKey(final Intent intent)
+	{
+		return getUri(intent, "key");
+	}
+
+	protected static List<Uri> getSource(final Intent intent)
+	{
+		final List<Uri> source;
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
+			source = intent.getParcelableArrayListExtra("source", Uri.class);
+		else
+			source = intent.getParcelableArrayListExtra("source");
+		return source;
+	}
+
+	protected static Uri getOutput(final Intent intent)
+	{
+		return getUri(intent, "output");
+	}
+
+	private static Uri getUri(final Intent intent, final String s)
+	{
+		final Uri uri;
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
+			uri = intent.getParcelableExtra(s, Uri.class);
+		else
+			uri = intent.getParcelableExtra(s);
+		return uri;
 	}
 }

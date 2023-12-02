@@ -20,18 +20,6 @@
 
 package net.albinoloverats.android.encrypt.lib.io;
 
-import net.albinoloverats.android.encrypt.lib.crypt.CryptoUtils;
-import net.albinoloverats.android.encrypt.lib.crypt.XIV;
-import net.albinoloverats.android.encrypt.lib.misc.Convert;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
-
 import gnu.crypto.cipher.IBlockCipher;
 import gnu.crypto.hash.IMessageDigest;
 import gnu.crypto.mac.HMac;
@@ -42,6 +30,16 @@ import gnu.crypto.prng.IPBE;
 import gnu.crypto.prng.LimitReachedException;
 import gnu.crypto.prng.PBKDF2;
 import gnu.crypto.util.PRNG;
+import net.albinoloverats.android.encrypt.lib.crypt.CryptoUtils;
+import net.albinoloverats.android.encrypt.lib.crypt.XIV;
+import net.albinoloverats.android.encrypt.lib.misc.Convert;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EncryptedFileOutputStream extends OutputStream
 {
@@ -55,12 +53,12 @@ public class EncryptedFileOutputStream extends OutputStream
 
 	private boolean open = true;
 
-	public EncryptedFileOutputStream(final OutputStream stream) throws FileNotFoundException
+	public EncryptedFileOutputStream(final OutputStream stream)
 	{
 		eccFileOutputStream = new ECCFileOutputStream(stream);
 	}
 
-	public HashMAC initialiseEncryption(final String c, final String h, final String m, String a, final int kdfIterations, final byte[] k, final XIV ivType, final boolean useKDF) throws NoSuchAlgorithmException, InvalidKeyException, LimitReachedException, IOException
+	public HashMAC initialiseEncryption(final String c, final String h, final String m, final String a, final int kdfIterations, final byte[] k, final XIV ivType, final boolean useKDF) throws NoSuchAlgorithmException, InvalidKeyException, LimitReachedException, IOException
 	{
 		final IMessageDigest hash = CryptoUtils.getHashAlgorithm(h);
 		final IBlockCipher cipher = CryptoUtils.getCipherAlgorithm(c);
@@ -71,12 +69,12 @@ public class EncryptedFileOutputStream extends OutputStream
 		hash.update(k, 0, k.length);
 		final byte[] keySource = hash.digest();
 		Map<String, Object> attributes;
-		int keyLength = CryptoUtils.getCipherAlgorithmKeySize(c) / Byte.SIZE;
+		final int keyLength = CryptoUtils.getCipherAlgorithmKeySize(c) / Byte.SIZE;
 		byte[] key = new byte[keyLength];
 
 		final byte[] salt = new byte[keyLength];
 
-		final IMac keyMac = CryptoUtils.getMacAlgorithm(CryptoUtils.hmacFromHash(h));
+		final HMac keyMac = CryptoUtils.getMacAlgorithm(CryptoUtils.hmacFromHash(h));
 
 		if (useKDF)
 		{

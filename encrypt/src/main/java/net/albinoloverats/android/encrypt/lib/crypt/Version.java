@@ -20,6 +20,9 @@
 
 package net.albinoloverats.android.encrypt.lib.crypt;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public enum Version
 {
 	_201108(0x72761df3e497c983L, "2011.08", 201108),
@@ -37,16 +40,9 @@ public enum Version
 	CURRENT(0x2e4155524f52412eL, "2024.01", 202401);
 
 
-	final public long magicNumber;
-	final public String display;
-	final public int menu_id;
-
-	Version(final long m, final String d, final int i)
-	{
-		magicNumber = m;
-		display = d;
-		menu_id = i;
-	}
+	public final long magicNumber;
+	public final String display;
+	public final int menu_id;
 
 	public static Version parseMagicNumber(final long m, final Version d)
 	{

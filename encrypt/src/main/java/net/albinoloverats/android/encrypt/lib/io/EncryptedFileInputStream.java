@@ -20,18 +20,6 @@
 
 package net.albinoloverats.android.encrypt.lib.io;
 
-import net.albinoloverats.android.encrypt.lib.crypt.CryptoUtils;
-import net.albinoloverats.android.encrypt.lib.crypt.XIV;
-import net.albinoloverats.android.encrypt.lib.misc.Convert;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
-
 import gnu.crypto.cipher.IBlockCipher;
 import gnu.crypto.hash.IMessageDigest;
 import gnu.crypto.mac.HMac;
@@ -41,6 +29,16 @@ import gnu.crypto.mode.ModeFactory;
 import gnu.crypto.prng.IPBE;
 import gnu.crypto.prng.LimitReachedException;
 import gnu.crypto.prng.PBKDF2;
+import net.albinoloverats.android.encrypt.lib.crypt.CryptoUtils;
+import net.albinoloverats.android.encrypt.lib.crypt.XIV;
+import net.albinoloverats.android.encrypt.lib.misc.Convert;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EncryptedFileInputStream extends InputStream
 {
@@ -52,7 +50,7 @@ public class EncryptedFileInputStream extends InputStream
 	private int blockSize = 0;
 	private final int[] offset = { 0, 0, 0 }; /* bytes available, requested, ready */
 
-	public EncryptedFileInputStream(final InputStream stream) throws FileNotFoundException
+	public EncryptedFileInputStream(final InputStream stream)
 	{
 		try
 		{
@@ -78,16 +76,15 @@ public class EncryptedFileInputStream extends InputStream
 		final int keyLength = CryptoUtils.getCipherAlgorithmKeySize(c) / Byte.SIZE;
 		byte[] key = new byte[keyLength];
 
-		final int saltLength = keyLength;
-		final byte[] salt = new byte[saltLength];
+		final byte[] salt = new byte[keyLength];
 
-		final IMac keyMac = CryptoUtils.getMacAlgorithm(CryptoUtils.hmacFromHash(h));
+		final HMac keyMac = CryptoUtils.getMacAlgorithm(CryptoUtils.hmacFromHash(h));
 
 		if (useKDF)
 		{
 			eccFileInputStream.read(salt);
 
-			PBKDF2 keyGen = new PBKDF2(keyMac);
+			final PBKDF2 keyGen = new PBKDF2(keyMac);
 			attributes = new HashMap<>();
 			attributes.put(IMac.MAC_KEY_MATERIAL, keySource);
 			attributes.put(IPBE.SALT, salt);
@@ -96,7 +93,7 @@ public class EncryptedFileInputStream extends InputStream
 			keyGen.nextBytes(key);
 		}
 		else
-			System.arraycopy(keySource, 0, key, 0, keyLength < keySource.length ? keyLength : keySource.length);
+			System.arraycopy(keySource, 0, key, 0, Math.min(keyLength, keySource.length));
 
 		attributes = new HashMap<>();
 		attributes.put(IBlockCipher.KEY_MATERIAL, key);
@@ -122,7 +119,7 @@ public class EncryptedFileInputStream extends InputStream
 		final HMac mac = CryptoUtils.getMacAlgorithm(a);
 		final int macLength = CryptoUtils.getHashAlgorithm(CryptoUtils.hashFromHmac(a)).blockSize();
 		key = new byte[macLength];
-		PBKDF2 keyGen = new PBKDF2(keyMac);
+		final PBKDF2 keyGen = new PBKDF2(keyMac);
 		attributes = new HashMap<>();
 		attributes.put(IMac.MAC_KEY_MATERIAL, keySource);
 		attributes.put(IPBE.SALT, salt);
@@ -159,7 +156,7 @@ public class EncryptedFileInputStream extends InputStream
 	public int read() throws IOException
 	{
 		final byte[] b = new byte[Integer.SIZE / Byte.SIZE];
-		int err = read(b, 3, 1);
+		final int err = read(b, 3, 1);
 		return err < 0 ? err : Convert.intFromBytes(b);
 	}
 

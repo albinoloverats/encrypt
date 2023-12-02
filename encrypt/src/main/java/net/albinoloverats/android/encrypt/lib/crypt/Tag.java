@@ -20,6 +20,9 @@
 
 package net.albinoloverats.android.encrypt.lib.crypt;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public enum Tag
 {
 	SIZE(0),
@@ -28,12 +31,7 @@ public enum Tag
 	DIRECTORY(3),
 	FILENAME(4);
 
-	final public int value;
-
-	Tag(final int value)
-	{
-		this.value = value;
-	}
+	public final int value;
 
 	public static Tag fromValue(final int value) throws CryptoProcessException
 	{

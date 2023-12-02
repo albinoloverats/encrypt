@@ -20,6 +20,10 @@
 
 package net.albinoloverats.android.encrypt.lib.crypt;
 
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
+
+@AllArgsConstructor
 public enum Status
 {
 	/* success and running states */
@@ -44,12 +48,7 @@ public enum Status
 	WARNING_CHECKSUM("Warning: Bad checksum!\n(Possible data corruption)"),
 	WARNING_LINK("Warning: Could not extract all files!\n(Symlinks are unsupported");
 
-	final public String message;
-
-	Status(final String message)
-	{
-		this.message = message;
-	}
+	public final String message;
 
 	public static Status parseStatus(final String s)
 	{
@@ -60,6 +59,7 @@ public enum Status
 	}
 
 	@Override
+	@NonNull
 	public String toString()
 	{
 		return message.charAt(0) + message.substring(1).replace('_', ' ').toLowerCase();

@@ -20,6 +20,9 @@
 
 package net.albinoloverats.android.encrypt.lib.crypt;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public enum FileType
 {
 	DIRECTORY(0),
@@ -27,12 +30,7 @@ public enum FileType
 	SYMLINK(2),
 	LINK(3);
 
-	final public int value;
-
-	FileType(final int value)
-	{
-		this.value = value;
-	}
+	public final int value;
 
 	public static FileType fromID(final int value) throws CryptoProcessException
 	{

@@ -20,23 +20,19 @@
 
 package net.albinoloverats.android.encrypt.lib.crypt;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public class CryptoProcessException extends Exception
 {
 	private static final long serialVersionUID = 4714119489698420307L;
 
-	final public Status code;
-	final public Throwable cause;
+	public final Status code;
+	public final Throwable cause;
 
 	public CryptoProcessException(final Status code)
 	{
-		this.code = code;
-		cause = null;
-	}
-
-	public CryptoProcessException(final Status code, final Throwable cause)
-	{
-		this.code = code;
-		this.cause = cause;
+		this(code, null);
 	}
 
 	@Override

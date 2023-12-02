@@ -20,6 +20,8 @@
 
 package net.albinoloverats.android.encrypt.lib;
 
+import lombok.NonNull;
+
 import java.util.Locale;
 
 public enum Options
@@ -37,6 +39,7 @@ public enum Options
 	VERSION;
 
 	@Override
+	@NonNull
 	public String toString()
 	{
 		return name().toLowerCase(Locale.ENGLISH);

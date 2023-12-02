@@ -23,31 +23,28 @@ package net.albinoloverats.android.encrypt.lib.crypt;
 import android.app.Service;
 import android.content.Intent;
 import android.net.Uri;
-
+import androidx.documentfile.provider.DocumentFile;
+import gnu.crypto.mode.ModeFactory;
+import gnu.crypto.prng.LimitReachedException;
 import net.albinoloverats.android.encrypt.lib.io.EncryptedFileInputStream;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
-
 import org.tukaani.xz.XZFormatException;
 import org.tukaani.xz.XZInputStream;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import androidx.documentfile.provider.DocumentFile;
-import gnu.crypto.mode.ModeFactory;
-import gnu.crypto.prng.LimitReachedException;
 
 public class Decrypt extends Crypto
 {
 	private static final String SELF = ".";
+	public static final String MIME_TYPE = "application/octet-stream";
 
 	@Override
 	public int onStartCommand(final Intent intent, final int flags, final int startId)
@@ -57,9 +54,8 @@ public class Decrypt extends Crypto
 
 		preInit();
 
-		final List<Uri> s = intent.getParcelableArrayListExtra("source");
-		final Uri source = s.get(0);
-		final Uri output = intent.getParcelableExtra("output");
+		final Uri source = getSource(intent).get(0);
+		final Uri output = getOutput(intent);
 
 		try
 		{
@@ -67,23 +63,25 @@ public class Decrypt extends Crypto
 			this.source = new EncryptedFileInputStream(contentResolver.openInputStream(source));
 
 			final DocumentFile documentFile = DocumentFile.fromSingleUri(this, output);
+			if (documentFile == null)
+				throw new IOException("");
 			name = documentFile.getName();
 
 			if (documentFile.exists() && !documentFile.isDirectory())
 				this.output = contentResolver.openOutputStream(output);
 			path = documentFile.getUri();
 		}
-		catch (final FileNotFoundException e)
+		catch (final IOException e)
 		{
 			status = Status.FAILED_IO;
 		}
 		if (raw)
 		{
-			cipher         = intent.getStringExtra("cipher");
-			hash           = intent.getStringExtra("hash");
-			mode           = intent.getStringExtra("mode");
-			mac            = intent.getStringExtra("mac");
-			kdfIterations  = intent.getIntExtra("kdf_iterations", KDF_ITERATIONS_DEFAULT);
+			cipher = intent.getStringExtra("cipher");
+			hash = intent.getStringExtra("hash");
+			mode = intent.getStringExtra("mode");
+			mac = intent.getStringExtra("mac");
+			kdfIterations = intent.getIntExtra("kdf_iterations", KDF_ITERATIONS_DEFAULT);
 		}
 
 		intent.putExtra("encrypting", false);
@@ -98,7 +96,7 @@ public class Decrypt extends Crypto
 			status = Status.RUNNING;
 
 			version = raw ? Version.CURRENT : readVersion();
-			if (version == null || status != Status.RUNNING)
+			if (status != Status.RUNNING)
 				throw new Exception("Could not parse header!");
 
 			boolean extraRandom = true;
@@ -227,7 +225,8 @@ public class Decrypt extends Crypto
 	{
 		final byte[] header = new byte[Long.SIZE / Byte.SIZE];
 		for (int i = 0; i < HEADER.length; i++)
-			source.read(header, 0, header.length);
+			if (source.read(header, 0, header.length) < 0)
+				throw new IOException("Could not read data");
 
 		final Version v = Version.parseMagicNumber(Convert.longFromBytes(header), null);
 		if (v == null)
@@ -237,7 +236,7 @@ public class Decrypt extends Crypto
 			((EncryptedFileInputStream)source).initialiseECC();
 
 		final byte[] b = new byte[source.read()];
-		source.read(b);
+		read(source, b);
 
 		final String a = new String(b);
 		cipher = a.substring(0, a.indexOf('/'));
@@ -283,16 +282,16 @@ public class Decrypt extends Crypto
 
 	private void readMetadata() throws CryptoProcessException, IOException
 	{
-		final byte[] c = new byte[Byte.SIZE / Byte.SIZE];
+		final byte[] c = new byte[1];
 		readAndHash(c);
 		for (int i = 0; i < (short)(Convert.byteFromBytes(c) & 0x00FF); i++)
 		{
-			final byte[] tv = new byte[Byte.SIZE / Byte.SIZE];
+			final byte[] tv = new byte[1];
 			readAndHash(tv);
 			final Tag tag = Tag.fromValue((short)(Convert.byteFromBytes(tv) & 0x00FF));
 			final byte[] l = new byte[Short.SIZE / Byte.SIZE];
 			readAndHash(l);
-			final int length = Convert.shortFromBytes(l);
+			final short length = Convert.shortFromBytes(l);
 			final byte[] v = new byte[length];
 			readAndHash(v);
 			switch (tag)
@@ -317,22 +316,30 @@ public class Decrypt extends Crypto
 		if (name != null)
 		{
 			final DocumentFile documentFile = DocumentFile.fromTreeUri(this, path);
+			if (documentFile == null)
+			{
+				status = Status.FAILED_IO;
+				return;
+			}
 			contentResolver.takePersistableUriPermission(path, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-			final DocumentFile newFile = documentFile.createFile(null, name);
-			output = contentResolver.openOutputStream(newFile.getUri());
+			final DocumentFile file = documentFile.createFile(MIME_TYPE, name);
+			if (file == null)
+				status = Status.FAILED_IO;
+			else
+				output = contentResolver.openOutputStream(file.getUri());
 		}
 	}
 
 	private void skipRandomData() throws IOException
 	{
-		final byte[] b = new byte[Byte.SIZE / Byte.SIZE];
+		final byte[] b = new byte[1];
 		readAndHash(b);
 		readAndHash(new byte[(short)(Convert.byteFromBytes(b) & 0x00FF)]);
 	}
 
 	private void decryptDirectory(final Uri uri) throws CryptoProcessException, IOException
 	{
-		final Map<String, DocumentFile> directories = new HashMap<>();
+		final HashMap<String, DocumentFile> directories = new HashMap<>();
 
 		contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 		final DocumentFile root = DocumentFile.fromTreeUri(this, uri);
@@ -341,7 +348,7 @@ public class Decrypt extends Crypto
 
 		for (total.offset = 0; total.offset < total.size && status == Status.RUNNING; total.offset++)
 		{
-			byte[] b = new byte[Byte.SIZE / Byte.SIZE];
+			byte[] b = new byte[1];
 			readAndHash(b);
 			final FileType t = FileType.fromID(b[0]);
 			b = new byte[Long.SIZE / Byte.SIZE];
@@ -349,9 +356,11 @@ public class Decrypt extends Crypto
 			long l = Convert.longFromBytes(b);
 			b = new byte[(int)l];
 			readAndHash(b);
-			String fullPath = new String(b);
+			final String fullPath = new String(b);
 			final Path path = new File(fullPath).toPath();
 			DocumentFile parent = directories.get(path.getParent() != null ? path.getParent().toString() : SELF);
+			if (parent == null)
+				continue;
 
 			switch (t)
 			{
@@ -363,6 +372,8 @@ public class Decrypt extends Crypto
 						if (!directories.containsKey(p))
 						{
 							parent = parent.createDirectory(d);
+							if (parent == null)
+								throw new IOException("Could not create directory: " + d);
 							directories.put(p, parent);
 						}
 						p += '/';
@@ -375,7 +386,9 @@ public class Decrypt extends Crypto
 					final String filename = path.getFileName().toString();
 					current.file = filename;
 					current.size = Convert.longFromBytes(b);
-					final DocumentFile newFile = parent.createFile(null, filename);
+					final DocumentFile newFile = parent.createFile(MIME_TYPE, filename);
+					if (newFile == null)
+						throw new IOException("Could not create file: " + filename);
 					output = contentResolver.openOutputStream(newFile.getUri());
 					decryptFile();
 					current.offset = current.size;
@@ -384,18 +397,16 @@ public class Decrypt extends Crypto
 					break;
 				case LINK:
 				case SYMLINK:
-					/*
 					b = new byte[Long.SIZE / Byte.SIZE];
 					readAndHash(b);
 					l = Convert.longFromBytes(b);
 					b = new byte[(int)l];
 					readAndHash(b);
-					final String ln = dir + File.separator + new String(b);
+					final String link = parent + File.separator + new String(b);
 					if (t == FileType.LINK)
-						Files.createLink(new File(nm).toPath(), new File(ln).toPath());
+						Files.createLink(new File(name).toPath(), new File(link).toPath());
 					else
-						Files.createSymbolicLink(new File(nm).toPath(), new File(ln).toPath());
-					*/
+						Files.createSymbolicLink(new File(name).toPath(), new File(link).toPath());
 					break;
 			}
 		}
@@ -408,12 +419,12 @@ public class Decrypt extends Crypto
 		while (b && status == Status.RUNNING)
 		{
 			b = source.read() == 1;
-			source.read(buffer);
+			read(source, buffer);
 			int r = blockSize;
 			if (!b)
 			{
 				final byte[] l = new byte[Long.SIZE / Byte.SIZE];
-				source.read(l);
+				read(source, l);
 				r = (int)Convert.longFromBytes(l);
 				final byte[] tmp = new byte[r];
 				System.arraycopy(buffer, 0, tmp, 0, r);
@@ -451,5 +462,11 @@ public class Decrypt extends Crypto
 		verification.hash.update(b, 0, l);
 		verification.mac.update(b, 0, l);
 		return r;
+	}
+
+	private static void read(final InputStream in, final byte[] b) throws IOException
+	{
+		if (in.read(b) < 0)
+			throw new IOException("Could not read data");
 	}
 }

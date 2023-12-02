@@ -23,10 +23,12 @@ package net.albinoloverats.android.encrypt.lib.crypt;
 import android.app.Service;
 import android.content.Intent;
 import android.net.Uri;
-
+import androidx.documentfile.provider.DocumentFile;
+import gnu.crypto.mode.ModeFactory;
+import gnu.crypto.prng.LimitReachedException;
+import gnu.crypto.util.PRNG;
 import net.albinoloverats.android.encrypt.lib.io.EncryptedFileOutputStream;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
-
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZFormatException;
 import org.tukaani.xz.XZOutputStream;
@@ -36,11 +38,6 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
-
-import androidx.documentfile.provider.DocumentFile;
-import gnu.crypto.mode.ModeFactory;
-import gnu.crypto.prng.LimitReachedException;
-import gnu.crypto.util.PRNG;
 
 public class Encrypt extends Crypto
 {
@@ -54,17 +51,17 @@ public class Encrypt extends Crypto
 
 		preInit();
 
-		final List<Uri> source = intent.getParcelableArrayListExtra("source");
-		final Uri output       = intent.getParcelableExtra("output");
-		cipher                 = intent.getStringExtra("cipher");
-		hash                   = intent.getStringExtra("hash");
-		mode                   = intent.getStringExtra("mode");
-		mac                    = intent.getStringExtra("mac");
-		kdfIterations          = intent.getIntExtra("kdf_iterations", KDF_ITERATIONS_DEFAULT);
+		final List<Uri> source = getSource(intent);
+		final Uri output = getOutput(intent);
+		cipher = intent.getStringExtra("cipher");
+		hash = intent.getStringExtra("hash");
+		mode = intent.getStringExtra("mode");
+		mac = intent.getStringExtra("mac");
+		kdfIterations = intent.getIntExtra("kdf_iterations", KDF_ITERATIONS_DEFAULT);
 
-		compressed             = intent.getBooleanExtra("compress", compressed);
-		follow_links           = intent.getBooleanExtra("follow", follow_links);
-		version                = Version.parseMagicNumber(intent.getLongExtra("version", Version.CURRENT.magicNumber), Version.CURRENT);
+		compressed = intent.getBooleanExtra("compress", compressed);
+		follow_links = intent.getBooleanExtra("follow", follow_links);
+		version = Version.parseMagicNumber(intent.getLongExtra("version", Version.CURRENT.magicNumber), Version.CURRENT);
 
 		try
 		{
@@ -74,6 +71,8 @@ public class Encrypt extends Crypto
 			{
 				final Uri uri = source.get(0);
 				final DocumentFile documentFile = DocumentFile.fromSingleUri(this, uri);
+				if (documentFile == null)
+					throw new FileNotFoundException("Could not get file from URI");
 				name = documentFile.getName();
 				total.size = documentFile.length();
 				this.source = contentResolver.openInputStream(uri);
@@ -153,9 +152,7 @@ public class Encrypt extends Crypto
 			}
 			if (version.compareTo(Version._201110) <= 0)
 				ivType = XIV.BROKEN;
-			boolean useMAC = true;
-			if (version.compareTo(Version._201709) < 0)
-				useMAC = false;
+			final boolean useMAC = version.compareTo(Version._201709) >= 0;
 			/* we can use useMAC to indicate whether to use a proper key derivation function */
 			verification = ((EncryptedFileOutputStream)output).initialiseEncryption(cipher, hash, mode, mac, kdfIterations, key, ivType, useMAC);
 
@@ -180,7 +177,7 @@ public class Encrypt extends Crypto
 			if (directory)
 			{
 				hashAndWrite(Convert.toBytes((byte)FileType.DIRECTORY.value));
-				hashAndWrite(Convert.toBytes(1l));
+				hashAndWrite(Convert.toBytes(1L));
 				hashAndWrite(new byte[] { '.' });
 				total.offset = 1;
 				for (final Uri uri : fakeDir)
@@ -188,15 +185,20 @@ public class Encrypt extends Crypto
 					if (status != Status.RUNNING)
 						break;
 					final DocumentFile documentFile = DocumentFile.fromSingleUri(this, uri);
+					if (documentFile == null)
+					{
+						status = Status.FAILED_IO;
+						break;
+					}
 					if (!documentFile.isFile())
 						continue;
 					final String name = documentFile.getName();
-					current.file = name;
+					current.file = name != null ? name : "";
 					source = contentResolver.openInputStream(uri);
 
 					hashAndWrite(Convert.toBytes((byte)FileType.REGULAR.value));
-					hashAndWrite(Convert.toBytes((long)name.length()));
-					hashAndWrite(name.getBytes());
+					hashAndWrite(Convert.toBytes((long)current.file.length()));
+					hashAndWrite(current.file.getBytes());
 
 					current.offset = 0;
 					current.size = documentFile.length();
@@ -307,11 +309,11 @@ public class Encrypt extends Crypto
 		hashAndWrite(Convert.toBytes(total.size));
 
 		hashAndWrite(Convert.toBytes((byte)Tag.COMPRESSED.value));
-		hashAndWrite(Convert.toBytes((short)(Byte.SIZE / Byte.SIZE)));
+		hashAndWrite(Convert.toBytes((short)(1)));
 		hashAndWrite(Convert.toBytes(compressed));
 
 		hashAndWrite(Convert.toBytes((byte)Tag.DIRECTORY.value));
-		hashAndWrite(Convert.toBytes((short)(Byte.SIZE / Byte.SIZE)));
+		hashAndWrite(Convert.toBytes((short)(1)));
 		hashAndWrite(Convert.toBytes(directory));
 
 		if (!directory && name != null && version.compareTo(Version._201501) >= 0)

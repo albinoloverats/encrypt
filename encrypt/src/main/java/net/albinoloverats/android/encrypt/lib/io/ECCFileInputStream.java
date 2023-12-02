@@ -22,7 +22,6 @@ package net.albinoloverats.android.encrypt.lib.io;
 
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -30,9 +29,10 @@ public class ECCFileInputStream extends ECCFileStream
 {
 	private final InputStream inputStream;
 
+	@lombok.Getter
 	private int decodeError;
 
-	public ECCFileInputStream(final InputStream stream) throws FileNotFoundException
+	public ECCFileInputStream(final InputStream stream)
 	{
 		inputStream = stream;
 		source = new byte[CAPACITY];
@@ -54,7 +54,7 @@ public class ECCFileInputStream extends ECCFileStream
 	public int read() throws IOException
 	{
 		final byte[] b = new byte[Integer.SIZE / Byte.SIZE];
-		int err = read(b, 3, 1);
+		final int err = read(b, 3, 1);
 		return err < 0 ? err : Convert.intFromBytes(b);
 	}
 
@@ -83,7 +83,7 @@ public class ECCFileInputStream extends ECCFileStream
 			offset[1] -= offset[0];
 			offset[0] = 0;
 			source = new byte[CAPACITY];
-			int z = inputStream.read();
+			final int z = inputStream.read();
 			err = inputStream.read(source);
 			final byte[] tmp = decode();
 			if (tmp == null)
@@ -105,33 +105,42 @@ public class ECCFileInputStream extends ECCFileStream
 	{
 		if (n < 0)
 			throw new IOException();
-		final byte[] bytes = new byte[(int)n];
-		return read(bytes);
+		return read(new byte[(int)n]);
 	}
 
 	private byte[] decode()
 	{
-		reverse(source, CAPACITY);
+		reverse(source);
 
 		final byte[] target = new byte[PAYLOAD];
 
 		for (int i = 0; i < PAYLOAD; i++)
 			target[i] = source[CAPACITY - 1 - i];
 
-		byte[] syn = new byte[CAPACITY + 1];
+		final byte[] syn = new byte[CAPACITY + 1];
 		syndrome(source, syn);
 		if (syn[0] == 0)
 			return target;
 
-		int[] r = errnum(syn);
+		final int[] r = errnum(syn);
 		decodeError = r[0];
-		int deter = r[1];
+		final int deter = r[1];
 		if (decodeError == 4)
 			return null;
 
-		int e0, e1, e2, n0, n1, n2, w0, w1, w2, x0;
-		byte[] x = new byte[3], z = new byte[4];
-		int sols;
+		int e0;
+		int e1;
+		int e2;
+		final int n0;
+		final int n1;
+		final int n2;
+		final int w0;
+		final int w1;
+		final int w2;
+		final int x0;
+		final byte[] x = new byte[3];
+		final byte[] z = new byte[4];
+		final int sols;
 
 		switch (decodeError)
 		{
@@ -228,11 +237,6 @@ public class ECCFileInputStream extends ECCFileStream
 
 		}
 		return null;
-	}
-
-	public int getDecodeError()
-	{
-		return decodeError;
 	}
 
 	private int evalpoly(final byte[] p, final int x)

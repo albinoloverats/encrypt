@@ -30,7 +30,6 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import net.albinoloverats.android.encrypt.free.R;
 
 import java.text.DecimalFormat;
@@ -43,7 +42,8 @@ import java.util.Arrays;
  * <p>The dialog can be made cancelable on back key press.</p>
  * <p>The progress range is 0..10000.</p>
  */
-public class DoubleProgressDialog extends AlertDialog {
+public class DoubleProgressDialog extends AlertDialog
+{
 
 	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0");
 	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("#,##0.00");
@@ -55,7 +55,7 @@ public class DoubleProgressDialog extends AlertDialog {
 	private DecimalFormat mProgressNumberFormat = DECIMAL_FORMAT;
 	private TextView mProgressPercent;
 	private TextView mProgressRate;
-	private ProgressRate progressRateCalc = new ProgressRate();
+	private final ProgressRate progressRateCalc = new ProgressRate();
 	private NumberFormat mProgressPercentFormat;
 
 	private TextView mSecondaryProgressNumber;
@@ -77,36 +77,41 @@ public class DoubleProgressDialog extends AlertDialog {
 	private boolean mHasStarted;
 	private Handler mViewUpdateHandler;
 
-	private Context mContext;
+	private final Context mContext;
 
-	public DoubleProgressDialog(Context context) {
+	public DoubleProgressDialog(final Context context)
+	{
 		super(context);
 
 		this.mContext = context;
 	}
 
-	public DoubleProgressDialog(Context context, int theme) {
+	public DoubleProgressDialog(final Context context, final int theme)
+	{
 		super(context, theme);
 		this.mContext = context;
 	}
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		LayoutInflater inflater = LayoutInflater.from(mContext);
+	protected void onCreate(final Bundle savedInstanceState)
+	{
+		final LayoutInflater inflater = LayoutInflater.from(mContext);
 
 		/* Use a separate handler to update the text views as they
 		 * must be updated on the same thread that created them.
 		 */
-		mViewUpdateHandler = new Handler() {
+		mViewUpdateHandler = new Handler()
+		{
 			@Override
-			public void handleMessage(Message msg) {
+			public void handleMessage(final Message msg)
+			{
 				super.handleMessage(msg);
 
 				/* Update the number and percent */
 				int progress = mProgress.getProgress();
 				int max = mProgress.getMax();
-				double percent = (double) progress / (double) max;
-				DecimalFormat format = mProgressNumberFormat;
+				double percent = (double)progress / (double)max;
+				final DecimalFormat format = mProgressNumberFormat;
 				mProgressNumber.setText(format.format(progress) + '/' + format.format(max));
 				SpannableString tmp = new SpannableString(mProgressPercentFormat.format(percent));
 				tmp.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),
@@ -142,7 +147,7 @@ public class DoubleProgressDialog extends AlertDialog {
 				/* Update the number and percent of the second bar */
 				progress = mSecondaryProgress.getProgress();
 				max = mSecondaryProgress.getMax(); // Use the same max a the top bar
-				percent = (double) progress / (double) max;
+				percent = (double)progress / (double)max;
 				mSecondaryProgressNumber.setText(format.format(progress) + '/' + format.format(max));
 				tmp = new SpannableString(mProgressPercentFormat.format(percent));
 				tmp.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),
@@ -150,47 +155,55 @@ public class DoubleProgressDialog extends AlertDialog {
 				mSecondaryProgressPercent.setText(tmp);
 			}
 		};
-		View view = inflater.inflate(R.layout.alert_dialog_double_progress, null);
-		mProgress = (ProgressBar) view.findViewById(R.id.progress);
-		mSecondaryProgress = (ProgressBar) view.findViewById(R.id.secondaryProgress);
+		final View view = inflater.inflate(R.layout.alert_dialog_double_progress, null);
+		mProgress = view.findViewById(R.id.progress);
+		mSecondaryProgress = view.findViewById(R.id.secondaryProgress);
 
-		mProgressNumber = (TextView) view.findViewById(R.id.progress_number);
+		mProgressNumber = view.findViewById(R.id.progress_number);
 		mProgressNumberFormat = DECIMAL_FORMAT;
-		mProgressPercent = (TextView) view.findViewById(R.id.progress_percent);
+		mProgressPercent = view.findViewById(R.id.progress_percent);
 		mProgressPercentFormat = NumberFormat.getPercentInstance();
 		mProgressPercentFormat.setMaximumFractionDigits(0);
-		mProgressRate = (TextView) view.findViewById(R.id.progress_rate);
+		mProgressRate = view.findViewById(R.id.progress_rate);
 
-		mSecondaryProgressNumber = (TextView) view.findViewById(R.id.secondary_progress_number);
-		mSecondaryProgressPercent = (TextView) view.findViewById(R.id.secondary_progress_percent);
+		mSecondaryProgressNumber = view.findViewById(R.id.secondary_progress_number);
+		mSecondaryProgressPercent = view.findViewById(R.id.secondary_progress_percent);
 
-		mSecondaryLayout = (RelativeLayout)view.findViewById(R.id.secondaryLayout);
+		mSecondaryLayout = view.findViewById(R.id.secondaryLayout);
 		hideSecondaryProgress();
 
 		setView(view);
 
-		if (mMax > 0) {
+		if (mMax > 0)
+		{
 			setMax(mMax);
 		}
-		if (mProgressVal > 0) {
+		if (mProgressVal > 0)
+		{
 			setProgress(mProgressVal);
 		}
-		if (mSecondaryProgressVal > 0) {
+		if (mSecondaryProgressVal > 0)
+		{
 			setSecondaryProgress(mSecondaryProgressVal);
 		}
-		if (mIncrementBy > 0) {
+		if (mIncrementBy > 0)
+		{
 			incrementProgressBy(mIncrementBy);
 		}
-		if (mIncrementSecondaryBy > 0) {
+		if (mIncrementSecondaryBy > 0)
+		{
 			incrementSecondaryProgressBy(mIncrementSecondaryBy);
 		}
-		if (mProgressDrawable != null) {
+		if (mProgressDrawable != null)
+		{
 			setProgressDrawable(mProgressDrawable);
 		}
-		if (mIndeterminateDrawable != null) {
+		if (mIndeterminateDrawable != null)
+		{
 			setIndeterminateDrawable(mIndeterminateDrawable);
 		}
-		if (mMessage != null) {
+		if (mMessage != null)
+		{
 			setMessage(mMessage);
 		}
 		setIndeterminate(mIndeterminate);
@@ -199,44 +212,58 @@ public class DoubleProgressDialog extends AlertDialog {
 	}
 
 	@Override
-	public void onStart() {
+	public void onStart()
+	{
 		super.onStart();
 		mHasStarted = true;
 	}
 
 	@Override
-	protected void onStop() {
+	protected void onStop()
+	{
 		super.onStop();
 		mHasStarted = false;
 	}
 
-	public void setProgress(int value) {
-		if (mHasStarted) {
+	public void setProgress(final int value)
+	{
+		if (mHasStarted)
+		{
 			mProgress.setProgress(value);
 			onProgressChanged();
-		} else {
+		}
+		else
+		{
 			mProgressVal = value;
 		}
 	}
 
-	public int getProgress() {
-		if (mProgress != null) {
+	public int getProgress()
+	{
+		if (mProgress != null)
+		{
 			return mProgress.getProgress();
 		}
 		return mProgressVal;
 	}
 
-	public void setSecondaryProgress(int secondaryProgress) {
-		if (mSecondaryProgress != null) {
+	public void setSecondaryProgress(final int secondaryProgress)
+	{
+		if (mSecondaryProgress != null)
+		{
 			mSecondaryProgress.setProgress(secondaryProgress);
 			onProgressChanged();
-		} else {
+		}
+		else
+		{
 			mSecondaryProgressVal = secondaryProgress;
 		}
 	}
 
-	public int getSecondaryProgress() {
-		if (mSecondaryProgress != null) {
+	public int getSecondaryProgress()
+	{
+		if (mSecondaryProgress != null)
+		{
 			// We only use the secondary progress on the second bar
 			// Seems to be more usable that way..
 			return mSecondaryProgress.getProgress();
@@ -244,92 +271,130 @@ public class DoubleProgressDialog extends AlertDialog {
 		return mSecondaryProgressVal;
 	}
 
-	public int getMax() {
-		if (mProgress != null) {
+	public int getMax()
+	{
+		if (mProgress != null)
+		{
 			return mProgress.getMax();
 		}
 		return mMax;
 	}
 
-	public void setMax(int max) {
-		if (mProgress != null) {
+	public void setMax(final int max)
+	{
+		if (mProgress != null)
+		{
 			mProgress.setMax(max);
 			onProgressChanged();
-		} else {
+		}
+		else
+		{
 			mMax = max;
 		}
 	}
 
-	public int getSecondaryMax() {
-		if (mSecondaryProgress != null) {
+	public int getSecondaryMax()
+	{
+		if (mSecondaryProgress != null)
+		{
 			return mSecondaryProgress.getMax();
 		}
 		return mSecondaryMax;
 	}
 
-	public void setSecondaryMax(int max) {
-		if (mSecondaryProgress != null) {
+	public void setSecondaryMax(final int max)
+	{
+		if (mSecondaryProgress != null)
+		{
 			mSecondaryProgress.setMax(max);
 			onProgressChanged();
-		} else {
+		}
+		else
+		{
 			mSecondaryMax = max;
 		}
 	}
 
-	public void incrementProgressBy(int diff) {
-		if (mProgress != null) {
+	public void incrementProgressBy(final int diff)
+	{
+		if (mProgress != null)
+		{
 			mProgress.incrementProgressBy(diff);
 			onProgressChanged();
-		} else {
+		}
+		else
+		{
 			mIncrementBy += diff;
 		}
 	}
 
-	public void incrementSecondaryProgressBy(int diff) {
-		if (mSecondaryProgress != null) {
+	public void incrementSecondaryProgressBy(final int diff)
+	{
+		if (mSecondaryProgress != null)
+		{
 			mSecondaryProgress.incrementProgressBy(diff);
 			onProgressChanged();
-		} else {
+		}
+		else
+		{
 			mIncrementSecondaryBy += diff;
 		}
 	}
 
-	public void setProgressDrawable(Drawable d) {
-		if (mProgress != null) {
+	public void setProgressDrawable(final Drawable d)
+	{
+		if (mProgress != null)
+		{
 			mProgress.setProgressDrawable(d);
-		} else {
+		}
+		else
+		{
 			mProgressDrawable = d;
 		}
 	}
 
-	public void setIndeterminateDrawable(Drawable d) {
-		if (mProgress != null) {
+	public void setIndeterminateDrawable(final Drawable d)
+	{
+		if (mProgress != null)
+		{
 			mProgress.setIndeterminateDrawable(d);
-		} else {
+		}
+		else
+		{
 			mIndeterminateDrawable = d;
 		}
 	}
 
-	public void setIndeterminate(boolean indeterminate) {
-		if (mProgress != null) {
+	public void setIndeterminate(final boolean indeterminate)
+	{
+		if (mProgress != null)
+		{
 			mProgress.setIndeterminate(indeterminate);
-		} else {
+		}
+		else
+		{
 			mIndeterminate = indeterminate;
 		}
 	}
 
-	public boolean isIndeterminate() {
-		if (mProgress != null) {
+	public boolean isIndeterminate()
+	{
+		if (mProgress != null)
+		{
 			return mProgress.isIndeterminate();
 		}
 		return mIndeterminate;
 	}
 
 	@Override
-	public void setMessage(CharSequence message) {
-		if (mProgress != null) {
-				super.setMessage(message);
-		} else {
+	public void setMessage(final CharSequence message)
+	{
+		if (mProgress != null)
+		{
+			super.setMessage(message);
+		}
+		else
+		{
 			mMessage = message;
 		}
 	}
@@ -337,19 +402,23 @@ public class DoubleProgressDialog extends AlertDialog {
 	/**
 	 * Change the format of Progress Number. The default is "current/max".
 	 * Should not be called during the number is progressing.
+	 *
 	 * @param format Should contain two "%d". The first is used for current number
-	 * and the second is used for the maximum.
+	 *               and the second is used for the maximum.
 	 * @hide
 	 */
-	public void setProgressNumberFormat(String format) {
+	public void setProgressNumberFormat(final String format)
+	{
 		mProgressNumberFormat = new DecimalFormat(format);
 	}
 
-	public void setProgressNumberFormat(DecimalFormat format) {
+	public void setProgressNumberFormat(final DecimalFormat format)
+	{
 		mProgressNumberFormat = format;
 	}
 
-	private void onProgressChanged() {
+	private void onProgressChanged()
+	{
 		mViewUpdateHandler.sendEmptyMessage(0);
 	}
 
@@ -382,7 +451,7 @@ public class DoubleProgressDialog extends AlertDialog {
 			rate[next].time = System.currentTimeMillis();
 			final Rate[] copy = Arrays.copyOf(rate, BPS);
 			Arrays.sort(copy);
-			double avg[] = new double[BPS];
+			final double[] avg = new double[BPS];
 			for (int i = 1; i < BPS; i++)
 			{
 				if (copy[i].time == 0)

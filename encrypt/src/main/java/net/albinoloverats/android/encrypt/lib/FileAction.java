@@ -20,18 +20,16 @@
 
 package net.albinoloverats.android.encrypt.lib;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public enum FileAction
 {
 	LOAD(0),
 	SAVE(1),
 	KEY(2);
 
-	public int value;
-
-	FileAction(final int value)
-	{
-		this.value = value;
-	}
+	public final int value;
 
 	public static FileAction fromValue(final int value)
 	{

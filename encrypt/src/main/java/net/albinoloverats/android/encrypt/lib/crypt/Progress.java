@@ -20,6 +20,9 @@
 
 package net.albinoloverats.android.encrypt.lib.crypt;
 
+import lombok.Data;
+
+@Data
 public class Progress
 {
 	public String file;
