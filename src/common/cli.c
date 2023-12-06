@@ -190,7 +190,7 @@ extern double cli_calc_bps(cli_bps_t *bps)
 		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, BPS * sizeof( cli_bps_t ));
 	for (int i = 0; i < BPS; i++)
 	{
-		copy[i].time = bps[i].time;
+		copy[i].time  = bps[i].time;
 		copy[i].bytes = bps[i].bytes;
 	}
 	qsort(copy, BPS, sizeof( cli_bps_t ), cli_bps_sort);

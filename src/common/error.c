@@ -39,6 +39,9 @@
 #include "non-gnu.h"
 
 #define ERROR_DIVIDE "\n********** ********** ********** **********\n\n"
+#define ERROR_DIVIDE_LEN 46
+#define ERROR_CURSOR "\e[?25h\n"
+#define ERROR_CURSOR_LEN 7
 
 #ifdef BUILD_GUI
 static void error_gui_alert(const char * const restrict);
@@ -61,8 +64,8 @@ extern void on_error(int s)
 		raise(s);
 	fatal_error_in_progress = 1;
 
-	write(STDERR_FILENO, "\e[?25h\n", strlen("\e[?25h\n"));
-	write(STDERR_FILENO, ERROR_DIVIDE, strlen(ERROR_DIVIDE));
+	write(STDERR_FILENO, ERROR_CURSOR, ERROR_CURSOR_LEN);
+	write(STDERR_FILENO, ERROR_DIVIDE, ERROR_DIVIDE_LEN);
 
 	char m[32] = { 0x0 };
 	strcat(m, "Received fatal signal [");
@@ -79,16 +82,14 @@ extern void on_error(int s)
 	int c = backtrace(bt, BACKTRACE_BUFFER_LIMIT);
 	char **sym = backtrace_symbols(bt, c);
 	if (sym)
-	{
 		for (int i = 0; i < c; i++)
 		{
 			write(STDERR_FILENO, sym[i], strlen(sym[i]));
 			write(STDERR_FILENO, "\n", 1);
 		}
-	}
 #endif
 
-	write(STDERR_FILENO, ERROR_DIVIDE, strlen(ERROR_DIVIDE));
+	write(STDERR_FILENO, ERROR_DIVIDE, ERROR_DIVIDE_LEN);
 
 #ifndef __APPLE__
 	signal(s, SIG_DFL);
@@ -193,15 +194,12 @@ static char *int_to_ascii(int i)
 	static char buf[INT_DIGITS + 2];
 	char *p = buf + INT_DIGITS + 1; /* points to terminating '\0' */
 	if (i >= 0)
-	{
 		do
 		{
 			*--p = '0' + (i % 10);
 			i /= 10;
 		}
 		while (i != 0);
-		return p;
-	}
 	else
 	{          /* i < 0 */
 		do

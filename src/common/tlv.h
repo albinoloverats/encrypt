@@ -220,5 +220,13 @@ extern const tlv_t *tlv_get_next(ITER h) __attribute__((nonnull(1)));
  */
 extern bool tlv_has_next(ITER h) __attribute__((nonnull(1)));
 
+/*!
+ * \brief         Call the given function for each item in the TLV
+ * \param[in]  h  A pointer to the TLV
+ * \param[in]  f  The function to call
+ *
+ * Iterate through the TLV, calling the given function for each item.
+ */
+extern void tlv_for_each(TLV h, void f(uint8_t, uint16_t, const void *)) __attribute__((nonnull(1, 2)));
 
 #endif /* _COMMON_TLV_H_ */

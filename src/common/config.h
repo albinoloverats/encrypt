@@ -83,7 +83,8 @@ typedef union
 {
 	bool boolean;
 	int64_t integer;
-	__float128 decimal;
+	//__float128 decimal;
+	long double decimal;
 	char *string;
 	pair_u pair;
 	LIST *list;

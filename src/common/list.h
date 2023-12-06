@@ -77,7 +77,7 @@ typedef void * ITER;
  * values. It allows duplicates and will sort the list according to
  * their values. Returns NULL on error.
  */
-#define list_decimal() list_init((void *)list_compare_integer, true, true)
+#define list_decimal() list_init((void *)list_compare_decimal, true, true)
 
 /*!
  * \brief         Create a new linked list
@@ -123,6 +123,17 @@ extern LIST list_init(int c(const void *, const void *), bool d, bool s) __attri
  * NULL function f then data items will not be freed.
  */
 extern void list_deinit_aux(LIST h, void f(void *)) __attribute__((nonnull(1)));
+
+/*!
+ * \brief         Copy an existing list
+ * \param[in]  h  A pointer to an existing list
+ * \param[in]  c  A function to copy the item data
+ * \return        A new list
+ *
+ * Create a new list that is a copy of an existing list. Creating a
+ * copy of each item too, hence the function c.
+ */
+extern LIST list_copy(LIST h, void *c(const void *)) __attribute__((nonnull(1, 2)));
 
 /*!
  * \brief         Get the number of items in the list
@@ -174,6 +185,18 @@ extern bool list_insert(LIST h, size_t i, const void *d) __attribute__((nonnull(
  * re-added.
  */
 extern bool list_add(LIST h, const void *d) __attribute__((nonnull(1, 2)));
+
+/*!
+ * \brief         Add all items to the list
+ * \param[in]  h  A pointer to the list
+ * \param[in]  o  The other list to add from
+ * \param[in]  c  Function to copy item data
+ * \return        The number of items copied
+ *
+ * Copy all items from one list to another, existing list. Creating a
+ * copy of the data using c.
+ */
+extern int list_add_all(LIST h, LIST o, void *c(const void *)) __attribute__((nonnull(1, 2, 3)));
 
 /*!
  * \brief         Check if the list contains the item
@@ -254,6 +277,28 @@ extern const void *list_get_next(ITER h) __attribute__((nonnull(1)));
 extern bool list_has_next(ITER h) __attribute__((nonnull(1)));
 
 /*!
+ * \brief         Call the given function for each item in the list
+ * \param[in]  h  A pointer to the list
+ * \param[in]  f  The function to call
+ *
+ * Iterate through the list, calling the given function for each item.
+ */
+extern void list_for_each(LIST h, void f(const void *)) __attribute__((nonnull(1, 2)));
+
+/*!
+ * \brief         Sort the given list
+ * \param[in]  h  A pointer to the list
+ *
+ * The list will be sorted, using the comparison function given during
+ * list_init() or list_add_comparator(). If there isn't one, nothing
+ * will happen. After this call the list will continue to be sorted and
+ * items will be inserted where appilcable
+ */
+extern void list_sort(LIST h) __attribute__((nonnull(1)));
+
+//extern void list_tidy(LIST h) __attribute__((nonnull(1)));
+
+/*!
  * \brief         Add comparator to the list
  * \param[in]  h  A pointer to the list
  * \param[in]  c  The comparator to add
@@ -262,8 +307,8 @@ extern bool list_has_next(ITER h) __attribute__((nonnull(1)));
  */
 extern void list_add_comparator(LIST h, int c(const void *, const void *)) __attribute__((nonnull(1, 2)));
 
-extern int list_compare_integer(void *a, void *b);
+extern int list_compare_integer(const void *a, const void *b);
 
-extern int list_compare_decimal(void *a, void *b);
+extern int list_compare_decimal(const void *a, const void *b);
 
 #endif
