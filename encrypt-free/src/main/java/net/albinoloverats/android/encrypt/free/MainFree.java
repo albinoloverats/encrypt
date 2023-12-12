@@ -346,48 +346,57 @@ public class MainFree extends Activity
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem menuItem)
 	{
-		switch (menuItem.getItemId())
+		final int itemId = menuItem.getItemId();
+		if (itemId == R.id.menu_about)
 		{
-			case R.id.menu_about:
-				aboutDialog();
-				break;
-			case R.id.menu_options:
-				break;
-			case R.id.menu_options_compress:
-				compress = !menuItem.isChecked();
-				menuItem.setChecked(compress);
-				Toast.makeText(getApplicationContext(), getString(R.string.compress) + ": " + (compress ? getString(R.string.on) : getString(R.string.off)), Toast.LENGTH_SHORT).show();
-				storePreferences();
-				break;
-			case R.id.menu_options_follow:
-				follow = !menuItem.isChecked();
-				menuItem.setChecked(follow);
-				Toast.makeText(getApplicationContext(), getString(R.string.follow) + ": " + (follow ? getString(R.string.on) : getString(R.string.off)), Toast.LENGTH_SHORT).show();
-				storePreferences();
-				break;
-			case R.id.menu_options_key_file:
-				key_file = !menuItem.isChecked();
-				menuItem.setChecked(key_file);
-				Toast.makeText(getApplicationContext(), key_file ? getString(R.string.use_key_file) : getString(R.string.use_password), Toast.LENGTH_SHORT).show();
-				toggleKeySource();
-				storePreferences();
-				break;
-			case R.id.menu_advanced_raw:
-				raw = !menuItem.isChecked();
-				menuItem.setChecked(raw);
-				Toast.makeText(getApplicationContext(), getString(R.string.raw) + ": " + (raw ? getString(R.string.on) : getString(R.string.off)), Toast.LENGTH_SHORT).show();
-				storePreferences();
-				break;
-			case R.id.menu_advanced_compatibility:
-				break;
-			case R.id.menu_remove_ads:
-				final Intent i = new Intent(Intent.ACTION_VIEW);
-				i.setData(Uri.parse("market://details?id=net.albinoloverats.android.encrypt"));
-				startActivity(i);
-				break;
-			default:
-				checkCompatibilityChange(menuItem);
-				break;
+			aboutDialog();
+		}
+		else if (itemId == R.id.menu_options)
+		{
+			// do nothing; displays sub-menu
+		}
+		else if (itemId == R.id.menu_options_compress)
+		{
+			compress = !menuItem.isChecked();
+			menuItem.setChecked(compress);
+			Toast.makeText(getApplicationContext(), getString(R.string.compress) + ": " + (compress ? getString(R.string.on) : getString(R.string.off)), Toast.LENGTH_SHORT).show();
+			storePreferences();
+		}
+		else if (itemId == R.id.menu_options_follow)
+		{
+			follow = !menuItem.isChecked();
+			menuItem.setChecked(follow);
+			Toast.makeText(getApplicationContext(), getString(R.string.follow) + ": " + (follow ? getString(R.string.on) : getString(R.string.off)), Toast.LENGTH_SHORT).show();
+			storePreferences();
+		}
+		else if (itemId == R.id.menu_options_key_file)
+		{
+			key_file = !menuItem.isChecked();
+			menuItem.setChecked(key_file);
+			Toast.makeText(getApplicationContext(), key_file ? getString(R.string.use_key_file) : getString(R.string.use_password), Toast.LENGTH_SHORT).show();
+			toggleKeySource();
+			storePreferences();
+		}
+		else if (itemId == R.id.menu_advanced_raw)
+		{
+			raw = !menuItem.isChecked();
+			menuItem.setChecked(raw);
+			Toast.makeText(getApplicationContext(), getString(R.string.raw) + ": " + (raw ? getString(R.string.on) : getString(R.string.off)), Toast.LENGTH_SHORT).show();
+			storePreferences();
+		}
+		else if (itemId == R.id.menu_advanced_compatibility)
+		{
+			// do nothing; displays sub-menu
+		}
+		else if (itemId == R.id.menu_remove_ads)
+		{
+			final Intent i = new Intent(Intent.ACTION_VIEW);
+			i.setData(Uri.parse("market://details?id=net.albinoloverats.android.encrypt"));
+			startActivity(i);
+		}
+		else
+		{
+			checkCompatibilityChange(menuItem);
 		}
 		return true;
 	}
