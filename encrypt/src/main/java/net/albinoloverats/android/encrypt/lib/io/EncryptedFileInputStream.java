@@ -90,7 +90,7 @@ public class EncryptedFileInputStream extends InputStream
 			attributes.put(IPBE.SALT, salt);
 			attributes.put(IPBE.ITERATION_COUNT, kdfIterations);
 			keyGen.init(attributes);
-			keyGen.nextBytes(key);
+			keyGen.nextBytes(key, 0, key.length);
 		}
 		else
 			System.arraycopy(keySource, 0, key, 0, Math.min(keyLength, keySource.length));
@@ -125,7 +125,7 @@ public class EncryptedFileInputStream extends InputStream
 		attributes.put(IPBE.SALT, salt);
 		attributes.put(IPBE.ITERATION_COUNT, kdfIterations);
 		keyGen.init(attributes);
-		keyGen.nextBytes(key);
+		keyGen.nextBytes(key, 0, key.length);
 		attributes = new HashMap<>();
 		attributes.put(IMac.MAC_KEY_MATERIAL, key);
 		mac.init(attributes);

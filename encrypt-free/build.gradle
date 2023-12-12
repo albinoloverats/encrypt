@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    defaultConfig {
+	defaultConfig {
 		applicationId 'net.albinoloverats.android.encrypt.free'
 		minSdkVersion 28
-		targetSdkVersion 33
+		targetSdkVersion 34
 		compileSdk 34
 		versionCode 19
 		versionName '2024.01'
@@ -24,8 +24,8 @@ android {
 	productFlavors {
 	}
 	compileOptions {
-		targetCompatibility JavaVersion.VERSION_1_8
-		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_17
+		sourceCompatibility JavaVersion.VERSION_17
 	}
 	namespace 'net.albinoloverats.android.encrypt.free'
 }
@@ -33,7 +33,7 @@ android {
 dependencies {
 	api fileTree(dir: 'libs', include: ['*.jar'])
 	api 'com.android.support:appcompat-v7:30.0.2'
-	api 'com.google.android.gms:play-services-ads:22.5.0'
+	api 'com.google.android.gms:play-services-ads:22.6.0'
 	api project(':encrypt')
 	compileOnly "org.projectlombok:lombok:1.18.30"
 	annotationProcessor 'org.projectlombok:lombok:1.18.30'

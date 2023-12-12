@@ -3,7 +3,7 @@ apply plugin: 'com.android.library'
 android {
 	defaultConfig {
 		minSdkVersion 28
-		targetSdkVersion 33
+		targetSdkVersion 34
 		compileSdk 34
 	}
 	signingConfigs {
@@ -18,8 +18,8 @@ android {
 	productFlavors {
 	}
 	compileOptions {
-		targetCompatibility JavaVersion.VERSION_11
-		sourceCompatibility JavaVersion.VERSION_11
+		targetCompatibility JavaVersion.VERSION_17
+		sourceCompatibility JavaVersion.VERSION_17
 	}
 	namespace 'net.albinoloverats.android.encrypt.lib'
 }
@@ -27,8 +27,8 @@ android {
 dependencies {
 	api fileTree(dir: 'libs', include: ['*.jar'])
 	api 'com.android.support:appcompat-v7:30.0.2'
-	api 'org.tukaani:xz:1.8@jar'
-	api project(':gnu-crypto')
+	api 'org.tukaani:xz:1.9@jar'
+	api 'org.gnu:gnu-crypto:2.0.1@jar'
 	compileOnly 'org.projectlombok:lombok:1.18.30'
 	annotationProcessor 'org.projectlombok:lombok:1.18.30'
 }
