@@ -1,7 +1,9 @@
 apply plugin: 'com.android.application'
 
-android {
-	defaultConfig {
+android
+{
+	defaultConfig
+	{
 		applicationId 'net.albinoloverats.android.encrypt'
 		minSdkVersion 28
 		targetSdkVersion 34
@@ -9,28 +11,47 @@ android {
 		versionCode 19
 		versionName '2024.01'
 	}
-	signingConfigs {
-		release {
+	signingConfigs
+	{
+		release
+		{
 		}
 	}
-	buildTypes {
-		release {
+	buildTypes
+	{
+		release
+		{
 			signingConfig signingConfigs.release
 		}
-		debug {
+		debug
+		{
 			debuggable true
 		}
 	}
-	productFlavors {
+	productFlavors
+	{
 	}
-	compileOptions {
+	compileOptions
+	{
 		targetCompatibility JavaVersion.VERSION_17
 		sourceCompatibility JavaVersion.VERSION_17
 	}
 	namespace 'net.albinoloverats.android.encrypt'
 }
 
-dependencies {
+gradle.projectsEvaluated
+{
+	tasks.withType(JavaCompile).tap
+	{
+		configureEach
+		{
+			options.compilerArgs << "-Xlint:deprecation"
+		}
+	}
+}
+
+dependencies
+{
 	api fileTree(dir: 'libs', include: ['*.jar'])
 	api 'com.android.support:appcompat-v7:30.0.2'
 	api project(':encrypt')

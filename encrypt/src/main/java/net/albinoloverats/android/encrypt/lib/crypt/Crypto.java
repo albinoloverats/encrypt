@@ -290,6 +290,12 @@ public abstract class Crypto extends Service implements Runnable
 	 * These next methods are purely because my phone is Android 9/SDK 28.
 	 * When I get a new phone I will remove the deprecated method calls.
 	 */
+	private static Uri getKey(final Intent intent)
+	{
+		return getUri(intent, "key");
+	}
+
+	@SuppressWarnings("deprecation")
 	private static Class<?> getClass(final Intent intent)
 	{
 		final Class<?> clas;
@@ -300,11 +306,7 @@ public abstract class Crypto extends Service implements Runnable
 		return clas;
 	}
 
-	private static Uri getKey(final Intent intent)
-	{
-		return getUri(intent, "key");
-	}
-
+	@SuppressWarnings("deprecation")
 	protected static List<Uri> getSource(final Intent intent)
 	{
 		final List<Uri> source;
@@ -320,6 +322,7 @@ public abstract class Crypto extends Service implements Runnable
 		return getUri(intent, "output");
 	}
 
+	@SuppressWarnings("deprecation")
 	private static Uri getUri(final Intent intent, final String s)
 	{
 		final Uri uri;
