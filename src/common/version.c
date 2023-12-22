@@ -57,10 +57,6 @@
 	#include "non-gnu.h"
 #endif
 
-#ifdef __APPLE__
-	#include "osx.h"
-#endif
-
 #include "common.h"
 #include "version.h"
 #include "error.h"
@@ -308,8 +304,7 @@ static void version_install_latest(char *u)
 	char *dmg = NULL;
 	asprintf(&dmg, "%s.dmg", u);
 	rename(u, dmg);
-	//execl("/usr/bin/open", "open", dmg, NULL);
-	osx_open_file(dmg);
+	execl("/usr/bin/open", dmg, NULL);
 	unlink(dmg);
 	free(dmg);
 #elif defined _WIN32

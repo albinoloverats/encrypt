@@ -77,7 +77,7 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 	};
 	config_init(about);
 
-	LIST args = list_init(config_arg_comp, false, false);
+	LIST args = list_init(config_named_compare, false, false);
 	// TODO If there's no CLI then remove the display text
 	list_add(args, &((config_named_t){ 'c', "cipher",         _("algorithm"),  _("Algorithm to use to encrypt data; use ‘list’ to show available cipher algorithms"),                                      CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, false, false }));
 	list_add(args, &((config_named_t){ 's', "hash",           _("algorithm"),  _("Hash algorithm to generate key; use ‘list’ to show available hash algorithms"),                                          CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, false, false }));
@@ -91,19 +91,19 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 	list_add(args, &((config_named_t){ 'r', "raw",            NULL,            _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"), CONFIG_ARG_REQ_BOOLEAN, { .boolean = false }, false, true,  false, false }));
 	config_parse(0, NULL, args);
 
-	char *cipher =  ((config_named_t *)list_get(args, 0))->response_value.string;
-	char *hash   =  ((config_named_t *)list_get(args, 1))->response_value.string;
-	char *mode   =  ((config_named_t *)list_get(args, 2))->response_value.string;
-	char *mac    =  ((config_named_t *)list_get(args, 3))->response_value.string;
-	uint64_t kdf =  ((config_named_t *)list_get(args, 4))->response_value.integer;
+	char *cipher =  ((config_named_t *)list_get(args, 0))->response.value.string;
+	char *hash   =  ((config_named_t *)list_get(args, 1))->response.value.string;
+	char *mode   =  ((config_named_t *)list_get(args, 2))->response.value.string;
+	char *mac    =  ((config_named_t *)list_get(args, 3))->response.value.string;
+	uint64_t kdf =  ((config_named_t *)list_get(args, 4))->response.value.integer;
 
-	char *ks     =  ((config_named_t *)list_get(args, 5))->response_value.string;
+	char *ks     =  ((config_named_t *)list_get(args, 5))->response.value.string;
 
-	compress     = !((config_named_t *)list_get(args, 6))->response_value.boolean; // compress by default unless --no-compress is specified
-	follow       =  ((config_named_t *)list_get(args, 7))->response_value.boolean;
+	compress     = !((config_named_t *)list_get(args, 6))->response.value.boolean; // compress by default unless --no-compress is specified
+	follow       =  ((config_named_t *)list_get(args, 7))->response.value.boolean;
 
-	char *ver    =  ((config_named_t *)list_get(args, 8))->response_value.string;
-	raw          =  ((config_named_t *)list_get(args, 9))->response_value.boolean;
+	char *ver    =  ((config_named_t *)list_get(args, 8))->response.value.string;
+	raw          =  ((config_named_t *)list_get(args, 9))->response.value.boolean;
 
 	[self auto_select_algorithms:cipher:hash:mode:mac:kdf];
 
