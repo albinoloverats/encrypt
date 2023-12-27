@@ -216,8 +216,8 @@ public class Decrypt extends Crypto
 		}
 		finally
 		{
-			closeIgnoreException(source);
-			closeIgnoreException(output);
+			closeIgnoreEverything(source);
+			closeIgnoreEverything(output);
 		}
 	}
 

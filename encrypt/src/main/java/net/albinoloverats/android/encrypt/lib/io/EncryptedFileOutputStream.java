@@ -65,6 +65,8 @@ public class EncryptedFileOutputStream extends OutputStream
 		final HMac mac = CryptoUtils.getMacAlgorithm(a);
 
 		blockSize = cipher.defaultBlockSize();
+		buffer = new byte[blockSize];
+
 		this.cipher = ModeFactory.getInstance(m, cipher, blockSize);
 		hash.update(k, 0, k.length);
 		final byte[] keySource = hash.digest();
@@ -87,7 +89,7 @@ public class EncryptedFileOutputStream extends OutputStream
 			attributes.put(IPBE.SALT, salt);
 			attributes.put(IPBE.ITERATION_COUNT, kdfIterations);
 			keyGen.init(attributes);
-			keyGen.nextBytes(key, 0, key.length);
+			keyGen.nextBytes(key);
 		}
 		else
 			System.arraycopy(keySource, 0, key, 0, Math.min(keyLength, keySource.length));
@@ -97,7 +99,7 @@ public class EncryptedFileOutputStream extends OutputStream
 		attributes.put(IBlockCipher.CIPHER_BLOCK_SIZE, blockSize);
 		attributes.put(IMode.STATE, IMode.ENCRYPTION);
 		hash.reset();
-		hash.update(keySource, 0, keySource.length);
+		hash.update(keySource);
 		final byte[] iv = new byte[ivType != XIV.BROKEN ? blockSize : keyLength];
 		switch (ivType)
 		{
@@ -112,7 +114,7 @@ public class EncryptedFileOutputStream extends OutputStream
 		}
 		attributes.put(IMode.IV, iv);
 		this.cipher.init(attributes);
-		buffer = new byte[blockSize];
+
 
 		final int macLength = CryptoUtils.getHashAlgorithm(CryptoUtils.hashFromHmac(a)).blockSize();
 		key = new byte[macLength];
@@ -122,7 +124,7 @@ public class EncryptedFileOutputStream extends OutputStream
 		attributes.put(IPBE.SALT, salt);
 		attributes.put(IPBE.ITERATION_COUNT, kdfIterations);
 		keyGen.init(attributes);
-		keyGen.nextBytes(key, 0, key.length);
+		keyGen.nextBytes(key);
 		attributes = new HashMap<>();
 		attributes.put(IMac.MAC_KEY_MATERIAL, key);
 		mac.init(attributes);

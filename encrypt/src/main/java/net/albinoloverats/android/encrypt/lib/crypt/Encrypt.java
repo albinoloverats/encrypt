@@ -259,8 +259,8 @@ public class Encrypt extends Crypto
 		}
 		finally
 		{
-			closeIgnoreException(source);
-			closeIgnoreException(output);
+			closeIgnoreEverything(source);
+			closeIgnoreEverything(output);
 		}
 	}
 

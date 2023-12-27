@@ -48,7 +48,7 @@ dependencies
 	api fileTree(dir: 'libs', include: ['*.jar'])
 	api 'com.android.support:appcompat-v7:30.0.2'
 	api 'org.tukaani:xz:1.9@jar'
-	api 'com.github.albinoloverats:gnu-crypto:2.1.0.1'
+	api 'com.github.albinoloverats:gnu-crypto:2.1.0.2'
 	compileOnly 'org.projectlombok:lombok:1.18.30'
 	annotationProcessor 'org.projectlombok:lombok:1.18.30'
 }

@@ -69,7 +69,10 @@ public class EncryptedFileInputStream extends InputStream
 		final IBlockCipher blockCipher = CryptoUtils.getCipherAlgorithm(c);
 
 		blockSize = blockCipher.defaultBlockSize();
-		cipher = ModeFactory.getInstance(m, blockCipher, blockSize);
+		buffer = new byte[blockSize];
+		if ((cipher = ModeFactory.getInstance(m, blockCipher, blockSize)) == null)
+			throw new NoSuchAlgorithmException(m);
+
 		hash.update(k, 0, k.length);
 		final byte[] keySource = hash.digest();
 		Map<String, Object> attributes;
@@ -114,7 +117,6 @@ public class EncryptedFileInputStream extends InputStream
 		}
 		attributes.put(IMode.IV, iv);
 		cipher.init(attributes);
-		buffer = new byte[blockSize];
 
 		final HMac mac = CryptoUtils.getMacAlgorithm(a);
 		final int macLength = CryptoUtils.getHashAlgorithm(CryptoUtils.hashFromHmac(a)).blockSize();

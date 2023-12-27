@@ -234,14 +234,14 @@ public abstract class Crypto extends Service implements Runnable
 		}
 	}
 
-	protected static void closeIgnoreException(final Closeable c)
+	protected static void closeIgnoreEverything(final Closeable c)
 	{
 		try
 		{
 			if (c != null)
 				c.close();
 		}
-		catch (final IOException ignored)
+		catch (final Throwable ignored)
 		{
 			/* no nothing */
 		}
