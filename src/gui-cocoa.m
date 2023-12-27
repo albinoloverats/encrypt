@@ -133,11 +133,11 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 	for (version_e v = VERSION_CURRENT; v > VERSION_UNKNOWN; v--)
 	{
 		NSMenuItem *m = [[NSMenuItem alloc] initWithTitle:[NSString stringWithUTF8String:get_version_string(v)] action:@selector(versionToggle:) keyEquivalent:@""];
-		[m setState:NSOffState];
+		[m setState:NSControlStateValueOff];
 		[m setEnabled:TRUE];
 		[m setTarget:self];
 		if (v == version)
-			[m setState:NSOnState];
+			[m setState:NSControlStateValueOn];
 		[_version addItem:m];
 	}
 
@@ -191,8 +191,8 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 	const char *v = [[i title] UTF8String];
 	version = parse_version(v);
 	for (NSMenuItem *m in [_version itemArray])
-		[m setState:NSOffState];
-	[i setState:NSOnState];
+		[m setState:NSControlStateValueOff];
+	[i setState:NSControlStateValueOn];
 	update_config(CONF_VERSION, (char *)get_version_string(version));
 }
 
@@ -213,7 +213,7 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 		source = NULL;
 	}
 
-	if (clicked == NSFileHandlingPanelOKButton)
+	if (clicked == NSModalResponseOK)
 	{
 		NSString *name = [[[panel URL] filePathURL] lastPathComponent];
 		source = strdup((char *)[[[panel URL] filePathURL] fileSystemRepresentation]);
@@ -239,7 +239,7 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 		output = NULL;
 	}
 
-	if (clicked == NSFileHandlingPanelOKButton)
+	if (clicked == NSModalResponseOK)
 	{
 		NSString *name = [[[panel URL] filePathURL] lastPathComponent];
 		output = strdup((char *)[[[panel URL] filePathURL] fileSystemRepresentation]);
@@ -390,8 +390,8 @@ clean_up:
 
 - (void)keySourceToggle
 {
-	[_keySourceFile setState:key_source == KEY_SOURCE_FILE ? NSOnState : NSOffState];
-	[_keySourcePassword setState:key_source == KEY_SOURCE_PASSWORD ? NSOnState : NSOffState];
+	[_keySourceFile setState:key_source == KEY_SOURCE_FILE ? NSControlStateValueOn : NSControlStateValueOff];
+	[_keySourcePassword setState:key_source == KEY_SOURCE_PASSWORD ? NSControlStateValueOn : NSControlStateValueOff];
 
 	[_keyFileButton setHidden:key_source != KEY_SOURCE_FILE];
 	[_passwordField setHidden:key_source != KEY_SOURCE_PASSWORD];
@@ -415,7 +415,7 @@ clean_up:
 	}
 
 	BOOL en = FALSE;
-	if (clicked == NSFileHandlingPanelOKButton)
+	if (clicked == NSModalResponseOK)
 	{
 		NSString *name = [[[panel URL] filePathURL] lastPathComponent];
 		key_file = strdup((char *)[[[panel URL] filePathURL] fileSystemRepresentation]);

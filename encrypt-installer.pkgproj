@@ -819,7 +819,7 @@
 				</dict>
 			</array>
 			<key>NAME</key>
-			<string>encrypt-installer</string>
+			<string>encrypt-2024.01</string>
 			<key>PAYLOAD_ONLY</key>
 			<false/>
 			<key>TREAT_MISSING_PRESENTATION_DOCUMENTS_AS_WARNING</key>
