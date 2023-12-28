@@ -7,20 +7,29 @@ A history of what happened before, and a taste of what’s to come…
 Planned Future Enhancements
 ---------------------------
 
-* All desktop : Continue with better desktop integration
-  - GNU/Linux : Find a way to merge file/magic info into main magic.mgc
-* Android : Support for file (hard/soft) links (depends on full NIO)
+* All desktop: Continue with better desktop integration
+  - GNU/Linux: Find a way to merge file/magic info into main magic.mgc
+* Android: Support for file  (hard/soft)  links (depends on full NIO and
+  underlying file system support)
 * All : Bug fixes as necessary ;-)
 
-encrypt - 2024.01                                      ---- ------- 2024
 
-TODO: fill this in
+encrypt - 2024.01                                       1st January 2024
+-----------------
+
+* Fix library dependency issue on OS X
+* Fix null pointer exceptions on Android
+* Update debugging information and improve error handling  (all desktop)
+* Compile against latest version of dependencies (particularly libgcrypt
+  and gnu-crypto)
+
 
 encrypt - 2022.01                                      25th January 2022
+-----------------
 
 * Update/Fix file handling on OS X
 * Update file handling on Android
-* Update debugging information and improve error handling (all desktop)
+* Update debugging information and improve error handling  (all desktop)
 * Compile against latest version of dependencies (particularly libgcrypt
   and gnu-crypto)
 * Add self-test routine (desktop CLI)
@@ -44,8 +53,8 @@ encrypt - 2017.09                                         15th Sept 2017
 
 * All
   - Improved key derivation
-  - Added MAC as well as previously used hash of data to ensure
-    authentication
+  - Added MAC as well as previously used hash of data to ensure authent-
+    ication
 * FreeBSD
   - Provide ports files and binary package
 * Build using clang (doesn't allow for -Wrestrict)
@@ -54,13 +63,13 @@ encrypt - 2017.09                                         15th Sept 2017
 
 * Unix
   - Fix SIGSEGV if the source file is deleted (even while doing nothing)
-    (GTK file selection dialog - GNU/Linux; Likely an upsteam problem as
-    it appears to have been fixed)
+    (GTK file selection dialog --- GNU/Linux; likely an upstream problem
+    as it appears to have been fixed)
 * Windows
   - Build using MSYS2 to provide 64 bit binary
 * Android
   - Fix permission handling
-  - Attempt to fix NullPointerException after exit (think we've got it;
+  - Attempt to fix NullPointerException after exit  (think we've got it;
     it is rather intermittent)
 
 
@@ -80,7 +89,7 @@ encrypt - 2015.10                                           4th Oct 2015
   - Change Android tray icon to black & white
 * Windows
   - Workaround for the AES/Rijndael issue; instead of using the DLL from
-    http://lrn.no-ip.info we now use the DLL included as part of the
+    [ http://lrn.no-ip.info ] we now use the DLL included as part of the
     Gpg4win project
 
 
@@ -92,10 +101,10 @@ encrypt - 2015.01                                           4th Jan 2015
 * No header information
   - If you don’t keep the header, you MUST remember which algorithms and
     mode you used to encrypt the data!
-  - This feature is so that if you choose to encrypt your data and then
-    hide it in an image (steganography) if you’re coerced to extract it
+  - This feature is so that if you choose to encrypt your data  and then
+    hide it in an image  (steganography) if you’re coerced to extract it
     will still looks like random pixel data
-  - Will keep going even if decryption cannot be verified (until an out
+  - Will keep going even if decryption cannot be verified  (until an out
     of memory error - or similar - occurs!)
 * Random IV’s (not derived from key)
 * Build Slackware package for easy installation
@@ -105,8 +114,8 @@ encrypt - 2015.01                                           4th Jan 2015
 ### Fixed For This Release
 
 * Figure out why the Android app doesn’t like Windows encrypted files
-  - It wasn’t actually due to Windows, but a subtle bug in the Android
-    code
+  - It wasn’t actually due to Windows,  but actually a subtle bug in the
+    Android code
 * Fix bug caused by no rc file
 * Plugged some memory leaks
 * Better support for en/decrypting from/to a directory

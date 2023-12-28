@@ -1,24 +1,25 @@
-encrypt - 2024.01                                      ---- ------- 2024
+encrypt - 2024.01                                       1st January 2024
 =================
 
 
 About
 -----
 
-encrypt is a simple, cross platform, file encryption application. It is
-suitable for any modern desktop or mobile operating system. The GUI,
-either GTK or native, has been designed to be common across systems and
-intuitive to use, while still providing command-line capabilities for
+encrypt is a simple, cross platform, file encryption application.  It is
+suitable  for any modern  desktop or mobile  operating system.  The GUI,
+either GTK or native,  has been designed to be common across systems and
+intuitive to use,  while still providing  command-line capabilities  for
 power-users.
 
-It is currently available as a binary package for several GNU/Linux
-distributions: Arch, Debian, Fedora, Slackware; as well as FreeBSD and
-Apple’s OS X, Microsoft Windows, and Android.
+It is  currently available  as a  binary package  for several  GNU/Linux
+distributions:  Arch,  Debian,  Fedora,  Slackware;  as well as FreeBSD,
+Solaris, Apple’s OS X, Microsoft Windows, and Android.  It has also been
+successfully compiled and shown working on Gentoo and Debian GNU/Hurd.
 
-It supports a wide range of algorithms (provided by GNU’s libcrypt or
+It supports  a wide range of algorithms  (provided by GNU’s libgcrypt or
 gnu-crypto), of which many are common between the two libraries and thus
-allow encrypted files to be shared between systems. (Check that your
-target system does support your intended cipher, as support will vary
+allow encrypted  files to be  shared between systems.   (Check that your
+target system  does support your  intended cipher,  as support will vary
 depending on the library available.)
 
 To report bugs, or to contact the development team, please visit:
@@ -40,12 +41,11 @@ Followed by:
 Changelog
 ---------
 
-* Update/Fix file handling on OS X
-* Update file handling on Android
+* Fix library dependency issue on OS X
+* Fix null pointer exceptions on Android
 * Update debugging information and improve error handling (all desktop)
 * Compile against latest version of dependencies (particularly libgcrypt
   and gnu-crypto)
-* Add self-test routine (desktop CLI)
 
 
 Status
@@ -60,13 +60,6 @@ TODO
 ----
 
 ### Add
-
-* Find a way of signing OS X application so that com.apple.quarantine
-  doesn't cause problems; currently this requires
-
-    xattr -cr Encrypt.app
-
-  after extracting the App from the disk image.
 
 * Find a way to merge file/magic info into main magic.mgc file
 * File context menu for

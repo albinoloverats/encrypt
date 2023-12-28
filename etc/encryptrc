@@ -30,7 +30,7 @@ mode CFB
 mac HMAC_SHA512
 
 # Set the level of backwards compatibility, by version number.
-version 2020.01
+version 2024.01
 
 # Set the numer of iterations the key derivation function should use.
 kdf-iterations 32768

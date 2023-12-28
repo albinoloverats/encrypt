@@ -3,6 +3,8 @@
 \fBencrypt\fR \- A simple, cross platform, file encryption application
 .SH SYNOPSIS
 \fBencrypt\fR [\fIsource\fR] [\fIoutput\fR]
+[\fB\-g\fR]
+[\fB\-u\fR]
 [\fB\-c\fR \fIalgorithm\fR]
 [\fB\-s\fR \fIalgorithm\fR]
 [\fB\-m\fR \fImode\fR]

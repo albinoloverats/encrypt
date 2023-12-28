@@ -4,7 +4,7 @@ Compiling/Installing
 Binary Installation
 -------------------
 
-Use the binary package and default package installation method for your
+Use the binary package  and default package installation method for your
 system:
 
 * Arch
@@ -17,10 +17,12 @@ system:
   - installpkg
 * FreeBSD
   - Ports
+* Solaris
+  - pkg
 * Windows
   - The executable installer
 * OS X
-  - The DMG image
+  - The pkg installer
 * Andoird
   - The Google Play Store
 
@@ -42,9 +44,9 @@ To compile from source you will need the following:
 ### Linux / FreeBSD
 
 Most of the above are installed as part of the base (or core) OS on many
-distributions (but not always). On FreeBSD use Makefile.bsd instead of
-Makefile. Also note that there is no configure step, so just do the
-following:
+distributions  (but not always).  On FreeBSD use Makefile.bsd instead of
+Makefile. Also note that there is no configure step, so just do the fol-
+lowing:
 
 * make
 * make install
