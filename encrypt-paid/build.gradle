@@ -8,7 +8,7 @@ android
 		minSdkVersion 28
 		targetSdkVersion 34
 		compileSdk 34
-		versionCode 19
+		versionCode 20
 		versionName '2024.01'
 	}
 	signingConfigs
