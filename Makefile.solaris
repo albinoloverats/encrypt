@@ -14,7 +14,7 @@ MISC           = src/common/misc.h
 
 CLI_CFLAGS     = ${CFLAGS} -m64 -Wall -std=gnu99 `libgcrypt-config --cflags` -pipe -O2 -Wformat=2
 CLI_CPPFLAGS   = ${CPPFLAGS} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DUSE_GCRYPT -DGIT_COMMIT=\"`git log | head -n1 | cut -f2 -d' '`\" -DBUILD_OS="`grep PRETTY_NAME /etc/os-release | cut -d= -f2`"
-GUI_CFLAGS     = ${CLI_CFLAGS} -pthread `pkg-config --cflags gtk+-3.0 gmodule-2.0`
+GUI_CFLAGS     = ${CLI_CFLAGS} -pthread `PKG_CONFIG_PATH=/usr/lib/64/pkgconfig pkg-config --cflags gtk+-3.0 gmodule-2.0`
 GUI_CPPFLAGS   = ${CLI_CPPFLAGS} -DBUILD_GUI
 
 DEBUG_CFLAGS   = -O0 -ggdb -pg
@@ -22,7 +22,7 @@ DEBUG_CPPFLAGS = -D__DEBUG__ -D__DEBUG_GUI__ -DMALLOC_CHECK_=1
 DEBUG_ENC      = ${DEBUG_CPPFLAGS} -D__DEBUG_WITH_ENCRYPTION__
 
 CLI_LIBS       = `libgcrypt-config --libs` -lpthread -lcurl -llzma -L/opt/local/lib/64 -R/opt/local/lib/64
-GUI_LIBS       = ${CLI_LIBS} `pkg-config --libs gtk+-3.0 gmodule-2.0`
+GUI_LIBS       = ${CLI_LIBS} `PKG_CONFIG_PATH=/usr/lib/64/pkgconfig pkg-config --libs gtk+-3.0 gmodule-2.0`
 
 all: gui symlink language man
 
