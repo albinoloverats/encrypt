@@ -11,4 +11,3 @@ share/Thunar/sendto/encrypt.desktop
 man/man1/encrypt.1a.gz
 bin/decrypt
 bin/encrypt
-@dirrm share/encrypt
