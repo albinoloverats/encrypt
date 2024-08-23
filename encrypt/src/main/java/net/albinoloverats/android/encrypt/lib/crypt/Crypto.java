@@ -32,6 +32,7 @@ import android.os.PowerManager;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.Builder;
 import androidx.documentfile.provider.DocumentFile;
+import lombok.val;
 import net.albinoloverats.android.encrypt.lib.io.HashMAC;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
@@ -121,10 +122,10 @@ public abstract class Crypto extends Service implements Runnable
 	@Override
 	public int onStartCommand(final Intent intent, final int flags, final int startId)
 	{
-		final Class<?> clas = getClass(intent);
-		final int action = intent.getIntExtra("action", 0);
-		final int wait = intent.getIntExtra("wait", 0);
-		final int icon = intent.getIntExtra("icon", 0);
+		val clas = getClass(intent);
+		val action = intent.getIntExtra("action", 0);
+		val wait = intent.getIntExtra("wait", 0);
+		val icon = intent.getIntExtra("icon", 0);
 
 		if (intent.getBooleanExtra("key_file", false))
 			setKey(getKey(intent));
@@ -134,19 +135,19 @@ public abstract class Crypto extends Service implements Runnable
 
 		actionTitle = getString(action);
 
-		final Builder notificationBuilder = new NotificationCompat.Builder(getBaseContext(), actionTitle);
+		val notificationBuilder = new NotificationCompat.Builder(getBaseContext(), actionTitle);
 		notificationBuilder.setContentTitle(actionTitle);
 		notificationBuilder.setContentText(getString(wait));
 		notificationBuilder.setSmallIcon(icon);
 
-		final Intent notificationIntent = new Intent(this, clas);
+		val notificationIntent = new Intent(this, clas);
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		notificationBuilder.setContentIntent(PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE));
 
 		if (status == Status.INIT)
 		{
 			/* start en/decryption process */
-			final PowerManager powerManager = (PowerManager)getSystemService(POWER_SERVICE);
+			val powerManager = (PowerManager)getSystemService(POWER_SERVICE);
 			wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, actionTitle);
 			wakeLock.acquire();
 			process = new Thread(this);
@@ -213,16 +214,16 @@ public abstract class Crypto extends Service implements Runnable
 
 	public static boolean fileEncrypted(final Context context, final Uri uri)
 	{
-		final ContentResolver cr = context.getContentResolver();
-		final DocumentFile documentFile = DocumentFile.fromSingleUri(context, uri);
+		val cr = context.getContentResolver();
+		val documentFile = DocumentFile.fromSingleUri(context, uri);
 		if (documentFile == null || documentFile.isDirectory())
 			return false;
-		try (final InputStream in = cr.openInputStream(uri))
+		try (val in = cr.openInputStream(uri))
 		{
-			final byte[] header = new byte[Long.SIZE / Byte.SIZE];
+			val header = new byte[Long.SIZE / Byte.SIZE];
 			for (int i = 0; i < 1; i++)
 			{
-				final int err = in.read(header, 0, header.length);
+				val err = in.read(header, 0, header.length);
 				if (err < 0 || Convert.longFromBytes(header) != HEADER[i])
 					return false;
 			}
@@ -249,8 +250,8 @@ public abstract class Crypto extends Service implements Runnable
 
 	private void setKey(final Uri keyFile)
 	{
-		final DocumentFile documentFile = DocumentFile.fromSingleUri(this, keyFile);
-		try (final InputStream f = contentResolver.openInputStream(keyFile))
+		val documentFile = DocumentFile.fromSingleUri(this, keyFile);
+		try (val f = contentResolver.openInputStream(keyFile))
 		{
 			if (documentFile == null)
 				throw new IOException("Could not find file: " + keyFile);
@@ -266,7 +267,7 @@ public abstract class Crypto extends Service implements Runnable
 
 	private void sendNotificationUpdate(final NotificationCompat.Builder notificationBuilder)
 	{
-		final Intent intent = new Intent();
+		val intent = new Intent();
 		intent.setAction(actionTitle);
 		intent.putExtra("current.file", current.file);
 		intent.putExtra("current.offset", current.offset);

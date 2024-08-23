@@ -57,6 +57,7 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import androidx.documentfile.provider.DocumentFile;
 import com.simaomata.DoubleProgressDialog;
+import lombok.val;
 import net.albinoloverats.android.encrypt.lib.FileAction;
 import net.albinoloverats.android.encrypt.lib.Options;
 import net.albinoloverats.android.encrypt.lib.ProgressUpdate;
@@ -117,7 +118,7 @@ public class Main extends Activity
 
 		checkPermissions();
 
-		final SharedPreferences settings = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), Context.MODE_PRIVATE);
+		val settings = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), Context.MODE_PRIVATE);
 		cipher = settings.getString(Options.CIPHER.toString(), null);
 		hash = settings.getString(Options.HASH.toString(), null);
 		mode = settings.getString(Options.MODE.toString(), null);
@@ -125,7 +126,7 @@ public class Main extends Activity
 		kdfIterations = settings.getInt(Options.KDF_ITERATIONS.toString(), Crypto.KDF_ITERATIONS_DEFAULT);
 
 		// set up the file chooser button
-		final View fChooser = findViewById(R.id.button_file);
+		val fChooser = findViewById(R.id.button_file);
 		fChooser.setOnClickListener(new FileChooserListener(FileAction.LOAD));
 
 		// set up the file output chooser button
@@ -133,28 +134,28 @@ public class Main extends Activity
 
 		// set up the hash and crypto spinners
 		final Spinner cSpinner = findViewById(R.id.spin_crypto);
-		final ArrayAdapter<CharSequence> cipherSpinAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
+		val cipherSpinAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
 		cipherSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		cSpinner.setAdapter(cipherSpinAdapter);
 		cSpinner.setOnItemSelectedListener(new SpinnerSelectedListener(CIPHERS));
 		cSpinner.setEnabled(false);
 
 		final Spinner hSpinner = findViewById(R.id.spin_hash);
-		final ArrayAdapter<CharSequence> hashSpinAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
+		val hashSpinAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
 		hashSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		hSpinner.setAdapter(hashSpinAdapter);
 		hSpinner.setOnItemSelectedListener(new SpinnerSelectedListener(HASHES));
 		hSpinner.setEnabled(false);
 
 		final Spinner mSpinner = findViewById(R.id.spin_mode);
-		final ArrayAdapter<CharSequence> modeSpinAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
+		val modeSpinAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
 		modeSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		mSpinner.setAdapter(modeSpinAdapter);
 		mSpinner.setOnItemSelectedListener(new SpinnerSelectedListener(MODES));
 		mSpinner.setEnabled(false);
 
 		final Spinner aSpinner = findViewById(R.id.spin_mac);
-		final ArrayAdapter<CharSequence> macSpinAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
+		val macSpinAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
 		macSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		aSpinner.setAdapter(macSpinAdapter);
 		aSpinner.setOnItemSelectedListener(new SpinnerSelectedListener(MACS));
@@ -163,7 +164,7 @@ public class Main extends Activity
 		// populate algorithm spinners
 		cipherSpinAdapter.add(getString(R.string.choose_cipher));
 		int i = 1;
-		for (final String s : CIPHERS)
+		for (val s : CIPHERS)
 		{
 			cipherSpinAdapter.add(s);
 			if (s.equals(cipher))
@@ -173,7 +174,7 @@ public class Main extends Activity
 
 		hashSpinAdapter.add(getString(R.string.choose_hash));
 		i = 1;
-		for (final String s : HASHES)
+		for (val s : HASHES)
 		{
 			hashSpinAdapter.add(s);
 			if (s.equals(hash))
@@ -183,7 +184,7 @@ public class Main extends Activity
 
 		modeSpinAdapter.add(getString(R.string.choose_mode));
 		i = 1;
-		for (final String s : MODES)
+		for (val s : MODES)
 		{
 			modeSpinAdapter.add(s);
 			if (s.equals(mode))
@@ -193,7 +194,7 @@ public class Main extends Activity
 
 		macSpinAdapter.add(getString(R.string.choose_mac));
 		i = 1;
-		for (final String s : MACS)
+		for (val s : MACS)
 		{
 			macSpinAdapter.add(s);
 			if (s.equals(mac))
@@ -286,7 +287,7 @@ public class Main extends Activity
 
 	private void checkPermissions()
 	{
-		for (final String permission : STORAGE_PERMISSIONS)
+		for (val permission : STORAGE_PERMISSIONS)
 			if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED)
 			{
 				ActivityCompat.requestPermissions(this, STORAGE_PERMISSIONS, STORAGE_PERMISSION_REQUEST);
@@ -296,7 +297,7 @@ public class Main extends Activity
 
 	private void storePreferences()
 	{
-		final Editor editor = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), Context.MODE_PRIVATE).edit();
+		val editor = getSharedPreferences(Options.ENCRYPT_PREFERENCES.toString(), Context.MODE_PRIVATE).edit();
 		editor.putString(Options.CIPHER.toString(), cipher);
 		editor.putString(Options.HASH.toString(), hash);
 		editor.putString(Options.MODE.toString(), mode);
@@ -320,9 +321,9 @@ public class Main extends Activity
 
 		// populate version compatibility menu (floating context menu)
 		// we cannot have submenu of submenus :( have to rethink this
-		final SubMenu compatibilityMenu = menu.findItem(R.id.menu_advanced_compatibility).getSubMenu();
+		val compatibilityMenu = menu.findItem(R.id.menu_advanced_compatibility).getSubMenu();
 		int o = Version.values().length;
-		for (final Version v : Version.values())
+		for (val v : Version.values())
 		{
 			if (v == Version.CURRENT) /* no need to duplicate the "current" */
 				continue;
@@ -338,7 +339,7 @@ public class Main extends Activity
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem menuItem)
 	{
-		final int itemId = menuItem.getItemId();
+		val itemId = menuItem.getItemId();
 		if (itemId == R.id.menu_about)
 		{
 			aboutDialog();
@@ -404,7 +405,7 @@ public class Main extends Activity
 	 */
 	private void aboutDialog()
 	{
-		final Dialog dialog = new Dialog(this);
+		val dialog = new Dialog(this);
 		dialog.setContentView(R.layout.about);
 		dialog.setTitle(getString(R.string.app_name) + " " + getString(R.string.version));
 		((ImageView)dialog.findViewById(R.id.about_image)).setImageResource(R.drawable.about);
@@ -414,8 +415,8 @@ public class Main extends Activity
 
 	private void checkCompatibilityChange(final MenuItem menuItem)
 	{
-		final int itemId = menuItem.getItemId();
-		for (final Version v : Version.values())
+		val itemId = menuItem.getItemId();
+		for (val v : Version.values())
 			if (itemId == v.menu_id)
 			{
 				version = v;
@@ -430,24 +431,24 @@ public class Main extends Activity
 	{
 		if (resultCode != Activity.RESULT_OK || data == null)
 			return;
-		final ArrayList<Uri> uris = new ArrayList<>();
-		final Uri uri = data.getData();
+		val uris = new ArrayList<Uri>();
+		val uri = data.getData();
 		String display;
 		if (uri != null)
 		{
 			uris.add(uri);
-			final DocumentFile documentFile = DocumentFile.fromSingleUri(this, uri);
+			val documentFile = DocumentFile.fromSingleUri(this, uri);
 			if (documentFile == null || (display = documentFile.getName()) == null)
 				display = uri.getLastPathSegment();
 		}
 		else
 		{
-			final ClipData clipData = data.getClipData();
+			val clipData = data.getClipData();
 			for (int i = 0; i < clipData.getItemCount(); i++)
 				uris.add(clipData.getItemAt(i).getUri());
 			display = getString(R.string.multipleSelected);
 		}
-		final FileAction fileAction = FileAction.fromValue(requestCode);
+		val fileAction = FileAction.fromValue(requestCode);
 		if (fileAction != null)
 			switch (fileAction)
 			{
@@ -538,7 +539,7 @@ public class Main extends Activity
 		doubleProgressDialog.show();
 		/* handle broadcasts from the service about progress */
 		progressReceiver = new ProgressReceiver();
-		final IntentFilter intentFilter = new IntentFilter();
+		val intentFilter = new IntentFilter();
 		intentFilter.addAction(getString(encrypting ? R.string.encrypting : R.string.decrypting));
 		registerReceiver(progressReceiver, intentFilter);
 		messageHandler = new MessageHandler(Main.this);
@@ -561,7 +562,7 @@ public class Main extends Activity
 	private Intent createBackgroundTask()
 	{
 		/* kick off the actual cipher process */
-		final Intent intent = new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class);
+		val intent = new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class);
 
 		intent.putExtra("class", Main.class);
 		intent.putExtra("action", encrypting ? R.string.encrypting : R.string.decrypting);
@@ -673,12 +674,12 @@ public class Main extends Activity
 		@Override
 		public void onReceive(final Context ctx, final Intent intent)
 		{
-			final String currentFile = intent.getStringExtra("current.file");
-			final long currentOffset = intent.getLongExtra("current.offset", 0L);
-			final long currentSize = intent.getLongExtra("current.size", 0L);
-			final long totalOffset = intent.getLongExtra("total.offset", 0L);
-			final long totalSize = intent.getLongExtra("total.size", 0L);
-			final Status status = Status.parseStatus(intent.getStringExtra("status"));
+			val currentFile = intent.getStringExtra("current.file");
+			val currentOffset = intent.getLongExtra("current.offset", 0L);
+			val currentSize = intent.getLongExtra("current.size", 0L);
+			val totalOffset = intent.getLongExtra("total.offset", 0L);
+			val totalSize = intent.getLongExtra("total.size", 0L);
+			val status = Status.parseStatus(intent.getStringExtra("status"));
 
 			if (status == Status.INIT || status == Status.RUNNING)
 			{
@@ -705,7 +706,7 @@ public class Main extends Activity
 		@Override
 		public void handleMessage(final Message msg)
 		{
-			final Main service = reference.get();
+			val service = reference.get();
 			if (service != null)
 				service.handleMessage(msg);
 		}
@@ -713,7 +714,7 @@ public class Main extends Activity
 
 	private void handleMessage(final Message msg)
 	{
-		final ProgressUpdate progressUpdate = ProgressUpdate.fromValue(msg.what);
+		val progressUpdate = ProgressUpdate.fromValue(msg.what);
 		if (progressUpdate != null && doubleProgressDialog != null)
 			switch (progressUpdate)
 			{
@@ -733,7 +734,7 @@ public class Main extends Activity
 						doubleProgressDialog.showSecondaryProgress();
 						doubleProgressDialog.setSecondaryMax(msg.arg1);
 						doubleProgressDialog.setSecondaryProgress(msg.arg2);
-						final String currentFile = (String)msg.obj;
+						val currentFile = (String)msg.obj;
 						if (currentFile != null)
 							doubleProgressDialog.setMessage(currentFile);
 					}

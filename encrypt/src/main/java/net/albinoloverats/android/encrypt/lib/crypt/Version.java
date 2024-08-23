@@ -21,6 +21,7 @@
 package net.albinoloverats.android.encrypt.lib.crypt;
 
 import lombok.AllArgsConstructor;
+import lombok.val;
 
 @AllArgsConstructor
 public enum Version
@@ -46,7 +47,7 @@ public enum Version
 
 	public static Version parseMagicNumber(final long m, final Version d)
 	{
-		for (final Version v : Version.values())
+		for (val v : Version.values())
 			if (v.magicNumber == m)
 				return v;
 		return d;

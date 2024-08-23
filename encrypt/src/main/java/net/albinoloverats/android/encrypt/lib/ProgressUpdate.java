@@ -21,6 +21,7 @@
 package net.albinoloverats.android.encrypt.lib;
 
 import lombok.AllArgsConstructor;
+import lombok.val;
 
 @AllArgsConstructor
 public enum ProgressUpdate
@@ -33,7 +34,7 @@ public enum ProgressUpdate
 
 	public static ProgressUpdate fromValue(final int value)
 	{
-		for (final ProgressUpdate progressUpdate : ProgressUpdate.values())
+		for (val progressUpdate : ProgressUpdate.values())
 			if (progressUpdate.value == value)
 				return progressUpdate;
 		return null;

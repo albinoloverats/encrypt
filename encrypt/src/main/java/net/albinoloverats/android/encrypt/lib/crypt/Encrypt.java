@@ -27,6 +27,7 @@ import androidx.documentfile.provider.DocumentFile;
 import gnu.crypto.mode.ModeFactory;
 import gnu.crypto.prng.LimitReachedException;
 import gnu.crypto.util.PRNG;
+import lombok.val;
 import net.albinoloverats.android.encrypt.lib.io.EncryptedFileOutputStream;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
 import org.tukaani.xz.LZMA2Options;
@@ -51,8 +52,8 @@ public class Encrypt extends Crypto
 
 		preInit();
 
-		final List<Uri> source = getSource(intent);
-		final Uri output = getOutput(intent);
+		val source = getSource(intent);
+		val output = getOutput(intent);
 		cipher = intent.getStringExtra("cipher");
 		hash = intent.getStringExtra("hash");
 		mode = intent.getStringExtra("mode");
@@ -69,8 +70,8 @@ public class Encrypt extends Crypto
 
 			if (source.size() == 1)
 			{
-				final Uri uri = source.get(0);
-				final DocumentFile documentFile = DocumentFile.fromSingleUri(this, uri);
+				val uri = source.get(0);
+				val documentFile = DocumentFile.fromSingleUri(this, uri);
 				if (documentFile == null)
 					throw new FileNotFoundException("Could not get file from URI");
 				name = documentFile.getName();
@@ -143,8 +144,8 @@ public class Encrypt extends Crypto
 			if (!raw)
 				writeHeader();
 
-			boolean extraRandom = true;
-			XIV ivType = XIV.RANDOM;
+			var extraRandom = true;
+			var ivType = XIV.RANDOM;
 			if (version.compareTo(Version._201211) <= 0)
 			{
 				ivType = XIV.SIMPLE;
@@ -152,7 +153,7 @@ public class Encrypt extends Crypto
 			}
 			if (version.compareTo(Version._201110) <= 0)
 				ivType = XIV.BROKEN;
-			final boolean useMAC = version.compareTo(Version._201709) >= 0;
+			val useMAC = version.compareTo(Version._201709) >= 0;
 			/* we can use useMAC to indicate whether to use a proper key derivation function */
 			verification = ((EncryptedFileOutputStream)output).initialiseEncryption(cipher, hash, mode, mac, kdfIterations, key, ivType, useMAC);
 
@@ -168,11 +169,11 @@ public class Encrypt extends Crypto
 			if (extraRandom && !raw)
 				writeRandomData();
 
-			final LZMA2Options opts = new LZMA2Options(LZMA2Options.PRESET_MIN); // minimum compression
+			val opts = new LZMA2Options(LZMA2Options.PRESET_MIN); // minimum compression
 			opts.setDictSize(LZMA2Options.DICT_SIZE_MIN); // default dictionary size is 8MiB which is too large (on older devices)
 			output = compressed ? new XZOutputStream(output, opts) : output;
 
-			verification.hash.reset();
+			verification.hash().reset();
 
 			if (directory)
 			{
@@ -180,11 +181,11 @@ public class Encrypt extends Crypto
 				hashAndWrite(Convert.toBytes(1L));
 				hashAndWrite(new byte[] { '.' });
 				total.offset = 1;
-				for (final Uri uri : fakeDir)
+				for (var uri : fakeDir)
 				{
 					if (status != Status.RUNNING)
 						break;
-					final DocumentFile documentFile = DocumentFile.fromSingleUri(this, uri);
+					val documentFile = DocumentFile.fromSingleUri(this, uri);
 					if (documentFile == null)
 					{
 						status = Status.FAILED_IO;
@@ -192,7 +193,7 @@ public class Encrypt extends Crypto
 					}
 					if (!documentFile.isFile())
 						continue;
-					final String name = documentFile.getName();
+					val name = documentFile.getName();
 					current.file = name != null ? name : "";
 					source = contentResolver.openInputStream(uri);
 
@@ -223,11 +224,11 @@ public class Encrypt extends Crypto
 
 			if (!raw)
 			{
-				hashAndWrite(verification.hash.digest());
+				hashAndWrite(verification.hash().digest());
 				writeRandomData();
 			}
 			if (useMAC)
-				hashAndWrite(verification.mac.digest());
+				hashAndWrite(verification.mac().digest());
 
 			if (status == Status.RUNNING)
 				status = Status.SUCCESS;
@@ -271,7 +272,7 @@ public class Encrypt extends Crypto
 		output.write(Convert.toBytes(HEADER[2]));
 		if (version.compareTo(Version._201510) >= 0 && !raw)
 			((EncryptedFileOutputStream)output).initialiseECC();
-		String algorithms = cipher + "/" + hash;
+		var algorithms = cipher + "/" + hash;
 		if (version.compareTo(Version._201406) >= 0)
 			algorithms = algorithms.concat("/" + mode);
 		if (version.compareTo(Version._201709) >= 0)
@@ -284,11 +285,11 @@ public class Encrypt extends Crypto
 
 	private void writeVerificationSum() throws IOException
 	{
-		final byte[] buffer = new byte[Long.SIZE / Byte.SIZE];
+		val buffer = new byte[Long.SIZE / Byte.SIZE];
 		PRNG.nextBytes(buffer);
-		final long x = Convert.longFromBytes(buffer);
+		val x = Convert.longFromBytes(buffer);
 		PRNG.nextBytes(buffer);
-		final long y = Convert.longFromBytes(buffer);
+		val y = Convert.longFromBytes(buffer);
 		hashAndWrite(Convert.toBytes(x));
 		hashAndWrite(Convert.toBytes(y));
 		hashAndWrite(Convert.toBytes(x ^ y));
@@ -326,9 +327,9 @@ public class Encrypt extends Crypto
 
 	private void writeRandomData() throws IOException
 	{
-		byte[] buffer = new byte[Short.SIZE / Byte.SIZE];
+		var buffer = new byte[Short.SIZE / Byte.SIZE];
 		PRNG.nextBytes(buffer);
-		final short sr = (short)(Convert.shortFromBytes(buffer) & 0x00FF);
+		val sr = (short)(Convert.shortFromBytes(buffer) & 0x00FF);
 		buffer = new byte[sr];
 		PRNG.nextBytes(buffer);
 		hashAndWrite(Convert.toBytes((byte)sr));
@@ -337,7 +338,7 @@ public class Encrypt extends Crypto
 
 	private void encryptFile() throws IOException
 	{
-		final byte[] buffer = new byte[BLOCK_SIZE];
+		val buffer = new byte[BLOCK_SIZE];
 		for (current.offset = 0; current.offset < current.size && status == Status.RUNNING; current.offset += BLOCK_SIZE)
 			hashAndWrite(buffer, source.read(buffer, 0, BLOCK_SIZE));
 	}
@@ -350,7 +351,7 @@ public class Encrypt extends Crypto
 	private void hashAndWrite(final byte[] b, final int l) throws IOException
 	{
 		output.write(b, 0, l);
-		verification.hash.update(b, 0, l);
-		verification.mac.update(b, 0, l);
+		verification.hash().update(b, 0, l);
+		verification.mac().update(b, 0, l);
 	}
 }

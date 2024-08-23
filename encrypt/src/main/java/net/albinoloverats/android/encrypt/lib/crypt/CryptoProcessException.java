@@ -22,9 +22,12 @@ package net.albinoloverats.android.encrypt.lib.crypt;
 
 import lombok.AllArgsConstructor;
 
+import java.io.Serial;
+
 @AllArgsConstructor
 public class CryptoProcessException extends Exception
 {
+	@Serial
 	private static final long serialVersionUID = 4714119489698420307L;
 
 	public final Status code;

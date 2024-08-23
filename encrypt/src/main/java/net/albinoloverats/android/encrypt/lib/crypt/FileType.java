@@ -21,6 +21,7 @@
 package net.albinoloverats.android.encrypt.lib.crypt;
 
 import lombok.AllArgsConstructor;
+import lombok.val;
 
 @AllArgsConstructor
 public enum FileType
@@ -34,7 +35,7 @@ public enum FileType
 
 	public static FileType fromID(final int value) throws CryptoProcessException
 	{
-		for (final FileType type : FileType.values())
+		for (val type : FileType.values())
 			if (value == type.value)
 				return type;
 		throw new CryptoProcessException(Status.FAILED_UNKNOWN_TAG);

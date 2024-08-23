@@ -21,6 +21,7 @@
 package net.albinoloverats.android.encrypt.lib.crypt;
 
 import lombok.AllArgsConstructor;
+import lombok.val;
 
 @AllArgsConstructor
 public enum Tag
@@ -35,7 +36,7 @@ public enum Tag
 
 	public static Tag fromValue(final int value) throws CryptoProcessException
 	{
-		for (final Tag tag : Tag.values())
+		for (val tag : Tag.values())
 			if (tag.value == value)
 				return tag;
 		throw new CryptoProcessException(Status.FAILED_UNKNOWN_TAG);

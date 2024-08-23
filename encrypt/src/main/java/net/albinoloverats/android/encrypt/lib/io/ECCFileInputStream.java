@@ -20,6 +20,7 @@
 
 package net.albinoloverats.android.encrypt.lib.io;
 
+import lombok.val;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
 import java.io.IOException;
@@ -53,8 +54,8 @@ public class ECCFileInputStream extends ECCFileStream
 
 	public int read() throws IOException
 	{
-		final byte[] b = new byte[Integer.SIZE / Byte.SIZE];
-		final int err = read(b, 3, 1);
+		val b = new byte[Integer.SIZE / Byte.SIZE];
+		val err = read(b, 3, 1);
 		return err < 0 ? err : Convert.intFromBytes(b);
 	}
 
@@ -72,7 +73,7 @@ public class ECCFileInputStream extends ECCFileStream
 			{
 				System.arraycopy(source, 0, bytes, offset[2], offset[1]);
 				offset[0] -= offset[1];
-				final byte[] x = new byte[PAYLOAD];
+				val x = new byte[PAYLOAD];
 				System.arraycopy(source, offset[1], x, 0, offset[0]);
 				source = new byte[PAYLOAD];
 				System.arraycopy(x, 0, source, 0, offset[0]);
@@ -83,9 +84,9 @@ public class ECCFileInputStream extends ECCFileStream
 			offset[1] -= offset[0];
 			offset[0] = 0;
 			source = new byte[CAPACITY];
-			final int z = inputStream.read();
+			val z = inputStream.read();
 			err = inputStream.read(source);
-			final byte[] tmp = decode();
+			val tmp = decode();
 			if (tmp == null)
 				return -getDecodeError();
 			System.arraycopy(tmp, 0, source, 0, z);
@@ -95,8 +96,8 @@ public class ECCFileInputStream extends ECCFileStream
 
 	public int read(final byte[] b, final int off, final int len) throws IOException
 	{
-		final byte[] bytes = new byte[len];
-		final int x = read(bytes);
+		val bytes = new byte[len];
+		val x = read(bytes);
 		System.arraycopy(bytes, 0, b, off, len);
 		return x;
 	}
@@ -112,19 +113,19 @@ public class ECCFileInputStream extends ECCFileStream
 	{
 		reverse(source);
 
-		final byte[] target = new byte[PAYLOAD];
+		val target = new byte[PAYLOAD];
 
 		for (int i = 0; i < PAYLOAD; i++)
 			target[i] = source[CAPACITY - 1 - i];
 
-		final byte[] syn = new byte[CAPACITY + 1];
+		val syn = new byte[CAPACITY + 1];
 		syndrome(source, syn);
 		if (syn[0] == 0)
 			return target;
 
-		final int[] r = errnum(syn);
+		val r = errnum(syn);
 		decodeError = r[0];
-		final int deter = r[1];
+		val deter = r[1];
 		if (decodeError == 4)
 			return null;
 
@@ -138,8 +139,8 @@ public class ECCFileInputStream extends ECCFileStream
 		final int w1;
 		final int w2;
 		final int x0;
-		final byte[] x = new byte[3];
-		final byte[] z = new byte[4];
+		val x = new byte[3];
+		val z = new byte[4];
 		final int sols;
 
 		switch (decodeError)

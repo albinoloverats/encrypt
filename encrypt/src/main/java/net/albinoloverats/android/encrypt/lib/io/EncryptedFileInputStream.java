@@ -29,6 +29,7 @@ import gnu.crypto.mode.ModeFactory;
 import gnu.crypto.prng.IPBE;
 import gnu.crypto.prng.LimitReachedException;
 import gnu.crypto.prng.PBKDF2;
+import lombok.val;
 import net.albinoloverats.android.encrypt.lib.crypt.CryptoUtils;
 import net.albinoloverats.android.encrypt.lib.crypt.XIV;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
@@ -65,8 +66,8 @@ public class EncryptedFileInputStream extends InputStream
 
 	public HashMAC initialiseDecryption(final String c, final String h, final String m, final String a, final int kdfIterations, final byte[] k, final XIV ivType, final boolean useKDF) throws NoSuchAlgorithmException, InvalidKeyException, LimitReachedException, IOException
 	{
-		final IMessageDigest hash = CryptoUtils.getHashAlgorithm(h);
-		final IBlockCipher blockCipher = CryptoUtils.getCipherAlgorithm(c);
+		val hash = CryptoUtils.getHashAlgorithm(h);
+		val blockCipher = CryptoUtils.getCipherAlgorithm(c);
 
 		blockSize = blockCipher.defaultBlockSize();
 		buffer = new byte[blockSize];
@@ -74,14 +75,14 @@ public class EncryptedFileInputStream extends InputStream
 			throw new NoSuchAlgorithmException(m);
 
 		hash.update(k, 0, k.length);
-		final byte[] keySource = hash.digest();
+		val keySource = hash.digest();
 		Map<String, Object> attributes;
-		final int keyLength = CryptoUtils.getCipherAlgorithmKeySize(c) / Byte.SIZE;
-		byte[] key = new byte[keyLength];
+		val keyLength = CryptoUtils.getCipherAlgorithmKeySize(c) / Byte.SIZE;
+		var key = new byte[keyLength];
 
-		final byte[] salt = new byte[keyLength];
+		val salt = new byte[keyLength];
 
-		final HMac keyMac = CryptoUtils.getMacAlgorithm(CryptoUtils.hmacFromHash(h));
+		val keyMac = CryptoUtils.getMacAlgorithm(CryptoUtils.hmacFromHash(h));
 
 		if (useKDF)
 		{
@@ -104,7 +105,7 @@ public class EncryptedFileInputStream extends InputStream
 		attributes.put(IMode.STATE, IMode.DECRYPTION);
 		hash.reset();
 		hash.update(keySource, 0, keySource.length);
-		final byte[] iv = new byte[ivType != XIV.BROKEN ? blockSize : keyLength];
+		val iv = new byte[ivType != XIV.BROKEN ? blockSize : keyLength];
 		switch (ivType)
 		{
 			case BROKEN:
@@ -118,10 +119,10 @@ public class EncryptedFileInputStream extends InputStream
 		attributes.put(IMode.IV, iv);
 		cipher.init(attributes);
 
-		final HMac mac = CryptoUtils.getMacAlgorithm(a);
-		final int macLength = CryptoUtils.getHashAlgorithm(CryptoUtils.hashFromHmac(a)).blockSize();
+		val mac = CryptoUtils.getMacAlgorithm(a);
+		val macLength = CryptoUtils.getHashAlgorithm(CryptoUtils.hashFromHmac(a)).blockSize();
 		key = new byte[macLength];
-		final PBKDF2 keyGen = new PBKDF2(keyMac);
+		val keyGen = new PBKDF2(keyMac);
 		attributes = new HashMap<>();
 		attributes.put(IMac.MAC_KEY_MATERIAL, keySource);
 		attributes.put(IPBE.SALT, salt);
@@ -157,8 +158,8 @@ public class EncryptedFileInputStream extends InputStream
 	@Override
 	public int read() throws IOException
 	{
-		final byte[] b = new byte[Integer.SIZE / Byte.SIZE];
-		final int err = read(b, 3, 1);
+		val b = new byte[Integer.SIZE / Byte.SIZE];
+		val err = read(b, 3, 1);
 		return err < 0 ? err : Convert.intFromBytes(b);
 	}
 
@@ -176,7 +177,7 @@ public class EncryptedFileInputStream extends InputStream
 			{
 				System.arraycopy(buffer, 0, bytes, offset[2], offset[1]);
 				offset[0] -= offset[1];
-				final byte[] x = new byte[blockSize];
+				val x = new byte[blockSize];
 				System.arraycopy(buffer, offset[1], x, 0, offset[0]);
 				buffer = new byte[blockSize];
 				System.arraycopy(x, 0, buffer, 0, offset[0]);
@@ -186,7 +187,7 @@ public class EncryptedFileInputStream extends InputStream
 			offset[2] += offset[0];
 			offset[1] -= offset[0];
 			offset[0] = 0;
-			final byte[] eBytes = new byte[blockSize];
+			val eBytes = new byte[blockSize];
 			err = eccFileInputStream.read(eBytes);
 			cipher.update(eBytes, 0, buffer, 0);
 			offset[0] = blockSize;
@@ -196,8 +197,8 @@ public class EncryptedFileInputStream extends InputStream
 	@Override
 	public int read(final byte[] b, final int off, final int len) throws IOException
 	{
-		final byte[] bytes = new byte[len];
-		final int x = read(bytes);
+		val bytes = new byte[len];
+		val x = read(bytes);
 		System.arraycopy(bytes, 0, b, off, len);
 		return x;
 	}

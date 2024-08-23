@@ -22,6 +22,7 @@ package net.albinoloverats.android.encrypt.lib.crypt;
 
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.val;
 
 @AllArgsConstructor
 public enum Status
@@ -52,7 +53,7 @@ public enum Status
 
 	public static Status parseStatus(final String s)
 	{
-		for (final Status status : Status.values())
+		for (val status : Status.values())
 			if (status.name().equals(s))
 				return status;
 		return null;

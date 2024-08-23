@@ -28,6 +28,7 @@ import gnu.crypto.mac.HMac;
 import gnu.crypto.mac.HMacFactory;
 import gnu.crypto.mode.ModeFactory;
 import lombok.experimental.UtilityClass;
+import lombok.val;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
@@ -56,10 +57,10 @@ public final class CryptoUtils
 
 	public static Set<String> getHashAlgorithmNames()
 	{
-		final TreeSet<String> h = new TreeSet<>();
-		for (final Object o : HashFactory.getNames())
+		val h = new TreeSet<String>();
+		for (val o : HashFactory.getNames())
 		{
-			String n = ((String)o).replace("-", "").toUpperCase(Locale.ENGLISH);
+			var n = ((String)o).replace("-", "").toUpperCase(Locale.ENGLISH);
 			if (n.equals(NAME_WHIRLPOOL))
 				n = NAME_WHIRLPOOL_T;
 			h.add(n);
@@ -71,7 +72,7 @@ public final class CryptoUtils
 	{
 		if (name.equals(NAME_WHIRLPOOL_T))
 			name = NAME_WHIRLPOOL;
-		for (final Object o : HashFactory.getNames())
+		for (val o : HashFactory.getNames())
 			if (name.equals(((String)o).replace("-", "").toUpperCase(Locale.ENGLISH)))
 				return HashFactory.getInstance((String)o);
 		throw new NoSuchAlgorithmException(name);
@@ -79,13 +80,13 @@ public final class CryptoUtils
 
 	public static Set<String> getCipherAlgorithmNames()
 	{
-		final TreeSet<String> h = new TreeSet<>();
+		val h = new TreeSet<String>();
 		for (final Object o : CipherFactory.getNames())
 		{
-			String n = ((String)o).replace("-", "").toUpperCase(Locale.ENGLISH);
+			var n = ((String)o).replace("-", "").toUpperCase(Locale.ENGLISH);
 			if (n.equals("NULL"))
 				continue;
-			final TreeSet<Integer> keySizes = new TreeSet<>();
+			val keySizes = new TreeSet<Integer>();
 			for (final Iterator<?> iterator = CipherFactory.getInstance(n).keySizes(); iterator.hasNext(); )
 				keySizes.add((Integer)iterator.next());
 			if (n.equals(NAME_TRIPLE_DES))
@@ -93,7 +94,7 @@ public final class CryptoUtils
 			if (keySizes.size() == 1 || n.equals(NAME_CAST5))
 				h.add(n);
 			else
-				for (final Integer i : keySizes)
+				for (val i : keySizes)
 					if (NAME_RIJNDAEL128.equals(n + i * Byte.SIZE))
 						h.add(NAME_AES);
 					else if (i * Byte.SIZE >= KEY_SIZE_MINIMUM)
@@ -108,21 +109,21 @@ public final class CryptoUtils
 			name = NAME_TRIPLE_DES;
 		else if (name.equals(NAME_AES))
 			name = NAME_RIJNDAEL128;
-		for (final Object o : CipherFactory.getNames())
+		for (val o : CipherFactory.getNames())
 		{
-			final String n = ((String)o).replace("-", "").toUpperCase(Locale.ENGLISH);
+			val n = ((String)o).replace("-", "").toUpperCase(Locale.ENGLISH);
 			if (n.equals("NULL") || n.length() > name.length())
 				continue;
 			if (name.startsWith(n))
 			{
-				final TreeSet<Integer> keySizes = new TreeSet<>();
-				final IBlockCipher cipher = CipherFactory.getInstance(n);
+				val keySizes = new TreeSet<Integer>();
+				val cipher = CipherFactory.getInstance(n);
 				for (final Iterator<?> iterator = cipher.keySizes(); iterator.hasNext(); )
 					keySizes.add((Integer)iterator.next());
 				if (keySizes.size() == 1 || n.equals(NAME_CAST5))
 					return cipher;
 				else
-					for (final Integer i : keySizes)
+					for (val i : keySizes)
 						if (name.equals(n + i * Byte.SIZE))
 							return cipher;
 			}
@@ -136,15 +137,15 @@ public final class CryptoUtils
 			name = NAME_TRIPLE_DES;
 		if (name.equals(NAME_AES))
 			name = NAME_RIJNDAEL128;
-		for (final Object o : CipherFactory.getNames())
+		for (val o : CipherFactory.getNames())
 		{
-			final String n = ((String)o).replace("-", "").toUpperCase(Locale.ENGLISH);
+			val n = ((String)o).replace("-", "").toUpperCase(Locale.ENGLISH);
 			if (n.equals("NULL") || n.length() > name.length())
 				continue;
 			if (name.startsWith(n))
 			{
-				final TreeSet<Integer> keySizes = new TreeSet<>();
-				final IBlockCipher cipher = CipherFactory.getInstance(n);
+				val keySizes = new TreeSet<Integer>();
+				val cipher = CipherFactory.getInstance(n);
 				for (final Iterator<?> iterator = cipher.keySizes(); iterator.hasNext(); )
 					keySizes.add((Integer)iterator.next());
 				if (keySizes.size() == 1)
@@ -152,7 +153,7 @@ public final class CryptoUtils
 				else if (name.endsWith(NAME_CAST5))
 					return KEY_SIZE_CAST5;
 				else
-					for (final Integer i : keySizes)
+					for (val i : keySizes)
 						if (name.equals(n + i * Byte.SIZE))
 							return i * Byte.SIZE;
 			}
@@ -162,18 +163,18 @@ public final class CryptoUtils
 
 	public static Set<String> getCipherModeNames()
 	{
-		final TreeSet<String> m = new TreeSet<>();
-		for (final Object o : ModeFactory.getNames())
+		val m = new TreeSet<String>();
+		for (val o : ModeFactory.getNames())
 			m.add(((String)o).toUpperCase(Locale.ENGLISH));
 		return m;
 	}
 
 	public static Set<String> getMacAlgorithmNames()
 	{
-		final TreeSet<String> m = new TreeSet<>();
-		for (final Object o : HMacFactory.getNames())
+		val m = new TreeSet<String>();
+		for (val o : HMacFactory.getNames())
 		{
-			String n = ((String)o).toUpperCase(Locale.ENGLISH);
+			var n = ((String)o).toUpperCase(Locale.ENGLISH);
 			n = n.replace("HMAC-", "HMAC_");
 			n = n.replace("SHA-", "SHA");
 			if (n.equals(HMAC_PREFIX + "_" + NAME_WHIRLPOOL))
@@ -187,10 +188,10 @@ public final class CryptoUtils
 	{
 		if (name.equals(HMAC_PREFIX + "_" + NAME_WHIRLPOOL_T))
 			name = HMAC_PREFIX + "_" + NAME_WHIRLPOOL;
-		for (final Object o : HMacFactory.getNames())
+		for (val o : HMacFactory.getNames())
 		{
-			final String n = ((String)o).toUpperCase(Locale.ENGLISH);
-			String c = n.replace("HMAC-", "HMAC_");
+			val n = ((String)o).toUpperCase(Locale.ENGLISH);
+			var c = n.replace("HMAC-", "HMAC_");
 			c = c.replace("SHA-", "SHA");
 			if (name.equals(c))
 				return (HMac)HMacFactory.getInstance(n);

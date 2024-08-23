@@ -30,6 +30,7 @@ import gnu.crypto.prng.IPBE;
 import gnu.crypto.prng.LimitReachedException;
 import gnu.crypto.prng.PBKDF2;
 import gnu.crypto.util.PRNG;
+import lombok.val;
 import net.albinoloverats.android.encrypt.lib.crypt.CryptoUtils;
 import net.albinoloverats.android.encrypt.lib.crypt.XIV;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
@@ -60,23 +61,23 @@ public class EncryptedFileOutputStream extends OutputStream
 
 	public HashMAC initialiseEncryption(final String c, final String h, final String m, final String a, final int kdfIterations, final byte[] k, final XIV ivType, final boolean useKDF) throws NoSuchAlgorithmException, InvalidKeyException, LimitReachedException, IOException
 	{
-		final IMessageDigest hash = CryptoUtils.getHashAlgorithm(h);
-		final IBlockCipher cipher = CryptoUtils.getCipherAlgorithm(c);
-		final HMac mac = CryptoUtils.getMacAlgorithm(a);
+		val hash = CryptoUtils.getHashAlgorithm(h);
+		val cipher = CryptoUtils.getCipherAlgorithm(c);
+		val mac = CryptoUtils.getMacAlgorithm(a);
 
 		blockSize = cipher.defaultBlockSize();
 		buffer = new byte[blockSize];
 
 		this.cipher = ModeFactory.getInstance(m, cipher, blockSize);
 		hash.update(k, 0, k.length);
-		final byte[] keySource = hash.digest();
+		val keySource = hash.digest();
 		Map<String, Object> attributes;
-		final int keyLength = CryptoUtils.getCipherAlgorithmKeySize(c) / Byte.SIZE;
-		byte[] key = new byte[keyLength];
+		val keyLength = CryptoUtils.getCipherAlgorithmKeySize(c) / Byte.SIZE;
+		var key = new byte[keyLength];
 
-		final byte[] salt = new byte[keyLength];
+		val salt = new byte[keyLength];
 
-		final HMac keyMac = CryptoUtils.getMacAlgorithm(CryptoUtils.hmacFromHash(h));
+		val keyMac = CryptoUtils.getMacAlgorithm(CryptoUtils.hmacFromHash(h));
 
 		if (useKDF)
 		{
@@ -100,7 +101,7 @@ public class EncryptedFileOutputStream extends OutputStream
 		attributes.put(IMode.STATE, IMode.ENCRYPTION);
 		hash.reset();
 		hash.update(keySource);
-		final byte[] iv = new byte[ivType != XIV.BROKEN ? blockSize : keyLength];
+		val iv = new byte[ivType != XIV.BROKEN ? blockSize : keyLength];
 		switch (ivType)
 		{
 			case BROKEN:
@@ -116,9 +117,9 @@ public class EncryptedFileOutputStream extends OutputStream
 		this.cipher.init(attributes);
 
 
-		final int macLength = CryptoUtils.getHashAlgorithm(CryptoUtils.hashFromHmac(a)).blockSize();
+		val macLength = CryptoUtils.getHashAlgorithm(CryptoUtils.hashFromHmac(a)).blockSize();
 		key = new byte[macLength];
-		final PBKDF2 keyGen = new PBKDF2(keyMac);
+		val keyGen = new PBKDF2(keyMac);
 		attributes = new HashMap<>();
 		attributes.put(IMac.MAC_KEY_MATERIAL, keySource);
 		attributes.put(IPBE.SALT, salt);
@@ -144,11 +145,11 @@ public class EncryptedFileOutputStream extends OutputStream
 			return;
 		if (cipher != null)
 		{
-			final int[] remainder = { 0, blockSize - offset[0] };
-			final byte[] x = new byte[remainder[1]];
+			val remainder = new int[]{ 0, blockSize - offset[0] };
+			val x = new byte[remainder[1]];
 			PRNG.nextBytes(x);
 			System.arraycopy(x, 0, buffer, offset[0], remainder[1]);
-			final byte[] eBytes = new byte[blockSize];
+			val eBytes = new byte[blockSize];
 			cipher.update(buffer, 0, eBytes, 0);
 			eccFileOutputStream.write(eBytes);
 		}
@@ -164,7 +165,7 @@ public class EncryptedFileOutputStream extends OutputStream
 			eccFileOutputStream.write(bytes);
 			return;
 		}
-		final int[] remainder = { bytes.length, blockSize - offset[0] };
+		val remainder = new int[]{ bytes.length, blockSize - offset[0] };
 		offset[1] = 0;
 		while (remainder[0] > 0)
 		{
@@ -175,7 +176,7 @@ public class EncryptedFileOutputStream extends OutputStream
 				return;
 			}
 			System.arraycopy(bytes, offset[1], buffer, offset[0], remainder[1]);
-			final byte[] eBytes = new byte[blockSize];
+			val eBytes = new byte[blockSize];
 			cipher.update(buffer, 0, eBytes, 0);
 			eccFileOutputStream.write(eBytes);
 			offset[0] = 0;
@@ -189,7 +190,7 @@ public class EncryptedFileOutputStream extends OutputStream
 	@Override
 	public void write(final byte[] b, final int off, final int len) throws IOException
 	{
-		final byte[] bytes = new byte[len];
+		val bytes = new byte[len];
 		System.arraycopy(b, off, bytes, 0, len);
 		write(bytes);
 	}

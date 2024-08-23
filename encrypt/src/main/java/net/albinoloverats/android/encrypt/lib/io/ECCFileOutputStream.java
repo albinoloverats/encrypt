@@ -20,6 +20,7 @@
 
 package net.albinoloverats.android.encrypt.lib.io;
 
+import lombok.val;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
 import java.io.IOException;
@@ -40,7 +41,7 @@ public class ECCFileOutputStream extends ECCFileStream
 	{
 		if (initialised)
 		{
-			final int i = PAYLOAD - offset[0];
+			val i = PAYLOAD - offset[0];
 			System.arraycopy(new byte[i], 0, source, offset[0], i);
 			outputStream.write(offset[0]);
 			outputStream.write(encode());
@@ -57,7 +58,7 @@ public class ECCFileOutputStream extends ECCFileStream
 			return;
 		}
 
-		final int[] remainder = { bytes.length, PAYLOAD - offset[0] };
+		val remainder = new int[]{ bytes.length, PAYLOAD - offset[0] };
 		offset[1] = 0;
 		while (remainder[0] > 0)
 		{
@@ -80,7 +81,7 @@ public class ECCFileOutputStream extends ECCFileStream
 
 	public void write(final byte[] b, final int off, final int len) throws IOException
 	{
-		final byte[] bytes = new byte[len];
+		val bytes = new byte[len];
 		System.arraycopy(b, off, bytes, 0, len);
 		write(bytes);
 	}
@@ -92,12 +93,12 @@ public class ECCFileOutputStream extends ECCFileStream
 
 	private byte[] encode()
 	{
-		final byte[] encoded = new byte[CAPACITY];
-		final byte[] r = new byte[OFFSET];
+		val encoded = new byte[CAPACITY];
+		val r = new byte[OFFSET];
 		for (int i = 0; i < PAYLOAD; i++)
 		{
 			encoded[CAPACITY - 1 - i] = source[i];
-			final byte rtmp = (byte)add(source[i], r[5]);
+			val rtmp = (byte)add(source[i], r[5]);
 			for (int j = 5; j > 0; j--)
 				r[j] = (byte)add(mul(rtmp, GEE[j]), r[j - 1]);
 			r[0] = (byte)mul(rtmp, GEE[0]);

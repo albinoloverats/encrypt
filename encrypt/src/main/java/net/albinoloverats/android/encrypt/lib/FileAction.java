@@ -21,6 +21,7 @@
 package net.albinoloverats.android.encrypt.lib;
 
 import lombok.AllArgsConstructor;
+import lombok.val;
 
 @AllArgsConstructor
 public enum FileAction
@@ -33,7 +34,7 @@ public enum FileAction
 
 	public static FileAction fromValue(final int value)
 	{
-		for (final FileAction action : FileAction.values())
+		for (val action : FileAction.values())
 			if (action.value == value)
 				return action;
 		return null;
