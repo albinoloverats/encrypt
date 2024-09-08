@@ -21,8 +21,6 @@
 package net.albinoloverats.android.encrypt.lib.io;
 
 import gnu.crypto.cipher.IBlockCipher;
-import gnu.crypto.hash.IMessageDigest;
-import gnu.crypto.mac.HMac;
 import gnu.crypto.mac.IMac;
 import gnu.crypto.mode.IMode;
 import gnu.crypto.mode.ModeFactory;
@@ -88,7 +86,7 @@ public class EncryptedFileInputStream extends InputStream
 		{
 			eccFileInputStream.read(salt);
 
-			final PBKDF2 keyGen = new PBKDF2(keyMac);
+			var keyGen = new PBKDF2(keyMac);
 			attributes = new HashMap<>();
 			attributes.put(IMac.MAC_KEY_MATERIAL, keySource);
 			attributes.put(IPBE.SALT, salt);
@@ -108,8 +106,7 @@ public class EncryptedFileInputStream extends InputStream
 		val iv = new byte[ivType != XIV.BROKEN ? blockSize : keyLength];
 		switch (ivType)
 		{
-			case BROKEN:
-			case SIMPLE:
+			case BROKEN, SIMPLE:
 				System.arraycopy(hash.digest(), 0, iv, 0, iv.length);
 				break;
 			case RANDOM:

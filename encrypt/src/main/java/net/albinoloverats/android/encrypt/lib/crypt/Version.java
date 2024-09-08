@@ -40,7 +40,6 @@ public enum Version
 	_202401(0x2e4155524f52412eL, "2024.01", 202401),
 	CURRENT(0x2e4155524f52412eL, "2024.01", 202401);
 
-
 	public final long magicNumber;
 	public final String display;
 	public final int menu_id;
