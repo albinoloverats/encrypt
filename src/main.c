@@ -226,7 +226,7 @@ int main(int argc, char **argv)
 
 	if (source)
 	{
-		char *ptr = malloc(0);
+		char *ptr = malloc(1);
 		char *c = ptr;
 		char *h = ptr;
 		char *m = ptr;

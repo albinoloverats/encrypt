@@ -293,7 +293,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
 			/*
 			 * quickly see if the file is encrypted already
 			 */
-			char *ptr = malloc(0);
+			char *ptr = malloc(1);
 			char *c = ptr;
 			char *h = ptr;
 			char *m = ptr;

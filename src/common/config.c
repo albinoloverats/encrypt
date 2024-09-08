@@ -529,7 +529,7 @@ end_line:
 			{
 				if (j >= list_size(extra))
 				{
-					config_unnamed_t *new = calloc(sizeof( config_unnamed_t ), 1);
+					config_unnamed_t *new = calloc(1, sizeof( config_unnamed_t ));
 					new->response.type = CONFIG_ARG_STRING;
 					list_append(extra, new);
 				}
