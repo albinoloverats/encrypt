@@ -30,7 +30,6 @@
 #define m_strndup(S, L)        mem_nod(__FILE__, __LINE__, __func__, S, L)
 #define m_asprintf(P, F, ...)  mem_aod(__FILE__, __LINE__, __func__, P, F, __VA_ARGS__)
 
-
 extern void *mem_mod(const char *, int, const char *, size_t);
 extern void *mem_cod(const char *, int, const char *, size_t, size_t);
 extern void *mem_rod(const char *, int, const char *, void *, size_t);
@@ -39,5 +38,17 @@ extern void *mem_sod(const char *, int, const char *, const char *);
 extern void *mem_nod(const char *, int, const char *, const char *, size_t);
 
 extern int mem_aod(const char *, int, const char *, char **, const char *, ...);
+
+#ifdef USE_GCRYPT
+
+#define m_gcry_malloc_secure(S)     mem_sec_mod(__FILE__, __LINE__, __func__, S)
+#define m_gcry_calloc_secure(C, S)  mem_sec_cod(__FILE__, __LINE__, __func__, C, S)
+#define m_gcry_realloc(P, S)        mem_sec_rod(__FILE__, __LINE__, __func__, P, S)
+
+extern void *mem_sec_mod(const char *, int, const char *, size_t);
+extern void *mem_sec_cod(const char *, int, const char *, size_t, size_t);
+extern void *mem_sec_rod(const char *, int, const char *, void *, size_t);
+
+#endif /* USE_GCRYPT */
 
 #endif /* _COMMON_MEMORY_H_ */

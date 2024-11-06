@@ -89,3 +89,33 @@ extern int mem_aod(const char *file, int line, const char *func, char **ptr, con
 		die(_("Out of memory @ %s:%d:%s [%zu]"), file, line, func, l);
 	return r;
 }
+
+#ifdef USE_GCRYPT
+
+#include <gcrypt.h>
+
+extern void *mem_sec_mod(const char *file, int line, const char *func, size_t size)
+{
+	void *m = gcry_malloc_secure(size);
+	if (!m)
+		die(_("Out of memory @ %s:%d:%s [%zu]"), file, line, func, size);
+	return m;
+}
+
+extern void *mem_sec_cod(const char *file, int line, const char *func, size_t count, size_t size)
+{
+	void *m = gcry_calloc_secure(count, size);
+	if (!m)
+		die(_("Out of memory @ %s:%d:%s [%zu]"), file, line, func, size);
+	return m;
+}
+
+extern void *mem_sec_rod(const char *file, int line, const char *func, void *ptr, size_t newsize)
+{
+	void *m = gcry_realloc(ptr, newsize);
+	if (!m)
+		die(_("Out of memory @ %s:%d:%s [%zu]"), file, line, func, newsize);
+	return m;
+}
+
+#endif /* USE_GCRYPT */

@@ -42,6 +42,7 @@
 #include "common/common.h"
 #include "common/non-gnu.h"
 #include "common/error.h"
+#include "common/mem.h"
 #include "common/ccrypt.h"
 #include "common/version.h"
 #include "common/config.h"
@@ -274,9 +275,7 @@ int main(int argc, char **argv)
 			const char *glade_ui_file = GLADE_UI_FILE_BACKUP;
 		#endif
 	#else
-			char *glade_ui_file = calloc(MAX_PATH, sizeof( char ));
-			if (!glade_ui_file)
-				die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, MAX_PATH);
+			char *glade_ui_file = m_calloc(MAX_PATH, sizeof( char ));
 		#ifndef __DEBUG__
 			SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL, 0, glade_ui_file);
 			strcat(glade_ui_file, "\\");
@@ -356,7 +355,7 @@ int main(int argc, char **argv)
 				if (source[0] != '/')
 				{
 					char *cwd = getcwd(NULL, 0);
-					asprintf(&gui_file_hack_source, "%s/%s", cwd, source);
+					m_asprintf(&gui_file_hack_source, "%s/%s", cwd, source);
 					free(cwd);
 				}
 				else
@@ -370,7 +369,7 @@ int main(int argc, char **argv)
 				if (output[0] != '/')
 				{
 					char *cwd = getcwd(NULL, 0);
-					asprintf(&gui_file_hack_output, "%s/%s", cwd, output);
+					m_asprintf(&gui_file_hack_output, "%s/%s", cwd, output);
 					free(cwd);
 				}
 				else

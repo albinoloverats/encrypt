@@ -37,6 +37,7 @@
 #include "common/common.h"
 #include "common/non-gnu.h"
 #include "common/error.h"
+#include "common/mem.h"
 #include "common/ccrypt.h"
 #include "common/ecc.h"
 
@@ -126,7 +127,7 @@ extern IO_HANDLE io_open(const char *n, int f, mode_t m)
 #endif
 	if (fd < 0)
 		return NULL;
-	io_private_t *io_ptr = gcry_calloc_secure(1, sizeof( io_private_t ));
+	io_private_t *io_ptr = m_gcry_calloc_secure(1, sizeof( io_private_t ));
 	io_ptr->fd = fd;
 	io_ptr->eof = EOF_NO;
 	return io_ptr;
@@ -145,7 +146,7 @@ extern int io_close(IO_HANDLE ptr)
 extern IO_HANDLE io_dummy_handle(void)
 {
 
-	io_private_t *io_ptr = gcry_calloc_secure(1, sizeof( io_private_t ));
+	io_private_t *io_ptr = m_gcry_calloc_secure(1, sizeof( io_private_t ));
 	io_ptr->fd = -IO_DUMMY_FD;
 	return io_ptr;
 }
@@ -182,14 +183,14 @@ extern void io_release(IO_HANDLE ptr)
 
 extern IO_HANDLE io_use_stdin(void)
 {
-	io_private_t *io_ptr = gcry_calloc_secure(1, sizeof( io_private_t ));
+	io_private_t *io_ptr = m_gcry_calloc_secure(1, sizeof( io_private_t ));
 	io_ptr->fd = STDIN_FILENO;
 	return io_ptr;
 }
 
 extern IO_HANDLE io_use_stdout(void)
 {
-	io_private_t *io_ptr = gcry_calloc_secure(1, sizeof( io_private_t ));
+	io_private_t *io_ptr = m_gcry_calloc_secure(1, sizeof( io_private_t ));
 	io_ptr->fd = STDOUT_FILENO;
 	return io_ptr;
 }
@@ -225,8 +226,7 @@ extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	/*
 	 * start setting up the encryption buffer
 	 */
-	if (!(io_ptr->buffer_crypt = gcry_malloc_secure(sizeof( buffer_t ))))
-		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( buffer_t ));
+	io_ptr->buffer_crypt = m_gcry_malloc_secure(sizeof( buffer_t ));
 
 	gcry_md_open(&io_ptr->hash_handle, h, GCRY_MD_FLAG_SECURE);
 	if (gcry_cipher_open(&io_ptr->cipher_handle, c, m, GCRY_CIPHER_SECURE) != GPG_ERR_NO_ERROR)
@@ -244,9 +244,7 @@ extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 		else
 			return (errno = EINVAL , false);
 	}
-	uint8_t *hash = gcry_malloc_secure(hash_length);
-	if (!hash)
-		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, hash_length);
+	uint8_t *hash = m_gcry_malloc_secure(hash_length);
 	if (h == GCRY_MD_SHAKE128 || h == GCRY_MD_SHAKE256)
 	{
 		gcry_md_write(io_ptr->hash_handle, k, l);
@@ -282,15 +280,11 @@ extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 		default:
 			break;
 	}
-	uint8_t *key = gcry_calloc_secure(key_length, sizeof( byte_t ));
-	if (!key)
-		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, key_length);
+	uint8_t *key = m_gcry_calloc_secure(key_length, sizeof( byte_t ));
 	size_t salt_length = key_length;
-	uint8_t *salt = gcry_calloc_secure(salt_length, sizeof( byte_t ));
+	uint8_t *salt = m_gcry_calloc_secure(salt_length, sizeof( byte_t ));
 	if (key_iterations)
 	{
-		if (!salt)
-			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, salt_length);
 		if (x.x_encrypt)
 		{
 			gcry_create_nonce(salt, salt_length);
@@ -319,7 +313,7 @@ extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	if (a != GCRY_MAC_NONE)
 	{
 		size_t mac_length = gcry_mac_get_algo_keylen(a);
-		uint8_t *mac = gcry_calloc_secure(mac_length, sizeof( byte_t ));
+		uint8_t *mac = m_gcry_calloc_secure(mac_length, sizeof( byte_t ));
 		gcry_kdf_derive(hash, hash_length, GCRY_KDF_PBKDF2, h, salt, salt_length, key_iterations, mac_length, mac);
 		gcry_mac_setkey(io_ptr->mac_handle, mac, mac_length);
 		gcry_free(mac);
@@ -332,9 +326,7 @@ extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	 * length; versions after 2014.06 randomly generate the IV instead
 	 */
 	io_ptr->buffer_crypt->block = gcry_cipher_get_algo_blklen(c);
-	uint8_t *iv = gcry_calloc_secure(x.x_iv == IV_BROKEN || m == GCRY_CIPHER_MODE_STREAM ? key_length : io_ptr->buffer_crypt->block, sizeof( byte_t ));
-	if (!iv)
-		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, io_ptr->buffer_crypt->block);
+	uint8_t *iv = m_gcry_calloc_secure(x.x_iv == IV_BROKEN || m == GCRY_CIPHER_MODE_STREAM ? key_length : io_ptr->buffer_crypt->block, sizeof( byte_t ));
 	if (x.x_iv == IV_RANDOM)
 	{
 		if (x.x_encrypt)
@@ -347,9 +339,7 @@ extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	}
 	else
 	{
-		uint8_t *iv_hash = gcry_malloc_secure(hash_length);
-		if (!iv_hash)
-			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, hash_length);
+		uint8_t *iv_hash = m_gcry_malloc_secure(hash_length);
 		/*
 		 * set the IV as the hash of the hash
 		 */
@@ -383,8 +373,7 @@ extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	/*
 	 * set the rest of the buffer
 	 */
-	if (!(io_ptr->buffer_crypt->stream = gcry_malloc_secure(io_ptr->buffer_crypt->block)))
-		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, io_ptr->buffer_crypt->block);
+	io_ptr->buffer_crypt->stream = m_gcry_malloc_secure(io_ptr->buffer_crypt->block);
 	/*
 	 * when encrypting/writing data:
 	 *   0: length of data buffered so far (in stream)
@@ -424,9 +413,7 @@ extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l)
 	enum gcry_md_algos h = gcry_md_get_algo(io_ptr->hash_handle);
 	if (!*l && (h == GCRY_MD_SHAKE128 || h == GCRY_MD_SHAKE256))
 		*l = 64;
-	uint8_t *x = gcry_realloc(*b, *l);
-	if (!x)
-		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, *l);
+	uint8_t *x = m_gcry_realloc(*b, *l);
 	*b = x;
 	if (h == GCRY_MD_SHAKE128 || h == GCRY_MD_SHAKE256)
 		gcry_md_extract(io_ptr->hash_handle, h, *b, *l);
@@ -443,9 +430,7 @@ extern void io_encryption_mac(IO_HANDLE ptr, uint8_t **b, size_t *l)
 	if (!io_ptr->mac_init)
 		return *l = 0 , (void)NULL;
 	*l = gcry_mac_get_algo_maclen(gcry_mac_get_algo(io_ptr->mac_handle));
-	uint8_t *x = gcry_realloc(*b, *l);
-	if (!x)
-		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, *l);
+	uint8_t *x = m_gcry_realloc(*b, *l);
 	*b = x;
 	gcry_mac_read(io_ptr->mac_handle, *b, l);
 	return;
@@ -708,9 +693,7 @@ static ssize_t enc_read(io_private_t *f, void *d, size_t l)
 		{
 			memcpy((uint8_t *)d + f->buffer_crypt->offset[2], f->buffer_crypt->stream, f->buffer_crypt->offset[1]);
 			f->buffer_crypt->offset[0] -= f->buffer_crypt->offset[1];
-			uint8_t *x = gcry_calloc_secure(f->buffer_crypt->block, sizeof( uint8_t ));
-			if (!x)
-				die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, f->buffer_crypt->block * sizeof( uint8_t ));
+			uint8_t *x = m_gcry_calloc_secure(f->buffer_crypt->block, sizeof( uint8_t ));
 			memcpy(x, f->buffer_crypt->stream + f->buffer_crypt->offset[1], f->buffer_crypt->offset[0]);
 			memset(f->buffer_crypt->stream, 0x00, f->buffer_crypt->block);
 			memcpy(f->buffer_crypt->stream, x, f->buffer_crypt->offset[0]);
@@ -812,9 +795,7 @@ static ssize_t ecc_read(io_private_t *f, void *d, size_t l)
 		{
 			memcpy((uint8_t *)d + f->buffer_ecc->offset[2], f->buffer_ecc->stream, f->buffer_ecc->offset[1]);
 			f->buffer_ecc->offset[0] -= f->buffer_ecc->offset[1];
-			uint8_t *x = calloc(f->buffer_ecc->block, sizeof( uint8_t ));
-			if (!x)
-				die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, f->buffer_ecc->block * sizeof( uint8_t ));
+			uint8_t *x = m_gcry_calloc_secure(f->buffer_ecc->block, sizeof( uint8_t ));
 			memcpy(x, f->buffer_ecc->stream + f->buffer_ecc->offset[1], f->buffer_ecc->offset[0]);
 			memset(f->buffer_ecc->stream, 0x00, f->buffer_ecc->block);
 			memcpy(f->buffer_ecc->stream, x, f->buffer_ecc->offset[0]);

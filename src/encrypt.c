@@ -44,6 +44,7 @@
 #include "common/common.h"
 #include "common/non-gnu.h"
 #include "common/error.h"
+#include "common/mem.h"
 #include "common/ccrypt.h"
 #include "common/tlv.h"
 #include "common/dir.h"
@@ -93,9 +94,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 {
 	init_crypto();
 
-	crypto_t *z = gcry_calloc_secure(1, sizeof( crypto_t ));
-	if (!z)
-		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, sizeof( crypto_t ));
+	crypto_t *z = m_gcry_calloc_secure(1, sizeof( crypto_t ));
 
 	z->status = STATUS_INIT;
 
@@ -132,9 +131,9 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 		{
 			char *p = dir_get_path(i);
 			if (!strcmp(p, i))
-				asprintf(&op, "%s.X", z->name);
+				m_asprintf(&op, "%s.X", z->name);
 			else
-				asprintf(&op, "%s%s%s.X", o, o[strlen(o) - 1] == DIR_SEPARATOR_CHAR ? "" : DIR_SEPARATOR, z->name);
+				m_asprintf(&op, "%s%s%s.X", o, o[strlen(o) - 1] == DIR_SEPARATOR_CHAR ? "" : DIR_SEPARATOR, z->name);
 			gcry_free(p);
 		}
 		else
@@ -161,8 +160,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 
 	if (l)
 	{
-		if (!(z->key = gcry_malloc_secure(l)))
-			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, l);
+		z->key = m_gcry_malloc_secure(l);
 		memcpy(z->key, k, l);
 		z->length = l;
 	}
@@ -173,8 +171,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 			return z->status = STATUS_FAILED_IO , z;
 		z->length = lseek(kf, 0, SEEK_END);
 		lseek(kf, 0, SEEK_SET);
-		if (!(z->key = gcry_malloc_secure(z->length)))
-			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, z->length);
+		z->key = m_gcry_malloc_secure(z->length);
 		read(kf, z->key, z->length);
 		close(kf);
 	}
@@ -355,8 +352,7 @@ static void *process(void *ptr)
 			cwd = getcwd(NULL, 0);
 			chdir(c->path);
 			free(c->path);
-			if (!(c->path = strdup(dir)))
-				die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(dir));
+			c->path = m_strdup(dir);
 		}
 		uint64_t l = htonll(strlen(c->path));
 		io_write(c->output, &l, sizeof l);
@@ -439,27 +435,17 @@ static inline void write_header(crypto_t *c)
 	const char *u_mode = mode_name_from_id(c->mode);
 	const char *u_mac = mac_name_from_id(c->mac);
 	if (c->version >= VERSION_2020_01)
-	{
 		/*
 		 * NB KDF iters doesn't need htonll because it's displayed
 		 * as a string (albeit in hex)
 		 */
-		if (!asprintf(&algos, "%s/%s/%s/%s/%016" PRIX64, u_cipher, u_hash, u_mode, u_mac, c->kdf_iterations))
-			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(u_cipher) + strlen(u_hash) + strlen(u_mode) + strlen(u_mac) + 4);
-	}
+		m_asprintf(&algos, "%s/%s/%s/%s/%016" PRIX64, u_cipher, u_hash, u_mode, u_mac, c->kdf_iterations);
 	else if (c->version >= VERSION_2017_09)
-	{
-		if (!asprintf(&algos, "%s/%s/%s/%s", u_cipher, u_hash, u_mode, u_mac))
-			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(u_cipher) + strlen(u_hash) + strlen(u_mode) + strlen(u_mac) + 4);
-	}
+		m_asprintf(&algos, "%s/%s/%s/%s", u_cipher, u_hash, u_mode, u_mac);
 	else if (c->version >= VERSION_2014_06)
-	{
-		if (!asprintf(&algos, "%s/%s/%s", u_cipher, u_hash, u_mode))
-			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(u_cipher) + strlen(u_hash) + strlen(u_mode) + 3);
-	}
+		m_asprintf(&algos, "%s/%s/%s", u_cipher, u_hash, u_mode);
 	else
-		if (!asprintf(&algos, "%s/%s", u_cipher, u_hash))
-			die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(u_cipher) + strlen(u_hash) + 2);
+		m_asprintf(&algos, "%s/%s", u_cipher, u_hash);
 	uint8_t h = (uint8_t)strlen(algos);
 	io_write(c->output, &h, sizeof h);
 	io_write(c->output, algos, h);
@@ -547,9 +533,7 @@ static inline void write_random_data(crypto_t *c)
 #else
 	l = 1; /* keep the same structure (include this junk) but limit it */
 #endif
-	uint8_t *b = gcry_malloc_secure(l);
-	if (!b)
-		die(_("Out of memory @ %s:%d:%s [%hhu]"), __FILE__, __LINE__, __func__, l);
+	uint8_t *b = m_gcry_malloc_secure(l);
 	gcry_create_nonce(b, l);
 	io_write(c->output, &l, sizeof l);
 	io_write(c->output, b, l);
@@ -569,10 +553,8 @@ static int64_t count_entries(crypto_t *c, const char *dir)
 		{
 			if (!strcmp(".", eps[i]->d_name) || !strcmp("..", eps[i]->d_name))
 				continue;
-			size_t l = strlen(eps[i]->d_name);
 			char *filename = NULL;
-			if (!asprintf(&filename, "%s/%s", dir, eps[i]->d_name))
-				die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, strlen(dir) + l + 2);
+			m_asprintf(&filename, "%s/%s", dir, eps[i]->d_name);
 			struct stat s;
 			c->follow_links ? stat(filename, &s) : lstat(filename, &s);
 			if (S_ISDIR(s.st_mode))
@@ -604,8 +586,7 @@ static void encrypt_directory(crypto_t *c, const char *dir)
 				continue;
 			uint64_t l = strlen(eps[i]->d_name);
 			char *filename = NULL;
-			if (!asprintf(&filename, "%s/%s", dir, eps[i]->d_name))
-				die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, strlen(dir) + l + 2);
+			m_asprintf(&filename, "%s/%s", dir, eps[i]->d_name);
 			c->current.display = filename;
 			file_type_e tp;
 			struct stat s;
@@ -647,12 +628,10 @@ static void encrypt_directory(crypto_t *c, const char *dir)
 						 * store the link instead of the file/directory
 						 * it points to
 						 */
-						char *sl = gcry_malloc_secure(sizeof( byte_t ));
+						char *sl = m_gcry_malloc_secure(sizeof( byte_t ));
 						for (l = BLOCK_SIZE; ; l += BLOCK_SIZE)
 						{
-							char *x = gcry_realloc(sl, l + sizeof( byte_t ));
-							if (!x)
-								die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, l + sizeof( byte_t ) );
+							char *x = m_gcry_realloc(sl, l + sizeof( byte_t ));
 							sl = x;
 							if (readlink(filename, sl, BLOCK_SIZE + l) < (int64_t)l)
 								break;
@@ -730,9 +709,7 @@ static char *encrypt_link(crypto_t *c, char *filename, struct stat s)
 static void encrypt_stream(crypto_t *c)
 {
 	bool b = true;
-	uint8_t *buffer;
-	if (!(buffer = gcry_malloc_secure(c->blocksize + sizeof b)))
-		die(_("Out of memory @ %s:%d:%s [%" PRIu64 "]"), __FILE__, __LINE__, __func__, c->blocksize + sizeof b);
+	uint8_t *buffer = m_gcry_malloc_secure(c->blocksize + sizeof b);
 	do
 	{
 		errno = EXIT_SUCCESS;
