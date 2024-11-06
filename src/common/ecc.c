@@ -1,5 +1,5 @@
 /*
- * Common code for ECC calculations
+ * Common code for ECC calculations.
  * Copyright © 2005-2024, albinoloverats ~ Software Development
  * email: webmaster@albinoloverats.net
  *

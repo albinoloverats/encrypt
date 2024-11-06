@@ -541,148 +541,125 @@ static inline void write_random_data(crypto_t *c)
 	return (void)c;
 }
 
-static int64_t count_entries(crypto_t *c, const char *dir)
+static int64_t count_entries(crypto_t *c, const char *path)
 {
-	struct dirent **eps = NULL;
-	int n = 0;
 	int64_t e = 1;
 	errno = 0;
-	if ((n = scandir(dir, &eps, NULL, NULL)))
-	{
-		for (int i = 0; i < n; ++i)
-		{
-			if (!strcmp(".", eps[i]->d_name) || !strcmp("..", eps[i]->d_name))
-				continue;
-			char *filename = NULL;
-			m_asprintf(&filename, "%s/%s", dir, eps[i]->d_name);
-			struct stat s;
-			c->follow_links ? stat(filename, &s) : lstat(filename, &s);
-			if (S_ISDIR(s.st_mode))
-				e += count_entries(c, filename);
-			else if (S_ISREG(s.st_mode))
-				e++;
+
+	DIR_SCAN_TOP;
+
+	struct stat s;
+	c->follow_links ? stat(file, &s) : lstat(file, &s);
+	if (S_ISDIR(s.st_mode))
+		e += count_entries(c, file);
+	else if (S_ISREG(s.st_mode))
+		e++;
 #ifndef _WIN32
-			else if (!c->follow_links && S_ISLNK(s.st_mode))
-				e++;
+	else if (!c->follow_links && S_ISLNK(s.st_mode))
+		e++;
 #endif
-			gcry_free(filename);
-		}
-	}
-	for (int i = 0; i < n; ++i)
-		gcry_free(eps[i]);
-	gcry_free(eps);
+
+	DIR_SCAN_END;
+
 	return e;
 }
 
-static void encrypt_directory(crypto_t *c, const char *dir)
+static void encrypt_directory(crypto_t *c, const char *path)
 {
-	struct dirent **eps = NULL;
-	int n = 0;
-	if ((n = scandir(dir, &eps, NULL, NULL)))
+	DIR_SCAN_TOP;
+
+	uint64_t l = strlen(eps[dxxi]->d_name);
+
+	c->current.display = file;
+	file_type_e tp;
+	struct stat s;
+	c->follow_links ? stat(file, &s) : lstat(file, &s);
+	char *ln = NULL;
+	switch (s.st_mode & S_IFMT)
 	{
-		for (int i = 0; i < n && c->status == STATUS_RUNNING; ++i)
-		{
-			if (!strcmp(".", eps[i]->d_name) || !strcmp("..", eps[i]->d_name))
-				continue;
-			uint64_t l = strlen(eps[i]->d_name);
-			char *filename = NULL;
-			m_asprintf(&filename, "%s/%s", dir, eps[i]->d_name);
-			c->current.display = filename;
-			file_type_e tp;
-			struct stat s;
-			c->follow_links ? stat(filename, &s) : lstat(filename, &s);
-			char *ln = NULL;
-			switch (s.st_mode & S_IFMT)
-			{
-				case S_IFDIR:
-					tp = FILE_DIRECTORY;
-					break;
+		case S_IFDIR:
+			tp = FILE_DIRECTORY;
+			break;
 #ifndef _WIN32
-				case S_IFLNK:
-					tp = (ln = encrypt_link(c, filename, s)) ? FILE_LINK : FILE_SYMLINK;
-					break;
+		case S_IFLNK:
+			tp = (ln = encrypt_link(c, file, s)) ? FILE_LINK : FILE_SYMLINK;
+			break;
 #endif
-				case S_IFREG:
-					tp = (ln = encrypt_link(c, filename, s)) ? FILE_LINK : FILE_REGULAR;
-					break;
-				default:
-					gcry_free(filename);
-					continue;
-			}
-			io_write(c->output, &tp, sizeof( byte_t ));
-			l = htonll(strlen(filename));
-			io_write(c->output, &l, sizeof l);
-			io_write(c->output, filename, strlen(filename));
-			switch (tp)
-			{
-				case FILE_DIRECTORY:
-					/*
-					 * recurse into each directory as necessary
-					 */
-					encrypt_directory(c, filename);
-					break;
-				case FILE_SYMLINK:
-#ifndef _WIN32
-					{
-						/*
-						 * store the link instead of the file/directory
-						 * it points to
-						 */
-						char *sl = m_gcry_malloc_secure(sizeof( byte_t ));
-						for (l = BLOCK_SIZE; ; l += BLOCK_SIZE)
-						{
-							char *x = m_gcry_realloc(sl, l + sizeof( byte_t ));
-							sl = x;
-							if (readlink(filename, sl, BLOCK_SIZE + l) < (int64_t)l)
-								break;
-						}
-						l = htonll(strlen(sl));
-						io_write(c->output, &l, sizeof l);
-						io_write(c->output, sl, strlen(sl));
-					}
-#endif
-					break;
-				case FILE_LINK:
-#ifndef _WIN32
-					/*
-					 * store a hard link; it’s basically the same as a
-					 * symlink at this point, but will be handled
-					 * differently upon decryption
-					 */
-					l = htonll(strlen(ln));
-					io_write(c->output, &l, sizeof l);
-					io_write(c->output, ln, strlen(ln));
-#endif
-					break;
-				case FILE_REGULAR:
-					/*
-					 * when we have a file:
-					 */
-					if (c->source)
-						io_close(c->source);
-					c->source = io_open(filename, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR);
-					c->current.offset = 0;
-					c->current.size = io_seek(c->source, 0, SEEK_END);
-					uint64_t z = htonll(c->current.size);
-					io_write(c->output, &z, sizeof z);
-					io_seek(c->source, 0, SEEK_SET);
-					encrypt_file(c);
-					c->current.offset = c->current.size;
-					io_close(c->source);
-					c->source = NULL;
-					break;
-			}
-			gcry_free(filename);
-			c->total.offset++;
-			c->current.display = NULL;
-		}
-		/*
-		 * no more files in this directory
-		 */
+		case S_IFREG:
+			tp = (ln = encrypt_link(c, file, s)) ? FILE_LINK : FILE_REGULAR;
+			break;
+		default:
+			gcry_free(file);
+			continue;
 	}
-	for (int i = 0; i < n; ++i)
-		gcry_free(eps[i]);
-	gcry_free(eps);
+	io_write(c->output, &tp, sizeof( byte_t ));
+	l = htonll(strlen(file));
+	io_write(c->output, &l, sizeof l);
+	io_write(c->output, file, strlen(file));
+	switch (tp)
+	{
+		case FILE_DIRECTORY:
+			/*
+			 * recurse into each directory as necessary
+			 */
+			encrypt_directory(c, file);
+			break;
+		case FILE_SYMLINK:
+#ifndef _WIN32
+			{
+				/*
+				 * store the link instead of the file/directory
+				 * it points to
+				 */
+				char *sl = m_gcry_malloc_secure(sizeof( byte_t ));
+				for (l = BLOCK_SIZE; ; l += BLOCK_SIZE)
+				{
+					char *x = m_gcry_realloc(sl, l + sizeof( byte_t ));
+					sl = x;
+					if (readlink(file, sl, BLOCK_SIZE + l) < (int64_t)l)
+						break;
+				}
+				l = htonll(strlen(sl));
+				io_write(c->output, &l, sizeof l);
+				io_write(c->output, sl, strlen(sl));
+			}
+#endif
+			break;
+		case FILE_LINK:
+#ifndef _WIN32
+			/*
+			 * store a hard link; it’s basically the same as a
+			 * symlink at this point, but will be handled
+			 * differently upon decryption
+			 */
+			l = htonll(strlen(ln));
+			io_write(c->output, &l, sizeof l);
+			io_write(c->output, ln, strlen(ln));
+#endif
+			break;
+		case FILE_REGULAR:
+			/*
+			 * when we have a file:
+			 */
+			if (c->source)
+				io_close(c->source);
+			c->source = io_open(file, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR);
+			c->current.offset = 0;
+			c->current.size = io_seek(c->source, 0, SEEK_END);
+			uint64_t z = htonll(c->current.size);
+			io_write(c->output, &z, sizeof z);
+			io_seek(c->source, 0, SEEK_SET);
+			encrypt_file(c);
+			c->current.offset = c->current.size;
+			io_close(c->source);
+			c->source = NULL;
+			break;
+	}
+	c->total.offset++;
+	c->current.display = NULL;
+
+	DIR_SCAN_END;
+
 	return;
 }
 
