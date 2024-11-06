@@ -56,7 +56,7 @@
  * the encrypted file; the only reason to set them is if there is no
  * header information.
  */
-extern crypto_t *decrypt_init(const char * const restrict i,
+extern crypto_s *decrypt_init(const char * const restrict i,
                               const char * const restrict o,
                               const char * const restrict c,
                               const char * const restrict h,

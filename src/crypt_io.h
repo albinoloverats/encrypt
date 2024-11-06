@@ -73,7 +73,7 @@ typedef struct
 	x_iv_e x_iv;    /*!< Whether to use the older (less correct) IV generation */
 	bool x_encrypt; /*!< Encrypt (or decrypt) */
 }
-io_extra_t;
+io_extra_s;
 
 /*!
  * \brief         Open a file
@@ -226,7 +226,7 @@ extern off_t io_seek(IO_HANDLE f, off_t o, int w) __attribute__((nonnull(1)));
  * Initialise encryption/decryption of data read/written. This is then
  * active for the rest of the life of the IO_HANDLE.
  */
-extern bool io_encryption_init(IO_HANDLE f, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, enum gcry_mac_algos a, uint64_t i, const uint8_t *k, size_t l, io_extra_t x) __attribute__((nonnull(1, 7)));
+extern bool io_encryption_init(IO_HANDLE f, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, enum gcry_mac_algos a, uint64_t i, const uint8_t *k, size_t l, io_extra_s x) __attribute__((nonnull(1, 7)));
 
 /*!
  * \brief         Compression initialisation

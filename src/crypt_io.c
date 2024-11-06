@@ -74,7 +74,7 @@ typedef struct
 	size_t block;                /*!< Size of steam */
 	size_t offset[OFFSET_SLOTS]; /*!< 0: length of data in buffer, yet to write; 1: available space in output buffer (stream); 2: offset of where to read new data to */
 }
-buffer_t;
+buffer_s;
 
 typedef struct
 {
@@ -86,8 +86,8 @@ typedef struct
 	gcry_md_hd_t hash_handle;
 	gcry_mac_hd_t mac_handle;
 
-	buffer_t *buffer_crypt;
-	buffer_t *buffer_ecc;
+	buffer_s *buffer_crypt;
+	buffer_s *buffer_ecc;
 
 	eof_e eof:2;
 	io_e operation:2;
@@ -100,22 +100,22 @@ typedef struct
 	bool mac_init:1;
 	bool ecc_init:1;
 }
-io_private_t;
+io_private_s;
 
-static ssize_t lzma_write(io_private_t *, const void *, size_t);
-static ssize_t lzma_read(io_private_t *, void *, size_t);
-static int lzma_sync(io_private_t *);
+static ssize_t lzma_write(io_private_s *, const void *, size_t);
+static ssize_t lzma_read(io_private_s *, void *, size_t);
+static int lzma_sync(io_private_s *);
 
-static ssize_t enc_write(io_private_t *, const void *, size_t);
-static ssize_t enc_read(io_private_t *, void *, size_t);
-static int enc_sync(io_private_t *);
+static ssize_t enc_write(io_private_s *, const void *, size_t);
+static ssize_t enc_read(io_private_s *, void *, size_t);
+static int enc_sync(io_private_s *);
 
-static ssize_t ecc_write(io_private_t *, const void *, size_t);
-static ssize_t ecc_read(io_private_t *, void *, size_t);
-static int ecc_sync(io_private_t *);
+static ssize_t ecc_write(io_private_s *, const void *, size_t);
+static ssize_t ecc_read(io_private_s *, void *, size_t);
+static int ecc_sync(io_private_s *);
 
-static void io_do_compress(io_private_t *);
-static void io_do_decompress(io_private_t *);
+static void io_do_compress(io_private_s *);
+static void io_do_decompress(io_private_s *);
 
 extern IO_HANDLE io_open(const char *n, int f, mode_t m)
 {
@@ -127,7 +127,7 @@ extern IO_HANDLE io_open(const char *n, int f, mode_t m)
 #endif
 	if (fd < 0)
 		return NULL;
-	io_private_t *io_ptr = m_gcry_calloc_secure(1, sizeof( io_private_t ));
+	io_private_s *io_ptr = m_gcry_calloc_secure(1, sizeof( io_private_s ));
 	io_ptr->fd = fd;
 	io_ptr->eof = EOF_NO;
 	return io_ptr;
@@ -135,7 +135,7 @@ extern IO_HANDLE io_open(const char *n, int f, mode_t m)
 
 extern int io_close(IO_HANDLE ptr)
 {
-	io_private_t *io_ptr = ptr;
+	io_private_s *io_ptr = ptr;
 	if (!io_ptr || (io_ptr->fd < 0 && io_ptr->fd != -IO_DUMMY_FD))
 		return (errno = EBADF , -1);
 	int64_t fd = io_ptr->fd;
@@ -146,14 +146,14 @@ extern int io_close(IO_HANDLE ptr)
 extern IO_HANDLE io_dummy_handle(void)
 {
 
-	io_private_t *io_ptr = m_gcry_calloc_secure(1, sizeof( io_private_t ));
+	io_private_s *io_ptr = m_gcry_calloc_secure(1, sizeof( io_private_s ));
 	io_ptr->fd = -IO_DUMMY_FD;
 	return io_ptr;
 }
 
 extern void io_release(IO_HANDLE ptr)
 {
-	io_private_t *io_ptr = ptr;
+	io_private_s *io_ptr = ptr;
 	if (!io_ptr)
 		return (errno = EBADF , (void)NULL);
 	if (io_ptr->buffer_crypt)
@@ -183,27 +183,27 @@ extern void io_release(IO_HANDLE ptr)
 
 extern IO_HANDLE io_use_stdin(void)
 {
-	io_private_t *io_ptr = m_gcry_calloc_secure(1, sizeof( io_private_t ));
+	io_private_s *io_ptr = m_gcry_calloc_secure(1, sizeof( io_private_s ));
 	io_ptr->fd = STDIN_FILENO;
 	return io_ptr;
 }
 
 extern IO_HANDLE io_use_stdout(void)
 {
-	io_private_t *io_ptr = m_gcry_calloc_secure(1, sizeof( io_private_t ));
+	io_private_s *io_ptr = m_gcry_calloc_secure(1, sizeof( io_private_s ));
 	io_ptr->fd = STDOUT_FILENO;
 	return io_ptr;
 }
 
 extern bool io_is_initialised(IO_HANDLE ptr)
 {
-	io_private_t *io_ptr = ptr;
+	io_private_s *io_ptr = ptr;
 	return io_ptr && io_ptr->fd >= 0;
 }
 
 extern bool io_is_stdin(IO_HANDLE ptr)
 {
-	io_private_t *io_ptr = ptr;
+	io_private_s *io_ptr = ptr;
 	if (!io_ptr || io_ptr->fd < 0)
 		return (errno = EBADF , false);
 	return io_ptr->fd == STDIN_FILENO;
@@ -211,22 +211,22 @@ extern bool io_is_stdin(IO_HANDLE ptr)
 
 extern bool io_is_stdout(IO_HANDLE ptr)
 {
-	io_private_t *io_ptr = ptr;
+	io_private_s *io_ptr = ptr;
 	if (!io_ptr || io_ptr->fd < 0)
 		return (errno = EBADF , false);
 	return io_ptr->fd == STDOUT_FILENO;
 }
 
-extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, enum gcry_mac_algos a, uint64_t itr, const uint8_t *k, size_t l, io_extra_t x)
+extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, enum gcry_mac_algos a, uint64_t itr, const uint8_t *k, size_t l, io_extra_s x)
 {
-	io_private_t *io_ptr = ptr;
+	io_private_s *io_ptr = ptr;
 	if (!io_ptr || io_ptr->fd < 0)
 		return (errno = EBADF , false);
 	uint64_t key_iterations = itr;
 	/*
 	 * start setting up the encryption buffer
 	 */
-	io_ptr->buffer_crypt = m_gcry_malloc_secure(sizeof( buffer_t ));
+	io_ptr->buffer_crypt = m_gcry_malloc_secure(sizeof( buffer_s ));
 
 	gcry_md_open(&io_ptr->hash_handle, h, GCRY_MD_FLAG_SECURE);
 	if (gcry_cipher_open(&io_ptr->cipher_handle, c, m, GCRY_CIPHER_SECURE) != GPG_ERR_NO_ERROR)
@@ -394,7 +394,7 @@ extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 
 extern void io_encryption_checksum_init(IO_HANDLE ptr, enum gcry_md_algos h)
 {
-	io_private_t *io_ptr = ptr;
+	io_private_s *io_ptr = ptr;
 	if (!io_ptr || io_ptr->fd < 0)
 		return errno = EBADF , (void)NULL;
 	io_ptr->hash_init ? gcry_md_reset(io_ptr->hash_handle) : gcry_md_open(&io_ptr->hash_handle, h, GCRY_MD_FLAG_SECURE);
@@ -404,7 +404,7 @@ extern void io_encryption_checksum_init(IO_HANDLE ptr, enum gcry_md_algos h)
 
 extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l)
 {
-	io_private_t *io_ptr = ptr;
+	io_private_s *io_ptr = ptr;
 	if (!io_ptr || io_ptr->fd < 0)
 		return errno = EBADF , (void)NULL;
 	if (!io_ptr->hash_init)
@@ -424,7 +424,7 @@ extern void io_encryption_checksum(IO_HANDLE ptr, uint8_t **b, size_t *l)
 
 extern void io_encryption_mac(IO_HANDLE ptr, uint8_t **b, size_t *l)
 {
-	io_private_t *io_ptr = ptr;
+	io_private_s *io_ptr = ptr;
 	if (!io_ptr || io_ptr->fd < 0)
 		return errno = EBADF , (void)NULL;
 	if (!io_ptr->mac_init)
@@ -438,7 +438,7 @@ extern void io_encryption_mac(IO_HANDLE ptr, uint8_t **b, size_t *l)
 
 extern void io_compression_init(IO_HANDLE ptr)
 {
-	io_private_t *io_ptr = ptr;
+	io_private_s *io_ptr = ptr;
 	if (!io_ptr || io_ptr->fd < 0)
 		return errno = EBADF , (void)NULL;
 	io_ptr->operation = IO_LZMA;
@@ -448,11 +448,11 @@ extern void io_compression_init(IO_HANDLE ptr)
 
 extern void io_correction_init(IO_HANDLE ptr)
 {
-	io_private_t *io_ptr = ptr;
+	io_private_s *io_ptr = ptr;
 	if (!io_ptr || io_ptr->fd < 0)
 		return errno = EBADF , (void)NULL;
 	io_ptr->ecc_init = true;
-	io_ptr->buffer_ecc = malloc(sizeof( buffer_t ));
+	io_ptr->buffer_ecc = malloc(sizeof( buffer_s ));
 	io_ptr->buffer_ecc->block = ECC_PAYLOAD;
 	io_ptr->buffer_ecc->stream = calloc(ECC_CAPACITY, sizeof( uint8_t ));
 	for (unsigned i = 0; i < OFFSET_SLOTS; i++)
@@ -462,7 +462,7 @@ extern void io_correction_init(IO_HANDLE ptr)
 
 extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l)
 {
-	io_private_t *io_ptr = f;
+	io_private_s *io_ptr = f;
 	if (!io_ptr || io_ptr->fd < 0)
 		return errno = EBADF , -1;
 
@@ -488,7 +488,7 @@ extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l)
 
 extern ssize_t io_read(IO_HANDLE f, void *d, size_t l)
 {
-	io_private_t *io_ptr = f;
+	io_private_s *io_ptr = f;
 	if (!io_ptr || io_ptr->fd < 0)
 		return errno = EBADF , -1;
 
@@ -520,7 +520,7 @@ extern ssize_t io_read(IO_HANDLE f, void *d, size_t l)
 
 extern int io_sync(IO_HANDLE ptr)
 {
-	io_private_t *io_ptr = ptr;
+	io_private_s *io_ptr = ptr;
 	if (!io_ptr || io_ptr->fd < 0)
 		return errno = EBADF , -1;
 
@@ -538,13 +538,13 @@ extern int io_sync(IO_HANDLE ptr)
 
 extern off_t io_seek(IO_HANDLE ptr, off_t o, int w)
 {
-	io_private_t *io_ptr = ptr;
+	io_private_s *io_ptr = ptr;
 	if (!io_ptr || io_ptr->fd < 0)
 		return errno = EBADF , -1;
 	return lseek(io_ptr->fd, o, w);
 }
 
-static ssize_t lzma_write(io_private_t *c, const void *d, size_t l)
+static ssize_t lzma_write(io_private_s *c, const void *d, size_t l)
 {
 	lzma_action x = LZMA_RUN;
 	if (!d && !l)
@@ -582,7 +582,7 @@ static ssize_t lzma_write(io_private_t *c, const void *d, size_t l)
 	return l;
 }
 
-static ssize_t lzma_read(io_private_t *c, void *d, size_t l)
+static ssize_t lzma_read(io_private_s *c, void *d, size_t l)
 {
 	lzma_action a = LZMA_RUN;
 
@@ -631,13 +631,13 @@ proc_remain:;
 	}
 }
 
-static int lzma_sync(io_private_t *c)
+static int lzma_sync(io_private_s *c)
 {
 	lzma_write(c, NULL, 0);
 	return enc_sync(c);
 }
 
-static ssize_t enc_write(io_private_t *f, const void *d, size_t l)
+static ssize_t enc_write(io_private_s *f, const void *d, size_t l)
 {
 	size_t remainder[2] = { l, f->buffer_crypt->block - f->buffer_crypt->offset[0] }; /* 0: length of data yet to buffer (from d); 1: available space in output buffer (stream) */
 	if (!d && !l)
@@ -683,7 +683,7 @@ static ssize_t enc_write(io_private_t *f, const void *d, size_t l)
 	return l;
 }
 
-static ssize_t enc_read(io_private_t *f, void *d, size_t l)
+static ssize_t enc_read(io_private_s *f, void *d, size_t l)
 {
 	f->buffer_crypt->offset[1] = l;
 	f->buffer_crypt->offset[2] = 0;
@@ -716,13 +716,13 @@ static ssize_t enc_read(io_private_t *f, void *d, size_t l)
 	}
 }
 
-static int enc_sync(io_private_t *f)
+static int enc_sync(io_private_s *f)
 {
 	enc_write(f, NULL, 0);
 	return 0;
 }
 
-static ssize_t ecc_write(io_private_t *f, const void *d, size_t l)
+static ssize_t ecc_write(io_private_s *f, const void *d, size_t l)
 {
 	if (!f->ecc_init)
 	{
@@ -782,7 +782,7 @@ static ssize_t ecc_write(io_private_t *f, const void *d, size_t l)
 	return l;
 }
 
-static ssize_t ecc_read(io_private_t *f, void *d, size_t l)
+static ssize_t ecc_read(io_private_s *f, void *d, size_t l)
 {
 	if (!f->ecc_init)
 		return read(f->fd, d, l);
@@ -826,13 +826,13 @@ static ssize_t ecc_read(io_private_t *f, void *d, size_t l)
 	}
 }
 
-static int ecc_sync(io_private_t *f)
+static int ecc_sync(io_private_s *f)
 {
 	ecc_write(f, NULL, 0);
 	return 0;
 }
 
-static void io_do_compress(io_private_t *io_ptr)
+static void io_do_compress(io_private_s *io_ptr)
 {
 	lzma_stream l = LZMA_STREAM_INIT;
 	io_ptr->lzma_handle = l;
@@ -849,7 +849,7 @@ static void io_do_compress(io_private_t *io_ptr)
 	return;
 }
 
-static void io_do_decompress(io_private_t *io_ptr)
+static void io_do_decompress(io_private_s *io_ptr)
 {
 	lzma_stream l = LZMA_STREAM_INIT;
 	io_ptr->lzma_handle = l;

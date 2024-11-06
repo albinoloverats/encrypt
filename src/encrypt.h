@@ -55,7 +55,7 @@
  * ready to be executed. Any other status is a failure. If the input and
  * output file names are NULL, stdin/stdout will be used instead.
  */
-extern crypto_t *encrypt_init(const char * const restrict i,
+extern crypto_s *encrypt_init(const char * const restrict i,
                               const char * const restrict o,
                               const char * const restrict c,
                               const char * const restrict h,

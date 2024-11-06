@@ -71,7 +71,7 @@ static char *cwd = NULL;
 inline static void set_progress_bar(GtkProgressBar *, char *, double);
 
 static void *gui_process(void *);
-inline static void gui_display(crypto_t *, gtk_widgets_t *);
+inline static void gui_display(crypto_s *, gtk_widgets_s *);
 
 static gboolean _files = false;
 static bool _encrypted = false;
@@ -82,7 +82,7 @@ static key_source_e _key_source = KEY_SOURCE_PASSWORD;
 static version_e _version = VERSION_CURRENT;
 static crypto_status_e *_status = NULL;
 
-extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash, char *mode, char *mac, uint64_t iter)
+extern void auto_select_algorithms(gtk_widgets_s *data, char *cipher, char *hash, char *mode, char *mac, uint64_t iter)
 {
 	/*
 	 * ciphers
@@ -152,7 +152,7 @@ extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash
 	return;
 }
 
-extern void set_key_source_menu(gtk_widgets_t *data, key_source_e source)
+extern void set_key_source_menu(gtk_widgets_s *data, key_source_e source)
 {
 	switch (source)
 	{
@@ -168,7 +168,7 @@ extern void set_key_source_menu(gtk_widgets_t *data, key_source_e source)
 	return;
 }
 
-extern void set_compatibility_menu(gtk_widgets_t *data, char *version)
+extern void set_compatibility_menu(gtk_widgets_s *data, char *version)
 {
 	GSList *g = NULL;
 	version_e v = parse_version(version);
@@ -190,7 +190,7 @@ extern void set_compatibility_menu(gtk_widgets_t *data, char *version)
 	return;
 }
 
-G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *data)
+G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_s *data)
 {
 	/*
 	 * all file selection buttons click-through here
@@ -263,7 +263,7 @@ G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *d
 	return TRUE;
 }
 
-G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data)
+G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_s *data)
 {
 	gtk_widget_hide(data->open_dialog);
 	gtk_widget_hide(data->save_dialog);
@@ -377,7 +377,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data
 	return (void)button, TRUE;
 }
 
-G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_widgets_t *data)
+G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_widgets_s *data)
 {
 	int cipher = gtk_combo_box_get_active((GtkComboBox *)data->crypto_combo);
 	int hash = gtk_combo_box_get_active((GtkComboBox *)data->hash_combo);
@@ -418,7 +418,7 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_wi
 	return (void)combo_box, TRUE;
 }
 
-G_MODULE_EXPORT gboolean on_key_source_change(GtkWidget *widget, gtk_widgets_t *data)
+G_MODULE_EXPORT gboolean on_key_source_change(GtkWidget *widget, gtk_widgets_s *data)
 {
 	if (widget == data->key_file_menu_item)
 		_key_source = KEY_SOURCE_FILE;
@@ -432,7 +432,7 @@ G_MODULE_EXPORT gboolean on_key_source_change(GtkWidget *widget, gtk_widgets_t *
 	return (void)data, TRUE;
 }
 
-G_MODULE_EXPORT gboolean password_entry_callback(GtkComboBox *password_entry, gtk_widgets_t *data)
+G_MODULE_EXPORT gboolean password_entry_callback(GtkComboBox *password_entry, gtk_widgets_s *data)
 {
 	char *key_data = (char *)gtk_entry_get_text((GtkEntry *)password_entry);
 
@@ -453,7 +453,7 @@ G_MODULE_EXPORT gboolean password_entry_callback(GtkComboBox *password_entry, gt
 	return TRUE;
 }
 
-G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widgets_t *data)
+G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widgets_s *data)
 {
 	gboolean en = TRUE;
 
@@ -495,7 +495,7 @@ G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widge
 	return TRUE;
 }
 
-G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widgets_t *data)
+G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widgets_s *data)
 {
 	gtk_widget_show(data->progress_dialog);
 	gtk_button_set_label((GtkButton *)data->progress_cancel_button, LABEL_CANCEL);
@@ -513,7 +513,7 @@ G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widget
 	return (void)button, TRUE;
 }
 
-G_MODULE_EXPORT gboolean on_progress_button_clicked(GtkButton *button, gtk_widgets_t *data)
+G_MODULE_EXPORT gboolean on_progress_button_clicked(GtkButton *button, gtk_widgets_s *data)
 {
 	if (_status && (*_status == STATUS_INIT || *_status == STATUS_RUNNING))
 		*_status = STATUS_CANCELLED;
@@ -523,7 +523,7 @@ G_MODULE_EXPORT gboolean on_progress_button_clicked(GtkButton *button, gtk_widge
 	return (void)button, TRUE;
 }
 
-G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_t *data)
+G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_s *data)
 {
 
 	char *build_info = version_build_info();
@@ -543,7 +543,7 @@ G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_t *data)
 	return (void)widget, TRUE;
 }
 
-G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *widget, gtk_widgets_t *data)
+G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *widget, gtk_widgets_s *data)
 {
 	_compress = gtk_check_menu_item_get_active((GtkCheckMenuItem *)widget);
 	update_config(CONF_COMPRESS, _compress ? CONF_TRUE : CONF_FALSE);
@@ -551,7 +551,7 @@ G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *widget, gtk_widgets_t *da
 	return (void)data, TRUE;
 }
 
-G_MODULE_EXPORT gboolean on_follow_toggle(GtkWidget *widget, gtk_widgets_t *data)
+G_MODULE_EXPORT gboolean on_follow_toggle(GtkWidget *widget, gtk_widgets_s *data)
 {
 	_follow = gtk_check_menu_item_get_active((GtkCheckMenuItem *)widget);
 	update_config(CONF_FOLLOW, _follow ? CONF_TRUE : CONF_FALSE);
@@ -559,7 +559,7 @@ G_MODULE_EXPORT gboolean on_follow_toggle(GtkWidget *widget, gtk_widgets_t *data
 	return (void)data, TRUE;
 }
 
-G_MODULE_EXPORT gboolean on_raw_toggle(GtkWidget *widget, gtk_widgets_t *data)
+G_MODULE_EXPORT gboolean on_raw_toggle(GtkWidget *widget, gtk_widgets_s *data)
 {
 	_raw = gtk_check_menu_item_get_active((GtkCheckMenuItem *)widget);
 	update_config(CONF_SKIP_HEADER, _raw ? CONF_TRUE : CONF_FALSE);
@@ -569,7 +569,7 @@ G_MODULE_EXPORT gboolean on_raw_toggle(GtkWidget *widget, gtk_widgets_t *data)
 	return (void)data, TRUE;
 }
 
-inline extern void set_raw_buttons(gtk_widgets_t *data, bool raw)
+inline extern void set_raw_buttons(gtk_widgets_s *data, bool raw)
 {
 	if (raw)
 	{
@@ -586,7 +586,7 @@ inline extern void set_raw_buttons(gtk_widgets_t *data, bool raw)
 	return;
 }
 
-G_MODULE_EXPORT gboolean on_compatibility_change(GtkWidget *widget, gtk_widgets_t *data)
+G_MODULE_EXPORT gboolean on_compatibility_change(GtkWidget *widget, gtk_widgets_s *data)
 {
 	_version = parse_version(gtk_menu_item_get_label((GtkMenuItem *)widget));
 	const char *v = get_version_string(_version);
@@ -631,7 +631,7 @@ inline static void set_progress_bar(GtkProgressBar *progress_bar, char *text, do
 
 static void *gui_process(void *d)
 {
-	gtk_widgets_t *data = d;
+	gtk_widgets_s *data = d;
 
 	char *source = gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog);
 	char *output = gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog);
@@ -673,7 +673,7 @@ static void *gui_process(void *d)
 	LIST modes   = list_of_modes();
 	LIST macs    = list_of_macs();
 
-	crypto_t *x;
+	crypto_s *x;
 	if (_encrypted)
 		x = decrypt_init(source, output, list_get(ciphers, c - 1), list_get(hashes, h - 1), list_get(modes, m - 1), list_get(macs, a - 1), key, length, iter, _raw);
 	else
@@ -704,10 +704,10 @@ static void *gui_process(void *d)
 	return NULL;
 }
 
-inline static void gui_display(crypto_t *c, gtk_widgets_t *data)
+inline static void gui_display(crypto_s *c, gtk_widgets_s *data)
 {
-	cli_bps_t bps[BPS];
-	memset(bps, 0x00, BPS * sizeof( cli_bps_t ));
+	cli_bps_s bps[BPS];
+	memset(bps, 0x00, BPS * sizeof( cli_bps_s ));
 	int b = 0;
 
 	while (c->status == STATUS_INIT || c->status == STATUS_RUNNING)

@@ -36,7 +36,7 @@
 	#define GLADE_UI_FILE_BACKUP  "etc\\encrypt_win.glade"
 #endif
 
-typedef struct gtk_widgets_t
+typedef struct gtk_widgets_s
 {
 	GtkWidget *main_window;
 	GtkWidget *open_button;
@@ -80,31 +80,31 @@ typedef struct gtk_widgets_t
 	GtkWidget *abort_button;
 	GtkWidget *abort_message;
 }
-gtk_widgets_t;
+gtk_widgets_s;
 
-extern void auto_select_algorithms(gtk_widgets_t *data, char *cipher, char *hash, char *mode, char *mac, uint64_t iter);
-extern void set_compatibility_menu(gtk_widgets_t *data, char *version);
-extern void set_key_source_menu(gtk_widgets_t *data, key_source_e key_source);
+extern void auto_select_algorithms(gtk_widgets_s *data, char *cipher, char *hash, char *mode, char *mac, uint64_t iter);
+extern void set_compatibility_menu(gtk_widgets_s *data, char *version);
+extern void set_key_source_menu(gtk_widgets_s *data, key_source_e key_source);
 
-G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_t *data);
-G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_t *data);
+G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_s *data);
+G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_s *data);
 
-G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_widgets_t *data);
+G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_widgets_s *data);
 
-G_MODULE_EXPORT gboolean on_key_source_change(GtkWidget *widget, gtk_widgets_t *data);
-G_MODULE_EXPORT gboolean password_entry_callback(GtkComboBox *password_entry, gtk_widgets_t *data);
-G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widgets_t *data);
+G_MODULE_EXPORT gboolean on_key_source_change(GtkWidget *widget, gtk_widgets_s *data);
+G_MODULE_EXPORT gboolean password_entry_callback(GtkComboBox *password_entry, gtk_widgets_s *data);
+G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widgets_s *data);
 
-G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widgets_t *data);
-G_MODULE_EXPORT gboolean on_progress_button_clicked(GtkButton *button, gtk_widgets_t *data);
+G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widgets_s *data);
+G_MODULE_EXPORT gboolean on_progress_button_clicked(GtkButton *button, gtk_widgets_s *data);
 
-G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_t *data);
+G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_s *data);
 
-G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *widget, gtk_widgets_t *data);
-G_MODULE_EXPORT gboolean on_follow_toggle(GtkWidget *widget, gtk_widgets_t *data);
-G_MODULE_EXPORT gboolean on_compatibility_change(GtkWidget *widget, gtk_widgets_t *data);
+G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *widget, gtk_widgets_s *data);
+G_MODULE_EXPORT gboolean on_follow_toggle(GtkWidget *widget, gtk_widgets_s *data);
+G_MODULE_EXPORT gboolean on_compatibility_change(GtkWidget *widget, gtk_widgets_s *data);
 
-extern void set_raw_buttons(gtk_widgets_t *, bool);
+extern void set_raw_buttons(gtk_widgets_s *, bool);
 extern void set_status_bar(GtkStatusbar *status_bar, const char *status);
 
 #endif /* _ENCRYPT_GUI_GTK_H_ */

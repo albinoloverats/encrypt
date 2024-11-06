@@ -78,9 +78,9 @@ typedef struct
 	const char string[8];
 	uint64_t id;
 }
-version_t;
+version_s;
 
-static const version_t VERSIONS[] =
+static const version_s VERSIONS[] =
 {
 	{ "Unknown", 0 },
 	{ "2011.08", 0x72761df3e497c983llu },
@@ -98,7 +98,7 @@ static const version_t VERSIONS[] =
 	{ "CURRENT", 0x2e4155524f52412ellu }
 };
 
-extern void execute(crypto_t *c)
+extern void execute(crypto_s *c)
 {
 #ifndef __DEBUG__
 	pthread_t *t = gcry_calloc_secure(1, sizeof( pthread_t ));
@@ -114,14 +114,14 @@ extern void execute(crypto_t *c)
 	return;
 }
 
-extern const char *status(const crypto_t * const restrict c)
+extern const char *status(const crypto_s * const restrict c)
 {
 	return STATUS_MESSAGE[c->status];
 }
 
-extern void deinit(crypto_t **c)
+extern void deinit(crypto_s **c)
 {
-	crypto_t *z = *c;
+	crypto_s *z = *c;
 
 	z->status = STATUS_CANCELLED;
 	if (z->thread)
@@ -148,7 +148,7 @@ extern void deinit(crypto_t **c)
 }
 
 #if 0
-extern void key_gcry_free(raw_key_t **key)
+extern void key_gcry_free(raw_key_s **key)
 {
 	memset((*key)->data, 0x00, (*key)->length);
 	gcry_free((*key)->data);

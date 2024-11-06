@@ -175,7 +175,7 @@ typedef struct
 	uint8_t *data;  /*!< Key data */
 	size_t length; /*!< Key data length */
 }
-raw_key_t;
+raw_key_s;
 #endif
 
 /*!
@@ -198,7 +198,7 @@ typedef struct
 	enum gcry_mac_algos mac;       /*!< The chosen MAC algorithm */
 
 #if 0
-	raw_key_t *raw_key;            /*!< Encryption key (NB Not yet used) */
+	raw_key_s *raw_key;            /*!< Encryption key (NB Not yet used) */
 #endif
 	uint8_t *key;                  /*!< Key data */
 	size_t length;                 /*!< Key data length */
@@ -207,8 +207,8 @@ typedef struct
 	pthread_t *thread;             /*!< Execution thread */
 	void *(*process)(void *);      /*!< Main processing function; used by execute() */
 	crypto_status_e status;        /*!< Current status */
-	cli_progress_t current;        /*!< Progress of current file */
-	cli_progress_t total;          /*!< Overall progress (all files) */
+	cli_progress_s current;        /*!< Progress of current file */
+	cli_progress_s total;          /*!< Overall progress (all files) */
 
 	void *misc;                    /*!< Miscellaneous data, specific to either encryption or decryption only */
 
@@ -219,7 +219,7 @@ typedef struct
 	bool follow_links:1;           /*!< Whether encrypt should follow symlinks (true: store the file it points to; false: store the link itself */
 	bool raw:1;                    /*!< Whether the header should be skipped (not recommended but ideal in some situations) */
 }
-crypto_t;
+crypto_s;
 
 /*!
  * \brief          Execute crypto routine
@@ -230,7 +230,7 @@ crypto_t;
  * backgrounded to allow the foreground to keep the UI updated (if
  * necessary).
  */
-extern void execute(crypto_t *c) __attribute__((nonnull(1)));
+extern void execute(crypto_s *c) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Get a meaningful status message
@@ -240,7 +240,7 @@ extern void execute(crypto_t *c) __attribute__((nonnull(1)));
  * Get a meaningful status message which corresponds to the current
  * status of the crypto instance.
  */
-extern const char *status(const crypto_t * const restrict c) __attribute__((nonnull(1)));
+extern const char *status(const crypto_s * const restrict c) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Deinitialise a cryptographic instance
@@ -249,7 +249,7 @@ extern const char *status(const crypto_t * const restrict c) __attribute__((nonn
  * Free’s the resources used by the crypto instance after it is no
  * longer needed.
  */
-extern void deinit(crypto_t **c) __attribute__((nonnull(1)));
+extern void deinit(crypto_s **c) __attribute__((nonnull(1)));
 
 #if 0
 /*!
@@ -259,7 +259,7 @@ extern void deinit(crypto_t **c) __attribute__((nonnull(1)));
  * Free the given key data structure; the key data is cleared (memset to
  * zero and then freed).
  */
-extern void key_free(raw_key_t **k);
+extern void key_free(raw_key_s **k);
 #endif
 
 

@@ -52,16 +52,16 @@
 
 static void *process(void *);
 
-static uint64_t read_version(crypto_t *);
-static bool read_verification_sum(crypto_t *);
-static bool read_metadata(crypto_t *);
-static void skip_random_data(crypto_t *);
+static uint64_t read_version(crypto_s *);
+static bool read_verification_sum(crypto_s *);
+static bool read_metadata(crypto_s *);
+static void skip_random_data(crypto_s *);
 
-static void decrypt_directory(crypto_t *, const char *);
-static void decrypt_stream(crypto_t *);
-static void decrypt_file(crypto_t *);
+static void decrypt_directory(crypto_s *, const char *);
+static void decrypt_stream(crypto_s *);
+static void decrypt_file(crypto_s *);
 
-extern crypto_t *decrypt_init(const char * const restrict i,
+extern crypto_s *decrypt_init(const char * const restrict i,
                               const char * const restrict o,
                               const char * const restrict c,
                               const char * const restrict h,
@@ -72,7 +72,7 @@ extern crypto_t *decrypt_init(const char * const restrict i,
 {
 	init_crypto();
 
-	crypto_t *z = m_gcry_calloc_secure(1, sizeof( crypto_t ));
+	crypto_s *z = m_gcry_calloc_secure(1, sizeof( crypto_s ));
 
 	z->status = STATUS_INIT;
 
@@ -170,7 +170,7 @@ extern crypto_t *decrypt_init(const char * const restrict i,
 
 static void *process(void *ptr)
 {
-	crypto_t *c = (crypto_t *)ptr;
+	crypto_s *c = (crypto_s *)ptr;
 
 	if (!c || c->status != STATUS_INIT)
 		return NULL;
@@ -229,7 +229,7 @@ static void *process(void *ptr)
 	 * length; and up until 2017.XX a kdf was not used; from 2020.01 the
 	 * kdf iterations can be user defined
 	 */
-	io_extra_t iox = { iv_type, false };
+	io_extra_s iox = { iv_type, false };
 	if (!io_encryption_init(c->source, c->cipher, c->hash, c->mode, c->mac, c->kdf_iterations, c->key, c->length, iox))
 		return (c->status = STATUS_FAILED_GCRYPT_INIT , (void *)c->status);
 
@@ -343,7 +343,7 @@ static void *process(void *ptr)
 #endif
 }
 
-static uint64_t read_version(crypto_t *c)
+static uint64_t read_version(crypto_s *c)
 {
 	uint64_t head[3] = { 0x0 };
 	if ((io_read(c->source, head, sizeof head)) < 0)
@@ -396,7 +396,7 @@ static uint64_t read_version(crypto_t *c)
 	return v;
 }
 
-static bool read_verification_sum(crypto_t *c)
+static bool read_verification_sum(crypto_s *c)
 {
 	/*
 	 * read three 64bit signed integers and assert that x ^ y = z
@@ -415,7 +415,7 @@ static bool read_verification_sum(crypto_t *c)
 	return true;
 }
 
-static bool read_metadata(crypto_t *c)
+static bool read_metadata(crypto_s *c)
 {
 	/*
 	 * read the original file metadata - skip any unknown tag values
@@ -425,7 +425,7 @@ static bool read_metadata(crypto_t *c)
 	io_read(c->source, &h, sizeof h);
 	for (int i = 0; i < h; i++)
 	{
-		tlv_t t;
+		tlv_s t;
 		io_read(c->source, &t.tag, sizeof( byte_t ));
 		io_read(c->source, &t.length, sizeof t.length);
 		t.length = ntohs(t.length);
@@ -496,7 +496,7 @@ static bool read_metadata(crypto_t *c)
 	return c->status == STATUS_RUNNING;
 }
 
-static void skip_random_data(crypto_t *c)
+static void skip_random_data(crypto_s *c)
 {
 	uint8_t l;
 	io_read(c->source, &l, sizeof l);
@@ -509,7 +509,7 @@ static void skip_random_data(crypto_t *c)
 	return;
 }
 
-static void decrypt_directory(crypto_t *c, const char *dir)
+static void decrypt_directory(crypto_s *c, const char *dir)
 {
 	bool lnerr = false;
 	for (c->total.offset = 0; c->total.offset < c->total.size && c->status == STATUS_RUNNING; c->total.offset++)
@@ -574,7 +574,7 @@ static void decrypt_directory(crypto_t *c, const char *dir)
 	return;
 }
 
-static void decrypt_stream(crypto_t *c)
+static void decrypt_stream(crypto_s *c)
 {
 	bool b = true;
 	uint8_t *buffer = m_gcry_malloc_secure(c->blocksize + sizeof b);
@@ -602,7 +602,7 @@ static void decrypt_stream(crypto_t *c)
 	return;
 }
 
-static void decrypt_file(crypto_t *c)
+static void decrypt_file(crypto_s *c)
 {
 	uint8_t buffer[BLOCK_SIZE];
 	for (c->current.offset = 0; c->current.offset < c->current.size && c->status == STATUS_RUNNING; c->current.offset += BLOCK_SIZE)

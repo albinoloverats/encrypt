@@ -55,17 +55,17 @@
 
 static void *process(void *);
 
-static inline void write_header(crypto_t *);
-static inline void write_verification_sum(crypto_t *);
-static inline void write_metadata(crypto_t *);
-static inline void write_random_data(crypto_t *);
+static inline void write_header(crypto_s *);
+static inline void write_verification_sum(crypto_s *);
+static inline void write_metadata(crypto_s *);
+static inline void write_random_data(crypto_s *);
 
-static int64_t count_entries(crypto_t *, const char *);
+static int64_t count_entries(crypto_s *, const char *);
 
-static void encrypt_directory(crypto_t *, const char *);
-static char *encrypt_link(crypto_t *, char *, struct stat);
-static void encrypt_stream(crypto_t *);
-static void encrypt_file(crypto_t *);
+static void encrypt_directory(crypto_s *, const char *);
+static char *encrypt_link(crypto_s *, char *, struct stat);
+static void encrypt_stream(crypto_s *);
+static void encrypt_file(crypto_s *);
 
 static int comp_links(const void *a, const void *b);
 
@@ -75,15 +75,15 @@ typedef struct
 	ino_t inode;
 	char *path;
 }
-link_count_t;
+link_count_s;
 
 static void free_link(void *l)
 {
-	free(((link_count_t *)l)->path);
+	free(((link_count_s *)l)->path);
 	free(l);
 }
 
-extern crypto_t *encrypt_init(const char * const restrict i,
+extern crypto_s *encrypt_init(const char * const restrict i,
                               const char * const restrict o,
                               const char * const restrict c,
                               const char * const restrict h,
@@ -94,7 +94,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 {
 	init_crypto();
 
-	crypto_t *z = m_gcry_calloc_secure(1, sizeof( crypto_t ));
+	crypto_s *z = m_gcry_calloc_secure(1, sizeof( crypto_s ));
 
 	z->status = STATUS_INIT;
 
@@ -261,7 +261,7 @@ extern crypto_t *encrypt_init(const char * const restrict i,
 
 static void *process(void *ptr)
 {
-	crypto_t *c = (crypto_t *)ptr;
+	crypto_s *c = (crypto_s *)ptr;
 
 	if (!c || c->status != STATUS_INIT)
 		return NULL;
@@ -301,7 +301,7 @@ static void *process(void *ptr)
 	 * of the IV and salt, both of which are auto-generated during
 	 * the encryption initialisation)
 	 */
-	io_extra_t iox = { iv_type, true };
+	io_extra_s iox = { iv_type, true };
 	if (!io_encryption_init(c->output, c->cipher, c->hash, c->mode, c->mac, c->kdf_iterations, c->key, c->length, iox))
 		return (c->status = STATUS_FAILED_GCRYPT_INIT , (void *)c->status);
 
@@ -423,7 +423,7 @@ static void *process(void *ptr)
 #endif
 }
 
-static inline void write_header(crypto_t *c)
+static inline void write_header(crypto_s *c)
 {
 	uint64_t head[3] = { htonll(HEADER_0), htonll(HEADER_1), htonll(get_version(c->version)) };
 	io_write(c->output, head, sizeof head);
@@ -453,7 +453,7 @@ static inline void write_header(crypto_t *c)
 	return;
 }
 
-static inline void write_verification_sum(crypto_t *c)
+static inline void write_verification_sum(crypto_s *c)
 {
 	/*
 	 * write simple addition (x ^ y = z) where x, y are random 64 bit
@@ -473,7 +473,7 @@ static inline void write_verification_sum(crypto_t *c)
 	return;
 }
 
-static inline void write_metadata(crypto_t *c)
+static inline void write_metadata(crypto_s *c)
 {
 	if (c->directory)
 		c->total.size = count_entries(c, c->path);
@@ -487,31 +487,31 @@ static inline void write_metadata(crypto_t *c)
 	if (io_is_stdin(c->source))
 	{
 		uint64_t i = htonll(c->blocksize);
-		tlv_t t = { TAG_BLOCKED, sizeof i, &i };
+		tlv_s t = { TAG_BLOCKED, sizeof i, &i };
 		tlv_append(tlv, t);
 	}
 	else
 	{
 		c->blocksize = 0;
 		uint64_t i = htonll(c->total.size);
-		tlv_t t = { TAG_SIZE, sizeof i, &i };
+		tlv_s t = { TAG_SIZE, sizeof i, &i };
 		tlv_append(tlv, t);
 	}
 	if (c->compressed)
 	{
 		bool b = c->compressed;
-		tlv_t t = { TAG_COMPRESSED, sizeof b, &b };
+		tlv_s t = { TAG_COMPRESSED, sizeof b, &b };
 		tlv_append(tlv, t);
 	}
 	if (c->directory)
 	{
 		bool b = c->directory;
-		tlv_t t = { TAG_DIRECTORY, sizeof b, &b };
+		tlv_s t = { TAG_DIRECTORY, sizeof b, &b };
 		tlv_append(tlv, t);
 	}
 	if (!c->directory && c->name && c->version >= VERSION_2015_01)
 	{   /* after 2012.11 unknown tags are ignored, and this tag doesn't impact anything */
-		tlv_t t = { TAG_FILENAME, strlen(c->name), c->name };
+		tlv_s t = { TAG_FILENAME, strlen(c->name), c->name };
 		tlv_append(tlv, t);
 	}
 	uint8_t h = tlv_size(tlv);
@@ -521,7 +521,7 @@ static inline void write_metadata(crypto_t *c)
 	return;
 }
 
-static inline void write_random_data(crypto_t *c)
+static inline void write_random_data(crypto_s *c)
 {
 	uint8_t l;
 #ifndef __DEBUG__
@@ -541,7 +541,7 @@ static inline void write_random_data(crypto_t *c)
 	return (void)c;
 }
 
-static int64_t count_entries(crypto_t *c, const char *path)
+static int64_t count_entries(crypto_s *c, const char *path)
 {
 	int64_t e = 1;
 	errno = 0;
@@ -564,7 +564,7 @@ static int64_t count_entries(crypto_t *c, const char *path)
 	return e;
 }
 
-static void encrypt_directory(crypto_t *c, const char *path)
+static void encrypt_directory(crypto_s *c, const char *path)
 {
 	DIR_SCAN_TOP;
 
@@ -663,16 +663,16 @@ static void encrypt_directory(crypto_t *c, const char *path)
 	return;
 }
 
-static char *encrypt_link(crypto_t *c, char *filename, struct stat s)
+static char *encrypt_link(crypto_s *c, char *filename, struct stat s)
 {
 	LIST links = c->misc;
-	link_count_t *link = calloc(1, sizeof (link_count_t));
+	link_count_s *link = calloc(1, sizeof (link_count_s));
 	link->dev   = s.st_dev;
 	link->inode = s.st_ino;
 	link->path  = strdup(filename);
 #ifndef _WIN32
-	link_count_t *existing = NULL;
-	if ((existing = (link_count_t *)list_contains(links, link)))
+	link_count_s *existing = NULL;
+	if ((existing = (link_count_s *)list_contains(links, link)))
 	{
 		free(link->path);
 		free(link);
@@ -683,7 +683,7 @@ static char *encrypt_link(crypto_t *c, char *filename, struct stat s)
 	return NULL;
 }
 
-static void encrypt_stream(crypto_t *c)
+static void encrypt_stream(crypto_s *c)
 {
 	bool b = true;
 	uint8_t *buffer = m_gcry_malloc_secure(c->blocksize + sizeof b);
@@ -716,7 +716,7 @@ static void encrypt_stream(crypto_t *c)
 	return;
 }
 
-static void encrypt_file(crypto_t *c)
+static void encrypt_file(crypto_s *c)
 {
 	uint8_t buffer[BLOCK_SIZE];
 	for (c->current.offset = 0; c->current.offset < c->current.size && c->status == STATUS_RUNNING; c->current.offset += BLOCK_SIZE)
@@ -738,8 +738,8 @@ static void encrypt_file(crypto_t *c)
 
 static int comp_links(const void *a, const void *b)
 {
-	const link_count_t *x = a;
-	const link_count_t *y = b;
+	const link_count_s *x = a;
+	const link_count_s *y = b;
 	if (x->dev != y->dev)
 		return x->dev - y->dev;
 	return x->inode - y->inode;
