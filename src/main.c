@@ -109,7 +109,7 @@ int main(int argc, char **argv)
 	version_check_for_update(ENCRYPT_VERSION, UPDATE_URL, DOWNLOAD_URL_TEMPLATE);
 #endif
 
-	LIST args = list_init(config_named_compare, false, false);
+	list_t args = list_init(config_named_compare, false, false);
 #ifdef BUILD_GUI
 	#ifndef _WIN32
 	list_add(args, &((config_named_s){ 'g', "no-gui",         NULL,            _("Do not use the GUI, even if it’s available"),                                                                            { CONFIG_ARG_REQ_BOOLEAN, { .boolean = false                  } }, false, false, false, false }));
@@ -131,11 +131,11 @@ int main(int argc, char **argv)
 	list_add(args, &((config_named_s){ 'r', "raw",            NULL,            _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"), { CONFIG_ARG_REQ_BOOLEAN, { .boolean = false                  } }, false, true,  false, false }));
 	list_add(args, &((config_named_s){ 0x3, "self-test",      NULL,            _("Perform self-test routine"),                                                                                             { CONFIG_ARG_BOOLEAN,     { .boolean = false                  } }, false, true,  true,  false }));
 
-	LIST extra = list_default();
+	list_t extra = list_default();
 	list_add(extra, &((config_unnamed_s){ "source", { CONFIG_ARG_STRING,  { .string = NULL } }, false, false }));
 	list_add(extra, &((config_unnamed_s){ "output", { CONFIG_ARG_STRING,  { .string = NULL } }, false, false }));
 
-	LIST notes = list_default();
+	list_t notes = list_default();
 	list_add(notes, _("If you do not supply a key or password, you will be prompted for one. This will then be used to generate a key to encrypt the data with (using the specified hash and MAC)."));
 	list_add(notes, _("To see available algorithms or modes use list as the argument."));
 	list_add(notes, _("If either the source file or destination file are omitted then stdin/stdout are used."));
@@ -513,8 +513,8 @@ clean_up:
 
 static bool list_ciphers(void)
 {
-	LIST l = list_of_ciphers();
-	ITER i = list_iterator(l);
+	list_t l = list_of_ciphers();
+	iter_t i = list_iterator(l);
 	while (list_has_next(i))
 		cli_eprintf("%s\n", (char *)list_get_next(i));
 	return true;
@@ -522,8 +522,8 @@ static bool list_ciphers(void)
 
 static bool list_hashes(void)
 {
-	LIST l = list_of_hashes();
-	ITER i = list_iterator(l);
+	list_t l = list_of_hashes();
+	iter_t i = list_iterator(l);
 	while (list_has_next(i))
 		cli_eprintf("%s\n", (char *)list_get_next(i));
 	return true;
@@ -531,8 +531,8 @@ static bool list_hashes(void)
 
 static bool list_modes(void)
 {
-	LIST l = list_of_modes();
-	ITER i = list_iterator(l);
+	list_t l = list_of_modes();
+	iter_t i = list_iterator(l);
 	while (list_has_next(i))
 		cli_eprintf("%s\n", (char *)list_get_next(i));
 	return true;
@@ -540,8 +540,8 @@ static bool list_modes(void)
 
 static bool list_macs(void)
 {
-	LIST l = list_of_macs();
-	ITER i = list_iterator(l);
+	list_t l = list_of_macs();
+	iter_t i = list_iterator(l);
 	while (list_has_next(i))
 		cli_eprintf("%s\n", (char *)list_get_next(i));
 	return true;
@@ -552,7 +552,7 @@ static void self_test(void)
 	/*
 	 * choose cipher to test with
 	 */
-	LIST l = list_of_ciphers();
+	list_t l = list_of_ciphers();
 	unsigned int x;
 	gcry_create_nonce(&x, sizeof x);
 	x %= list_size(l);

@@ -77,7 +77,7 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 	};
 	config_init(about);
 
-	LIST args = list_init(config_named_compare, false, false);
+	list_t args = list_init(config_named_compare, false, false);
 	// TODO If there's no CLI then remove the display text
 	list_add(args, &((config_named_t){ 'c', "cipher",         _("algorithm"),  _("Algorithm to use to encrypt data; use ‘list’ to show available cipher algorithms"),                                      CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, false, false }));
 	list_add(args, &((config_named_t){ 's', "hash",           _("algorithm"),  _("Hash algorithm to generate key; use ‘list’ to show available hash algorithms"),                                          CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, false, false }));
@@ -605,7 +605,7 @@ tidy:
 
 - (void)auto_select_algorithms:(char *)c : (char *)h : (char *)m : (char *)a : (uint64_t)iter
 {
-	LIST ciphers = list_of_ciphers();
+	list_t ciphers = list_of_ciphers();
 	unsigned slctd_cipher = 0;
 	[_cipherCombo removeAllItems];
 	[_cipherCombo addItemWithTitle:[NSString stringWithUTF8String:SELECT_CIPHER]];
@@ -618,7 +618,7 @@ tidy:
 	}
 	[_cipherCombo selectItemAtIndex:slctd_cipher];
 
-	LIST hashes = list_of_hashes();
+	list_t hashes = list_of_hashes();
 	unsigned slctd_hash = 0;
 	[_hashCombo removeAllItems];
 	[_hashCombo addItemWithTitle:[NSString stringWithUTF8String:SELECT_HASH]];
@@ -631,7 +631,7 @@ tidy:
 	}
 	[_hashCombo selectItemAtIndex:slctd_hash];
 
-	LIST modes = list_of_modes();
+	list_t modes = list_of_modes();
 	unsigned slctd_mode = 0;
 	[_modeCombo removeAllItems];
 	[_modeCombo addItemWithTitle:[NSString stringWithUTF8String:SELECT_MODE]];
@@ -644,7 +644,7 @@ tidy:
 	}
 	[_modeCombo selectItemAtIndex:slctd_mode];
 
-	LIST macs = list_of_macs();
+	list_t macs = list_of_macs();
 	unsigned slctd_mac = 0;
 	[_macCombo removeAllItems];
 	[_macCombo addItemWithTitle:[NSString stringWithUTF8String:SELECT_MAC]];

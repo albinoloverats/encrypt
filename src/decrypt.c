@@ -421,11 +421,11 @@ static bool read_metadata(crypto_s *c)
 	 * read the original file metadata - skip any unknown tag values
 	 */
 	uint8_t h = 0;
-	TLV tlv = tlv_init();
+	tlv_t tlv = tlv_init();
 	io_read(c->source, &h, sizeof h);
 	for (int i = 0; i < h; i++)
 	{
-		tlv_s t;
+		tlv_entry_s t;
 		io_read(c->source, &t.tag, sizeof( byte_t ));
 		io_read(c->source, &t.length, sizeof t.length);
 		t.length = ntohs(t.length);

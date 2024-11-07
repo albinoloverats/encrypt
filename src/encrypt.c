@@ -483,35 +483,35 @@ static inline void write_metadata(crypto_s *c)
 		io_seek(c->source, 0, SEEK_SET);
 	}
 
-	TLV tlv = tlv_init();
+	tlv_t tlv = tlv_init();
 	if (io_is_stdin(c->source))
 	{
 		uint64_t i = htonll(c->blocksize);
-		tlv_s t = { TAG_BLOCKED, sizeof i, &i };
+		tlv_entry_s t = { TAG_BLOCKED, sizeof i, &i };
 		tlv_append(tlv, t);
 	}
 	else
 	{
 		c->blocksize = 0;
 		uint64_t i = htonll(c->total.size);
-		tlv_s t = { TAG_SIZE, sizeof i, &i };
+		tlv_entry_s t = { TAG_SIZE, sizeof i, &i };
 		tlv_append(tlv, t);
 	}
 	if (c->compressed)
 	{
 		bool b = c->compressed;
-		tlv_s t = { TAG_COMPRESSED, sizeof b, &b };
+		tlv_entry_s t = { TAG_COMPRESSED, sizeof b, &b };
 		tlv_append(tlv, t);
 	}
 	if (c->directory)
 	{
 		bool b = c->directory;
-		tlv_s t = { TAG_DIRECTORY, sizeof b, &b };
+		tlv_entry_s t = { TAG_DIRECTORY, sizeof b, &b };
 		tlv_append(tlv, t);
 	}
 	if (!c->directory && c->name && c->version >= VERSION_2015_01)
 	{   /* after 2012.11 unknown tags are ignored, and this tag doesn't impact anything */
-		tlv_s t = { TAG_FILENAME, strlen(c->name), c->name };
+		tlv_entry_s t = { TAG_FILENAME, strlen(c->name), c->name };
 		tlv_append(tlv, t);
 	}
 	uint8_t h = tlv_size(tlv);
@@ -665,7 +665,7 @@ static void encrypt_directory(crypto_s *c, const char *path)
 
 static char *encrypt_link(crypto_s *c, char *filename, struct stat s)
 {
-	LIST links = c->misc;
+	list_t links = c->misc;
 	link_count_s *link = calloc(1, sizeof (link_count_s));
 	link->dev   = s.st_dev;
 	link->inode = s.st_ino;
