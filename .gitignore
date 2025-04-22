@@ -19,3 +19,7 @@ src/common/rand.h
 .idea
 local.properties
 build
+# android source isn't is src but desktop source is,
+# and occasionally when switching branches is gets
+# "left behind"
+src
