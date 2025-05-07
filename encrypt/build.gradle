@@ -5,8 +5,8 @@ android
 	defaultConfig
 	{
 		minSdkVersion 28
-		targetSdkVersion 34
-		compileSdk 34
+		targetSdkVersion 36
+		compileSdk 36
 	}
 	signingConfigs
 	{
@@ -26,8 +26,8 @@ android
 	}
 	compileOptions
 	{
-		targetCompatibility JavaVersion.VERSION_17
-		sourceCompatibility JavaVersion.VERSION_17
+		targetCompatibility JavaVersion.VERSION_21
+		sourceCompatibility JavaVersion.VERSION_21
 	}
 	namespace 'net.albinoloverats.android.encrypt.lib'
 }
