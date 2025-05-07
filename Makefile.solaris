@@ -119,7 +119,7 @@ uninstall:
 	 @rm -f ${DESTDIR}/usr/${LOCAL}/share/zsh/functions/Completion/Unix/_encrypt
 	 @rm -f ${DESTDIR}/usr/${LOCAL}/share/pixmaps/encrypt.svg
 	 @rm -f ${DESTDIR}/usr/${LOCAL}/share/pixmaps/encrypt_button.svg
-	 @rm -fv ${DESTDIR}/usr/${LOCAL}/share/pixmaps/encrypt_key.png
+	 @rm -f ${DESTDIR}/usr/${LOCAL}/share/pixmaps/encrypt_key.png
 	 @rm -f ${DESTDIR}/usr/${LOCAL}/share/man/man1/encrypt.1a.gz
 	 @rm -f ${DESTDIR}/usr/${LOCAL}/share/applications/encrypt.desktop
 	 @rm -f ${DESTDIR}/usr/${LOCAL}/share/Thunar/sendto/encrypt.desktop
