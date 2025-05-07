@@ -38,7 +38,7 @@
 									<key>GID</key>
 									<integer>80</integer>
 									<key>PATH</key>
-									<string>/Users/ashley/src/Encrypt-2024.01/Encrypt.app</string>
+									<string>/Users/ashley/src/Encrypt-2025.05/Encrypt.app</string>
 									<key>PATH_TYPE</key>
 									<integer>0</integer>
 									<key>PERMISSIONS</key>
@@ -487,7 +487,7 @@
 				<key>LOCATION</key>
 				<integer>0</integer>
 				<key>NAME</key>
-				<string>encrypt 2024.01</string>
+				<string>encrypt 2025.05</string>
 				<key>OVERWRITE_PERMISSIONS</key>
 				<false/>
 				<key>PAYLOAD_SIZE</key>
@@ -499,7 +499,7 @@
 				<key>USE_HFS+_COMPRESSION</key>
 				<false/>
 				<key>VERSION</key>
-				<string>2024.01</string>
+				<string>2025.05</string>
 			</dict>
 			<key>TYPE</key>
 			<integer>0</integer>
@@ -625,7 +625,7 @@
 						<key>LANGUAGE</key>
 						<string>English</string>
 						<key>VALUE</key>
-						<string>encrypt 2024.01</string>
+						<string>encrypt 2025.05</string>
 					</dict>
 				</array>
 			</dict>
@@ -819,7 +819,7 @@
 				</dict>
 			</array>
 			<key>NAME</key>
-			<string>encrypt-2024.01</string>
+			<string>encrypt-2025.05</string>
 			<key>PAYLOAD_ONLY</key>
 			<false/>
 			<key>TREAT_MISSING_PRESENTATION_DOCUMENTS_AS_WARNING</key>

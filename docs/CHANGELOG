@@ -13,6 +13,13 @@ Planned Future Enhancements
   underlying file system support)
 * All : Bug fixes as necessary ;-)
 
+encrypt - 2025.05                                            -- May 2025
+-----------------
+
+* Update Android layout
+* Fix Android stream decryption bug
+* Miscellaneous small updates (all)
+
 
 encrypt - 2024.01                                       1st January 2024
 -----------------

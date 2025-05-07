@@ -24,4 +24,6 @@
 >25		pstring		x					(algorithms: %s)
 >16		bequad		0x2e4155524f52412e	(version 2024.01)
 >25		pstring		x					(algorithms: %s)
+>16		bequad		0x323032352e30352e	(version 2025.05)
+>25		pstring		x					(algorithms: %s)
 !:mime	application/x-encrypt

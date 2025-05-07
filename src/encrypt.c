@@ -292,6 +292,7 @@ static void *process(void *ptr)
 		case VERSION_2020_01:
 		case VERSION_2022_01:
 		case VERSION_2024_01:
+		case VERSION_2025_05:
 		default:
 			/* no changes */
 			break;

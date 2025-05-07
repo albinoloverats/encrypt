@@ -41,7 +41,7 @@
 #include "crypt_io.h"   /*!< Necessary as IO_HANDLE type is referenced in this header */
 
 #define ENCRYPT "encrypt"
-#define ENCRYPT_VERSION "2024.01" /*!< Current (display) version of encrypt application */
+#define ENCRYPT_VERSION "2025.05" /*!< Current (display) version of encrypt application */
 #define UPDATE_URL "https://albinoloverats.net/encrypt.release" /*!< URI to check for updates */
 #define PROJECT_URL "https://albinoloverats.net/projects/encrypt"
 #define ENCRYPTRC ".encryptrc"
