@@ -11,6 +11,7 @@
 	<string name="copyright">Copyright © 2004–2025, albinoloverats ~ Software Development</string>
 	<string name="url">https://albinoloverats.net/projects/encrypt</string>
 	<string name="combined">%1s$\n%2s$\n%3s$</string>
+	<string name="remove_ads">Remove Ads</string>
 
 	<string name="options">Options</string>
 	<string name="compress">Compression</string>
@@ -45,4 +46,7 @@
 
 	<string name="progressValue">%1$s / %2$s</string>
 	<string name="progressRate">%1$s %2$s</string>
+
+	<string name="banner_ad_unit_id_test">ca-app-pub-3940256099942544/6300978111</string>
+	<string name="banner_ad_unit_id_live">ca-app-pub-7710699356825080/5866256857</string>
 </resources>
