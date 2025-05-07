@@ -31,7 +31,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import lombok.val;
-import net.albinoloverats.android.encrypt.R;
+import net.albinoloverats.android.encrypt.free.R;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
