@@ -165,8 +165,8 @@ extern void io_release(IO_HANDLE ptr)
 	if (io_ptr->buffer_ecc)
 	{
 		if (io_ptr->buffer_ecc->stream)
-			free(io_ptr->buffer_ecc->stream);
-		free(io_ptr->buffer_ecc);
+			gcry_free(io_ptr->buffer_ecc->stream);
+		gcry_free(io_ptr->buffer_ecc);
 	}
 	if (io_ptr->cipher_init)
 		gcry_cipher_close(io_ptr->cipher_handle);
@@ -452,9 +452,9 @@ extern void io_correction_init(IO_HANDLE ptr)
 	if (!io_ptr || io_ptr->fd < 0)
 		return errno = EBADF , (void)NULL;
 	io_ptr->ecc_init = true;
-	io_ptr->buffer_ecc = malloc(sizeof( buffer_s ));
+	io_ptr->buffer_ecc = m_gcry_malloc_secure(sizeof( buffer_s ));
 	io_ptr->buffer_ecc->block = ECC_PAYLOAD;
-	io_ptr->buffer_ecc->stream = calloc(ECC_CAPACITY, sizeof( uint8_t ));
+	io_ptr->buffer_ecc->stream = m_gcry_calloc_secure(ECC_CAPACITY, sizeof( uint8_t ));
 	for (unsigned i = 0; i < OFFSET_SLOTS; i++)
 		io_ptr->buffer_ecc->offset[i] = 0;
 	return;
@@ -746,7 +746,7 @@ static ssize_t ecc_write(io_private_s *f, const void *d, size_t l)
 
 		fsync(f->fd);
 		f->buffer_ecc->block = 0;
-		free(f->buffer_ecc->stream);
+		gcry_free(f->buffer_ecc->stream);
 		f->buffer_ecc->stream = NULL;
 		memset(f->buffer_ecc->offset, 0x00, sizeof f->buffer_ecc->offset);
 		return e;
@@ -799,7 +799,7 @@ static ssize_t ecc_read(io_private_s *f, void *d, size_t l)
 			memcpy(x, f->buffer_ecc->stream + f->buffer_ecc->offset[1], f->buffer_ecc->offset[0]);
 			memset(f->buffer_ecc->stream, 0x00, f->buffer_ecc->block);
 			memcpy(f->buffer_ecc->stream, x, f->buffer_ecc->offset[0]);
-			free(x);
+			gcry_free(x);
 			return l;
 		}
 
