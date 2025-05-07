@@ -44,6 +44,7 @@ import java.util.HashMap;
 public class Decrypt extends Crypto
 {
 	private static final String SELF = ".";
+	private static final String DEFAULT_OUTPUT_FILENAME = "decrypted";
 	public static final String MIME_TYPE = "application/octet-stream";
 
 	@Override
@@ -313,15 +314,17 @@ public class Decrypt extends Crypto
 					break;
 			}
 		}
-		if (name != null)
+		if (!directory && name == null)
+			name = DEFAULT_OUTPUT_FILENAME;
+		val documentFile = DocumentFile.fromTreeUri(this, path);
+		if (documentFile == null)
 		{
-			val documentFile = DocumentFile.fromTreeUri(this, path);
-			if (documentFile == null)
-			{
-				status = Status.FAILED_IO;
-				return;
-			}
-			contentResolver.takePersistableUriPermission(path, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+			status = Status.FAILED_IO;
+			return;
+		}
+		contentResolver.takePersistableUriPermission(path, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+		if (!directory)
+		{
 			val file = documentFile.createFile(MIME_TYPE, name);
 			if (file == null)
 				status = Status.FAILED_IO;
