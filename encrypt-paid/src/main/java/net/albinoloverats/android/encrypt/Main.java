@@ -396,17 +396,11 @@ public class Main extends Activity
 		this.key = null;
 	}
 
-	/*
-	 * show about dialog
-	 */
 	private void aboutDialog()
 	{
 		val dialog = new Dialog(this);
 		dialog.setContentView(R.layout.about);
-		dialog.setTitle(getString(R.string.app_name) + " " + getString(R.string.version));
-		((ImageView)dialog.findViewById(R.id.about_image)).setImageResource(R.drawable.about);
-		val combined = getString(R.string.combined, getString(R.string.description), getString(R.string.copyright), getString(R.string.url));
-		((TextView)dialog.findViewById(R.id.about_text)).setText(combined);
+		dialog.setTitle(getString(R.string.about_title));
 		dialog.show();
 	}
 
