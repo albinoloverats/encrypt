@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, multi-OS encryption utility
- * Copyright © 2005-2024, albinoloverats ~ Software Development
+ * Copyright © 2005-2025, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 /*!
  * \file    crypt.h
  * \author  Ashley M Anderson
- * \date    2009-2024
+ * \date    2009-2025
  * \brief   Main crypt header file
  *
  * What is essentially the parent class for enc/decryption routines.
@@ -141,7 +141,8 @@ typedef enum
 	VERSION_2020_01,     /*!< Version 2020.01 */
 	VERSION_2022_01,     /*!< Version 2022.01 */
 	VERSION_2024_01,     /*!< Version 2024.01 */
-	VERSION_CURRENT = VERSION_2024_01 /*!< Next release / current development version */
+	VERSION_2025_05,     /*!< Version 2025.05 */
+	VERSION_CURRENT = VERSION_2025_05 /*!< Next release / current development version */
 }
 version_e;
 

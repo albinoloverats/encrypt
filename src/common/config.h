@@ -1,6 +1,6 @@
 /*
  * Common code for hanlding command line arguments and config files.
- * Copyright © 2005-2024, albinoloverats ~ Software Development
+ * Copyright © 2005-2025, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify

@@ -1,6 +1,6 @@
 /*
  * Common code for working with directory trees.
- * Copyright © 2007-2024, albinoloverats ~ Software Development
+ * Copyright © 2007-2025, albinoloverats ~ Software Development
  * email: stegfs@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 /*!
  * \file    dir.h
  * \author  albinoloverats ~ Software Development
- * \date    2009-2024
+ * \date    2009-2025
  * \brief   Directory parsing functions
  * \note    These functions all return newly allocated strings
  *

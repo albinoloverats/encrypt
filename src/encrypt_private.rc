@@ -20,7 +20,7 @@ FILETYPE VFT_APP
       VALUE "FileVersion", "2024.01"
       VALUE "FileDescription", "encrypt is a simple, cross platform utility for securing your personal files"
       VALUE "InternalName", "encrypt"
-      VALUE "LegalCopyright", "Copyright (c) 2004-2024, albinoloverats ~ Software Development"
+      VALUE "LegalCopyright", "Copyright (c) 2004-2025, albinoloverats ~ Software Development"
       VALUE "LegalTrademarks", ""
       VALUE "OriginalFilename", "encrypt.exe"
       VALUE "ProductName", "encrypt"

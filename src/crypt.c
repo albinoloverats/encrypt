@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, multi-OS encryption utility
- * Copyright © 2005-2024, albinoloverats ~ Software Development
+ * Copyright © 2005-2025, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -95,7 +95,8 @@ static const version_s VERSIONS[] =
 	{ "2020.01", 0x323032302e30312ellu },
 	{ "2022.01", 0x323032312e30312ellu },
 	{ "2024.01", 0x2e4155524f52412ellu },
-	{ "CURRENT", 0x2e4155524f52412ellu }
+	{ "2025.05", 0x323032352e30352ellu },
+	{ "CURRENT", 0x323032352e30352ellu }
 };
 
 extern void execute(crypto_s *c)
