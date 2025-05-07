@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS) encryption utility
- * Copyright © 2005-2024, albinoloverats ~ Software Development
+ * Copyright © 2005-2025, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -124,6 +124,7 @@ public class Encrypt extends Crypto
 			case _202001:
 			case _202201:
 			case _202401:
+			case _202505:
 			case CURRENT:
 				if (kdfIterations == 0)
 					kdfIterations = KDF_ITERATIONS_DEFAULT;

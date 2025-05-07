@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, modular, (multi-OS) encryption utility
- * Copyright © 2005-2024, albinoloverats ~ Software Development
+ * Copyright © 2005-2025, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -38,7 +38,8 @@ public enum Version
 	_202001(0x323032302e30312eL, "2020.01", 202001),
 	_202201(0x323032312e30312eL, "2022.01", 202201),
 	_202401(0x2e4155524f52412eL, "2024.01", 202401),
-	CURRENT(0x2e4155524f52412eL, "2024.01", 202401);
+	_202505(0x323032352e30352eL, "2025.05", 202505),
+	CURRENT(0x323032352e30352eL, "2025.05", 202505);
 
 	public final long magicNumber;
 	public final String display;
