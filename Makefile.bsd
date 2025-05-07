@@ -17,7 +17,7 @@ DEBUG_CFLAGS   = -O0 -ggdb -pg
 DEBUG_CPPFLAGS = -D__DEBUG__ -D__DEBUG_GUI__ -DMALLOC_CHECK_=1
 DEBUG_ENC      = ${DEBUG_CPPFLAGS} -D__DEBUG_WITH_ENCRYPTION__
 
-CLI_LIBS       = `pkg-config --libs libgcrypt-config` -lpthread -lcurl -llzma
+CLI_LIBS       = `pkg-config --libs libgcrypt` -lpthread -lcurl -llzma
 GUI_LIBS       = ${CLI_LIBS} `pkg-config --libs gtk+-3.0 gmodule-2.0`
 
 #STAGEDIR       = ../stage
