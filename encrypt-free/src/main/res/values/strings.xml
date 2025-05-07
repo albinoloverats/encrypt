@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="app_name">encrypt (Free)</string>
+	<string name="app_name">encrypt</string>
 	<string name="version">2024.01</string>
 	<string name="encrypt">Encrypt</string>
 	<string name="decrypt">Decrypt</string>
 
 	<string name="please_wait">Please wait …</string>
 	<string name="about">About</string>
-	<string name="description">encrypt ~ a cross platform, symmetric key, file encryption application</string>
+	<string name="description">encrypt ~ a cross-platform, symmetric key, file encryption application</string>
 	<string name="copyright">Copyright © 2004–2024, albinoloverats ~ Software Development</string>
 	<string name="url">https://albinoloverats.net/projects/encrypt</string>
-	<string name="remove_ads">Remove Ads</string>
+	<string name="combined">%1s$\n%2s$\n%3s$</string>
 
 	<string name="options">Options</string>
 	<string name="compress">Compression</string>
@@ -43,6 +43,6 @@
 
 	<string name="multipleSelected">Multiple Items Selected</string>
 
-	<string name="banner_ad_unit_id_test">ca-app-pub-3940256099942544/6300978111</string>
-	<string name="banner_ad_unit_id_live">ca-app-pub-7710699356825080/5866256857</string>
+	<string name="progressValue">%1$s / %2$s</string>
+	<string name="progressRate">%1$s %2$s</string>
 </resources>

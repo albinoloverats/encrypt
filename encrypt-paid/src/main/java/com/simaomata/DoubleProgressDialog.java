@@ -21,7 +21,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
+import android.os.Looper;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
@@ -30,11 +30,13 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import lombok.val;
 import net.albinoloverats.android.encrypt.R;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * <p>A dialog showing a progress indicator and an optional text message or view.
@@ -52,7 +54,6 @@ public class DoubleProgressDialog extends AlertDialog
 	private ProgressBar mSecondaryProgress;
 
 	private TextView mProgressNumber;
-	private DecimalFormat mProgressNumberFormat = DECIMAL_FORMAT;
 	private TextView mProgressPercent;
 	private TextView mProgressRate;
 	private final ProgressRate progressRateCalc = new ProgressRate();
@@ -95,72 +96,67 @@ public class DoubleProgressDialog extends AlertDialog
 	@Override
 	protected void onCreate(final Bundle savedInstanceState)
 	{
-		final LayoutInflater inflater = LayoutInflater.from(mContext);
+		val inflater = LayoutInflater.from(mContext);
 
 		/* Use a separate handler to update the text views as they
 		 * must be updated on the same thread that created them.
 		 */
-		mViewUpdateHandler = new Handler()
+		mViewUpdateHandler = new Handler(Looper.myLooper(), msg ->
 		{
-			@Override
-			public void handleMessage(final Message msg)
+			/* Update the number and percent */
+			var progress = mProgress.getProgress();
+			var max = mProgress.getMax();
+			var percent = (double)progress / (double)max;
+			mProgressNumber.setText(mContext.getString(R.string.progressValue, DECIMAL_FORMAT.format(progress), DECIMAL_FORMAT.format(max)));
+			SpannableString tmp = new SpannableString(mProgressPercentFormat.format(percent));
+			tmp.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),
+				0, tmp.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			mProgressPercent.setText(tmp);
+
+			var rate = progressRateCalc.calcRate(progress);
+			if (Double.isNaN(rate) || rate < 0.0)
+				mProgressRate.setText("---.-- B/s");
+			else
 			{
-				super.handleMessage(msg);
-
-				/* Update the number and percent */
-				int progress = mProgress.getProgress();
-				int max = mProgress.getMax();
-				double percent = (double)progress / (double)max;
-				final DecimalFormat format = mProgressNumberFormat;
-				mProgressNumber.setText(format.format(progress) + '/' + format.format(max));
-				SpannableString tmp = new SpannableString(mProgressPercentFormat.format(percent));
-				tmp.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),
-					0, tmp.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				mProgressPercent.setText(tmp);
-
-				double rate = progressRateCalc.calcRate(progress);
-				if (Double.isNaN(rate) || rate < 0.0)
-					mProgressRate.setText("---.-- B/s");
-				else
+				var units = "B/s";
+				if (rate < 1000.0)
+					; // Do nothing
+				else if (rate < 1000000.0)
 				{
-					String units = "B/s";
-					if (rate < 1000.0)
-						; // Do nothing
-					else if (rate < 1000000.0)
-					{
-						rate /= 1024;
-						units = "KB/s";
-					}
-					else if (rate < 1000000000.0)
-					{
-						rate /= (1024 * 1024);
-						units = "MB/s";
-					}
-					else if (rate < 1000000000000.0)
-					{
-						rate /= (1024 * 1024 * 1024);
-						units = "GB/s";
-					}
-					mProgressRate.setText(RATE_FORMAT.format(rate) + " " + units);
+					rate /= 1024;
+					units = "KB/s";
 				}
-
-				/* Update the number and percent of the second bar */
-				progress = mSecondaryProgress.getProgress();
-				max = mSecondaryProgress.getMax(); // Use the same max a the top bar
-				percent = (double)progress / (double)max;
-				mSecondaryProgressNumber.setText(format.format(progress) + '/' + format.format(max));
-				tmp = new SpannableString(mProgressPercentFormat.format(percent));
-				tmp.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),
-					0, tmp.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				mSecondaryProgressPercent.setText(tmp);
+				else if (rate < 1000000000.0)
+				{
+					rate /= (1024 * 1024);
+					units = "MB/s";
+				}
+				else if (rate < 1000000000000.0)
+				{
+					rate /= (1024 * 1024 * 1024);
+					units = "GB/s";
+				}
+				mProgressRate.setText(mContext.getString(R.string.progressRate, RATE_FORMAT.format(rate), units));
 			}
-		};
-		final View view = inflater.inflate(R.layout.alert_dialog_double_progress, null);
+
+			/* Update the number and percent of the second bar */
+			progress = mSecondaryProgress.getProgress();
+			max = mSecondaryProgress.getMax(); // Use the same max as the top bar
+			percent = (double)progress / (double)max;
+			mSecondaryProgressNumber.setText(mContext.getString(R.string.progressValue, DECIMAL_FORMAT.format(progress), DECIMAL_FORMAT.format(max)));
+			tmp = new SpannableString(mProgressPercentFormat.format(percent));
+			tmp.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),
+				0, tmp.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			mSecondaryProgressPercent.setText(tmp);
+
+			return true;
+		});
+
+		val view = inflater.inflate(R.layout.alert_dialog_double_progress, null);
 		mProgress = view.findViewById(R.id.progress);
 		mSecondaryProgress = view.findViewById(R.id.secondaryProgress);
 
 		mProgressNumber = view.findViewById(R.id.progress_number);
-		mProgressNumberFormat = DECIMAL_FORMAT;
 		mProgressPercent = view.findViewById(R.id.progress_percent);
 		mProgressPercentFormat = NumberFormat.getPercentInstance();
 		mProgressPercentFormat.setMaximumFractionDigits(0);
@@ -240,11 +236,9 @@ public class DoubleProgressDialog extends AlertDialog
 
 	public int getProgress()
 	{
-		if (mProgress != null)
-		{
-			return mProgress.getProgress();
-		}
-		return mProgressVal;
+		return Optional.ofNullable(mProgress)
+				.map(ProgressBar::getProgress)
+				.orElse(mProgressVal);
 	}
 
 	public void setSecondaryProgress(final int secondaryProgress)
@@ -262,22 +256,18 @@ public class DoubleProgressDialog extends AlertDialog
 
 	public int getSecondaryProgress()
 	{
-		if (mSecondaryProgress != null)
-		{
-			// We only use the secondary progress on the second bar
-			// Seems to be more usable that way..
-			return mSecondaryProgress.getProgress();
-		}
-		return mSecondaryProgressVal;
+		// We only use the secondary progress on the second bar
+		// Seems to be more usable that way..
+		return Optional.ofNullable(mSecondaryProgress)
+				.map(ProgressBar::getProgress)
+				.orElse(mSecondaryProgressVal);
 	}
 
 	public int getMax()
 	{
-		if (mProgress != null)
-		{
-			return mProgress.getMax();
-		}
-		return mMax;
+		return Optional.ofNullable(mProgress)
+				.map(ProgressBar::getMax)
+				.orElse(mMax);
 	}
 
 	public void setMax(final int max)
@@ -295,11 +285,9 @@ public class DoubleProgressDialog extends AlertDialog
 
 	public int getSecondaryMax()
 	{
-		if (mSecondaryProgress != null)
-		{
-			return mSecondaryProgress.getMax();
-		}
-		return mSecondaryMax;
+		return Optional.ofNullable(mSecondaryProgress)
+				.map(ProgressBar::getMax)
+				.orElse(mSecondaryMax);
 	}
 
 	public void setSecondaryMax(final int max)
@@ -379,11 +367,9 @@ public class DoubleProgressDialog extends AlertDialog
 
 	public boolean isIndeterminate()
 	{
-		if (mProgress != null)
-		{
-			return mProgress.isIndeterminate();
-		}
-		return mIndeterminate;
+		return Optional.ofNullable(mProgress)
+				.map(ProgressBar::isIndeterminate)
+				.orElse(mIndeterminate);
 	}
 
 	@Override
@@ -397,24 +383,6 @@ public class DoubleProgressDialog extends AlertDialog
 		{
 			mMessage = message;
 		}
-	}
-
-	/**
-	 * Change the format of Progress Number. The default is "current/max".
-	 * Should not be called during the number is progressing.
-	 *
-	 * @param format Should contain two "%d". The first is used for current number
-	 *               and the second is used for the maximum.
-	 * @hide
-	 */
-	public void setProgressNumberFormat(final String format)
-	{
-		mProgressNumberFormat = new DecimalFormat(format);
-	}
-
-	public void setProgressNumberFormat(final DecimalFormat format)
-	{
-		mProgressNumberFormat = format;
 	}
 
 	private void onProgressChanged()
@@ -432,7 +400,7 @@ public class DoubleProgressDialog extends AlertDialog
 		mSecondaryLayout.setVisibility(View.GONE);
 	}
 
-	private class ProgressRate
+	private static class ProgressRate
 	{
 		private static final int BPS = 128;
 
@@ -449,16 +417,16 @@ public class DoubleProgressDialog extends AlertDialog
 		{
 			rate[next].bytes = r;
 			rate[next].time = System.currentTimeMillis();
-			final Rate[] copy = Arrays.copyOf(rate, BPS);
+			val copy = Arrays.copyOf(rate, BPS);
 			Arrays.sort(copy);
-			final double[] avg = new double[BPS];
+			val avg = new double[BPS];
 			for (int i = 1; i < BPS; i++)
 			{
 				if (copy[i].time == 0)
 					continue;
 				avg[i - 1] = 1000.0 * (double)(copy[i].bytes - copy[i - 1].bytes) / (double)(copy[i].time - copy[i - 1].time);
 			}
-			double v = 0.0;
+			var v = 0.0;
 			int c = BPS - 1;
 			for (int i = 0; i < BPS - 1; i++)
 				if (Double.isInfinite(avg[i]) || Double.isNaN(avg[i]))
@@ -470,7 +438,7 @@ public class DoubleProgressDialog extends AlertDialog
 			return v / c;
 		}
 
-		private class Rate implements Comparable<Rate>
+		private static class Rate implements Comparable<Rate>
 		{
 			int bytes;
 			long time;

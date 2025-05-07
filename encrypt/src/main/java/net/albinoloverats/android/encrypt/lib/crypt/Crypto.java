@@ -30,7 +30,6 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.os.PowerManager;
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationCompat.Builder;
 import androidx.documentfile.provider.DocumentFile;
 import lombok.val;
 import net.albinoloverats.android.encrypt.lib.io.HashMAC;
@@ -299,23 +298,17 @@ public abstract class Crypto extends Service implements Runnable
 	@SuppressWarnings("deprecation")
 	private static Class<?> getClass(final Intent intent)
 	{
-		final Class<?> clas;
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
-			clas = intent.getSerializableExtra("class", Class.class);
-		else
-			clas = (Class<?>)intent.getSerializableExtra("class");
-		return clas;
+			return intent.getSerializableExtra("class", Class.class);
+		return (Class<?>)intent.getSerializableExtra("class");
 	}
 
 	@SuppressWarnings("deprecation")
 	protected static List<Uri> getSource(final Intent intent)
 	{
-		final List<Uri> source;
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
-			source = intent.getParcelableArrayListExtra("source", Uri.class);
-		else
-			source = intent.getParcelableArrayListExtra("source");
-		return source;
+			return intent.getParcelableArrayListExtra("source", Uri.class);
+		return intent.getParcelableArrayListExtra("source");
 	}
 
 	protected static Uri getOutput(final Intent intent)
@@ -326,11 +319,8 @@ public abstract class Crypto extends Service implements Runnable
 	@SuppressWarnings("deprecation")
 	private static Uri getUri(final Intent intent, final String s)
 	{
-		final Uri uri;
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
-			uri = intent.getParcelableExtra(s, Uri.class);
-		else
-			uri = intent.getParcelableExtra(s);
-		return uri;
+			return intent.getParcelableExtra(s, Uri.class);
+		return intent.getParcelableExtra(s);
 	}
 }

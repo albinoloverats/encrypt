@@ -26,12 +26,9 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
-import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -41,7 +38,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -129,7 +125,7 @@ public class MainFree extends Activity
 		kdfIterations = settings.getInt(Options.KDF_ITERATIONS.toString(), Crypto.KDF_ITERATIONS_DEFAULT);
 
 		// set up the file chooser button
-		final View fChooser = findViewById(R.id.button_file);
+		val fChooser = findViewById(R.id.button_file);
 		fChooser.setOnClickListener(new FileChooserListener(FileAction.LOAD));
 
 		// set up the file output chooser button
@@ -423,7 +419,8 @@ public class MainFree extends Activity
 		dialog.setContentView(R.layout.about);
 		dialog.setTitle(getString(R.string.app_name) + " " + getString(R.string.version));
 		((ImageView)dialog.findViewById(R.id.about_image)).setImageResource(R.drawable.about);
-		((TextView)dialog.findViewById(R.id.about_text)).setText(getString(R.string.description) + "\n" + getString(R.string.copyright) + "\n" + getString(R.string.url));
+		val combined = getString(R.string.combined, getString(R.string.description), getString(R.string.copyright), getString(R.string.url));
+		((TextView)dialog.findViewById(R.id.about_text)).setText(combined);
 		dialog.show();
 	}
 
@@ -748,7 +745,7 @@ public class MainFree extends Activity
 						doubleProgressDialog.showSecondaryProgress();
 						doubleProgressDialog.setSecondaryMax(msg.arg1);
 						doubleProgressDialog.setSecondaryProgress(msg.arg2);
-						final String currentFile = (String)msg.obj;
+						val currentFile = (String)msg.obj;
 						if (currentFile != null)
 							doubleProgressDialog.setMessage(currentFile);
 					}
