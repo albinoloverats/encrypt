@@ -157,6 +157,11 @@ extern char *version_build_info(void)
 #define AA_GI 10
 
 	version_format_line(&info, AA_GW, AA_GI, _("built on"),   __DATE__ " " __TIME__);
+#ifdef __DEBUG__
+	version_format_line(&info, AA_GW, AA_GI, _("debug"), _("yes"));
+#else
+	version_format_line(&info, AA_GW, AA_GI, _("debug"), _("no"));
+#endif
 	version_format_line(&info, AA_GW, AA_GI, _("git commit"), GIT_COMMIT);
 	version_format_line(&info, AA_GW, AA_GI, _("build os"),   BUILD_OS);
 	version_format_line(&info, AA_GW, AA_GI, _("compiler"),   COMPILER);
