@@ -69,7 +69,7 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 {
 	version_check_for_update(ENCRYPT_VERSION, UPDATE_URL, DOWNLOAD_URL_TEMPLATE);
 
-	config_about_t about =
+	config_about_s about =
 	{
 		NULL,
 		ENCRYPT_VERSION,
@@ -80,31 +80,31 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 
 	list_t args = list_init(config_named_compare, false, false);
 	// TODO If there's no CLI then remove the display text
-	list_add(args, &((config_named_t){ 'c', "cipher",         _("algorithm"),  _("Algorithm to use to encrypt data; use ‘list’ to show available cipher algorithms"),                                      CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, false, false }));
-	list_add(args, &((config_named_t){ 's', "hash",           _("algorithm"),  _("Hash algorithm to generate key; use ‘list’ to show available hash algorithms"),                                          CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, false, false }));
-	list_add(args, &((config_named_t){ 'm', "mode",           _("mode"),       _("The encryption mode to use; use ‘list’ to show available cipher modes"),                                                 CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, false, false }));
-	list_add(args, &((config_named_t){ 'a', "mac",            _("mac"),        _("The MAC algorithm to use; use ‘list’ to show available MACs"),                                                           CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, false, false }));
-	list_add(args, &((config_named_t){ 'i', "kdf-iterations", _("iterations"), _("Number of iterations the KDF should use"),                                                                               CONFIG_ARG_REQ_INTEGER, { .integer = 0     }, false, false, false, false }));
-	list_add(args, &((config_named_t){ 0x1, "key-source",     _("key source"), _("Key data source"),                                                                                                       CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, true,  false }));
-	list_add(args, &((config_named_t){ 0x2, "compress",       NULL,            _("Compress the plain text using the xz algorithm"),                                                                        CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, true,  false }));
-	list_add(args, &((config_named_t){ 'f', "follow",         NULL,            _("Follow symlinks, the default is to store the link itself"),                                                              CONFIG_ARG_REQ_BOOLEAN, { .boolean = false }, false, false, false, false }));
-	list_add(args, &((config_named_t){ 'b', "back-compat",    _("version"),    _("Create an encrypted file that is backwards compatible"),                                                                 CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, true,  false, false }));
-	list_add(args, &((config_named_t){ 'r', "raw",            NULL,            _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"), CONFIG_ARG_REQ_BOOLEAN, { .boolean = false }, false, true,  false, false }));
+	list_add(args, &((config_named_s){ 'c', "cipher",         _("algorithm"),  _("Algorithm to use to encrypt data; use ‘list’ to show available cipher algorithms"),                                      CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, false, false }));
+	list_add(args, &((config_named_s){ 's', "hash",           _("algorithm"),  _("Hash algorithm to generate key; use ‘list’ to show available hash algorithms"),                                          CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, false, false }));
+	list_add(args, &((config_named_s){ 'm', "mode",           _("mode"),       _("The encryption mode to use; use ‘list’ to show available cipher modes"),                                                 CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, false, false }));
+	list_add(args, &((config_named_s){ 'a', "mac",            _("mac"),        _("The MAC algorithm to use; use ‘list’ to show available MACs"),                                                           CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, false, false }));
+	list_add(args, &((config_named_s){ 'i', "kdf-iterations", _("iterations"), _("Number of iterations the KDF should use"),                                                                               CONFIG_ARG_REQ_INTEGER, { .integer = 0     }, false, false, false, false }));
+	list_add(args, &((config_named_s){ 0x1, "key-source",     _("key source"), _("Key data source"),                                                                                                       CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, true,  false }));
+	list_add(args, &((config_named_s){ 0x2, "compress",       NULL,            _("Compress the plain text using the xz algorithm"),                                                                        CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, false, true,  false }));
+	list_add(args, &((config_named_s){ 'f', "follow",         NULL,            _("Follow symlinks, the default is to store the link itself"),                                                              CONFIG_ARG_REQ_BOOLEAN, { .boolean = false }, false, false, false, false }));
+	list_add(args, &((config_named_s){ 'b', "back-compat",    _("version"),    _("Create an encrypted file that is backwards compatible"),                                                                 CONFIG_ARG_REQ_STRING,  { .string  = NULL  }, false, true,  false, false }));
+	list_add(args, &((config_named_s){ 'r', "raw",            NULL,            _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"), CONFIG_ARG_REQ_BOOLEAN, { .boolean = false }, false, true,  false, false }));
 	config_parse(0, NULL, args);
 
-	char *cipher =  ((config_named_t *)list_get(args, 0))->response.value.string;
-	char *hash   =  ((config_named_t *)list_get(args, 1))->response.value.string;
-	char *mode   =  ((config_named_t *)list_get(args, 2))->response.value.string;
-	char *mac    =  ((config_named_t *)list_get(args, 3))->response.value.string;
-	uint64_t kdf =  ((config_named_t *)list_get(args, 4))->response.value.integer;
+	char *cipher =  ((config_named_s *)list_get(args, 0))->response.value.string;
+	char *hash   =  ((config_named_s *)list_get(args, 1))->response.value.string;
+	char *mode   =  ((config_named_s *)list_get(args, 2))->response.value.string;
+	char *mac    =  ((config_named_s *)list_get(args, 3))->response.value.string;
+	uint64_t kdf =  ((config_named_s *)list_get(args, 4))->response.value.integer;
 
-	char *ks     =  ((config_named_t *)list_get(args, 5))->response.value.string;
+	char *ks     =  ((config_named_s *)list_get(args, 5))->response.value.string;
 
-	compress     = !((config_named_t *)list_get(args, 6))->response.value.boolean; // compress by default unless --no-compress is specified
-	follow       =  ((config_named_t *)list_get(args, 7))->response.value.boolean;
+	compress     = !((config_named_s *)list_get(args, 6))->response.value.boolean; // compress by default unless --no-compress is specified
+	follow       =  ((config_named_s *)list_get(args, 7))->response.value.boolean;
 
-	char *ver    =  ((config_named_t *)list_get(args, 8))->response.value.string;
-	raw          =  ((config_named_t *)list_get(args, 9))->response.value.boolean;
+	char *ver    =  ((config_named_s *)list_get(args, 8))->response.value.string;
+	raw          =  ((config_named_s *)list_get(args, 9))->response.value.boolean;
 
 	[self auto_select_algorithms:cipher:hash:mode:mac:kdf];
 
@@ -480,7 +480,7 @@ clean_up:
 	char *mac = (char *)[[[_macCombo selectedItem] title] UTF8String];
 	uint64_t iter = [_kdfIterations intValue];
 
-	crypto_t *c;
+	crypto_s *c;
 	if (!encrypted)
 		c = encrypt_init(source, output, cipher, hash, mode, mac, key, length, iter, raw, compress, follow, version);
 	else
@@ -494,8 +494,8 @@ clean_up:
 	running = true;
 	execute(c);
 
-	cli_bps_t bps[BPS];
-	memset(bps, 0x00, BPS * sizeof( cli_bps_t ));
+	cli_bps_s bps[BPS];
+	memset(bps, 0x00, BPS * sizeof( cli_bps_s ));
 	int b = 0;
 
 	while (c->status == STATUS_INIT || c->status == STATUS_RUNNING)
