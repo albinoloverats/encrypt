@@ -40,6 +40,7 @@
 #include "common/common.h"
 #include "common/non-gnu.h"
 #include "common/error.h"
+#include "common/mem.h"
 #include "common/ccrypt.h"
 #include "common/version.h"
 #include "common/cli.h"
@@ -293,7 +294,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_s *data
 			/*
 			 * quickly see if the file is encrypted already
 			 */
-			char *ptr = malloc(1);
+			char *ptr = m_malloc(1);
 			char *c = ptr;
 			char *h = ptr;
 			char *m = ptr;

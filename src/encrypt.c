@@ -668,7 +668,7 @@ static void encrypt_directory(crypto_s *c, const char *path)
 static char *encrypt_link(crypto_s *c, char *filename, struct stat s)
 {
 	list_t links = c->misc;
-	link_count_s *link = calloc(1, sizeof (link_count_s));
+	link_count_s *link = m_calloc(1, sizeof (link_count_s));
 	link->dev   = s.st_dev;
 	link->inode = s.st_ino;
 	link->path  = strdup(filename);

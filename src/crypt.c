@@ -39,6 +39,7 @@
 #include "common/common.h"
 #include "common/non-gnu.h"
 #include "common/error.h"
+#include "common/mem.h"
 #include "common/ccrypt.h"
 
 #include "crypt.h"
@@ -102,7 +103,7 @@ static const version_s VERSIONS[] =
 extern void execute(crypto_s *c)
 {
 #ifndef __DEBUG__
-	pthread_t *t = gcry_calloc_secure(1, sizeof( pthread_t ));
+	pthread_t *t = m_gcry_calloc_secure(1, sizeof( pthread_t ));
 	pthread_attr_t a;
 	pthread_attr_init(&a);
 	pthread_attr_setdetachstate(&a, PTHREAD_CREATE_JOINABLE);
@@ -186,7 +187,7 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, cha
 		}
 		uint8_t l;
 		read(f, &l, sizeof l);
-		char *z = gcry_calloc_secure(l + sizeof( char ), sizeof( char ));
+		char *z = m_gcry_calloc_secure(l + sizeof( char ), sizeof( char ));
 		read(f, z, l);
 		char *s = strchr(z, '/');
 		*s = '\0';

@@ -354,7 +354,7 @@ extern char *strndup(const char *s, size_t l)
 	if (z > l)
 		z = l;
 	z++;
-	char *r = malloc(z);
+	char *r = m_malloc(z);
 	memmove(r, s, z);
 	r[z - 1] = '\0';
 	return r;
@@ -407,7 +407,7 @@ extern int scandir(const char *path, struct dirent ***res, int (*sel)(const stru
 			names = m_realloc(names, len * sizeof *names);
 		}
 
-		names[cnt] = malloc(sizeof( struct dirent ));
+		names[cnt] = m_malloc(sizeof( struct dirent ));
 
 		memcpy(names[cnt++], de, sizeof( struct dirent ));
 	}

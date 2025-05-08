@@ -227,7 +227,7 @@ int main(int argc, char **argv)
 
 	if (source)
 	{
-		char *ptr = malloc(1);
+		char *ptr = m_malloc(1);
 		char *c = ptr;
 		char *h = ptr;
 		char *m = ptr;
@@ -588,7 +588,7 @@ static void self_test(void)
 	uint16_t key_len;
 	gcry_create_nonce(&key_len, sizeof key_len);
 	key_len %= 0x0400;
-	uint8_t *key = malloc(key_len);
+	uint8_t *key = m_malloc(key_len);
 	gcry_create_nonce(key, key_len);
 	/*
 	 * create nonce (again, not too long)
@@ -602,8 +602,8 @@ static void self_test(void)
 	uint32_t buffer_len;
 	gcry_create_nonce(&buffer_len, sizeof buffer_len);
 	buffer_len %= 0x00FFFFFF;
-	uint8_t *buffer_plain = malloc(buffer_len);
-	uint8_t *buffer_check = malloc(buffer_len);
+	uint8_t *buffer_plain = m_malloc(buffer_len);
+	uint8_t *buffer_check = m_malloc(buffer_len);
 	gcry_create_nonce(buffer_plain, buffer_len);
 
 	version_print(about.name, about.version, about.url);

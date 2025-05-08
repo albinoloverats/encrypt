@@ -35,6 +35,7 @@
 #import "ccrypt.h"
 #import "config.h"
 #import "list.h"
+#import "mem.h"
 
 #import "crypt.h"
 #import "encrypt.h"
@@ -266,7 +267,7 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 	/*
 	 * check if the file is encrypted or not
 	 */
-	void *ptr = malloc(0);
+	void *ptr = m_malloc(0);
 	char *c = ptr;
 	char *h = ptr;
 	char *m = ptr;
