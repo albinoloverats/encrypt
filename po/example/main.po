@@ -1,176 +1,178 @@
-#: src/main.c:83
+#: src/main.c:95
 #| DEBUG BUILD
 msgid "DEBUG BUILD"
 msgstr ""
 
-#: src/main.c:104
+#: src/main.c:115
 #| Do not use the GUI, even if it’s available
 msgid "Do not use the GUI, even if it’s available"
 msgstr ""
 
-#: src/main.c:106
+#: src/main.c:117
 #| key source
 msgid "key source"
 msgstr ""
 
-#: src/main.c:106
+#: src/main.c:117
 #| Key data source
 msgid "Key data source"
 msgstr ""
 
-#: src/main.c:108
+#: src/main.c:118
+#| Compress the plain text using the xz algorithm
+msgid "Compress the plain text using the xz algorithm"
+msgstr ""
+
+#: src/main.c:120
 #| Do not display the CLI progress bar
 msgid "Do not display the CLI progress bar"
 msgstr ""
 
-#: src/main.c:109
+#: src/main.c:121
 #| algorithm
 msgid "algorithm"
 msgstr ""
 
-#: src/main.c:109
-#| Algorithm to use to encrypt data; use 'list' to show available cipher algorithms
-msgid "Algorithm to use to encrypt data; use 'list' to show available cipher algorithms"
+#: src/main.c:121
+#| Algorithm to use to encrypt data; use ‘list’ to show available cipher algorithms
+msgid "Algorithm to use to encrypt data; use ‘list’ to show available cipher algorithms"
 msgstr ""
 
-#: src/main.c:110
+#: src/main.c:122
 #| algorithm
-#. See translation above
-
-#: src/main.c:110
-#| Hash algorithm to generate key; use 'list' to show available hash algorithms
-msgid "Hash algorithm to generate key; use 'list' to show available hash algorithms"
+msgid "algorithm"
 msgstr ""
 
-#: src/main.c:111
+#: src/main.c:122
+#| Hash algorithm to generate key; use ‘list’ to show available hash algorithms
+msgid "Hash algorithm to generate key; use ‘list’ to show available hash algorithms"
+msgstr ""
+
+#: src/main.c:123
 #| mode
 msgid "mode"
 msgstr ""
 
-#: src/main.c:111
-#| The encryption mode to use; use 'list' to show available cipher modes
-msgid "The encryption mode to use; use 'list' to show available cipher modes"
+#: src/main.c:123
+#| The encryption mode to use; use ‘list’ to show available cipher modes
+msgid "The encryption mode to use; use ‘list’ to show available cipher modes"
 msgstr ""
 
-#: src/main.c:112
+#: src/main.c:124
 #| mac
 msgid "mac"
 msgstr ""
 
-#: src/main.c:112
-#| The MAC algorithm to use; use 'list' to show available MACs
-msgid "The MAC algorithm to use; use 'list' to show available MACs"
+#: src/main.c:124
+#| The MAC algorithm to use; use ‘list’ to show available MACs
+msgid "The MAC algorithm to use; use ‘list’ to show available MACs"
 msgstr ""
 
-#: src/main.c:113
+#: src/main.c:125
 #| iterations
 msgid "iterations"
 msgstr ""
 
-#: src/main.c:113
+#: src/main.c:125
 #| Number of iterations the KDF should use
 msgid "Number of iterations the KDF should use"
 msgstr ""
 
-#: src/main.c:114
+#: src/main.c:126
 #| key file
 msgid "key file"
 msgstr ""
 
-#: src/main.c:114
+#: src/main.c:126
 #| File whose data will be used to generate the key
 msgid "File whose data will be used to generate the key"
 msgstr ""
 
-#: src/main.c:115
+#: src/main.c:127
 #| password
 msgid "password"
 msgstr ""
 
-#: src/main.c:115
+#: src/main.c:127
 #| Password used to generate the key
 msgid "Password used to generate the key"
 msgstr ""
 
-#: src/main.c:116
+#: src/main.c:128
 #| Do not compress the plain text using the xz algorithm
 msgid "Do not compress the plain text using the xz algorithm"
 msgstr ""
 
-#: src/main.c:117
+#: src/main.c:129
 #| Follow symlinks, the default is to store the link itself
 msgid "Follow symlinks, the default is to store the link itself"
 msgstr ""
 
-#: src/main.c:118
+#: src/main.c:130
 #| version
 msgid "version"
 msgstr ""
 
-#: src/main.c:118
+#: src/main.c:130
 #| Create an encrypted file that is backwards compatible
 msgid "Create an encrypted file that is backwards compatible"
 msgstr ""
 
-#: src/main.c:120
-#| Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations
-msgid "Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"
+#: src/main.c:131
+#| Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited)
+msgid "Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited)"
 msgstr ""
 
-#: src/main.c:122
-#| Don't generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations
-msgid "Don't generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"
+#: src/main.c:132
+#| Perform self-test routine
+msgid "Perform self-test routine"
 msgstr ""
 
-#: src/main.c:134
-#! If you do not supply a key or password, you will be prompted for one. This will then be used to generate a key to encrypt the data with (using the specified hash and MAC).
-msgid "If you do not supply a key or password, you will be prompted for one. This will then be used to generate a key to encrypt the data with (using the specified hash and MAC)."
+#: src/main.c:139
+#| If you do not supply a key or password, you will be prompted for one. This will then be used to generate a key to encrypt the data with (using the specified hash and MAC)
+msgid "If you do not supply a key or password, you will be prompted for one. This will then be used to generate a key to encrypt the data with (using the specified hash and MAC)"
 msgstr ""
 
-#: src/main.c:135
+#: src/main.c:140
 #| To see available algorithms or modes use list as the argument.
 msgid "To see available algorithms or modes use list as the argument."
 msgstr ""
 
-#: src/main.c:136
+#: src/main.c:141
 #| If either the source file or destination file are omitted then stdin/stdout are used.
 msgid "If either the source file or destination file are omitted then stdin/stdout are used."
 msgstr ""
 
-#: src/main.c:137
-#! When encrypting, -c, -s -m, and -a are required to specify the algorithms you wish to use; when decrypting the algorithms originally used are read from the encrypted file, (although you can omit the algorithm options if you have configured defaults in ~/.encryptrc).
-msgid "When encrypting, -c, -s -m, and -a are required to specify the algorithms you wish to use; when decrypting the algorithms originally used are read from the encrypted file, (although you can omit the algorithm options if you have configured defaults in ~/.encryptrc)."
+#: src/main.c:142
+#| When encrypting, -c, -s -m, and -a are required to specify the algorithms you wish to use; when decrypting the algorithms originally used are read from the encrypted file, (although you can omit the algorithm options if you have configured defaults in ~/.encryptrc)
+msgid "When encrypting, -c, -s -m, and -a are required to specify the algorithms you wish to use; when decrypting the algorithms originally used are read from the encrypted file, (although you can omit the algorithm options if you have configured defaults in ~/.encryptrc)"
 msgstr ""
 
-#: src/main.c:138
+#: src/main.c:143
 #| If you encrypted data using --raw then you will need to pass the algorithms as arguments when decrypting.
 msgid "If you encrypted data using --raw then you will need to pass the algorithms as arguments when decrypting."
 msgstr ""
 
-#: src/main.c:139
+#: src/main.c:144
 #| You can toggle compression and how symbolic links are handled in the configuration file ~/.encryptrc
 msgid "You can toggle compression and how symbolic links are handled in the configuration file ~/.encryptrc"
 msgstr ""
 
-#: src/main.c:274
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/main.c:287
+#: src/main.c:291
 #. This is a GTK error; not translated here. If the GTK translations are
 #. installed the message should be translated.
 
-#: src/main.c:400
+#: src/main.c:403
 #| Could not create GUI - falling back to command line\n
 msgid "Could not create GUI - falling back to command line\n"
 msgstr ""
 
-#: src/main.c:421
+#: src/main.c:424
 #| Please enter a password:
 msgid "Please enter a password: "
 msgstr ""
 
-#: src/main.c:460
+#: src/main.c:472
 #. This is the (error) message from the en/decryption process. The messages are
 #. stored in the variable STATUS_MESSAGES in src/crypto.c:49-71 although it's
 #. likely only the failures and warnings will need translating, as the success
@@ -188,6 +190,65 @@ msgstr ""
 #| Failed: An unknown error has occurred!
 
 
-#: src/main.c:492
+#: src/main.c:505
+#. See common/version.po for version update link.
+
+#: src/main.c:508
 #| DEBUG BUILD
 #. See translation above
+
+#: src/main.c:612
+#| Test cipher        : %s\n
+msgid "Test cipher        : %s\n"
+msgstr ""
+
+#: src/main.c:613
+#| Test hash          : %s\n
+msgid "Test hash          : %s\n"
+msgstr ""
+
+#: src/main.c:614
+#| Test mode          : %s\n
+msgid "Test mode          : %s\n"
+msgstr ""
+
+#: src/main.c:615
+#| Test MAC           : %s\n
+msgid "Test MAC           : %s\n"
+msgstr ""
+
+#: src/main.c:616
+#| Test KDF iterations: %'10" PRIu32 "\n
+msgid "Test KDF iterations: %'10" PRIu32 "\n"
+msgstr ""
+
+#: src/main.c:617
+#| Test key size      : %'10" PRIu16 "\n
+msgid "Test key size      : %'10" PRIu16 "\n"
+msgstr ""
+
+#: src/main.c:618
+#| Test buffer size   : %'10" PRIu32 "\n
+msgid "Test buffer size   : %'10" PRIu32 "\n"
+msgstr ""
+
+#: src/main.c:640
+#| \nTesting encryption...
+msgid "\nTesting encryption..."
+msgstr ""
+
+#: src/main.c:650
+#| Testing decryption...
+msgid "Testing decryption..."
+msgstr ""
+
+#: src/main.c:668
+#| \nFail: Result not equal to original!\n
+msgid "\nFail: Result not equal to original!\n"
+msgstr ""
+
+#: src/main.c:670
+#| \nSelf-test passed.\n
+msgid "\nSelf-test passed.\n"
+msgstr ""
+

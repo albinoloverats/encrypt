@@ -1,39 +1,59 @@
-#: src/common/version.c:106
+#: src/common/version.c:103
 #| %s version
 msgid "%s version"
 msgstr ""
 
-#: src/common/version.c:117
+#: src/common/version.c:113
 #| built on
 msgid "built on"
 msgstr ""
 
-#: src/common/version.c:118
+#: src/common/version.c:115
+#| debug
+msgid "debug"
+msgstr ""
+
+#: src/common/version.c:115
+#| yes
+msgid "yes"
+msgstr ""
+
+#: src/common/version.c:117
+#| debug
+msgid "debug"
+msgstr ""
+
+#: src/common/version.c:117
+#| no
+msgid "no"
+msgstr ""
+
+#: src/common/version.c:119
 #| git commit
 msgid "git commit"
 msgstr ""
 
-#: src/common/version.c:119
+#: src/common/version.c:120
 #| build os
 msgid "build os"
 msgstr ""
 
-#: src/common/version.c:120
+#: src/common/version.c:121
 #| compiler
 msgid "compiler"
 msgstr ""
 
-#: src/common/version.c:121
+#: src/common/version.c:122
 #| cflags
 msgid "cflags"
 msgstr ""
 
-#: src/common/version.c:122
+#: src/common/version.c:123
 #| cppflags
 msgid "cppflags"
 msgstr ""
 
-#: src/common/version.c:123
+#: src/common/version.c:124
 #| runtime
 msgid "runtime"
 msgstr ""
@@ -43,39 +63,39 @@ msgstr ""
 msgid "libgcrypt"
 msgstr ""
 
-#: src/common/version.c:161
+#: src/common/version.c:138
+#| Version %s of %s is available from\n%s\n
+msgid "Version %s of %s is available from\n%s\n"
+msgstr ""
+
+#: src/common/version.c:159
 #| built on
 #. See translation above
 
-#: src/common/version.c:162
+#: src/common/version.c:160
 #| git commit
 #. See translation above
 
-#: src/common/version.c:163
+#: src/common/version.c:161
 #| build os
 #. See translation above
 
-#: src/common/version.c:164
+#: src/common/version.c:162
 #| compiler
 #. See translation above
 
-#: src/common/version.c:165
+#: src/common/version.c:163
 #| cflags
 #. See translation above
 
-#: src/common/version.c:166
+#: src/common/version.c:164
 #| cppflags
 #. See translation above
 
-#: src/common/version.c:167
+#: src/common/version.c:165
 #| runtime
 #. See translation above
 
-#: src/common/version.c:172
+#: src/common/version.c:169
 #| libgcrypt
 #. See translation above
-
-#: src/common/version.c:173
-#| libgcrypt
-#. See translation above
-

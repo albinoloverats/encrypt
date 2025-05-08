@@ -1,67 +1,32 @@
-#: src/common/config.c:87
+#: src/common/config.c:139
 #| Call config_init() first\n
 msgid "Call config_init() first\n"
 msgstr ""
 
-#: src/common/config.c:100
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
 
-#: src/common/config.c:103
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/common/config.c:208
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/common/config.c:211
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/common/config.c:341
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/common/config.c:392
+#: src/common/config.c:623
 #| Usage
 msgid "Usage"
 msgstr ""
 
-#: src/common/config.c:591
+#: src/common/config.c:907
 #| Options
 msgid "Options"
 msgstr ""
 
-#: src/common/config.c:601
-#| Advnaced Options
-msgid "Advnaced Options"
+#: src/common/config.c:930
+#| Advanced Options
+msgid "Advanced Options"
 msgstr ""
 
-#: src/common/config.c:609
+#: src/common/config.c:948
 #| Notes
 msgid "Notes"
 msgstr ""
 
-#:src/common/config.c:620
+#: src/common/config.c:965
 #. See common/common.po for the licence header text
 
-#:src/common/config.c:630
+#: src/common/config.c:979
 #| Call config_init() first\n
 #. See translation above
-
-#: src/common/config.c:636
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/common/config.c:639
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/common/config.c:731
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/common/config.c:737
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation

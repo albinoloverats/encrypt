@@ -7,18 +7,37 @@ msgstr ""
 #| unsupported size of unsigned long @ %s:%d:%s [%zu]
 #. See translation above
 
-#: src/common/non-gnu.c:325
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
+#: src/common/non-gnu.c:529
+#| Aborted
+msgid "Aborted"
+msgstr ""
 
-#: src/common/non-gnu.c:341
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
+#: src/common/non-gnu.c:532
+#| Floating point exception
+msgid "Floating point exception"
+msgstr ""
 
-#: src/common/non-gnu.c:409
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
+#: src/common/non-gnu.c:535
+#| Illegal instruction
+msgid "Illegal instruction"
+msgstr ""
 
-#: src/common/non-gnu.c:414
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
+#: src/common/non-gnu.c:538
+#| Interrupt
+msgid "Interrupt"
+msgstr ""
+
+#: src/common/non-gnu.c:541
+#| Segmentation fault
+msgid "Segmentation fault"
+msgstr ""
+
+#: src/common/non-gnu.c:544
+#| Terminated
+msgid "Terminated"
+msgstr ""
+
+#: src/common/non-gnu.c:547
+#| Unknown signal
+msgid "Unknown signal"
+msgstr ""

@@ -1,20 +1,4 @@
-#: src/common/ccrypt.c:69
+#: src/common/ccrypt.c:93
 #| libgcrypt is too old (need %s, have %s)
 msgid "libgcrypt is too old (need %s, have %s)"
 msgstr ""
-
-#: src/common/ccrypt.c:109
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/common/ccrypt.c:145
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/common/ccrypt.c:168
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/common/ccrypt.c:195
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation

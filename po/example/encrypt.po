@@ -1,65 +1,9 @@
-#: src/encrypt.c:90
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/encrypt.c:157
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/encrypt.c:169
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/encrypt.c:215
+#: src/encrypt.c:223
 #| Compatibility with version %s does not allow encrypting directories
 msgid "Compatibility with version %s does not allow encrypting directories"
 msgstr ""
 
-#: src/encrypt.c:248
+#: src/encrypt.c:258
 #| We’ve reached an unreachable location in the code @ %s:%d:%s
 msgid "We’ve reached an unreachable location in the code @ %s:%d:%s"
 msgstr ""
-
-#: src/encrypt.c:344
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/encrypt.c:351
-#| Out of memory @ %s:%d:%s [%" PRIu64 "]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/encrypt.c:432
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/encrypt.c:437
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/encrypt.c:442
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/encrypt.c:446
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/encrypt.c:536
-#| Out of memory @ %s:%d:%s [%hhu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/encrypt.c:559
-#| Out of memory @ %s:%d:%s [%zu]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/encrypt.c:592
-#| Out of memory @ %s:%d:%s [%" PRIu64 "]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/encrypt.c:638
-#| Out of memory @ %s:%d:%s [%" PRIu64 "]
-#. See common/common.po for the definitive “Out of memory …” message translation
-
-#: src/encrypt.c:711
-#| Out of memory @ %s:%d:%s [%" PRIu64 "]
-#. See common/common.po for the definitive “Out of memory …” message translation

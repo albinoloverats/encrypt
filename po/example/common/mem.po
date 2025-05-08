@@ -1,0 +1,40 @@
+#: src/common/mem.c:39
+#| Out of memory @ %s:%d:%s [%zu]
+msgid "Out of memory @ %s:%d:%s [%zu]"
+msgstr ""
+
+#: src/common/mem.c:47
+#| Out of memory @ %s:%d:%s [%zu]
+#. See above.
+
+#: src/common/mem.c:55
+#| Out of memory @ %s:%d:%s [%zu]
+#. See above.
+
+#: src/common/mem.c:64
+#| Out of memory @ %s:%d:%s [%zu]
+#. See above.
+
+#: src/common/mem.c:73
+#| Out of memory @ %s:%d:%s [%zu]
+#. See above.
+
+#: src/common/mem.c:94
+#| Out of memory @ %s:%d:%s [%zu]
+#. See above.
+
+#: src/common/mem.c:115
+#| Out of memory @ %s:%d:%s [%zu]
+#. See above.
+
+#: src/common/mem.c:127
+#| Out of memory @ %s:%d:%s [%zu]
+#. See above.
+
+#: src/common/mem.c:135
+#| Out of memory @ %s:%d:%s [%zu]
+#. See above.
+
+#: src/common/mem.c:143
+#| Out of memory @ %s:%d:%s [%zu]
+#. See above.

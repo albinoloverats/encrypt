@@ -1,0 +1,4 @@
+#: src/common/list.c:209
+#| We’ve reached an unreachable location in the code @ %s:%d:%s
+msgid "We’ve reached an unreachable location in the code @ %s:%d:%s"
+msgstr ""
