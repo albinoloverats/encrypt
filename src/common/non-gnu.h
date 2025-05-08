@@ -47,6 +47,9 @@
 	#define strfromf128 snprintf
 #endif
 
+
+/* All Windows specific from here down */
+
 #ifdef _WIN32
 
 #ifndef WIN32_LEAN_AND_MEAN

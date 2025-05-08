@@ -28,7 +28,9 @@
 
 #include "mem.h"
 #include "error.h"
-//#include "non-gnu.h"
+#include "non-gnu.h"
+
+#define VSN_SIZE (1024*1024)
 
 extern void *mem_mod(const char *file, int line, const char *func, size_t size)
 {
@@ -81,8 +83,11 @@ extern int mem_aod(const char *file, int line, const char *func, char **ptr, con
 #ifndef _WIN32
 	r = vasprintf(ptr, template, ap);
 #else
-	*ptr = m_calloc(l, 8);
-	r = vsnprintf(*ptr, (l * 8) - 1, template, ap);
+	if (!(*ptr))
+		*ptr = mem_cod(file, line, func, l, VSN_SIZE);
+	else
+		*ptr = mem_rod(file, line, func, *ptr, l * VSN_SIZE);
+	r = vsnprintf(*ptr, (l * VSN_SIZE) - 1, template, ap);
 #endif
 	va_end(ap);
 	if (r < 0)
@@ -96,12 +101,14 @@ extern char *mem_fod(const char *file, int line, const char *func, const char *t
 	size_t l = strlen(template);
 	va_list ap;
 	va_start(ap, template);
+
 	char *ptr = NULL;
 #ifndef _WIN32
 	r = vasprintf(&ptr, template, ap);
 #else
-	ptr = m_calloc(l, 8);
-	r = vsnprintf(*ptr, (l * 8) - 1, template, ap);
+	ptr = mem_cod(file, line, func, l, VSN_SIZE);
+	l *= VSN_SIZE;
+	r = vsnprintf(ptr, l - 1, template, ap);
 #endif
 	va_end(ap);
 	if (r < 0)

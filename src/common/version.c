@@ -111,6 +111,11 @@ extern void version_print(char *name, char *version, char *url)
 #endif
 	version_format(indent, av,              version);
 	version_format(indent, _("built on"),   __DATE__ " " __TIME__);
+#ifdef __DEBUG__
+	version_format(indent, _("debug"), _("yes"));
+#else
+	version_format(indent, _("debug"), _("no"));
+#endif
 	version_format(indent, _("git commit"), GIT_COMMIT);
 	version_format(indent, _("build os"),   BUILD_OS);
 	version_format(indent, _("compiler"),   COMPILER);
