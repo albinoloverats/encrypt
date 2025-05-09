@@ -47,7 +47,7 @@ public enum Status
 	FAILED_OTHER("Failed An unknown error has occurred!"),
 	/* warnings - decryption finished but with possible errors */
 	WARNING_CHECKSUM("Warning: Bad checksum!\n(Possible data corruption)"),
-	WARNING_LINK("Warning: Could not extract all files!\n(Symlinks are unsupported");
+	WARNING_LINK("Warning: Could not extract all files!\n(Symlinks are unsupported)");
 
 	public final String message;
 

@@ -71,6 +71,8 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Set;
 
+import static net.albinoloverats.android.encrypt.lib.IntentKey.*;
+
 public class MainFree extends Activity
 {
 	private static final Set<String> CIPHERS = CryptoUtils.getCipherAlgorithmNames();
@@ -601,26 +603,26 @@ public class MainFree extends Activity
 		/* kick off the actual cipher process */
 		val intent = new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class);
 
-		intent.putExtra("class", MainFree.class);
-		intent.putExtra("action", encrypting ? R.string.encrypting : R.string.decrypting);
-		intent.putExtra("wait", R.string.please_wait);
-		intent.putExtra("icon", R.drawable.icon_bw);
-		intent.putParcelableArrayListExtra("source", filenamesIn);
-		intent.putExtra("output", filenameOut);
-		intent.putExtra("cipher", cipher);
-		intent.putExtra("hash", hash);
-		intent.putExtra("mode", mode);
-		intent.putExtra("mac", mac);
-		intent.putExtra("kdf_iterations", kdfIterations);
-		intent.putExtra("key_file", key_file);
+		intent.putExtra(CLASS.name(), MainFree.class);
+		intent.putExtra(ACTION.name(), encrypting ? R.string.encrypting : R.string.decrypting);
+		intent.putExtra(WAIT.name(), R.string.please_wait);
+		intent.putExtra(ICON.name(), R.drawable.icon_bw);
+		intent.putParcelableArrayListExtra(SOURCE.name(), filenamesIn);
+		intent.putExtra(OUTPUT.name(), filenameOut);
+		intent.putExtra(CIPHER.name(), cipher);
+		intent.putExtra(HASH.name(), hash);
+		intent.putExtra(MODE.name(), mode);
+		intent.putExtra(MAC.name(), mac);
+		intent.putExtra(KDF_ITERATIONS.name(), kdfIterations);
+		intent.putExtra(KEY_FILE.name(), key_file);
 		if (key_file)
-			intent.putExtra("key", key);
+			intent.putExtra(KEY.name(), key);
 		else
-			intent.putExtra("key", password.getBytes());
-		intent.putExtra("raw", raw);
-		intent.putExtra("compress", compress);
-		intent.putExtra("follow", follow);
-		intent.putExtra("version", version.magicNumber);
+			intent.putExtra(KEY.name(), password.getBytes());
+		intent.putExtra(RAW.name(), raw);
+		intent.putExtra(COMPRESS.name(), compress);
+		intent.putExtra(FOLLOW.name(), follow);
+		intent.putExtra(VERSION.name(), version.magicNumber);
 		return intent;
 	}
 
@@ -703,12 +705,12 @@ public class MainFree extends Activity
 		@Override
 		public void onReceive(final Context ctx, final Intent intent)
 		{
-			val currentFile = intent.getStringExtra("current.file");
-			val currentOffset = intent.getLongExtra("current.offset", 0L);
-			val currentSize = intent.getLongExtra("current.size", 0L);
-			val totalOffset = intent.getLongExtra("total.offset", 0L);
-			val totalSize = intent.getLongExtra("total.size", 0L);
-			val status = Status.parseStatus(intent.getStringExtra("status"));
+			val currentFile = intent.getStringExtra(CURRENT_FILE.name());
+			val currentOffset = intent.getLongExtra(CURRENT_OFFSET.name(), 0L);
+			val currentSize = intent.getLongExtra(CURRENT_SIZE.name(), 0L);
+			val totalOffset = intent.getLongExtra(TOTAL_OFFSET.name(), 0L);
+			val totalSize = intent.getLongExtra(TOTAL_SIZE.name(), 0L);
+			val status = Status.parseStatus(intent.getStringExtra(STATUS.name()));
 
 			if (status == Status.INIT || status == Status.RUNNING)
 			{

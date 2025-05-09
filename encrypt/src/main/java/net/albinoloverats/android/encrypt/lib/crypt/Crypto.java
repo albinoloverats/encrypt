@@ -41,6 +41,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import static net.albinoloverats.android.encrypt.lib.IntentKey.CLASS;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.CURRENT_FILE;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.CURRENT_OFFSET;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.CURRENT_SIZE;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.KEY;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.OUTPUT;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.SOURCE;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.STATUS;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.TOTAL_OFFSET;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.TOTAL_SIZE;
+
 public abstract class Crypto extends Service implements Runnable
 {
 	protected static final long[] HEADER = { 0x3697de5d96fca0faL, 0xc845c2fa95e2f52dL, Version.CURRENT.magicNumber };
@@ -268,12 +279,12 @@ public abstract class Crypto extends Service implements Runnable
 	{
 		val intent = new Intent();
 		intent.setAction(actionTitle);
-		intent.putExtra("current.file", current.file);
-		intent.putExtra("current.offset", current.offset);
-		intent.putExtra("current.size", current.size);
-		intent.putExtra("total.offset", total.offset);
-		intent.putExtra("total.size", total.size);
-		intent.putExtra("status", status.name());
+		intent.putExtra(CURRENT_FILE.name(), current.file);
+		intent.putExtra(CURRENT_OFFSET.name(), current.offset);
+		intent.putExtra(CURRENT_SIZE.name(), current.size);
+		intent.putExtra(TOTAL_OFFSET.name(), total.offset);
+		intent.putExtra(TOTAL_SIZE.name(), total.size);
+		intent.putExtra(STATUS.name(), status.name());
 		sendBroadcast(intent);
 
 		notificationBuilder.setContentText(status == Status.INIT || status == Status.RUNNING ? total.offset + "/" + total.size : status.toString());
@@ -292,28 +303,28 @@ public abstract class Crypto extends Service implements Runnable
 	 */
 	private static Uri getKey(final Intent intent)
 	{
-		return getUri(intent, "key");
+		return getUri(intent, KEY.name());
 	}
 
 	@SuppressWarnings("deprecation")
 	private static Class<?> getClass(final Intent intent)
 	{
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
-			return intent.getSerializableExtra("class", Class.class);
-		return (Class<?>)intent.getSerializableExtra("class");
+			return intent.getSerializableExtra(CLASS.name(), Class.class);
+		return (Class<?>)intent.getSerializableExtra(CLASS.name());
 	}
 
 	@SuppressWarnings("deprecation")
 	protected static List<Uri> getSource(final Intent intent)
 	{
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
-			return intent.getParcelableArrayListExtra("source", Uri.class);
-		return intent.getParcelableArrayListExtra("source");
+			return intent.getParcelableArrayListExtra(SOURCE.name(), Uri.class);
+		return intent.getParcelableArrayListExtra(SOURCE.name());
 	}
 
 	protected static Uri getOutput(final Intent intent)
 	{
-		return getUri(intent, "output");
+		return getUri(intent, OUTPUT.name());
 	}
 
 	@SuppressWarnings("deprecation")

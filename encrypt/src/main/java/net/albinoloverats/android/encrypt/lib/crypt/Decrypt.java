@@ -35,11 +35,17 @@ import org.tukaani.xz.XZInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashMap;
+
+import static net.albinoloverats.android.encrypt.lib.IntentKey.CIPHER;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.ENCRYPTING;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.HASH;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.KDF_ITERATIONS;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.MAC;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.MODE;
 
 public class Decrypt extends Crypto
 {
@@ -80,14 +86,14 @@ public class Decrypt extends Crypto
 		}
 		if (raw)
 		{
-			cipher = intent.getStringExtra("cipher");
-			hash = intent.getStringExtra("hash");
-			mode = intent.getStringExtra("mode");
-			mac = intent.getStringExtra("mac");
-			kdfIterations = intent.getIntExtra("kdf_iterations", KDF_ITERATIONS_DEFAULT);
+			cipher = intent.getStringExtra(CIPHER.name());
+			hash = intent.getStringExtra(HASH.name());
+			mode = intent.getStringExtra(MODE.name());
+			mac = intent.getStringExtra(MAC.name());
+			kdfIterations = intent.getIntExtra(KDF_ITERATIONS.name(), KDF_ITERATIONS_DEFAULT);
 		}
 
-		intent.putExtra("encrypting", false);
+		intent.putExtra(ENCRYPTING.name(), false);
 		return super.onStartCommand(intent, flags, startId);
 	}
 

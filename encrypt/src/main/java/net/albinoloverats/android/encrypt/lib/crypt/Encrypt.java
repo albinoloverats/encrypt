@@ -40,6 +40,16 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import static net.albinoloverats.android.encrypt.lib.IntentKey.CIPHER;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.COMPRESS;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.ENCRYPTING;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.FOLLOW;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.HASH;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.KDF_ITERATIONS;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.MAC;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.MODE;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.VERSION;
+
 public class Encrypt extends Crypto
 {
 	private List<Uri> fakeDir = null;
@@ -54,15 +64,15 @@ public class Encrypt extends Crypto
 
 		val source = getSource(intent);
 		val output = getOutput(intent);
-		cipher = intent.getStringExtra("cipher");
-		hash = intent.getStringExtra("hash");
-		mode = intent.getStringExtra("mode");
-		mac = intent.getStringExtra("mac");
-		kdfIterations = intent.getIntExtra("kdf_iterations", KDF_ITERATIONS_DEFAULT);
+		cipher = intent.getStringExtra(CIPHER.name());
+		hash = intent.getStringExtra(HASH.name());
+		mode = intent.getStringExtra(MODE.name());
+		mac = intent.getStringExtra(MAC.name());
+		kdfIterations = intent.getIntExtra(KDF_ITERATIONS.name(), KDF_ITERATIONS_DEFAULT);
 
-		compressed = intent.getBooleanExtra("compress", compressed);
-		follow_links = intent.getBooleanExtra("follow", follow_links);
-		version = Version.parseMagicNumber(intent.getLongExtra("version", Version.CURRENT.magicNumber), Version.CURRENT);
+		compressed = intent.getBooleanExtra(COMPRESS.name(), compressed);
+		follow_links = intent.getBooleanExtra(FOLLOW.name(), follow_links);
+		version = Version.parseMagicNumber(intent.getLongExtra(VERSION.name(), Version.CURRENT.magicNumber), Version.CURRENT);
 
 		try
 		{
@@ -131,7 +141,7 @@ public class Encrypt extends Crypto
 				break;
 		}
 
-		intent.putExtra("encrypting", true);
+		intent.putExtra(ENCRYPTING.name(), true);
 		return super.onStartCommand(intent, flags, startId);
 	}
 
