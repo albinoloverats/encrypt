@@ -31,7 +31,6 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
@@ -81,13 +80,13 @@ public final class CryptoUtils
 	public static Set<String> getCipherAlgorithmNames()
 	{
 		val h = new TreeSet<String>();
-		for (final Object o : CipherFactory.getNames())
+		for (val o : CipherFactory.getNames())
 		{
 			var n = ((String)o).replace("-", "").toUpperCase(Locale.ENGLISH);
 			if (n.equals("NULL"))
 				continue;
 			val keySizes = new TreeSet<Integer>();
-			for (final Iterator<?> iterator = CipherFactory.getInstance(n).keySizes(); iterator.hasNext(); )
+			for (var iterator = CipherFactory.getInstance(n).keySizes(); iterator.hasNext(); )
 				keySizes.add((Integer)iterator.next());
 			if (n.equals(NAME_TRIPLE_DES))
 				n = NAME_3DES;
@@ -118,7 +117,7 @@ public final class CryptoUtils
 			{
 				val keySizes = new TreeSet<Integer>();
 				val cipher = CipherFactory.getInstance(n);
-				for (final Iterator<?> iterator = cipher.keySizes(); iterator.hasNext(); )
+				for (var iterator = cipher.keySizes(); iterator.hasNext(); )
 					keySizes.add((Integer)iterator.next());
 				if (keySizes.size() == 1 || n.equals(NAME_CAST5))
 					return cipher;
@@ -146,7 +145,7 @@ public final class CryptoUtils
 			{
 				val keySizes = new TreeSet<Integer>();
 				val cipher = CipherFactory.getInstance(n);
-				for (final Iterator<?> iterator = cipher.keySizes(); iterator.hasNext(); )
+				for (var iterator = cipher.keySizes(); iterator.hasNext(); )
 					keySizes.add((Integer)iterator.next());
 				if (keySizes.size() == 1)
 					return cipher.defaultKeySize() * Byte.SIZE;

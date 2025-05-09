@@ -20,6 +20,7 @@
 
 package net.albinoloverats.android.encrypt.lib.io;
 
+import lombok.Getter;
 import lombok.val;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
@@ -30,7 +31,7 @@ public class ECCFileInputStream extends ECCFileStream
 {
 	private final InputStream inputStream;
 
-	@lombok.Getter
+	@Getter
 	private int decodeError;
 
 	public ECCFileInputStream(final InputStream stream)

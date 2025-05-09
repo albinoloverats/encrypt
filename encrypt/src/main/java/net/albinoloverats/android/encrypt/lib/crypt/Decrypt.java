@@ -47,6 +47,8 @@ public class Decrypt extends Crypto
 	private static final String DEFAULT_OUTPUT_FILENAME = "decrypted";
 	public static final String MIME_TYPE = "application/octet-stream";
 
+	private boolean symlinkWarning = false;
+
 	@Override
 	public int onStartCommand(final Intent intent, final int flags, final int startId)
 	{
@@ -183,6 +185,8 @@ public class Decrypt extends Crypto
 
 			if (status == Status.RUNNING)
 				status = Status.SUCCESS;
+			if (symlinkWarning)
+				status = Status.WARNING_LINK;
 		}
 		catch (final CryptoProcessException e)
 		{
@@ -400,16 +404,18 @@ public class Decrypt extends Crypto
 					break;
 				case LINK:
 				case SYMLINK:
+					symlinkWarning = true;
 					b = new byte[Long.SIZE / Byte.SIZE];
 					readAndHash(b);
 					l = Convert.longFromBytes(b);
 					b = new byte[(int)l];
 					readAndHash(b);
-					val link = parent + File.separator + new String(b);
+/*					val link = parent.getName() + File.separator + new String(b);
+					val target = new File(link).toPath();
 					if (t == FileType.LINK)
-						Files.createLink(new File(name).toPath(), new File(link).toPath());
+						Files.createLink(path, target);
 					else
-						Files.createSymbolicLink(new File(name).toPath(), new File(link).toPath());
+						Files.createSymbolicLink(path, target);*/
 					break;
 			}
 		}

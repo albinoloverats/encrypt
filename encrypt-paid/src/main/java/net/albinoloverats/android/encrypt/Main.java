@@ -33,6 +33,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -51,6 +52,7 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import androidx.documentfile.provider.DocumentFile;
 import com.simaomata.DoubleProgressDialog;
+import lombok.RequiredArgsConstructor;
 import lombok.val;
 import net.albinoloverats.android.encrypt.lib.FileAction;
 import net.albinoloverats.android.encrypt.lib.Options;
@@ -64,7 +66,6 @@ import net.albinoloverats.android.encrypt.lib.crypt.Version;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Set;
 
 public class Main extends Activity
@@ -127,28 +128,28 @@ public class Main extends Activity
 		findViewById(R.id.button_output).setOnClickListener(new FileChooserListener(FileAction.SAVE));
 
 		// set up the hash and crypto spinners
-		final Spinner cSpinner = findViewById(R.id.spin_crypto);
+		val cSpinner = (Spinner)findViewById(R.id.spin_crypto);
 		val cipherSpinAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
 		cipherSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		cSpinner.setAdapter(cipherSpinAdapter);
 		cSpinner.setOnItemSelectedListener(new SpinnerSelectedListener(CIPHERS));
 		cSpinner.setEnabled(false);
 
-		final Spinner hSpinner = findViewById(R.id.spin_hash);
+		val hSpinner = (Spinner)findViewById(R.id.spin_hash);
 		val hashSpinAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
 		hashSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		hSpinner.setAdapter(hashSpinAdapter);
 		hSpinner.setOnItemSelectedListener(new SpinnerSelectedListener(HASHES));
 		hSpinner.setEnabled(false);
 
-		final Spinner mSpinner = findViewById(R.id.spin_mode);
+		val mSpinner = (Spinner)findViewById(R.id.spin_mode);
 		val modeSpinAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
 		modeSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		mSpinner.setAdapter(modeSpinAdapter);
 		mSpinner.setOnItemSelectedListener(new SpinnerSelectedListener(MODES));
 		mSpinner.setEnabled(false);
 
-		final Spinner aSpinner = findViewById(R.id.spin_mac);
+		val aSpinner = (Spinner)findViewById(R.id.spin_mac);
 		val macSpinAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
 		macSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		aSpinner.setAdapter(macSpinAdapter);
@@ -196,7 +197,7 @@ public class Main extends Activity
 			i++;
 		}
 
-		final NumberPicker kdf = findViewById(R.id.spin_kdf);
+		val kdf = (NumberPicker)findViewById(R.id.spin_kdf);
 		kdf.setMaxValue(Integer.MAX_VALUE);
 		kdf.setMinValue(1);
 		kdf.setValue(kdfIterations);
@@ -209,7 +210,7 @@ public class Main extends Activity
 		});
 
 		// get reference to password text box
-		final EditText pEntry = findViewById(R.id.text_password);
+		val pEntry = (EditText)findViewById(R.id.text_password);
 		pEntry.addTextChangedListener(new TextWatcher()
 		{
 			@Override
@@ -240,12 +241,12 @@ public class Main extends Activity
 		pEntry.setEnabled(false);
 
 		// select key file button
-		final Button keyButton = findViewById(R.id.button_key);
+		val keyButton = findViewById(R.id.button_key);
 		keyButton.setOnClickListener(new FileChooserListener(FileAction.KEY));
 		keyButton.setEnabled(false);
 
 		// get reference to encrypt/decrypt button
-		final Button encButton = findViewById(R.id.button_go);
+		val encButton = findViewById(R.id.button_go);
 		encButton.setOnClickListener(v ->
 		{
 			createDoubleProgressDialog();
@@ -384,8 +385,8 @@ public class Main extends Activity
 
 	private void toggleKeySource()
 	{
-		final EditText pass = findViewById(R.id.text_password);
-		final Button key = findViewById(R.id.button_key);
+		val pass = (EditText)findViewById(R.id.text_password);
+		val key = (Button)findViewById(R.id.button_key);
 		pass.setVisibility(key_file ? View.GONE : View.VISIBLE);
 		key.setVisibility(key_file ? View.VISIBLE : View.GONE);
 		pass.setText("");
@@ -459,14 +460,14 @@ public class Main extends Activity
 
 	private void checkEnableButtons()
 	{
-		final Spinner cSpinner = findViewById(R.id.spin_crypto);
-		final Spinner hSpinner = findViewById(R.id.spin_hash);
-		final Spinner mSpinner = findViewById(R.id.spin_mode);
-		final Spinner aSpinner = findViewById(R.id.spin_mac);
-		final NumberPicker kdfSpinner = findViewById(R.id.spin_kdf);
-		final EditText password = findViewById(R.id.text_password);
-		final Button keyButton = findViewById(R.id.button_key);
-		final Button encButton = findViewById(R.id.button_go);
+		val cSpinner = (Spinner)findViewById(R.id.spin_crypto);
+		val hSpinner = (Spinner)findViewById(R.id.spin_hash);
+		val mSpinner = (Spinner)findViewById(R.id.spin_mode);
+		val aSpinner = (Spinner)findViewById(R.id.spin_mac);
+		val kdfSpinner = (NumberPicker)findViewById(R.id.spin_kdf);
+		val password = (EditText)findViewById(R.id.text_password);
+		val keyButton = (Button)findViewById(R.id.button_key);
+		val encButton = (Button)findViewById(R.id.button_go);
 
 		hSpinner.setEnabled(false);
 		cSpinner.setEnabled(false);
@@ -531,7 +532,35 @@ public class Main extends Activity
 		val intentFilter = new IntentFilter();
 		intentFilter.addAction(getString(encrypting ? R.string.encrypting : R.string.decrypting));
 		registerReceiver(progressReceiver, intentFilter);
-		messageHandler = new MessageHandler(Main.this);
+		messageHandler = new MessageHandler(Main.this, msg -> {
+			val progressUpdate = ProgressUpdate.fromValue(msg.what);
+			if (progressUpdate != null && doubleProgressDialog != null)
+				switch (progressUpdate)
+				{
+					case DONE:
+						cancelDoubleProgressDialog();
+						Toast.makeText(getApplicationContext(), (String)msg.obj, Toast.LENGTH_LONG).show();
+						break;
+					case CURRENT:
+						doubleProgressDialog.setMax(msg.arg1);
+						doubleProgressDialog.setProgress(msg.arg2);
+						break;
+					case TOTAL:
+						if (msg.arg1 < 0 || msg.arg2 < 0)
+							doubleProgressDialog.hideSecondaryProgress();
+						else
+						{
+							doubleProgressDialog.showSecondaryProgress();
+							doubleProgressDialog.setSecondaryMax(msg.arg1);
+							doubleProgressDialog.setSecondaryProgress(msg.arg2);
+							val currentFile = (String)msg.obj;
+							if (currentFile != null)
+								doubleProgressDialog.setMessage(currentFile);
+						}
+						break;
+				}
+			return true;
+		});
 	}
 
 	private void cancelDoubleProgressDialog()
@@ -580,14 +609,10 @@ public class Main extends Activity
 	 * private on... (something) event handlers
 	 */
 
+	@RequiredArgsConstructor
 	private class FileChooserListener implements OnClickListener
 	{
 		private final FileAction fileAction;
-
-		public FileChooserListener(final FileAction fileAction)
-		{
-			this.fileAction = fileAction;
-		}
 
 		@Override
 		public void onClick(final View v)
@@ -613,21 +638,17 @@ public class Main extends Activity
 		}
 	}
 
+	@RequiredArgsConstructor
 	private class SpinnerSelectedListener implements OnItemSelectedListener
 	{
 		private final Set<String> choices;
-
-		public SpinnerSelectedListener(final Set<String> choices)
-		{
-			this.choices = choices;
-		}
 
 		@Override
 		public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id)
 		{
 			String selected = null;
 			int i = 0;
-			for (final Iterator<String> iterator = choices.iterator(); iterator.hasNext(); iterator.next(), i++)
+			for (var iterator = choices.iterator(); iterator.hasNext(); iterator.next(), i++)
 				if (position > 0 && i == position - 1)
 				{
 					selected = iterator.next();
@@ -685,11 +706,14 @@ public class Main extends Activity
 
 	private static class MessageHandler extends Handler
 	{
-		private final WeakReference<Main> reference;
+		private final WeakReference<Activity> reference;
+		private final Callback callback;
 
-		public MessageHandler(final Main service)
+		public MessageHandler(final Activity service, final Callback callback)
 		{
+			super(Looper.myLooper(), callback);
 			reference = new WeakReference<>(service);
+			this.callback = callback;
 		}
 
 		@Override
@@ -697,37 +721,7 @@ public class Main extends Activity
 		{
 			val service = reference.get();
 			if (service != null)
-				service.handleMessage(msg);
+				callback.handleMessage(msg);
 		}
-	}
-
-	private void handleMessage(final Message msg)
-	{
-		val progressUpdate = ProgressUpdate.fromValue(msg.what);
-		if (progressUpdate != null && doubleProgressDialog != null)
-			switch (progressUpdate)
-			{
-				case DONE:
-					cancelDoubleProgressDialog();
-					Toast.makeText(getApplicationContext(), (String)msg.obj, Toast.LENGTH_LONG).show();
-					break;
-				case CURRENT:
-					doubleProgressDialog.setMax(msg.arg1);
-					doubleProgressDialog.setProgress(msg.arg2);
-					break;
-				case TOTAL:
-					if (msg.arg1 < 0 || msg.arg2 < 0)
-						doubleProgressDialog.hideSecondaryProgress();
-					else
-					{
-						doubleProgressDialog.showSecondaryProgress();
-						doubleProgressDialog.setSecondaryMax(msg.arg1);
-						doubleProgressDialog.setSecondaryProgress(msg.arg2);
-						val currentFile = (String)msg.obj;
-						if (currentFile != null)
-							doubleProgressDialog.setMessage(currentFile);
-					}
-					break;
-			}
 	}
 }
