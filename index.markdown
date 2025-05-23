@@ -10,7 +10,7 @@ It's this level of portability and simplicity which we hope will make encrypt mo
 
 NB: It has been noted that some characters, when used in the password, aren't completely cross-platform; for instance the character £ doesn't play well on Android devices.
 
-Binary packages, and GPG signatures, for version 2024.01 are available below (as well as at [Sourceforge]):
+Binary packages, and GPG signatures, for version 2025.05 are available below (as well as at [Sourceforge]):
 
 |OS|Package|GPG Signature|Screenshots|
 |-|-|-|-|
@@ -41,54 +41,54 @@ A demo of using the CLI can be found over on [asciinema](https://asciinema.org/a
 [Sourceforge]: https://sourceforge.net/projects/encrypt/
 
 [Arch Linux]: http://www.archlinux.org
-[ap]: /downloads/encrypt/2024.01/encrypt-2024.01-1-x86_64.pkg.tar.zst
-[ag]: /downloads/encrypt/2024.01/encrypt-2024.01-1-x86_64.pkg.tar.zst.asc
+[ap]: /downloads/encrypt/2025.05/encrypt-2025.05-1-x86_64.pkg.tar.zst
+[ag]: /downloads/encrypt/2025.05/encrypt-2025.05-1-x86_64.pkg.tar.zst.asc
 [as]: /src/encrypt/pixmaps/screenshot_linux_idle.png
 
 [Debian]: http://www.debian.org
-[dp]: /downloads/encrypt/2024.01/encrypt_2024.01-1_amd64.deb
-[dg]: /downloads/encrypt/2024.01/encrypt_2024.01-1_amd64.deb.asc
+[dp]: /downloads/encrypt/2025.05/encrypt_2025.05-1_amd64.deb
+[dg]: /downloads/encrypt/2025.05/encrypt_2025.05-1_amd64.deb.asc
 
 [Fedora]: http://fedoraproject.org
-[fp]: /downloads/encrypt/2024.01/encrypt-2024.01-1.x86_64.rpm
-[fg]: /downloads/encrypt/2024.01/encrypt-2024.01-1.x86_64.rpm.asc
+[fp]: /downloads/encrypt/2025.05/encrypt-2025.05-1.x86_64.rpm
+[fg]: /downloads/encrypt/2025.05/encrypt-2025.05-1.x86_64.rpm.asc
 
 [Slackware]: http://http://www.slackware.com
-[kp]: /downloads/encrypt/2024.01/encrypt-2024.01-x86_64-1aa.tgz
-[kg]: /downloads/encrypt/2024.01/encrypt-2024.01-x86_64-1aa.tgz.asc
+[kp]: /downloads/encrypt/2025.05/encrypt-2025.05-x86_64-1aa.tgz
+[kg]: /downloads/encrypt/2025.05/encrypt-2025.05-x86_64-1aa.tgz.asc
 
 [FreeBSD]: https://www.freebsd.org
-[bp]: /downloads/encrypt/2024.01/encrypt-2024.01.pkg
-[bg]: /downloads/encrypt/2024.01/encrypt-2024.01.pkg.asc
+[bp]: /downloads/encrypt/2025.05/encrypt-2025.05.pkg
+[bg]: /downloads/encrypt/2025.05/encrypt-2025.05.pkg.asc
 
 [Solaris]: https://www.oracle.com/solaris/solaris11/
-[sp]: /downloads/encrypt/2024.01/encrypt-2024.01-i386.pkg
-[sg]: /downloads/encrypt/2024.01/encrypt-2024.01-i386.pkg.asc
+[sp]: /downloads/encrypt/2025.05/encrypt-2025.05-i386.pkg
+[sg]: /downloads/encrypt/2025.05/encrypt-2025.05-i386.pkg.asc
 
 [Windows]: https://www.microsoft.com
-[wp]: /downloads/encrypt/2024.01/encrypt-2024.01-install.exe
-[wg]: /downloads/encrypt/2024.01/encrypt-2024.01-install.exe.asc
+[wp]: /downloads/encrypt/2025.05/encrypt-2025.05-install.exe
+[wg]: /downloads/encrypt/2025.05/encrypt-2025.05-install.exe.asc
 [ws]: /src/encrypt/pixmaps/screenshot_windows_idle.png
 
 [mp]: https://market.android.com/details?id=net.albinoloverats.android.encrypt
 [ms]: /src/encrypt/pixmaps/screenshot_android_idle.png
-[gp]: /downloads/encrypt/2024.01/encrypt-2024.01-free.apk
-[gg]: /downloads/encrypt/2024.01/encrypt-2024.01-free.apk.asc
+[gp]: /downloads/encrypt/2025.05/encrypt-2025.05-free.apk
+[gg]: /downloads/encrypt/2025.05/encrypt-2025.05-free.apk.asc
 
 [OS X]: https://www.apple.com
-[xp]: /downloads/encrypt/2024.01/encrypt-2024.01-install.pkg
-[xg]: /downloads/encrypt/2024.01/encrypt-2024.01-install.pkg.asc
+[xp]: /downloads/encrypt/2025.05/encrypt-2025.05-install.pkg
+[xg]: /downloads/encrypt/2025.05/encrypt-2025.05-install.pkg.asc
 [xs]: /src/encrypt/pixmaps/screenshot_macosx_idle.png
 
-[rp]: /downloads/encrypt/2024.01/encrypt-2024.01-desktop-src.tar.xz
-[rg]: /downloads/encrypt/2024.01/encrypt-2024.01-desktop-src.tar.xz.asc
-[rz]: /downloads/encrypt/2024.01/encrypt-2024.01-desktop-src.zip
-[ry]: /downloads/encrypt/2024.01/encrypt-2024.01-desktop-src.zip.asc
+[rp]: /downloads/encrypt/2025.05/encrypt-2025.05-desktop-src.tar.xz
+[rg]: /downloads/encrypt/2025.05/encrypt-2025.05-desktop-src.tar.xz.asc
+[rz]: /downloads/encrypt/2025.05/encrypt-2025.05-desktop-src.zip
+[ry]: /downloads/encrypt/2025.05/encrypt-2025.05-desktop-src.zip.asc
 
-[qp]: /downloads/encrypt/2024.01/encrypt-2024.01-android-src.tar.xz
-[qg]: /downloads/encrypt/2024.01/encrypt-2024.01-android-src.tar.xz.asc
-[qz]: /downloads/encrypt/2024.01/encrypt-2024.01-desktop-src.zip
-[qy]: /downloads/encrypt/2024.01/encrypt-2024.01-desktop-src.zip.asc
+[qp]: /downloads/encrypt/2025.05/encrypt-2025.05-android-src.tar.xz
+[qg]: /downloads/encrypt/2025.05/encrypt-2025.05-android-src.tar.xz.asc
+[qz]: /downloads/encrypt/2025.05/encrypt-2025.05-desktop-src.zip
+[qy]: /downloads/encrypt/2025.05/encrypt-2025.05-desktop-src.zip.asc
 
 [qr]: https://qrcode.kaywa.com/img.php?s=2&d=https%3A%2F%2Fmarket.android.com%2Fdetails%3Fid%3Dnet.albinoloverats.android.encrypt
 
