@@ -64,15 +64,15 @@ public class Encrypt extends Crypto
 
 		val source = getSource(intent);
 		val output = getOutput(intent);
-		cipher = intent.getStringExtra(CIPHER.name());
-		hash = intent.getStringExtra(HASH.name());
-		mode = intent.getStringExtra(MODE.name());
-		mac = intent.getStringExtra(MAC.name());
-		kdfIterations = intent.getIntExtra(KDF_ITERATIONS.name(), KDF_ITERATIONS_DEFAULT);
+		cipher = intent.getStringExtra(CIPHER.toString());
+		hash = intent.getStringExtra(HASH.toString());
+		mode = intent.getStringExtra(MODE.toString());
+		mac = intent.getStringExtra(MAC.toString());
+		kdfIterations = intent.getIntExtra(KDF_ITERATIONS.toString(), KDF_ITERATIONS_DEFAULT);
 
-		compressed = intent.getBooleanExtra(COMPRESS.name(), compressed);
-		follow_links = intent.getBooleanExtra(FOLLOW.name(), follow_links);
-		version = Version.parseMagicNumber(intent.getLongExtra(VERSION.name(), Version.CURRENT.magicNumber), Version.CURRENT);
+		compressed = intent.getBooleanExtra(COMPRESS.toString(), compressed);
+		follow_links = intent.getBooleanExtra(FOLLOW.toString(), follow_links);
+		version = Version.parseMagicNumber(intent.getLongExtra(VERSION.toString(), Version.CURRENT.magicNumber), Version.CURRENT);
 
 		try
 		{
@@ -141,7 +141,7 @@ public class Encrypt extends Crypto
 				break;
 		}
 
-		intent.putExtra(ENCRYPTING.name(), true);
+		intent.putExtra(ENCRYPTING.toString(), true);
 		return super.onStartCommand(intent, flags, startId);
 	}
 

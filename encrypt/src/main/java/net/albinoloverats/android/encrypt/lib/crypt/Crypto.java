@@ -41,16 +41,21 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import static net.albinoloverats.android.encrypt.lib.IntentKey.ACTION;
 import static net.albinoloverats.android.encrypt.lib.IntentKey.CLASS;
 import static net.albinoloverats.android.encrypt.lib.IntentKey.CURRENT_FILE;
 import static net.albinoloverats.android.encrypt.lib.IntentKey.CURRENT_OFFSET;
 import static net.albinoloverats.android.encrypt.lib.IntentKey.CURRENT_SIZE;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.ICON;
 import static net.albinoloverats.android.encrypt.lib.IntentKey.KEY;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.KEY_FILE;
 import static net.albinoloverats.android.encrypt.lib.IntentKey.OUTPUT;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.RAW;
 import static net.albinoloverats.android.encrypt.lib.IntentKey.SOURCE;
 import static net.albinoloverats.android.encrypt.lib.IntentKey.STATUS;
 import static net.albinoloverats.android.encrypt.lib.IntentKey.TOTAL_OFFSET;
 import static net.albinoloverats.android.encrypt.lib.IntentKey.TOTAL_SIZE;
+import static net.albinoloverats.android.encrypt.lib.IntentKey.WAIT;
 
 public abstract class Crypto extends Service implements Runnable
 {
@@ -133,15 +138,15 @@ public abstract class Crypto extends Service implements Runnable
 	public int onStartCommand(final Intent intent, final int flags, final int startId)
 	{
 		val clas = getClass(intent);
-		val action = intent.getIntExtra("action", 0);
-		val wait = intent.getIntExtra("wait", 0);
-		val icon = intent.getIntExtra("icon", 0);
+		val action = intent.getIntExtra(ACTION.toString(), 0);
+		val wait = intent.getIntExtra(WAIT.toString(), 0);
+		val icon = intent.getIntExtra(ICON.toString(), 0);
 
-		if (intent.getBooleanExtra("key_file", false))
+		if (intent.getBooleanExtra(KEY_FILE.toString(), false))
 			setKey(getKey(intent));
 		else
-			key = intent.getByteArrayExtra("key");
-		raw = intent.getBooleanExtra("raw", raw);
+			key = intent.getByteArrayExtra(KEY.toString());
+		raw = intent.getBooleanExtra(RAW.toString(), raw);
 
 		actionTitle = getString(action);
 
@@ -279,12 +284,12 @@ public abstract class Crypto extends Service implements Runnable
 	{
 		val intent = new Intent();
 		intent.setAction(actionTitle);
-		intent.putExtra(CURRENT_FILE.name(), current.file);
-		intent.putExtra(CURRENT_OFFSET.name(), current.offset);
-		intent.putExtra(CURRENT_SIZE.name(), current.size);
-		intent.putExtra(TOTAL_OFFSET.name(), total.offset);
-		intent.putExtra(TOTAL_SIZE.name(), total.size);
-		intent.putExtra(STATUS.name(), status.name());
+		intent.putExtra(CURRENT_FILE.toString(), current.file);
+		intent.putExtra(CURRENT_OFFSET.toString(), current.offset);
+		intent.putExtra(CURRENT_SIZE.toString(), current.size);
+		intent.putExtra(TOTAL_OFFSET.toString(), total.offset);
+		intent.putExtra(TOTAL_SIZE.toString(), total.size);
+		intent.putExtra(STATUS.toString(), status.name());
 		sendBroadcast(intent);
 
 		notificationBuilder.setContentText(status == Status.INIT || status == Status.RUNNING ? total.offset + "/" + total.size : status.toString());
@@ -303,28 +308,28 @@ public abstract class Crypto extends Service implements Runnable
 	 */
 	private static Uri getKey(final Intent intent)
 	{
-		return getUri(intent, KEY.name());
+		return getUri(intent, KEY.toString());
 	}
 
 	@SuppressWarnings("deprecation")
 	private static Class<?> getClass(final Intent intent)
 	{
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
-			return intent.getSerializableExtra(CLASS.name(), Class.class);
-		return (Class<?>)intent.getSerializableExtra(CLASS.name());
+			return intent.getSerializableExtra(CLASS.toString(), Class.class);
+		return (Class<?>)intent.getSerializableExtra(CLASS.toString());
 	}
 
 	@SuppressWarnings("deprecation")
 	protected static List<Uri> getSource(final Intent intent)
 	{
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
-			return intent.getParcelableArrayListExtra(SOURCE.name(), Uri.class);
-		return intent.getParcelableArrayListExtra(SOURCE.name());
+			return intent.getParcelableArrayListExtra(SOURCE.toString(), Uri.class);
+		return intent.getParcelableArrayListExtra(SOURCE.toString());
 	}
 
 	protected static Uri getOutput(final Intent intent)
 	{
-		return getUri(intent, OUTPUT.name());
+		return getUri(intent, OUTPUT.toString());
 	}
 
 	@SuppressWarnings("deprecation")

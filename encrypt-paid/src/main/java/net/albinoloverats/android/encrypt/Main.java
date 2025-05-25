@@ -584,26 +584,26 @@ public class Main extends Activity
 		/* kick off the actual cipher process */
 		val intent = new Intent(getBaseContext(), encrypting ? Encrypt.class : Decrypt.class);
 
-		intent.putExtra(CLASS.name(), Main.class);
-		intent.putExtra(ACTION.name(), encrypting ? R.string.encrypting : R.string.decrypting);
-		intent.putExtra(WAIT.name(), R.string.please_wait);
-		intent.putExtra(ICON.name(), R.drawable.icon_bw);
-		intent.putParcelableArrayListExtra(SOURCE.name(), filenamesIn);
-		intent.putExtra(OUTPUT.name(), filenameOut);
-		intent.putExtra(CIPHER.name(), cipher);
-		intent.putExtra(HASH.name(), hash);
-		intent.putExtra(MODE.name(), mode);
-		intent.putExtra(MAC.name(), mac);
-		intent.putExtra(KDF_ITERATIONS.name(), kdfIterations);
-		intent.putExtra(KEY_FILE.name(), key_file);
+		intent.putExtra(CLASS.toString(), Main.class);
+		intent.putExtra(ACTION.toString(), encrypting ? R.string.encrypting : R.string.decrypting);
+		intent.putExtra(WAIT.toString(), R.string.please_wait);
+		intent.putExtra(ICON.toString(), R.drawable.icon_bw);
+		intent.putParcelableArrayListExtra(SOURCE.toString(), filenamesIn);
+		intent.putExtra(OUTPUT.toString(), filenameOut);
+		intent.putExtra(CIPHER.toString(), cipher);
+		intent.putExtra(HASH.toString(), hash);
+		intent.putExtra(MODE.toString(), mode);
+		intent.putExtra(MAC.toString(), mac);
+		intent.putExtra(KDF_ITERATIONS.toString(), kdfIterations);
+		intent.putExtra(KEY_FILE.toString(), key_file);
 		if (key_file)
-			intent.putExtra(KEY.name(), key);
+			intent.putExtra(KEY.toString(), key);
 		else
-			intent.putExtra(KEY.name(), password.getBytes());
-		intent.putExtra(RAW.name(), raw);
-		intent.putExtra(COMPRESS.name(), compress);
-		intent.putExtra(FOLLOW.name(), follow);
-		intent.putExtra(VERSION.name(), version.magicNumber);
+			intent.putExtra(KEY.toString(), password.getBytes());
+		intent.putExtra(RAW.toString(), raw);
+		intent.putExtra(COMPRESS.toString(), compress);
+		intent.putExtra(FOLLOW.toString(), follow);
+		intent.putExtra(VERSION.toString(), version.magicNumber);
 		return intent;
 	}
 
@@ -686,12 +686,12 @@ public class Main extends Activity
 		@Override
 		public void onReceive(final Context ctx, final Intent intent)
 		{
-			val currentFile = intent.getStringExtra(CURRENT_FILE.name());
-			val currentOffset = intent.getLongExtra(CURRENT_OFFSET.name(), 0L);
-			val currentSize = intent.getLongExtra(CURRENT_SIZE.name(), 0L);
-			val totalOffset = intent.getLongExtra(TOTAL_OFFSET.name(), 0L);
-			val totalSize = intent.getLongExtra(TOTAL_SIZE.name(), 0L);
-			val status = Status.parseStatus(intent.getStringExtra(STATUS.name()));
+			val currentFile = intent.getStringExtra(CURRENT_FILE.toString());
+			val currentOffset = intent.getLongExtra(CURRENT_OFFSET.toString(), 0L);
+			val currentSize = intent.getLongExtra(CURRENT_SIZE.toString(), 0L);
+			val totalOffset = intent.getLongExtra(TOTAL_OFFSET.toString(), 0L);
+			val totalSize = intent.getLongExtra(TOTAL_SIZE.toString(), 0L);
+			val status = Status.parseStatus(intent.getStringExtra(STATUS.toString()));
 
 			if (status == Status.INIT || status == Status.RUNNING)
 			{

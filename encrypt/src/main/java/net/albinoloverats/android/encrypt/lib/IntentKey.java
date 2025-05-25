@@ -1,5 +1,7 @@
 package net.albinoloverats.android.encrypt.lib;
 
+import java.util.Locale;
+
 public enum IntentKey
 {
 	/* Intent keys for encrypting/decrypting */
@@ -27,5 +29,11 @@ public enum IntentKey
 	CURRENT_SIZE,
 	TOTAL_OFFSET,
 	TOTAL_SIZE,
-	STATUS
+	STATUS;
+
+	@Override
+	public String toString()
+	{
+		return name().toLowerCase(Locale.ENGLISH);
+	}
 }

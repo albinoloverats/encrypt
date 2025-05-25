@@ -86,7 +86,7 @@ public class EncryptedFileInputStream extends InputStream
 		{
 			eccFileInputStream.read(salt);
 
-			var keyGen = new PBKDF2(keyMac);
+			val keyGen = new PBKDF2(keyMac);
 			attributes = new HashMap<>();
 			attributes.put(IMac.MAC_KEY_MATERIAL, keySource);
 			attributes.put(IPBE.SALT, salt);

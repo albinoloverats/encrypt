@@ -86,14 +86,14 @@ public class Decrypt extends Crypto
 		}
 		if (raw)
 		{
-			cipher = intent.getStringExtra(CIPHER.name());
-			hash = intent.getStringExtra(HASH.name());
-			mode = intent.getStringExtra(MODE.name());
-			mac = intent.getStringExtra(MAC.name());
-			kdfIterations = intent.getIntExtra(KDF_ITERATIONS.name(), KDF_ITERATIONS_DEFAULT);
+			cipher = intent.getStringExtra(CIPHER.toString());
+			hash = intent.getStringExtra(HASH.toString());
+			mode = intent.getStringExtra(MODE.toString());
+			mac = intent.getStringExtra(MAC.toString());
+			kdfIterations = intent.getIntExtra(KDF_ITERATIONS.toString(), KDF_ITERATIONS_DEFAULT);
 		}
 
-		intent.putExtra(ENCRYPTING.name(), false);
+		intent.putExtra(ENCRYPTING.toString(), false);
 		return super.onStartCommand(intent, flags, startId);
 	}
 
