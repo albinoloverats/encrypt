@@ -23,7 +23,8 @@
 
 #include <gtk/gtk.h>
 
-#include "common/config.h"
+// submodule include
+#include "src/config.h"
 
 #if !defined _WIN32 && !defined __FreeBSD__
 	#define GLADE_UI_FILE_DEFAULT "/usr/share/encrypt/encrypt.glade"

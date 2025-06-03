@@ -40,13 +40,17 @@
 #include <gmp.h>
 #include <stdatomic.h>
 
-#include "common/common.h"
-#include "common/error.h"
-#include "common/mem.h"
-#include "common/ccrypt.h"
-#include "common/config.h"
+/* submodule includes */
+
+#include "src/common.h"
+#include "src/error.h"
+#include "src/mem.h"
+#include "src/ccrypt.h"
+#include "src/config.h"
 
 #include "thpool.h"
+
+/* project includes */
 
 #include "crypt.h"
 

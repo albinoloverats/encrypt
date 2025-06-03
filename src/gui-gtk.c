@@ -34,18 +34,22 @@
 #include <pthread.h>
 #include <libgen.h>
 
+/* submodule includes */
+
+#include "src/common.h"
+#include "src/non-gnu.h"
+#include "src/error.h"
+#include "src/mem.h"
+#include "src/ccrypt.h"
+#include "src/version.h"
+#include "src/cli.h"
+#include "src/dir.h"
+#include "src/config.h"
+
+/* project inculdes */
+
 #include "gui.h"
 #include "gui-gtk.h"
-
-#include "common/common.h"
-#include "common/non-gnu.h"
-#include "common/error.h"
-#include "common/mem.h"
-#include "common/ccrypt.h"
-#include "common/version.h"
-#include "common/cli.h"
-#include "common/dir.h"
-#include "common/config.h"
 
 #include "crypt.h"
 #include "encrypt.h"

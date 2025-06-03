@@ -39,21 +39,25 @@
 	#include <libgen.h>
 #endif
 
-#include "common/common.h"
-#include "common/non-gnu.h"
-#include "common/error.h"
-#include "common/mem.h"
-#include "common/ccrypt.h"
-#include "common/version.h"
-#include "common/config.h"
-#include "common/cli.h"
-#include "common/list.h"
+/* submodule includes */
+
+#include "src/common.h"
+#include "src/non-gnu.h"
+#include "src/error.h"
+#include "src/mem.h"
+#include "src/ccrypt.h"
+#include "src/version.h"
+#include "src/config.h"
+#include "src/cli.h"
+#include "src/list.h"
 
 #ifdef _WIN32
 	#include <Shlobj.h>
 	extern char *program_invocation_short_name;
-	#include "common/dir.h"
+	#include "src/dir.h"
 #endif
+
+/* project includes */
 
 #include "crypt.h"
 #include "encrypt.h"

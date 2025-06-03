@@ -25,8 +25,7 @@
 #import <string.h>
 #import <math.h>
 
-#import "gui.h"
-#import "gui-cocoa.h"
+/* submodule imports */
 
 #import "common.h"
 #import "cli.h"
@@ -36,6 +35,11 @@
 #import "config.h"
 #import "list.h"
 #import "mem.h"
+
+/* project imports */
+
+#import "gui.h"
+#import "gui-cocoa.h"
 
 #import "crypt.h"
 #import "encrypt.h"

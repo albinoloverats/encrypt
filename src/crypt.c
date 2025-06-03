@@ -36,11 +36,15 @@
 
 #include <gcrypt.h>
 
-#include "common/common.h"
-#include "common/non-gnu.h"
-#include "common/error.h"
-#include "common/mem.h"
-#include "common/ccrypt.h"
+/* submodule includes */
+
+#include "src/common.h"
+#include "src/non-gnu.h"
+#include "src/error.h"
+#include "src/mem.h"
+#include "src/ccrypt.h"
+
+/* project includes */
 
 #include "crypt.h"
 #include "crypt_io.h"

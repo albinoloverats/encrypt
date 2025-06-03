@@ -37,7 +37,12 @@
 #include <pthread.h>    /*!< Necessary include as pthread handle is referenced in this header */
 #include <gcrypt.h>     /*!< Necessary include as encryption modes are referenced in this header */
 
-#include "common/cli.h" /*!< Used for progress bar on command line */
+/* submodule includes */
+
+#include "src/cli.h" /*!< Used for progress bar on command line */
+
+/* project includes */
+
 #include "crypt_io.h"   /*!< Necessary as IO_HANDLE type is referenced in this header */
 
 #define ENCRYPT "encrypt"

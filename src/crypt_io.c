@@ -34,12 +34,16 @@
 #include <gcrypt.h>
 #include <lzma.h>
 
-#include "common/common.h"
-#include "common/non-gnu.h"
-#include "common/error.h"
-#include "common/mem.h"
-#include "common/ccrypt.h"
-#include "common/ecc.h"
+/* submodule includes */
+
+#include "src/common.h"
+#include "src/non-gnu.h"
+#include "src/error.h"
+#include "src/mem.h"
+#include "src/ccrypt.h"
+#include "src/ecc.h"
+
+/* project includes */
 
 #include "crypt_io.h"
 #include "crypt.h"
