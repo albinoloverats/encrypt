@@ -27,3 +27,4 @@ encrypt-free/lint-baseline.xml
 encrypt-paid/lint-baseline.xml
 encrypt-free/release
 encrypt-paid/release
+C-Thread-Pool
