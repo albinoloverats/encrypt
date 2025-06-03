@@ -130,6 +130,7 @@ int main(int argc, char **argv)
 	list_add(args, &((config_named_s){ 'b', "back-compat",    _("version"),    _("Create an encrypted file that is backwards compatible"),                                                                 { CONFIG_ARG_REQ_STRING,  { .string  = NULL                   } }, false, true,  false, false }));
 	list_add(args, &((config_named_s){ 'r', "raw",            NULL,            _("Don’t generate or look for an encrypt header; this IS NOT recommended, but can be useful in some (limited) situations"), { CONFIG_ARG_REQ_BOOLEAN, { .boolean = false                  } }, false, true,  false, false }));
 	list_add(args, &((config_named_s){ 0x3, "self-test",      NULL,            _("Perform self-test routine"),                                                                                             { CONFIG_ARG_BOOLEAN,     { .boolean = false                  } }, false, true,  true,  false }));
+	list_add(args, &((config_named_s){ 'n', "info",           NULL,            _("Show info about encrypted data; exits after identification is complete"),                                                { CONFIG_ARG_BOOLEAN,     { .boolean = false                  } }, false, true,  true,  false }));
 
 	list_t extra = list_default();
 	list_add(extra, &((config_unnamed_s){ "source", { CONFIG_ARG_STRING,  { .string = NULL } }, false, false }));
@@ -165,6 +166,8 @@ int main(int argc, char **argv)
 		((config_named_s *)list_get(args, ++x))->hidden = true;
 		((config_named_s *)list_get(args, ++x))->hidden = true;
 		((config_named_s *)list_get(args, ++x))->hidden = true;
+		x += 2;
+		((config_named_s *)list_get(args, ++x))->hidden = false;
 	}
 	else
 #endif
@@ -205,6 +208,7 @@ int main(int argc, char **argv)
 	char *version    =  ((config_named_s *)list_get(args, ++x))->response.value.string;
 	bool raw         =  ((config_named_s *)list_get(args, ++x))->response.value.boolean;
 	bool test        =  ((config_named_s *)list_get(args, ++x))->response.value.boolean;
+	bool info        =  ((config_named_s *)list_get(args, ++x))->response.value.boolean;
 
 	if (test)
 		self_test();
@@ -232,7 +236,8 @@ int main(int argc, char **argv)
 		char *h = ptr;
 		char *m = ptr;
 		char *a = ptr;
-		if (is_encrypted(source, &c, &h, &m, &a, &kdf))
+		version_e version;
+		if ((version = is_encrypted(source, &c, &h, &m, &a, &kdf)))
 		{
 			free(cipher);
 			free(hash);
@@ -242,6 +247,16 @@ int main(int argc, char **argv)
 			hash = h;
 			mode = m;
 			mac = a;
+			if (info)
+			{
+				cli_printf("Version  %s\n", get_version_string(version));
+				cli_printf("Cipher   %s\n", cipher);
+				cli_printf("Hash     %s\n", hash);
+				cli_printf("Mode     %s\n", mode);
+				cli_printf("MAC      %s\n", mac);
+				cli_printf("KDF      %" PRIu64 "\n", kdf);
+				exit(EXIT_SUCCESS);
+			}
 		}
 		free(ptr);
 	}

@@ -1,17 +1,20 @@
-.PHONY: clean distclean
+.PHONY: crack clean distclean
 
 APP            = encrypt
 ALT            = decrypt
+CRK            = crack
 
 COMMON_SRC     = src/common/error.c src/common/mem.c src/common/ccrypt.c src/common/list.c src/common/tlv.c src/common/version.c src/common/config.c src/common/cli.c src/common/dir.c src/common/ecc.c src/common/non-gnu.c
 CLI_SRC        = ${COMMON_SRC} src/main.c src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
 GUI_SRC        = ${CLI_SRC} src/gui-gtk.c
+CRK_SRC        = ${COMMON_SRC} src/crypt_io.c src/crypt.c C-Thread-Pool/thpool.c src/crack.c
 MISC           = src/common/misc.h
 
-CLI_CFLAGS     = ${CFLAGS} -Wall -Wextra -std=gnu99 $(shell pkg-config --cflags libgcrypt) -pipe -O2 -Wrestrict -Wformat=2 -Wno-unused-result
+CLI_CFLAGS     = ${CFLAGS} -Wall -Wextra -std=gnu23 $(shell pkg-config --cflags libgcrypt) -pipe -O2 -Wrestrict -Wformat=2 -Wno-unused-result
 CLI_CPPFLAGS   = ${CPPFLAGS} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DUSE_GCRYPT -DGIT_COMMIT=\"$(shell git log | head -n1 | cut -f2 -d' ')\" -DBUILD_OS=\"$(shell grep PRETTY_NAME /etc/os-release | cut -d= -f2)\"
 GUI_CFLAGS     = ${CLI_CFLAGS} $(shell pkg-config --cflags gtk+-3.0 gmodule-2.0)
 GUI_CPPFLAGS   = ${CLI_CPPFLAGS} -DBUILD_GUI
+CRK_CPPFLAGS   = ${CLI_CPPFLAGS} -IC-Thread-Pool
 
 DEBUG_CFLAGS   = -O0 -ggdb -pg
 DEBUG_CPPFLAGS = -D__DEBUG__ -D__DEBUG_GUI__ -DMALLOC_CHECK_=1
@@ -19,6 +22,7 @@ DEBUG_ENC      = ${DEBUG_CPPFLAGS} -D__DEBUG_WITH_ENCRYPTION__
 
 CLI_LIBS       = $(shell pkg-config --libs libgcrypt) -lpthread -lcurl -llzma
 GUI_LIBS       = ${CLI_LIBS} $(shell pkg-config --libs gtk+-3.0 gmodule-2.0)
+CRK_LIBS       = ${CLI_LIBS} -lgmp
 
 all: gui symlink language man
 
@@ -63,6 +67,12 @@ gui-debug-with-encryption:
 	 @echo "#define ALL_CPPFLAGS \"$(strip $(subst \",\',"${GUI_CPPFLAGS} ${DEBUG_ENC}"))\"" >> ${MISC}
 	 @${CC} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${GUI_SRC} ${GUI_LIBS} ${DEBUG_CFLAGS} ${DEBUG_ENC}      -o ${APP}
 	-@echo -e "built ‘`echo -e ${GUI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
+
+crack:
+	 @echo "#define ALL_CFLAGS   \"$(strip $(subst \",\',"${CLI_CFLAGS}"))\""    > ${MISC}
+	 @echo "#define ALL_CPPFLAGS \"$(strip $(subst \",\',"${CRK_CPPFLAGS}"))\"" >> ${MISC}
+	 @${CC} ${CLI_CFLAGS} ${CRK_CPPFLAGS} ${CRK_SRC} ${CRK_LIBS} ${DEBUG_CFLAGS} ${DEBUG_CPPFLAGS} -o ${CRK}
+	-@echo -e "built ‘`echo -e ${CRK_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${CRK}’"
 
 language:
 	-@echo -e "TODO - string translation"
@@ -124,7 +134,7 @@ uninstall:
 
 clean:
 	 @rm -fv ${MISC}
-	 @rm -fv ${APP} ${ALT}
+	 @rm -fv ${APP} ${ALT} ${CRK}
 	 @rm -fv gmon.out
 
 distclean: clean
