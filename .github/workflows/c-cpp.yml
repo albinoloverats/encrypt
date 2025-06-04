@@ -6,15 +6,18 @@ on:
   pull_request:
     branches: [ desktop ]
 
+env:
+  CC: gcc-14
+
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: dependencies
-      run: sudo apt-get update && sudo apt-get install -y build-essential libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl3-gnutls libcurl4-gnutls-dev
+      run: sudo apt-get update && sudo apt-get install -y gcc-14 build-essential libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl3-gnutls libcurl4-gnutls-dev
+    - name: submodules
+      run: git submodule update --init
     - name: make
       run: make cli
     - name: self-test
