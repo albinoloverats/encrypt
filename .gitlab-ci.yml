@@ -15,4 +15,5 @@ build:
 test:
   stage: test
   script:
+    - cp etc/encryptrc ~/.encryptrc
     - ./encrypt --self-test

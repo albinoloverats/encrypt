@@ -14,4 +14,5 @@ pipelines:
           - apt-get update && apt-get install -y libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl3-gnutls libcurl4-gnutls-dev
           - git submodule update --init
           - make cli
+          - cp etc/encryptrc ~/.encryptrc
           - ./encrypt --self-test

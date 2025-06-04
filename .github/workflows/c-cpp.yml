@@ -21,4 +21,4 @@ jobs:
     - name: make
       run: make cli
     - name: self-test
-      run: ./encrypt --self-test
+      run: cp etc/encryptrc ~/.encryptrc && ./encrypt --self-test
