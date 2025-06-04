@@ -1,6 +1,6 @@
 [submodule "C-Thread-Pool"]
 	path = C-Thread-Pool
-	url = git@github.com:Pithikos/C-Thread-Pool.git
+	url = https://github.com/Pithikos/C-Thread-Pool.git
 [submodule "common"]
 	path = common
 	url = https://albinoloverats.net/git/common.git
