@@ -3,6 +3,10 @@ image: gcc:latest
 pipelines:
   default:
     - step:
+      name: Get Common
+      script:
+        - git submodule update --init
+    - step:
         name: Build
         script:
         - apt-get update && apt-get install -y libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl3-gnutls libcurl4-gnutls-dev
