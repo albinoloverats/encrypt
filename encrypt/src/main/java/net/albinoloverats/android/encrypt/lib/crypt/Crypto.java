@@ -27,6 +27,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import androidx.core.app.NotificationCompat;
@@ -314,7 +315,7 @@ public abstract class Crypto extends Service implements Runnable
 	@SuppressWarnings("deprecation")
 	private static Class<?> getClass(final Intent intent)
 	{
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
 			return intent.getSerializableExtra(CLASS.toString(), Class.class);
 		return (Class<?>)intent.getSerializableExtra(CLASS.toString());
 	}
@@ -322,7 +323,7 @@ public abstract class Crypto extends Service implements Runnable
 	@SuppressWarnings("deprecation")
 	protected static List<Uri> getSource(final Intent intent)
 	{
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
 			return intent.getParcelableArrayListExtra(SOURCE.toString(), Uri.class);
 		return intent.getParcelableArrayListExtra(SOURCE.toString());
 	}
@@ -335,7 +336,7 @@ public abstract class Crypto extends Service implements Runnable
 	@SuppressWarnings("deprecation")
 	private static Uri getUri(final Intent intent, final String s)
 	{
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
 			return intent.getParcelableExtra(s, Uri.class);
 		return intent.getParcelableExtra(s);
 	}

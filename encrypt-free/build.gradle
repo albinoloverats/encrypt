@@ -6,10 +6,10 @@ android
 	{
 		applicationId 'net.albinoloverats.android.encrypt.free'
 		minSdkVersion 28
-		targetSdkVersion 36
-		compileSdk 36
-		versionCode 22
-		versionName '2025.05'
+		targetSdkVersion 37
+		compileSdk 37
+		versionCode 24
+		versionName '2025.05.2'
 	}
 	signingConfigs
 	{
@@ -56,6 +56,6 @@ dependencies
 	api 'com.android.support:appcompat-v7:30.0.2'
 	api 'com.google.android.gms:play-services-ads:22.6.0'
 	api project(':encrypt')
-	compileOnly "org.projectlombok:lombok:1.18.30"
+	compileOnly 'org.projectlombok:lombok:1.18.30'
 	annotationProcessor 'org.projectlombok:lombok:1.18.30'
 }

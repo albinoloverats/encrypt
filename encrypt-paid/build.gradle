@@ -6,10 +6,10 @@ android
 	{
 		applicationId 'net.albinoloverats.android.encrypt'
 		minSdkVersion 28
-		targetSdkVersion 36
-		compileSdk 36
-		versionCode 22
-		versionName '2025.05'
+		targetSdkVersion 37
+		compileSdk 37
+		versionCode 24
+		versionName '2025.05.2'
 	}
 	signingConfigs
 	{

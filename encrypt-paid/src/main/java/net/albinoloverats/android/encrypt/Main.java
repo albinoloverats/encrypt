@@ -31,6 +31,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -284,6 +285,8 @@ public class Main extends Activity
 
 	private void checkPermissions()
 	{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+			return;
 		for (val permission : STORAGE_PERMISSIONS)
 			if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED)
 			{
@@ -533,7 +536,10 @@ public class Main extends Activity
 		progressReceiver = new ProgressReceiver();
 		val intentFilter = new IntentFilter();
 		intentFilter.addAction(getString(encrypting ? R.string.encrypting : R.string.decrypting));
-		registerReceiver(progressReceiver, intentFilter);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+			registerReceiver(progressReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED);
+		else
+			registerReceiver(progressReceiver, intentFilter);
 		messageHandler = new MessageHandler(Main.this, msg -> {
 			val progressUpdate = ProgressUpdate.fromValue(msg.what);
 			if (progressUpdate != null && doubleProgressDialog != null)
