@@ -14,5 +14,8 @@ IUSE=""
 
 DEPEND="x11-libs/gtk+ dev-libs/libgcryp net-misc/curl app-arch/xz-utils"
 RDEPEND="${DEPEND}"
-BDEPEND=""
+BDEPEND="dev-util/cmocka"
 
+src_test() {
+	emake test
+}

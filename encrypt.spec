@@ -8,6 +8,7 @@ License: GPL
 BuildRoot: /var/tmp/%{name}
 Group: Applications/File
 Requires: libgcrypt, gtk3, libcurl, xz
+BuildRequires: cmocka-devel
 
 %description
 A simple, cross platform, file encryption application---suitable for any
@@ -22,6 +23,9 @@ use, whilst still providing command-line capabilities for power-users.
 
 %build
 make -f Makefile all OS_OPTS=-DFEDORA_PATH_HACK
+
+%check
+make -f Makefile test
 
 %install
 rm -rf %{buildroot}

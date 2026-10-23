@@ -12,10 +12,12 @@ COMMENT=      Provid simple, cross platform, file encryption
 LICENSE=      GPLv3+
 
 LIB_DEPENDS=  libgcrypt.so:security/libgcrypt libgpg-error.so:security/libgpg-error libgtk-3.so:x11-toolkits/gtk30 libcurl.so:ftp/curl liblzma.so:archivers/lzma
+TEST_DEPENDS= ${LOCALBASE}/include/cmocka.h:sysutils/cmocka
 
 MAKEFILE=     Makefile.bsd
 
-USES=         desktop-file-utils gettext tar:xz
+USES=         desktop-file-utils gettext pkgconfig tar:xz
+TEST_TARGET=  test
 
 USE_GNOME=    pango atk cairo gdkpixbuf2 glib20
 

@@ -3,10 +3,11 @@ image: gcc
 build:
   stage: build
   before_script:
-    - apt-get update && apt-get install -y libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl3-gnutls libcurl4-gnutls-dev
+    - apt-get update && apt-get install -y libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl3-gnutls libcurl4-gnutls-dev libcmocka-dev
     - git submodule update --init
   script:
     - make cli
+    - make test
   artifacts:
     paths:
       - encrypt

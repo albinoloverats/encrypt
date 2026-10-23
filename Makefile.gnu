@@ -1,4 +1,4 @@
-.PHONY: crack clean distclean
+.PHONY: crack clean distclean test
 
 APP            = encrypt
 ALT            = decrypt
@@ -8,7 +8,9 @@ COMMON_SRC     = common/src/error.c common/src/mem.c common/src/ccrypt.c common/
 CLI_SRC        = ${COMMON_SRC} src/main.c src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
 GUI_SRC        = ${CLI_SRC} src/gui-gtk.c
 CRK_SRC        = ${COMMON_SRC} src/crypt_io.c src/crypt.c C-Thread-Pool/thpool.c src/crack.c
+CORE_SRC       = ${COMMON_SRC} src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
 MISC           = common/misc.h
+IO_TEST        = test-crypt-io
 
 CLI_CFLAGS     = ${CFLAGS} -Wall -Wextra -std=gnu23 $(shell pkg-config --cflags libgcrypt) -pipe -O2 -Wrestrict -Wformat=2 -Wno-unused-result
 CLI_CPPFLAGS   = ${CPPFLAGS} -Icommon -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DUSE_GCRYPT -DGIT_COMMIT=\"$(shell git log | head -n1 | cut -f2 -d' ')\" -DBUILD_OS=\"$(shell grep PRETTY_NAME /etc/os-release | cut -d= -f2)\"
@@ -23,6 +25,7 @@ DEBUG_ENC      = ${DEBUG_CPPFLAGS} -D__DEBUG_WITH_ENCRYPTION__
 CLI_LIBS       = $(shell pkg-config --libs libgcrypt) -lpthread -lcurl -llzma
 GUI_LIBS       = ${CLI_LIBS} $(shell pkg-config --libs gtk+-3.0 gmodule-2.0)
 CRK_LIBS       = ${CLI_LIBS} -lgmp
+TEST_LIBS      = ${CLI_LIBS} $(shell pkg-config --libs cmocka)
 
 all: gui symlink language man
 
@@ -37,6 +40,10 @@ cli: symlink
 	 @echo "#define ALL_CPPFLAGS \"$(strip $(subst \",\',"${CLI_CPPFLAGS}"))\"" >> ${MISC}
 	 @${CC} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC} ${CLI_LIBS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${CLI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
+
+test: cli
+	 @${CC} ${CLI_CFLAGS} ${CLI_CPPFLAGS} -I. ${CORE_SRC} tests/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
+	 @./${IO_TEST}
 
 cli-debug:
 	 @echo "#define ALL_CFLAGS   \"$(strip $(subst \",\',"${CLI_CFLAGS}   ${DEBUG_CFLAGS}"))\""    > ${MISC}
@@ -134,7 +141,7 @@ uninstall:
 
 clean:
 	 @rm -fv ${MISC}
-	 @rm -fv ${APP} ${ALT} ${CRK}
+	 @rm -fv ${APP} ${ALT} ${CRK} ${IO_TEST}
 	 @rm -fv gmon.out
 
 distclean: clean
