@@ -65,9 +65,11 @@ static inline void write_metadata(crypto_s *);
 static inline void write_random_data(crypto_s *);
 
 static int64_t count_entries(crypto_s *, const char *);
-
 static void encrypt_directory(crypto_s *, const char *);
 static char *encrypt_link(crypto_s *, char *, struct stat);
+#ifndef _WIN32
+static char *read_link_target(const char *, size_t *);
+#endif
 static void encrypt_stream(crypto_s *);
 static void encrypt_file(crypto_s *);
 
@@ -355,10 +357,11 @@ static void *process(void *ptr)
 		{
 			*dir = '\0';
 			dir++;
+			char *root = m_strdup(dir);
 			cwd = getcwd(NULL, 0);
 			chdir(c->path);
 			free(c->path);
-			c->path = m_strdup(dir);
+			c->path = root;
 		}
 		uint64_t l = htonll(strlen(c->path));
 		io_write(c->output, &l, sizeof l);
@@ -580,7 +583,13 @@ static void encrypt_directory(crypto_s *c, const char *path)
 	file_type_e tp;
 	struct stat s;
 	c->follow_links ? stat(file, &s) : lstat(file, &s);
+#ifndef _WIN32
 	char *ln = NULL;
+	char *sl = NULL;
+	size_t sl_length = 0;
+#else
+	char *ln = NULL;
+#endif
 	switch (s.st_mode & S_IFMT)
 	{
 		case S_IFDIR:
@@ -598,6 +607,15 @@ static void encrypt_directory(crypto_s *c, const char *path)
 			gcry_free(file);
 			continue;
 	}
+#ifndef _WIN32
+	if (tp == FILE_SYMLINK && !(sl = read_link_target(file, &sl_length)))
+	{
+		c->status = STATUS_FAILED_IO;
+		c->current.display = NULL;
+		free(file);
+		break;
+	}
+#endif
 	io_write(c->output, &tp, sizeof( byte_t ));
 	l = htonll(strlen(file));
 	io_write(c->output, &l, sizeof l);
@@ -612,23 +630,9 @@ static void encrypt_directory(crypto_s *c, const char *path)
 			break;
 		case FILE_SYMLINK:
 #ifndef _WIN32
-			{
-				/*
-				 * store the link instead of the file/directory
-				 * it points to
-				 */
-				char *sl = m_gcry_malloc_secure(sizeof( byte_t ));
-				for (l = BLOCK_SIZE; ; l += BLOCK_SIZE)
-				{
-					char *x = m_gcry_realloc(sl, l + sizeof( byte_t ));
-					sl = x;
-					if (readlink(file, sl, BLOCK_SIZE + l) < (int64_t)l)
-						break;
-				}
-				l = htonll(strlen(sl));
-				io_write(c->output, &l, sizeof l);
-				io_write(c->output, sl, strlen(sl));
-			}
+			l = htonll(sl_length);
+			io_write(c->output, &l, sizeof l);
+			io_write(c->output, sl, sl_length);
 #endif
 			break;
 		case FILE_LINK:
@@ -661,6 +665,10 @@ static void encrypt_directory(crypto_s *c, const char *path)
 			c->source = NULL;
 			break;
 	}
+#ifndef _WIN32
+	if (sl)
+		gcry_free(sl);
+#endif
 	c->total.offset++;
 	c->current.display = NULL;
 
@@ -668,6 +676,38 @@ static void encrypt_directory(crypto_s *c, const char *path)
 
 	return;
 }
+
+#ifndef _WIN32
+static char *read_link_target(const char *path, size_t *length)
+{
+	size_t capacity = 128;
+	char *target = m_gcry_malloc_secure(capacity + 1);
+
+	for (;;)
+	{
+		ssize_t n = readlink(path, target, capacity);
+		if (n < 0)
+		{
+			gcry_free(target);
+			return NULL;
+		}
+		if ((size_t)n < capacity)
+		{
+			target[n] = '\0';
+			*length = (size_t)n;
+			return target;
+		}
+		if (capacity > SIZE_MAX / 2 - 1)
+		{
+			gcry_free(target);
+			errno = EOVERFLOW;
+			return NULL;
+		}
+		capacity *= 2;
+		target = m_gcry_realloc(target, capacity + 1);
+	}
+}
+#endif
 
 static char *encrypt_link(crypto_s *c, char *filename, struct stat s)
 {

@@ -527,7 +527,7 @@ clean_up:
 	cli_fprintf(stderr, "\n" ANSI_COLOUR_RED "**** %s ****" ANSI_COLOUR_RESET "\n\n", _("DEBUG BUILD"));
 #endif
 
-	return EXIT_SUCCESS;
+	return c->status;
 }
 
 static bool list_ciphers(void)
