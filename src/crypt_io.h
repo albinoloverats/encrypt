@@ -88,6 +88,13 @@ io_extra_s;
 extern IO_HANDLE io_open(const char *n, int f, mode_t m) __attribute__((malloc, nonnull(1)));
 
 /*!
+ * \brief         Create an IO instance from an open file descriptor
+ * \param[in]  fd An open file descriptor owned by the returned instance
+ * \return        A new IO instance
+ */
+extern IO_HANDLE io_wrap_fd(int64_t fd);
+
+/*!
  * \brief         Destroy an IO instance
  * \param[in]  h  An IO instance to destroy
  *

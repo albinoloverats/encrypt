@@ -138,6 +138,16 @@ extern IO_HANDLE io_open(const char *n, int f, mode_t m)
 	return io_ptr;
 }
 
+extern IO_HANDLE io_wrap_fd(int64_t fd)
+{
+	if (fd < 0)
+		return NULL;
+	io_private_s *io_ptr = m_gcry_calloc_secure(1, sizeof( io_private_s ));
+	io_ptr->fd = fd;
+	io_ptr->eof = EOF_NO;
+	return io_ptr;
+}
+
 extern int io_close(IO_HANDLE ptr)
 {
 	io_private_s *io_ptr = ptr;

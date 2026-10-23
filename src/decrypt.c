@@ -27,6 +27,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <limits.h>
 
 #include <pthread.h>
 
@@ -59,6 +60,7 @@ static void *process(void *);
 static uint64_t read_version(crypto_s *);
 static bool read_verification_sum(crypto_s *);
 static bool read_metadata(crypto_s *);
+static char *validate_archive_path(const uint8_t *, uint64_t);
 static void skip_random_data(crypto_s *);
 
 static void decrypt_directory(crypto_s *, const char *);
@@ -462,8 +464,14 @@ static bool read_metadata(crypto_s *c)
 	if (c->directory)
 	{
 		struct stat s;
-		stat(c->path, &s);
-		if ((errno == ENOENT || S_ISDIR(s.st_mode)) && !io_is_initialised(c->output))
+		errno = 0;
+		int output_stat = c->path ? stat(c->path, &s) : -1;
+		if (!c->path)
+			c->status = STATUS_FAILED_OUTPUT_MISMATCH;
+		else if (output_stat < 0 && errno != ENOENT)
+			c->status = STATUS_FAILED_IO;
+		else if (!io_is_initialised(c->output) &&
+		         (output_stat < 0 || S_ISDIR(s.st_mode)))
 			dir_mk_recursive(c->path, S_IRUSR | S_IWUSR | S_IXUSR);
 		else
 			c->status = STATUS_FAILED_OUTPUT_MISMATCH;
@@ -478,23 +486,37 @@ static bool read_metadata(crypto_s *c)
 				/* use what's in the metadata (if it's there) */
 				if (c->name)
 					free(c->name);
-				c->name = strndup((char *)tlv_value_of(tlv, TAG_FILENAME), tlv_length_of(tlv, TAG_FILENAME));
+				c->name = NULL;
+				char *name = validate_archive_path(tlv_value_of(tlv, TAG_FILENAME), tlv_length_of(tlv, TAG_FILENAME));
+				if (!name || strchr(name, '/'))
+				{
+					if (name)
+						gcry_free(name);
+					c->status = STATUS_FAILED_OUTPUT_MISMATCH;
+				}
+				else
+					c->name = name;
 			}
 			io_release(c->output);
 			c->output = NULL;
-			struct stat s;
-			stat(c->path, &s);
-			if (errno == ENOENT || S_ISREG(s.st_mode))
-				;
-			else if (S_ISDIR(s.st_mode))
+			if (c->status == STATUS_RUNNING)
 			{
-				char *ptr = NULL;
-				m_asprintf(&ptr, "%s/%s", c->path, c->name ? : "decrypted");
-				free(c->path);
-				c->path = ptr;
+				struct stat s;
+				if (stat(c->path, &s) < 0)
+				{
+					if (errno != ENOENT)
+						c->status = STATUS_FAILED_IO;
+				}
+				else if (S_ISDIR(s.st_mode))
+				{
+					char *ptr = NULL;
+					m_asprintf(&ptr, "%s/%s", c->path, c->name ? : "decrypted");
+					free(c->path);
+					c->path = ptr;
+				}
+				else if (!S_ISREG(s.st_mode))
+					c->status = STATUS_FAILED_OUTPUT_MISMATCH;
 			}
-			else
-				c->status = STATUS_FAILED_OUTPUT_MISMATCH;
 			if (c->status == STATUS_RUNNING && io_same_file(c->source, c->path))
 				c->status = STATUS_FAILED_OUTPUT_MISMATCH;
 			if (c->status == STATUS_RUNNING && !(c->output = io_open(c->path, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK | O_BINARY, S_IRUSR | S_IWUSR)))
@@ -519,72 +541,535 @@ static void skip_random_data(crypto_s *c)
 	return;
 }
 
+static char *validate_archive_path(const uint8_t *path, uint64_t length)
+{
+	if (!length || length > SIZE_MAX - 1 || memchr(path, '\0', (size_t)length))
+		return NULL;
+	if (path[0] == '/' || path[0] == '\\')
+		return NULL;
+
+	char *result = m_gcry_malloc_secure((size_t)length + 1);
+	memcpy(result, path, (size_t)length);
+	result[length] = '\0';
+	for (size_t i = 0; i < (size_t)length; i++)
+	{
+		if (result[i] == '\\')
+			result[i] = '/';
+		if (result[i] == ':')
+		{
+			gcry_free(result);
+			return NULL;
+		}
+	}
+
+	char *component = result;
+	for (char *p = result; ; p++)
+	{
+		if (*p != '/' && *p != '\0')
+			continue;
+		if (p == component || (p - component == 1 && component[0] == '.') ||
+		    (p - component == 2 && component[0] == '.' && component[1] == '.'))
+		{
+			gcry_free(result);
+			return NULL;
+		}
+		if (!*p)
+			break;
+		component = p + 1;
+	}
+	return result;
+}
+
+static bool validate_symlink_target(const uint8_t *target, uint64_t length, const char *link_path)
+{
+	if (!length || length > SIZE_MAX - 1 || memchr(target, '\0', (size_t)length))
+		return false;
+	if (target[0] == '/' || target[0] == '\\')
+		return false;
+
+	size_t depth = 0;
+	for (const char *p = link_path; *p; p++)
+		if (*p == '/')
+			depth++;
+
+	size_t component_start = 0;
+	for (size_t i = 0; i <= (size_t)length; i++)
+	{
+		if (i < (size_t)length && target[i] != '/' && target[i] != '\\')
+		{
+			if (target[i] == ':')
+				return false;
+			continue;
+		}
+		size_t component_length = i - component_start;
+		if (!component_length)
+			return false;
+		if (component_length == 1 && target[component_start] == '.')
+			;
+		else if (component_length == 2 && target[component_start] == '.' && target[component_start + 1] == '.')
+		{
+			if (!depth)
+				return false;
+			depth--;
+		}
+		else
+			depth++;
+		component_start = i + 1;
+	}
+	return true;
+}
+
+#ifndef _WIN32
+static int open_extract_parent(int root, char *path, bool create, char **leaf)
+{
+	int parent = dup(root);
+	if (parent < 0)
+		return -1;
+
+	char *component = path;
+	char *separator;
+	while ((separator = strchr(component, '/')))
+	{
+		*separator = '\0';
+		int next = openat(parent, component, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
+		if (next < 0 && create && errno == ENOENT)
+		{
+			if (mkdirat(parent, component, S_IRWXU) < 0 && errno != EEXIST)
+			{
+				close(parent);
+				return -1;
+			}
+			next = openat(parent, component, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
+		}
+		*separator = '/';
+		if (next < 0)
+		{
+			close(parent);
+			return -1;
+		}
+		close(parent);
+		parent = next;
+		component = separator + 1;
+	}
+	*leaf = component;
+	return parent;
+}
+
+static bool ensure_extract_directory(int root, char *path)
+{
+	char *leaf = NULL;
+	int parent = open_extract_parent(root, path, true, &leaf);
+	if (parent < 0)
+		return false;
+	if (mkdirat(parent, leaf, S_IRWXU) == 0)
+	{
+		close(parent);
+		return true;
+	}
+	if (errno != EEXIST)
+	{
+		close(parent);
+		return false;
+	}
+	int directory = openat(parent, leaf, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
+	close(parent);
+	if (directory < 0)
+		return false;
+	close(directory);
+	return true;
+}
+
+static int open_extract_file(int root, char *path)
+{
+	char *leaf = NULL;
+	int parent = open_extract_parent(root, path, true, &leaf);
+	if (parent < 0)
+		return -1;
+	int fd = openat(parent, leaf, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, S_IRUSR | S_IWUSR);
+	close(parent);
+	return fd;
+}
+
+static bool create_extract_symlink(int root, const char *target, char *path)
+{
+	char *leaf = NULL;
+	int parent = open_extract_parent(root, path, true, &leaf);
+	if (parent < 0)
+		return false;
+	bool okay = symlinkat(target, parent, leaf) == 0;
+	close(parent);
+	return okay;
+}
+
+static bool symlink_target_uses_no_existing_links(int root, char *link_path, const char *target)
+{
+	char *leaf = NULL;
+	int current = open_extract_parent(root, link_path, true, &leaf);
+	if (current < 0)
+		return false;
+
+	size_t depth = 0;
+	for (const char *p = link_path; *p; p++)
+		if (*p == '/')
+			depth++;
+
+	char *copy = strdup(target);
+	char *component = copy;
+	for (char *p = copy; ; p++)
+	{
+		if (*p == '\\')
+			*p = '/';
+		if (*p != '/' && *p != '\0')
+			continue;
+
+		char saved = *p;
+		*p = '\0';
+		if (!strcmp(component, "."))
+			;
+		else if (!strcmp(component, ".."))
+		{
+			if (!depth)
+			{
+				free(copy);
+				close(current);
+				return false;
+			}
+			int parent = openat(current, "..", O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
+			if (parent < 0)
+			{
+				free(copy);
+				close(current);
+				return false;
+			}
+			close(current);
+			current = parent;
+			depth--;
+		}
+		else
+		{
+			struct stat s;
+			if (fstatat(current, component, &s, AT_SYMLINK_NOFOLLOW) < 0)
+			{
+				if (errno != ENOENT)
+				{
+					free(copy);
+					close(current);
+					return false;
+				}
+				free(copy);
+				close(current);
+				return true;
+			}
+			if (S_ISLNK(s.st_mode))
+			{
+				free(copy);
+				close(current);
+				return false;
+			}
+			if (S_ISDIR(s.st_mode))
+			{
+				int next = openat(current, component, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
+				if (next < 0)
+				{
+					free(copy);
+					close(current);
+					return false;
+				}
+				close(current);
+				current = next;
+				depth++;
+			}
+			else
+			{
+				free(copy);
+				close(current);
+				return true;
+			}
+		}
+		if (!saved)
+			break;
+		component = p + 1;
+	}
+
+	free(copy);
+	close(current);
+	return true;
+}
+
+static bool create_extract_hardlink(int root, char *target, char *path)
+{
+	char *target_leaf = NULL;
+	char *link_leaf = NULL;
+	int target_parent = open_extract_parent(root, target, false, &target_leaf);
+	if (target_parent < 0)
+		return false;
+	int link_parent = open_extract_parent(root, path, true, &link_leaf);
+	if (link_parent < 0)
+	{
+		close(target_parent);
+		return false;
+	}
+	bool okay = linkat(target_parent, target_leaf, link_parent, link_leaf, 0) == 0;
+	close(target_parent);
+	close(link_parent);
+	return okay;
+}
+#else
+static char *join_extract_path(const char *root, const char *path)
+{
+	char *native = strdup(path);
+	for (char *p = native; *p; p++)
+		if (*p == '/')
+			*p = DIR_SEPARATOR_CHAR;
+	char *result = m_strdupf("%s%s%s", root,
+	                         root[strlen(root) - 1] == DIR_SEPARATOR_CHAR ? "" : DIR_SEPARATOR,
+	                         native);
+	free(native);
+	return result;
+}
+
+static bool windows_path_has_no_reparse_component(const char *root, const char *path)
+{
+	char *full = join_extract_path(root, path);
+	for (char *p = full + strlen(root) + 1; *p; p++)
+	{
+		if (*p != DIR_SEPARATOR_CHAR)
+			continue;
+		char saved = *p;
+		*p = '\0';
+		DWORD attributes = GetFileAttributesA(full);
+		*p = saved;
+		if (attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_REPARSE_POINT))
+		{
+			gcry_free(full);
+			return false;
+		}
+	}
+	DWORD attributes = GetFileAttributesA(full);
+	gcry_free(full);
+	return attributes == INVALID_FILE_ATTRIBUTES || !(attributes & FILE_ATTRIBUTE_REPARSE_POINT);
+}
+#endif
+
 static void decrypt_directory(crypto_s *c, const char *dir)
 {
+#ifndef _WIN32
+	int root = open(dir, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+	if (root < 0)
+	{
+		c->status = STATUS_FAILED_IO;
+		return;
+	}
+	typedef struct
+	{
+		char *target;
+		char *path;
+	}
+	deferred_symlink_s;
+	deferred_symlink_s *symlinks = NULL;
+	size_t symlink_count = 0;
+#endif
+	char **regular_paths = NULL;
+	size_t regular_count = 0;
 	bool lnerr = false;
 	for (c->total.offset = 0; c->total.offset < c->total.size && c->status == STATUS_RUNNING; c->total.offset++)
 	{
 		file_type_e tp = 0x0;
-		io_read(c->source, &tp, sizeof( byte_t ));
-		uint64_t l;
-		io_read(c->source, &l, sizeof l);
+		uint64_t l = 0;
+		if (io_read(c->source, &tp, sizeof( byte_t )) != sizeof( byte_t ) ||
+		    io_read(c->source, &l, sizeof l) != sizeof l)
+		{
+			c->status = STATUS_FAILED_IO;
+			break;
+		}
 		l = ntohll(l);
-		char *filename = m_gcry_calloc_secure(l + sizeof( byte_t ), sizeof( char ));
-		io_read(c->source, filename, l);
+		char *filename = l <= SIZE_MAX - 1 && l <= SSIZE_MAX ? m_gcry_malloc_secure((size_t)l + 1) : NULL;
+		if (!filename || io_read(c->source, filename, (size_t)l) != (ssize_t)l)
+		{
+			if (filename)
+				gcry_free(filename);
+			c->status = STATUS_FAILED_IO;
+			break;
+		}
+		char *path = validate_archive_path((uint8_t *)filename, l);
+		gcry_free(filename);
+		if (!path)
+		{
+			c->status = STATUS_FAILED_OUTPUT_MISMATCH;
+			break;
+		}
 		char *fullpath = NULL;
-		m_asprintf(&fullpath, "%s/%s", dir, filename);
+#ifdef _WIN32
+		fullpath = join_extract_path(dir, path);
+		if (!windows_path_has_no_reparse_component(dir, path))
+			c->status = STATUS_FAILED_OUTPUT_MISMATCH;
+#endif
+		if (c->status != STATUS_RUNNING)
+		{
+			gcry_free(path);
+			if (fullpath)
+				gcry_free(fullpath);
+			break;
+		}
 		c->current.display = fullpath;
 		switch (tp)
 		{
 			case FILE_DIRECTORY:
+#ifndef _WIN32
+				if (!ensure_extract_directory(root, path))
+					c->status = STATUS_FAILED_OUTPUT_MISMATCH;
+#else
 				dir_mk_recursive(fullpath, S_IRUSR | S_IWUSR | S_IXUSR);
+#endif
 				break;
 			case FILE_SYMLINK:
 			case FILE_LINK:
-				io_read(c->source, &l, sizeof l);
+				if (io_read(c->source, &l, sizeof l) != sizeof l)
+				{
+					c->status = STATUS_FAILED_IO;
+					break;
+				}
 				l = ntohll(l);
-				char *lnk = m_gcry_calloc_secure(l + sizeof( byte_t ), sizeof( byte_t ));
-				io_read(c->source, lnk, l);
+				char *link_data = l <= SIZE_MAX - 1 && l <= SSIZE_MAX ? m_gcry_malloc_secure((size_t)l + 1) : NULL;
+				if (!link_data || io_read(c->source, link_data, (size_t)l) != (ssize_t)l)
+				{
+					if (link_data)
+						gcry_free(link_data);
+					c->status = STATUS_FAILED_IO;
+					break;
+				}
+				link_data[l] = '\0';
 				if (tp == FILE_SYMLINK)
 				{
+					if (!validate_symlink_target((uint8_t *)link_data, l, path))
+					{
+						gcry_free(link_data);
+						c->status = STATUS_FAILED_OUTPUT_MISMATCH;
+						break;
+					}
 #ifndef _WIN32
-					symlink(lnk, fullpath);
+					if (!symlink_target_uses_no_existing_links(root, path, link_data))
+						c->status = STATUS_FAILED_OUTPUT_MISMATCH;
+					else
+					{
+						symlinks = m_realloc(symlinks, (symlink_count + 1) * sizeof *symlinks);
+						symlinks[symlink_count++] = (deferred_symlink_s){ m_strdup(link_data), m_strdup(path) };
+					}
 #else
 					lnerr = true;
 #endif
 				}
 				else
 				{
-					char *hl = NULL;
-					m_asprintf(&hl, "%s/%s", dir, lnk);
-					/* NB: on Windows this is just a copy not a link */
-					link(hl, fullpath);
-					free(hl);
+					char *link_path = validate_archive_path((uint8_t *)link_data, l);
+					if (!link_path)
+						c->status = STATUS_FAILED_OUTPUT_MISMATCH;
+					else
+					{
+						bool found = false;
+						for (size_t i = 0; i < regular_count; i++)
+							if (!strcmp(regular_paths[i], link_path))
+								found = true;
+						if (!found)
+							c->status = STATUS_FAILED_OUTPUT_MISMATCH;
+					}
+#ifndef _WIN32
+					if (link_path && c->status == STATUS_RUNNING && !create_extract_hardlink(root, link_path, path))
+						c->status = STATUS_FAILED_OUTPUT_MISMATCH;
+#else
+					if (link_path && c->status == STATUS_RUNNING)
+					{
+						char *hardlink = join_extract_path(dir, link_path);
+						if (!windows_path_has_no_reparse_component(dir, link_path) ||
+						    link(hardlink, fullpath) < 0)
+							c->status = STATUS_FAILED_OUTPUT_MISMATCH;
+						gcry_free(hardlink);
+					}
+#endif
+					if (link_path && c->status == STATUS_RUNNING)
+					{
+						regular_paths = m_realloc(regular_paths, (regular_count + 1) * sizeof *regular_paths);
+						regular_paths[regular_count++] = m_strdup(path);
+					}
+					if (link_path)
+						gcry_free(link_path);
 				}
+				gcry_free(link_data);
 				break;
 			case FILE_REGULAR:
 				c->current.offset = 0;
-				io_read(c->source, &c->current.size, sizeof c->current.size);
+				if (io_read(c->source, &c->current.size, sizeof c->current.size) != sizeof c->current.size)
+				{
+					c->status = STATUS_FAILED_IO;
+					break;
+				}
 				c->current.size = ntohll(c->current.size);
-				if (io_same_file(c->source, fullpath))
+#ifndef _WIN32
+				{
+					int fd = open_extract_file(root, path);
+					if (fd < 0)
+					{
+						c->status = STATUS_FAILED_OUTPUT_MISMATCH;
+						break;
+					}
+					if (c->output)
+						io_close(c->output);
+					c->output = io_wrap_fd(fd);
+				}
+#else
+				if (c->output)
+					io_close(c->output);
+				c->output = io_open(fullpath, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, S_IRUSR | S_IWUSR);
+				if (!c->output)
 				{
 					c->status = STATUS_FAILED_OUTPUT_MISMATCH;
 					break;
 				}
+#endif
+				regular_paths = m_realloc(regular_paths, (regular_count + 1) * sizeof *regular_paths);
+				regular_paths[regular_count++] = m_strdup(path);
+				decrypt_file(c);
 				if (c->output)
 					io_close(c->output);
-				c->output = io_open(fullpath, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK | O_BINARY, S_IRUSR | S_IWUSR);
-				decrypt_file(c);
-				io_close(c->output);
 				c->output = NULL;
 				c->current.offset = c->total.size;
 				break;
+			default:
+				c->status = STATUS_FAILED_OUTPUT_MISMATCH;
+				break;
 		}
 		c->current.display = NULL;
-		gcry_free(filename);
-		gcry_free(fullpath);
+		gcry_free(path);
+		if (fullpath)
+			gcry_free(fullpath);
 	}
-	if (lnerr)
+#ifndef _WIN32
+	if (c->status == STATUS_RUNNING)
+	{
+		for (size_t i = 0; i < symlink_count; i++)
+		{
+			for (char *p = symlinks[i].target; *p; p++)
+				if (*p == '\\')
+					*p = '/';
+			if (!create_extract_symlink(root, symlinks[i].target, symlinks[i].path))
+			{
+				c->status = STATUS_FAILED_OUTPUT_MISMATCH;
+				break;
+			}
+		}
+	}
+	for (size_t i = 0; i < symlink_count; i++)
+	{
+		free(symlinks[i].target);
+		free(symlinks[i].path);
+	}
+	free(symlinks);
+	close(root);
+#endif
+	for (size_t i = 0; i < regular_count; i++)
+		free(regular_paths[i]);
+	free(regular_paths);
+	if (lnerr && c->status == STATUS_RUNNING)
 		c->status = STATUS_WARNING_LINK;
 	return;
 }
