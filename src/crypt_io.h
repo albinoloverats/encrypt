@@ -166,6 +166,14 @@ extern bool io_is_stdin(IO_HANDLE h) __attribute__((nonnull(1)));
 extern bool io_is_stdout(IO_HANDLE h) __attribute__((nonnull(1)));
 
 /*!
+ * \brief         Check whether a path identifies the same file as an IO handle
+ * \param[in]  f  An IO instance
+ * \param[in]  n  A file name
+ * \return        Whether both identify the same file
+ */
+extern bool io_same_file(IO_HANDLE f, const char *n) __attribute__((nonnull(1, 2)));
+
+/*!
  * \brief         Write data
  * \param[in]  f  An IO instance
  * \param[in]  d  The data to write

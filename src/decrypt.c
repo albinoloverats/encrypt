@@ -119,6 +119,8 @@ extern crypto_s *decrypt_init(const char * const restrict i,
 			}
 			else if (S_ISREG(s.st_mode))
 			{
+				if (io_same_file(z->source, o))
+					return z->status = STATUS_FAILED_OUTPUT_MISMATCH , z;
 				if (!(z->output = io_open(o, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK | O_BINARY, S_IRUSR | S_IWUSR)))
 					return z->status = STATUS_FAILED_IO , z;
 			}
@@ -479,6 +481,7 @@ static bool read_metadata(crypto_s *c)
 				c->name = strndup((char *)tlv_value_of(tlv, TAG_FILENAME), tlv_length_of(tlv, TAG_FILENAME));
 			}
 			io_release(c->output);
+			c->output = NULL;
 			struct stat s;
 			stat(c->path, &s);
 			if (errno == ENOENT || S_ISREG(s.st_mode))
@@ -492,7 +495,9 @@ static bool read_metadata(crypto_s *c)
 			}
 			else
 				c->status = STATUS_FAILED_OUTPUT_MISMATCH;
-			if (!(c->output = io_open(c->path, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK | O_BINARY, S_IRUSR | S_IWUSR)))
+			if (c->status == STATUS_RUNNING && io_same_file(c->source, c->path))
+				c->status = STATUS_FAILED_OUTPUT_MISMATCH;
+			if (c->status == STATUS_RUNNING && !(c->output = io_open(c->path, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK | O_BINARY, S_IRUSR | S_IWUSR)))
 				c->status = STATUS_FAILED_IO;
 		}
 	}
@@ -561,6 +566,11 @@ static void decrypt_directory(crypto_s *c, const char *dir)
 				c->current.offset = 0;
 				io_read(c->source, &c->current.size, sizeof c->current.size);
 				c->current.size = ntohll(c->current.size);
+				if (io_same_file(c->source, fullpath))
+				{
+					c->status = STATUS_FAILED_OUTPUT_MISMATCH;
+					break;
+				}
 				if (c->output)
 					io_close(c->output);
 				c->output = io_open(fullpath, O_CREAT | O_TRUNC | O_WRONLY | F_WRLCK | O_BINARY, S_IRUSR | S_IWUSR);

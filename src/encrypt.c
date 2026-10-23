@@ -67,6 +67,7 @@ static inline void write_random_data(crypto_s *);
 static int64_t count_entries(crypto_s *, const char *);
 static void encrypt_directory(crypto_s *, const char *);
 static char *encrypt_link(crypto_s *, char *, struct stat);
+static int output_is_inside_source_directory(const char *, const char *);
 #ifndef _WIN32
 static char *read_link_target(const char *, size_t *);
 #endif
@@ -109,7 +110,8 @@ extern crypto_s *encrypt_init(const char * const restrict i,
 	if (i)
 	{
 		struct stat s;
-		stat(i, &s);
+		if (stat(i, &s) < 0)
+			return z->status = STATUS_FAILED_IO , z;
 		z->name = dir_get_name(i);
 		if (S_ISDIR(s.st_mode))
 		{
@@ -129,9 +131,12 @@ extern crypto_s *encrypt_init(const char * const restrict i,
 	if (o)
 	{
 		struct stat s;
-		stat(o, &s);
+		errno = 0;
+		int output_stat = stat(o, &s);
+		if (output_stat < 0 && errno != ENOENT)
+			return z->status = STATUS_FAILED_IO , z;
 		char *op = NULL;
-		if (errno == ENOENT || S_ISREG(s.st_mode))
+		if (output_stat < 0 || S_ISREG(s.st_mode))
 			op = strdup(o);
 		else if (S_ISDIR(s.st_mode))
 		{
@@ -144,6 +149,20 @@ extern crypto_s *encrypt_init(const char * const restrict i,
 		}
 		else
 			return z->status = STATUS_FAILED_OUTPUT_MISMATCH , z;
+		if (z->directory)
+		{
+			int inside = output_is_inside_source_directory(i, op);
+			if (inside != 0)
+			{
+				gcry_free(op);
+				return z->status = inside > 0 ? STATUS_FAILED_OUTPUT_MISMATCH : STATUS_FAILED_IO , z;
+			}
+		}
+		if (io_same_file(z->source, op))
+		{
+			gcry_free(op);
+			return z->status = STATUS_FAILED_OUTPUT_MISMATCH , z;
+		}
 #ifdef _WIN32
 		long fa = GetFileAttributes(op);
 		switch (fa)
@@ -708,6 +727,116 @@ static char *read_link_target(const char *path, size_t *length)
 	}
 }
 #endif
+
+static char *canonicalize_path(const char *path)
+{
+#ifdef _WIN32
+	return _fullpath(NULL, path, 0);
+#else
+	return realpath(path, NULL);
+#endif
+}
+
+static char *canonicalize_output_path(const char *path)
+{
+	char *canonical = canonicalize_path(path);
+	if (canonical || errno != ENOENT)
+		return canonical;
+
+	char *copy = strdup(path);
+	char *separator = strrchr(copy, DIR_SEPARATOR_CHAR);
+#ifdef _WIN32
+	char *alternate_separator = strrchr(copy, '/');
+	if (alternate_separator && (!separator || alternate_separator > separator))
+		separator = alternate_separator;
+#endif
+
+	char *name = strdup(separator ? separator + 1 : copy);
+	const char *parent = ".";
+	if (separator)
+	{
+		if (separator == copy)
+			separator[1] = '\0';
+#ifdef _WIN32
+		else if (separator == copy + 2 && copy[1] == ':')
+			separator[1] = '\0';
+#endif
+		else
+			*separator = '\0';
+		parent = copy;
+	}
+
+	char *canonical_parent = canonicalize_path(parent);
+	if (!canonical_parent)
+	{
+		free(name);
+		free(copy);
+		return NULL;
+	}
+
+	canonical = m_strdupf("%s%s%s", canonical_parent,
+	                      canonical_parent[strlen(canonical_parent) - 1] == DIR_SEPARATOR_CHAR ? "" : DIR_SEPARATOR,
+	                      name);
+	free(canonical_parent);
+	free(name);
+	free(copy);
+	return canonical;
+}
+
+static int output_is_inside_source_directory(const char *source, const char *output)
+{
+	char *canonical_source = canonicalize_path(source);
+	char *canonical_output = canonicalize_output_path(output);
+	if (!canonical_source || !canonical_output)
+	{
+		free(canonical_source);
+		free(canonical_output);
+		return -1;
+	}
+
+	size_t root_length = strlen(canonical_source);
+	size_t output_length = strlen(canonical_output);
+#ifdef _WIN32
+	if (root_length > 3 && canonical_source[root_length - 1] == DIR_SEPARATOR_CHAR)
+#else
+	if (root_length > 1 && canonical_source[root_length - 1] == DIR_SEPARATOR_CHAR)
+#endif
+		root_length--;
+
+	bool prefix_matches = output_length >= root_length;
+	for (size_t i = 0; i < root_length && prefix_matches; i++)
+	{
+		unsigned char root_char = (unsigned char)canonical_source[i];
+		unsigned char output_char = (unsigned char)canonical_output[i];
+#ifdef _WIN32
+		if (root_char == '/' || root_char == '\\')
+			root_char = DIR_SEPARATOR_CHAR;
+		if (output_char == '/' || output_char == '\\')
+			output_char = DIR_SEPARATOR_CHAR;
+		root_char = (unsigned char)tolower(root_char);
+		output_char = (unsigned char)tolower(output_char);
+#endif
+		if (root_char != output_char)
+		{
+			prefix_matches = false;
+			break;
+		}
+	}
+
+	char boundary = canonical_output[root_length];
+	bool inside = prefix_matches &&
+	              (canonical_source[root_length] == '\0' ||
+	               canonical_source[root_length - 1] == DIR_SEPARATOR_CHAR ||
+	               boundary == '\0' ||
+	               boundary == DIR_SEPARATOR_CHAR
+#ifdef _WIN32
+	               || boundary == '/'
+#endif
+	              );
+	free(canonical_source);
+	free(canonical_output);
+	return inside;
+}
 
 static char *encrypt_link(crypto_s *c, char *filename, struct stat s)
 {

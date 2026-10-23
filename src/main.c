@@ -490,6 +490,7 @@ int main(int argc, char **argv)
 	if (c->status != STATUS_SUCCESS)
 		cli_fprintf(stderr, ANSI_COLOUR_RED "%s" ANSI_COLOUR_RESET "\n", _(status(c)));
 
+	int result = c->status;
 	deinit(&c);
 #endif /* ! _WIN32 */
 
@@ -527,7 +528,7 @@ clean_up:
 	cli_fprintf(stderr, "\n" ANSI_COLOUR_RED "**** %s ****" ANSI_COLOUR_RESET "\n\n", _("DEBUG BUILD"));
 #endif
 
-	return c->status;
+	return result;
 }
 
 static bool list_ciphers(void)

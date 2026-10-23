@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 
 #include <pthread.h>
 
@@ -219,6 +220,20 @@ extern bool io_is_stdout(IO_HANDLE ptr)
 	if (!io_ptr || io_ptr->fd < 0)
 		return (errno = EBADF , false);
 	return io_ptr->fd == STDOUT_FILENO;
+}
+
+extern bool io_same_file(IO_HANDLE ptr, const char *n)
+{
+	io_private_s *io_ptr = ptr;
+	if (!io_ptr || io_ptr->fd < 0)
+		return false;
+
+	struct stat source;
+	struct stat output;
+	return fstat(io_ptr->fd, &source) == 0 &&
+	       stat(n, &output) == 0 &&
+	       source.st_dev == output.st_dev &&
+	       source.st_ino == output.st_ino;
 }
 
 extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, enum gcry_mac_algos a, uint64_t itr, const uint8_t *k, size_t l, io_extra_s x)

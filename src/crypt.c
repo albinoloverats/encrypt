@@ -71,7 +71,7 @@ static const char *STATUS_MESSAGE[] =
 	"Failed: Read/Write error!",
 	"Failed: LZMA decompression error!",
 	"Failed: Key generation error!",
-	"Failed: Invalid target file type!",
+	"Failed: Invalid or conflicting output target!",
 	"Failed: An unknown error has occurred!",
 	/* warnings - decryption finished but with possible errors */
 	"Warning: Bad checksum! (Possible data corruption)",
