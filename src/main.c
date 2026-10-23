@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <signal.h>
 #include <stdarg.h>
 
 #include <pthread.h>
@@ -94,6 +95,9 @@ static config_about_s about =
 
 int main(int argc, char **argv)
 {
+#ifndef _WIN32
+	signal(SIGPIPE, SIG_IGN);
+#endif
 	error_init();
 #ifdef __DEBUG__
 	cli_fprintf(stderr, "\n" ANSI_COLOUR_RED "**** %s ****" ANSI_COLOUR_RESET "\n\n", _("DEBUG BUILD"));
@@ -649,12 +653,21 @@ static void self_test(void)
 	/*
 	 * dirty hack to set fd in the crypt_io structure
 	 */
-	int64_t fd = fileno(tmp_plain);
+	int64_t fd = dup(fileno(tmp_plain));
+	if (fd < 0)
+		die(_("Could not duplicate self-test input: %s"), strerror(errno));
 	memcpy(test_encrypt->source, &fd, sizeof fd);
-	fd = fileno(tmp_cipher);
+	fd = dup(fileno(tmp_cipher));
+	if (fd < 0)
+		die(_("Could not duplicate self-test encryption output: %s"), strerror(errno));
 	memcpy(test_encrypt->output, &fd, sizeof fd);
+	fd = dup(fileno(tmp_cipher));
+	if (fd < 0)
+		die(_("Could not duplicate self-test decryption input: %s"), strerror(errno));
 	memcpy(test_decrypt->source, &fd, sizeof fd);
-	fd = fileno(tmp_check);
+	fd = dup(fileno(tmp_check));
+	if (fd < 0)
+		die(_("Could not duplicate self-test output: %s"), strerror(errno));
 	memcpy(test_decrypt->output, &fd, sizeof fd);
 
 	cli_eprintf(_("\nTesting encryption..."));

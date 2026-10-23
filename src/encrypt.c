@@ -294,6 +294,8 @@ static void *process(void *ptr)
 
 	if (!c->raw)
 		write_header(c);
+	if (io_error(c->output))
+		return (c->status = STATUS_FAILED_IO, (void *)c->status);
 
 	bool pre_random = true;
 	x_iv_e iv_type = IV_RANDOM;
@@ -330,7 +332,7 @@ static void *process(void *ptr)
 	 */
 	io_extra_s iox = { iv_type, true };
 	if (!io_encryption_init(c->output, c->cipher, c->hash, c->mode, c->mac, c->kdf_iterations, c->key, c->length, iox))
-		return (c->status = STATUS_FAILED_GCRYPT_INIT , (void *)c->status);
+		return (c->status = io_error(c->output) ? STATUS_FAILED_IO : STATUS_FAILED_GCRYPT_INIT , (void *)c->status);
 
 	c->status = STATUS_RUNNING;
 	gcry_free(c->key);
@@ -344,6 +346,8 @@ static void *process(void *ptr)
 		write_random_data(c);
 	}
 	write_metadata(c);
+	if (c->status != STATUS_RUNNING)
+		return (void *)c->status;
 
 	if (pre_random && !c->raw)
 		write_random_data(c);
@@ -439,8 +443,13 @@ static void *process(void *ptr)
 	/*
 	 * done
 	 */
-	io_sync(c->output);
-	c->status = STATUS_SUCCESS;
+	int sync_result = io_sync(c->output);
+	int close_result = io_close(c->output);
+	c->output = NULL;
+	if (sync_result < 0 || close_result < 0)
+		c->status = STATUS_FAILED_IO;
+	if (c->status == STATUS_RUNNING)
+		c->status = STATUS_SUCCESS;
 
 #ifndef __DEBUG__
 	pthread_exit((void *)c->status);
@@ -507,8 +516,13 @@ static inline void write_metadata(crypto_s *c)
 		c->total.size = count_entries(c, c->path);
 	else
 	{
-		c->total.size = io_seek(c->source, 0, SEEK_END);
-		io_seek(c->source, 0, SEEK_SET);
+		off_t source_size = io_seek(c->source, 0, SEEK_END);
+		if (source_size < 0 || io_seek(c->source, 0, SEEK_SET) < 0)
+		{
+			c->status = STATUS_FAILED_IO;
+			return;
+		}
+		c->total.size = (uint64_t)source_size;
 	}
 
 	tlv_t tlv = tlv_init();
@@ -671,16 +685,35 @@ static void encrypt_directory(crypto_s *c, const char *path)
 			 * when we have a file:
 			 */
 			if (c->source)
-				io_close(c->source);
+			{
+				if (io_close(c->source) < 0)
+					c->status = STATUS_FAILED_IO;
+				c->source = NULL;
+			}
+			if (c->status != STATUS_RUNNING)
+				break;
 			c->source = io_open(file, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR);
+			if (!c->source)
+			{
+				c->status = STATUS_FAILED_IO;
+				break;
+			}
 			c->current.offset = 0;
-			c->current.size = io_seek(c->source, 0, SEEK_END);
+			off_t source_size = io_seek(c->source, 0, SEEK_END);
+			if (source_size < 0 || io_seek(c->source, 0, SEEK_SET) < 0)
+			{
+				c->status = STATUS_FAILED_IO;
+				io_close(c->source);
+				c->source = NULL;
+				break;
+			}
+			c->current.size = (uint64_t)source_size;
 			uint64_t z = htonll(c->current.size);
 			io_write(c->output, &z, sizeof z);
-			io_seek(c->source, 0, SEEK_SET);
 			encrypt_file(c);
 			c->current.offset = c->current.size;
-			io_close(c->source);
+			if (io_close(c->source) < 0 && c->status == STATUS_RUNNING)
+				c->status = STATUS_FAILED_IO;
 			c->source = NULL;
 			break;
 	}
@@ -894,19 +927,25 @@ static void encrypt_stream(crypto_s *c)
 static void encrypt_file(crypto_s *c)
 {
 	uint8_t buffer[BLOCK_SIZE];
-	for (c->current.offset = 0; c->current.offset < c->current.size && c->status == STATUS_RUNNING; c->current.offset += BLOCK_SIZE)
+	for (c->current.offset = 0; c->current.offset < c->current.size && c->status == STATUS_RUNNING;)
 	{
 		errno = EXIT_SUCCESS;
+		size_t length = c->current.size - c->current.offset < BLOCK_SIZE
+			? (size_t)(c->current.size - c->current.offset) : BLOCK_SIZE;
 		/*
 		 * read plaintext file, write encrypted data
 		 */
-		int64_t r = io_read(c->source, buffer, BLOCK_SIZE);
-		if (r < 0)
+		if (!io_read_exact(c->source, buffer, length))
 		{
 			c->status = STATUS_FAILED_IO;
 			break;
 		}
-		io_write(c->output, buffer, r);
+		if (io_write(c->output, buffer, length) != (ssize_t)length)
+		{
+			c->status = STATUS_FAILED_IO;
+			break;
+		}
+		c->current.offset += length;
 	}
 	return;
 }

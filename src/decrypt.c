@@ -61,7 +61,7 @@ static uint64_t read_version(crypto_s *);
 static bool read_verification_sum(crypto_s *);
 static bool read_metadata(crypto_s *);
 static char *validate_archive_path(const uint8_t *, uint64_t);
-static void skip_random_data(crypto_s *);
+static bool skip_random_data(crypto_s *);
 
 static void decrypt_directory(crypto_s *, const char *);
 static void decrypt_stream(crypto_s *);
@@ -191,6 +191,8 @@ static void *process(void *ptr)
 	 * version_read() already handles setting the status and displaying
 	 * an error
 	 */
+	if (c->status != STATUS_INIT)
+		return (void *)c->status;
 	if (!c->version)
 		return c->status = STATUS_FAILED_UNKNOWN_VERSION , (void *)c->status;
 
@@ -240,7 +242,7 @@ static void *process(void *ptr)
 	 */
 	io_extra_s iox = { iv_type, false };
 	if (!io_encryption_init(c->source, c->cipher, c->hash, c->mode, c->mac, c->kdf_iterations, c->key, c->length, iox))
-		return (c->status = STATUS_FAILED_GCRYPT_INIT , (void *)c->status);
+		return (c->status = io_error(c->source) ? STATUS_FAILED_IO : STATUS_FAILED_GCRYPT_INIT , (void *)c->status);
 
 	c->status = STATUS_RUNNING;
 	gcry_free(c->key);
@@ -249,19 +251,22 @@ static void *process(void *ptr)
 	if (!c->raw)
 	{
 		if (!skip_some_random)
-			skip_random_data(c);
+			if (!skip_random_data(c))
+				return (c->status = STATUS_FAILED_IO, (void *)c->status);
 
 		if (!read_verification_sum(c))
 			return (void *)c->status;
 
-		skip_random_data(c);
+		if (!skip_random_data(c))
+			return (c->status = STATUS_FAILED_IO, (void *)c->status);
 	}
 
 	if (!read_metadata(c))
 		return (void *)c->status;
 
 	if (!skip_some_random && !c->raw)
-		skip_random_data(c);
+		if (!skip_random_data(c))
+			return (c->status = STATUS_FAILED_IO, (void *)c->status);
 
 	/*
 	 * main decryption loop
@@ -299,6 +304,8 @@ static void *process(void *ptr)
 
 	if (c->status != STATUS_RUNNING)
 		return (void *)c->status;
+	if (io_error(c->source))
+		return (c->status = STATUS_FAILED_IO, (void *)c->status);
 
 	c->current.offset = c->current.size;
 	c->total.offset = c->total.size;
@@ -312,7 +319,12 @@ static void *process(void *ptr)
 		size_t cl = 0;
 		io_encryption_checksum(c->source, &cs, &cl);
 		uint8_t *b = m_gcry_malloc_secure(cl);
-		io_read(c->source, b, cl);
+		if (!io_read_exact(c->source, b, cl))
+		{
+			gcry_free(cs);
+			gcry_free(b);
+			return (c->status = STATUS_FAILED_IO, (void *)c->status);
+		}
 		if (memcmp(b, cs, cl))
 			c->status = STATUS_WARNING_CHECKSUM;
 		gcry_free(cs);
@@ -320,7 +332,8 @@ static void *process(void *ptr)
 	}
 
 	if (!c->raw)
-		skip_random_data(c);
+		if (!skip_random_data(c))
+			return (c->status = STATUS_FAILED_IO, (void *)c->status);
 
 	if (c->kdf_iterations && c->version >= VERSION_2020_01)
 	{
@@ -328,7 +341,12 @@ static void *process(void *ptr)
 		size_t mac_length = 0;
 		io_encryption_mac(c->source, &mac, &mac_length);
 		uint8_t *b = m_gcry_malloc_secure(mac_length);
-		io_read(c->source, b, mac_length);
+		if (!io_read_exact(c->source, b, mac_length))
+		{
+			gcry_free(mac);
+			gcry_free(b);
+			return (c->status = STATUS_FAILED_IO, (void *)c->status);
+		}
 		if (memcmp(b, mac, mac_length))
 			c->status = STATUS_WARNING_CHECKSUM;
 		gcry_free(mac);
@@ -339,7 +357,13 @@ static void *process(void *ptr)
 	 * done
 	 */
 	if (c->output)
-		io_sync(c->output);
+	{
+		int sync_result = io_sync(c->output);
+		int close_result = io_close(c->output);
+		c->output = NULL;
+		if (sync_result < 0 || close_result < 0)
+			c->status = STATUS_FAILED_IO;
+	}
 	if (c->status == STATUS_RUNNING)
 		c->status = STATUS_SUCCESS;
 
@@ -355,8 +379,12 @@ static void *process(void *ptr)
 static uint64_t read_version(crypto_s *c)
 {
 	uint64_t head[3] = { 0x0 };
-	if ((io_read(c->source, head, sizeof head)) < 0)
+	if (!io_read_exact(c->source, head, sizeof head))
+	{
+		if (io_error(c->source))
+			c->status = STATUS_FAILED_IO;
 		return 0;
+	}
 	if (head[0] != htonll(HEADER_0) || head[1] != htonll(HEADER_1))
 		return 0;
 
@@ -365,10 +393,24 @@ static uint64_t read_version(crypto_s *c)
 		io_correction_init(c->source);
 
 	uint8_t l;
-	io_read(c->source, &l, sizeof l);
+	if (!io_read_exact(c->source, &l, sizeof l))
+	{
+		c->status = STATUS_FAILED_IO;
+		return 0;
+	}
 	char *z = m_gcry_calloc_secure(l + sizeof( char ), sizeof( char ));
-	io_read(c->source, z, l);
+	if (!io_read_exact(c->source, z, l))
+	{
+		gcry_free(z);
+		c->status = STATUS_FAILED_IO;
+		return 0;
+	}
 	char *h = strchr(z, '/');
+	if (!h)
+	{
+		gcry_free(z);
+		return 0;
+	}
 	*h = '\0';
 	h++;
 	char *m = strchr(h, '/');
@@ -413,9 +455,10 @@ static bool read_verification_sum(crypto_s *c)
 	uint64_t x = 0;
 	uint64_t y = 0;
 	uint64_t z = 0;
-	io_read(c->source, &x, sizeof x);
-	io_read(c->source, &y, sizeof y);
-	io_read(c->source, &z, sizeof z);
+	if (!io_read_exact(c->source, &x, sizeof x) ||
+	    !io_read_exact(c->source, &y, sizeof y) ||
+	    !io_read_exact(c->source, &z, sizeof z))
+		return c->status = STATUS_FAILED_IO, false;
 	x = ntohll(x);
 	y = ntohll(y);
 	z = ntohll(z);
@@ -431,15 +474,31 @@ static bool read_metadata(crypto_s *c)
 	 */
 	uint8_t h = 0;
 	tlv_t tlv = tlv_init();
-	io_read(c->source, &h, sizeof h);
+	if (!io_read_exact(c->source, &h, sizeof h))
+	{
+		tlv_deinit(tlv);
+		c->status = STATUS_FAILED_IO;
+		return false;
+	}
 	for (int i = 0; i < h; i++)
 	{
 		tlv_entry_s t;
-		io_read(c->source, &t.tag, sizeof( byte_t ));
-		io_read(c->source, &t.length, sizeof t.length);
+		if (!io_read_exact(c->source, &t.tag, sizeof( byte_t )) ||
+		    !io_read_exact(c->source, &t.length, sizeof t.length))
+		{
+			tlv_deinit(tlv);
+			c->status = STATUS_FAILED_IO;
+			return false;
+		}
 		t.length = ntohs(t.length);
 		t.value = m_gcry_malloc_secure(t.length);
-		io_read(c->source, t.value, t.length);
+		if (!io_read_exact(c->source, t.value, t.length))
+		{
+			gcry_free(t.value);
+			tlv_deinit(tlv);
+			c->status = STATUS_FAILED_IO;
+			return false;
+		}
 		tlv_append(tlv, t);
 		gcry_free(t.value);
 	}
@@ -528,17 +587,20 @@ static bool read_metadata(crypto_s *c)
 	return c->status == STATUS_RUNNING;
 }
 
-static void skip_random_data(crypto_s *c)
+static bool skip_random_data(crypto_s *c)
 {
 	uint8_t l;
-	io_read(c->source, &l, sizeof l);
+	if (!io_read_exact(c->source, &l, sizeof l))
+		return false;
 	uint8_t *b = m_gcry_malloc_secure(l);
 	if (l)
 	{
-		io_read(c->source, b, l);
+		bool read_ok = io_read_exact(c->source, b, l);
 		gcry_free(b);
+		if (!read_ok)
+			return false;
 	}
-	return;
+	return true;
 }
 
 static char *validate_archive_path(const uint8_t *path, uint64_t length)
@@ -998,7 +1060,7 @@ static void decrypt_directory(crypto_s *c, const char *dir)
 				break;
 			case FILE_REGULAR:
 				c->current.offset = 0;
-				if (io_read(c->source, &c->current.size, sizeof c->current.size) != sizeof c->current.size)
+				if (!io_read_exact(c->source, &c->current.size, sizeof c->current.size))
 				{
 					c->status = STATUS_FAILED_IO;
 					break;
@@ -1013,12 +1075,27 @@ static void decrypt_directory(crypto_s *c, const char *dir)
 						break;
 					}
 					if (c->output)
-						io_close(c->output);
+					{
+						if (io_close(c->output) < 0)
+							c->status = STATUS_FAILED_IO;
+						c->output = NULL;
+					}
+					if (c->status != STATUS_RUNNING)
+					{
+						close(fd);
+						break;
+					}
 					c->output = io_wrap_fd(fd);
 				}
 #else
 				if (c->output)
-					io_close(c->output);
+				{
+					if (io_close(c->output) < 0)
+						c->status = STATUS_FAILED_IO;
+					c->output = NULL;
+				}
+				if (c->status != STATUS_RUNNING)
+					break;
 				c->output = io_open(fullpath, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, S_IRUSR | S_IWUSR);
 				if (!c->output)
 				{
@@ -1030,7 +1107,10 @@ static void decrypt_directory(crypto_s *c, const char *dir)
 				regular_paths[regular_count++] = m_strdup(path);
 				decrypt_file(c);
 				if (c->output)
-					io_close(c->output);
+				{
+					if (io_close(c->output) < 0 && c->status == STATUS_RUNNING)
+						c->status = STATUS_FAILED_IO;
+				}
 				c->output = NULL;
 				c->current.offset = c->total.size;
 				break;
@@ -1081,21 +1161,31 @@ static void decrypt_stream(crypto_s *c)
 	while (b && c->status == STATUS_RUNNING)
 	{
 		errno = EXIT_SUCCESS;
-		int64_t r = io_read(c->source, buffer, c->blocksize + sizeof b);
-		if (r < 0)
+		size_t framed_length = c->blocksize + sizeof b;
+		if (!io_read_exact(c->source, buffer, framed_length))
 		{
-			c->status = r < -1 ? STATUS_FAILED_LZMA : STATUS_FAILED_IO;
+			c->status = io_error(c->source) == EILSEQ ? STATUS_FAILED_LZMA : STATUS_FAILED_IO;
 			break;
 		}
+		int64_t r = (int64_t)framed_length;
 		memcpy(&b, buffer, sizeof b);
 		r -= sizeof b;
 		memmove(buffer, buffer + sizeof b, r);
 		if (!b)
 		{
-			io_read(c->source, &r, sizeof r);
+			if (!io_read_exact(c->source, &r, sizeof r))
+			{
+				c->status = STATUS_FAILED_IO;
+				break;
+			}
 			r = ntohll(r);
 		}
-		io_write(c->output, buffer, r);
+		if (r < 0 || r > (int64_t)c->blocksize ||
+		    io_write(c->output, buffer, (size_t)r) != r)
+		{
+			c->status = STATUS_FAILED_IO;
+			break;
+		}
 		c->current.offset += r;
 	}
 	gcry_free(buffer);
@@ -1111,13 +1201,16 @@ static void decrypt_file(crypto_s *c)
 		size_t l = BLOCK_SIZE;
 		if (c->current.offset + BLOCK_SIZE > c->current.size)
 			l = BLOCK_SIZE - (c->current.offset + BLOCK_SIZE - c->current.size);
-		int64_t r = io_read(c->source, buffer, l);
-		if (r < 0)
+		if (!io_read_exact(c->source, buffer, l))
 		{
-			c->status = r < -1 ? STATUS_FAILED_LZMA : STATUS_FAILED_IO;
+			c->status = io_error(c->source) == EILSEQ ? STATUS_FAILED_LZMA : STATUS_FAILED_IO;
 			break;
 		}
-		io_write(c->output, buffer, r);
+		if (io_write(c->output, buffer, l) != (ssize_t)l)
+		{
+			c->status = STATUS_FAILED_IO;
+			break;
+		}
 	}
 	return;
 }

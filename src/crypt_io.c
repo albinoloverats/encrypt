@@ -84,6 +84,7 @@ buffer_s;
 typedef struct
 {
 	int64_t fd;
+	int error;
 
 	lzma_stream lzma_handle;
 
@@ -119,8 +120,13 @@ static ssize_t ecc_write(io_private_s *, const void *, size_t);
 static ssize_t ecc_read(io_private_s *, void *, size_t);
 static int ecc_sync(io_private_s *);
 
-static void io_do_compress(io_private_s *);
-static void io_do_decompress(io_private_s *);
+static bool io_do_compress(io_private_s *);
+static bool io_do_decompress(io_private_s *);
+static int io_fail(io_private_s *, int);
+static ssize_t write_all(int64_t, const void *, size_t);
+static ssize_t read_some(int64_t, void *, size_t);
+static ssize_t read_record(int64_t, void *, size_t);
+static int sync_file(int64_t);
 
 extern IO_HANDLE io_open(const char *n, int f, mode_t m)
 {
@@ -154,8 +160,13 @@ extern int io_close(IO_HANDLE ptr)
 	if (!io_ptr || (io_ptr->fd < 0 && io_ptr->fd != -IO_DUMMY_FD))
 		return (errno = EBADF , -1);
 	int64_t fd = io_ptr->fd;
+	int error = io_ptr->error;
 	io_release(ptr);
-	return fd == -IO_DUMMY_FD ? 0 : close(fd);
+	if (fd != -IO_DUMMY_FD && close((int)fd) < 0 && !error)
+		error = errno;
+	if (error)
+		return errno = error, -1;
+	return 0;
 }
 
 extern IO_HANDLE io_dummy_handle(void)
@@ -251,6 +262,8 @@ extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 	io_private_s *io_ptr = ptr;
 	if (!io_ptr || io_ptr->fd < 0)
 		return (errno = EBADF , false);
+	if (io_ptr->error)
+		return errno = io_ptr->error, false;
 	uint64_t key_iterations = itr;
 	/*
 	 * start setting up the encryption buffer
@@ -320,7 +333,13 @@ extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 			io_write(ptr, salt, salt_length);
 		}
 		else
-			io_read(ptr, salt, salt_length);
+			io_read_exact(ptr, salt, salt_length);
+		if (io_ptr->error)
+		{
+			gcry_free(hash);
+			gcry_free(salt);
+			return false;
+		}
 		gcry_kdf_derive(hash, hash_length, GCRY_KDF_PBKDF2, h, salt, salt_length, key_iterations, key_length, key);
 	}
 	else
@@ -364,7 +383,12 @@ extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcr
 			io_write(ptr, iv, io_ptr->buffer_crypt->block);
 		}
 		else
-			io_read(ptr, iv, io_ptr->buffer_crypt->block);
+			io_read_exact(ptr, iv, io_ptr->buffer_crypt->block);
+		if (io_ptr->error)
+		{
+			gcry_free(iv);
+			return false;
+		}
 	}
 	else
 	{
@@ -494,25 +518,37 @@ extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l)
 	io_private_s *io_ptr = f;
 	if (!io_ptr || io_ptr->fd < 0)
 		return errno = EBADF , -1;
+	if (io_ptr->error)
+		return errno = io_ptr->error, -1;
 
 	if (io_ptr->hash_init)
 		gcry_md_write(io_ptr->hash_handle, d, l);
 	if (io_ptr->mac_init)
 		gcry_mac_write(io_ptr->mac_handle, d, l);
 
+	ssize_t written;
 	switch (io_ptr->operation)
 	{
 		case IO_LZMA:
-			if (!io_ptr->lzma_init)
-				io_do_compress(io_ptr);
-			return lzma_write(io_ptr, d, l);
+			if (!io_ptr->lzma_init && !io_do_compress(io_ptr))
+				written = io_fail(io_ptr, EIO);
+			else
+				written = lzma_write(io_ptr, d, l);
+			break;
 		case IO_ENCRYPT:
-			return enc_write(io_ptr, d, l);
+			written = enc_write(io_ptr, d, l);
+			break;
 		case IO_DEFAULT:
-			return ecc_write(io_ptr, d, l);
+			written = ecc_write(io_ptr, d, l);
+			break;
+		default:
+			written = -1;
+			errno = EINVAL;
+			break;
 	}
-	errno = EINVAL;
-	return -1;
+	if (written < 0 || (size_t)written != l)
+		return io_fail(io_ptr, errno);
+	return written;
 }
 
 extern ssize_t io_read(IO_HANDLE f, void *d, size_t l)
@@ -520,14 +556,17 @@ extern ssize_t io_read(IO_HANDLE f, void *d, size_t l)
 	io_private_s *io_ptr = f;
 	if (!io_ptr || io_ptr->fd < 0)
 		return errno = EBADF , -1;
+	if (io_ptr->error)
+		return errno = io_ptr->error, -1;
 
 	ssize_t r = 0;
 	switch (io_ptr->operation)
 	{
 		case IO_LZMA:
-			if (!io_ptr->lzma_init)
-				io_do_decompress(io_ptr);
-			r = lzma_read(io_ptr, d, l);
+			if (!io_ptr->lzma_init && !io_do_decompress(io_ptr))
+				r = io_fail(io_ptr, EIO);
+			else
+				r = lzma_read(io_ptr, d, l);
 			break;
 		case IO_ENCRYPT:
 			r = enc_read(io_ptr, d, l);
@@ -544,7 +583,37 @@ extern ssize_t io_read(IO_HANDLE f, void *d, size_t l)
 		gcry_md_write(io_ptr->hash_handle, d, r);
 	if (r >= 0 && io_ptr->mac_init)
 		gcry_mac_write(io_ptr->mac_handle, d, r);
+	else if (r < 0)
+		io_fail(io_ptr, errno);
 	return r;
+}
+
+extern bool io_read_exact(IO_HANDLE f, void *d, size_t l)
+{
+	uint8_t *buffer = d;
+	size_t offset = 0;
+	while (offset < l)
+	{
+		ssize_t received = io_read(f, buffer + offset, l - offset);
+		if (received < 0)
+			return false;
+		if (!received)
+		{
+			io_private_s *io_ptr = f;
+			io_fail(io_ptr, EIO);
+			return false;
+		}
+		offset += (size_t)received;
+	}
+	return true;
+}
+
+extern int io_error(IO_HANDLE f)
+{
+	io_private_s *io_ptr = f;
+	if (!io_ptr)
+		return errno = EBADF, EBADF;
+	return io_ptr->error;
 }
 
 extern int io_sync(IO_HANDLE ptr)
@@ -552,17 +621,29 @@ extern int io_sync(IO_HANDLE ptr)
 	io_private_s *io_ptr = ptr;
 	if (!io_ptr || io_ptr->fd < 0)
 		return errno = EBADF , -1;
+	if (io_ptr->error)
+		return errno = io_ptr->error, -1;
 
+	int result;
 	switch (io_ptr->operation)
 	{
 		case IO_LZMA:
-			return lzma_sync(io_ptr);
+			result = lzma_sync(io_ptr);
+			break;
 		case IO_ENCRYPT:
-			return enc_sync(io_ptr);
+			result = enc_sync(io_ptr);
+			break;
 		case IO_DEFAULT:
-			return ecc_sync(io_ptr);
+			result = ecc_sync(io_ptr);
+			break;
+		default:
+			result = -1;
+			errno = EINVAL;
+			break;
 	}
-	return errno = EINVAL , -1;
+	if (result < 0)
+		return io_fail(io_ptr, errno);
+	return io_ptr->error ? (errno = io_ptr->error, -1) : 0;
 }
 
 extern off_t io_seek(IO_HANDLE ptr, off_t o, int w)
@@ -570,7 +651,12 @@ extern off_t io_seek(IO_HANDLE ptr, off_t o, int w)
 	io_private_s *io_ptr = ptr;
 	if (!io_ptr || io_ptr->fd < 0)
 		return errno = EBADF , -1;
-	return lseek(io_ptr->fd, o, w);
+	if (io_ptr->error)
+		return errno = io_ptr->error, -1;
+	off_t position = lseek((int)io_ptr->fd, o, w);
+	if (position < 0)
+		io_fail(io_ptr, errno);
+	return position;
 }
 
 static ssize_t lzma_write(io_private_s *c, const void *d, size_t l)
@@ -599,7 +685,8 @@ static ssize_t lzma_write(io_private_s *c, const void *d, size_t l)
 		}
 		if (c->lzma_handle.avail_out == 0)
 		{
-			enc_write(c, &stream, sizeof stream);
+			if (enc_write(c, &stream, sizeof stream) != sizeof stream)
+				return -1;
 			c->lzma_handle.next_out = &stream;
 			c->lzma_handle.avail_out = sizeof stream;
 		}
@@ -652,6 +739,7 @@ proc_remain:;
 			case LZMA_OK:
 				break;
 			default:
+				errno = EILSEQ;
 				return (ssize_t)-lr;
 		}
 
@@ -662,7 +750,8 @@ proc_remain:;
 
 static int lzma_sync(io_private_s *c)
 {
-	lzma_write(c, NULL, 0);
+	if (lzma_write(c, NULL, 0) < 0)
+		return -1;
 	return enc_sync(c);
 }
 
@@ -679,7 +768,8 @@ static ssize_t enc_write(io_private_s *f, const void *d, size_t l)
 		gcry_cipher_encrypt(f->cipher_handle, f->buffer_crypt->stream, f->buffer_crypt->block, NULL, 0);
 #endif
 		ssize_t e = ecc_write(f, f->buffer_crypt->stream, f->buffer_crypt->block);
-		ecc_sync(f);
+		if (e < 0 || ecc_sync(f) < 0)
+			return -1;
 		f->buffer_crypt->block = 0;
 		gcry_free(f->buffer_crypt->stream);
 		f->buffer_crypt->stream = NULL;
@@ -735,9 +825,11 @@ static ssize_t enc_read(io_private_s *f, void *d, size_t l)
 		f->buffer_crypt->offset[1] -= f->buffer_crypt->offset[0];
 		f->buffer_crypt->offset[0] = 0;
 
-		ssize_t e = EXIT_SUCCESS;
-		if ((e = ecc_read(f, f->buffer_crypt->stream, f->buffer_crypt->block)) < 0)
+		ssize_t e = ecc_read(f, f->buffer_crypt->stream, f->buffer_crypt->block);
+		if (e < 0)
 			return e;
+		if ((size_t)e != f->buffer_crypt->block)
+			return e || f->buffer_crypt->offset[2] ? (errno = EIO, -1) : 0;
 #if !defined __DEBUG__ || defined __DEBUG_WITH_ENCRYPTION__
 		gcry_cipher_decrypt(f->cipher_handle, f->buffer_crypt->stream, f->buffer_crypt->block, NULL, 0);
 #endif
@@ -747,8 +839,7 @@ static ssize_t enc_read(io_private_s *f, void *d, size_t l)
 
 static int enc_sync(io_private_s *f)
 {
-	enc_write(f, NULL, 0);
-	return 0;
+	return enc_write(f, NULL, 0) < 0 ? -1 : 0;
 }
 
 static ssize_t ecc_write(io_private_s *f, const void *d, size_t l)
@@ -756,9 +847,9 @@ static ssize_t ecc_write(io_private_s *f, const void *d, size_t l)
 	if (!f->ecc_init)
 	{
 		if (!d && !l)
-			return fsync(f->fd) , 0;
+			return sync_file(f->fd);
 		else
-			return write(f->fd, d, l);
+			return write_all(f->fd, d, l);
 	}
 
 	size_t remainder[2] = { l, f->buffer_ecc->block - f->buffer_ecc->offset[0] }; /* 0: length of data yet to buffer (from d); 1: available space in output buffer (stream) */
@@ -769,16 +860,16 @@ static ssize_t ecc_write(io_private_s *f, const void *d, size_t l)
 		memcpy(f->buffer_ecc->stream, tmp, sizeof tmp);
 
 		uint8_t z = (uint8_t)f->buffer_ecc->offset[0];
-		write(f->fd, &z, sizeof z);
-		write(f->fd, f->buffer_ecc->stream, ECC_OFFSET);
-		ssize_t e = write(f->fd, f->buffer_ecc->stream + ECC_OFFSET, ECC_PAYLOAD);
-
-		fsync(f->fd);
+		if (write_all(f->fd, &z, sizeof z) < 0 ||
+		    write_all(f->fd, f->buffer_ecc->stream, ECC_OFFSET) < 0 ||
+		    write_all(f->fd, f->buffer_ecc->stream + ECC_OFFSET, ECC_PAYLOAD) < 0 ||
+		    sync_file(f->fd) < 0)
+			return -1;
 		f->buffer_ecc->block = 0;
 		gcry_free(f->buffer_ecc->stream);
 		f->buffer_ecc->stream = NULL;
 		memset(f->buffer_ecc->offset, 0x00, sizeof f->buffer_ecc->offset);
-		return e;
+		return 0;
 	}
 
 	f->buffer_ecc->offset[1] = 0;
@@ -797,10 +888,9 @@ static ssize_t ecc_write(io_private_s *f, const void *d, size_t l)
 		memcpy(f->buffer_ecc->stream, tmp, sizeof tmp);
 
 		uint8_t z = ECC_PAYLOAD;
-		write(f->fd, &z, sizeof z);
-		ssize_t e = EXIT_SUCCESS;
-		if ((e = write(f->fd, f->buffer_ecc->stream, ECC_CAPACITY)) < 0)
-			return e;
+		if (write_all(f->fd, &z, sizeof z) < 0 ||
+		    write_all(f->fd, f->buffer_ecc->stream, ECC_CAPACITY) < 0)
+			return -1;
 
 		f->buffer_ecc->offset[0] = 0;
 		memset(f->buffer_ecc->stream, 0x00, f->buffer_ecc->block);
@@ -814,7 +904,7 @@ static ssize_t ecc_write(io_private_s *f, const void *d, size_t l)
 static ssize_t ecc_read(io_private_s *f, void *d, size_t l)
 {
 	if (!f->ecc_init)
-		return read(f->fd, d, l);
+		return read_some(f->fd, d, l);
 
 	f->buffer_ecc->offset[1] = l;
 	f->buffer_ecc->offset[2] = 0;
@@ -840,9 +930,13 @@ static ssize_t ecc_read(io_private_s *f, void *d, size_t l)
 
 		ssize_t e = EXIT_SUCCESS;
 		uint8_t z;
-		read(f->fd, &z, sizeof z);
-		if ((e = read(f->fd, f->buffer_ecc->stream, ECC_CAPACITY)) <= 0)
-			return e;
+		e = read_record(f->fd, &z, sizeof z);
+		if (e <= 0)
+			return f->buffer_ecc->offset[2] ? (ssize_t)f->buffer_ecc->offset[2] : e;
+		if ((e = read_record(f->fd, f->buffer_ecc->stream, ECC_CAPACITY)) != ECC_CAPACITY)
+			return e < 0 ? e : (errno = EIO, -1);
+		if (z > ECC_PAYLOAD)
+			return errno = EIO, -1;
 
 		uint8_t tmp[ECC_CAPACITY] = { 0x0 };
 		int bo;
@@ -857,11 +951,10 @@ static ssize_t ecc_read(io_private_s *f, void *d, size_t l)
 
 static int ecc_sync(io_private_s *f)
 {
-	ecc_write(f, NULL, 0);
-	return 0;
+	return ecc_write(f, NULL, 0) < 0 ? -1 : 0;
 }
 
-static void io_do_compress(io_private_s *io_ptr)
+static bool io_do_compress(io_private_s *io_ptr)
 {
 	lzma_stream l = LZMA_STREAM_INIT;
 	io_ptr->lzma_handle = l;
@@ -873,19 +966,90 @@ static void io_do_compress(io_private_s *io_ptr)
 	lzf[0].options = &lzo;
 	lzf[1].id = LZMA_VLI_UNKNOWN;
 	if (lzma_stream_encoder(&io_ptr->lzma_handle, lzf, LZMA_CHECK_NONE) != LZMA_OK)
-		return;
+		return false;
 	io_ptr->lzma_init = true;
-	return;
+	return true;
 }
 
-static void io_do_decompress(io_private_s *io_ptr)
+static bool io_do_decompress(io_private_s *io_ptr)
 {
 	lzma_stream l = LZMA_STREAM_INIT;
 	io_ptr->lzma_handle = l;
 
 	if (lzma_stream_decoder(&io_ptr->lzma_handle, UINT64_MAX, 0/*LZMA_CONCATENATED*/) != LZMA_OK)
-		return;
+		return false;
 
 	io_ptr->lzma_init = true;
-	return;
+	return true;
+}
+
+static int io_fail(io_private_s *io_ptr, int error)
+{
+	if (!io_ptr->error)
+		io_ptr->error = error ? error : EIO;
+	errno = io_ptr->error;
+	return -1;
+}
+
+static ssize_t write_all(int64_t fd, const void *data, size_t length)
+{
+	const uint8_t *buffer = data;
+	size_t offset = 0;
+	while (offset < length)
+	{
+		ssize_t written = write((int)fd, buffer + offset, length - offset);
+		if (written < 0)
+		{
+			if (errno == EINTR)
+				continue;
+			return -1;
+		}
+		if (!written)
+			return errno = EIO, -1;
+		offset += (size_t)written;
+	}
+	return (ssize_t)offset;
+}
+
+static ssize_t read_record(int64_t fd, void *data, size_t length)
+{
+	uint8_t *buffer = data;
+	size_t offset = 0;
+	while (offset < length)
+	{
+		ssize_t received = read((int)fd, buffer + offset, length - offset);
+		if (received < 0)
+		{
+			if (errno == EINTR)
+				continue;
+			return -1;
+		}
+		if (!received)
+		{
+			if (!offset)
+				return 0;
+			return errno = EIO, -1;
+		}
+		offset += (size_t)received;
+	}
+	return (ssize_t)offset;
+}
+
+static ssize_t read_some(int64_t fd, void *data, size_t length)
+{
+	ssize_t received;
+	do
+		received = read((int)fd, data, length);
+	while (received < 0 && errno == EINTR);
+	return received;
+}
+
+static int sync_file(int64_t fd)
+{
+	struct stat s;
+	if (fstat((int)fd, &s) < 0)
+		return -1;
+	if (!S_ISREG(s.st_mode))
+		return 0;
+	return fsync((int)fd);
 }

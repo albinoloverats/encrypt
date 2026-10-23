@@ -206,6 +206,22 @@ extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l) __attribute__((non
 extern ssize_t io_read(IO_HANDLE f, void *d, size_t l) __attribute__((nonnull(1, 2)));
 
 /*!
+ * \brief         Read an exact number of bytes
+ * \param[in]  f  An IO instance
+ * \param[out] d  The data read
+ * \param[in]  l  The number of bytes to read
+ * \return        True if all requested bytes were read
+ */
+extern bool io_read_exact(IO_HANDLE f, void *d, size_t l) __attribute__((nonnull(1, 2)));
+
+/*!
+ * \brief         Return the first I/O error recorded by this instance
+ * \param[in]  f  An IO instance
+ * \return        Zero if no error was recorded, otherwise the error number
+ */
+extern int io_error(IO_HANDLE f) __attribute__((nonnull(1)));
+
+/*!
  * \brief         Sync data waiting to be written
  * \param[in]  f  An IO instance
  *
