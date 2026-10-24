@@ -24,20 +24,17 @@ import android.app.Service;
 import android.content.Intent;
 import android.net.Uri;
 import androidx.documentfile.provider.DocumentFile;
-import gnu.crypto.mode.ModeFactory;
 import gnu.crypto.prng.LimitReachedException;
 import lombok.val;
 import net.albinoloverats.android.encrypt.lib.io.EncryptedFileInputStream;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
 import org.tukaani.xz.XZFormatException;
-import org.tukaani.xz.XZInputStream;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import static net.albinoloverats.android.encrypt.lib.IntentKey.CIPHER;
@@ -50,7 +47,6 @@ import static net.albinoloverats.android.encrypt.lib.IntentKey.MODE;
 public class Decrypt extends Crypto
 {
 	private static final String SELF = ".";
-	private static final String DEFAULT_OUTPUT_FILENAME = "decrypted";
 	public static final String MIME_TYPE = "application/octet-stream";
 
 	private boolean symlinkWarning = false;
@@ -146,15 +142,15 @@ public class Decrypt extends Crypto
 			if (!raw)
 			{
 				if (extraRandom)
-					skipRandomData();
-				readVerificationSum();
-				skipRandomData();
+					ContainerFormat.skipRandomData(source, verification);
+				ContainerFormat.verifyVerificationSum(source, verification);
+				ContainerFormat.skipRandomData(source, verification);
 			}
 			readMetadata();
 			if (extraRandom && !raw)
-				skipRandomData();
+				ContainerFormat.skipRandomData(source, verification);
 
-			source = compressed ? new XZInputStream(source) : source;
+			source = compressed ? ContainerFormat.decompress(source) : source;
 
 			verification.hash().reset();
 
@@ -175,17 +171,17 @@ public class Decrypt extends Crypto
 				val digest = verification.hash().digest();
 				val check = new byte[verification.hash().hashSize()];
 				val err = readAndHash(check);
-				if (err < 0 || !Arrays.equals(check, digest))
+				if (err < 0 || !ContainerFormat.matches(check, digest))
 					status = Status.WARNING_CHECKSUM;
 			}
 			if (!raw)
-				skipRandomData();
+				ContainerFormat.skipRandomData(source, verification);
 			if (useMAC && version.compareTo(Version._202001) >= 0)
 			{
 				val digest = verification.mac().digest();
 				val check = new byte[verification.mac().macSize()];
 				val err = readAndHash(check);
-				if (err < 0 || !Arrays.equals(check, digest))
+				if (err < 0 || !ContainerFormat.matches(check, digest))
 					status = Status.WARNING_CHECKSUM;
 			}
 
@@ -234,98 +230,24 @@ public class Decrypt extends Crypto
 
 	private Version readVersion() throws CryptoProcessException, IOException
 	{
-		val header = new byte[Long.SIZE / Byte.SIZE];
-		for (int i = 0; i < HEADER.length; i++)
-			if (source.read(header, 0, header.length) < 0)
-				throw new IOException("Could not read data");
-
-		val v = Version.parseMagicNumber(Convert.longFromBytes(header), null);
-		if (v == null)
-			throw new CryptoProcessException(Status.FAILED_UNKNOWN_VERSION);
-
-		if (v.compareTo(Version._201510) >= 0 && !raw)
-			((EncryptedFileInputStream)source).initialiseECC();
-
-		val b = new byte[source.read()];
-		read(source, b);
-
-		val a = new String(b);
-		cipher = a.substring(0, a.indexOf('/'));
-		hash = a.substring(a.indexOf('/') + 1);
-		if (hash.contains("/"))
-		{
-			mode = hash.substring(hash.indexOf('/') + 1);
-			hash = hash.substring(0, hash.indexOf('/'));
-			if (mode.contains("/"))
-			{
-				mac = mode.substring(mode.indexOf('/') + 1);
-				mode = mode.substring(0, mode.indexOf('/'));
-				if (mac.contains("/"))
-				{
-					val kdf = mac.substring(mac.indexOf('/') + 1);
-					mac = mac.substring(0, mac.indexOf('/'));
-					/*
-					 * tough tits if you used more than 2,147,483,647 iterations
-					 * on your desktop (where libgcrypt uses an unsigned long)
-					 */
-					kdfIterations = (int)Long.parseLong(kdf, 0x10);
-				}
-			}
-		}
-		else
-			mode = ModeFactory.CBC_MODE;
-
-		return v;
-	}
-
-	private void readVerificationSum() throws CryptoProcessException, IOException
-	{
-		val buffer = new byte[Long.SIZE / Byte.SIZE];
-		readAndHash(buffer);
-		val x = Convert.longFromBytes(buffer);
-		readAndHash(buffer);
-		val y = Convert.longFromBytes(buffer);
-		readAndHash(buffer);
-		val z = Convert.longFromBytes(buffer);
-		if ((x ^ y) != z)
-			throw new CryptoProcessException(Status.FAILED_DECRYPTION);
+		val header = ContainerFormat.readHeader(source, raw, () -> ((EncryptedFileInputStream)source).initialiseECC());
+		cipher = header.cipher();
+		hash = header.hash();
+		mode = header.mode();
+		mac = header.mac();
+		if (header.kdfIterations() != 0)
+			kdfIterations = header.kdfIterations();
+		return header.version();
 	}
 
 	private void readMetadata() throws CryptoProcessException, IOException
 	{
-		val c = new byte[1];
-		readAndHash(c);
-		for (int i = 0; i < (short)(Convert.byteFromBytes(c) & 0x00FF); i++)
-		{
-			val tv = new byte[1];
-			readAndHash(tv);
-			val tag = Tag.fromValue((short)(Convert.byteFromBytes(tv) & 0x00FF));
-			val l = new byte[Short.SIZE / Byte.SIZE];
-			readAndHash(l);
-			val length = Convert.shortFromBytes(l);
-			val v = new byte[length];
-			readAndHash(v);
-			switch (tag)
-			{
-				case SIZE:
-					total.size = Convert.longFromBytes(v);
-					break;
-				case BLOCKED:
-					blockSize = (int)Convert.longFromBytes(v);
-					break;
-				case COMPRESSED:
-					compressed = Convert.booleanFromBytes(v);
-					break;
-				case DIRECTORY:
-					directory = Convert.booleanFromBytes(v);
-					break;
-				case FILENAME:
-					name = new String(v);
-					break;
-			}
-		}
-		if (!directory && name == null)
-			name = DEFAULT_OUTPUT_FILENAME;
+		val metadata = ContainerFormat.readMetadata(source, verification);
+		total.size = metadata.totalSize();
+		blockSize = metadata.blockSize();
+		compressed = metadata.compressed();
+		directory = metadata.directory();
+		name = metadata.fileName();
 		val documentFile = DocumentFile.fromTreeUri(this, path);
 		if (documentFile == null)
 		{
@@ -341,13 +263,6 @@ public class Decrypt extends Crypto
 			else
 				output = contentResolver.openOutputStream(file.getUri());
 		}
-	}
-
-	private void skipRandomData() throws IOException
-	{
-		val b = new byte[1];
-		readAndHash(b);
-		readAndHash(new byte[(short)(Convert.byteFromBytes(b) & 0x00FF)]);
 	}
 
 	private void decryptDirectory(final Uri uri) throws CryptoProcessException, IOException

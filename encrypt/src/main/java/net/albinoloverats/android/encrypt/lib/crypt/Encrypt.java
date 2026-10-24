@@ -26,13 +26,10 @@ import android.net.Uri;
 import androidx.documentfile.provider.DocumentFile;
 import gnu.crypto.mode.ModeFactory;
 import gnu.crypto.prng.LimitReachedException;
-import gnu.crypto.util.PRNG;
 import lombok.val;
 import net.albinoloverats.android.encrypt.lib.io.EncryptedFileOutputStream;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
-import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZFormatException;
-import org.tukaani.xz.XZOutputStream;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -153,7 +150,7 @@ public class Encrypt extends Crypto
 			status = Status.RUNNING;
 
 			if (!raw)
-				writeHeader();
+				ContainerFormat.writeHeader(output, version, cipher, hash, mode, mac, kdfIterations, raw, () -> ((EncryptedFileOutputStream)output).initialiseECC());
 
 			var extraRandom = true;
 			var ivType = XIV.RANDOM;
@@ -171,18 +168,18 @@ public class Encrypt extends Crypto
 			if (!raw)
 			{
 				if (extraRandom)
-					writeRandomData();
-				writeVerificationSum();
-				writeRandomData();
+					ContainerFormat.writeRandomData(output, verification);
+				ContainerFormat.writeVerificationSum(output, verification);
+				ContainerFormat.writeRandomData(output, verification);
 			}
-			writeMetadata();
+			if (directory)
+				total.size = fakeDir.size() + 1;
+			ContainerFormat.writeMetadata(output, verification, version, new ContainerFormat.Metadata(total.size, blockSize, compressed, directory, name));
 
 			if (extraRandom && !raw)
-				writeRandomData();
+				ContainerFormat.writeRandomData(output, verification);
 
-			val opts = new LZMA2Options(LZMA2Options.PRESET_MIN); // minimum compression
-			opts.setDictSize(LZMA2Options.DICT_SIZE_MIN); // default dictionary size is 8MiB which is too large (on older devices)
-			output = compressed ? new XZOutputStream(output, opts) : output;
+			output = compressed ? ContainerFormat.compress(output) : output;
 
 			verification.hash().reset();
 
@@ -236,7 +233,7 @@ public class Encrypt extends Crypto
 			if (!raw)
 			{
 				hashAndWrite(verification.hash().digest());
-				writeRandomData();
+				ContainerFormat.writeRandomData(output, verification);
 			}
 			if (useMAC)
 				hashAndWrite(verification.mac().digest());
@@ -274,77 +271,6 @@ public class Encrypt extends Crypto
 			closeIgnoreEverything(source);
 			closeIgnoreEverything(output);
 		}
-	}
-
-	private void writeHeader() throws IOException
-	{
-		output.write(Convert.toBytes(HEADER[0]));
-		output.write(Convert.toBytes(HEADER[1]));
-		output.write(Convert.toBytes(HEADER[2]));
-		if (version.compareTo(Version._201510) >= 0 && !raw)
-			((EncryptedFileOutputStream)output).initialiseECC();
-		var algorithms = cipher + "/" + hash;
-		if (version.compareTo(Version._201406) >= 0)
-			algorithms = algorithms.concat("/" + mode);
-		if (version.compareTo(Version._201709) >= 0)
-			algorithms = algorithms.concat("/" + mac);
-		if (version.compareTo(Version._202001) >= 0)
-			algorithms = algorithms.concat("/" + String.format("%016x", (long)kdfIterations));
-		output.write((byte)algorithms.length());
-		output.write(algorithms.getBytes());
-	}
-
-	private void writeVerificationSum() throws IOException
-	{
-		val buffer = new byte[Long.SIZE / Byte.SIZE];
-		PRNG.nextBytes(buffer);
-		val x = Convert.longFromBytes(buffer);
-		PRNG.nextBytes(buffer);
-		val y = Convert.longFromBytes(buffer);
-		hashAndWrite(Convert.toBytes(x));
-		hashAndWrite(Convert.toBytes(y));
-		hashAndWrite(Convert.toBytes(x ^ y));
-	}
-
-	private void writeMetadata() throws IOException
-	{
-		byte meta = 3;
-		if (!directory && name != null && version.compareTo(Version._201501) >= 0)
-			meta++;
-		hashAndWrite(Convert.toBytes(meta));
-
-		if (directory) /* total size becomes number of entries */
-			total.size = fakeDir.size() + 1;
-
-		hashAndWrite(Convert.toBytes((byte)Tag.SIZE.value));
-		hashAndWrite(Convert.toBytes((short)(Long.SIZE / Byte.SIZE)));
-		hashAndWrite(Convert.toBytes(total.size));
-
-		hashAndWrite(Convert.toBytes((byte)Tag.COMPRESSED.value));
-		hashAndWrite(Convert.toBytes((short)(1)));
-		hashAndWrite(Convert.toBytes(compressed));
-
-		hashAndWrite(Convert.toBytes((byte)Tag.DIRECTORY.value));
-		hashAndWrite(Convert.toBytes((short)(1)));
-		hashAndWrite(Convert.toBytes(directory));
-
-		if (!directory && name != null && version.compareTo(Version._201501) >= 0)
-		{
-			hashAndWrite(Convert.toBytes((byte)Tag.FILENAME.value));
-			hashAndWrite(Convert.toBytes((short)name.length()));
-			hashAndWrite(name.getBytes());
-		}
-	}
-
-	private void writeRandomData() throws IOException
-	{
-		var buffer = new byte[Short.SIZE / Byte.SIZE];
-		PRNG.nextBytes(buffer);
-		val sr = (short)(Convert.shortFromBytes(buffer) & 0x00FF);
-		buffer = new byte[sr];
-		PRNG.nextBytes(buffer);
-		hashAndWrite(Convert.toBytes((byte)sr));
-		hashAndWrite(buffer);
 	}
 
 	private void encryptFile() throws IOException

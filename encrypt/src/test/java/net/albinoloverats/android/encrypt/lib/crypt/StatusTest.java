@@ -1,5 +1,6 @@
 package net.albinoloverats.android.encrypt.lib.crypt;
 
+import lombok.val;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -10,7 +11,7 @@ public class StatusTest
 	@Test
 	public void parsesEveryStatusName()
 	{
-		for (final Status status : Status.values())
+		for (val status : Status.values())
 			assertEquals(status, Status.parseStatus(status.name()));
 	}
 

@@ -3,6 +3,7 @@ package net.albinoloverats.android.encrypt.lib.crypt;
 import gnu.crypto.cipher.IBlockCipher;
 import gnu.crypto.hash.IMessageDigest;
 import gnu.crypto.mac.HMac;
+import lombok.val;
 import org.junit.Test;
 
 import java.security.NoSuchAlgorithmException;
@@ -19,7 +20,7 @@ public class CryptoUtilsTest
 	public void providesHashNamesThatResolveToHashAlgorithms() throws NoSuchAlgorithmException
 	{
 		assertFalse(CryptoUtils.getHashAlgorithmNames().isEmpty());
-		for (final String name : CryptoUtils.getHashAlgorithmNames())
+		for (val name : CryptoUtils.getHashAlgorithmNames())
 			assertNotNull(CryptoUtils.getHashAlgorithm(name));
 		assertNotNull(CryptoUtils.getHashAlgorithm("WHIRLPOOL-T"));
 	}
@@ -28,9 +29,9 @@ public class CryptoUtilsTest
 	public void providesCipherNamesThatResolveToCipherAlgorithms() throws NoSuchAlgorithmException
 	{
 		assertFalse(CryptoUtils.getCipherAlgorithmNames().isEmpty());
-		for (final String name : CryptoUtils.getCipherAlgorithmNames())
+		for (val name : CryptoUtils.getCipherAlgorithmNames())
 		{
-			final IBlockCipher cipher = CryptoUtils.getCipherAlgorithm(name);
+			val cipher = CryptoUtils.getCipherAlgorithm(name);
 			assertNotNull(cipher);
 			assertTrue(CryptoUtils.getCipherAlgorithmKeySize(name) > 0);
 		}
@@ -40,7 +41,7 @@ public class CryptoUtilsTest
 	public void providesMacNamesThatResolveToMacAlgorithms() throws NoSuchAlgorithmException
 	{
 		assertFalse(CryptoUtils.getMacAlgorithmNames().isEmpty());
-		for (final String name : CryptoUtils.getMacAlgorithmNames())
+		for (val name : CryptoUtils.getMacAlgorithmNames())
 			assertNotNull(CryptoUtils.getMacAlgorithm(name));
 		assertEquals("HMAC_SHA256", CryptoUtils.hmacFromHash("sha256"));
 		assertEquals("SHA256", CryptoUtils.hashFromHmac("hmac_sha256"));

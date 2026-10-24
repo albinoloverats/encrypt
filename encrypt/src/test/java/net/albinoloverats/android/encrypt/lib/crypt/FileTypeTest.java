@@ -1,5 +1,6 @@
 package net.albinoloverats.android.encrypt.lib.crypt;
 
+import lombok.val;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -10,7 +11,7 @@ public class FileTypeTest
 	@Test
 	public void resolvesEveryFileTypeId() throws CryptoProcessException
 	{
-		for (final FileType type : FileType.values())
+		for (val type : FileType.values())
 			assertEquals(type, FileType.fromID(type.value));
 	}
 

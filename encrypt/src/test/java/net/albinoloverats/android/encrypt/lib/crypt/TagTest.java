@@ -1,5 +1,6 @@
 package net.albinoloverats.android.encrypt.lib.crypt;
 
+import lombok.val;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -10,7 +11,7 @@ public class TagTest
 	@Test
 	public void resolvesEveryTagValue() throws CryptoProcessException
 	{
-		for (final Tag tag : Tag.values())
+		for (val tag : Tag.values())
 			assertEquals(tag, Tag.fromValue(tag.value));
 	}
 
