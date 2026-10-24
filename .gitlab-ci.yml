@@ -1,0 +1,14 @@
+image: ghcr.io/cirruslabs/android-sdk:36
+
+variables:
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+
+cache:
+  key: "$CI_COMMIT_REF_SLUG"
+  paths:
+    - .gradle/caches
+    - .gradle/wrapper
+
+unit-tests:
+  script:
+    - ./gradlew --no-daemon :encrypt:testDebugUnitTest

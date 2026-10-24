@@ -1,0 +1,10 @@
+image: ghcr.io/cirruslabs/android-sdk:36
+
+pipelines:
+  default:
+    - step:
+        name: Android unit tests
+        caches:
+          - gradle
+        script:
+          - ./gradlew --no-daemon :encrypt:testDebugUnitTest
