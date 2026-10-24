@@ -15,6 +15,10 @@ build:
 # run tests using the binary built before
 test:
   stage: test
+  dependencies:
+    - build
+  before_script:
+    - apt-get update && apt-get install -y libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl3-gnutls libcurl4-gnutls-dev libcmocka-dev
   script:
     - cp etc/encryptrc ~/.encryptrc
     - ./encrypt --self-test
