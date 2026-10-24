@@ -15,6 +15,7 @@ GUI_SRC        = ${CLI_SRC} src/gui-gtk.c
 CORE_SRC       = ${COMMON_SRC} src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
 MISC           = common/misc.h
 IO_TEST        = test-crypt-io.exe
+FLOW_TEST      = test-crypt-flow.exe
 RC             = src/encrypt_private.rc
 RES            = src/encrypt_private.res
 
@@ -55,6 +56,8 @@ test:
 	 @echo "#define ALL_CPPFLAGS ${TEST_CPPFLAGS}" | tr "\"" "'" | sed 's/FLAGS /FLAGS "/'     | sed 's/$$/"/' >> ${MISC}
 	 @${CC} ${TEST_CFLAGS} ${TEST_CPPFLAGS} -I. ${CORE_SRC} tests/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
 	 @./${IO_TEST}
+	 @${CC} ${TEST_CFLAGS} ${TEST_CPPFLAGS} -I. ${CORE_SRC} tests/test_crypt_flow.c ${TEST_LIBS} -o ${FLOW_TEST}
+	 @./${FLOW_TEST}
 
 sign: gui
 	 @${SIGN} ${SIGOPTS} -in ${APP}.exe ${APP_SIG}.exe
@@ -74,7 +77,7 @@ installer:
 	-@mv -v ${PKG_SIG} ${PKG}
 
 clean:
-	 @rm -fv ${APP} ${APP_SIG} ${MISC} ${RES} ${IO_TEST}
+	 @rm -fv ${APP} ${APP_SIG} ${MISC} ${RES} ${IO_TEST} ${FLOW_TEST}
 
 distclean: clean
 	 @rm -fv ${PKG} ${PKG_SIG} gmon.out

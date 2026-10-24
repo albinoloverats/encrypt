@@ -221,6 +221,8 @@ int main(int argc, char **argv)
 	if (test)
 		self_test();
 
+	int result = EXIT_SUCCESS;
+
 	/*
 	 * list available algorithms if asked to (possibly both hash and
 	 * crypto)
@@ -494,7 +496,7 @@ int main(int argc, char **argv)
 	if (c->status != STATUS_SUCCESS)
 		cli_fprintf(stderr, ANSI_COLOUR_RED "%s" ANSI_COLOUR_RESET "\n", _(status(c)));
 
-	int result = c->status;
+	result = c->status;
 	deinit(&c);
 #endif /* ! _WIN32 */
 

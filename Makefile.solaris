@@ -1,4 +1,4 @@
-.PHONY: clean distclean
+.PHONY: clean distclean test
 
 CC             = gcc
 
@@ -9,8 +9,11 @@ PKG_CONFIG_PATH=/usr/lib/64/pkgconfig
 
 COMMON_SRC     = common/src/error.c common/src/mem.c common/src/ccrypt.c common/src/list.c common/src/tlv.c common/src/version.c common/src/config.c common/src/cli.c common/src/dir.c common/src/ecc.c common/src/non-gnu.c
 CLI_SRC        = ${COMMON_SRC} src/main.c src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
+CORE_SRC       = ${COMMON_SRC} src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
 GUI_SRC        = ${CLI_SRC} src/gui-gtk.c
 MISC           = common/misc.h
+IO_TEST        = test-crypt-io
+FLOW_TEST      = test-crypt-flow
 
 CLI_CFLAGS     = ${CFLAGS} -m64 -Wall -std=gnu99 `pkg-config --cflags libgcrypt` -pipe -O2 -Wformat=2
 CLI_CPPFLAGS   = ${CPPFLAGS} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DUSE_GCRYPT -DGIT_COMMIT=\"`git log | head -n1 | cut -f2 -d' '`\" -DBUILD_OS="`grep PRETTY_NAME /etc/os-release | cut -d= -f2`"
@@ -23,6 +26,8 @@ DEBUG_ENC      = ${DEBUG_CPPFLAGS} -D__DEBUG_WITH_ENCRYPTION__
 
 CLI_LIBS       = `pkg-config --libs libgcrypt` -lpthread -lcurl -llzma -L/opt/local/lib/64 -R/opt/local/lib/64
 GUI_LIBS       = ${CLI_LIBS} `PKG_CONFIG_PATH=/usr/lib/64/pkgconfig pkg-config --libs gtk+-3.0 gmodule-2.0`
+TEST_CFLAGS    = ${CLI_CFLAGS} `PKG_CONFIG_PATH=/usr/lib/64/pkgconfig pkg-config --cflags cmocka`
+TEST_LIBS      = ${CLI_LIBS} `PKG_CONFIG_PATH=/usr/lib/64/pkgconfig pkg-config --libs cmocka`
 
 all: gui symlink language man
 
@@ -37,6 +42,12 @@ cli: symlink
 	 @echo "#define ALL_CPPFLAGS ${CLI_CPPFLAGS}" | tr "\"" "'" | sed 's/FLAGS /FLAGS "/'     | sed 's/$$/"/' >> ${MISC}
 	 @${CC} ${CLI_LIBS} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC}                                   -o ${APP}
 	-@echo -e "built ${CLI_SRC} → ${APP}"
+
+test:
+	 @${CC} ${TEST_CFLAGS} ${CLI_CPPFLAGS} -I. -Icommon ${CORE_SRC} tests/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
+	 @./${IO_TEST}
+	 @${CC} ${TEST_CFLAGS} ${CLI_CPPFLAGS} -I. -Icommon ${CORE_SRC} tests/test_crypt_flow.c ${TEST_LIBS} -o ${FLOW_TEST}
+	 @./${FLOW_TEST}
 
 cli-debug:
 	 @echo "#define ALL_CFLAGS   ${CLI_CFLAGS}   ${DEBUG_CFLAGS}  " | tr "\"" "'" | sed 's/FLAGS   /FLAGS   "/' | sed 's/$$/"/' >  ${MISC}
@@ -128,7 +139,7 @@ uninstall:
 
 clean:
 	 @rm -f ${MISC}
-	 @rm -f ${APP} ${ALT}
+	 @rm -f ${APP} ${ALT} ${IO_TEST} ${FLOW_TEST}
 	 @rm -f gmon.out
 
 distclean: clean

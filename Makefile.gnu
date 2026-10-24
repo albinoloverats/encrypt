@@ -11,6 +11,7 @@ CRK_SRC        = ${COMMON_SRC} src/crypt_io.c src/crypt.c C-Thread-Pool/thpool.c
 CORE_SRC       = ${COMMON_SRC} src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
 MISC           = common/misc.h
 IO_TEST        = test-crypt-io
+FLOW_TEST      = test-crypt-flow
 
 CLI_CFLAGS     = ${CFLAGS} -Wall -Wextra -std=gnu23 $(shell pkg-config --cflags libgcrypt) -pipe -O2 -Wrestrict -Wformat=2 -Wno-unused-result
 CLI_CPPFLAGS   = ${CPPFLAGS} -Icommon -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DUSE_GCRYPT -DGIT_COMMIT=\"$(shell git log | head -n1 | cut -f2 -d' ')\" -DBUILD_OS=\"$(shell grep PRETTY_NAME /etc/os-release | cut -d= -f2)\"
@@ -44,6 +45,8 @@ cli: symlink
 test: cli
 	 @${CC} ${CLI_CFLAGS} ${CLI_CPPFLAGS} -I. ${CORE_SRC} tests/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
 	 @./${IO_TEST}
+	 @${CC} ${CLI_CFLAGS} ${CLI_CPPFLAGS} -I. ${CORE_SRC} tests/test_crypt_flow.c ${TEST_LIBS} -o ${FLOW_TEST}
+	 @./${FLOW_TEST}
 	 @sh tests/test_cli_compressed_eof.sh
 
 cli-debug:
@@ -142,7 +145,7 @@ uninstall:
 
 clean:
 	 @rm -fv ${MISC}
-	 @rm -fv ${APP} ${ALT} ${CRK} ${IO_TEST}
+	 @rm -fv ${APP} ${ALT} ${CRK} ${IO_TEST} ${FLOW_TEST}
 	 @rm -fv gmon.out
 
 distclean: clean
