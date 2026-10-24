@@ -2,6 +2,8 @@
 set -eu
 
 tmp=$(mktemp -d "${TMPDIR:-/tmp}/encrypt-cli-test.XXXXXX")
+HOME=$tmp
+export HOME
 input=$tmp/input
 encrypted=$tmp/encrypted
 decrypted=$tmp/decrypted

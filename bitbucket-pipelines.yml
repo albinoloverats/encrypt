@@ -5,9 +5,10 @@ pipelines:
     - step:
         name: Build and Test
         script:
-          - apt-get update && apt-get install -y libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl3-gnutls libcurl4-gnutls-dev libcmocka-dev
+          - apt-get update && apt-get install -y gcovr libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl3-gnutls libcurl4-gnutls-dev libcmocka-dev
           - git submodule update --init
-          - make cli
-          - make test
+          - make coverage
           - cp etc/encryptrc ~/.encryptrc
           - ./encrypt --self-test
+        artifacts:
+          - coverage/**

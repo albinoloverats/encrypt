@@ -167,13 +167,18 @@ extern void key_gcry_free(raw_key_s **key)
 
 extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, char **m, char **a, uint64_t *k)
 {
-	struct stat st;
-	stat(n, &st);
-	if (S_ISDIR(st.st_mode))
-		return VERSION_UNKNOWN;
 	int64_t f = open(n, O_RDONLY | F_RDLCK | O_BINARY, S_IRUSR | S_IWUSR);
 	if (f < 0)
 		return VERSION_UNKNOWN;
+	struct stat st;
+	if (fstat(f, &st) < 0)
+		return close(f), VERSION_UNKNOWN;
+	if (S_ISDIR(st.st_mode))
+	{
+		close(f);
+		return VERSION_UNKNOWN;
+	}
+
 	uint64_t head[3] = { 0x0 };
 	if ((read(f, head, sizeof head)) < 0)
 		return close(f) , VERSION_UNKNOWN;

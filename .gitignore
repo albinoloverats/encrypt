@@ -24,3 +24,6 @@ src/common/map.h
 .idea
 local.properties
 build
+/coverage/
+*.gcda
+*.gcno

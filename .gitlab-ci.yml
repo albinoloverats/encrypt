@@ -3,14 +3,19 @@ image: gcc
 build:
   stage: build
   before_script:
-    - apt-get update && apt-get install -y libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl3-gnutls libcurl4-gnutls-dev libcmocka-dev
+    - apt-get update && apt-get install -y gcovr libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl3-gnutls libcurl4-gnutls-dev libcmocka-dev
     - git submodule update --init
   script:
-    - make cli
-    - make test
+    - make coverage
+  coverage: '/lines: ([0-9]+\.[0-9]+)%/'
   artifacts:
     paths:
       - encrypt
+      - coverage/
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/coverage.xml
 
 # run tests using the binary built before
 test:

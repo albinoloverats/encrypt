@@ -1,4 +1,4 @@
-.PHONY: crack clean distclean test
+.PHONY: crack clean distclean test coverage
 
 APP            = encrypt
 ALT            = decrypt
@@ -27,6 +27,7 @@ CLI_LIBS       = $(shell pkg-config --libs libgcrypt) -lpthread -lcurl -llzma
 GUI_LIBS       = ${CLI_LIBS} $(shell pkg-config --libs gtk+-3.0 gmodule-2.0)
 CRK_LIBS       = ${CLI_LIBS} -lgmp
 TEST_LIBS      = ${CLI_LIBS} $(shell pkg-config --libs cmocka)
+GCOV           = $(shell command -v gcov-$(shell ${CC} -dumpversion | cut -d. -f1) || ${CC} -print-prog-name=gcov)
 
 all: gui symlink language man
 
@@ -48,6 +49,12 @@ test: cli
 	 @${CC} ${CLI_CFLAGS} ${CLI_CPPFLAGS} -I. ${CORE_SRC} test/test_crypt_flow.c ${TEST_LIBS} -o ${FLOW_TEST}
 	 @./${FLOW_TEST}
 	 @sh test/test_cli_compressed_eof.sh
+
+coverage:
+	 @${MAKE} clean
+	 @${MAKE} test CFLAGS=--coverage
+	 @mkdir -p coverage
+	 @gcovr --root . --gcov-executable "${GCOV}" --filter 'src/' --filter 'common/src/' --xml-pretty --output coverage/coverage.xml --html-details coverage/index.html --print-summary
 
 cli-debug:
 	 @echo "#define ALL_CFLAGS   \"$(strip $(subst \",\',"${CLI_CFLAGS}   ${DEBUG_CFLAGS}"))\""    > ${MISC}
@@ -146,6 +153,8 @@ uninstall:
 clean:
 	 @rm -fv ${MISC}
 	 @rm -fv ${APP} ${ALT} ${CRK} ${IO_TEST} ${FLOW_TEST}
+	 @rm -fv *.gcda *.gcno
+	 @rm -fvr coverage
 	 @rm -fv gmon.out
 
 distclean: clean
