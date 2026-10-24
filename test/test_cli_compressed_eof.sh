@@ -14,6 +14,14 @@ dd if=/dev/urandom of="$input" bs=4096 count=8 2>/dev/null
 
 size=$(wc -c < "$encrypted")
 test "$size" -gt 4096
+
+if ./decrypt -p test-password "$encrypted" "$decrypted" -r >"$stdout" 2>"$stderr"; then
+	echo "raw decryption unexpectedly accepted missing algorithms" >&2
+	exit 1
+fi
+
+grep -q 'Raw decryption requires cipher, hash, mode, and MAC options' "$stderr"
+
 truncate -s "$((size / 2))" "$encrypted"
 
 if ./decrypt -p test-password "$encrypted" "$decrypted" >"$stdout" 2>"$stderr"; then

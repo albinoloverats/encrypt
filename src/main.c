@@ -165,10 +165,12 @@ int main(int argc, char **argv)
 		((config_named_s *)list_get(args, ++x))->hidden = true;
 		((config_named_s *)list_get(args, ++x))->hidden = true;
 #endif
-		((config_named_s *)list_get(args, ++x))->hidden = true;
-		((config_named_s *)list_get(args, ++x))->hidden = true;
-		((config_named_s *)list_get(args, ++x))->hidden = true;
-		((config_named_s *)list_get(args, ++x))->hidden = true;
+		for (int i = 0; i < 4; i++)
+		{
+			config_named_s *arg = (config_named_s *)list_get(args, ++x);
+			arg->hidden = true;
+			arg->required = false;
+		}
 		((config_named_s *)list_get(args, ++x))->hidden = true;
 		x += 2;
 		((config_named_s *)list_get(args, ++x))->hidden = true;
@@ -222,6 +224,14 @@ int main(int argc, char **argv)
 		self_test();
 
 	int result = EXIT_SUCCESS;
+
+	if (dude && raw && (!cipher || !hash || !mode || !mac))
+	{
+		cli_eprintf(_("Raw decryption requires cipher, hash, mode, and MAC options.\n"));
+		result = EXIT_FAILURE;
+		list_deinit(args);
+		goto clean_up;
+	}
 
 	/*
 	 * list available algorithms if asked to (possibly both hash and
