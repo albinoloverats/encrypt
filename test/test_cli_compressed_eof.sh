@@ -9,10 +9,11 @@ stdout=$tmp/stdout
 stderr=$tmp/stderr
 trap 'rm -f "$input" "$encrypted" "$decrypted" "$stdout" "$stderr"; rmdir "$tmp"' EXIT HUP INT TERM
 
-dd if=/dev/zero of="$input" bs=4096 count=8 2>/dev/null
+dd if=/dev/urandom of="$input" bs=4096 count=8 2>/dev/null
 ./encrypt -c AES -s SHA256 -m CBC -a HMAC_SHA256 -i 10 -p test-password "$input" "$encrypted"
 
 size=$(wc -c < "$encrypted")
+test "$size" -gt 4096
 truncate -s "$((size / 2))" "$encrypted"
 
 if ./decrypt -p test-password "$encrypted" "$decrypted" >"$stdout" 2>"$stderr"; then
