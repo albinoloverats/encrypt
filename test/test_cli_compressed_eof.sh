@@ -13,7 +13,7 @@ dd if=/dev/zero of="$input" bs=4096 count=8 2>/dev/null
 ./encrypt -c AES -s SHA256 -m CBC -a HMAC_SHA256 -i 10 -p test-password "$input" "$encrypted"
 
 size=$(wc -c < "$encrypted")
-truncate -s "$((size - 128))" "$encrypted"
+truncate -s "$((size / 2))" "$encrypted"
 
 if ./decrypt -p test-password "$encrypted" "$decrypted" >"$stdout" 2>"$stderr"; then
 	echo "decryption unexpectedly accepted a damaged compressed stream" >&2
