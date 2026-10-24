@@ -24,6 +24,7 @@ import lombok.Getter;
 import lombok.val;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -62,44 +63,61 @@ public class ECCFileInputStream extends ECCFileStream
 
 	public int read(final byte[] bytes) throws IOException
 	{
-		int err = 0;
+		if (bytes.length == 0)
+			return 0;
 		if (!initialised)
 			return inputStream.read(bytes);
 
-		offset[1] = bytes.length;
-		offset[2] = 0;
-		while (true)
+		int copied = 0;
+		while (copied < bytes.length)
 		{
-			if (offset[0] >= offset[1])
+			if (offset[0] > 0)
 			{
-				System.arraycopy(source, 0, bytes, offset[2], offset[1]);
-				offset[0] -= offset[1];
-				val x = new byte[PAYLOAD];
-				System.arraycopy(source, offset[1], x, 0, offset[0]);
-				source = new byte[PAYLOAD];
-				System.arraycopy(x, 0, source, 0, offset[0]);
-				return err < 0 ? err : offset[1] + offset[2];
+				val length = Math.min(offset[0], bytes.length - copied);
+				System.arraycopy(source, 0, bytes, copied, length);
+				offset[0] -= length;
+				System.arraycopy(source, length, source, 0, offset[0]);
+				copied += length;
+				continue;
 			}
-			System.arraycopy(source, 0, bytes, offset[2], offset[0]);
-			offset[2] += offset[0];
-			offset[1] -= offset[0];
-			offset[0] = 0;
+
+			val payloadLength = inputStream.read();
+			if (payloadLength < 0)
+				return copied == 0 ? -1 : copied;
+			if (payloadLength > PAYLOAD)
+				throw new IOException("Invalid ECC payload length");
+
 			source = new byte[CAPACITY];
-			val z = inputStream.read();
-			err = inputStream.read(source);
+			int encodedLength = 0;
+			while (encodedLength < source.length)
+			{
+				val count = inputStream.read(source, encodedLength, source.length - encodedLength);
+				if (count < 0)
+					throw new EOFException("Truncated ECC block");
+				if (count == 0)
+					continue;
+				encodedLength += count;
+			}
+
 			val tmp = decode();
 			if (tmp == null)
-				return -getDecodeError();
-			System.arraycopy(tmp, 0, source, 0, z);
-			offset[0] = z;
+				throw new IOException("Uncorrectable ECC block (" + getDecodeError() + " errors)");
+			source = tmp;
+			offset[0] = payloadLength;
 		}
+		return copied;
 	}
 
 	public int read(final byte[] b, final int off, final int len) throws IOException
 	{
+		if (off < 0 || len < 0 || len > b.length - off)
+			throw new IndexOutOfBoundsException();
+		if (len == 0)
+			return 0;
 		val bytes = new byte[len];
 		val x = read(bytes);
-		System.arraycopy(bytes, 0, b, off, len);
+		if (x > 0)
+			System.arraycopy(bytes, 0, b, off, x);
 		return x;
 	}
 

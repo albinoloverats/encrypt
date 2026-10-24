@@ -23,6 +23,9 @@ build
 # and occasionally when switching branches is gets
 # "left behind"
 src
+!/encrypt/src/
+!/encrypt/src/test/
+!/encrypt/src/test/**
 encrypt-free/lint-baseline.xml
 encrypt-paid/lint-baseline.xml
 encrypt-free/release

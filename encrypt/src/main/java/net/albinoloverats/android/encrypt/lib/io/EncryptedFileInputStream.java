@@ -32,6 +32,7 @@ import net.albinoloverats.android.encrypt.lib.crypt.CryptoUtils;
 import net.albinoloverats.android.encrypt.lib.crypt.XIV;
 import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
@@ -163,40 +164,51 @@ public class EncryptedFileInputStream extends InputStream
 	@Override
 	public int read(final byte[] bytes) throws IOException
 	{
-		int err = 0;
 		if (cipher == null)
 			return eccFileInputStream.read(bytes);
-		offset[1] = bytes.length;
-		offset[2] = 0;
-		while (true)
+		if (bytes.length == 0)
+			return 0;
+
+		int copied = 0;
+		while (copied < bytes.length)
 		{
-			if (offset[0] >= offset[1])
+			if (offset[0] > 0)
 			{
-				System.arraycopy(buffer, 0, bytes, offset[2], offset[1]);
-				offset[0] -= offset[1];
-				val x = new byte[blockSize];
-				System.arraycopy(buffer, offset[1], x, 0, offset[0]);
-				buffer = new byte[blockSize];
-				System.arraycopy(x, 0, buffer, 0, offset[0]);
-				return err < 0 ? err : offset[1] + offset[2];
+				val length = Math.min(offset[0], bytes.length - copied);
+				System.arraycopy(buffer, 0, bytes, copied, length);
+				offset[0] -= length;
+				System.arraycopy(buffer, length, buffer, 0, offset[0]);
+				copied += length;
+				continue;
 			}
-			System.arraycopy(buffer, 0, bytes, offset[2], offset[0]);
-			offset[2] += offset[0];
-			offset[1] -= offset[0];
-			offset[0] = 0;
+
 			val eBytes = new byte[blockSize];
-			err = eccFileInputStream.read(eBytes);
+			val count = eccFileInputStream.read(eBytes);
+			if (count < 0)
+			{
+				if (copied == 0)
+					return -1;
+				return copied;
+			}
+			if (count != blockSize)
+				throw new EOFException("Truncated encrypted block");
 			cipher.update(eBytes, 0, buffer, 0);
 			offset[0] = blockSize;
 		}
+		return copied;
 	}
 
 	@Override
 	public int read(final byte[] b, final int off, final int len) throws IOException
 	{
+		if (off < 0 || len < 0 || len > b.length - off)
+			throw new IndexOutOfBoundsException();
+		if (len == 0)
+			return 0;
 		val bytes = new byte[len];
 		val x = read(bytes);
-		System.arraycopy(bytes, 0, b, off, len);
+		if (x > 0)
+			System.arraycopy(bytes, 0, b, off, x);
 		return x;
 	}
 

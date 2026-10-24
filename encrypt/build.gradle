@@ -51,4 +51,5 @@ dependencies
 	api 'com.github.albinoloverats:gnu-crypto:2.1.0.2'
 	compileOnly 'org.projectlombok:lombok:1.18.30'
 	annotationProcessor 'org.projectlombok:lombok:1.18.30'
+	testImplementation 'junit:junit:4.13.2'
 }
