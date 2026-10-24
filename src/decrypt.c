@@ -353,6 +353,14 @@ static void *process(void *ptr)
 		gcry_free(b);
 	}
 
+	if (c->compressed)
+	{
+		uint8_t trailing;
+		if (io_read(c->source, &trailing, sizeof trailing) != 0)
+			return (c->status = io_error(c->source) == EILSEQ ? STATUS_FAILED_LZMA : STATUS_FAILED_IO,
+			        (void *)c->status);
+	}
+
 	/*
 	 * done
 	 */

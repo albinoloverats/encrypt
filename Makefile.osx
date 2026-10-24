@@ -36,9 +36,9 @@ cli: symlink
 	-@echo -e "built ‘`echo -e ${CLI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 test:
-	 @${CC} ${TEST_CFLAGS} ${CLI_CPPFLAGS} -I. -Icommon ${CORE_SRC} tests/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
+	 @${CC} ${TEST_CFLAGS} ${CLI_CPPFLAGS} -I. -Icommon ${CORE_SRC} test/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
 	 @./${IO_TEST}
-	 @${CC} ${TEST_CFLAGS} ${CLI_CPPFLAGS} -I. -Icommon ${CORE_SRC} tests/test_crypt_flow.c ${TEST_LIBS} -o ${FLOW_TEST}
+	 @${CC} ${TEST_CFLAGS} ${CLI_CPPFLAGS} -I. -Icommon ${CORE_SRC} test/test_crypt_flow.c ${TEST_LIBS} -o ${FLOW_TEST}
 	 @./${FLOW_TEST}
 
 cli-debug:

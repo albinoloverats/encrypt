@@ -54,9 +54,9 @@ gui: winres
 test:
 	 @echo "#define ALL_CFLAGS   ${TEST_CFLAGS}  " | tr "\"" "'" | sed 's/FLAGS   /FLAGS   "/' | sed 's/$$/"/' >  ${MISC}
 	 @echo "#define ALL_CPPFLAGS ${TEST_CPPFLAGS}" | tr "\"" "'" | sed 's/FLAGS /FLAGS "/'     | sed 's/$$/"/' >> ${MISC}
-	 @${CC} ${TEST_CFLAGS} ${TEST_CPPFLAGS} -I. ${CORE_SRC} tests/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
+	 @${CC} ${TEST_CFLAGS} ${TEST_CPPFLAGS} -I. ${CORE_SRC} test/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
 	 @./${IO_TEST}
-	 @${CC} ${TEST_CFLAGS} ${TEST_CPPFLAGS} -I. ${CORE_SRC} tests/test_crypt_flow.c ${TEST_LIBS} -o ${FLOW_TEST}
+	 @${CC} ${TEST_CFLAGS} ${TEST_CPPFLAGS} -I. ${CORE_SRC} test/test_crypt_flow.c ${TEST_LIBS} -o ${FLOW_TEST}
 	 @./${FLOW_TEST}
 
 sign: gui
