@@ -44,6 +44,7 @@ cli: symlink
 test: cli
 	 @${CC} ${CLI_CFLAGS} ${CLI_CPPFLAGS} -I. ${CORE_SRC} tests/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
 	 @./${IO_TEST}
+	 @sh tests/test_cli_compressed_eof.sh
 
 cli-debug:
 	 @echo "#define ALL_CFLAGS   \"$(strip $(subst \",\',"${CLI_CFLAGS}   ${DEBUG_CFLAGS}"))\""    > ${MISC}

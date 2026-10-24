@@ -21,8 +21,13 @@
 #include <setjmp.h>
 #include <cmocka.h>
 
+#include "common/src/ecc.h"
 #include "src/ccrypt.h"
 #include "src/crypt_io.h"
+
+#define STREAM_VALID 0
+#define STREAM_TRUNCATED 1
+#define STREAM_CORRUPTED 2
 
 #ifndef _WIN32
 static struct sigaction previous_sigpipe;
@@ -88,11 +93,22 @@ static IO_HANDLE wrap_temp_file(int *fd)
 	return io_wrap_fd(*fd);
 }
 
-static void crypto_round_trip(bool compressed, bool correction, bool truncate_stream)
+static void flip_file_byte(int fd, off_t offset)
+{
+	assert_int_equal(lseek(fd, offset, SEEK_SET), offset);
+	uint8_t value;
+	assert_int_equal(read(fd, &value, sizeof value), sizeof value);
+	value ^= 0xff;
+	assert_int_equal(lseek(fd, offset, SEEK_SET), offset);
+	assert_int_equal(write(fd, &value, sizeof value), sizeof value);
+}
+
+static void crypto_round_trip(size_t data_length, bool compressed, bool correction, int stream_damage)
 {
 	static const uint8_t key[] = "cmocka deterministic test key";
-	uint8_t expected[4097];
-	for (size_t i = 0; i < sizeof expected; i++)
+	uint8_t *expected = malloc(data_length ? data_length : 1);
+	assert_non_null(expected);
+	for (size_t i = 0; i < data_length; i++)
 		expected[i] = compressed ? (uint8_t)('a' + i % 7) : (uint8_t)(i * 37u);
 
 	int fd;
@@ -108,7 +124,7 @@ static void crypto_round_trip(bool compressed, bool correction, bool truncate_st
 	if (compressed)
 		io_compression_init(writer);
 	io_encryption_checksum_init(writer, GCRY_MD_SHA256);
-	assert_int_equal(io_write(writer, expected, sizeof expected), sizeof expected);
+	assert_int_equal(io_write(writer, expected, data_length), data_length);
 
 	uint8_t *expected_checksum = NULL;
 	uint8_t *expected_mac = NULL;
@@ -119,15 +135,20 @@ static void crypto_round_trip(bool compressed, bool correction, bool truncate_st
 	assert_true(checksum_length > 0);
 	assert_true(mac_length > 0);
 	assert_int_equal(io_sync(writer), 0);
-	if (truncate_stream)
+	if (stream_damage != STREAM_VALID)
 	{
 		off_t stream_length = io_seek(writer, 0, SEEK_END);
 		assert_true(stream_length > 1);
+		if (stream_damage == STREAM_CORRUPTED)
+			flip_file_byte(fd, stream_length - 1);
+		else
+		{
 #ifdef _WIN32
-		assert_int_equal(_chsize_s(fd, stream_length - 1), 0);
+			assert_int_equal(_chsize_s(fd, stream_length - 1), 0);
 #else
-		assert_int_equal(ftruncate(fd, stream_length - 1), 0);
+			assert_int_equal(ftruncate(fd, stream_length - 1), 0);
 #endif
+		}
 	}
 
 	int read_fd = dup(fd);
@@ -147,23 +168,31 @@ static void crypto_round_trip(bool compressed, bool correction, bool truncate_st
 		io_compression_init(reader);
 	io_encryption_checksum_init(reader, GCRY_MD_SHA256);
 
-	uint8_t actual[sizeof expected] = { 0 };
-	bool read_ok = io_read_exact(reader, actual, sizeof actual);
-	if (truncate_stream)
+	uint8_t *actual = malloc(data_length ? data_length : 1);
+	assert_non_null(actual);
+	bool read_ok = io_read_exact(reader, actual, data_length);
+	if (stream_damage != STREAM_VALID)
 	{
 		if (read_ok)
 		{
 			uint8_t trailing;
 			assert_int_equal(io_read(reader, &trailing, sizeof trailing), -1);
 		}
-		assert_int_not_equal(io_error(reader), 0);
+		assert_int_equal(io_error(reader), stream_damage == STREAM_CORRUPTED ? EILSEQ : EIO);
+		free(actual);
+		free(expected);
 		gcry_free(expected_checksum);
 		gcry_free(expected_mac);
 		assert_int_equal(io_close(reader), -1);
 		return;
 	}
 	assert_true(read_ok);
-	assert_memory_equal(actual, expected, sizeof expected);
+	assert_memory_equal(actual, expected, data_length);
+	if (compressed)
+	{
+		uint8_t trailing;
+		assert_int_equal(io_read(reader, &trailing, sizeof trailing), 0);
+	}
 
 	uint8_t *actual_checksum = NULL;
 	uint8_t *actual_mac = NULL;
@@ -180,6 +209,8 @@ static void crypto_round_trip(bool compressed, bool correction, bool truncate_st
 	gcry_free(expected_mac);
 	gcry_free(actual_checksum);
 	gcry_free(actual_mac);
+	free(actual);
+	free(expected);
 	assert_int_equal(io_error(reader), 0);
 	assert_int_equal(io_close(reader), 0);
 }
@@ -187,19 +218,37 @@ static void crypto_round_trip(bool compressed, bool correction, bool truncate_st
 static void test_encrypted_io_round_trip(void **state)
 {
 	(void)state;
-	crypto_round_trip(false, false, false);
+	crypto_round_trip(4097, false, false, STREAM_VALID);
 }
 
 static void test_compressed_ecc_encrypted_round_trip(void **state)
 {
 	(void)state;
-	crypto_round_trip(true, true, false);
+	crypto_round_trip(4097, true, true, STREAM_VALID);
+}
+
+static void test_compressed_empty_payload_round_trip(void **state)
+{
+	(void)state;
+	crypto_round_trip(0, true, false, STREAM_VALID);
+}
+
+static void test_compressed_large_payload_round_trip(void **state)
+{
+	(void)state;
+	crypto_round_trip(256 * 1024 + 37, true, false, STREAM_VALID);
 }
 
 static void test_truncated_compressed_encrypted_stream_fails(void **state)
 {
 	(void)state;
-	crypto_round_trip(true, false, true);
+	crypto_round_trip(4097, true, false, STREAM_TRUNCATED);
+}
+
+static void test_corrupted_compressed_encrypted_stream_fails(void **state)
+{
+	(void)state;
+	crypto_round_trip(4097, true, false, STREAM_CORRUPTED);
 }
 
 static void test_truncated_ecc_record_fails(void **state)
@@ -218,6 +267,110 @@ static void test_truncated_ecc_record_fails(void **state)
 	assert_int_equal(io_error(io), EIO);
 	assert_int_equal(io_close(io), -1);
 	assert_int_equal(errno, EIO);
+}
+
+static void assert_truncated_encryption_header(size_t header_length)
+{
+	static const uint8_t key[] = "cmocka deterministic test key";
+	uint8_t header[64] = { 0 };
+	size_t key_length = gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES);
+	size_t iv_length = gcry_cipher_get_algo_blklen(GCRY_CIPHER_AES);
+	assert_true(key_length > 0);
+	assert_true(iv_length > 0);
+	assert_true(key_length + iv_length <= sizeof header);
+	assert_true(header_length < key_length + iv_length);
+
+	int fd;
+	IO_HANDLE io = wrap_temp_file(&fd);
+	assert_non_null(io);
+	assert_int_equal(io_write(io, header, header_length), header_length);
+	assert_int_equal(io_seek(io, 0, SEEK_SET), 0);
+
+	io_extra_s options = { IV_RANDOM, false };
+	errno = 0;
+	assert_false(io_encryption_init(io, GCRY_CIPHER_AES, GCRY_MD_SHA256,
+	                                GCRY_CIPHER_MODE_CBC, GCRY_MAC_HMAC_SHA256,
+	                                10, key, sizeof key, options));
+	assert_int_equal(errno, EIO);
+	assert_int_equal(io_error(io), EIO);
+	assert_false(io_encryption_init(io, GCRY_CIPHER_AES, GCRY_MD_SHA256,
+	                                GCRY_CIPHER_MODE_CBC, GCRY_MAC_HMAC_SHA256,
+	                                10, key, sizeof key, options));
+	assert_int_equal(errno, EIO);
+	assert_int_equal(io_close(io), -1);
+	assert_int_equal(errno, EIO);
+}
+
+static void test_truncated_kdf_salt_fails_initialization(void **state)
+{
+	(void)state;
+	size_t key_length = gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES);
+	assert_true(key_length > 1);
+	assert_truncated_encryption_header(key_length - 1);
+}
+
+static void test_truncated_iv_fails_initialization(void **state)
+{
+	(void)state;
+	size_t key_length = gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES);
+	size_t iv_length = gcry_cipher_get_algo_blklen(GCRY_CIPHER_AES);
+	assert_true(iv_length > 1);
+	assert_truncated_encryption_header(key_length + iv_length - 1);
+}
+
+static void ecc_corruption_round_trip(size_t error_count, bool should_recover)
+{
+	uint8_t expected[ECC_PAYLOAD];
+	for (size_t i = 0; i < sizeof expected; i++)
+		expected[i] = (uint8_t)(i * 37u);
+
+	int fd;
+	IO_HANDLE writer = wrap_temp_file(&fd);
+	assert_non_null(writer);
+	io_correction_init(writer);
+	assert_int_equal(io_write(writer, expected, sizeof expected), sizeof expected);
+	assert_int_equal(io_sync(writer), 0);
+
+	static const off_t error_offsets[] = { 1, 38, 130, 255 };
+	for (size_t i = 0; i < error_count; i++)
+		flip_file_byte(fd, error_offsets[i]);
+
+	int read_fd = dup(fd);
+	assert_true(read_fd >= 0);
+	assert_int_equal(io_close(writer), 0);
+	IO_HANDLE reader = io_wrap_fd(read_fd);
+	assert_non_null(reader);
+	assert_int_equal(io_seek(reader, 0, SEEK_SET), 0);
+	io_correction_init(reader);
+
+	uint8_t actual[ECC_PAYLOAD] = { 0 };
+	bool read_ok = io_read_exact(reader, actual, sizeof actual);
+	if (should_recover)
+	{
+		assert_true(read_ok);
+		assert_memory_equal(actual, expected, sizeof expected);
+		assert_int_equal(io_error(reader), 0);
+		assert_int_equal(io_close(reader), 0);
+	}
+	else
+	{
+		assert_false(read_ok);
+		assert_int_equal(io_error(reader), EIO);
+		assert_int_equal(io_close(reader), -1);
+		assert_int_equal(errno, EIO);
+	}
+}
+
+static void test_ecc_corrects_three_corrupted_bytes(void **state)
+{
+	(void)state;
+	ecc_corruption_round_trip(3, true);
+}
+
+static void test_ecc_rejects_four_corrupted_bytes(void **state)
+{
+	(void)state;
+	ecc_corruption_round_trip(4, false);
 }
 
 static void test_file_read_write_seek(void **state)
@@ -330,8 +483,15 @@ int main(void)
 		cmocka_unit_test_setup_teardown(test_exact_read_rejects_truncated_input, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_encrypted_io_round_trip, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_compressed_ecc_encrypted_round_trip, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_compressed_empty_payload_round_trip, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_compressed_large_payload_round_trip, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_truncated_compressed_encrypted_stream_fails, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_corrupted_compressed_encrypted_stream_fails, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_truncated_ecc_record_fails, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_truncated_kdf_salt_fails_initialization, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_truncated_iv_fails_initialization, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_ecc_corrects_three_corrupted_bytes, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_ecc_rejects_four_corrupted_bytes, setup, teardown),
 #ifndef _WIN32
 		cmocka_unit_test_setup_teardown(test_pipe_write_failure_is_latched, setup, teardown),
 #endif

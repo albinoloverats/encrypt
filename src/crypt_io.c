@@ -740,7 +740,7 @@ proc_remain:;
 				break;
 			default:
 				errno = EILSEQ;
-				return (ssize_t)-lr;
+				return -1;
 		}
 
 		if (c->lzma_handle.avail_out == 0 || c->eof != EOF_NO)
