@@ -13,6 +13,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.FilterInputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -209,6 +211,35 @@ public class ContainerFormatTest
 
 		assertTrue(ContainerFormat.matches(payload, payload.clone()));
 		assertFalse(ContainerFormat.matches(payload, new byte[payload.length]));
+	}
+
+	@Test
+	public void rejectsMalformedAndTruncatedCompressedData() throws Exception
+	{
+		assertThrows(IOException.class, () ->
+		{
+			try (val input = ContainerFormat.decompress(new ByteArrayInputStream(new byte[] { 1, 2, 3, 4 })))
+			{
+				input.readAllBytes();
+			}
+		});
+
+		val payload = new byte[4096];
+		Arrays.fill(payload, (byte)0x42);
+		val compressed = new ByteArrayOutputStream();
+		try (val output = ContainerFormat.compress(compressed))
+		{
+			output.write(payload);
+		}
+		val complete = compressed.toByteArray();
+		val truncated = Arrays.copyOf(complete, complete.length - 8);
+		assertThrows(IOException.class, () ->
+		{
+			try (val input = ContainerFormat.decompress(new ByteArrayInputStream(truncated)))
+			{
+				input.readAllBytes();
+			}
+		});
 	}
 
 	private static HashMAC newVerification() throws Exception

@@ -39,6 +39,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class EncryptedFileOutputStream extends OutputStream
 {
@@ -50,7 +51,7 @@ public class EncryptedFileOutputStream extends OutputStream
 	private int blockSize = 0;
 	private final int[] offset = { 0, 0 };
 
-	private boolean open = true;
+	private final OutputStreamState state = new OutputStreamState();
 
 	public EncryptedFileOutputStream(final OutputStream stream)
 	{
@@ -59,6 +60,7 @@ public class EncryptedFileOutputStream extends OutputStream
 
 	public HashMAC initialiseEncryption(final String c, final String h, final String m, final String a, final int kdfIterations, final byte[] k, final XIV ivType, final boolean useKDF) throws NoSuchAlgorithmException, InvalidKeyException, LimitReachedException, IOException
 	{
+		state.ensureOpen();
 		val hash = CryptoUtils.getHashAlgorithm(h);
 		val cipher = CryptoUtils.getCipherAlgorithm(c);
 		val mac = CryptoUtils.getMacAlgorithm(a);
@@ -138,7 +140,7 @@ public class EncryptedFileOutputStream extends OutputStream
 	@Override
 	public void close() throws IOException
 	{
-		if (!open)
+		if (!state.close())
 			return;
 		if (cipher != null)
 		{
@@ -151,12 +153,12 @@ public class EncryptedFileOutputStream extends OutputStream
 			eccFileOutputStream.write(eBytes);
 		}
 		eccFileOutputStream.close();
-		open = false;
 	}
 
 	@Override
 	public void write(final byte[] bytes) throws IOException
 	{
+		state.ensureOpen();
 		if (cipher == null)
 		{
 			eccFileOutputStream.write(bytes);
@@ -187,6 +189,7 @@ public class EncryptedFileOutputStream extends OutputStream
 	@Override
 	public void write(final byte[] b, final int off, final int len) throws IOException
 	{
+		Objects.checkFromIndexSize(off, len, b.length);
 		val bytes = new byte[len];
 		System.arraycopy(b, off, bytes, 0, len);
 		write(bytes);

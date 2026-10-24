@@ -25,10 +25,12 @@ import net.albinoloverats.android.encrypt.lib.misc.Convert;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 
 public class ECCFileOutputStream extends ECCFileStream
 {
 	private final OutputStream outputStream;
+	private final OutputStreamState state = new OutputStreamState();
 
 	public ECCFileOutputStream(final OutputStream stream)
 	{
@@ -39,6 +41,8 @@ public class ECCFileOutputStream extends ECCFileStream
 
 	public void close() throws IOException
 	{
+		if (!state.close())
+			return;
 		if (initialised)
 		{
 			val i = PAYLOAD - offset[0];
@@ -52,6 +56,7 @@ public class ECCFileOutputStream extends ECCFileStream
 
 	public void write(final byte[] bytes) throws IOException
 	{
+		state.ensureOpen();
 		if (!initialised)
 		{
 			outputStream.write(bytes);
@@ -81,6 +86,7 @@ public class ECCFileOutputStream extends ECCFileStream
 
 	public void write(final byte[] b, final int off, final int len) throws IOException
 	{
+		Objects.checkFromIndexSize(off, len, b.length);
 		val bytes = new byte[len];
 		System.arraycopy(b, off, bytes, 0, len);
 		write(bytes);
