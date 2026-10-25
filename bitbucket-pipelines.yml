@@ -1,13 +1,13 @@
-image: gcc:latest
+image: gcc:16@sha256:07280eb2e744f1b7a2d8d4a3894c089ea07266c109758afc388a634bd098e4eb
 
 pipelines:
   default:
     - step:
         name: Build and Test
         script:
-          - apt-get update && apt-get install -y gcovr libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl3-gnutls libcurl4-gnutls-dev libcmocka-dev
+          - apt-get update && apt-get install -y git gcovr=7.2+really-1.1 libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl4-gnutls-dev libcmocka-dev
           - git submodule update --init
-          - CMOCKA_XML_DIR=test-reports make coverage
+          - CC=gcc CMOCKA_XML_DIR=test-reports make coverage
           - cp etc/encryptrc ~/.encryptrc
           - ./encrypt --self-test
         artifacts:

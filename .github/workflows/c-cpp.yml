@@ -7,17 +7,19 @@ on:
     branches: [ desktop ]
 
 env:
-  CC: gcc-14
+  CC: gcc
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: gcc:16@sha256:07280eb2e744f1b7a2d8d4a3894c089ea07266c109758afc388a634bd098e4eb
     permissions:
       contents: read
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: dependencies
-      run: sudo apt-get update && sudo apt-get install -y gcc-14 build-essential gcovr libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl3-gnutls libcurl4-gnutls-dev libcmocka-dev
+      run: apt-get update && apt-get install -y build-essential git gcovr=7.2+really-1.1 libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl4-gnutls-dev libcmocka-dev
     - name: submodules
       run: git submodule update --init
     - name: unit-tests-and-coverage
