@@ -25,5 +25,6 @@ src/common/map.h
 local.properties
 build
 /coverage/
+/test-reports/
 *.gcda
 *.gcno

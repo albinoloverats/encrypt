@@ -45,14 +45,23 @@ cli: symlink
 
 test: cli
 	 @${CC} ${CLI_CFLAGS} ${CLI_CPPFLAGS} -I. ${CORE_SRC} test/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
+ifneq ($(strip ${CMOCKA_XML_DIR}),)
+	 @mkdir -p "${CMOCKA_XML_DIR}"
+	 @CMOCKA_MESSAGE_OUTPUT=XML CMOCKA_XML_FILE="${CMOCKA_XML_DIR}/${IO_TEST}.xml" ./${IO_TEST}
+else
 	 @./${IO_TEST}
+endif
 	 @${CC} ${CLI_CFLAGS} ${CLI_CPPFLAGS} -I. ${CORE_SRC} test/test_crypt_flow.c ${TEST_LIBS} -o ${FLOW_TEST}
+ifneq ($(strip ${CMOCKA_XML_DIR}),)
+	 @CMOCKA_MESSAGE_OUTPUT=XML CMOCKA_XML_FILE="${CMOCKA_XML_DIR}/${FLOW_TEST}.xml" ./${FLOW_TEST}
+else
 	 @./${FLOW_TEST}
+endif
 	 @sh test/test_cli_compressed_eof.sh
 
 coverage:
 	 @${MAKE} clean
-	 @${MAKE} test CFLAGS=--coverage
+	 @${MAKE} test CFLAGS=--coverage CMOCKA_XML_DIR="${CMOCKA_XML_DIR}"
 	 @mkdir -p coverage
 	 @gcovr --root . --gcov-executable "${GCOV}" --filter 'src/' --filter 'common/src/' --xml-pretty --output coverage/coverage.xml --html-details coverage/index.html --print-summary
 

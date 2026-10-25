@@ -12,6 +12,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
     - uses: actions/checkout@v2
     - name: dependencies
@@ -27,3 +29,32 @@ jobs:
         path: coverage/
     - name: self-test
       run: cp etc/encryptrc ~/.encryptrc && ./encrypt --self-test
+  publish-pages:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/desktop'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: download-coverage
+      uses: actions/download-artifact@v4
+      with:
+        name: c-coverage-report
+        path: coverage
+    - name: checkout-pages
+      uses: actions/checkout@v4
+      with:
+        ref: gh-pages
+        path: gh-pages
+    - name: publish-coverage
+      run: |
+        git -C gh-pages rm -r -- .
+        cp -R coverage/. gh-pages/
+        git -C gh-pages config user.name "github-actions[bot]"
+        git -C gh-pages config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git -C gh-pages add -A
+        if ! git -C gh-pages diff --cached --quiet; then
+          git -C gh-pages commit -m "Publish coverage report"
+          git -C gh-pages push origin gh-pages
+        fi
+        echo "Coverage report: https://albinoloverats.github.io/encrypt/" >> "$GITHUB_STEP_SUMMARY"

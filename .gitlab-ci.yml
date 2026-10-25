@@ -27,3 +27,18 @@ test:
   script:
     - cp etc/encryptrc ~/.encryptrc
     - ./encrypt --self-test
+
+pages:
+  stage: deploy
+  needs:
+    - job: build
+      artifacts: true
+    - job: test
+      artifacts: false
+  script:
+    - mkdir -p public
+    - cp -R coverage/. public/
+  pages:
+    publish: public
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'

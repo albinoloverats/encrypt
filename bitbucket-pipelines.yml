@@ -7,8 +7,9 @@ pipelines:
         script:
           - apt-get update && apt-get install -y gcovr libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl3-gnutls libcurl4-gnutls-dev libcmocka-dev
           - git submodule update --init
-          - make coverage
+          - CMOCKA_XML_DIR=test-reports make coverage
           - cp etc/encryptrc ~/.encryptrc
           - ./encrypt --self-test
         artifacts:
           - coverage/**
+          - test-reports/**
