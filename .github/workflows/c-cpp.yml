@@ -21,7 +21,7 @@ jobs:
     - name: dependencies
       run: apt-get update && apt-get install -y build-essential git gcovr=7.2+really-1.1 libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl4-gnutls-dev libcmocka-dev
     - name: submodules
-      run: git submodule update --init
+      run: git config --global --add safe.directory "$GITHUB_WORKSPACE" && git submodule update --init
     - name: unit-tests-and-coverage
       run: make coverage
     - name: coverage-report
