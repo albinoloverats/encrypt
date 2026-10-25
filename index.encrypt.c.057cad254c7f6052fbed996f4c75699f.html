@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-10-25 08:16:05</td>
+      <td>2026-10-25 19:31:40</td>
     </tr>
   </table>
 </div>
@@ -41,21 +41,21 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>160</td>
-      <td>446</td>
-      <td class="coverage-low">35.9%</td>
+      <td>161</td>
+      <td>445</td>
+      <td class="coverage-low">36.2%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
       <td>7</td>
-      <td>17</td>
-      <td class="coverage-low">41.2%</td>
+      <td>16</td>
+      <td class="coverage-low">43.8%</td>
     </tr>
     <tr>
       <th scope="row">Branches:</th>
       <td>61</td>
-      <td>272</td>
-      <td class="coverage-low">22.4%</td>
+      <td>268</td>
+      <td class="coverage-low">22.8%</td>
     </tr>
   </table>
 </div>
@@ -74,12 +74,11 @@
       <th>Block coverage</th>
     </tr>
     <tr><td><a href="#l773">canonicalize_output_path (line 773)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l764">canonicalize_path (line 764)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l953">comp_links (line 953)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l586">count_entries (line 586)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l609">encrypt_directory (line 609)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l927">encrypt_file (line 927)</a></td><td>called 3 times, returned 3 times</td><td>82.0%</td></tr>
-    <tr><td><a href="#l93">encrypt_init (line 93)</a></td><td>called 3 times, returned 3 times</td><td>37.0%</td></tr>
+    <tr><td><a href="#l93">encrypt_init (line 93)</a></td><td>called 3 times, returned 3 times</td><td>39.0%</td></tr>
     <tr><td><a href="#l874">encrypt_link (line 874)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l894">encrypt_stream (line 894)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l87">free_link (line 87)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -1503,8 +1502,8 @@
       <td class="lineno"><a id="l189" href="#l189">189</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">memcpy</span><span class="p">(</span><span class="n">z</span><span class="o">-&gt;</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">);</span></td>
+      <td class="linecount coveredLine">3</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">memcpy</span><span class="p">(</span><span class="n">z</span><span class="o">-&gt;</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l190" href="#l190">190</a></td>
@@ -1538,8 +1537,8 @@
       <td class="lineno"><a id="l194" href="#l194">194</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">kf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">open</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">O_RDONLY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">F_RDLCK</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_BINARY</span><span class="p">,</span><span class="w"> </span><span class="n">S_IRUSR</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">S_IWUSR</span><span class="p">);</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">kf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">open</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">O_RDONLY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">F_RDLCK</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_BINARY</span><span class="p">,</span><span class="w"> </span><span class="n">S_IRUSR</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">S_IWUSR</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l195" href="#l195">195</a></td>
@@ -3019,8 +3018,8 @@
       <td class="lineno"><a id="l384" href="#l384">384</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="n">cwd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getcwd</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">cwd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getcwd</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l385" href="#l385">385</a></td>
@@ -5624,8 +5623,8 @@
       <td class="lineno"><a id="l740" href="#l740">740</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">ssize_t</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">readlink</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">target</span><span class="p">,</span><span class="w"> </span><span class="n">capacity</span><span class="p">);</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="kt">ssize_t</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">readlink</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">target</span><span class="p">,</span><span class="w"> </span><span class="n">capacity</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l741" href="#l741">741</a></td>
@@ -5792,8 +5791,8 @@
       <td class="lineno"><a id="l764" href="#l764">764</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="k">static</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="nf">canonicalize_path</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">path</span><span class="p">)</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="nf">canonicalize_path</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">path</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l765" href="#l765">765</a></td>
@@ -5869,8 +5868,8 @@
       <td class="lineno"><a id="l775" href="#l775">775</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">canonical</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">canonicalize_path</span><span class="p">(</span><span class="n">path</span><span class="p">);</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">canonical</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">canonicalize_path</span><span class="p">(</span><span class="n">path</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l776" href="#l776">776</a></td>
@@ -6058,8 +6057,8 @@
       <td class="lineno"><a id="l802" href="#l802">802</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">canonical_parent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">canonicalize_path</span><span class="p">(</span><span class="n">parent</span><span class="p">);</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">canonical_parent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">canonicalize_path</span><span class="p">(</span><span class="n">parent</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l803" href="#l803">803</a></td>
@@ -6191,8 +6190,8 @@
       <td class="lineno"><a id="l821" href="#l821">821</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">canonical_source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">canonicalize_path</span><span class="p">(</span><span class="n">source</span><span class="p">);</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">canonical_source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">canonicalize_path</span><span class="p">(</span><span class="n">source</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l822" href="#l822">822</a></td>
@@ -6716,8 +6715,8 @@
       <td class="lineno"><a id="l896" href="#l896">896</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l897" href="#l897">897</a></td>
@@ -6828,15 +6827,15 @@
       <td class="lineno"><a id="l912" href="#l912">912</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">			</span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l913" href="#l913">913</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">memcpy</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">b</span><span class="p">);</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">memcpy</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">b</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l914" href="#l914">914</a></td>
@@ -7203,7 +7202,7 @@
     </main>
 
     <footer>
-      Generated by: <a href="http://gcovr.com/en/7.0">GCOVR (Version 7.0)</a>
+      Generated by: <a href="http://gcovr.com/en/7.2">GCOVR (Version 7.2)</a>
     </footer>
   </body>
 </html>

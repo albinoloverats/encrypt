@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-10-25 08:16:05</td>
+      <td>2026-10-25 19:31:40</td>
     </tr>
   </table>
 </div>
@@ -42,8 +42,8 @@
     <tr>
       <th scope="row">Lines:</th>
       <td>204</td>
-      <td>579</td>
-      <td class="coverage-low">35.2%</td>
+      <td>585</td>
+      <td class="coverage-low">34.9%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
@@ -53,9 +53,9 @@
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>122</td>
-      <td>469</td>
-      <td class="coverage-low">26.0%</td>
+      <td>121</td>
+      <td>461</td>
+      <td class="coverage-low">26.2%</td>
     </tr>
   </table>
 </div>
@@ -77,18 +77,18 @@
     <tr><td><a href="#l763">create_extract_symlink (line 763)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l924">decrypt_directory (line 924)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1203">decrypt_file (line 1203)</a></td><td>called 3 times, returned 3 times</td><td>88.0%</td></tr>
-    <tr><td><a href="#l70">decrypt_init (line 70)</a></td><td>called 3 times, returned 3 times</td><td>37.0%</td></tr>
+    <tr><td><a href="#l70">decrypt_init (line 70)</a></td><td>called 3 times, returned 3 times</td><td>41.0%</td></tr>
     <tr><td><a href="#l1165">decrypt_stream (line 1165)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l728">ensure_extract_directory (line 728)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l752">open_extract_file (line 752)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l693">open_extract_parent (line 693)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l179">process (line 179)</a></td><td>called 3 times, returned 1 time</td><td>67.0%</td></tr>
-    <tr><td><a href="#l478">read_metadata (line 478)</a></td><td>called 3 times, returned 3 times</td><td>58.0%</td></tr>
-    <tr><td><a href="#l458">read_verification_sum (line 458)</a></td><td>called 3 times, returned 3 times</td><td>73.0%</td></tr>
-    <tr><td><a href="#l387">read_version (line 387)</a></td><td>called 3 times, returned 3 times</td><td>72.0%</td></tr>
-    <tr><td><a href="#l598">skip_random_data (line 598)</a></td><td>called 11 times, returned 11 times</td><td>90.0%</td></tr>
+    <tr><td><a href="#l179">process (line 179)</a></td><td>called 3 times, returned 1 time</td><td>68.0%</td></tr>
+    <tr><td><a href="#l478">read_metadata (line 478)</a></td><td>called 3 times, returned 3 times</td><td>59.0%</td></tr>
+    <tr><td><a href="#l458">read_verification_sum (line 458)</a></td><td>called 3 times, returned 3 times</td><td>80.0%</td></tr>
+    <tr><td><a href="#l387">read_version (line 387)</a></td><td>called 3 times, returned 3 times</td><td>76.0%</td></tr>
+    <tr><td><a href="#l598">skip_random_data (line 598)</a></td><td>called 11 times, returned 11 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l774">symlink_target_uses_no_existing_links (line 774)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l614">validate_archive_path (line 614)</a></td><td>called 1 time, returned 1 time</td><td>63.0%</td></tr>
+    <tr><td><a href="#l614">validate_archive_path (line 614)</a></td><td>called 1 time, returned 1 time</td><td>65.0%</td></tr>
     <tr><td><a href="#l653">validate_symlink_target (line 653)</a></td><td>not called</td><td>0.0%</td></tr>
   </table>
 </details>
@@ -1207,8 +1207,8 @@
       <td class="lineno"><a id="l146" href="#l146">146</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">memcpy</span><span class="p">(</span><span class="n">z</span><span class="o">-&gt;</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">);</span></td>
+      <td class="linecount coveredLine">3</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">memcpy</span><span class="p">(</span><span class="n">z</span><span class="o">-&gt;</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l147" href="#l147">147</a></td>
@@ -1242,8 +1242,8 @@
       <td class="lineno"><a id="l151" href="#l151">151</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">kf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">open</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">O_RDONLY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">F_RDLCK</span><span class="p">,</span><span class="w"> </span><span class="n">S_IRUSR</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">S_IWUSR</span><span class="p">);</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">kf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">open</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">O_RDONLY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">F_RDLCK</span><span class="p">,</span><span class="w"> </span><span class="n">S_IRUSR</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">S_IWUSR</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l152" href="#l152">152</a></td>
@@ -3192,8 +3192,8 @@
       <td class="lineno"><a id="l394" href="#l394">394</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l395" href="#l395">395</a></td>
@@ -3208,10 +3208,10 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
         <div class="linebranchContents">
-          <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 3 times.</div>
-          <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
-          <div class="takenBranch">&check; Branch 3 taken 3 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 3 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="takenBranch">&check; Branch 2 taken 3 times.</div>
+          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
         </div>
         </details>
       </td>
@@ -4264,8 +4264,8 @@
       <td class="lineno"><a id="l527" href="#l527">527</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="n">c</span><span class="o">-&gt;</span><span class="n">blocksize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="n">c</span><span class="o">-&gt;</span><span class="n">blocksize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l528" href="#l528">528</a></td>
@@ -4878,8 +4878,8 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 11 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 11 times.</div>
+          <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
         </div>
         </details>
       </td>
@@ -4938,16 +4938,9 @@
     <tr class="source-line">
       <td class="lineno"><a id="l608" href="#l608">608</a></td>
       <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">1/2</summary>
-        <div class="linebranchContents">
-          <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 11 times.</div>
-        </div>
-        </details>
       </td>
-      <td class="linecount partialCoveredLine">11</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">read_ok</span><span class="p">)</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">read_ok</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l609" href="#l609">609</a></td>
@@ -5060,8 +5053,8 @@
       <td class="lineno"><a id="l622" href="#l622">622</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">memcpy</span><span class="p">(</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="p">)</span><span class="n">length</span><span class="p">);</span></td>
+      <td class="linecount coveredLine">1</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">memcpy</span><span class="p">(</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="p">)</span><span class="n">length</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l623" href="#l623">623</a></td>
@@ -5682,8 +5675,8 @@
       <td class="lineno"><a id="l704" href="#l704">704</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">int</span><span class="w"> </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">openat</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span><span class="w"> </span><span class="n">component</span><span class="p">,</span><span class="w"> </span><span class="n">O_RDONLY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_DIRECTORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_NOFOLLOW</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_CLOEXEC</span><span class="p">);</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="kt">int</span><span class="w"> </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">openat</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span><span class="w"> </span><span class="n">component</span><span class="p">,</span><span class="w"> </span><span class="n">O_RDONLY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_DIRECTORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_NOFOLLOW</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_CLOEXEC</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l705" href="#l705">705</a></td>
@@ -5738,8 +5731,8 @@
       <td class="lineno"><a id="l712" href="#l712">712</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">openat</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span><span class="w"> </span><span class="n">component</span><span class="p">,</span><span class="w"> </span><span class="n">O_RDONLY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_DIRECTORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_NOFOLLOW</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_CLOEXEC</span><span class="p">);</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">openat</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span><span class="w"> </span><span class="n">component</span><span class="p">,</span><span class="w"> </span><span class="n">O_RDONLY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_DIRECTORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_NOFOLLOW</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_CLOEXEC</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l713" href="#l713">713</a></td>
@@ -5962,8 +5955,8 @@
       <td class="lineno"><a id="l744" href="#l744">744</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">directory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">openat</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span><span class="w"> </span><span class="n">leaf</span><span class="p">,</span><span class="w"> </span><span class="n">O_RDONLY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_DIRECTORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_NOFOLLOW</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_CLOEXEC</span><span class="p">);</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">directory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">openat</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span><span class="w"> </span><span class="n">leaf</span><span class="p">,</span><span class="w"> </span><span class="n">O_RDONLY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_DIRECTORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_NOFOLLOW</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_CLOEXEC</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l745" href="#l745">745</a></td>
@@ -6186,8 +6179,8 @@
       <td class="lineno"><a id="l776" href="#l776">776</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">leaf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">leaf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l777" href="#l777">777</a></td>
@@ -6403,8 +6396,8 @@
       <td class="lineno"><a id="l807" href="#l807">807</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="kt">int</span><span class="w"> </span><span class="n">parent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">openat</span><span class="p">(</span><span class="n">current</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;..&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">O_RDONLY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_DIRECTORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_NOFOLLOW</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_CLOEXEC</span><span class="p">);</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="kt">int</span><span class="w"> </span><span class="n">parent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">openat</span><span class="p">(</span><span class="n">current</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;..&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">O_RDONLY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_DIRECTORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_NOFOLLOW</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_CLOEXEC</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l808" href="#l808">808</a></td>
@@ -6641,8 +6634,8 @@
       <td class="lineno"><a id="l841" href="#l841">841</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">				</span><span class="kt">int</span><span class="w"> </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">openat</span><span class="p">(</span><span class="n">current</span><span class="p">,</span><span class="w"> </span><span class="n">component</span><span class="p">,</span><span class="w"> </span><span class="n">O_RDONLY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_DIRECTORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_NOFOLLOW</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_CLOEXEC</span><span class="p">);</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="kt">int</span><span class="w"> </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">openat</span><span class="p">(</span><span class="n">current</span><span class="p">,</span><span class="w"> </span><span class="n">component</span><span class="p">,</span><span class="w"> </span><span class="n">O_RDONLY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_DIRECTORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_NOFOLLOW</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_CLOEXEC</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l842" href="#l842">842</a></td>
@@ -7243,8 +7236,8 @@
       <td class="lineno"><a id="l927" href="#l927">927</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">open</span><span class="p">(</span><span class="n">dir</span><span class="p">,</span><span class="w"> </span><span class="n">O_RDONLY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_DIRECTORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_CLOEXEC</span><span class="p">);</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">open</span><span class="p">(</span><span class="n">dir</span><span class="p">,</span><span class="w"> </span><span class="n">O_RDONLY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_DIRECTORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_CLOEXEC</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l928" href="#l928">928</a></td>
@@ -9007,8 +9000,8 @@
       <td class="lineno"><a id="l1179" href="#l1179">1179</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">b</span><span class="p">);</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">b</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1180" href="#l1180">1180</a></td>
@@ -9375,7 +9368,7 @@
     </main>
 
     <footer>
-      Generated by: <a href="http://gcovr.com/en/7.0">GCOVR (Version 7.0)</a>
+      Generated by: <a href="http://gcovr.com/en/7.2">GCOVR (Version 7.2)</a>
     </footer>
   </body>
 </html>

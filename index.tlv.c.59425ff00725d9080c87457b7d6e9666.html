@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-10-25 08:16:05</td>
+      <td>2026-10-25 19:31:40</td>
     </tr>
   </table>
 </div>
@@ -41,21 +41,21 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>56</td>
-      <td>77</td>
-      <td class="coverage-low">72.7%</td>
+      <td>52</td>
+      <td>75</td>
+      <td class="coverage-low">69.3%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
-      <td>12</td>
+      <td>11</td>
       <td>18</td>
-      <td class="coverage-low">66.7%</td>
+      <td class="coverage-low">61.1%</td>
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>13</td>
-      <td>24</td>
-      <td class="coverage-low">54.2%</td>
+      <td>12</td>
+      <td>22</td>
+      <td class="coverage-low">54.5%</td>
     </tr>
   </table>
 </div>
@@ -79,7 +79,7 @@
     <tr><td><a href="#l133">tlv_export_aux (line 133)</a></td><td>called 3 times, returned 3 times</td><td>86.0%</td></tr>
     <tr><td><a href="#l193">tlv_for_each (line 193)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l222">tlv_free (line 222)</a></td><td>called 16 times, returned 16 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l102">tlv_get (line 102)</a></td><td>called 20 times, returned 20 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l102">tlv_get (line 102)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l183">tlv_get_next (line 183)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l188">tlv_has_next (line 188)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l110">tlv_has_tag (line 110)</a></td><td>called 13 times, returned 13 times</td><td>100.0%</td></tr>
@@ -837,8 +837,8 @@
       <td class="lineno"><a id="l102" href="#l102">102</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20</td>
-      <td class="src coveredLine"><span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_entry_s</span><span class="w"> </span><span class="o">*</span><span class="nf">tlv_get</span><span class="p">(</span><span class="n">tlv_t</span><span class="w"> </span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">tag</span><span class="p">)</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_entry_s</span><span class="w"> </span><span class="o">*</span><span class="nf">tlv_get</span><span class="p">(</span><span class="n">tlv_t</span><span class="w"> </span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">tag</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l103" href="#l103">103</a></td>
@@ -872,8 +872,8 @@
       <td class="lineno"><a id="l107" href="#l107">107</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">list_contains</span><span class="p">(</span><span class="n">tlv_ptr</span><span class="o">-&gt;</span><span class="n">tags</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="p">((</span><span class="n">tlv_entry_s</span><span class="p">){</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="w"> </span><span class="p">}));</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">list_contains</span><span class="p">(</span><span class="n">tlv_ptr</span><span class="o">-&gt;</span><span class="n">tags</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="p">((</span><span class="n">tlv_entry_s</span><span class="p">){</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="w"> </span><span class="p">}));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l108" href="#l108">108</a></td>
@@ -963,8 +963,8 @@
       <td class="lineno"><a id="l120" href="#l120">120</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">6</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="k">const</span><span class="w"> </span><span class="n">tlv_entry_s</span><span class="w"> </span><span class="o">*</span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_get</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">tag</span><span class="p">);</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="k">const</span><span class="w"> </span><span class="n">tlv_entry_s</span><span class="w"> </span><span class="o">*</span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_get</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">tag</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l121" href="#l121">121</a></td>
@@ -1033,8 +1033,8 @@
       <td class="lineno"><a id="l129" href="#l129">129</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="k">const</span><span class="w"> </span><span class="n">tlv_entry_s</span><span class="w"> </span><span class="o">*</span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_get</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">tag</span><span class="p">);</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="k">const</span><span class="w"> </span><span class="n">tlv_entry_s</span><span class="w"> </span><span class="o">*</span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_get</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">tag</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l130" href="#l130">130</a></td>
@@ -1179,16 +1179,9 @@
     <tr class="source-line">
       <td class="lineno"><a id="l147" href="#l147">147</a></td>
       <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">1/2</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 8 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-        </div>
-        </details>
       </td>
-      <td class="linecount partialCoveredLine">8</td>
-      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">memcpy</span><span class="p">(</span><span class="n">tlv_ptr</span><span class="o">-&gt;</span><span class="n">export</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">off</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv</span><span class="o">-&gt;</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">tlv</span><span class="o">-&gt;</span><span class="n">tag</span><span class="p">);</span></td>
+      <td class="linecount coveredLine">8</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">memcpy</span><span class="p">(</span><span class="n">tlv_ptr</span><span class="o">-&gt;</span><span class="n">export</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">off</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv</span><span class="o">-&gt;</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">tlv</span><span class="o">-&gt;</span><span class="n">tag</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l148" href="#l148">148</a></td>
@@ -1777,7 +1770,7 @@
     </main>
 
     <footer>
-      Generated by: <a href="http://gcovr.com/en/7.0">GCOVR (Version 7.0)</a>
+      Generated by: <a href="http://gcovr.com/en/7.2">GCOVR (Version 7.2)</a>
     </footer>
   </body>
 </html>
