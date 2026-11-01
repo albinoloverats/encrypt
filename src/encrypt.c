@@ -243,7 +243,7 @@ extern crypto_s *encrypt_init(const char * const restrict i,
 			__attribute__((fallthrough)); /* allow fall-through to check for directories */
 		case VERSION_2012_11:
 			/* allow compression, but not directories */
-			if (z->source == IO_UNINITIALISED)
+			if (!io_is_initialised(z->source))
 				return z->status = STATUS_FAILED_OUTPUT_MISMATCH , z;
 				//die(_("Compatibility with version %s does not allow encrypting directories"), get_version_string(z->version));
 			/* if not compressing, fallback even more */
