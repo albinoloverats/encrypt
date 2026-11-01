@@ -44,6 +44,12 @@ cli: symlink
 	-@echo -e "built ‘`echo -e ${CLI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 test: cli
+ifneq ($(strip ${CMOCKA_XML_DIR}),)
+	 @mkdir -p "${CMOCKA_XML_DIR}"
+	 @CMOCKA_MESSAGE_OUTPUT=XML CMOCKA_XML_FILE="$(abspath ${CMOCKA_XML_DIR})/common.xml" ${MAKE} -C common test
+else
+	 @${MAKE} -C common test
+endif
 	 @${CC} ${CLI_CFLAGS} ${CLI_CPPFLAGS} -I. ${CORE_SRC} test/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
 ifneq ($(strip ${CMOCKA_XML_DIR}),)
 	 @mkdir -p "${CMOCKA_XML_DIR}"
@@ -165,6 +171,7 @@ clean:
 	 @rm -fv *.gcda *.gcno
 	 @rm -fvr coverage
 	 @rm -fv gmon.out
+	 @if test -f common/Makefile; then ${MAKE} -C common clean; fi
 
 distclean: clean
 	 @rm -fv ${APP}.1a.gz
