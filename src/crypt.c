@@ -101,6 +101,12 @@ extern bool read_key_file(const char *path, uint8_t **data, size_t *size)
 	int fd = open(path, O_RDONLY | O_BINARY);
 	if (fd < 0)
 		return false;
+	struct stat info;
+	if (fstat(fd, &info) < 0 || !S_ISREG(info.st_mode))
+	{
+		close(fd);
+		return false;
+	}
 	off_t end = lseek(fd, 0, SEEK_END);
 	if (end <= 0 || (uint64_t)end > SIZE_MAX || lseek(fd, 0, SEEK_SET) != 0)
 	{

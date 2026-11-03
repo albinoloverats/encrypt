@@ -509,7 +509,7 @@ static void test_container_detection_rejects_truncated_headers_and_metadata(void
 	assert_int_equal(detect_metadata(path), VERSION_UNKNOWN);
 }
 
-static void test_key_file_seek_and_read_failures_are_reported(void **state)
+static void test_key_file_rejects_non_regular_file(void **state)
 {
 	(void)state;
 	char *input = create_temp_path();
@@ -531,6 +531,9 @@ static void test_key_file_seek_and_read_failures_are_reported(void **state)
 
 	assert_int_equal(unlink(key_path), 0);
 	assert_int_equal(mkdir(key_path, 0700), 0);
+	assert_false(read_key_file(key_path, &loaded_key, &loaded_key_size));
+	assert_null(loaded_key);
+	assert_int_equal(loaded_key_size, 0);
 	static const uint8_t contents[] = "input";
 	write_file(input, contents, sizeof contents);
 
@@ -866,7 +869,7 @@ int main(void)
 		cmocka_unit_test_setup_teardown(test_decrypt_init_rejects_invalid_raw_algorithms, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_decrypt_rejects_unknown_stream_version, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_container_detection_rejects_truncated_headers_and_metadata, setup, teardown),
-		cmocka_unit_test_setup_teardown(test_key_file_seek_and_read_failures_are_reported, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_key_file_rejects_non_regular_file, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_decrypt_rejects_wrong_key, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_stdin_stream_round_trip, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_directory_archive_round_trip, setup, teardown),
