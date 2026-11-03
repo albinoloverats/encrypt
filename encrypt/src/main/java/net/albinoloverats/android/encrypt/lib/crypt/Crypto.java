@@ -269,11 +269,9 @@ public abstract class Crypto extends Service implements Runnable
 		val documentFile = DocumentFile.fromSingleUri(this, keyFile);
 		try (val f = contentResolver.openInputStream(keyFile))
 		{
-			if (documentFile == null)
+			if (documentFile == null || f == null)
 				throw new IOException("Could not find file: " + keyFile);
-			key = new byte[(int)documentFile.length()];
-			if (f.read(key) < 0)
-				throw new IOException("Could not read key data from " + keyFile);
+			key = KeyFileReader.read(f);
 		}
 		catch (final IOException e)
 		{
