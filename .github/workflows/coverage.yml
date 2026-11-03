@@ -24,7 +24,7 @@ jobs:
       - name: submodules
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE" && git submodule update --init
       - name: build
-        run: make
+        run: make cli
       - name: unit-tests-and-coverage
         run: make test
       - name: coverage-report
