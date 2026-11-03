@@ -265,9 +265,21 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 
 	char *open_file = NULL;
 	if (source[0] == '~')
-		asprintf(&open_file, "%s/%s", getenv("HOME"), source + 1);
+	{
+		const char *home = getenv("HOME");
+		if (!home)
+			goto clean_up;
+		asprintf(&open_file, "%s/%s", home, source + 1);
+	}
 	else
 		open_file = strdup(source);
+	struct stat source_stat;
+	if (!open_file || stat(open_file, &source_stat) < 0 ||
+	    !(S_ISREG(source_stat.st_mode) || S_ISDIR(source_stat.st_mode)))
+	{
+		free(open_file);
+		goto clean_up;
+	}
 	/*
 	 * check if the file is encrypted or not
 	 */
@@ -294,16 +306,24 @@ static key_source_e key_source = KEY_SOURCE_PASSWORD;
 
 	char *save_file = NULL;
 	if (output[0] == '~')
-		asprintf(&save_file, "%s/%s", getenv("HOME"), output + 1);
+	{
+		const char *home = getenv("HOME");
+		if (!home)
+			goto clean_up;
+		asprintf(&save_file, "%s/%s", home, output + 1);
+	}
 	else
 		save_file = strdup(output);
 	/*
 	 * if the destination exists, it has to be a regular file
 	 */
 	struct stat s;
-	stat(save_file, &s);
+	int result = save_file ? stat(save_file, &s) : -1;
+	Boolean valid_destination = save_file &&
+		((result == 0 && (S_ISREG(s.st_mode) || S_ISDIR(s.st_mode))) ||
+		 (result < 0 && errno == ENOENT));
 	free(save_file);
-	if (errno != ENOENT && !(S_ISREG(s.st_mode) || S_ISDIR(s.st_mode)))
+	if (!valid_destination)
 		goto clean_up;
 
 	en = TRUE;
@@ -490,8 +510,6 @@ clean_up:
 	else
 		c = decrypt_init(source, output, cipher, hash, mode, mac, key, length, iter, raw);
 
-	dispatch_time_t oneSecond = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(NSEC_PER_SEC));
-
 	if (c->status != STATUS_INIT)
 		goto tidy;
 
@@ -513,10 +531,13 @@ clean_up:
 		if (c->status == STATUS_INIT)
 			continue;
 
-		dispatch_after(oneSecond, dispatch_get_main_queue(), ^{
-			double pc = (PERCENT * c->total.offset + PERCENT * c->current.offset / c->current.size) / c->total.size;
-			if (c->total.offset == c->total.size)
-				pc = PERCENT * c->total.offset / c->total.size;
+		double pc = 0.0;
+		if (c->total.size)
+			pc = c->total.offset == c->total.size
+				? PERCENT * c->total.offset / c->total.size
+				: (PERCENT * c->total.offset + PERCENT * c->current.offset /
+				   (c->current.size ? c->current.size : 1)) / c->total.size;
+		dispatch_async(dispatch_get_main_queue(), ^{
 			[self.progress_total setDoubleValue:pc];
 
 			char tpc[7];
@@ -526,29 +547,30 @@ clean_up:
 
 		if (c->total.size == 1)
 		{
-			[_progress_current setHidden:TRUE];
-			[_percent_current setHidden:TRUE];
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[_progress_current setHidden:TRUE];
+				[_percent_current setHidden:TRUE];
+			});
 		}
 		else
 		{
-			dispatch_after(oneSecond, dispatch_get_main_queue(), ^{
-				double cp = PERCENT * c->current.offset / c->current.size;
+			double cp = c->current.size ? PERCENT * c->current.offset / c->current.size : 0.0;
+			char name[CLI_TRUNCATED_DISPLAY_LONG] = { 0x0 };
+			char *nm = c->current.display ? c->current.display : CLI_UNKNOWN;
+			if (strlen(nm) < CLI_TRUNCATED_DISPLAY_LONG)
+				strcpy(name, nm);
+			else
+			{
+				strncpy(name, nm, CLI_TRUNCATED_DISPLAY_SHORT);
+				strcat(name, CLI_TRUNCATED_ELLIPSE);
+				strcat(name, nm + (strlen(nm) - CLI_TRUNCATED_DISPLAY_SHORT));
+			}
+			char cpc[CLI_TRUNCATED_DISPLAY_LONG * 2];
+			snprintf(cpc, sizeof cpc, "%s%s%3.0f %%", c->current.display ? name : "", c->current.display ? " : " : "", cp);
+			NSString *current_status = [NSString stringWithUTF8String:cpc];
+			dispatch_async(dispatch_get_main_queue(), ^{
 				[self.progress_current setDoubleValue:cp];
-
-				char name[CLI_TRUNCATED_DISPLAY_LONG] = { 0x0 };
-				char *nm = c->current.display ? c->current.display : CLI_UNKNOWN;
-				if (strlen(nm) < CLI_TRUNCATED_DISPLAY_LONG)
-					strcpy(name, nm);
-				else
-				{
-					strncpy(name, nm, CLI_TRUNCATED_DISPLAY_SHORT);
-					strcat(name, CLI_TRUNCATED_ELLIPSE);
-					strcat(name, nm + (strlen(nm) - CLI_TRUNCATED_DISPLAY_SHORT));
-				}
-
-				char cpc[CLI_TRUNCATED_DISPLAY_LONG * 2];
-				snprintf(cpc, sizeof cpc, "%s%s%3.0f %%", c->current.display ? name : "", c->current.display ? " : " : "", cp);
-				[self.percent_current setStringValue:[NSString stringWithUTF8String:cpc]];
+				[self.percent_current setStringValue:current_status];
 			});
 		}
 
@@ -561,7 +583,7 @@ clean_up:
 		if (b >= BPS)
 			b = 0;
 
-		dispatch_after(oneSecond, dispatch_get_main_queue(), ^{
+		dispatch_async(dispatch_get_main_queue(), ^{
 			char *bps_label = NULL;
 			if (isnan(val) || val == 0.0f || val >= BILLION)
 				asprintf(&bps_label, "---.- B/s");
@@ -586,12 +608,13 @@ clean_up:
 	}
 
 tidy:
-	dispatch_after(oneSecond, dispatch_get_main_queue(), ^{
-		[self.progress_label setStringValue:[NSString stringWithUTF8String:status(c)]];
+	NSString *final_status = [NSString stringWithUTF8String:status(c)];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[self.progress_label setStringValue:final_status];
+		[_statusBar setStringValue:final_status];
+		[_closeButton setHidden:FALSE];
+		[_cancelButton setHidden:TRUE];
 	});
-	[_statusBar setStringValue:[NSString stringWithUTF8String:status(c)]];
-	[_closeButton setHidden:FALSE];
-	[_cancelButton setHidden:TRUE];
 
 	deinit(&c);
 
@@ -656,7 +679,7 @@ tidy:
 	for (unsigned  i = 0; i < list_size(macs); i++)
 	{
 		const char *mac = list_get(macs, i);
-		if (h && !strcasecmp(mac, a))
+		if (a && !strcasecmp(mac, a))
 			slctd_mac = i + 1;
 		[_macCombo addItemWithTitle:[NSString stringWithUTF8String:mac]];
 	}

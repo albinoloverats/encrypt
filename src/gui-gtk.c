@@ -144,7 +144,7 @@ extern void auto_select_algorithms(gtk_widgets_s *data, char *cipher, char *hash
 	for (unsigned i = 0; i < list_size(macs); i++)
 	{
 		const char *m = list_get(macs, i);
-		if (hash && !strcasecmp(m, mac))
+		if (mac && !strcasecmp(m, mac))
 			slctd_mac = i + 1;
 		gtk_combo_box_text_append_text((GtkComboBoxText *)data->mac_combo, m);
 	}
@@ -229,8 +229,12 @@ G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_s *d
 		return FALSE;
 
 	if (!cwd)
-		cwd = strdup(getenv("HOME"));
-	gtk_file_chooser_set_current_folder((GtkFileChooser *)d, cwd);
+	{
+		const char *home = getenv("HOME");
+		cwd = strdup(home ? home : ".");
+	}
+	if (cwd)
+		gtk_file_chooser_set_current_folder((GtkFileChooser *)d, cwd);
 
 	switch (gtk_dialog_run(d))
 	{
@@ -278,22 +282,18 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_s *data
 	 * check the source file exists (and is a file)
 	 */
 	char *open_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog);
+	bool free_open_file = open_file != NULL;
 	if (!open_file)
 		open_file = gui_file_hack_source;
-	if (open_file) /* if at first you don’t succeed, try, try again */
-		open_file = _filename_utf8(open_file);
-	if (!open_file || !strlen(open_file))
+	char *open_display = open_file ? _filename_utf8(open_file) : NULL;
+	if (!open_file || !open_display || !strlen(open_file))
 		en = FALSE;
 	else
 	{
 		struct stat s;
-		stat(open_file, &s);
-		char *dir = open_file;
-		if (S_ISREG(s.st_mode))
-			dir = dir_get_path(open_file);
-		if (S_ISREG(s.st_mode) || S_ISDIR(s.st_mode))
+		if (stat(open_file, &s) == 0 && (S_ISREG(s.st_mode) || S_ISDIR(s.st_mode)))
 		{
-			gtk_label_set_text((GtkLabel *)data->open_file_label, basename(open_file));
+			gtk_label_set_text((GtkLabel *)data->open_file_label, basename(open_display));
 			gtk_widget_show(data->open_file_image);
 			/*
 			 * quickly see if the file is encrypted already
@@ -315,45 +315,49 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_s *data
 			free(ptr);
 			gtk_button_set_label((GtkButton *)data->encrypt_button, _encrypted ? LABEL_DECRYPT : LABEL_ENCRYPT);
 			en = TRUE;
+			char *dir = S_ISREG(s.st_mode) ? dir_get_path(open_file) : strdup(open_file);
 			if (cwd)
 				free(cwd);
-			cwd = strdup(dir);
+			cwd = dir;
 		}
 		else
 			en = FALSE;
 	}
-	if (open_file)
+	g_free(open_display);
+	if (free_open_file)
 		g_free(open_file);
 
 	char *save_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog);
+	bool free_save_file = save_file != NULL;
 	if (!save_file)
 		save_file = gui_file_hack_output;
-	if (save_file)
-		save_file = _filename_utf8(save_file);
-	if (!save_file || !strlen(save_file))
+	char *save_display = save_file ? _filename_utf8(save_file) : NULL;
+	if (!save_file || !save_display || !strlen(save_file))
 		en = FALSE;
 	else
 	{
 		struct stat s;
-		stat(save_file, &s);
 		/*
 		 * if the destination exists, it has to be a regular file
 		 */
-		char *dir = save_file;
-		if (S_ISREG(s.st_mode))
-			dir = basename(save_file);
-		if (errno == ENOENT || S_ISREG(s.st_mode) || S_ISDIR(s.st_mode))
+		int result = stat(save_file, &s);
+		if ((result == 0 && (S_ISREG(s.st_mode) || S_ISDIR(s.st_mode))) ||
+		    (result < 0 && errno == ENOENT))
 		{
-			gtk_label_set_text((GtkLabel *)data->save_file_label, basename(save_file));
+			gtk_label_set_text((GtkLabel *)data->save_file_label, basename(save_display));
 			gtk_widget_show(data->save_file_image);
+			char *dir = result == 0 && S_ISDIR(s.st_mode)
+				? strdup(save_file)
+				: dir_get_path(save_file);
 			if (cwd)
 				free(cwd);
-			cwd = strdup(dir);
+			cwd = dir;
 		}
 		else
 			en = FALSE;
 	}
-	if (save_file)
+	g_free(save_display);
+	if (free_save_file)
 		g_free(save_file);
 
 	_files = en;
@@ -463,28 +467,27 @@ G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widge
 	gboolean en = TRUE;
 
 	char *key_file = gtk_file_chooser_get_filename((GtkFileChooser *)file_chooser);
-	if (key_file)
-		key_file = _filename_utf8(key_file);
-	if (!key_file || !strlen(key_file))
+	char *key_display = key_file ? _filename_utf8(key_file) : NULL;
+	if (!key_file || !key_display || !strlen(key_file))
 		en = FALSE;
 	else
 	{
 		struct stat s;
-		stat(key_file, &s);
-		if (errno == ENOENT || !S_ISREG(s.st_mode))
+		if (stat(key_file, &s) < 0 || !S_ISREG(s.st_mode))
 			en = FALSE;
 		else
 		{
+			char *dir = dir_get_path(key_file);
 			if (cwd)
 				free(cwd);
-			cwd = strdup(key_file);
+			cwd = dir;
 		}
 	}
 
-	gtk_label_set_text((GtkLabel *)data->key_file_label, en ? basename(key_file) : NONE_SELECTED);
+	gtk_label_set_text((GtkLabel *)data->key_file_label, en ? basename(key_display) : NONE_SELECTED);
 
-	if (key_file)
-		g_free(key_file);
+	g_free(key_display);
+	g_free(key_file);
 
 	if (en)
 		gtk_widget_show(data->key_file_image);
@@ -640,22 +643,24 @@ static void *gui_process(void *d)
 
 	char *source = gtk_file_chooser_get_filename((GtkFileChooser *)data->open_dialog);
 	char *output = gtk_file_chooser_get_filename((GtkFileChooser *)data->save_dialog);
-	source = source ? _filename_utf8(source) : gui_file_hack_source;
-	output = output ? _filename_utf8(output) : gui_file_hack_output;
-
-	if (!source || !output)
-		*_status = STATUS_FAILED_IO;
+	bool free_source = source != NULL;
+	bool free_output = output != NULL;
+	if (!source)
+		source = gui_file_hack_source;
+	if (!output)
+		output = gui_file_hack_output;
 
 	uint8_t *key = NULL;
 	size_t length = 0;
+	char *key_file = NULL;
 	switch (_key_source)
 	{
 		case KEY_SOURCE_FILE:
 			{
-				char *k = _filename_utf8(gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog));
+				key_file = gtk_file_chooser_get_filename((GtkFileChooser *)data->key_dialog);
 				length = 0;
-				key = (uint8_t *)strdup(k);
-				g_free(k);
+				if (key_file)
+					key = (uint8_t *)strdup(key_file);
 			}
 			break;
 
@@ -678,6 +683,19 @@ static void *gui_process(void *d)
 	list_t modes   = list_of_modes();
 	list_t macs    = list_of_macs();
 
+	if (!source || !output || !key || c <= 0 || h <= 0 || m <= 0 || a <= 0)
+	{
+		if (free_source)
+			g_free(source);
+		if (free_output)
+			g_free(output);
+		g_free(key_file);
+		free(key);
+		set_status_bar((GtkStatusbar *)data->status_bar, _("Failed: Read/Write error!"));
+		gtk_button_set_label((GtkButton *)data->progress_cancel_button, LABEL_CLOSE);
+		return NULL;
+	}
+
 	crypto_s *x;
 	if (_encrypted)
 		x = decrypt_init(source, output, list_get(ciphers, c - 1), list_get(hashes, h - 1), list_get(modes, m - 1), list_get(macs, a - 1), key, length, iter, _raw);
@@ -686,8 +704,11 @@ static void *gui_process(void *d)
 
 	_status = &x->status;
 
-	g_free(source);
-	g_free(output);
+	if (free_source)
+		g_free(source);
+	if (free_output)
+		g_free(output);
+	g_free(key_file);
 	free(key);
 
 	if (x->status == STATUS_INIT)
@@ -704,6 +725,7 @@ static void *gui_process(void *d)
 	set_status_bar((GtkStatusbar *)data->status_bar, status(x));
 	gtk_button_set_label((GtkButton *)data->progress_cancel_button, LABEL_CLOSE);
 
+	_status = NULL;
 	deinit(&x);
 
 	return NULL;
