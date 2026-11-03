@@ -236,6 +236,42 @@ static void write_file(const char *path, const uint8_t *data, size_t length)
 	assert_int_equal(close(fd), 0);
 }
 
+static version_e detect_metadata(const char *path)
+{
+	char *cipher = "";
+	char *hash = "";
+	char *mode = "";
+	char *mac = "";
+	version_e version = is_encrypted(path, &cipher, &hash, &mode, &mac, NULL);
+	if (version != VERSION_UNKNOWN)
+	{
+		free(cipher);
+		free(hash);
+		free(mode);
+		free(mac);
+	}
+	return version;
+}
+
+static void write_test_container_metadata(const char *path,
+                                         const char *metadata,
+                                         size_t available,
+                                         size_t declared)
+{
+	uint64_t header[] =
+	{
+		htonll(HEADER_0),
+		htonll(HEADER_1),
+		htonll(get_version(VERSION_CURRENT))
+	};
+	uint8_t contents[sizeof header + 2 + 255] = { 0 };
+	memcpy(contents, header, sizeof header);
+	contents[sizeof header] = 0;
+	contents[sizeof header + 1] = (uint8_t)declared;
+	memcpy(contents + sizeof header + 2, metadata, available);
+	write_file(path, contents, sizeof header + 2 + available);
+}
+
 static void assert_file_contents(const char *path, const uint8_t *expected, size_t length)
 {
 	int fd = open(path, O_RDONLY | O_BINARY);
@@ -435,6 +471,83 @@ static void test_decrypt_rejects_unknown_stream_version(void **state)
 	assert_int_equal(crypto->status, STATUS_FAILED_UNKNOWN_VERSION);
 	deinit(&crypto);
 	assert_null(crypto);
+}
+
+static void test_container_detection_rejects_truncated_headers_and_metadata(void **state)
+{
+	(void)state;
+	char *path = create_temp_path();
+	assert_non_null(path);
+
+	uint64_t partial_magic = htonll(HEADER_0);
+	write_file(path, (const uint8_t *)&partial_magic, sizeof partial_magic);
+	assert_int_equal(is_encrypted(path), VERSION_UNKNOWN);
+
+	uint64_t mismatched_header[] =
+	{
+		htonll(HEADER_0),
+		0,
+		htonll(get_version(VERSION_CURRENT))
+	};
+	write_file(path, (const uint8_t *)mismatched_header, sizeof mismatched_header);
+	assert_int_equal(is_encrypted(path), VERSION_UNKNOWN);
+
+	write_test_container_metadata(path, "AES256", 6, 6);
+	assert_int_equal(detect_metadata(path), VERSION_UNKNOWN);
+
+	write_test_container_metadata(path, "AES256//CBC/HMAC_SHA256/10",
+	                              strlen("AES256//CBC/HMAC_SHA256/10"),
+	                              strlen("AES256//CBC/HMAC_SHA256/10"));
+	assert_int_equal(detect_metadata(path), VERSION_UNKNOWN);
+
+	write_test_container_metadata(path, "AES256/SHA256/CBC/HMAC_SHA256/zz",
+	                              strlen("AES256/SHA256/CBC/HMAC_SHA256/zz"),
+	                              strlen("AES256/SHA256/CBC/HMAC_SHA256/zz"));
+	assert_int_equal(detect_metadata(path), VERSION_UNKNOWN);
+
+	write_test_container_metadata(path, "AES256/SHA256", 2, 20);
+	assert_int_equal(detect_metadata(path), VERSION_UNKNOWN);
+}
+
+static void test_key_file_seek_and_read_failures_are_reported(void **state)
+{
+	(void)state;
+	char *input = create_temp_path();
+	char *output = create_temp_path();
+	char *key_path = create_temp_path();
+	char *valid_key_path = create_temp_path();
+	assert_non_null(input);
+	assert_non_null(output);
+	assert_non_null(key_path);
+	assert_non_null(valid_key_path);
+	static const uint8_t key_bytes[] = "file-backed test key";
+	write_file(valid_key_path, key_bytes, sizeof key_bytes);
+	uint8_t *loaded_key = NULL;
+	size_t loaded_key_size = 0;
+	assert_true(read_key_file(valid_key_path, &loaded_key, &loaded_key_size));
+	assert_int_equal(loaded_key_size, sizeof key_bytes);
+	assert_memory_equal(loaded_key, key_bytes, sizeof key_bytes);
+	gcry_free(loaded_key);
+
+	assert_int_equal(unlink(key_path), 0);
+	assert_int_equal(mkdir(key_path, 0700), 0);
+	static const uint8_t contents[] = "input";
+	write_file(input, contents, sizeof contents);
+
+	crypto_s *encrypt = encrypt_init(input, output, "AES", "SHA256", "CBC",
+	                                 "HMAC_SHA256", (const uint8_t *)key_path,
+	                                 0, 10, false, false, false, VERSION_CURRENT);
+	assert_non_null(encrypt);
+	assert_int_equal(encrypt->status, STATUS_FAILED_IO);
+	deinit(&encrypt);
+
+	crypto_s *decrypt = decrypt_init(input, output, NULL, NULL, NULL, NULL,
+	                                 (const uint8_t *)key_path, 0, 10, false);
+	assert_non_null(decrypt);
+	assert_int_equal(decrypt->status, STATUS_FAILED_IO);
+	deinit(&decrypt);
+
+	assert_int_equal(rmdir(key_path), 0);
 }
 
 static void test_decrypt_rejects_wrong_key(void **state)
@@ -696,6 +809,8 @@ static void crypto_file_round_trip(bool compressed)
 	assert_string_equal(status(encrypt), "Success");
 	deinit(&encrypt);
 	assert_null(encrypt);
+	assert_int_equal(is_encrypted(encrypted_path), VERSION_CURRENT);
+	assert_int_equal(detect_metadata(encrypted_path), VERSION_CURRENT);
 
 	crypto_s *decrypt = decrypt_init(encrypted_path, decrypted_path,
 	                                 NULL, NULL, NULL, NULL, key, sizeof key,
@@ -750,6 +865,8 @@ int main(void)
 		cmocka_unit_test_setup_teardown(test_decrypt_init_rejects_missing_input_and_same_file_output, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_decrypt_init_rejects_invalid_raw_algorithms, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_decrypt_rejects_unknown_stream_version, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_container_detection_rejects_truncated_headers_and_metadata, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_key_file_seek_and_read_failures_are_reported, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_decrypt_rejects_wrong_key, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_stdin_stream_round_trip, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_directory_archive_round_trip, setup, teardown),

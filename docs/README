@@ -67,3 +67,4 @@ TODO
   - Thunar (consider plugin)
   - Nautilus (or Files or whatever it’s called now)
   - Konqueror or Dolphin (maybe - it’s Qt based not GTK)
+* Add automated build/test coverage for supported non-Linux platforms

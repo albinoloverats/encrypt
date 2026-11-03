@@ -13,6 +13,20 @@ Planned Future Enhancements
   underlying file system support)
 * All : Bug fixes as necessary ;-)
 
+encrypt - 202X.XX                                       XXth XXXXXX 202X
+-----------------
+
+* Confine directory extraction to the selected destination and reject
+  input/output collisions
+* Propagate I/O failures through encryption and decryption, and harden
+  handling of truncated or corrupted streams
+* Validate container headers and metadata before detection or parsing
+* Read key files only when seeking and complete reads succeed
+* Correct symlink handling, compressed EOF behavior, and CLI exit/status
+  handling
+* Add a password-recovery utility
+
+
 encrypt - 2025.05                                          23rd May 2025
 -----------------
 

@@ -7,7 +7,7 @@
 00000020: 5432 3536 2F53 4841 3235 362F 4F46 422F    T256/SHA256/OFB/    and separated by /, followed by the number of
 00000030: 3030 3830 3030 3030 3030 3030 3030 3030    0080000000000000    iterations for key derivation function
 
-00000040: 68f6 5f83 67d7 1d0c 9246 07b3 78a5 2426    h._.g....F..x.$&    Salt used for key generation (length is hash dependent)
+00000040: 68f6 5f83 67d7 1d0c 9246 07b3 78a5 2426    h._.g....F..x.$&    Salt length follows effective cipher key length; doubled for XTS.
 00000050: 713a 57a7 aa60 a38a 3fa9 f2b7 088b 8788    q:W..`..?.......
 
 00000060: 17e6 8fb1 2402 f1fa c6f8 b576 4a75 9acb    ....$......vJu..    IV used for encryption (length is cipher dependent)

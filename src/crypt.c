@@ -78,6 +78,51 @@ static const char *STATUS_MESSAGE[] =
 	"Warning: Could not extract all files! (Links are unsupported)"
 };
 
+static bool read_exact_fd(int fd, void *buffer, size_t length)
+{
+	uint8_t *bytes = buffer;
+	size_t offset = 0;
+	while (offset < length)
+	{
+		ssize_t received = read(fd, bytes + offset, length - offset);
+		if (received < 0 && errno == EINTR)
+			continue;
+		if (received <= 0)
+			return false;
+		offset += (size_t)received;
+	}
+	return true;
+}
+
+extern bool read_key_file(const char *path, uint8_t **data, size_t *size)
+{
+	*data = NULL;
+	*size = 0;
+	int fd = open(path, O_RDONLY | O_BINARY);
+	if (fd < 0)
+		return false;
+	off_t end = lseek(fd, 0, SEEK_END);
+	if (end <= 0 || (uint64_t)end > SIZE_MAX || lseek(fd, 0, SEEK_SET) != 0)
+	{
+		close(fd);
+		return false;
+	}
+
+	size_t length = (size_t)end;
+	uint8_t *key = m_gcry_malloc_secure(length);
+	bool success = read_exact_fd(fd, key, length);
+	if (close(fd) < 0)
+		success = false;
+	if (!success)
+	{
+		gcry_free(key);
+		return false;
+	}
+	*data = key;
+	*size = length;
+	return true;
+}
+
 typedef struct
 {
 	const char string[8];
@@ -180,45 +225,94 @@ extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, cha
 	}
 
 	uint64_t head[3] = { 0x0 };
-	if ((read(f, head, sizeof head)) < 0)
+	if (!read_exact_fd(f, head, sizeof head))
 		return close(f) , VERSION_UNKNOWN;
-	if (head[0] != htonll(HEADER_0) && head[1] != htonll(HEADER_1))
+	if (head[0] != htonll(HEADER_0) || head[1] != htonll(HEADER_1))
 		return close(f) , VERSION_UNKNOWN;
 
 	version_e version = check_version(ntohll(head[2]));
+	if (version == VERSION_UNKNOWN)
+		return close(f), VERSION_UNKNOWN;
 	if (b)
 	{
 		if (version >= VERSION_2015_10)
 		{
 			/* skips past ECC length byte */
 			uint8_t eb;
-			read(f, &eb, sizeof eb);
+			if (!read_exact_fd(f, &eb, sizeof eb))
+				return close(f), VERSION_UNKNOWN;
 		}
 		uint8_t l;
-		read(f, &l, sizeof l);
+		if (!read_exact_fd(f, &l, sizeof l) || !l)
+			return close(f), VERSION_UNKNOWN;
 		char *z = m_gcry_calloc_secure(l + sizeof( char ), sizeof( char ));
-		read(f, z, l);
+		if (!read_exact_fd(f, z, l))
+		{
+			gcry_free(z);
+			return close(f), VERSION_UNKNOWN;
+		}
 		char *s = strchr(z, '/');
+		if (!s || s == z || !s[1])
+		{
+			gcry_free(z);
+			return close(f), VERSION_UNKNOWN;
+		}
 		*s = '\0';
 		s++;
 		char *d = strchr(s, '/');
 		char *g = NULL;
 		char *i = NULL;
+		if (d == s)
+		{
+			gcry_free(z);
+			return close(f), VERSION_UNKNOWN;
+		}
 		/* see if there's a cipher mode */
 		if (d)
 		{
 			*d = '\0';
 			d++;
-			/* see if there's a MAC */
+			if (!*d || *d == '/')
+			{
+				gcry_free(z);
+				return close(f), VERSION_UNKNOWN;
+			}
+			/* see if there’s a MAC */
 			if ((g = strchr(d, '/')))
 			{
 				*g = '\0';
 				g++;
-				/* see if there's a KDF iterations value */
+				if (!*g || *g == '/')
+				{
+					gcry_free(z);
+					return close(f), VERSION_UNKNOWN;
+				}
+				/* see if there’s a KDF iterations value */
 				if ((i = strchr(g, '/')))
 				{
 					*i = '\0';
 					i++;
+					if (!*i || strchr(i, '/'))
+					{
+						gcry_free(z);
+						return close(f), VERSION_UNKNOWN;
+					}
+					for (const char *digit = i; *digit; digit++)
+						if (!((*digit >= '0' && *digit <= '9') ||
+						      (*digit >= 'a' && *digit <= 'f') ||
+						      (*digit >= 'A' && *digit <= 'F')))
+						{
+							gcry_free(z);
+							return close(f), VERSION_UNKNOWN;
+						}
+					char *end = NULL;
+					errno = 0;
+					(void)strtoull(i, &end, 0x10);
+					if (errno == ERANGE || end == i || *end)
+					{
+						gcry_free(z);
+						return close(f), VERSION_UNKNOWN;
+					}
 				}
 			}
 			else

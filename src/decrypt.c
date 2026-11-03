@@ -148,14 +148,8 @@ extern crypto_s *decrypt_init(const char * const restrict i,
 	}
 	else
 	{
-		int64_t kf = open(k, O_RDONLY | F_RDLCK, S_IRUSR | S_IWUSR);
-		if (kf < 0)
+		if (!read_key_file((const char *)k, &z->key, &z->length))
 			return z->status = STATUS_FAILED_IO , z;
-		z->length = lseek(kf, 0, SEEK_END);
-		lseek(kf, 0, SEEK_SET);
-		z->key = m_gcry_malloc_secure(z->length);
-		read(kf, z->key, z->length);
-		close(kf);
 	}
 
 	z->kdf_iterations = n;

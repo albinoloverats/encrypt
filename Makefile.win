@@ -52,6 +52,7 @@ gui: winres
 	-@echo -e "built ‘`echo -e ${GUI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 test:
+	 @${MAKE} -C common test
 	 @echo "#define ALL_CFLAGS   ${TEST_CFLAGS}  " | tr "\"" "'" | sed 's/FLAGS   /FLAGS   "/' | sed 's/$$/"/' >  ${MISC}
 	 @echo "#define ALL_CPPFLAGS ${TEST_CPPFLAGS}" | tr "\"" "'" | sed 's/FLAGS /FLAGS "/'     | sed 's/$$/"/' >> ${MISC}
 	 @${CC} ${TEST_CFLAGS} ${TEST_CPPFLAGS} -I. ${CORE_SRC} test/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
@@ -78,6 +79,7 @@ installer:
 
 clean:
 	 @rm -fv ${APP} ${APP_SIG} ${MISC} ${RES} ${IO_TEST} ${FLOW_TEST}
+	 @${MAKE} -C common clean
 
 distclean: clean
 	 @rm -fv ${PKG} ${PKG_SIG} gmon.out

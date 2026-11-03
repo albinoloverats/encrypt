@@ -275,6 +275,19 @@ extern void key_free(raw_key_s **k);
 #define is_encrypted(...) CONCAT(is_encrypted_, IS_ENCRYPTED_ARGS_COUNT(__VA_ARGS__))(__VA_ARGS__)
 
 /*!
+ * \brief         Read a complete key file into secure memory
+ * \param[in]  path Key-file path
+ * \param[out] data Receives the allocated key bytes
+ * \param[out] size Receives the key length
+ * \return         True when a nonempty key file was read completely
+ *
+ * Fails if the file cannot be opened, sized, rewound, or read completely.
+ * The returned key bytes are allocated with libgcrypt secure memory and
+ * must be released with gcry_free().
+ */
+extern bool read_key_file(const char *path, uint8_t **data, size_t *size) __attribute__((nonnull(1, 2, 3)));
+
+/*!
  * \brief         Determine if a file is encrypted
  * \param[in]  b  Internal selector for whether metadata outputs were requested
  * \param[in]  n  File path/name to inspect
