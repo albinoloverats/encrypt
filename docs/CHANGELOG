@@ -16,6 +16,8 @@ Planned Future Enhancements
 encrypt - 202X.XX                                       XXth XXXXXX 202X
 -----------------
 
+### Desktop
+
 * Confine directory extraction to the selected destination and reject
   input/output collisions
 * Propagate I/O failures through encryption and decryption, and harden
@@ -25,6 +27,15 @@ encrypt - 202X.XX                                       XXth XXXXXX 202X
 * Correct symlink handling, compressed EOF behavior, and CLI exit/status
   handling
 * Add a password-recovery utility
+
+### Android
+
+* Request notification permissions correctly on Android 13 and later
+* Centralise container header, metadata, compression, and verification
+  handling for encryption and decryption
+* Handle short, partial, and truncated reads correctly in encrypted and
+  ECC streams; validate stream bounds and output-stream state
+* Read key files completely and reject empty or unreadable key data
 
 
 encrypt - 2025.05                                          23rd May 2025
