@@ -27,8 +27,7 @@
  * \date    2009-2025
  * \brief   Main crypt header file
  *
- * What is essentially the parent class for enc/decryption routines.
- * Many of the constants, wrapper functions exist here.
+ * Shared types, constants, and APIs for encryption and decryption.
  */
 
 #include <stdint.h>     /*!< Necessary include as c99 standard integer types are referenced in this header */
@@ -90,18 +89,18 @@ typedef enum
 	/* failures - decryption did not complete */
 	STATUS_FAILED_INIT,                     /*!< Error during initialisation */
 	STATUS_FAILED_UNKNOWN_VERSION,          /*!< Failed due to unknown/unsupported encrypt data stream version */
-	STATUS_FAILED_UNKNOWN_CIPHER_ALGORITHM, /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
-	STATUS_FAILED_UNKNOWN_HASH_ALGORITHM,   /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
-	STATUS_FAILED_UNKNOWN_CIPHER_MODE,      /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
-	STATUS_FAILED_UNKNOWN_MAC_ALGORITHM,    /*!< Failed due to unknown/unsupported algorithm (cipher or hash) */
-	STATUS_FAILED_GCRYPT_INIT,              /*!< Failed during cipher IO initialisation */
+	STATUS_FAILED_UNKNOWN_CIPHER_ALGORITHM, /*!< Cipher algorithm is unknown or unsupported */
+	STATUS_FAILED_UNKNOWN_HASH_ALGORITHM,   /*!< Hash algorithm is unknown or unsupported */
+	STATUS_FAILED_UNKNOWN_CIPHER_MODE,      /*!< Cipher mode is unknown or unsupported */
+	STATUS_FAILED_UNKNOWN_MAC_ALGORITHM,    /*!< MAC algorithm is unknown or unsupported */
+	STATUS_FAILED_GCRYPT_INIT,              /*!< Failed to initialise cryptographic processing */
 	STATUS_FAILED_CIPHER_MODE_MISMATCH,     /*!< Cipher mode not compatible with cipher algorithm */
 	STATUS_FAILED_DECRYPTION,               /*!< Failed decryption verification (likely wrong password) */
-	STATUS_FAILED_UNKNOWN_TAG,              /*!< Failed due to unknown tag */
+	STATUS_FAILED_UNKNOWN_TAG,              /*!< Failed due to an unsupported or unrecognized metadata tag */
 	STATUS_FAILED_IO,                       /*!< Read/write error */
 	STATUS_FAILED_LZMA,                     /*!< LZMA decompression error */
 	STATUS_FAILED_KEY,                      /*!< Key generation/read error */
-	STATUS_FAILED_OUTPUT_MISMATCH,          /*!< Tried to write directory into a file or vice-versa */
+	STATUS_FAILED_OUTPUT_MISMATCH,          /*!< Invalid, conflicting, or incompatible output target */
 	STATUS_FAILED_OTHER,                    /*!< Unknown error */
 	/* warnings - decryption finished but with possible errors */
 	STATUS_WARNING_CHECKSUM,                /*!< Data checksum was invalid, possible data corruption */
@@ -120,8 +119,8 @@ typedef enum
 {
 	FILE_DIRECTORY, /*!< File is a directory */
 	FILE_REGULAR,   /*!< File is a file */
-	FILE_SYMLINK,   /*!, File is a soft link */
-	FILE_LINK       /*!, File is a hard link */
+	FILE_SYMLINK,   /*!< File is a symbolic link */
+	FILE_LINK       /*!< File is a hard link */
 } __attribute__((packed))
 file_type_e;
 
@@ -154,8 +153,8 @@ version_e;
 /*!
  * \brief  Stream metadata tags
  *
- * Tag values used to provide metadata capabilities to the encrypted
- * data stream. NB new tags obviously break backward compatibility.
+ * Tag values used to describe the encrypted data stream. Older readers
+ * may ignore tags they do not recognize, depending on the container version.
  */
 typedef enum
 {
@@ -196,7 +195,7 @@ typedef struct
 	IO_HANDLE source;              /*!< Where to get data from */
 	IO_HANDLE output;              /*!< Where to put data to */
 
-	char *path;                    /*!< Path to en/decrypted directory */
+	char *path;                    /*!< Source or destination path used for directory operations */
 	char *name;                    /*!< Name of single encrypted file */
 	enum gcry_cipher_algos cipher; /*!< The chosen cipher algorithm */
 	enum gcry_md_algos hash;       /*!< The chosen key hash algorithm */
@@ -210,31 +209,30 @@ typedef struct
 	size_t length;                 /*!< Key data length */
 	uint64_t kdf_iterations;       /*!< KDF iterations */
 
-	pthread_t *thread;             /*!< Execution thread */
-	void *(*process)(void *);      /*!< Main processing function; used by execute() */
+	pthread_t *thread;             /*!< Joinable execution thread, or NULL when run synchronously */
+	void *(*process)(void *);      /*!< Encryption or decryption worker invoked by execute() */
 	crypto_status_e status;        /*!< Current status */
-	cli_progress_s current;        /*!< Progress of current file */
-	cli_progress_s total;          /*!< Overall progress (all files) */
+	cli_progress_s current;        /*!< Progress of the current file or stream */
+	cli_progress_s total;          /*!< Overall progress for all files or the stream */
 
 	void *misc;                    /*!< Miscellaneous data, specific to either encryption or decryption only */
 
 	version_e version;             /*!< Version of the encrypted file container */
-	uint64_t blocksize;            /*!< Whether data is split into blocks, and thus their size */
-	bool compressed:1;             /*!< Whether data stream is compress */
+	uint64_t blocksize;            /*!< Data framing block size, or zero when not block-framed */
+	bool compressed:1;             /*!< Whether the data stream is compressed */
 	bool directory:1;              /*!< Whether data stream is a directory hierarchy */
-	bool follow_links:1;           /*!< Whether encrypt should follow symlinks (true: store the file it points to; false: store the link itself */
-	bool raw:1;                    /*!< Whether the header should be skipped (not recommended but ideal in some situations) */
+	bool follow_links:1;           /*!< Whether encryption follows symlinks or stores the links themselves */
+	bool raw:1;                    /*!< Whether to omit/skip the container header and verification data */
 }
 crypto_s;
 
 /*!
  * \brief          Execute crypto routine
- * \params[in]  c  Cryptographic instance
+ * \param[in]  c  Cryptographic instance
  *
- * Launches a background thread that performs the desired cryptographic
- * action setup by either encrypt_init() or decrypt_init(). The task is
- * backgrounded to allow the foreground to keep the UI updated (if
- * necessary).
+ * Runs the worker configured by encrypt_init() or decrypt_init(). In a
+ * normal build it starts a joinable background thread; debug builds run
+ * the worker synchronously.
  */
 extern void execute(crypto_s *c) __attribute__((nonnull(1)));
 
@@ -252,8 +250,8 @@ extern const char *status(const crypto_s * const restrict c) __attribute__((nonn
  * \brief         Deinitialise a cryptographic instance
  * \param[in]  c  A pointer to the instance to release
  *
- * Free’s the resources used by the crypto instance after it is no
- * longer needed.
+ * Joins any worker thread, releases the instance's resources, and sets
+ * the caller's pointer to NULL.
  */
 extern void deinit(crypto_s **c) __attribute__((nonnull(1)));
 
@@ -278,26 +276,29 @@ extern void key_free(raw_key_s **k);
 
 /*!
  * \brief         Determine if a file is encrypted
- * \param[in]  b  Whether passing in 3 arguments or not
- * \param[in]  n  The file path/name
- * \param[out] c  Pointer to cipher (user to free when no longer needed)
- * \param[out] h  Pointer to hash (user to free when no longer needed)
- * \param[out] m  Pointer to mode (if available) (user to free when no longer needed)
- * \param[out] a  Pointer to the MAC (if available) (user to free when no longer needed)
- * \param[out] k  The number of iterations used by the KDF (if available)
- * \return        The version of encrypted used
+ * \param[in]  b  Internal selector for whether metadata outputs were requested
+ * \param[in]  n  File path/name to inspect
+ * \param[in,out] c  Address of cipher-name pointer; set *c non-NULL to request output
+ * \param[in,out] h  Address of hash-name pointer; set *h non-NULL to request output
+ * \param[in,out] m  Address of mode-name pointer; set *m non-NULL to request output
+ * \param[in,out] a  Address of MAC-name pointer; set *a non-NULL to request output
+ * \param[out] k  Optional KDF-iteration output
+ * \return        Detected container version, or VERSION_UNKNOWN
  *
- * Returns the version of encrypt used to encrypt the file, or 0 if it’s
- * not encrypted.
+ * The one-argument is_encrypted(path) form checks only the container
+ * version. In the six-argument form, provide addresses for all four
+ * string pointers and set each requested output pointer to a non-NULL
+ * value; it is replaced with an allocated string. Returned strings are
+ * caller-owned and must be freed. The KDF output may be NULL.
  */
 extern version_e is_encrypted_aux(bool b, const char *n, char **c, char **h, char **m, char **a, uint64_t *k) __attribute__((nonnull(2)));
 
 /*!
- * \brief         Log which version the file is encrypted with
+ * \brief         Determine which container version a file uses
  * \param[in]  m  The bytes read from the file
  * \return        The version; 0 if unknown
  *
- * Check which version of encrypt a file was encrypted with.
+ * Map a container's numeric version identifier to its version enum.
  */
 extern version_e check_version(uint64_t m);
 
@@ -306,7 +307,7 @@ extern version_e check_version(uint64_t m);
  * \param[in]  v  The version
  * \return        The version ID
  *
- * Get the version magic number which corresponds to the version enum.
+ * Return the numeric container identifier corresponding to the version.
  */
 extern uint64_t get_version(version_e v);
 
@@ -315,7 +316,7 @@ extern uint64_t get_version(version_e v);
  * \param[in]  v  The version
  * \return        The version as a string
  *
- * Get the version string which corresponds to the version enum.
+ * Return a static version string corresponding to the version.
  */
 extern const char *get_version_string(version_e v);
 
@@ -324,7 +325,8 @@ extern const char *get_version_string(version_e v);
  * \param[in]  v  The version as a string
  * \return        The version
  *
- * Parse the version string and return the corresponds version enum.
+ * Match a version string to its enum. A NULL or unrecognized string
+ * selects VERSION_CURRENT.
  */
 extern version_e parse_version(const char *v);
 

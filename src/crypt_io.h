@@ -27,8 +27,8 @@
  * \date    2009-2025
  * \brief   IO functions for encrypt
  *
- * Advanced IO functions for encryption/compression. Wraps read/write
- * with crypto functions and LZMA compression for encrypt.
+ * File and standard-stream handles with optional encryption, LZMA
+ * compression, checksum/MAC, and error-correction processing.
  */
 
 #include <stdint.h> /*!< Necessary include as c99 standard integer types are referenced in this header */
@@ -38,7 +38,8 @@
 #define IO_STDOUT_FILENO io_use_stdout() /*!< Macro wrapper for io_use_stdout() */
 #define IO_UNINITIALISED io_dummy_handle() /*!< Macro wrapper for io_dummy_handle() */
 
-typedef void * IO_HANDLE; /*<! Handle type for IO functions */
+/*! \brief Opaque handle for the wrapped I/O instance. */
+typedef void * IO_HANDLE;
 
 #if defined _WIN32 && !defined _MODE_T_
 #define _MODE_T_
@@ -48,30 +49,28 @@ typedef unsigned short mode_t;
 /*!
  * \brief  How the IV should be generated
  *
- * The IV can be generated in one of a few ways; it depends on the
- * (compatibility) version of encrypt. Basically the only valid choice
- * is the latest.
+ * Selects the initialization-vector behavior required by a container
+ * version: IV_BROKEN for the earliest formats, IV_SIMPLE for older
+ * formats, and IV_RANDOM for versions from 2015.01 onward.
  */
 typedef enum
 {
-	IV_BROKEN, /*!< The oldest version of encrypt didn’t do a good job of IV generation */
-	IV_SIMPLE, /*!< More recent versions did a better job, but it’s still not great */
-	IV_RANDOM  /*!< The next/current version does the best job (so far) */
+	IV_BROKEN, /*!< Legacy IV generation used by versions through 2012.11 */
+	IV_SIMPLE, /*!< Deterministic IV generation used by versions 2013.02 through 2014.06 */
+	IV_RANDOM  /*!< Random IV generation used by versions from 2015.01 onward */
 }
 x_iv_e;
 
 /*!
  * \brief  Extra options passed to IO crypto init
  *
- * A structure for any additional options necessary to revert to an
- * older setup for encryption/decryption. As things are imporved going
- * forward, it is still necessary to keep backwards compatibility with
- * previous versions.
+ * Options controlling compatibility behavior and whether initialization
+ * material is generated for encryption or read for decryption.
  */
 typedef struct
 {
 	x_iv_e x_iv;    /*!< Whether to use the older (less correct) IV generation */
-	bool x_encrypt; /*!< Encrypt (or decrypt) */
+	bool x_encrypt; /*!< True to generate/write salt and IV; false to read them */
 }
 io_extra_s;
 
@@ -80,17 +79,19 @@ io_extra_s;
  * \param[in]  n  The file name
  * \param[in]  f  File open flags
  * \param[in]  m  File open mode
- * \return        A new IO instance for the specified file
+ * \return        A new handle, or NULL if the file could not be opened
  *
- * Open a file. Using these IO functions wraps the typical IO functions
- * with encryption and compression support.
+ * The handle owns the opened file descriptor; io_close() closes it.
+ * Subsequent reads and writes can apply the configured transformations.
  */
 extern IO_HANDLE io_open(const char *n, int f, mode_t m) __attribute__((malloc, nonnull(1)));
 
 /*!
  * \brief         Create an IO instance from an open file descriptor
- * \param[in]  fd An open file descriptor owned by the returned instance
- * \return        A new IO instance
+ * \param[in]  fd An open file descriptor transferred to the returned handle
+ * \return        A new handle, or NULL if fd is negative
+ *
+ * The returned handle closes fd when passed to io_close().
  */
 extern IO_HANDLE io_wrap_fd(int64_t fd);
 
@@ -98,23 +99,24 @@ extern IO_HANDLE io_wrap_fd(int64_t fd);
  * \brief         Destroy an IO instance
  * \param[in]  h  An IO instance to destroy
  *
- * Closes the file and free resources when no longer needed.
+ * Closes the underlying descriptor and frees the handle. Any previously
+ * recorded I/O error is returned in preference to a close error.
  */
 extern int io_close(IO_HANDLE h) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Release an IO instance
- * \param[in]  h  An IO instance to destroy
+ * \param[in]  ptr  An IO instance to release
  *
- * Free the memory of an IO instance [automatically called by
- * io_close()], the only other use is for destroying an invalid IO
- * instance.
+ * Frees the handle and its processing state without closing its
+ * underlying descriptor. io_close() calls this before closing the
+ * descriptor.
  */
 extern void io_release(IO_HANDLE ptr) __attribute__((nonnull(1)));
 
 /*!
- * \brief         Creates a dummy file handle
- * \returns       An uninitialised file handle
+ * \brief         Create a dummy file handle
+ * \return        An uninitialised handle
  *
  * Creates a dummy, uninitialised, file handle. Useful in situations
  * where a IO instance is needed but not yet ready to be initialised
@@ -128,8 +130,8 @@ extern IO_HANDLE io_dummy_handle(void);
  * \brief         Get IO instance for STDIN
  * \return        An IO instance for STDIN
  *
- * Get an IO_HANDLE instance for STDIN stream.
- * instead.
+ * Returns a wrapper around STDIN_FILENO. Closing the wrapper also closes
+ * the standard descriptor.
  *
  * NB: Use IO_STDIN_FILENO instead.
  */
@@ -139,7 +141,8 @@ extern IO_HANDLE io_use_stdin(void);
  * \brief         Get IO instance for STDOUT
  * \return        An IO instance for STDOUT
  *
- * Get an IO_HANDLE instance for STDOUT stream.
+ * Returns a wrapper around STDOUT_FILENO. Closing the wrapper also closes
+ * the standard descriptor.
  *
  * NB: Use IO_STDOUT_FILENO instead.
  */
@@ -150,9 +153,10 @@ extern IO_HANDLE io_use_stdout(void);
  * \param[in]  h  An IO instance
  * \return        Whether IO instance is initialised
  *
- * Returns true if IO_HANDLE instance is a valid stream.
+ * Returns true when the handle contains a nonnegative file descriptor.
+ * A dummy handle is not initialized.
  */
-extern bool io_is_initialised(IO_HANDLE) __attribute__((nonnull(1)));
+extern bool io_is_initialised(IO_HANDLE h) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Check if IO instance is STDIN
@@ -185,11 +189,11 @@ extern bool io_same_file(IO_HANDLE f, const char *n) __attribute__((nonnull(1, 2
  * \param[in]  f  An IO instance
  * \param[in]  d  The data to write
  * \param[in]  l  The length of data to write
- * \return        The number of bytes written
+ * \return        The requested length on success, or -1 on error
  *
- * Write the given data to the given file descriptor, performing any
- * necessary operations before it is actually written. Returns the
- * number of bytes actually written.
+ * Write the given data through the configured processing pipeline.
+ * A short underlying write is completed internally; any incomplete
+ * operation is reported as an error.
  */
 extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l) __attribute__((nonnull(1, 2)));
 
@@ -198,10 +202,11 @@ extern ssize_t io_write(IO_HANDLE f, const void *d, size_t l) __attribute__((non
  * \param[in]  f  An IO instance
  * \param[out] d  The data read
  * \param[in]  l  The length of data to read (size of d)
- * \return        The number of bytes read
+ * \return        The number of bytes read (possibly fewer than requested), or -1 on error
  *
- * Read the specified number of bytes from the given file descriptor,
- * performing any necessary operations before it’s returned.
+ * Reads up to the requested number of bytes, applying enabled
+ * decompression, decryption, and error correction. A zero return for a
+ * nonzero request indicates EOF.
  */
 extern ssize_t io_read(IO_HANDLE f, void *d, size_t l) __attribute__((nonnull(1, 2)));
 
@@ -210,14 +215,16 @@ extern ssize_t io_read(IO_HANDLE f, void *d, size_t l) __attribute__((nonnull(1,
  * \param[in]  f  An IO instance
  * \param[out] d  The data read
  * \param[in]  l  The number of bytes to read
- * \return        True if all requested bytes were read
+ * \return        True if all requested bytes were read, false on EOF or error
+ *
+ * Early EOF is recorded as an I/O error.
  */
 extern bool io_read_exact(IO_HANDLE f, void *d, size_t l) __attribute__((nonnull(1, 2)));
 
 /*!
  * \brief         Return the first I/O error recorded by this instance
  * \param[in]  f  An IO instance
- * \return        Zero if no error was recorded, otherwise the error number
+ * \return        The first error recorded by the handle, or zero if none
  */
 extern int io_error(IO_HANDLE f) __attribute__((nonnull(1)));
 
@@ -225,7 +232,7 @@ extern int io_error(IO_HANDLE f) __attribute__((nonnull(1)));
  * \brief         Sync data waiting to be written
  * \param[in]  f  An IO instance
  *
- * Performs a sync of all outstanding data to be written.
+ * Flushes pending processing buffers and syncs regular files to storage.
  */
 extern int io_sync(IO_HANDLE f) __attribute__((nonnull(1)));
 
@@ -233,11 +240,11 @@ extern int io_sync(IO_HANDLE f) __attribute__((nonnull(1)));
  * \brief         Seek to position in file
  * \param[in]  f  An IO instance
  * \param[in]  o  The offset set position
- * \param[in]  w  From whence the fofset should be measured
+ * \param[in]  w  Whence the offset should be measured
  * \return        The new offset within the file
  *
- * This function is the same as lseek(), in both the accepted values
- * for the offset and whence, as well as the return value.
+ * Seeks the underlying descriptor using lseek(); this does not adjust
+ * any buffered transformed data.
  */
 extern off_t io_seek(IO_HANDLE f, off_t o, int w) __attribute__((nonnull(1)));
 
@@ -251,11 +258,12 @@ extern off_t io_seek(IO_HANDLE f, off_t o, int w) __attribute__((nonnull(1)));
  * \param[in]  i  Number of iterations for key derivation function
  * \param[in]  k  Raw key data
  * \param[in]  l  The length of the key data
- * \param[in]  x  Any extra modifing options
+ * \param[in]  x  Compatibility IV behavior and encrypt/decrypt direction
  * \return        True on success, false otherwise.
  *
- * Initialise encryption/decryption of data read/written. This is then
- * active for the rest of the life of the IO_HANDLE.
+ * Initializes encryption or decryption for subsequent I/O. When
+ * x.x_encrypt is true, required salt/IV material is generated and
+ * written; otherwise it is read from the handle.
  */
 extern bool io_encryption_init(IO_HANDLE f, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, enum gcry_mac_algos a, uint64_t i, const uint8_t *k, size_t l, io_extra_s x) __attribute__((nonnull(1, 7)));
 
@@ -263,7 +271,7 @@ extern bool io_encryption_init(IO_HANDLE f, enum gcry_cipher_algos c, enum gcry_
  * \brief         Compression initialisation
  * \param[in]  f  An IO instance
  *
- * Turn on compression/decompression for the rest of the life of this
+ * Enable LZMA compression for writes or decompression for reads on this
  * handle.
  */
 extern void io_compression_init(IO_HANDLE f) __attribute__((nonnull(1)));
@@ -273,28 +281,32 @@ extern void io_compression_init(IO_HANDLE f) __attribute__((nonnull(1)));
  * \param[in]  f  An IO instance
  * \param[in]  h  The ID of the hash to use for checksum calculations
  *
- * For all subsequent data that is read/written feed it through a hash
- * function as a way of generating a checksum to detect errors.
+ * Start (or reset) the digest used to checksum subsequent data read or
+ * written through this handle.
  */
 extern void io_encryption_checksum_init(IO_HANDLE f, enum gcry_md_algos h) __attribute__((nonnull(1)));
 
 /*!
  * \brief         Read/Write data checksum generation
  * \param[in]  f  An IO instance
- * \param[out] b  A pointer to the calculated checksum
- * \param[out] l  The length of the checksum
+ * \param[in,out] b  Buffer pointer, reallocated as needed with secure allocation
+ * \param[out]    l  Digest length in bytes
  *
- * Retrieve the hash checksum of all encrypted data read/written so far.
+ * Retrieve the digest of data processed since checksum initialization.
+ * If no digest is active, the returned length is zero.
+ * The caller owns the returned buffer and must release it with gcry_free().
  */
 extern void io_encryption_checksum(IO_HANDLE f, uint8_t **b, size_t *l) __attribute__((nonnull(1)));
 
 /*!
- * \brief
+ * \brief         Get the MAC of processed data
  * \param[in]  f  An IO instance
- * \param[out] b  A pointer to the MAC
- * \param[out] l  The length of the MAC
+ * \param[in,out] b  Buffer pointer, reallocated as needed with secure allocation
+ * \param[out]    l  MAC length in bytes
  *
- * Retrieve the MAC of all the encrypted data read/written.
+ * Retrieve the MAC of data processed through this handle. If no MAC is
+ * active, the returned length is zero. The caller owns the returned
+ * buffer and must release it with gcry_free().
  */
 extern void io_encryption_mac(IO_HANDLE f, uint8_t **b, size_t *l) __attribute__((nonnull(1)));
 
@@ -302,7 +314,7 @@ extern void io_encryption_mac(IO_HANDLE f, uint8_t **b, size_t *l) __attribute__
  * \brief         Enable ECC
  * \param[in]  f  An IO instance
  *
- * Enable error correction in IO. Uses Reed-Solomon error correction.
+ * Enable Reed-Solomon error correction for subsequent I/O.
  */
 extern void io_correction_init(IO_HANDLE f) __attribute__((nonnull(1)));
 

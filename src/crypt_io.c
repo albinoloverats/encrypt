@@ -55,11 +55,11 @@
 /*!
  * \brief  How to process the data
  *
- * How the data should be processed before writing or after reading.
+ * Selects the transformation applied to data written to or read from a handle.
  */
 typedef enum
 {
-	IO_DEFAULT, /*!< No processing will be done; only used when reading/writing the header */
+	IO_DEFAULT, /*!< No cipher or compression transformation; used for framing and metadata */
 	IO_ENCRYPT, /*!< Data will be encrypted/decrypted */
 	IO_LZMA     /*!< Data will be compressed/decompressed prior to encryption/decryption */
 }
@@ -75,9 +75,9 @@ eof_e;
 
 typedef struct
 {
-	uint8_t *stream;             /*!< Buffer data   */
-	size_t block;                /*!< Size of steam */
-	size_t offset[OFFSET_SLOTS]; /*!< 0: length of data in buffer, yet to write; 1: available space in output buffer (stream); 2: offset of where to read new data to */
+	uint8_t *stream;             /*!< Buffered bytes */
+	size_t block;                /*!< Buffer capacity or processing block size */
+	size_t offset[OFFSET_SLOTS]; /*!< Indices used by the active read/write pipeline */
 }
 buffer_s;
 

@@ -21,6 +21,17 @@
 #import <Cocoa/Cocoa.h>
 #import <Automator/Automator.h>
 
+/*!
+ * \file    gui-cocoa.h
+ * \brief   Cocoa application delegate and interface declarations
+ */
+
+/*!
+ * \brief Application delegate and interface outlets for the Cocoa front end
+ *
+ * Owns the GUI actions for choosing input/output and key sources, setting
+ * algorithms, and controlling encryption progress.
+ */
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
 #define SELECT_FILE  "Select File …"
@@ -32,8 +43,9 @@
 #define OUTPUT_FILE "outputFile"
 #define KEYSRC_FILE "keyFile"
 
-/*
- * main window
+/*!
+ * \name Main window
+ * @{
  */
 @property (assign) IBOutlet NSWindow *window;
 
@@ -66,8 +78,11 @@
 
 @property (strong, nonatomic) IBOutlet NSTextField *statusBar;
 
-/*
- * progress dialog
+/*! @} */
+
+/*!
+ * \name Progress dialog
+ * @{
  */
 
 @property (assign) IBOutlet NSPanel *popup;
@@ -80,8 +95,11 @@
 @property (strong, nonatomic) IBOutlet NSTextField *percent_current;
 @property (strong, nonatomic) IBOutlet NSTextField *progress_label;
 
-/*
- * callbacks
+/*! @} */
+
+/*!
+ * \name Interface actions
+ * @{
  */
 
 - (IBAction)compressionToggle:(id)pId;
@@ -99,4 +117,5 @@
 - (IBAction)cancelButtonPushed:(id)pId;
 - (IBAction)closeButtonPushed:(id)pId;
 
+/*! @} */
 @end

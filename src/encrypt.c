@@ -552,7 +552,7 @@ static inline void write_metadata(crypto_s *c)
 		tlv_append(tlv, t);
 	}
 	if (!c->directory && c->name && c->version >= VERSION_2015_01)
-	{   /* after 2012.11 unknown tags are ignored, and this tag doesn't impact anything */
+	{   /* Filename metadata is supported from 2015.01; older readers may ignore this tag. */
 		tlv_entry_s t = { TAG_FILENAME, strlen(c->name), c->name };
 		tlv_append(tlv, t);
 	}

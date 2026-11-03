@@ -21,6 +21,11 @@
 #ifndef _ENCRYPT_GUI_H_
 #define _ENCRYPT_GUI_H_
 
+/*!
+ * \file    gui.h
+ * \brief   Shared labels, configuration keys, and state for GUI front ends
+ */
+
 #define STATUS_BAR_READY "Ready"
 #define STATUS_BAD_MODE  "Mode incompatible with cipher"
 
@@ -46,16 +51,29 @@
 #define CONF_VERSION        "version"
 #define CONF_SKIP_HEADER    "raw"
 
+/*!
+ * \brief Source used to obtain the encryption key
+ */
 typedef enum
 {
-	KEY_SOURCE_FILE,
-	KEY_SOURCE_PASSWORD
+	KEY_SOURCE_FILE,     /*!< Read key bytes from a file */
+	KEY_SOURCE_PASSWORD /*!< Use the entered password as key material */
 }
 key_source_e;
 
+/*!
+ * \brief Display strings corresponding to key_source_e values
+ */
 extern char *KEY_SOURCE[];
 
+/*!
+ * \brief Optional command-line source path used to preselect a GUI file chooser
+ */
 extern char *gui_file_hack_source;
+
+/*!
+ * \brief Optional command-line output path used to preselect a GUI file chooser
+ */
 extern char *gui_file_hack_output;
 
 #endif /* _ENCRYPT_GUI_H_ */

@@ -36,24 +36,24 @@
 
 /*!
  * \brief         Create a new encryption instance
- * \param[in]  i  The source to encrypt
- * \param[in]  o  The output after encryption
+ * \param[in]  i  Source path, or NULL to read from standard input
+ * \param[in]  o  Output path, or NULL to write to standard output
  * \param[in]  c  The name of the cipher
  * \param[in]  h  The name of the hash
  * \param[in]  m  The name of the mode
  * \param[in]  a  The name of the MAC
- * \param[in]  k  Key data
- * \param[in]  l  Size of key data
- * \param[in]  n  Number of KDF iterations
- * \param[in]  r  Raw - don’t write a header or any verification
+ * \param[in]  k  Key bytes when l is nonzero; otherwise a key-file path
+ * \param[in]  l  Key length in bytes, or zero when k names a key file
+ * \param[in]  n  Number of KDF iterations for versions that use a configurable KDF
+ * \param[in]  r  Raw mode: omit the container header and verification data
  * \param[in]  x  Compress data before encryption
- * \param[in]  f  Follow symlinks
- * \param[in]  v  Backwards compatibility version
- * \return        A new encryption instance
+ * \param[in]  f  Follow symbolic links while encrypting directories
+ * \param[in]  v  Container version to write
+ * \return        A crypto instance; check its status for initialization success
  *
- * Create a new encryption instance, which if the status is INIT, is
- * ready to be executed. Any other status is a failure. If the input and
- * output file names are NULL, stdin/stdout will be used instead.
+ * If the returned instance has STATUS_INIT, it is ready for execute().
+ * Otherwise its status describes the initialization failure. A NULL
+ * source or output uses standard input or output respectively.
  */
 extern crypto_s *encrypt_init(const char * const restrict i,
                               const char * const restrict o,

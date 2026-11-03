@@ -275,18 +275,9 @@ static void *process(void *ptr)
 		io_compression_init(c->source);
 
 	/*
-	 * The ever-expanding decrypt function!
-	 *
-	 * Scenarios:
-	 *  1. Original, 2011.08, single file, not split into blocks
-	 *  2. Version 2011.10, had data in blocks
-	 *  3. Most recent release, 2012.11, data could/might be compressed
-	 *  4. Next version: it might be a single file or stream, it might
-	 *     be a directory hierarchy, this is where it gets complicated
-	 *
-	 * NB Newer versions didn’t require the data be split into blocks;
-	 *    it was only to allow pipe to give us data where we didn’t know
-	 *    ahead of time the total size
+	 * Payloads may be a single file/stream or a directory hierarchy.
+	 * Block framing is used when the source size is not known in advance,
+	 * such as when reading from a pipe.
 	 */
 	io_encryption_checksum_init(c->source, c->hash);
 
