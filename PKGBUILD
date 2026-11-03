@@ -9,7 +9,7 @@ arch=('i686' 'x86_64' 'arm')
 license=('GPL3')
 depends=('libgcrypt' 'gtk3' 'curl' 'xz')
 makedepends=('pkgconfig')
-checkdepends=('cmocka')
+checkdepends=('cmocka' 'gcovr')
 install=encrypt.install
 
 # you shouldn't need to uncomment this as this PKGBUILD file lives in

@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: C coverage
 
 on:
   push:
@@ -9,28 +9,31 @@ on:
 env:
   CC: gcc
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
     container:
       image: gcc:16@sha256:07280eb2e744f1b7a2d8d4a3894c089ea07266c109758afc388a634bd098e4eb
-    permissions:
-      contents: read
     steps:
-    - uses: actions/checkout@v4
-    - name: dependencies
-      run: apt-get update && apt-get install -y build-essential git gcovr=7.2+really-1.1 libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl4-gnutls-dev libcmocka-dev
-    - name: submodules
-      run: git config --global --add safe.directory "$GITHUB_WORKSPACE" && git submodule update --init
-    - name: unit-tests-and-coverage
-      run: make coverage
-    - name: coverage-report
-      uses: actions/upload-artifact@v4
-      with:
-        name: c-coverage-report
-        path: coverage/
-    - name: self-test
-      run: cp etc/encryptrc ~/.encryptrc && ./encrypt --self-test
+      - uses: actions/checkout@v4
+      - name: dependencies
+        run: apt-get update && apt-get install -y build-essential git gcovr=7.2+really-1.1 libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl4-gnutls-dev libcmocka-dev
+      - name: submodules
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE" && git submodule update --init
+      - name: build
+        run: make
+      - name: unit-tests-and-coverage
+        run: make test
+      - name: coverage-report
+        uses: actions/upload-artifact@v4
+        with:
+          name: c-coverage-report
+          path: coverage/
+      - name: self-test
+        run: cp etc/encryptrc ~/.encryptrc && ./encrypt --self-test
   publish-pages:
     if: github.event_name == 'push' && github.ref == 'refs/heads/desktop'
     needs: build
@@ -43,17 +46,17 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-    - name: download-coverage
-      uses: actions/download-artifact@v4
-      with:
-        name: c-coverage-report
-        path: coverage
-    - name: configure-pages
-      uses: actions/configure-pages@v5
-    - name: upload-pages-artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: coverage
-    - name: deploy-pages
-      id: deployment
-      uses: actions/deploy-pages@v4
+      - name: download-coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: c-coverage-report
+          path: coverage
+      - name: configure-pages
+        uses: actions/configure-pages@v5
+      - name: upload-pages-artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: coverage
+      - name: deploy-pages
+        id: deployment
+        uses: actions/deploy-pages@v4

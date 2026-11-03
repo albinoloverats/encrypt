@@ -1,4 +1,4 @@
-.PHONY: crack clean distclean test coverage
+.PHONY: crack clean distclean test
 
 APP            = encrypt
 ALT            = decrypt
@@ -43,31 +43,30 @@ cli: symlink
 	 @${CC} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC} ${CLI_LIBS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${CLI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
-test: cli
+test:
+	 @${MAKE} clean
+	 @${MAKE} cli CFLAGS=--coverage
 ifneq ($(strip ${CMOCKA_XML_DIR}),)
 	 @mkdir -p "${CMOCKA_XML_DIR}"
-	 @CMOCKA_MESSAGE_OUTPUT=XML CMOCKA_XML_FILE="$(abspath ${CMOCKA_XML_DIR})/common.xml" ${MAKE} -C common test
+	 @CMOCKA_MESSAGE_OUTPUT=XML CMOCKA_XML_FILE="$(abspath ${CMOCKA_XML_DIR})/common.xml" ${MAKE} -C common test CFLAGS=--coverage CMOCKA_XML_DIR="$(abspath ${CMOCKA_XML_DIR})"
 else
-	 @${MAKE} -C common test
+	 @${MAKE} -C common test CFLAGS=--coverage
 endif
-	 @${CC} ${CLI_CFLAGS} ${CLI_CPPFLAGS} -I. ${CORE_SRC} test/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
+	 @${CC} ${CLI_CFLAGS} --coverage ${CLI_CPPFLAGS} -I. ${CORE_SRC} test/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
 ifneq ($(strip ${CMOCKA_XML_DIR}),)
 	 @mkdir -p "${CMOCKA_XML_DIR}"
-	 @CMOCKA_MESSAGE_OUTPUT=XML CMOCKA_XML_FILE="${CMOCKA_XML_DIR}/${IO_TEST}.xml" ./${IO_TEST}
+	 @CMOCKA_MESSAGE_OUTPUT=XML CMOCKA_XML_FILE="$(abspath ${CMOCKA_XML_DIR})/${IO_TEST}.xml" ./${IO_TEST}
 else
 	 @./${IO_TEST}
 endif
-	 @${CC} ${CLI_CFLAGS} ${CLI_CPPFLAGS} -I. ${CORE_SRC} test/test_crypt_flow.c ${TEST_LIBS} -o ${FLOW_TEST}
+	 @${CC} ${CLI_CFLAGS} --coverage ${CLI_CPPFLAGS} -I. ${CORE_SRC} test/test_crypt_flow.c ${TEST_LIBS} -o ${FLOW_TEST}
 ifneq ($(strip ${CMOCKA_XML_DIR}),)
-	 @CMOCKA_MESSAGE_OUTPUT=XML CMOCKA_XML_FILE="${CMOCKA_XML_DIR}/${FLOW_TEST}.xml" ./${FLOW_TEST}
+	 @CMOCKA_MESSAGE_OUTPUT=XML CMOCKA_XML_FILE="$(abspath ${CMOCKA_XML_DIR})/${FLOW_TEST}.xml" ./${FLOW_TEST}
 else
 	 @./${FLOW_TEST}
 endif
 	 @sh test/test_cli_compressed_eof.sh
 
-coverage:
-	 @${MAKE} clean
-	 @${MAKE} test CFLAGS=--coverage CMOCKA_XML_DIR="${CMOCKA_XML_DIR}"
 	 @mkdir -p coverage
 	 @gcovr --root . --gcov-executable "${GCOV}" --filter 'src/' --filter 'common/src/' --xml-pretty --output coverage/coverage.xml --html-details coverage/index.html --print-summary
 

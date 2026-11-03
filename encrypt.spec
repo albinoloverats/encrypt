@@ -7,8 +7,7 @@ URL: https://albinoloverats.net/projects/%{name}
 License: GPL
 BuildRoot: /var/tmp/%{name}
 Group: Applications/File
-Requires: libgcrypt, gtk3, libcurl, xz
-BuildRequires: cmocka-devel
+BuildRequires: gcovr, libcmocka-devel, libcurl-devel, libgcrypt-devel, gtk3-devel, pkgconf-pkg-config, xz-devel
 
 %description
 A simple, cross platform, file encryption application---suitable for any

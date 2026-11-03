@@ -3,13 +3,18 @@ image: gcc:16@sha256:07280eb2e744f1b7a2d8d4a3894c089ea07266c109758afc388a634bd09
 variables:
   CC: gcc
 
+stages:
+  - build
+  - deploy
+
 build:
   stage: build
   before_script:
     - apt-get update && apt-get install -y git gcovr=7.2+really-1.1 libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl4-gnutls-dev libcmocka-dev
     - git submodule update --init
   script:
-    - make coverage
+    - make
+    - make test
   coverage: '/lines: ([0-9]+\.[0-9]+)%/'
   artifacts:
     paths:
