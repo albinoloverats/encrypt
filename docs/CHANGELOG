@@ -30,7 +30,8 @@ encrypt - 202X.XX                                       XXth XXXXXX 202X
 
 ### Android
 
-* Request notification permissions correctly on Android 13 and later
+* Update Android 13+ storage-permission handling and restrict progress
+  broadcasts to the app
 * Centralise container header, metadata, compression, and verification
   handling for encryption and decryption
 * Handle short, partial, and truncated reads correctly in encrypted and

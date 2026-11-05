@@ -170,7 +170,7 @@ clean:
 	 @rm -fv *.gcda *.gcno
 	 @rm -fvr coverage
 	 @rm -fv gmon.out
-	 @if test -f common/Makefile; then ${MAKE} -C common clean; fi
+	 @${MAKE} -C common clean
 
 distclean: clean
 	 @rm -fv ${APP}.1a.gz
