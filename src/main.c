@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, multi-OS encryption utility
- * Copyright © 2005-2025, albinoloverats ~ Software Development
+ * Copyright © 2005-2026, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -100,14 +100,14 @@ int main(int argc, char **argv)
 #endif
 	error_init();
 #ifdef __DEBUG__
-	cli_fprintf(stderr, "\n" ANSI_COLOUR_RED "**** %s ****" ANSI_COLOUR_RESET "\n\n", _("DEBUG BUILD"));
+	cli_eprintf("\n" ANSI_COLOUR_RED "**** %s ****" ANSI_COLOUR_RESET "\n\n", _("DEBUG BUILD"));
 #endif
 #ifdef _WIN32
 	setbuf(stdout, NULL);
 	setbuf(stderr, NULL);
 	program_invocation_short_name = dir_get_name(argv[0]);
 #endif
-#ifndef __DEBUG
+#ifndef __DEBUG__
 	/*
 	 * start background thread to check for newer version of encrypt
 	 *
@@ -319,7 +319,7 @@ int main(int argc, char **argv)
 	#endif /* ! _WIN32 */
 			if (!gtk_builder_add_from_file(builder, glade_ui_file, &error))
 			{
-				cli_fprintf(stderr, "%s", error->message);
+				cli_eprintf("%s", error->message);
 				g_error_free(error);
 				error = NULL;
 				if (!gtk_builder_add_from_file(builder, GLADE_UI_FILE_BACKUP, &error))
@@ -435,7 +435,7 @@ int main(int argc, char **argv)
 
 		}
 		else
-			cli_fprintf(stderr, _("Could not create GUI - falling back to command line\n"));
+			cli_eprintf(_("Could not create GUI - falling back to command line\n"));
 	#ifndef _WIN32
 	}
 	#endif
@@ -504,7 +504,7 @@ int main(int argc, char **argv)
 	}
 
 	if (c->status != STATUS_SUCCESS)
-		cli_fprintf(stderr, ANSI_COLOUR_RED "%s" ANSI_COLOUR_RESET "\n", _(status(c)));
+		cli_eprintf(ANSI_COLOUR_RED "%s" ANSI_COLOUR_RESET "\n", _(status(c)));
 
 	result = c->status;
 	deinit(&c);
@@ -538,10 +538,10 @@ clean_up:
 	list_deinit(extra);
 
 	if (version_new_available)
-		cli_fprintf(stderr, _(NEW_VERSION_URL), version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : PROJECT_URL);
+		cli_eprintf(_(NEW_VERSION_URL), version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : PROJECT_URL);
 
 #ifdef __DEBUG__
-	cli_fprintf(stderr, "\n" ANSI_COLOUR_RED "**** %s ****" ANSI_COLOUR_RESET "\n\n", _("DEBUG BUILD"));
+	cli_eprintf("\n" ANSI_COLOUR_RED "**** %s ****" ANSI_COLOUR_RESET "\n\n", _("DEBUG BUILD"));
 #endif
 
 	return result;

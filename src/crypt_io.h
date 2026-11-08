@@ -1,6 +1,6 @@
 /*
  * encrypt ~ a simple, multi-OS encryption utility
- * Copyright © 2005-2025, albinoloverats ~ Software Development
+ * Copyright © 2005-2026, albinoloverats ~ Software Development
  * email: encrypt@albinoloverats.net
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 /*!
  * \file    crypt_io.h
  * \author  Ashley M Anderson
- * \date    2009-2025
+ * \date    2009-2026
  * \brief   IO functions for encrypt
  *
  * File and standard-stream handles with optional encryption, LZMA
