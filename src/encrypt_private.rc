@@ -1,4 +1,5 @@
 #include <windows.h> // include for version info constants
+#include "misc.h"
 
 A ICON "pixmaps/encrypt.ico"
 
@@ -8,8 +9,8 @@ A ICON "pixmaps/encrypt.ico"
 1 24 "etc/encrypt.exe.Manifest"
 
 1 VERSIONINFO
-FILEVERSION 2025,5,0,0
-PRODUCTVERSION 2025,5,0,0
+FILEVERSION 2027,0,0,0
+PRODUCTVERSION 2027,0,0,0
 FILETYPE VFT_APP
 {
   BLOCK "StringFileInfo"
@@ -17,14 +18,14 @@ FILETYPE VFT_APP
     BLOCK "080904E4"
     {
       VALUE "CompanyName", "albinoloverats ~ Software Development"
-      VALUE "FileVersion", "2025.05"
+      VALUE "FileVersion", ENCRYPT_VERSION
       VALUE "FileDescription", "encrypt is a simple, cross platform utility for securing your personal files"
       VALUE "InternalName", "encrypt"
       VALUE "LegalCopyright", "Copyright (c) 2004-2026, albinoloverats ~ Software Development"
       VALUE "LegalTrademarks", ""
       VALUE "OriginalFilename", "encrypt.exe"
       VALUE "ProductName", "encrypt"
-      VALUE "ProductVersion", "2025.05"
+      VALUE "ProductVersion", ENCRYPT_VERSION
     }
   }
   BLOCK "VarFileInfo"

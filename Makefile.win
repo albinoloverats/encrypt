@@ -2,8 +2,6 @@
 
 APP            = encrypt
 APP_SIG        = encrypt-signed
-VERSION        = 2025.05
-
 CC             = gcc
 WRES           = windres
 NSIS           = C:/Program\ Files\ \(x86\)/NSIS/makensis.exe
@@ -13,16 +11,20 @@ COMMON_SRC     = common/src/error.c common/src/mem.c common/src/ccrypt.c common/
 CLI_SRC        = ${COMMON_SRC} src/main.c src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
 GUI_SRC        = ${CLI_SRC} src/gui-gtk.c
 CORE_SRC       = ${COMMON_SRC} src/crypt.c src/encrypt.c src/decrypt.c src/crypt_io.c
-MISC           = common/misc.h
+MISC           = src/misc.h
 IO_TEST        = test-crypt-io.exe
 FLOW_TEST      = test-crypt-flow.exe
 RC             = src/encrypt_private.rc
 RES            = src/encrypt_private.res
 
+BUILD_OS       = Windows $(shell cmd.exe /c ver | tr -d '\r' | sed -e 's/^.*\[//' -e 's/\]$$//')
+VERSION        = $(shell sed -e 's/[[:space:]]*$//' VERSION)
+VERSION_SH     = scripts/version.sh
+
 GUI_CFLAGS     = ${CFLAGS} -Wall -Wextra -std=gnu99 `pkg-config --cflags libgcrypt` -pipe -O2 -mwindows -Wformat=0 `pkg-config --cflags gtk+-3.0 gmodule-2.0`
-GUI_CPPFLAGS   = ${CPPFLAGS} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DUSE_GCRYPT -DGIT_COMMIT=\"`git log | head -n1 | cut -f2 -d' '`\" -D__USE_MINGW_ANSI_STDIO -DBUILD_OS=\""`uname --operating-system --kernel-name --kernel-release`"\" -DBUILD_GUI
+GUI_CPPFLAGS   = ${CPPFLAGS} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DUSE_GCRYPT -D__USE_MINGW_ANSI_STDIO -DBUILD_GUI -Isrc
 TEST_CFLAGS    = ${CFLAGS} -Wall -Wextra -std=gnu99 `pkg-config --cflags libgcrypt cmocka` -pipe -O2
-TEST_CPPFLAGS  = ${CPPFLAGS} -Icommon -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DUSE_GCRYPT -DGIT_COMMIT=\"`git log | head -n1 | cut -f2 -d' '`\" -D__USE_MINGW_ANSI_STDIO -DBUILD_OS=\""`uname --operating-system --kernel-name --kernel-release`"\"
+TEST_CPPFLAGS  = ${CPPFLAGS} -Isrc -Icommon -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DUSE_GCRYPT -D__USE_MINGW_ANSI_STDIO
 
 DEBUG_CFLAGS   = -O0 -ggdb -pg -mconsole
 DEBUG_CPPFLAGS = -D__DEBUG__ -D__DEBUG_GUI__ -DMALLOC_CHECK_=1
@@ -46,17 +48,16 @@ winres:
 	-@echo -e "compiled Windows application metadata"
 
 gui: winres
-	 @echo "#define ALL_CFLAGS   ${GUI_CFLAGS}  " | tr "\"" "'" | sed 's/FLAGS   /FLAGS   "/' | sed 's/$$/"/' >  ${MISC}
-	 @echo "#define ALL_CPPFLAGS ${GUI_CPPFLAGS}" | tr "\"" "'" | sed 's/FLAGS /FLAGS "/'     | sed 's/$$/"/' >> ${MISC}
+	 @sh ${VERSION_SH} "$(strip ${GUI_CFLAGS})" "$(strip ${GUI_CPPFLAGS})" "$(BUILD_OS)"
 	 @${CC} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${GUI_SRC} ${RES} ${GUI_LIBS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${GUI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 test:
 	 @${MAKE} -C common test
-	 @echo "#define ALL_CFLAGS   ${TEST_CFLAGS}  " | tr "\"" "'" | sed 's/FLAGS   /FLAGS   "/' | sed 's/$$/"/' >  ${MISC}
-	 @echo "#define ALL_CPPFLAGS ${TEST_CPPFLAGS}" | tr "\"" "'" | sed 's/FLAGS /FLAGS "/'     | sed 's/$$/"/' >> ${MISC}
+	 @sh ${VERSION_SH} "$(strip ${TEST_CFLAGS})" "$(strip ${TEST_CPPFLAGS} -I.)" "$(BUILD_OS)"
 	 @${CC} ${TEST_CFLAGS} ${TEST_CPPFLAGS} -I. ${CORE_SRC} test/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
 	 @./${IO_TEST}
+	 @sh ${VERSION_SH} "$(strip ${TEST_CFLAGS})" "$(strip ${TEST_CPPFLAGS} -I.)" "$(BUILD_OS)"
 	 @${CC} ${TEST_CFLAGS} ${TEST_CPPFLAGS} -I. ${CORE_SRC} test/test_crypt_flow.c ${TEST_LIBS} -o ${FLOW_TEST}
 	 @./${FLOW_TEST}
 
@@ -66,8 +67,7 @@ sign: gui
 	-@mv -v ${APP_SIG} ${APP}
 
 debug-gui: winres
-	 @echo "#define ALL_CFLAGS   ${GUI_CFLAGS}   ${DEBUG_CFLAGS}  " | tr "\"" "'" | sed 's/FLAGS   /FLAGS   "/' | sed 's/$$/"/' >  ${MISC}
-	 @echo "#define ALL_CPPFLAGS ${GUI_CPPFLAGS} ${DEBUG_CPPFLAGS}" | tr "\"" "'" | sed 's/FLAGS /FLAGS "/'     | sed 's/$$/"/' >> ${MISC}
+	 @sh ${VERSION_SH} "$(strip ${GUI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${GUI_CPPFLAGS} ${DEBUG_CPPFLAGS})" "$(BUILD_OS)"
 	 @${CC} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${GUI_SRC} ${RES} ${DEBUG_CFLAGS} ${DEBUG_CPPFLAGS} ${GUI_LIBS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${GUI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 

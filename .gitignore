@@ -28,3 +28,7 @@ build
 /test-reports/
 *.gcda
 *.gcno
+
+# generated build metadata
+/src/misc.h
+/version.nsh
