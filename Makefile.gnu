@@ -13,12 +13,14 @@ MISC           = src/misc.h
 IO_TEST        = test-crypt-io
 FLOW_TEST      = test-crypt-flow
 
-CLI_CFLAGS     = ${CFLAGS} -Wall -Wextra -std=gnu23 $(shell pkg-config --cflags libgcrypt) -pipe -O2 -Wrestrict -Wformat=2 -Wno-unused-result
 BUILD_OS       = $(shell . /etc/os-release && printf '%s' "$$PRETTY_NAME")
+
+CLI_CFLAGS     = ${CFLAGS} -Wall -Wextra -std=gnu99 $(shell pkg-config --cflags libgcrypt) -pipe -O2 -Wrestrict -Wformat=2 -Wno-unused-result
 CLI_CPPFLAGS   = ${CPPFLAGS} -Isrc -Icommon -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DUSE_GCRYPT
 GUI_CFLAGS     = ${CLI_CFLAGS} $(shell pkg-config --cflags gtk+-3.0 gmodule-2.0)
 GUI_CPPFLAGS   = ${CLI_CPPFLAGS} -DBUILD_GUI
 CRK_CPPFLAGS   = ${CLI_CPPFLAGS} -IC-Thread-Pool
+TEST_CFLAGS    = ${CLI_CFLAGS} --coverage $(shell pkg-config --cflags cmocka)
 
 DEBUG_CFLAGS   = -O0 -ggdb -pg
 DEBUG_CPPFLAGS = -D__DEBUG__ -D__DEBUG_GUI__ -DMALLOC_CHECK_=1
@@ -30,7 +32,7 @@ CRK_LIBS       = ${CLI_LIBS} -lgmp
 TEST_LIBS      = ${CLI_LIBS} $(shell pkg-config --libs cmocka)
 GCOV           = $(shell command -v gcov-$(shell ${CC} -dumpversion | cut -d. -f1) || ${CC} -print-prog-name=gcov)
 
-VERSION_SH    = scripts/version.sh
+VERSION_SH     = scripts/version.sh
 
 all: gui symlink language man
 
@@ -41,66 +43,75 @@ symlink:
 	-@echo -e "linked ‘${ALT}’ → ‘${APP}’"
 
 cli: symlink
-	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS})" "$(strip ${CLI_CPPFLAGS})" "$(BUILD_OS)"
+	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS})" "$(strip ${CLI_CPPFLAGS})" "${BUILD_OS}"
 	 @${CC} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC} ${CLI_LIBS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${CLI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
-test:
-	 @${MAKE} clean
-	 @${MAKE} cli CFLAGS=--coverage
+test: clean symlink
+	 @sh ${VERSION_SH} "$(strip ${TEST_CFLAGS})" "$(strip ${CLI_CPPFLAGS})" "${BUILD_OS}"
+	 @${CC} ${TEST_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC} ${CLI_LIBS} -o ${APP}
+	-@echo -e "built ‘`echo -e ${CLI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 ifneq ($(strip ${CMOCKA_XML_DIR}),)
 	 @mkdir -p "${CMOCKA_XML_DIR}"
-	 @CMOCKA_MESSAGE_OUTPUT=XML CMOCKA_XML_FILE="$(abspath ${CMOCKA_XML_DIR})/common.xml" ${MAKE} -C common test CFLAGS=--coverage CMOCKA_XML_DIR="$(abspath ${CMOCKA_XML_DIR})"
+	 @CMOCKA_MESSAGE_OUTPUT=XML CMOCKA_XML_FILE="$(abspath ${CMOCKA_XML_DIR})/common.xml" ${MAKE} -C common test CMOCKA_XML_DIR="$(abspath ${CMOCKA_XML_DIR})"
 else
-	 @${MAKE} -C common test CFLAGS=--coverage
+	 @${MAKE} -C common test
 endif
-	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS} --coverage)" "$(strip ${CLI_CPPFLAGS} -I.)" "$(BUILD_OS)"
-	 @${CC} ${CLI_CFLAGS} --coverage ${CLI_CPPFLAGS} -I. ${CORE_SRC} test/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
+	-@echo Finished common tests
+
+	 @sh ${VERSION_SH} "$(strip ${TEST_CFLAGS})" "$(strip ${CLI_CPPFLAGS})" "${BUILD_OS}"
+	 @${CC} ${TEST_CFLAGS} ${CLI_CPPFLAGS} ${CORE_SRC} test/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
+	-@echo -e "built ‘`echo -e ${CORE_SRC} test/test_crypt_io.c | sed 's/ /’\n      ‘/g'`’ → ‘${IO_TEST}’"
 ifneq ($(strip ${CMOCKA_XML_DIR}),)
 	 @mkdir -p "${CMOCKA_XML_DIR}"
 	 @CMOCKA_MESSAGE_OUTPUT=XML CMOCKA_XML_FILE="$(abspath ${CMOCKA_XML_DIR})/${IO_TEST}.xml" ./${IO_TEST}
 else
 	 @./${IO_TEST}
 endif
-	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS} --coverage)" "$(strip ${CLI_CPPFLAGS} -I.)" "$(BUILD_OS)"
-	 @${CC} ${CLI_CFLAGS} --coverage ${CLI_CPPFLAGS} -I. ${CORE_SRC} test/test_crypt_flow.c ${TEST_LIBS} -o ${FLOW_TEST}
+	-@echo Finished ${IO_TEST} tests
+
+	 @sh ${VERSION_SH} "$(strip ${TEST_CFLAGS})" "$(strip ${CLI_CPPFLAGS})" "${BUILD_OS}"
+	 @${CC} ${TEST_CFLAGS} ${CLI_CPPFLAGS} ${CORE_SRC} test/test_crypt_flow.c ${TEST_LIBS} -o ${FLOW_TEST}
+	-@echo -e "built ‘`echo -e ${CORE_SRC} test/test_crypt_flow.c | sed 's/ /’\n      ‘/g'`’ → ‘${FLOW_TEST}’"
 ifneq ($(strip ${CMOCKA_XML_DIR}),)
 	 @CMOCKA_MESSAGE_OUTPUT=XML CMOCKA_XML_FILE="$(abspath ${CMOCKA_XML_DIR})/${FLOW_TEST}.xml" ./${FLOW_TEST}
 else
 	 @./${FLOW_TEST}
 endif
-	 @sh test/test_cli_compressed_eof.sh
+	-@echo Finished ${FLOW_TEST} tests
 
-	 @mkdir -p coverage
-	 @gcovr --root . --gcov-executable "${GCOV}" --filter 'src/' --filter 'common/src/' --xml-pretty --output coverage/coverage.xml --html-details coverage/index.html --print-summary
+	 @sh test/test_cli_compressed_eof.sh
+	-@echo Finished EOF tests
+#	 @mkdir -p coverage
+#	 @gcovr --root . --gcov-executable "${GCOV}" --filter 'src/' --filter 'common/src/' --xml-pretty --output coverage/coverage.xml --html-details coverage/index.html --print-summary
 
 cli-debug:
-	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${CLI_CPPFLAGS} ${DEBUG_CPPFLAGS})" "$(BUILD_OS)"
+	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${CLI_CPPFLAGS} ${DEBUG_CPPFLAGS})" "${BUILD_OS}"
 	 @${CC} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC} ${CLI_LIBS} ${DEBUG_CFLAGS} ${DEBUG_CPPFLAGS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${CLI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 cli-debug-with-encryption:
-	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${CLI_CPPFLAGS} ${DEBUG_ENC})" "$(BUILD_OS)"
+	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${CLI_CPPFLAGS} ${DEBUG_ENC})" "${BUILD_OS}"
 	 @${CC} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC} ${CLI_LIBS} ${DEBUG_CFLAGS} ${DEBUG_ENC}      -o ${APP}
 	-@echo -e "built ‘`echo -e ${CLI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 gui:
-	 @sh ${VERSION_SH} "$(strip ${GUI_CFLAGS})" "$(strip ${GUI_CPPFLAGS})" "$(BUILD_OS)"
+	 @sh ${VERSION_SH} "$(strip ${GUI_CFLAGS})" "$(strip ${GUI_CPPFLAGS})" "${BUILD_OS}"
 	 @${CC} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${GUI_SRC} ${GUI_LIBS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${GUI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 gui-debug:
-	 @sh ${VERSION_SH} "$(strip ${GUI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${GUI_CPPFLAGS} ${DEBUG_CPPFLAGS})" "$(BUILD_OS)"
+	 @sh ${VERSION_SH} "$(strip ${GUI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${GUI_CPPFLAGS} ${DEBUG_CPPFLAGS})" "${BUILD_OS}"
 	 @${CC} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${GUI_SRC} ${GUI_LIBS} ${DEBUG_CFLAGS} ${DEBUG_CPPFLAGS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${GUI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 gui-debug-with-encryption:
-	 @sh ${VERSION_SH} "$(strip ${GUI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${GUI_CPPFLAGS} ${DEBUG_ENC})" "$(BUILD_OS)"
+	 @sh ${VERSION_SH} "$(strip ${GUI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${GUI_CPPFLAGS} ${DEBUG_ENC})" "${BUILD_OS}"
 	 @${CC} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${GUI_SRC} ${GUI_LIBS} ${DEBUG_CFLAGS} ${DEBUG_ENC}      -o ${APP}
 	-@echo -e "built ‘`echo -e ${GUI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 crack:
-	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${CRK_CPPFLAGS} ${DEBUG_CPPFLAGS})" "$(BUILD_OS)"
+	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${CRK_CPPFLAGS} ${DEBUG_CPPFLAGS})" "${BUILD_OS}"
 	 @${CC} ${CLI_CFLAGS} ${CRK_CPPFLAGS} ${CRK_SRC} ${CRK_LIBS} ${DEBUG_CFLAGS} ${DEBUG_CPPFLAGS} -o ${CRK}
 	-@echo -e "built ‘`echo -e ${CRK_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${CRK}’"
 

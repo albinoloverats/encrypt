@@ -41,9 +41,14 @@
 #include <setjmp.h>
 #include <cmocka.h>
 
-#include "common/src/ecc.h"
+/* common includes */
+
+#include "src/ecc.h"
 #include "src/ccrypt.h"
-#include "src/crypt_io.h"
+
+/* project includes */
+
+#include "crypt_io.h"
 
 #define STREAM_VALID 0
 #define STREAM_TRUNCATED 1

@@ -43,12 +43,16 @@
 #include <setjmp.h>
 #include <cmocka.h>
 
-#include "src/common.h"
+/* common includes */
 
+#include "src/common.h"
 #include "src/ccrypt.h"
-#include "src/crypt.h"
-#include "src/decrypt.h"
-#include "src/encrypt.h"
+
+/* project includes */
+
+#include "crypt.h"
+#include "decrypt.h"
+#include "encrypt.h"
 
 #define TEST_DATA_LENGTH (32 * 1024 + 37)
 #define TEST_PATH_COUNT 8

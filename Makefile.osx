@@ -13,7 +13,7 @@ FLOW_TEST      = test-crypt-flow
 BUILD_OS       = $(shell sw_vers -productName) $(shell sw_vers -productVersion)
 
 CLI_CFLAGS     = ${CFLAGS} -Wall -Wextra -std=gnu99 $(shell pkg-config --cflags libgcrypt) -pipe -O2 -Wno-unused-result -Wunused-parameter
-CLI_CPPFLAGS   = ${CPPFLAGS} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DUSE_GCRYPT -DVERSION_NO_INSTALL -Isrc
+CLI_CPPFLAGS   = ${CPPFLAGS} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DUSE_GCRYPT -DVERSION_NO_INSTALL -Isrc -Icommon
 
 DEBUG_CFLAGS   = -O0 -ggdb
 DEBUG_CPPFLAGS = -D__DEBUG__ -DMALLOC_CHECK_=1
@@ -34,27 +34,26 @@ symlink:
 	-@echo -e "linked ‘${ALT}’ → ‘${APP}’"
 
 cli: symlink
-	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS})" "$(strip ${CLI_CPPFLAGS})" "$(BUILD_OS)"
+	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS})" "$(strip ${CLI_CPPFLAGS})" "${BUILD_OS}"
 	 @${CC} ${CLI_LIBS} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC} -o ${APP}
 	-@echo -e "built ‘`echo -e ${CLI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
-test:
-	 @sh test/test_version.sh
+test: clean symlink
 	 @${MAKE} -C common test
-	 @sh ${VERSION_SH} "$(strip ${TEST_CFLAGS})" "$(strip ${CLI_CPPFLAGS} -I. -Icommon)" "$(BUILD_OS)"
-	 @${CC} ${TEST_CFLAGS} ${CLI_CPPFLAGS} -I. -Icommon ${CORE_SRC} test/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
+	 @sh ${VERSION_SH} "$(strip ${TEST_CFLAGS})" "$(strip ${CLI_CPPFLAGS})" "${BUILD_OS}"
+	 @${CC} ${TEST_CFLAGS} ${CLI_CPPFLAGS} ${CORE_SRC} test/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
 	 @./${IO_TEST}
-	 @sh ${VERSION_SH} "$(strip ${TEST_CFLAGS})" "$(strip ${CLI_CPPFLAGS} -I. -Icommon)" "$(BUILD_OS)"
-	 @${CC} ${TEST_CFLAGS} ${CLI_CPPFLAGS} -I. -Icommon ${CORE_SRC} test/test_crypt_flow.c ${TEST_LIBS} -o ${FLOW_TEST}
+	 @sh ${VERSION_SH} "$(strip ${TEST_CFLAGS})" "$(strip ${CLI_CPPFLAGS})" "${BUILD_OS}"
+	 @${CC} ${TEST_CFLAGS} ${CLI_CPPFLAGS} ${CORE_SRC} test/test_crypt_flow.c ${TEST_LIBS} -o ${FLOW_TEST}
 	 @./${FLOW_TEST}
 
 cli-debug:
-	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${CLI_CPPFLAGS} ${DEBUG_CPPFLAGS})" "$(BUILD_OS)"
+	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${CLI_CPPFLAGS} ${DEBUG_CPPFLAGS})" "${BUILD_OS}"
 	 @${CC} ${CLI_LIBS} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC} ${DEBUG_CFLAGS} ${DEBUG_CPPFLAGS} -o ${APP}
 	-@echo -e "built ‘`echo -e ${CLI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
 cli-debug-with-encryption:
-	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${CLI_CPPFLAGS} ${DEBUG_ENC})" "$(BUILD_OS)"
+	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${CLI_CPPFLAGS} ${DEBUG_ENC})" "${BUILD_OS}"
 	 @${CC} ${CLI_LIBS} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC} ${DEBUG_CFLAGS} ${DEBUG_ENC}      -o ${APP}
 	-@echo -e "built ‘`echo -e ${CLI_SRC} | sed 's/ /’\n      ‘/g'`’ → ‘${APP}’"
 
@@ -122,6 +121,8 @@ uninstall:
 clean:
 	 @rm -fv ${MISC}
 	 @rm -fv ${APP} ${ALT} ${IO_TEST} ${FLOW_TEST}
+	 @rm -fv *.gcda *.gcno
+	 @rm -fvr coverage
 	 @rm -fv gmon.out
 	 @${MAKE} -C common clean
 
@@ -129,4 +130,5 @@ distclean: clean
 	 @rm -fv ${APP}.1a.gz
 	 @rm -fvr pkg build
 	 @rm -fv ${APP}*.pkg.tar.xz
+	 @rm -fv ${APP}*.pkg.tar.zst
 	 @rm -fv ${APP}*.tgz

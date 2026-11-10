@@ -18,7 +18,7 @@ FLOW_TEST      = test-crypt-flow
 BUILD_OS       = $(shell uname -s) $(shell uname -r)
 
 CLI_CFLAGS     = ${CFLAGS} -m64 -Wall -std=gnu99 `pkg-config --cflags libgcrypt` -pipe -O2 -Wformat=2
-CLI_CPPFLAGS   = ${CPPFLAGS} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DUSE_GCRYPT -Isrc
+CLI_CPPFLAGS   = ${CPPFLAGS} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -DGCRYPT_NO_DEPRECATED -DUSE_GCRYPT -Isrc -Icommon
 GUI_CFLAGS     = ${CLI_CFLAGS} -pthread `PKG_CONFIG_PATH=/usr/lib/64/pkgconfig pkg-config --cflags gtk+-3.0 gmodule-2.0`
 GUI_CPPFLAGS   = ${CLI_CPPFLAGS} -DBUILD_GUI
 
@@ -42,40 +42,40 @@ symlink:
 	-@echo -e "linked ‘${ALT}’ → ‘${APP}’"
 
 cli: symlink
-	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS})" "$(strip ${CLI_CPPFLAGS})" "$(BUILD_OS)"
+	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS})" "$(strip ${CLI_CPPFLAGS})" "${BUILD_OS}"
 	 @${CC} ${CLI_LIBS} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC}                                   -o ${APP}
 	-@echo -e "built ${CLI_SRC} → ${APP}"
 
 test:
-	 @sh ${VERSION_SH} "$(strip ${TEST_CFLAGS})" "$(strip ${CLI_CPPFLAGS} -I. -Icommon)" "$(BUILD_OS)"
-	 @${CC} ${TEST_CFLAGS} ${CLI_CPPFLAGS} -I. -Icommon ${CORE_SRC} test/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
+	 @sh ${VERSION_SH} "$(strip ${TEST_CFLAGS})" "$(strip ${CLI_CPPFLAGS})" "${BUILD_OS}"
+	 @${CC} ${TEST_CFLAGS} ${CLI_CPPFLAGS} ${CORE_SRC} test/test_crypt_io.c ${TEST_LIBS} -o ${IO_TEST}
 	 @./${IO_TEST}
-	 @sh ${VERSION_SH} "$(strip ${TEST_CFLAGS})" "$(strip ${CLI_CPPFLAGS} -I. -Icommon)" "$(BUILD_OS)"
-	 @${CC} ${TEST_CFLAGS} ${CLI_CPPFLAGS} -I. -Icommon ${CORE_SRC} test/test_crypt_flow.c ${TEST_LIBS} -o ${FLOW_TEST}
+	 @sh ${VERSION_SH} "$(strip ${TEST_CFLAGS})" "$(strip ${CLI_CPPFLAGS})" "${BUILD_OS}"
+	 @${CC} ${TEST_CFLAGS} ${CLI_CPPFLAGS} ${CORE_SRC} test/test_crypt_flow.c ${TEST_LIBS} -o ${FLOW_TEST}
 	 @./${FLOW_TEST}
 
 cli-debug:
-	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${CLI_CPPFLAGS} ${DEBUG_CPPFLAGS})" "$(BUILD_OS)"
+	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${CLI_CPPFLAGS} ${DEBUG_CPPFLAGS})" "${BUILD_OS}"
 	 @${CC} ${CLI_LIBS} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC} ${DEBUG_CFLAGS} ${DEBUG_CPPFLAGS} -o ${APP}
 	-@echo -e "built ${CLI_SRC} → ${APP}"
 
 cli-debug-with-encryption:
-	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${CLI_CPPFLAGS} ${DEBUG_ENC})" "$(BUILD_OS)"
+	 @sh ${VERSION_SH} "$(strip ${CLI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${CLI_CPPFLAGS} ${DEBUG_ENC})" "${BUILD_OS}"
 	 @${CC} ${CLI_LIBS} ${CLI_CFLAGS} ${CLI_CPPFLAGS} ${CLI_SRC} ${DEBUG_CFLAGS} ${DEBUG_ENC}      -o ${APP}
 	-@echo -e "built ${CLI_SRC} → ${APP}"
 
 gui:
-	 @sh ${VERSION_SH} "$(strip ${GUI_CFLAGS})" "$(strip ${GUI_CPPFLAGS})" "$(BUILD_OS)"
+	 @sh ${VERSION_SH} "$(strip ${GUI_CFLAGS})" "$(strip ${GUI_CPPFLAGS})" "${BUILD_OS}"
 	 @${CC} ${GUI_LIBS} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${GUI_SRC}             -o ${APP}
 	-@echo -e "built ${GUI_SRC} → ${APP}"
 
 gui-debug:
-	 @sh ${VERSION_SH} "$(strip ${GUI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${GUI_CPPFLAGS} ${DEBUG_CPPFLAGS})" "$(BUILD_OS)"
+	 @sh ${VERSION_SH} "$(strip ${GUI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${GUI_CPPFLAGS} ${DEBUG_CPPFLAGS})" "${BUILD_OS}"
 	 @${CC} ${GUI_LIBS} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${GUI_SRC} ${DEBUG_CFLAGS} ${DEBUG_CPPFLAGS} -o ${APP}
 	-@echo -e "built ${GUI_SRC} → ${APP}"
 
 gui-debug-with-encryption:
-	 @sh ${VERSION_SH} "$(strip ${GUI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${GUI_CPPFLAGS} ${DEBUG_ENC})" "$(BUILD_OS)"
+	 @sh ${VERSION_SH} "$(strip ${GUI_CFLAGS} ${DEBUG_CFLAGS})" "$(strip ${GUI_CPPFLAGS} ${DEBUG_ENC})" "${BUILD_OS}"
 	 @${CC} ${GUI_LIBS} ${GUI_CFLAGS} ${GUI_CPPFLAGS} ${GUI_SRC} ${DEBUG_CFLAGS} ${DEBUG_ENC}      -o ${APP}
 	-@echo -e "built ${GUI_SRC} → ${APP}"
 
