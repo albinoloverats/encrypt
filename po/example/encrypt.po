@@ -1,9 +1,9 @@
-#: src/encrypt.c:223
+#: src/encrypt.c:242
 #| Compatibility with version %s does not allow encrypting directories
 msgid "Compatibility with version %s does not allow encrypting directories"
 msgstr ""
 
-#: src/encrypt.c:258
+#: src/encrypt.c:277
 #| We’ve reached an unreachable location in the code @ %s:%d:%s
 msgid "We’ve reached an unreachable location in the code @ %s:%d:%s"
 msgstr ""

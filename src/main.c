@@ -538,7 +538,7 @@ clean_up:
 	list_deinit(extra);
 
 	if (version_new_available)
-		cli_eprintf(_(NEW_VERSION_URL), version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : PROJECT_URL);
+		cli_eprintf(NEW_VERSION_URL, version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : PROJECT_URL);
 
 #ifdef __DEBUG__
 	cli_eprintf("\n" ANSI_COLOUR_RED "**** %s ****" ANSI_COLOUR_RESET "\n\n", _("DEBUG BUILD"));

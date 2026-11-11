@@ -1,0 +1,4 @@
+#: ./src/gui-gtk.c:694
+#| Failed: Read/Write error!
+msgid "Failed: Read/Write error!"
+msgstr ""

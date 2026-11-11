@@ -1,4 +1,0 @@
-#: src/common/ccrypt.c:93
-#| libgcrypt is too old (need %s, have %s)
-msgid "libgcrypt is too old (need %s, have %s)"
-msgstr ""
