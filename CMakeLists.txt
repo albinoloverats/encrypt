@@ -109,6 +109,7 @@ target_compile_options(encrypt PRIVATE -Wall -Wextra -Wformat=2 -Wno-unused-resu
 if(ENCRYPT_BUILD_GUI)
     target_sources(encrypt PRIVATE src/gui-gtk.c)
     target_compile_definitions(encrypt_core PUBLIC BUILD_GUI)
+    target_link_libraries(encrypt_core PUBLIC PkgConfig::GTK3)
     target_compile_definitions(encrypt PRIVATE BUILD_GUI)
     target_link_libraries(encrypt PRIVATE PkgConfig::GTK3)
 endif()
