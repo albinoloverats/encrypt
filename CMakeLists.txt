@@ -197,6 +197,10 @@ if(BUILD_GUI)
 	target_link_libraries(encrypt PRIVATE PkgConfig::GTK3)
 endif()
 
+if(WIN32)
+	target_link_libraries(encrypt_core PUBLIC ws2_32)
+endif()
+
 # Retain the traditional decrypt invocation name on Unix-like systems.
 add_custom_command(TARGET encrypt POST_BUILD
 	COMMAND "${CMAKE_COMMAND}" -E create_symlink
@@ -263,6 +267,9 @@ if(BUILD_TESTS)
 		PkgConfig::CMOCKA PkgConfig::LIBGCRYPT PkgConfig::LIBCURL
 		PkgConfig::LIBLZMA Threads::Threads
 	)
+	if(WIN32)
+		target_link_libraries(test_crypt_io PUBLIC ws2_32)
+	endif()
 	add_test(NAME crypt-io COMMAND test_crypt_io)
 
 	add_executable(test_crypt_flow ${CORE_SOURCES} test/test_crypt_flow.c)
@@ -272,6 +279,9 @@ if(BUILD_TESTS)
 		PkgConfig::CMOCKA PkgConfig::LIBGCRYPT PkgConfig::LIBCURL
 		PkgConfig::LIBLZMA Threads::Threads
 	)
+	if(WIN32)
+		target_link_libraries(test_crypt_flow PUBLIC ws2_32)
+	endif()
 	add_test(NAME crypt-flow COMMAND test_crypt_flow)
 
 	# Building the application runs the unit suite first. The check target is

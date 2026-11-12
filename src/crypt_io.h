@@ -18,7 +18,7 @@
  *
  */
 
-#ifndef _ENCRYPT_CRYPTIO_H_
+#if !defined _ENCRYPT_CRYPTIO_H_
 #define _ENCRYPT_CRYPTIO_H_
 
 /*!

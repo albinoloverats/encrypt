@@ -35,6 +35,11 @@
 #include <gcrypt.h>
 #include <lzma.h>
 
+#ifdef _WIN32
+	#include <io.h>
+	#include <windows.h>
+#endif
+
 /* submodule includes */
 
 #include "src/common.h"
@@ -130,7 +135,7 @@ static int sync_file(int64_t);
 
 extern IO_HANDLE io_open(const char *n, int f, mode_t m)
 {
-#ifndef _WIN32
+#if !defined _WIN32
 	int64_t fd = open(n, f, m);
 #else
 	int64_t fd = open(n, f);
@@ -653,6 +658,13 @@ extern off_t io_seek(IO_HANDLE ptr, off_t o, int w)
 		return errno = EBADF , -1;
 	if (io_ptr->error)
 		return errno = io_ptr->error, -1;
+
+#if defined _WIN32
+	intptr_t handle = _get_osfhandle((int)io_ptr->fd);
+	if (handle == -1 || GetFileType((HANDLE)handle) == FILE_TYPE_PIPE)
+		return errno = ESPIPE, io_fail(io_ptr, ESPIPE), -1;
+#endif
+
 	off_t position = lseek((int)io_ptr->fd, o, w);
 	if (position < 0)
 		io_fail(io_ptr, errno);

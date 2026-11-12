@@ -35,7 +35,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#ifndef _WIN32
+#if !defined _WIN32
 	#include <netinet/in.h>
 #endif
 
@@ -360,7 +360,7 @@ static void *process(void *ptr)
 	if (c->status == STATUS_RUNNING)
 		c->status = STATUS_SUCCESS;
 
-#ifndef __DEBUG__
+#if !defined __DEBUG__
 	pthread_exit((void *)c->status);
 #endif
 
@@ -674,7 +674,7 @@ static bool validate_symlink_target(const uint8_t *target, uint64_t length, cons
 	return true;
 }
 
-#ifndef _WIN32
+#if !defined _WIN32
 static int open_extract_parent(int root, char *path, bool create, char **leaf)
 {
 	int parent = dup(root);
@@ -908,7 +908,7 @@ static bool windows_path_has_no_reparse_component(const char *root, const char *
 
 static void decrypt_directory(crypto_s *c, const char *dir)
 {
-#ifndef _WIN32
+#if !defined _WIN32
 	int root = open(dir, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
 	if (root < 0)
 	{
@@ -954,7 +954,7 @@ static void decrypt_directory(crypto_s *c, const char *dir)
 			break;
 		}
 		char *fullpath = NULL;
-#ifdef _WIN32
+#if defined _WIN32
 		fullpath = join_extract_path(dir, path);
 		if (!windows_path_has_no_reparse_component(dir, path))
 			c->status = STATUS_FAILED_OUTPUT_MISMATCH;
@@ -970,7 +970,7 @@ static void decrypt_directory(crypto_s *c, const char *dir)
 		switch (tp)
 		{
 			case FILE_DIRECTORY:
-#ifndef _WIN32
+#if !defined _WIN32
 				if (!ensure_extract_directory(root, path))
 					c->status = STATUS_FAILED_OUTPUT_MISMATCH;
 #else
@@ -1002,7 +1002,7 @@ static void decrypt_directory(crypto_s *c, const char *dir)
 						c->status = STATUS_FAILED_OUTPUT_MISMATCH;
 						break;
 					}
-#ifndef _WIN32
+#if !defined _WIN32
 					if (!symlink_target_uses_no_existing_links(root, path, link_data))
 						c->status = STATUS_FAILED_OUTPUT_MISMATCH;
 					else
@@ -1028,7 +1028,7 @@ static void decrypt_directory(crypto_s *c, const char *dir)
 						if (!found)
 							c->status = STATUS_FAILED_OUTPUT_MISMATCH;
 					}
-#ifndef _WIN32
+#if !defined _WIN32
 					if (link_path && c->status == STATUS_RUNNING && !create_extract_hardlink(root, link_path, path))
 						c->status = STATUS_FAILED_OUTPUT_MISMATCH;
 #else
@@ -1059,7 +1059,7 @@ static void decrypt_directory(crypto_s *c, const char *dir)
 					break;
 				}
 				c->current.size = ntohll(c->current.size);
-#ifndef _WIN32
+#if !defined _WIN32
 				{
 					int fd = open_extract_file(root, path);
 					if (fd < 0)
@@ -1116,7 +1116,7 @@ static void decrypt_directory(crypto_s *c, const char *dir)
 		if (fullpath)
 			gcry_free(fullpath);
 	}
-#ifndef _WIN32
+#if !defined _WIN32
 	if (c->status == STATUS_RUNNING)
 	{
 		for (size_t i = 0; i < symlink_count; i++)
