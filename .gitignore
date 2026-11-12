@@ -14,21 +14,16 @@ configure-stamp
 *.crt
 *.key
 *.spc
+build
+coverage/
+test-reports/
+*.gcda
+*.gcno
+version.nsh
 # common files we don’t use
-src/common/rand.c
-src/common/rand.h
 src/common/map.c
 src/common/map.h
 # android ignores
 .gradle
 .idea
 local.properties
-build
-/coverage/
-/test-reports/
-*.gcda
-*.gcno
-
-# generated build metadata
-/src/misc.h
-/version.nsh

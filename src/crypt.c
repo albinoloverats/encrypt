@@ -34,6 +34,10 @@
 
 #include <sys/stat.h>
 
+#ifndef _WIN32
+	#include <netinet/in.h>
+#endif
+
 #include <gcrypt.h>
 
 /* submodule includes */

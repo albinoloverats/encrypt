@@ -30,12 +30,13 @@
 #include <unistd.h>
 
 #ifdef _WIN32
-#include <io.h>
-#include <windows.h>
-#define TEST_PATH_LENGTH MAX_PATH
+	#include <io.h>
+	#include <windows.h>
+	#define TEST_PATH_LENGTH MAX_PATH
 #else
-#include <limits.h>
-#define TEST_PATH_LENGTH PATH_MAX
+	#include <netinet/in.h>
+	#include <limits.h>
+	#define TEST_PATH_LENGTH PATH_MAX
 #endif
 
 #include <stdarg.h>

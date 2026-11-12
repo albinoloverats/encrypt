@@ -157,17 +157,17 @@ if(BUILD_TESTS)
 endif()
 
 set(COMMON_SOURCES
-	common/src/error.c
-	common/src/mem.c
 	common/src/ccrypt.c
-	common/src/list.c
-	common/src/tlv.c
-	common/src/version.c
-	common/src/config.c
 	common/src/cli.c
+	common/src/config.c
 	common/src/dir.c
 	common/src/ecc.c
+	common/src/error.c
+	common/src/list.c
+	common/src/mem.c
 	common/src/non-gnu.c
+	common/src/tlv.c
+	common/src/version.c
 )
 
 set(CORE_SOURCES
@@ -206,26 +206,29 @@ add_custom_command(TARGET encrypt POST_BUILD
 )
 
 if(BUILD_TESTS)
-	# Tests for the shared common submodule. Keep its source list aligned with
-	# common/Makefile's UNIT_SRC; the test files themselves are discovered so
-	# adding a test there does not require editing this file.
-	file(GLOB COMMON_UNIT_TEST_SOURCES CONFIGURE_DEPENDS
-		"${CMAKE_CURRENT_SOURCE_DIR}/common/test/test_*.c"
+	# Tests for the shared common submodule. This includes tests for
+	# unused source files.
+	set(COMMON_UNIT_TEST_SOURCES
+		common/test/test_main.c
+		common/test/test_support.c
+		common/src/map.c
+		common/test/test_ccrypt.c
+		common/test/test_cli.c
+		common/test/test_config.c
+		common/test/test_dir.c
+		common/test/test_ecc.c
+		common/test/test_error.c
+		common/test/test_list.c
+		common/test/test_map.c
+		common/test/test_mem.c
+		common/test/test_tlv.c
+		common/test/test_version.c
+
 	)
 	if(COMMON_UNIT_TEST_SOURCES)
 		add_executable(common_unit_tests
 			${COMMON_UNIT_TEST_SOURCES}
-			common/src/error.c
-			common/src/mem.c
-			common/src/list.c
-			common/src/tlv.c
-			common/src/map.c
-			common/src/ecc.c
-			common/src/dir.c
-			common/src/cli.c
-			common/src/config.c
-			common/src/ccrypt.c
-			common/src/version.c
+			${COMMON_SOURCES}
 		)
 		target_include_directories(common_unit_tests PRIVATE
 			"${CMAKE_CURRENT_SOURCE_DIR}"
