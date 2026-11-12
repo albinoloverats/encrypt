@@ -34,7 +34,7 @@
 
 #include <sys/stat.h>
 
-#ifndef _WIN32
+#if !defined _WIN32
 	#include <netinet/in.h>
 #endif
 
@@ -161,7 +161,7 @@ static const version_s VERSIONS[] =
 
 extern void execute(crypto_s *c)
 {
-#ifndef __DEBUG__
+#if !defined __DEBUG__
 	pthread_t *t = m_gcry_calloc_secure(1, sizeof( pthread_t ));
 	pthread_attr_t a;
 	pthread_attr_init(&a);

@@ -29,8 +29,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#ifdef _WIN32
+#if defined _WIN32
 	#include <io.h>
+	#include <winsock2.h>
 	#include <windows.h>
 	#define TEST_PATH_LENGTH MAX_PATH
 #else
@@ -47,6 +48,7 @@
 /* common includes */
 
 #include "src/common.h"
+#include "src/non-gnu.h"
 #include "src/ccrypt.h"
 
 /* project includes */
@@ -82,63 +84,6 @@ static int setup(void **state)
 	return 0;
 }
 
-static void remove_tree(const char *path)
-{
-#ifdef _WIN32
-	DWORD attributes = GetFileAttributesA(path);
-	if (attributes == INVALID_FILE_ATTRIBUTES)
-		return;
-	if (!(attributes & FILE_ATTRIBUTE_DIRECTORY))
-	{
-		DeleteFileA(path);
-		return;
-	}
-	char pattern[MAX_PATH];
-	snprintf(pattern, sizeof pattern, "%s\\*", path);
-	WIN32_FIND_DATAA entry;
-	HANDLE find = FindFirstFileA(pattern, &entry);
-	if (find != INVALID_HANDLE_VALUE)
-	{
-		do
-		{
-			if (!strcmp(entry.cFileName, ".") || !strcmp(entry.cFileName, ".."))
-				continue;
-			char child[MAX_PATH];
-			snprintf(child, sizeof child, "%s\\%s", path, entry.cFileName);
-			remove_tree(child);
-		}
-		while (FindNextFileA(find, &entry));
-		FindClose(find);
-	}
-	RemoveDirectoryA(path);
-#else
-	struct stat info;
-	if (lstat(path, &info) < 0)
-		return;
-	if (!S_ISDIR(info.st_mode))
-	{
-		unlink(path);
-		return;
-	}
-	DIR *directory = opendir(path);
-	if (directory)
-	{
-		struct dirent *entry;
-		while ((entry = readdir(directory)))
-		{
-			if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
-				continue;
-			char child[TEST_PATH_LENGTH];
-			int length = snprintf(child, sizeof child, "%s/%s", path, entry->d_name);
-			if (length >= 0 && (size_t)length < sizeof child)
-				remove_tree(child);
-		}
-		closedir(directory);
-	}
-	rmdir(path);
-#endif
-}
-
 static int teardown(void **state)
 {
 	(void)state;
@@ -146,15 +91,9 @@ static int teardown(void **state)
 	{
 		size_t index = i - 1;
 		if (test_path_is_directory[index])
-			remove_tree(test_paths[index]);
+			rmdir(test_paths[index]);
 		else
-		{
-#ifdef _WIN32
-			DeleteFileA(test_paths[index]);
-#else
 			unlink(test_paths[index]);
-#endif
-		}
 	}
 	test_path_count = 0;
 	int result = 0;
@@ -181,13 +120,11 @@ static char *create_temp_path(void)
 		return NULL;
 
 	char *path = test_paths[test_path_count];
-#ifdef _WIN32
-	char directory[MAX_PATH];
-	if (!GetTempPathA(sizeof directory, directory) ||
-	    !GetTempFileNameA(directory, "ecf", 0, path))
-		return NULL;
-#else
+#if !defined _WIN32
 	int written = snprintf(path, TEST_PATH_LENGTH, "/tmp/encrypt-flow-test-XXXXXX");
+#else
+	int written = snprintf(path, TEST_PATH_LENGTH, "encrypt-flow-test-XXXXXX");
+#endif
 	if (written < 0 || (size_t)written >= TEST_PATH_LENGTH)
 		return NULL;
 	int fd = mkstemp(path);
@@ -198,7 +135,7 @@ static char *create_temp_path(void)
 		unlink(path);
 		return NULL;
 	}
-#endif
+
 	test_path_is_directory[test_path_count] = false;
 	test_path_count++;
 	return path;
@@ -210,18 +147,13 @@ static char *create_temp_directory(void)
 		return NULL;
 
 	char *path = test_paths[test_path_count];
-#ifdef _WIN32
-	char directory[MAX_PATH];
-	if (!GetTempPathA(sizeof directory, directory) ||
-	    !GetTempFileNameA(directory, "ecf", 0, path))
-		return NULL;
-	if (!DeleteFileA(path) || !CreateDirectoryA(path, NULL))
-		return NULL;
-#else
+#if !defined _WIN32
 	int written = snprintf(path, TEST_PATH_LENGTH, "/tmp/encrypt-flow-dir-XXXXXX");
+#else
+	int written = snprintf(path, TEST_PATH_LENGTH, "encrypt-flow-dir-XXXXXX");
+#endif
 	if (written < 0 || (size_t)written >= TEST_PATH_LENGTH || !mkdtemp(path))
 		return NULL;
-#endif
 	test_path_is_directory[test_path_count] = true;
 	test_path_count++;
 	return path;
@@ -229,11 +161,7 @@ static char *create_temp_directory(void)
 
 static void make_child_path(char *path, size_t size, const char *directory, const char *name)
 {
-#ifdef _WIN32
-	int length = snprintf(path, size, "%s\\%s", directory, name);
-#else
 	int length = snprintf(path, size, "%s/%s", directory, name);
-#endif
 	assert_true(length >= 0);
 	assert_true((size_t)length < size);
 }
@@ -255,7 +183,9 @@ static bool write_all(int fd, const uint8_t *data, size_t length)
 
 static void write_file(const char *path, const uint8_t *data, size_t length)
 {
-	int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, S_IRUSR | S_IWUSR);
+	int fd = open(path, O_RDWR | O_CREAT | O_TRUNC | O_BINARY, S_IRUSR | S_IWUSR);
+	if (fd < 0)
+		perror(path);
 	assert_true(fd >= 0);
 	assert_true(write_all(fd, data, length));
 	assert_int_equal(close(fd), 0);
@@ -299,7 +229,7 @@ static void write_test_container_metadata(const char *path,
 
 static void assert_file_contents(const char *path, const uint8_t *expected, size_t length)
 {
-	int fd = open(path, O_RDONLY | O_BINARY);
+	int fd = open(path, O_RDONLY | O_BINARY, S_IRUSR | S_IWUSR);
 	assert_true(fd >= 0);
 	uint8_t *actual = malloc(length ? length : 1);
 	assert_non_null(actual);
@@ -325,11 +255,11 @@ static bool wait_for_completion(crypto_s *crypto)
 	{
 		if (crypto->status != STATUS_INIT && crypto->status != STATUS_RUNNING)
 			return true;
-#ifdef _WIN32
-		Sleep(10);
-#else
+#if !defined _WIN32
 		struct timespec delay = { .tv_sec = 0, .tv_nsec = 10 * MILLION };
 		nanosleep(&delay, NULL);
+#else
+		Sleep(10);
 #endif
 	}
 	return crypto->status != STATUS_INIT && crypto->status != STATUS_RUNNING;
@@ -406,12 +336,13 @@ static void test_encrypt_init_rejects_missing_input_and_same_file_output(void **
 	write_file(input_path, original, sizeof original);
 	assert_encrypt_init_status(input_path, input_path, "AES", "SHA256", "CBC",
 	                           "HMAC_SHA256", STATUS_FAILED_OUTPUT_MISMATCH);
-	int fd = open(input_path, O_RDONLY | O_BINARY);
+	int fd = open(input_path, O_RDONLY | O_BINARY, S_IRUSR | S_IWUSR);
 	assert_true(fd >= 0);
 	uint8_t actual[sizeof original];
 	assert_int_equal(read(fd, actual, sizeof actual), sizeof actual);
 	assert_int_equal(close(fd), 0);
 	assert_memory_equal(actual, original, sizeof original);
+	assert_int_equal(unlink(input_path), 0);
 }
 
 static void test_encrypt_init_rejects_invalid_algorithms(void **state)
@@ -432,6 +363,7 @@ static void test_encrypt_init_rejects_invalid_algorithms(void **state)
 	                           "CBC", "not-a-mac", STATUS_FAILED_UNKNOWN_MAC_ALGORITHM);
 	assert_encrypt_init_status(input_path, output_path, "AES", "SHA256",
 	                           "STREAM", "HMAC_SHA256", STATUS_FAILED_CIPHER_MODE_MISMATCH);
+	assert_int_equal(unlink(input_path), 0);
 }
 
 static void test_decrypt_init_rejects_missing_input_and_same_file_output(void **state)
@@ -447,12 +379,13 @@ static void test_decrypt_init_rejects_missing_input_and_same_file_output(void **
 	static const uint8_t original[] = "preserve encrypted input";
 	write_file(input_path, original, sizeof original);
 	assert_decrypt_init_status(input_path, input_path, false, STATUS_FAILED_OUTPUT_MISMATCH);
-	int fd = open(input_path, O_RDONLY | O_BINARY);
+	int fd = open(input_path, O_RDONLY | O_BINARY, S_IRUSR | S_IWUSR);
 	assert_true(fd >= 0);
 	uint8_t actual[sizeof original];
 	assert_int_equal(read(fd, actual, sizeof actual), sizeof actual);
 	assert_int_equal(close(fd), 0);
 	assert_memory_equal(actual, original, sizeof original);
+	assert_int_equal(unlink(input_path), 0);
 }
 
 static void test_decrypt_init_rejects_invalid_raw_algorithms(void **state)
@@ -475,6 +408,8 @@ static void test_decrypt_init_rejects_invalid_raw_algorithms(void **state)
 	assert_raw_decrypt_init_status(input_path, output_path, "AES",
 	                               "SHA256", "CBC", "not-a-mac",
 	                               STATUS_FAILED_UNKNOWN_MAC_ALGORITHM);
+	assert_int_equal(unlink(input_path), 0);
+	assert_int_equal(unlink(output_path), 0);
 }
 
 static void test_decrypt_rejects_unknown_stream_version(void **state)
@@ -496,6 +431,7 @@ static void test_decrypt_rejects_unknown_stream_version(void **state)
 	assert_int_equal(crypto->status, STATUS_FAILED_UNKNOWN_VERSION);
 	deinit(&crypto);
 	assert_null(crypto);
+	assert_int_equal(unlink(input_path), 0);
 }
 
 static void test_container_detection_rejects_truncated_headers_and_metadata(void **state)
@@ -532,6 +468,7 @@ static void test_container_detection_rejects_truncated_headers_and_metadata(void
 
 	write_test_container_metadata(path, "AES256/SHA256", 2, 20);
 	assert_int_equal(detect_metadata(path), VERSION_UNKNOWN);
+	assert_int_equal(unlink(path), 0);
 }
 
 static void test_key_file_rejects_non_regular_file(void **state)
@@ -576,6 +513,8 @@ static void test_key_file_rejects_non_regular_file(void **state)
 	deinit(&decrypt);
 
 	assert_int_equal(rmdir(key_path), 0);
+	assert_int_equal(unlink(input), 0);
+	assert_int_equal(unlink(valid_key_path), 0);
 }
 
 static void test_decrypt_rejects_wrong_key(void **state)
@@ -607,6 +546,9 @@ static void test_decrypt_rejects_wrong_key(void **state)
 	assert_true(wait_for_completion(decrypt));
 	assert_int_equal(decrypt->status, STATUS_FAILED_DECRYPTION);
 	deinit(&decrypt);
+	assert_int_equal(unlink(input_path), 0);
+	assert_int_equal(unlink(encrypted_path), 0);
+	assert_int_equal(unlink(decrypted_path), 0);
 }
 
 static void test_stdin_stream_round_trip(void **state)
@@ -625,7 +567,7 @@ static void test_stdin_stream_round_trip(void **state)
 	assert_non_null(decrypted_path);
 	write_file(input_path, expected, sizeof expected);
 
-	int input_fd = open(input_path, O_RDONLY | O_BINARY);
+	int input_fd = open(input_path, O_RDONLY | O_BINARY, S_IRUSR | S_IWUSR);
 	assert_true(input_fd >= 0);
 	assert_int_equal(dup2(input_fd, STDIN_FILENO), STDIN_FILENO);
 	assert_int_equal(close(input_fd), 0);
@@ -649,7 +591,7 @@ static void test_stdin_stream_round_trip(void **state)
 	assert_int_equal(decrypt->status, STATUS_SUCCESS);
 	deinit(&decrypt);
 
-	int output_fd = open(decrypted_path, O_RDONLY | O_BINARY);
+	int output_fd = open(decrypted_path, O_RDONLY | O_BINARY, S_IRUSR | S_IWUSR);
 	assert_true(output_fd >= 0);
 	uint8_t actual[sizeof expected];
 	size_t offset = 0;
@@ -663,6 +605,9 @@ static void test_stdin_stream_round_trip(void **state)
 	}
 	assert_int_equal(close(output_fd), 0);
 	assert_memory_equal(actual, expected, sizeof expected);
+	assert_int_equal(unlink(input_path), 0);
+	assert_int_equal(unlink(encrypted_path), 0);
+	assert_int_equal(unlink(decrypted_path), 0);
 }
 
 static void test_directory_archive_round_trip(void **state)
@@ -700,7 +645,7 @@ static void test_directory_archive_round_trip(void **state)
 	assert_int_equal(mkdir(empty, S_IRUSR | S_IWUSR | S_IXUSR), 0);
 	write_file(root_file, root_contents, sizeof root_contents);
 	write_file(nested_file, nested_contents, sizeof nested_contents);
-#ifndef _WIN32
+#if !defined _WIN32
 	assert_int_equal(link(root_file, hardlink), 0);
 	assert_int_equal(symlink("root.txt", symlink_path), 0);
 #endif
@@ -763,11 +708,7 @@ static void test_directory_archive_round_trip(void **state)
 	char output_nested[TEST_PATH_LENGTH];
 	char output_nested_file[TEST_PATH_LENGTH];
 	char output_empty[TEST_PATH_LENGTH];
-#ifdef _WIN32
-	const char *root_name = strrchr(source, '\\');
-#else
 	const char *root_name = strrchr(source, '/');
-#endif
 	root_name = root_name ? root_name + 1 : source;
 	make_child_path(output_root, sizeof output_root, destination, root_name);
 	make_child_path(output_root_file, sizeof output_root_file, output_root, "root.txt");
@@ -783,7 +724,7 @@ static void test_directory_archive_round_trip(void **state)
 	assert_file_contents(output_nested_file, nested_contents, sizeof nested_contents);
 	assert_int_equal(stat(output_empty, &info), 0);
 	assert_true(S_ISDIR(info.st_mode));
-#ifndef _WIN32
+#if !defined _WIN32
 	char output_hardlink[TEST_PATH_LENGTH];
 	char output_symlink[TEST_PATH_LENGTH];
 	char followed_symlink[TEST_PATH_LENGTH];
@@ -803,6 +744,10 @@ static void test_directory_archive_round_trip(void **state)
 	assert_string_equal(link_target, "root.txt");
 	assert_int_equal(stat(followed_symlink, &info), 0);
 	assert_true(S_ISREG(info.st_mode));
+#else
+	rmdir(source);
+	rmdir(destination);
+	rmdir(follow_destination);
 #endif
 }
 
@@ -820,7 +765,7 @@ static void crypto_file_round_trip(bool compressed)
 	assert_non_null(encrypted_path);
 	assert_non_null(decrypted_path);
 
-	int input_fd = open(input_path, O_WRONLY | O_TRUNC | O_BINARY);
+	int input_fd = open(input_path, O_WRONLY | O_TRUNC | O_BINARY, S_IRUSR | S_IWUSR);
 	assert_true(input_fd >= 0);
 	assert_true(write_all(input_fd, expected, sizeof expected));
 	assert_int_equal(close(input_fd), 0);
@@ -856,7 +801,7 @@ static void crypto_file_round_trip(bool compressed)
 	assert_int_equal(stat(decrypted_path, &output_stat), 0);
 	assert_int_equal(output_stat.st_size, sizeof expected);
 
-	int output_fd = open(decrypted_path, O_RDONLY | O_BINARY);
+	int output_fd = open(decrypted_path, O_RDONLY | O_BINARY, S_IRUSR | S_IWUSR);
 	assert_true(output_fd >= 0);
 	uint8_t actual[sizeof expected];
 	size_t offset = 0;
@@ -870,6 +815,9 @@ static void crypto_file_round_trip(bool compressed)
 	}
 	assert_int_equal(close(output_fd), 0);
 	assert_memory_equal(actual, expected, sizeof expected);
+	assert_int_equal(unlink(input_path), 0);
+	assert_int_equal(unlink(encrypted_path), 0);
+	assert_int_equal(unlink(decrypted_path), 0);
 }
 
 static void test_encrypt_decrypt_file_round_trip(void **state)

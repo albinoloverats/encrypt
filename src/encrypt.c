@@ -35,7 +35,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#ifndef _WIN32
+#if !defined _WIN32
 	#include <netinet/in.h>
 #endif
 
@@ -68,7 +68,7 @@ static int64_t count_entries(crypto_s *, const char *);
 static void encrypt_directory(crypto_s *, const char *);
 static char *encrypt_link(crypto_s *, char *, struct stat);
 static int output_is_inside_source_directory(const char *, const char *);
-#ifndef _WIN32
+#if !defined _WIN32
 static char *read_link_target(const char *, size_t *);
 #endif
 static void encrypt_stream(crypto_s *);
@@ -163,7 +163,7 @@ extern crypto_s *encrypt_init(const char * const restrict i,
 			gcry_free(op);
 			return z->status = STATUS_FAILED_OUTPUT_MISMATCH , z;
 		}
-#ifdef _WIN32
+#if defined _WIN32
 		long fa = GetFileAttributes(op);
 		switch (fa)
 		{
@@ -365,7 +365,7 @@ static void *process(void *ptr)
 		if (*ps == '/')
 			*ps = '\0';
 		char *cwd = NULL;
-#ifndef _WIN32
+#if !defined _WIN32
 		char *dir = strrchr(c->path, '/');
 #else
 		char *dir = strrchr(c->path, '\\');
@@ -445,7 +445,7 @@ static void *process(void *ptr)
 	if (c->status == STATUS_RUNNING)
 		c->status = STATUS_SUCCESS;
 
-#ifndef __DEBUG__
+#if !defined __DEBUG__
 	pthread_exit((void *)c->status);
 #endif
 
@@ -560,7 +560,7 @@ static inline void write_metadata(crypto_s *c)
 static inline void write_random_data(crypto_s *c)
 {
 	uint8_t l;
-#ifndef __DEBUG__
+#if !defined __DEBUG__
 	do
 	{
 		gcry_create_nonce(&l, sizeof l);
@@ -590,7 +590,7 @@ static int64_t count_entries(crypto_s *c, const char *path)
 		e += count_entries(c, file);
 	else if (S_ISREG(s.st_mode))
 		e++;
-#ifndef _WIN32
+#if !defined _WIN32
 	else if (!c->follow_links && S_ISLNK(s.st_mode))
 		e++;
 #endif
@@ -610,7 +610,7 @@ static void encrypt_directory(crypto_s *c, const char *path)
 	file_type_e tp;
 	struct stat s;
 	c->follow_links ? stat(file, &s) : lstat(file, &s);
-#ifndef _WIN32
+#if !defined _WIN32
 	char *ln = NULL;
 	char *sl = NULL;
 	size_t sl_length = 0;
@@ -622,7 +622,7 @@ static void encrypt_directory(crypto_s *c, const char *path)
 		case S_IFDIR:
 			tp = FILE_DIRECTORY;
 			break;
-#ifndef _WIN32
+#if !defined _WIN32
 		case S_IFLNK:
 			tp = (ln = encrypt_link(c, file, s)) ? FILE_LINK : FILE_SYMLINK;
 			break;
@@ -634,7 +634,7 @@ static void encrypt_directory(crypto_s *c, const char *path)
 			gcry_free(file);
 			continue;
 	}
-#ifndef _WIN32
+#if !defined _WIN32
 	if (tp == FILE_SYMLINK && !(sl = read_link_target(file, &sl_length)))
 	{
 		c->status = STATUS_FAILED_IO;
@@ -656,14 +656,14 @@ static void encrypt_directory(crypto_s *c, const char *path)
 			encrypt_directory(c, file);
 			break;
 		case FILE_SYMLINK:
-#ifndef _WIN32
+#if !defined _WIN32
 			l = htonll(sl_length);
 			io_write(c->output, &l, sizeof l);
 			io_write(c->output, sl, sl_length);
 #endif
 			break;
 		case FILE_LINK:
-#ifndef _WIN32
+#if !defined _WIN32
 			/*
 			 * store a hard link; it’s basically the same as a
 			 * symlink at this point, but will be handled
@@ -711,7 +711,7 @@ static void encrypt_directory(crypto_s *c, const char *path)
 			c->source = NULL;
 			break;
 	}
-#ifndef _WIN32
+#if !defined _WIN32
 	if (sl)
 		gcry_free(sl);
 #endif
@@ -723,7 +723,7 @@ static void encrypt_directory(crypto_s *c, const char *path)
 	return;
 }
 
-#ifndef _WIN32
+#if !defined _WIN32
 static char *read_link_target(const char *path, size_t *length)
 {
 	size_t capacity = 128;
@@ -757,7 +757,7 @@ static char *read_link_target(const char *path, size_t *length)
 
 static char *canonicalize_path(const char *path)
 {
-#ifdef _WIN32
+#if defined _WIN32
 	return _fullpath(NULL, path, 0);
 #else
 	return realpath(path, NULL);
@@ -772,7 +772,7 @@ static char *canonicalize_output_path(const char *path)
 
 	char *copy = strdup(path);
 	char *separator = strrchr(copy, DIR_SEPARATOR_CHAR);
-#ifdef _WIN32
+#if defined _WIN32
 	char *alternate_separator = strrchr(copy, '/');
 	if (alternate_separator && (!separator || alternate_separator > separator))
 		separator = alternate_separator;
@@ -784,7 +784,7 @@ static char *canonicalize_output_path(const char *path)
 	{
 		if (separator == copy)
 			separator[1] = '\0';
-#ifdef _WIN32
+#if defined _WIN32
 		else if (separator == copy + 2 && copy[1] == ':')
 			separator[1] = '\0';
 #endif
@@ -823,7 +823,7 @@ static int output_is_inside_source_directory(const char *source, const char *out
 
 	size_t root_length = strlen(canonical_source);
 	size_t output_length = strlen(canonical_output);
-#ifdef _WIN32
+#if defined _WIN32
 	if (root_length > 3 && canonical_source[root_length - 1] == DIR_SEPARATOR_CHAR)
 #else
 	if (root_length > 1 && canonical_source[root_length - 1] == DIR_SEPARATOR_CHAR)
@@ -835,7 +835,7 @@ static int output_is_inside_source_directory(const char *source, const char *out
 	{
 		unsigned char root_char = (unsigned char)canonical_source[i];
 		unsigned char output_char = (unsigned char)canonical_output[i];
-#ifdef _WIN32
+#if defined _WIN32
 		if (root_char == '/' || root_char == '\\')
 			root_char = DIR_SEPARATOR_CHAR;
 		if (output_char == '/' || output_char == '\\')
@@ -856,7 +856,7 @@ static int output_is_inside_source_directory(const char *source, const char *out
 	               canonical_source[root_length - 1] == DIR_SEPARATOR_CHAR ||
 	               boundary == '\0' ||
 	               boundary == DIR_SEPARATOR_CHAR
-#ifdef _WIN32
+#if defined _WIN32
 	               || boundary == '/'
 #endif
 	              );
@@ -872,7 +872,7 @@ static char *encrypt_link(crypto_s *c, char *filename, struct stat s)
 	link->dev   = s.st_dev;
 	link->inode = s.st_ino;
 	link->path  = strdup(filename);
-#ifndef _WIN32
+#if !defined _WIN32
 	link_count_s *existing = NULL;
 	if ((existing = (link_count_s *)list_contains(links, link)))
 	{

@@ -18,7 +18,7 @@
  *
  */
 
-#ifndef _ENCRYPT_DECRYPT_H_
+#if !defined _ENCRYPT_DECRYPT_H_
 #define _ENCRYPT_DECRYPT_H_
 
 /*!

@@ -18,7 +18,7 @@
  *
  */
 
-#ifndef _ENCRYPT_CRYPTIO_H_
+#if !defined _ENCRYPT_CRYPTIO_H_
 #define _ENCRYPT_CRYPTIO_H_
 
 /*!
@@ -88,12 +88,12 @@ extern IO_HANDLE io_open(const char *n, int f, mode_t m) __attribute__((malloc, 
 
 /*!
  * \brief         Create an IO instance from an open file descriptor
- * \param[in]  fd An open file descriptor transferred to the returned handle
- * \return        A new handle, or NULL if fd is negative
+ * \param[in]  f  An open file descriptor transferred to the returned handle
+ * \return        A new handle, or NULL if f is negative
  *
  * The returned handle closes fd when passed to io_close().
  */
-extern IO_HANDLE io_wrap_fd(int64_t fd);
+extern IO_HANDLE io_wrap_fd(int64_t f);
 
 /*!
  * \brief         Destroy an IO instance

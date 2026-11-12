@@ -741,7 +741,7 @@ inline static void gui_display(crypto_s *c, gtk_widgets_s *data)
 	{
 		gtk_main_iteration_do(FALSE);
 
-#ifndef _WIN32
+#if !defined _WIN32
 		struct timespec s = { 0, MILLION };
 		nanosleep(&s, NULL);
 #else

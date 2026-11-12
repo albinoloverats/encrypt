@@ -35,6 +35,11 @@
 #include <gcrypt.h>
 #include <lzma.h>
 
+#ifdef _WIN32
+	#include <io.h>
+	#include <windows.h>
+#endif
+
 /* submodule includes */
 
 #include "src/common.h"
@@ -130,7 +135,7 @@ static int sync_file(int64_t);
 
 extern IO_HANDLE io_open(const char *n, int f, mode_t m)
 {
-#ifndef _WIN32
+#if !defined _WIN32
 	int64_t fd = open(n, f, m);
 #else
 	int64_t fd = open(n, f);
@@ -144,12 +149,12 @@ extern IO_HANDLE io_open(const char *n, int f, mode_t m)
 	return io_ptr;
 }
 
-extern IO_HANDLE io_wrap_fd(int64_t fd)
+extern IO_HANDLE io_wrap_fd(int64_t f)
 {
-	if (fd < 0)
+	if (f < 0)
 		return NULL;
 	io_private_s *io_ptr = m_gcry_calloc_secure(1, sizeof( io_private_s ));
-	io_ptr->fd = fd;
+	io_ptr->fd = f;
 	io_ptr->eof = EOF_NO;
 	return io_ptr;
 }
@@ -248,13 +253,48 @@ extern bool io_same_file(IO_HANDLE ptr, const char *n)
 	io_private_s *io_ptr = ptr;
 	if (!io_ptr || io_ptr->fd < 0)
 		return false;
-
+#if !defined _WIN32
 	struct stat source;
 	struct stat output;
 	return fstat(io_ptr->fd, &source) == 0 &&
 	       stat(n, &output) == 0 &&
 	       source.st_dev == output.st_dev &&
 	       source.st_ino == output.st_ino;
+#else
+	/*
+	 * The Microsoft C runtime does not reliably populate st_dev/st_ino.
+	 * Use the native file identity instead so that paths and hard links
+	 * referring to the same file are recognised.
+	 */
+	intptr_t source_handle = _get_osfhandle((int)io_ptr->fd);
+	if (source_handle == -1)
+		return false;
+
+	HANDLE output_handle = CreateFileA(
+		n,
+		0,
+		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+		NULL,
+		OPEN_EXISTING,
+		FILE_FLAG_BACKUP_SEMANTICS,
+		NULL
+	);
+	if (output_handle == INVALID_HANDLE_VALUE)
+		return false;
+
+	BY_HANDLE_FILE_INFORMATION source;
+	BY_HANDLE_FILE_INFORMATION output;
+
+	BOOL source_ok = GetFileInformationByHandle((HANDLE)source_handle, &source);
+	BOOL output_ok = GetFileInformationByHandle(output_handle, &output);
+
+	CloseHandle(output_handle);
+
+	return source_ok && output_ok &&
+	       source.dwVolumeSerialNumber == output.dwVolumeSerialNumber &&
+	       source.nFileIndexHigh == output.nFileIndexHigh &&
+	       source.nFileIndexLow == output.nFileIndexLow;
+#endif
 }
 
 extern bool io_encryption_init(IO_HANDLE ptr, enum gcry_cipher_algos c, enum gcry_md_algos h, enum gcry_cipher_modes m, enum gcry_mac_algos a, uint64_t itr, const uint8_t *k, size_t l, io_extra_s x)
@@ -653,6 +693,13 @@ extern off_t io_seek(IO_HANDLE ptr, off_t o, int w)
 		return errno = EBADF , -1;
 	if (io_ptr->error)
 		return errno = io_ptr->error, -1;
+
+#if defined _WIN32
+	intptr_t handle = _get_osfhandle((int)io_ptr->fd);
+	if (handle == -1 || GetFileType((HANDLE)handle) == FILE_TYPE_PIPE)
+		return errno = ESPIPE, io_fail(io_ptr, ESPIPE), -1;
+#endif
+
 	off_t position = lseek((int)io_ptr->fd, o, w);
 	if (position < 0)
 		io_fail(io_ptr, errno);
