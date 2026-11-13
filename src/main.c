@@ -52,7 +52,7 @@
 #include "src/cli.h"
 #include "src/list.h"
 
-#ifdef _WIN32
+#if defined _WIN32
 	#include <Shlobj.h>
 	extern char *program_invocation_short_name;
 	#include "src/dir.h"
@@ -64,7 +64,7 @@
 #include "encrypt.h"
 #include "decrypt.h"
 
-#ifdef BUILD_GUI
+#if defined BUILD_GUI
 	#include "gui.h"
 	#include "gui-gtk.h"
 
@@ -95,19 +95,19 @@ static config_about_s about =
 
 int main(int argc, char **argv)
 {
-#ifndef _WIN32
+#if !defined _WIN32
 	signal(SIGPIPE, SIG_IGN);
 #endif
 	error_init();
-#ifdef __DEBUG__
+#if defined __DEBUG__
 	cli_eprintf("\n" ANSI_COLOUR_RED "**** %s ****" ANSI_COLOUR_RESET "\n\n", _("DEBUG BUILD"));
 #endif
-#ifdef _WIN32
+#if defined _WIN32
 	setbuf(stdout, NULL);
 	setbuf(stderr, NULL);
 	program_invocation_short_name = dir_get_name(argv[0]);
 #endif
-#ifndef __DEBUG__
+#if !defined __DEBUG__
 	/*
 	 * start background thread to check for newer version of encrypt
 	 *
@@ -118,8 +118,8 @@ int main(int argc, char **argv)
 #endif
 
 	list_t args = list_init(config_named_compare, false, false);
-#ifdef BUILD_GUI
-	#ifndef _WIN32
+#if defined BUILD_GUI
+	#if !defined _WIN32
 	list_add(args, &((config_named_s){ 'g', "no-gui",         NULL,            _("Do not use the GUI, even if it’s available"),                                                                            { CONFIG_ARG_REQ_BOOLEAN, { .boolean = false                  } }, false, false, false, false }));
 	#endif
 	list_add(args, &((config_named_s){ 0x1, "key-source",     _("key source"), _("Key data source"),                                                                                                       { CONFIG_ARG_REQ_STRING,  { .string  = NULL                   } }, false, false, true,  false }));
@@ -152,7 +152,7 @@ int main(int argc, char **argv)
 	list_add(notes, _("If you encrypted data using --raw then you will need to pass the algorithms as arguments when decrypting."));
 	list_add(notes, _("You can toggle compression and how symbolic links are handled in the configuration file ~/.encryptrc"));
 
-#ifndef _WIN32
+#if !defined _WIN32
 	bool dude = false;
 	if (!strcmp(basename(argv[0]), DECRYPT))
 	{
@@ -160,7 +160,7 @@ int main(int argc, char **argv)
 		dude = true;
 
 		int x = 0;
-#ifdef BUILD_GUI
+#if defined BUILD_GUI
 		x++;
 		((config_named_s *)list_get(args, ++x))->hidden = true;
 		((config_named_s *)list_get(args, ++x))->hidden = true;
@@ -194,8 +194,8 @@ int main(int argc, char **argv)
 
 	int x = -1;
 	bool compress;
-#ifdef BUILD_GUI
-	#ifndef _WIN32
+#if defined BUILD_GUI
+	#if !defined _WIN32
 	bool gui         = !((config_named_s *)list_get(args, ++x))->response.value.boolean; // gui by default unless --no-gui is specified
 	#endif
 	char *key_source =  ((config_named_s *)list_get(args, ++x))->response.value.string;
@@ -281,7 +281,7 @@ int main(int argc, char **argv)
 		free(ptr);
 	}
 
-#ifdef BUILD_GUI
+#if defined BUILD_GUI
 	gtk_widgets_s *widgets;
 	GtkBuilder *builder;
 	GError *error = NULL;
@@ -303,7 +303,7 @@ int main(int argc, char **argv)
 		if (gtk_init_check(&argc, &argv))
 		{
 			builder = gtk_builder_new();
-	#ifndef _WIN32
+	#if !defined _WIN32
 		#if !defined __DEBUG__ && !defined __DEBUG_GUI__
 			const char *glade_ui_file = GLADE_UI_FILE_DEFAULT;
 		#else
@@ -311,7 +311,7 @@ int main(int argc, char **argv)
 		#endif
 	#else
 			char *glade_ui_file = m_calloc(MAX_PATH, sizeof( char ));
-		#ifndef __DEBUG__
+		#if !defined __DEBUG__
 			SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL, 0, glade_ui_file);
 			strcat(glade_ui_file, "\\");
 		#endif /* __DEBUG__ */
@@ -325,7 +325,7 @@ int main(int argc, char **argv)
 				if (!gtk_builder_add_from_file(builder, GLADE_UI_FILE_BACKUP, &error))
 					die(_("%s"), error->message);
 			}
-	#ifdef _WIN32
+	#if defined _WIN32
 			free(glade_ui_file);
 	#endif
 			/*
@@ -386,7 +386,7 @@ int main(int argc, char **argv)
 
 			if (source)
 			{
-	#ifndef _WIN32
+	#if !defined _WIN32
 				if (source[0] != '/')
 				{
 					char *cwd = getcwd(NULL, 0);
@@ -400,7 +400,7 @@ int main(int argc, char **argv)
 			}
 			if (output)
 			{
-	#ifndef _WIN32
+	#if !defined _WIN32
 				if (output[0] != '/')
 				{
 					char *cwd = getcwd(NULL, 0);
@@ -436,7 +436,7 @@ int main(int argc, char **argv)
 		}
 		else
 			cli_eprintf(_("Could not create GUI - falling back to command line\n"));
-	#ifndef _WIN32
+	#if !defined _WIN32
 	}
 	#endif
 #endif /* BUILD_GUI */ /* we couldn’t create the gui, so revert back to command line */
@@ -478,7 +478,7 @@ int main(int argc, char **argv)
 	if (c->status == STATUS_INIT)
 	{
 		execute(c);
-#ifndef __DEBUG__
+#if !defined __DEBUG__
 		/*
 		 * only display the UI if not outputting to stdout (and if stderr
 		 * is a terminal)
@@ -511,7 +511,7 @@ int main(int argc, char **argv)
 #endif /* ! _WIN32 */
 
 clean_up:
-#ifdef BUILD_GUI
+#if defined BUILD_GUI
 	if (key_source)
 		free(key_source);
 #endif
@@ -540,7 +540,7 @@ clean_up:
 	if (version_new_available)
 		cli_eprintf(NEW_VERSION_URL, version_available, program_invocation_short_name, strlen(new_version_url) ? new_version_url : PROJECT_URL);
 
-#ifdef __DEBUG__
+#if defined __DEBUG__
 	cli_eprintf("\n" ANSI_COLOUR_RED "**** %s ****" ANSI_COLOUR_RESET "\n\n", _("DEBUG BUILD"));
 #endif
 
@@ -684,7 +684,7 @@ static void self_test(void)
 
 	cli_eprintf(_("\nTesting encryption..."));
 	execute(test_encrypt);
-#ifndef __DEBUG__
+#if !defined __DEBUG__
 	cli_s p = { (cli_status_e *)&test_encrypt->status, &test_encrypt->current, &test_encrypt->total };
 	cli_display(&p);
 #endif
@@ -694,7 +694,7 @@ static void self_test(void)
 
 	cli_eprintf(_("Testing decryption..."));
 	execute(test_decrypt);
-#ifndef __DEBUG__
+#if !defined __DEBUG__
 	p.status  = (cli_status_e *)&test_decrypt->status;
 	p.current = &test_decrypt->current;
 	p.total   = &test_decrypt->total;

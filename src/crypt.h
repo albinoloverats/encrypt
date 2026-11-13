@@ -18,7 +18,7 @@
  *
  */
 
-#ifndef _ENCRYPT_CRYPT_H_
+#if !defined _ENCRYPT_CRYPT_H_
 #define _ENCRYPT_CRYPT_H_
 
 /*!
@@ -45,7 +45,9 @@
 #include "crypt_io.h"   /*!< Necessary as IO_HANDLE type is referenced in this header */
 
 #define ENCRYPT "encrypt"
-#include "misc.h" /*!< Generated build metadata: application version and compiler flags */
+#if !defined ENCRYPT_VERSION
+	#include "misc.h" /*!< Legacy build systems generate the application version here */
+#endif
 #define UPDATE_URL "https://albinoloverats.net/encrypt.release" /*!< URI to check for updates */
 #define PROJECT_URL "https://albinoloverats.net/projects/encrypt"
 #define ENCRYPTRC ".encryptrc"

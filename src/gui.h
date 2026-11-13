@@ -18,7 +18,7 @@
  *
  */
 
-#ifndef _ENCRYPT_GUI_H_
+#if !defined _ENCRYPT_GUI_H_
 #define _ENCRYPT_GUI_H_
 
 /*!

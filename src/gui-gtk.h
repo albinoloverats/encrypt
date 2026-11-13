@@ -18,7 +18,7 @@
  *
  */
 
-#ifndef _ENCRYPT_GUI_GTK_H_
+#if !defined _ENCRYPT_GUI_GTK_H_
 #define _ENCRYPT_GUI_GTK_H_
 
 /*!

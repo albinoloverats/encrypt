@@ -29,13 +29,15 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#ifdef _WIN32
-#include <io.h>
-#include <windows.h>
-#define TEST_PATH_LENGTH MAX_PATH
+#if defined _WIN32
+	#include <io.h>
+	#include <winsock2.h>
+	#include <windows.h>
+	#define TEST_PATH_LENGTH MAX_PATH
 #else
-#include <limits.h>
-#define TEST_PATH_LENGTH PATH_MAX
+	#include <netinet/in.h>
+	#include <limits.h>
+	#define TEST_PATH_LENGTH PATH_MAX
 #endif
 
 #include <stdarg.h>
@@ -46,6 +48,7 @@
 /* common includes */
 
 #include "src/common.h"
+#include "src/non-gnu.h"
 #include "src/ccrypt.h"
 
 /* project includes */
@@ -83,7 +86,7 @@ static int setup(void **state)
 
 static void remove_tree(const char *path)
 {
-#ifdef _WIN32
+#if defined _WIN32
 	DWORD attributes = GetFileAttributesA(path);
 	if (attributes == INVALID_FILE_ATTRIBUTES)
 		return;
@@ -148,7 +151,7 @@ static int teardown(void **state)
 			remove_tree(test_paths[index]);
 		else
 		{
-#ifdef _WIN32
+#if defined _WIN32
 			DeleteFileA(test_paths[index]);
 #else
 			unlink(test_paths[index]);
@@ -180,7 +183,7 @@ static char *create_temp_path(void)
 		return NULL;
 
 	char *path = test_paths[test_path_count];
-#ifdef _WIN32
+#if defined _WIN32
 	char directory[MAX_PATH];
 	if (!GetTempPathA(sizeof directory, directory) ||
 	    !GetTempFileNameA(directory, "ecf", 0, path))
@@ -209,7 +212,7 @@ static char *create_temp_directory(void)
 		return NULL;
 
 	char *path = test_paths[test_path_count];
-#ifdef _WIN32
+#if defined _WIN32
 	char directory[MAX_PATH];
 	if (!GetTempPathA(sizeof directory, directory) ||
 	    !GetTempFileNameA(directory, "ecf", 0, path))
@@ -228,7 +231,7 @@ static char *create_temp_directory(void)
 
 static void make_child_path(char *path, size_t size, const char *directory, const char *name)
 {
-#ifdef _WIN32
+#if defined _WIN32
 	int length = snprintf(path, size, "%s\\%s", directory, name);
 #else
 	int length = snprintf(path, size, "%s/%s", directory, name);
@@ -324,7 +327,7 @@ static bool wait_for_completion(crypto_s *crypto)
 	{
 		if (crypto->status != STATUS_INIT && crypto->status != STATUS_RUNNING)
 			return true;
-#ifdef _WIN32
+#if defined _WIN32
 		Sleep(10);
 #else
 		struct timespec delay = { .tv_sec = 0, .tv_nsec = 10 * MILLION };
@@ -699,7 +702,7 @@ static void test_directory_archive_round_trip(void **state)
 	assert_int_equal(mkdir(empty, S_IRUSR | S_IWUSR | S_IXUSR), 0);
 	write_file(root_file, root_contents, sizeof root_contents);
 	write_file(nested_file, nested_contents, sizeof nested_contents);
-#ifndef _WIN32
+#if !defined _WIN32
 	assert_int_equal(link(root_file, hardlink), 0);
 	assert_int_equal(symlink("root.txt", symlink_path), 0);
 #endif
@@ -762,7 +765,7 @@ static void test_directory_archive_round_trip(void **state)
 	char output_nested[TEST_PATH_LENGTH];
 	char output_nested_file[TEST_PATH_LENGTH];
 	char output_empty[TEST_PATH_LENGTH];
-#ifdef _WIN32
+#if defined _WIN32
 	const char *root_name = strrchr(source, '\\');
 #else
 	const char *root_name = strrchr(source, '/');
@@ -782,7 +785,7 @@ static void test_directory_archive_round_trip(void **state)
 	assert_file_contents(output_nested_file, nested_contents, sizeof nested_contents);
 	assert_int_equal(stat(output_empty, &info), 0);
 	assert_true(S_ISDIR(info.st_mode));
-#ifndef _WIN32
+#if !defined _WIN32
 	char output_hardlink[TEST_PATH_LENGTH];
 	char output_symlink[TEST_PATH_LENGTH];
 	char followed_symlink[TEST_PATH_LENGTH];

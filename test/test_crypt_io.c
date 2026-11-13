@@ -27,12 +27,12 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#ifdef _WIN32
-#include <io.h>
-#include <winsock2.h>
-#include <windows.h>
+#if defined _WIN32
+	#include <io.h>
+	#include <winsock2.h>
+	#include <windows.h>
 #else
-#include <signal.h>
+	#include <signal.h>
 #endif
 
 #include <gcrypt.h>
@@ -43,6 +43,7 @@
 
 /* common includes */
 
+#include "src/non-gnu.h"
 #include "src/ecc.h"
 #include "src/ccrypt.h"
 
@@ -54,7 +55,7 @@
 #define STREAM_TRUNCATED 1
 #define STREAM_CORRUPTED 2
 
-#ifndef _WIN32
+#if !defined _WIN32
 static struct sigaction previous_sigpipe;
 #else
 static char windows_temp_paths[4][MAX_PATH];
@@ -65,7 +66,7 @@ static int setup(void **state)
 {
 	(void)state;
 	init_crypto();
-#ifndef _WIN32
+#if !defined _WIN32
 	struct sigaction ignore = { .sa_handler = SIG_IGN };
 	sigemptyset(&ignore.sa_mask);
 	return sigaction(SIGPIPE, &ignore, &previous_sigpipe);
@@ -77,7 +78,7 @@ static int setup(void **state)
 static int teardown(void **state)
 {
 	(void)state;
-#ifndef _WIN32
+#if !defined _WIN32
 	return sigaction(SIGPIPE, &previous_sigpipe, NULL);
 #else
 	for (size_t i = 0; i < windows_temp_count; i++)
@@ -92,7 +93,7 @@ static int teardown(void **state)
 
 static IO_HANDLE wrap_temp_file(int *fd)
 {
-#ifdef _WIN32
+#if defined _WIN32
 	char directory[MAX_PATH];
 	if (windows_temp_count >= sizeof windows_temp_paths / sizeof windows_temp_paths[0])
 		return NULL;
@@ -168,7 +169,7 @@ static void crypto_round_trip(size_t data_length, bool compressed, bool correcti
 			flip_file_byte(fd, stream_length - 1);
 		else
 		{
-#ifdef _WIN32
+#if defined _WIN32
 			assert_int_equal(_chsize_s(fd, stream_length - 1), 0);
 #else
 			assert_int_equal(ftruncate(fd, stream_length - 1), 0);
@@ -453,7 +454,7 @@ static void test_exact_read_rejects_truncated_input(void **state)
 	assert_int_equal(errno, EIO);
 }
 
-#ifndef _WIN32
+#if !defined _WIN32
 static void test_pipe_write_failure_is_latched(void **state)
 {
 	(void)state;
@@ -484,7 +485,7 @@ static void test_pipe_sync_and_seek(void **state)
 
 	assert_int_equal(io_sync(io), 0);
 	assert_int_equal(io_seek(io, 0, SEEK_SET), -1);
-#ifdef _WIN32
+#if defined _WIN32
 	int seek_error = errno;
 	assert_int_not_equal(seek_error, 0);
 	assert_int_equal(io_error(io), seek_error);
@@ -517,7 +518,7 @@ int main(void)
 		cmocka_unit_test_setup_teardown(test_truncated_iv_fails_initialization, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_ecc_corrects_three_corrupted_bytes, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_ecc_rejects_four_corrupted_bytes, setup, teardown),
-#ifndef _WIN32
+#if !defined _WIN32
 		cmocka_unit_test_setup_teardown(test_pipe_write_failure_is_latched, setup, teardown),
 #endif
 		cmocka_unit_test_setup_teardown(test_pipe_sync_and_seek, setup, teardown)
