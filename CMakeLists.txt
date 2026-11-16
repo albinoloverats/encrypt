@@ -137,6 +137,20 @@ configure_file(
 	@ONLY
 )
 
+# Solaris: prefer 64-bit pkg-config metadata for 64-bit builds.
+if(CMAKE_SYSTEM_NAME STREQUAL "SunOS" AND CMAKE_SIZEOF_VOID_P EQUAL 8)
+	set(_solaris_pkgconfig_dir "/usr/lib/64/pkgconfig")
+
+	if(EXISTS "${_solaris_pkgconfig_dir}")
+		if(DEFINED ENV{PKG_CONFIG_PATH} AND NOT "$ENV{PKG_CONFIG_PATH}" STREQUAL "")
+			set(ENV{PKG_CONFIG_PATH}
+				"${_solaris_pkgconfig_dir}:$ENV{PKG_CONFIG_PATH}")
+		else()
+			set(ENV{PKG_CONFIG_PATH} "${_solaris_pkgconfig_dir}")
+		endif()
+	endif()
+endif()
+
 find_package(PkgConfig REQUIRED)
 find_package(Threads REQUIRED)
 

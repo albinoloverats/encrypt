@@ -563,9 +563,9 @@ static bool skip_random_data(crypto_s *c)
 	uint8_t l;
 	if (!io_read_exact(c->source, &l, sizeof l))
 		return false;
-	uint8_t *b = m_gcry_malloc_secure(l);
 	if (l)
 	{
+		uint8_t *b = m_gcry_malloc_secure(l);
 		bool read_ok = io_read_exact(c->source, b, l);
 		gcry_free(b);
 		if (!read_ok)
