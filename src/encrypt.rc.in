@@ -2,14 +2,9 @@
 
 A ICON "pixmaps/encrypt.ico"
 
-// SUPPORT FOR WINDOWS XP THEMES:
-// THIS WILL MAKE THE PROGRAM USE THE COMMON CONTROLS
-// LIBRARY VERSION 6.0 (IF IT IS AVAILABLE)
-1 24 "etc/encrypt.exe.Manifest"
-
 1 VERSIONINFO
-FILEVERSION 2027,0,0,0
-PRODUCTVERSION 2027,0,0,0
+FILEVERSION 0,0,0,0
+PRODUCTVERSION 0,0,0,0
 FILETYPE VFT_APP
 {
 	BLOCK "StringFileInfo"
@@ -17,14 +12,14 @@ FILETYPE VFT_APP
 		BLOCK "080904E4"
 		{
 			VALUE "CompanyName", "albinoloverats ~ Software Development"
-			VALUE "FileVersion", ENCRYPT_VERSION
+			VALUE "FileVersion", "@ENCRYPT_VERSION@"
 			VALUE "FileDescription", "encrypt is a simple, cross platform utility for securing your personal files"
 			VALUE "InternalName", "encrypt"
 			VALUE "LegalCopyright", "Copyright (c) 2004-2026, albinoloverats ~ Software Development"
 			VALUE "LegalTrademarks", ""
 			VALUE "OriginalFilename", "encrypt.exe"
 			VALUE "ProductName", "encrypt"
-			VALUE "ProductVersion", ENCRYPT_VERSION
+			VALUE "ProductVersion", "@ENCRYPT_VERSION@"
 		}
 	}
 	BLOCK "VarFileInfo"

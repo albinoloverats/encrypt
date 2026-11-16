@@ -14,6 +14,12 @@ endif()
 option(BUILD_GUI "Build the GTK graphical application instead of the CLI" ${_gui_default})
 option(BUILD_TESTS "Build and run unit tests before building the application" ${BUILD_TESTING})
 
+if(BUILD_GUI)
+	if(APPLE)
+		message(FATAL_ERROR "The macOS GUI is built by the Xcode project; configure with -DBUILD_GUI=OFF")
+	endif()
+endif()
+
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
@@ -132,7 +138,7 @@ escape_c_string("${CMAKE_BUILD_LINKER_FLAGS}" CMAKE_BUILD_LINKER_FLAGS_ESCAPED)
 
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/generated")
 configure_file(
-	"${CMAKE_CURRENT_SOURCE_DIR}/cmake_build_flags.h.in"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/cmake_build_flags.h.in"
 	"${CMAKE_CURRENT_BINARY_DIR}/generated/cmake_build_flags.h"
 	@ONLY
 )
@@ -159,9 +165,6 @@ pkg_check_modules(LIBCURL REQUIRED IMPORTED_TARGET libcurl)
 pkg_check_modules(LIBLZMA REQUIRED IMPORTED_TARGET liblzma)
 
 if(BUILD_GUI)
-	if(APPLE)
-		message(FATAL_ERROR "The macOS GUI is built by the Xcode project; configure with -DBUILD_GUI=OFF")
-	endif()
 	pkg_check_modules(GTK3 REQUIRED IMPORTED_TARGET gtk+-3.0 gmodule-2.0)
 endif()
 
@@ -202,7 +205,11 @@ target_link_libraries(encrypt_core PUBLIC
 	Threads::Threads
 )
 
-add_executable(encrypt src/main.c)
+if(WIN32 AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+	add_executable(encrypt WIN32 src/main.c)
+else()
+	add_executable(encrypt src/main.c)
+endif()
 target_link_libraries(encrypt PRIVATE encrypt_core)
 
 if(BUILD_GUI)
@@ -212,6 +219,13 @@ if(BUILD_GUI)
 endif()
 
 if(WIN32)
+	configure_file(
+		"${CMAKE_CURRENT_SOURCE_DIR}/src/encrypt.rc.in"
+		"${CMAKE_CURRENT_BINARY_DIR}/generated/encrypt.rc"
+		@ONLY
+	)
+
+	target_sources(encrypt PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/generated/encrypt.rc")
 	target_link_libraries(encrypt_core PUBLIC ws2_32)
 endif()
 
@@ -241,7 +255,6 @@ if(BUILD_TESTS)
 		common/test/test_mem.c
 		common/test/test_tlv.c
 		common/test/test_version.c
-
 	)
 	if(COMMON_UNIT_TEST_SOURCES)
 		add_executable(common_unit_tests
