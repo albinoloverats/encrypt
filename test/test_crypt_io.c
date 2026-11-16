@@ -28,9 +28,9 @@
 #include <unistd.h>
 
 #if defined _WIN32
-	#include <io.h>
 	#include <winsock2.h>
 	#include <windows.h>
+	#include <io.h>
 #else
 	#include <signal.h>
 #endif

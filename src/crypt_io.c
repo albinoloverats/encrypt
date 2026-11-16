@@ -36,8 +36,9 @@
 #include <lzma.h>
 
 #ifdef _WIN32
-	#include <io.h>
+	#include <winsock2.h>
 	#include <windows.h>
+	#include <io.h>
 #endif
 
 /* submodule includes */
@@ -725,6 +726,7 @@ static ssize_t lzma_write(io_private_s *c, const void *d, size_t l)
 		{
 			case LZMA_STREAM_END:
 				lzf = true;
+				break;
 			case LZMA_OK:
 				break;
 			default:
@@ -783,6 +785,7 @@ proc_remain:;
 		{
 			case LZMA_STREAM_END:
 				c->eof = EOF_MAYBE;
+				break;
 			case LZMA_OK:
 				break;
 			default:

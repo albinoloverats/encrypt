@@ -227,6 +227,7 @@ extern crypto_s *encrypt_init(const char * const restrict i,
 	switch (z->version)
 	{
 		case VERSION_2011_08:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2011_10:
 			/*
 			 * single file only; if we don’t split the plaintext into
@@ -257,14 +258,18 @@ extern crypto_s *encrypt_init(const char * const restrict i,
 				z->version = VERSION_2013_11;
 			break;
 		case VERSION_2015_01:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2015_10:
 			break;
 		case VERSION_2017_09:
 			z->kdf_iterations = KEY_ITERATIONS_201709;
 			break;
 		case VERSION_2020_01:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2022_01:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2024_01:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2025_05:
 			z->kdf_iterations = n ? : KEY_ITERATIONS_DEFAULT;
 		// case VERSION_CURRENT:
@@ -296,6 +301,7 @@ static void *process(void *ptr)
 	switch (c->version)
 	{
 		case VERSION_2011_08:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2011_10:
 			iv_type = IV_BROKEN;
 			__attribute__((fallthrough)); /* allow fall-through for broken IV compatibility */
@@ -303,17 +309,26 @@ static void *process(void *ptr)
 			pre_random = false;
 			break;
 		case VERSION_2013_02:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2013_11:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2014_06:
 			iv_type = IV_SIMPLE;
 			__attribute__((fallthrough)); /* allow fall-through for broken key derivation */
 		case VERSION_2015_01:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2015_10:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2017_09:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2020_01:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2022_01:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2024_01:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2025_05:
+			__attribute__((fallthrough)); /* allow fall-through */
 		default:
 			/* no changes */
 			break;

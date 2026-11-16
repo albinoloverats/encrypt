@@ -197,6 +197,7 @@ static void *process(void *ptr)
 			 * sum
 			 */
 		case VERSION_2011_08:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2011_10:
 			iv_type = IV_BROKEN;
 			__attribute__((fallthrough)); /* allow fall-through for broken IV compatibility */
@@ -205,11 +206,14 @@ static void *process(void *ptr)
 			break;
 
 		case VERSION_2013_02:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2013_11:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2014_06:
 			iv_type = IV_SIMPLE;
 			__attribute__((fallthrough)); /* allow fall-through for broken key derivation */
 		case VERSION_2015_01:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2015_10:
 			break;
 
@@ -218,8 +222,11 @@ static void *process(void *ptr)
 			break;
 
 		case VERSION_2020_01:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2022_01:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2024_01:
+			__attribute__((fallthrough)); /* allow fall-through */
 		case VERSION_2025_05:
 			//c->kdf_iterations = KEY_ITERATIONS_DEFAULT;
 			break;
@@ -595,6 +602,7 @@ static void decrypt_directory(crypto_s *c, const char *dir)
 				dir_mk_recursive(fullpath, S_IRUSR | S_IWUSR | S_IXUSR);
 				break;
 			case FILE_SYMLINK:
+				__attribute__((fallthrough)); /* allow fall-through */
 			case FILE_LINK:
 				io_read(c->source, &l, sizeof l);
 				l = ntohll(l);

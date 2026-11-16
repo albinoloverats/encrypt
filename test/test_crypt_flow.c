@@ -30,9 +30,9 @@
 #include <unistd.h>
 
 #if defined _WIN32
-	#include <io.h>
 	#include <winsock2.h>
 	#include <windows.h>
+	#include <io.h>
 	#define TEST_PATH_LENGTH MAX_PATH
 #else
 	#include <netinet/in.h>
