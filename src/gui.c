@@ -363,7 +363,7 @@ extern void gui_setup_menus(GtkApplication *app, GtkBuilder *builder, gtk_widget
 	_compress = compress;
 	_follow = follow;
 	_raw = raw;
-	_key_source = !strcmp(key_source, "file") ? KEY_SOURCE_FILE : KEY_SOURCE_PASSWORD;
+	_key_source = !strcasecmp(key_source, "file") ? KEY_SOURCE_FILE : KEY_SOURCE_PASSWORD;
 	gtk_widget_hide(_key_source == KEY_SOURCE_PASSWORD ? data->key_button : data->password_entry);
 	gtk_widget_show(_key_source == KEY_SOURCE_PASSWORD ? data->password_entry : data->key_button);
 
