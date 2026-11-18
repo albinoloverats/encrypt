@@ -54,7 +54,6 @@
 /* project inculdes */
 
 #include "gui.h"
-#include "gui-gtk.h"
 
 #include "crypt.h"
 #include "encrypt.h"

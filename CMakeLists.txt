@@ -219,7 +219,7 @@ if(APPLE AND BUILD_GUI)
 endif()
 
 if(BUILD_GUI)
-	target_sources(encrypt PRIVATE src/gui-gtk.c)
+	target_sources(encrypt PRIVATE src/gui.c)
 	target_link_libraries(encrypt_core PUBLIC PkgConfig::GTK3)
 	target_link_libraries(encrypt PRIVATE PkgConfig::GTK3)
 endif()

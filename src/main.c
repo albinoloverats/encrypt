@@ -66,7 +66,6 @@
 
 #if defined BUILD_GUI
 	#include "gui.h"
-	#include "gui-gtk.h"
 
 	#define INIT_WIDGET(W) widgets->W = GTK_WIDGET(gtk_builder_get_object(builder, #W))
 #endif
