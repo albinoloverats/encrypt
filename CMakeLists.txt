@@ -4,21 +4,8 @@ project(encrypt C)
 
 include(CTest)
 
-# The native GUI is built by the Xcode project on macOS. Elsewhere, prefer
-# the GTK GUI; set this option to OFF for a CLI-only build.
-if(APPLE)
-	set(_gui_default OFF)
-else()
-	set(_gui_default ON)
-endif()
-option(BUILD_GUI "Build the GTK graphical application instead of the CLI" ${_gui_default})
+option(BUILD_GUI "Build the graphical application" ON)
 option(BUILD_TESTS "Build and run unit tests before building the application" ${BUILD_TESTING})
-
-if(BUILD_GUI)
-	if(APPLE)
-		message(FATAL_ERROR "The macOS GUI is built by the Xcode project; configure with -DBUILD_GUI=OFF")
-	endif()
-endif()
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -205,17 +192,51 @@ target_link_libraries(encrypt_core PUBLIC
 	Threads::Threads
 )
 
-if(WIN32 AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(APPLE AND BUILD_GUI)
+	add_executable(encrypt MACOSX_BUNDLE src/main.c)
+elseif(WIN32 AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 	add_executable(encrypt WIN32 src/main.c)
 else()
 	add_executable(encrypt src/main.c)
 endif()
 target_link_libraries(encrypt PRIVATE encrypt_core)
 
+if(APPLE AND BUILD_GUI)
+	find_file(GDK_PIXBUF_SVG_LOADER
+		NAMES libpixbufloader-svg.so
+		PATHS /opt/local/lib/gdk-pixbuf-2.0/2.10.0/loaders
+		NO_DEFAULT_PATH
+	)
+	if(NOT GDK_PIXBUF_SVG_LOADER)
+		message(FATAL_ERROR "Could not find the GdkPixbuf SVG loader")
+	endif()
+
+	set_target_properties(encrypt PROPERTIES
+		MACOSX_BUNDLE_BUNDLE_NAME "Encrypt"
+		MACOSX_BUNDLE_GUI_IDENTIFIER "org.albinoloverats.encrypt"
+		MACOSX_BUNDLE_ICON_FILE "encrypt.icns"
+	)
+endif()
+
 if(BUILD_GUI)
 	target_sources(encrypt PRIVATE src/gui-gtk.c)
 	target_link_libraries(encrypt_core PUBLIC PkgConfig::GTK3)
 	target_link_libraries(encrypt PRIVATE PkgConfig::GTK3)
+endif()
+
+if(APPLE AND BUILD_GUI)
+	set(MACOS_RESOURCES
+		etc/encrypt_mac.glade
+		pixmaps/encrypt.icns
+		pixmaps/encrypt.png
+		pixmaps/encrypt.svg
+		pixmaps/encrypt_button.png
+		pixmaps/encrypt_key.png
+	)
+
+	set_source_files_properties(${MACOS_RESOURCES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+
+	target_sources(encrypt PRIVATE ${MACOS_RESOURCES})
 endif()
 
 if(WIN32)
@@ -229,13 +250,86 @@ if(WIN32)
 	target_link_libraries(encrypt_core PUBLIC ws2_32)
 endif()
 
-# Retain the traditional decrypt invocation name on Unix-like systems.
-add_custom_command(TARGET encrypt POST_BUILD
-	COMMAND "${CMAKE_COMMAND}" -E create_symlink
-			"$<TARGET_FILE_NAME:encrypt>"
-			"$<TARGET_FILE_DIR:encrypt>/decrypt"
-	VERBATIM
-)
+if(APPLE AND BUILD_GUI)
+	install(TARGETS encrypt BUNDLE DESTINATION .)
+
+	install(
+		FILES "${GDK_PIXBUF_SVG_LOADER}"
+		DESTINATION encrypt.app/Contents/Frameworks
+	)
+
+	install(CODE [[
+		set(_bundle "${CMAKE_INSTALL_PREFIX}/encrypt.app")
+		set(_frameworks "${_bundle}/Contents/Frameworks")
+		set(_loader "${_frameworks}/libpixbufloader-svg.so")
+		set(_cache "${_frameworks}/loaders.cache")
+
+		# Locate the MacPorts GdkPixbuf cache generator.
+		find_program(_query_loaders
+			NAMES gdk-pixbuf-query-loaders
+			PATHS /opt/local/bin
+			NO_DEFAULT_PATH
+		)
+
+		if(NOT _query_loaders)
+			message(FATAL_ERROR "Could not find gdk-pixbuf-query-loaders")
+		endif()
+
+		# Generate the cache before fixup_bundle changes the loader's
+		# dependency paths. This allows the MacPorts utility to load it.
+		execute_process(
+			COMMAND "${_query_loaders}" "${_loader}"
+			OUTPUT_FILE "${_cache}"
+			RESULT_VARIABLE _result
+		)
+		# Make the loader cache independent of the staging directory.
+		file(READ "${_cache}" _cache_contents)
+		string(REPLACE "\"${_loader}\"" "\"@ENCRYPT_FRAMEWORKS@/libpixbufloader-svg.so\"" _cache_contents "${_cache_contents}")
+		file(WRITE "${_cache}" "${_cache_contents}")
+
+		if(NOT _result EQUAL 0)
+			message(FATAL_ERROR "Failed to generate GdkPixbuf loaders.cache")
+		endif()
+
+		include(BundleUtilities)
+
+		set(BU_CHMOD_BUNDLE_ITEMS ON)
+
+		# Collect and relocate the application's dependencies, including
+		# those required by the SVG loader.
+		fixup_bundle( "${_bundle}" "${_loader}" "/opt/local/lib")
+
+		# The SVG loader is a dynamically loaded module. Its dependencies
+		# must therefore be resolved relative to the module, not the
+		# application's executable.
+		file(GLOB _framework_libraries "${_frameworks}/*.dylib")
+
+		foreach(_library IN LISTS _framework_libraries)
+			get_filename_component(_name "${_library}" NAME)
+
+			execute_process(
+				COMMAND "${CMAKE_INSTALL_NAME_TOOL}"
+					-change
+					"@executable_path/../Frameworks/${_name}"
+					"@loader_path/${_name}"
+					"${_loader}"
+				RESULT_VARIABLE _result
+			)
+
+			if(NOT _result EQUAL 0)
+				message(FATAL_ERROR "Failed to fix SVG loader dependency: ${_name}")
+			endif()
+		endforeach()
+	]])
+else()
+	# Retain the traditional decrypt invocation name on Unix-like systems.
+	add_custom_command(TARGET encrypt POST_BUILD
+		COMMAND "${CMAKE_COMMAND}" -E create_symlink
+				"$<TARGET_FILE_NAME:encrypt>"
+				"$<TARGET_FILE_DIR:encrypt>/decrypt"
+		VERBATIM
+	)
+endif()
 
 if(BUILD_TESTS)
 	# Tests for the shared common submodule. This includes tests for

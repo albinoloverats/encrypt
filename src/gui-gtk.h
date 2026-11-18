@@ -31,9 +31,12 @@
 // submodule include
 #include "src/config.h"
 
-#if !defined _WIN32 && !defined __FreeBSD__
+#if !defined _WIN32 && !defined __FreeBSD__ && !defined __APPLE__
 	#define GLADE_UI_FILE_DEFAULT "/usr/share/encrypt/encrypt.glade"
 	#define GLADE_UI_FILE_BACKUP  "etc/encrypt.glade"
+#elif defined __APPLE__
+	#define GLADE_UI_FILE_DEFAULT "encrypt_mac.glade"
+	#define GLADE_UI_FILE_BACKUP  "etc/encrypt_mac.glade"
 #elif defined __FreeBSD__
 	#define GLADE_UI_FILE_DEFAULT "/usr/local/share/encrypt/encrypt.glade"
 	#define GLADE_UI_FILE_BACKUP  "etc/encrypt.glade"
@@ -93,145 +96,156 @@ gtk_widgets_s;
 
 /*!
  * \brief Populate algorithm selectors and select supplied settings
- * \param[in] data  GUI widget state
- * \param[in] cipher Cipher name to select, or NULL for the placeholder
- * \param[in] hash   Hash name to select, or NULL for the placeholder
- * \param[in] mode   Cipher mode to select, or NULL for the placeholder
- * \param[in] mac    MAC name to select, or NULL for the placeholder
- * \param[in] iter   KDF iteration count to display
+ * \param[in]  d  GUI widget state
+ * \param[in]  c  Cipher name to select, or NULL for the placeholder
+ * \param[in]  h  Hash name to select, or NULL for the placeholder
+ * \param[in]  m  Cipher mode to select, or NULL for the placeholder
+ * \param[in]  a  MAC name to select, or NULL for the placeholder
+ * \param[in]  i  KDF iteration count to display
  */
-extern void auto_select_algorithms(gtk_widgets_s *data, char *cipher, char *hash, char *mode, char *mac, uint64_t iter);
+extern void auto_select_algorithms(gtk_widgets_s *d, char *c, char *h, char *m, char *a, uint64_t i);
 
 /*!
  * \brief Populate the compatibility-version menu
- * \param[in] data    GUI widget state
- * \param[in] version Version label to select; NULL selects the current version
+ * \param[in]  d  GUI widget state
+ * \param[in]  v  Version label to select; NULL selects the current version
  */
-extern void set_compatibility_menu(gtk_widgets_s *data, char *version);
+extern void set_compatibility_menu(gtk_widgets_s *d, char *v);
 
 /*!
  * \brief Select the configured key source in the menu
- * \param[in] data       GUI widget state
- * \param[in] key_source Key-file or password selection
+ * \param[in]  d  GUI widget state
+ * \param[in]  k  Key-file or password selection
  */
-extern void set_key_source_menu(gtk_widgets_s *data, key_source_e key_source);
+extern void set_key_source_menu(gtk_widgets_s *d, key_source_e k);
 
 /*!
  * \brief Display the file chooser associated with a button
- * \param[in] button Activating button
- * \param[in] data   GUI widget state
- * \return TRUE after handling the callback
+ * \param[in]  b  Activating button
+ * \param[in]  d  GUI widget state
+ * \return        TRUE after handling the callback
  */
-G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *button, gtk_widgets_s *data);
+G_MODULE_EXPORT gboolean file_dialog_display(GtkButton *b, gtk_widgets_s *d);
 
 /*!
  * \brief Accept the currently selected file chooser path
- * \param[in] button Activating button
- * \param[in] data   GUI widget state
- * \return TRUE after handling the callback
+ * \param[in]  b  Activating button
+ * \param[in]  d  GUI widget state
+ * \return        TRUE after handling the callback
  */
-G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_s *data);
+G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *b, gtk_widgets_s *d);
 
 /*!
  * \brief Update algorithm settings and control sensitivity after selector changes
- * \param[in] combo_box Changed selector
- * \param[in] data      GUI widget state
- * \return TRUE after handling the callback
+ * \param[in]  c  Changed selector
+ * \param[in]  d  GUI widget state
+ * \return        TRUE after handling the callback
  */
-G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_widgets_s *data);
+G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *c, gtk_widgets_s *d);
 
 /*!
  * \brief Switch between key-file and password controls
- * \param[in] widget Activating menu widget
- * \param[in] data   GUI widget state
- * \return TRUE after handling the callback
+ * \param[in]  w  Activating menu widget
+ * \param[in]  d  GUI widget state
+ * \return        TRUE after handling the callback
  */
-G_MODULE_EXPORT gboolean on_key_source_change(GtkWidget *widget, gtk_widgets_s *data);
+G_MODULE_EXPORT gboolean on_key_source_change(GtkWidget *w, gtk_widgets_s *d);
 
 /*!
  * \brief Update encryption-button sensitivity when the password changes
- * \param[in] password_entry Password entry widget
- * \param[in] data           GUI widget state
- * \return TRUE after handling the callback
+ * \param[in]  p  Password entry widget
+ * \param[in]  d  GUI widget state
+ * \return        TRUE after handling the callback
  */
-G_MODULE_EXPORT gboolean password_entry_callback(GtkComboBox *password_entry, gtk_widgets_s *data);
+G_MODULE_EXPORT gboolean password_entry_callback(GtkComboBox *p, gtk_widgets_s *d);
 
 /*!
  * \brief Validate and accept a selected key file
- * \param[in] file_chooser Key-file chooser
- * \param[in] data         GUI widget state
- * \return TRUE after handling the callback
+ * \param[in]  f  Key-file chooser
+ * \param[in]  d  GUI widget state
+ * \return        TRUE after handling the callback
  */
-G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *file_chooser, gtk_widgets_s *data);
+G_MODULE_EXPORT gboolean key_dialog_okay(GtkFileChooser *f, gtk_widgets_s *d);
 
 /*!
  * \brief Start an encryption or decryption operation
- * \param[in] button Activating operation button
- * \param[in] data   GUI widget state
- * \return TRUE after handling the callback
+ * \param[in]  b  Activating operation button
+ * \param[in]  d  GUI widget state
+ * \return        TRUE after handling the callback
  */
-G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *button, gtk_widgets_s *data);
+G_MODULE_EXPORT gboolean on_encrypt_button_clicked(GtkButton *b, gtk_widgets_s *d);
 
 /*!
  * \brief Cancel an active operation or close its progress dialog
- * \param[in] button Activating progress-dialog button
- * \param[in] data   GUI widget state
- * \return TRUE after handling the callback
+ * \param[in]  b  Activating progress-dialog button
+ * \param[in]  d  GUI widget state
+ * \return        TRUE after handling the callback
  */
-G_MODULE_EXPORT gboolean on_progress_button_clicked(GtkButton *button, gtk_widgets_s *data);
+G_MODULE_EXPORT gboolean on_progress_button_clicked(GtkButton *b, gtk_widgets_s *d);
 
 /*!
  * \brief Display the About dialog and build information
- * \param[in] widget Activating widget
- * \param[in] data   GUI widget state
- * \return TRUE after handling the callback
+ * \param[in]  w  Activating widget
+ * \param[in]  d  GUI widget state
+ * \return        TRUE after handling the callback
  */
-G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_s *data);
+G_MODULE_EXPORT gboolean on_about_open(GtkWidget *w, gtk_widgets_s *d);
 
 /*!
  * \brief Update the compression preference
- * \param[in] widget Toggled menu item
- * \param[in] data   GUI widget state
- * \return TRUE after handling the callback
+ * \param[in]  w  Toggled menu item
+ * \param[in]  d  GUI widget state
+ * \return        TRUE after handling the callback
  */
-G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *widget, gtk_widgets_s *data);
+G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *w, gtk_widgets_s *d);
 
 /*!
  * \brief Update the symbolic-link following preference
- * \param[in] widget Toggled menu item
- * \param[in] data   GUI widget state
- * \return TRUE after handling the callback
+ * \param[in]  w  Toggled menu item
+ * \param[in]  d  GUI widget state
+ * \return        TRUE after handling the callback
  */
-G_MODULE_EXPORT gboolean on_follow_toggle(GtkWidget *widget, gtk_widgets_s *data);
+G_MODULE_EXPORT gboolean on_follow_toggle(GtkWidget *w, gtk_widgets_s *d);
 
 /*!
  * \brief Update the raw-mode preference
- * \param[in] widget Toggled menu item
- * \param[in] data   GUI widget state
- * \return TRUE after handling the callback
+ * \param[in]  w  Toggled menu item
+ * \param[in]  d  GUI widget state
+ * \return        TRUE after handling the callback
  */
-G_MODULE_EXPORT gboolean on_raw_toggle(GtkWidget *widget, gtk_widgets_s *data);
+G_MODULE_EXPORT gboolean on_raw_toggle(GtkWidget *w, gtk_widgets_s *d);
 
 /*!
  * \brief Update the container compatibility version
- * \param[in] widget Selected version menu item
- * \param[in] data   GUI widget state
- * \return TRUE after handling the callback
+ * \param[in]  w  Selected version menu item
+ * \param[in]  d  GUI widget state
+ * \return        TRUE after handling the callback
  */
-G_MODULE_EXPORT gboolean on_compatibility_change(GtkWidget *widget, gtk_widgets_s *data);
+G_MODULE_EXPORT gboolean on_compatibility_change(GtkWidget *w, gtk_widgets_s *d);
 
 /*!
  * \brief Show the raw-mode operation buttons or the standard operation button
- * \param[in] data GUI widget state
- * \param[in] raw  Whether raw mode is enabled
+ * \param[in]  d  GUI widget state
+ * \param[in]  r  Whether raw mode is enabled
  */
-extern void set_raw_buttons(gtk_widgets_s *data, bool raw);
+extern void set_raw_buttons(gtk_widgets_s *d, bool r);
 
 /*!
  * \brief Replace the message displayed in the status bar
- * \param[in] status_bar Status bar widget
- * \param[in] status     Message to display
+ * \param[in]  b  Status bar widget
+ * \param[in]  s  Message to display
  */
-extern void set_status_bar(GtkStatusbar *status_bar, const char *status);
+extern void set_status_bar(GtkStatusbar *b, const char *s);
+
+#if defined __APPLE__
+extern char *get_mac_path(char *s);
+
+extern void configure_pixbuf_loaders(void);
+
+#define get_mac_resource_path()  get_mac_path("Resources")
+#define get_mac_framework_path() get_mac_path("Frameworks")
+#define get_mac_cache_path()     get_mac_path("Frameworks/loaders.cache")
+
+#endif
 
 #endif /* _ENCRYPT_GUI_GTK_H_ */

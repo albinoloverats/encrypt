@@ -300,22 +300,35 @@ int main(int argc, char **argv)
 		(void)cli;
 	#endif /* ! _WIN32 */
 
+	#if defined __APPLE__
+		configure_pixbuf_loaders();
+	#endif
+
 		if (gtk_init_check(&argc, &argv))
 		{
 			builder = gtk_builder_new();
-	#if !defined _WIN32
+	#if !defined _WIN32 && !defined __APPLE__
 		#if !defined __DEBUG__ && !defined __DEBUG_GUI__
 			const char *glade_ui_file = GLADE_UI_FILE_DEFAULT;
 		#else
 			const char *glade_ui_file = GLADE_UI_FILE_BACKUP;
 		#endif
-	#else
-			char *glade_ui_file = m_calloc(MAX_PATH, sizeof( char ));
+	#elif defined __APPLE__
+			char *resource_dir = get_mac_resource_path();
+			if (!resource_dir)
+				cli_eprintf("Could not determine application resource directory\n");
+			char glade_ui_file[PATH_MAX];
+			snprintf(glade_ui_file, sizeof glade_ui_file, "%s/%s", resource_dir, GLADE_UI_FILE_DEFAULT);
+			free(resource_dir);
+	#elif defined _WIN32
+			char *glade_ui_file[MAX_PATH];
 		#if !defined __DEBUG__
 			SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL, 0, glade_ui_file);
 			strcat(glade_ui_file, "\\");
 		#endif /* __DEBUG__ */
 			strcat(glade_ui_file, GLADE_UI_FILE_DEFAULT);
+	#else
+		#error "WTF‽"
 	#endif /* ! _WIN32 */
 			if (!gtk_builder_add_from_file(builder, glade_ui_file, &error))
 			{
@@ -325,9 +338,6 @@ int main(int argc, char **argv)
 				if (!gtk_builder_add_from_file(builder, GLADE_UI_FILE_BACKUP, &error))
 					die(_("%s"), error->message);
 			}
-	#if defined _WIN32
-			free(glade_ui_file);
-	#endif
 			/*
 			 * allocate widgets structure
 			 */

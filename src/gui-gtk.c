@@ -34,6 +34,11 @@
 #include <pthread.h>
 #include <libgen.h>
 
+#if defined __APPLE__
+	#include <CoreFoundation/CoreFoundation.h>
+	#include <limits.h>
+#endif
+
 /* submodule includes */
 
 #include "src/common.h"
@@ -86,6 +91,128 @@ static bool _raw = false;
 static key_source_e _key_source = KEY_SOURCE_PASSWORD;
 static version_e _version = VERSION_CURRENT;
 static crypto_status_e *_status = NULL;
+
+
+#ifdef __APPLE__
+
+#define CONTENTS_DIRECTORY "/Contents/"
+
+extern char *get_mac_path(char *suffix)
+{
+	CFBundleRef bundle = CFBundleGetMainBundle();
+	if (!bundle)
+		return NULL;
+	CFURLRef bundle_url = CFBundleCopyBundleURL(bundle);
+	if (!bundle_url)
+		return NULL;
+
+	CFStringRef bundle_url_string = CFURLCopyFileSystemPath(bundle_url, kCFURLPOSIXPathStyle);
+	CFRelease(bundle_url);
+
+	size_t length = (size_t)CFStringGetMaximumSizeForEncoding(CFStringGetLength(bundle_url_string), kCFStringEncodingUTF8);
+	size_t capacity = length + strlen(suffix) + strlen(CONTENTS_DIRECTORY);
+	char *bundle_path = calloc(capacity, 1);
+	if (!bundle_path)
+		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, capacity);
+
+	bool b = CFStringGetCString(bundle_url_string, bundle_path, (CFIndex)length, kCFStringEncodingUTF8);
+	CFRelease(bundle_url_string);
+	if (!b)
+	{
+		free(bundle_path);
+		return NULL;
+	}
+
+	strcat(bundle_path, CONTENTS_DIRECTORY);
+	strcat(bundle_path, suffix);
+	return bundle_path;
+}
+
+static char pixbuf_cache_path[] = "/tmp/encrypt-loaders-XXXXXX";
+
+static void remove_pixbuf_cache(void)
+{
+	unlink(pixbuf_cache_path);
+}
+
+extern void configure_pixbuf_loaders(void)
+{
+	const char *placeholder = "@ENCRYPT_FRAMEWORKS@";
+	char *framework_path = get_mac_framework_path();
+	char *cache_path = get_mac_cache_path();
+
+	if (!framework_path || !cache_path)
+		die(_("Unable to determine application bundle paths"));
+
+	FILE *input = fopen(cache_path, "rb");
+	if (!input)
+		die(_("Unable to open GdkPixbuf loader cache: %s"), cache_path);
+
+	if (fseek(input, 0, SEEK_END) != 0)
+		die(_("Unable to seek GdkPixbuf loader cache"));
+
+	long length = ftell(input);
+	if (length < 0 || fseek(input, 0, SEEK_SET) != 0)
+		die(_("Unable to read GdkPixbuf loader cache"));
+
+	char *contents = malloc((size_t)length + 1);
+	if (!contents)
+		die(_("Out of memory"));
+
+	if (fread(contents, 1, (size_t)length, input) != (size_t)length)
+		die(_("Unable to read GdkPixbuf loader cache"));
+
+	fclose(input);
+	contents[length] = '\0';
+
+	char *marker = strstr(contents, placeholder);
+	if (!marker)
+		die(_("GdkPixbuf loader cache placeholder not found"));
+
+	size_t prefix_length = (size_t)(marker - contents);
+	size_t marker_length = strlen(placeholder);
+	size_t framework_length = strlen(framework_path);
+	size_t suffix_length = (size_t)length - prefix_length - marker_length;
+
+	size_t output_length = prefix_length + framework_length + suffix_length;
+	char *output = malloc(output_length + 1);
+	if (!output)
+		die(_("Out of memory"));
+
+	memcpy(output, contents, prefix_length);
+	memcpy(output + prefix_length, framework_path, framework_length);
+	memcpy(output + prefix_length + framework_length, marker + marker_length, suffix_length);
+	output[output_length] = '\0';
+
+	free(contents);
+	free(cache_path);
+
+	int fd = mkstemp(pixbuf_cache_path);
+	if (fd < 0)
+		die(_("Unable to create temporary GdkPixbuf loader cache"));
+
+	FILE *output_file = fdopen(fd, "wb");
+	if (!output_file)
+		die(_("Unable to open temporary GdkPixbuf loader cache"));
+
+	if (fwrite(output, 1, output_length, output_file) != output_length)
+		die(_("Unable to write temporary GdkPixbuf loader cache"));
+
+	free(output);
+
+	if (fclose(output_file))
+		die(_("Unable to close temporary GdkPixbuf loader cache"));
+
+	if (setenv("GDK_PIXBUF_MODULEDIR", framework_path, 1) != 0 ||
+		setenv("GDK_PIXBUF_MODULE_FILE", pixbuf_cache_path, 1) != 0)
+		die(_("Unable to configure GdkPixbuf loader paths"));
+
+	free(framework_path);
+	atexit(remove_pixbuf_cache);
+}
+
+#endif
+
 
 extern void auto_select_algorithms(gtk_widgets_s *data, char *cipher, char *hash, char *mode, char *mac, uint64_t iter)
 {
@@ -342,7 +469,7 @@ G_MODULE_EXPORT gboolean file_dialog_okay(GtkButton *button, gtk_widgets_s *data
 		 */
 		int result = stat(save_file, &s);
 		if ((result == 0 && (S_ISREG(s.st_mode) || S_ISDIR(s.st_mode))) ||
-		    (result < 0 && errno == ENOENT))
+			(result < 0 && errno == ENOENT))
 		{
 			gtk_label_set_text((GtkLabel *)data->save_file_label, basename(save_display));
 			gtk_widget_show(data->save_file_image);
@@ -406,7 +533,7 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_wi
 		update_config(CONF_CIPHER, list_get(ciphers, cipher - 1));
 		update_config(CONF_HASH,   list_get(hashes,  hash - 1));
 		update_config(CONF_MODE,   list_get(modes,   mode - 1));
-		update_config(CONF_MAC,    list_get(macs,    mac - 1));
+		update_config(CONF_MAC,	list_get(macs,	mac - 1));
 
 		char i[22];
 		snprintf(i, sizeof i, "%" PRIu64, iter);
