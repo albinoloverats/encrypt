@@ -114,7 +114,6 @@ typedef struct gtk_widgets_s
 	GtkWidget *about_version_build_info;
 	GtkWidget *build_info_text_buffer;
 	GtkWidget *about_new_version_label;
-	GtkApplication *application;
 	GMenu *compatibility_menu;
 	GtkWidget *raw_encrypt_button;
 	GtkWidget *raw_decrypt_button;
