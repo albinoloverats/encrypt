@@ -367,11 +367,6 @@ extern void gui_setup_menus(GtkApplication *app, GtkBuilder *builder, gtk_widget
 	gtk_widget_hide(_key_source == KEY_SOURCE_PASSWORD ? data->key_button : data->password_entry);
 	gtk_widget_show(_key_source == KEY_SOURCE_PASSWORD ? data->password_entry : data->key_button);
 
-	gtk_application_set_menubar(app, menubar);
-#ifdef __APPLE__
-	app_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "app-menu"));
-	gtk_application_set_app_menu(app, app_menu);
-#endif
 
 	menu_add_action(app, "quit", NULL, G_CALLBACK(menu_action_quit), data);
 	menu_add_action(app, "about", NULL, G_CALLBACK(menu_action_about), data);
@@ -393,8 +388,11 @@ extern void gui_setup_menus(GtkApplication *app, GtkBuilder *builder, gtk_widget
 	}
 	menu_add_action(app, "compatibility", g_variant_new_string(get_version_string(selected)), G_CALLBACK(menu_action_compatibility_change), data);
 
-	gtk_application_set_accels_for_action(app, "app.quit", (const char *[]){ "<Primary>q", NULL });
-	gtk_application_set_accels_for_action(app, "app.about", (const char *[]){ "F1", NULL });
+	gtk_application_set_menubar(app, menubar);
+#ifdef __APPLE__
+	gtk_application_set_app_menu(app, G_MENU_MODEL(gtk_builder_get_object(builder, "app-menu")));
+#endif
+
 	return;
 }
 
