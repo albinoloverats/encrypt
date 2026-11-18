@@ -114,12 +114,8 @@ typedef struct gtk_widgets_s
 	GtkWidget *about_version_build_info;
 	GtkWidget *build_info_text_buffer;
 	GtkWidget *about_new_version_label;
-	GtkWidget *compress_menu_item;
-	GtkWidget *follow_menu_item;
-	GtkWidget *raw_menu_item;
-	GtkWidget *compat_menu;
-	GtkWidget *key_file_menu_item;
-	GtkWidget *key_password_menu_item;
+	GtkApplication *application;
+	GMenu *compatibility_menu;
 	GtkWidget *raw_encrypt_button;
 	GtkWidget *raw_decrypt_button;
 	GtkWidget *abort_dialog;
@@ -144,14 +140,7 @@ extern void auto_select_algorithms(gtk_widgets_s *d, char *c, char *h, char *m, 
  * \param[in]  d  GUI widget state
  * \param[in]  v  Version label to select; NULL selects the current version
  */
-extern void set_compatibility_menu(gtk_widgets_s *d, char *v);
-
-/*!
- * \brief Select the configured key source in the menu
- * \param[in]  d  GUI widget state
- * \param[in]  k  Key-file or password selection
- */
-extern void set_key_source_menu(gtk_widgets_s *d, key_source_e k);
+extern void gui_setup_menus(GtkApplication *app, GtkBuilder *builder, gtk_widgets_s *d, bool compress, bool follow, bool raw, const char *key_source, char *version);
 
 /*!
  * \brief Display the file chooser associated with a button
@@ -183,8 +172,6 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *c, gtk_widgets_s 
  * \param[in]  d  GUI widget state
  * \return        TRUE after handling the callback
  */
-G_MODULE_EXPORT gboolean on_key_source_change(GtkWidget *w, gtk_widgets_s *d);
-
 /*!
  * \brief Update encryption-button sensitivity when the password changes
  * \param[in]  p  Password entry widget
@@ -231,32 +218,24 @@ G_MODULE_EXPORT gboolean on_about_open(GtkWidget *w, gtk_widgets_s *d);
  * \param[in]  d  GUI widget state
  * \return        TRUE after handling the callback
  */
-G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *w, gtk_widgets_s *d);
-
 /*!
  * \brief Update the symbolic-link following preference
  * \param[in]  w  Toggled menu item
  * \param[in]  d  GUI widget state
  * \return        TRUE after handling the callback
  */
-G_MODULE_EXPORT gboolean on_follow_toggle(GtkWidget *w, gtk_widgets_s *d);
-
 /*!
  * \brief Update the raw-mode preference
  * \param[in]  w  Toggled menu item
  * \param[in]  d  GUI widget state
  * \return        TRUE after handling the callback
  */
-G_MODULE_EXPORT gboolean on_raw_toggle(GtkWidget *w, gtk_widgets_s *d);
-
 /*!
  * \brief Update the container compatibility version
  * \param[in]  w  Selected version menu item
  * \param[in]  d  GUI widget state
  * \return        TRUE after handling the callback
  */
-G_MODULE_EXPORT gboolean on_compatibility_change(GtkWidget *w, gtk_widgets_s *d);
-
 /*!
  * \brief Show the raw-mode operation buttons or the standard operation button
  * \param[in]  d  GUI widget state

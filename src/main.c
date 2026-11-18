@@ -283,6 +283,7 @@ int main(int argc, char **argv)
 #if defined BUILD_GUI
 	gtk_widgets_s *widgets;
 	GtkBuilder *builder;
+	GtkApplication *application;
 	GError *error = NULL;
 
 	#if !defined _WIN32
@@ -305,6 +306,15 @@ int main(int argc, char **argv)
 
 		if (gtk_init_check(&argc, &argv))
 		{
+			application = gtk_application_new("net.albinoloverats.encrypt", G_APPLICATION_NON_UNIQUE);
+			if (!g_application_register(G_APPLICATION(application), NULL, &error))
+			{
+				cli_eprintf("Could not register GUI application: %s\\n", error->message);
+				g_error_free(error);
+				g_object_unref(application);
+			}
+			else
+			{
 			builder = gtk_builder_new();
 	#if !defined _WIN32 && !defined __APPLE__
 		#if !defined __DEBUG__ && !defined __DEBUG_GUI__
@@ -374,18 +384,14 @@ int main(int argc, char **argv)
 			INIT_WIDGET(about_version_build_info);
 			INIT_WIDGET(build_info_text_buffer);
 			INIT_WIDGET(about_new_version_label);
-			INIT_WIDGET(compress_menu_item);
-			INIT_WIDGET(follow_menu_item);
-			INIT_WIDGET(raw_menu_item);
-			INIT_WIDGET(compat_menu);
-			INIT_WIDGET(key_file_menu_item);
-			INIT_WIDGET(key_password_menu_item);
 			INIT_WIDGET(raw_encrypt_button);
 			INIT_WIDGET(raw_decrypt_button);
 			INIT_WIDGET(abort_dialog);
 			INIT_WIDGET(abort_button);
 			INIT_WIDGET(abort_message);
 
+			gui_setup_menus(application, builder, widgets, compress, follow, raw, key_source, version);
+			gtk_application_add_window(application, GTK_WINDOW(widgets->main_window));
 			gtk_builder_connect_signals(builder, widgets);
 			g_object_unref(G_OBJECT(builder));
 			gtk_widget_show(widgets->main_window);
@@ -424,14 +430,6 @@ int main(int argc, char **argv)
 			file_dialog_okay(NULL, widgets);
 
 			auto_select_algorithms(widgets, cipher, hash, mode, mac, kdf);
-			set_compatibility_menu(widgets, version);
-			if (!strcasecmp(key_source, "file"))
-				set_key_source_menu(widgets, KEY_SOURCE_FILE);
-			else
-				set_key_source_menu(widgets, KEY_SOURCE_PASSWORD);
-			gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->compress_menu_item, compress);
-			gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->follow_menu_item, follow);
-			gtk_check_menu_item_set_active((GtkCheckMenuItem *)widgets->raw_menu_item, raw);
 
 			set_raw_buttons(widgets, raw);
 			set_status_bar((GtkStatusbar *)widgets->status_bar, STATUS_BAR_READY);
@@ -439,6 +437,7 @@ int main(int argc, char **argv)
 			gtk_main();
 
 			g_slice_free(gtk_widgets_s, widgets);
+			g_object_unref(application);
 
 			goto clean_up;
 
