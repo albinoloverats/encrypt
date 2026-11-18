@@ -373,7 +373,7 @@ extern void gui_setup_menus(GtkApplication *app, GtkBuilder *builder, gtk_widget
 	menu_add_action(app, "compress", g_variant_new_boolean(compress), G_CALLBACK(menu_action_boolean_change), data);
 	menu_add_action(app, "follow", g_variant_new_boolean(follow), G_CALLBACK(menu_action_boolean_change), data);
 	menu_add_action(app, "raw", g_variant_new_boolean(raw), G_CALLBACK(menu_action_boolean_change), data);
-	menu_add_action(app, "key-source", g_variant_new_string(key_source), G_CALLBACK(menu_action_key_source_change), data);
+	menu_add_action(app, "key-source", g_variant_new_string(_key_source == KEY_SOURCE_FILE ? "file" : "password"), G_CALLBACK(menu_action_key_source_change), data);
 
 	if (selected == VERSION_UNKNOWN)
 		selected = VERSION_CURRENT;
