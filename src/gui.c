@@ -357,10 +357,8 @@ static void menu_add_action(GtkApplication *app, const char *name, GVariant *sta
 extern void gui_setup_menus(GtkApplication *app, GtkBuilder *builder, gtk_widgets_s *data, bool compress, bool follow, bool raw, const char *key_source, char *version)
 {
 	GMenuModel *menubar = G_MENU_MODEL(gtk_builder_get_object(builder, "menubar"));
-	GMenuModel *app_menu = NULL;
 	version_e selected = parse_version(version);
 
-	data->application = app;
 	data->compatibility_menu = G_MENU(gtk_builder_get_object(builder, "compatibility_menu"));
 	_compress = compress;
 	_follow = follow;
