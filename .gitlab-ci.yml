@@ -11,31 +11,32 @@ stages:
 build:
   stage: build
   before_script:
-    - apt-get update && apt-get install -y git gcovr=7.2+really-1.1 libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl4-gnutls-dev libcmocka-dev
+    - apt-get update && apt-get install -y build-essential cmake git gcovr=7.2+really-1.1 libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl4-gnutls-dev libcmocka-dev
     - git submodule update --init
   script:
-    - make cli
-    - make test
-  coverage: '/lines: ([0-9]+\.[0-9]+)%/'
+    - cmake -S . -B build -DBUILD_GUI=OFF -DBUILD_TESTS=ON -DENABLE_COVERAGE=ON
+    - cmake --build build --target coverage --parallel
+    - (cd build && sh ../test/test_cli_compressed_eof.sh)
+  coverage: '/lines: ([0-9]+\\.[0-9]+)%/'
   artifacts:
     paths:
-      - encrypt
-      - coverage/
+      - build/encrypt
+      - build/coverage/
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: coverage/coverage.xml
+        path: build/coverage/coverage.xml
 
-# run tests using the binary built before
+# Run the self-test using the binary built above.
 test:
   stage: test
   dependencies:
     - build
   before_script:
-    - apt-get update && apt-get install -y libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl4-gnutls-dev libcmocka-dev
+    - apt-get update && apt-get install -y libgcrypt20 liblzma5 libcurl4-gnutls3
   script:
     - cp etc/encryptrc ~/.encryptrc
-    - ./encrypt --self-test
+    - ./build/encrypt --self-test
 
 pages:
   stage: deploy
@@ -46,7 +47,7 @@ pages:
       artifacts: false
   script:
     - mkdir -p public
-    - cp -R coverage/. public/
+    - cp -R build/coverage/. public/
   pages:
     publish: public
   rules:
