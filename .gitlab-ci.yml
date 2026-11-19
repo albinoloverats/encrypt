@@ -16,7 +16,6 @@ build:
   script:
     - cmake -S . -B build -DBUILD_GUI=OFF -DBUILD_TESTS=ON -DENABLE_COVERAGE=ON
     - cmake --build build --target coverage --parallel
-    - (cd build && sh ../test/test_cli_compressed_eof.sh)
   coverage: '/lines: ([0-9]+\.[0-9]+)%/'
   artifacts:
     paths:
@@ -37,6 +36,7 @@ test:
   script:
     - cp etc/encryptrc ~/.encryptrc
     - ./build/encrypt --self-test
+    - (cd build && sh ../test/test_cli_compressed_eof.sh)
 
 pages:
   stage: deploy

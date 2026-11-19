@@ -9,8 +9,8 @@ pipelines:
           - git submodule update --init
           - cmake -S . -B build -DBUILD_GUI=OFF -DBUILD_TESTS=ON -DENABLE_COVERAGE=ON
           - cmake --build build --target coverage --parallel
-          - (cd build && sh ../test/test_cli_compressed_eof.sh)
           - cp etc/encryptrc ~/.encryptrc
           - ./build/encrypt --self-test
+          - (cd build && sh ../test/test_cli_compressed_eof.sh)
         artifacts:
           - build/coverage/**
