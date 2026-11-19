@@ -4,7 +4,6 @@ extra
 signing
 bin
 gen
-pkg
 debian/encrypt/
 build-stamp
 configure-stamp
