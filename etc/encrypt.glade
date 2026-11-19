@@ -136,7 +136,7 @@
 		<property name="skip_pager_hint">True</property>
 		<property name="program_name">encrypt</property>
 		<property name="version">2025.05</property>
-		<property name="copyright" translatable="yes">Copyright © 2004-2025, albinoloverats ~ Software Development</property>
+		<property name="copyright" translatable="yes">Copyright © 2004-2026, albinoloverats ~ Software Development</property>
 		<property name="website">https://albinoloverats.net/projects/encrypt</property>
 		<property name="website_label" translatable="yes">https://albinoloverats.net/projects/encrypt</property>
 		<property name="license" translatable="yes">encrypt ~ a cross platform, symetric key, file encryption application
@@ -354,6 +354,7 @@ processes your file</property>
 				<item>
 					<attribute name="label" translatable="yes">_Quit</attribute>
 					<attribute name="action">app.quit</attribute>
+					<attribute name="accel">&lt;Primary&gt;q</attribute>
 				</item>
 			</section>
 		</submenu>
@@ -375,12 +376,12 @@ processes your file</property>
 					<item>
 						<attribute name="label" translatable="yes">_Key File</attribute>
 						<attribute name="action">app.key-source</attribute>
-						<attribute name="target" type="s">file</attribute>
+						<attribute name="target" type="s">'file'</attribute>
 					</item>
 					<item>
 						<attribute name="label" translatable="yes">_Password</attribute>
 						<attribute name="action">app.key-source</attribute>
-						<attribute name="target" type="s">password</attribute>
+						<attribute name="target" type="s">'password'</attribute>
 					</item>
 				</section>
 			</submenu>
@@ -392,10 +393,9 @@ processes your file</property>
 					<attribute name="label" translatable="yes">_Raw</attribute>
 					<attribute name="action">app.raw</attribute>
 				</item>
-				<item>
+				<submenu id="compatibility_menu">
 					<attribute name="label" translatable="yes">_Compatibility</attribute>
-					<link name="submenu" id="compatibility_menu"/>
-				</item>
+				</submenu>
 			</section>
 		</submenu>
 		<submenu>
@@ -408,7 +408,6 @@ processes your file</property>
 			</section>
 		</submenu>
 	</menu>
-	<menu id="compatibility_menu"/>
 	<object class="GtkApplicationWindow" id="main_window">
 		<property name="width_request">320</property>
 		<property name="height_request">480</property>

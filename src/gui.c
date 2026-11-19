@@ -304,17 +304,17 @@ static void menu_action_boolean_change(GSimpleAction *action, GVariant *value, g
 	const char *name = g_action_get_name(G_ACTION(action));
 	gboolean active = g_variant_get_boolean(value);
 
-	if (!strcmp(name, "compress"))
+	if (!strcmp(name, CONF_COMPRESS))
 	{
 		_compress = active;
 		update_config(CONF_COMPRESS, active ? CONF_TRUE : CONF_FALSE);
 	}
-	else if (!strcmp(name, "follow"))
+	else if (!strcmp(name, CONF_FOLLOW))
 	{
 		_follow = active;
 		update_config(CONF_FOLLOW, active ? CONF_TRUE : CONF_FALSE);
 	}
-	else if (!strcmp(name, "raw"))
+	else if (!strcmp(name, CONF_SKIP_HEADER))
 	{
 		_raw = active;
 		update_config(CONF_SKIP_HEADER, active ? CONF_TRUE : CONF_FALSE);
@@ -346,8 +346,11 @@ static void menu_action_compatibility_change(GSimpleAction *action, GVariant *va
 
 static void menu_add_action(GtkApplication *app, const char *name, GVariant *state, GCallback callback, gpointer data)
 {
+	const GVariantType *type = g_variant_is_of_type(state, G_VARIANT_TYPE_STRING)
+		? G_VARIANT_TYPE_STRING
+		: NULL;
 	GSimpleAction *action = state
-		? g_simple_action_new_stateful(name, NULL, state)
+		? g_simple_action_new_stateful(name, type, state)
 		: g_simple_action_new(name, NULL);
 	g_signal_connect(action, state ? "change-state" : "activate", callback, data);
 	g_action_map_add_action(G_ACTION_MAP(app), G_ACTION(action));
@@ -366,7 +369,6 @@ extern void gui_setup_menus(GtkApplication *app, GtkBuilder *builder, gtk_widget
 	_key_source = !strcasecmp(key_source, "file") ? KEY_SOURCE_FILE : KEY_SOURCE_PASSWORD;
 	gtk_widget_hide(_key_source == KEY_SOURCE_PASSWORD ? data->key_button : data->password_entry);
 	gtk_widget_show(_key_source == KEY_SOURCE_PASSWORD ? data->password_entry : data->key_button);
-
 
 	menu_add_action(app, "quit", NULL, G_CALLBACK(menu_action_quit), data);
 	menu_add_action(app, "about", NULL, G_CALLBACK(menu_action_about), data);
@@ -720,7 +722,6 @@ G_MODULE_EXPORT gboolean on_progress_button_clicked(GtkButton *button, gtk_widge
 
 G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_s *data)
 {
-
 	char *build_info = version_build_info();
 	gtk_text_buffer_set_text((GtkTextBuffer *)data->build_info_text_buffer, build_info, -1);
 	free(build_info);

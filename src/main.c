@@ -309,138 +309,139 @@ int main(int argc, char **argv)
 			application = gtk_application_new("net.albinoloverats.encrypt", G_APPLICATION_NON_UNIQUE);
 			if (!g_application_register(G_APPLICATION(application), NULL, &error))
 			{
-				cli_eprintf("Could not register GUI application: %s\\n", error->message);
+				cli_eprintf("Could not register GUI application: %s\n", error->message);
 				g_error_free(error);
 				g_object_unref(application);
 			}
 			else
 			{
-			builder = gtk_builder_new();
+				builder = gtk_builder_new();
 	#if !defined _WIN32 && !defined __APPLE__
-		#if !defined __DEBUG__ && !defined __DEBUG_GUI__
-			const char *glade_ui_file = GLADE_UI_FILE_DEFAULT;
+		#if !defined __DEBUG__
+				const char *glade_ui_file = GLADE_UI_FILE_DEFAULT;
 		#else
-			const char *glade_ui_file = GLADE_UI_FILE_BACKUP;
+				const char *glade_ui_file = GLADE_UI_FILE_BACKUP;
 		#endif
 	#elif defined __APPLE__
-			char *resource_dir = get_mac_resource_path();
-			if (!resource_dir)
-				cli_eprintf("Could not determine application resource directory\n");
-			char glade_ui_file[PATH_MAX];
-			snprintf(glade_ui_file, sizeof glade_ui_file, "%s/%s", resource_dir, GLADE_UI_FILE_DEFAULT);
-			free(resource_dir);
+				char *resource_dir = get_mac_resource_path();
+				if (!resource_dir)
+					cli_eprintf("Could not determine application resource directory\n");
+				char glade_ui_file[PATH_MAX];
+				snprintf(glade_ui_file, sizeof glade_ui_file, "%s/%s", resource_dir, GLADE_UI_FILE_DEFAULT);
+				free(resource_dir);
 	#elif defined _WIN32
-			char *glade_ui_file[MAX_PATH];
+				char glade_ui_file[MAX_PATH];
 		#if !defined __DEBUG__
-			SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL, 0, glade_ui_file);
-			strcat(glade_ui_file, "\\");
+				SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL, 0, glade_ui_file);
+				strcat(glade_ui_file, "\\");
 		#endif /* __DEBUG__ */
-			strcat(glade_ui_file, GLADE_UI_FILE_DEFAULT);
+				strcat(glade_ui_file, GLADE_UI_FILE_DEFAULT);
 	#else
 		#error "WTF‽"
 	#endif /* ! _WIN32 */
-			if (!gtk_builder_add_from_file(builder, glade_ui_file, &error))
-			{
-				cli_eprintf("%s", error->message);
-				g_error_free(error);
-				error = NULL;
-				if (!gtk_builder_add_from_file(builder, GLADE_UI_FILE_BACKUP, &error))
-					die(_("%s"), error->message);
-			}
-			/*
-			 * allocate widgets structure
-			 */
-			widgets = g_slice_new(gtk_widgets_s);
-			/*
-			 * get widgets from UI
-			 */
-			INIT_WIDGET(main_window);
-			INIT_WIDGET(open_button);
-			INIT_WIDGET(open_dialog);
-			INIT_WIDGET(open_file_label);
-			INIT_WIDGET(open_file_image);
-			INIT_WIDGET(save_button);
-			INIT_WIDGET(save_dialog);
-			INIT_WIDGET(save_file_label);
-			INIT_WIDGET(save_file_image);
-			INIT_WIDGET(crypto_combo);
-			INIT_WIDGET(hash_combo);
-			INIT_WIDGET(mode_combo);
-			INIT_WIDGET(mac_combo);
-			INIT_WIDGET(kdf_spinner);
-			INIT_WIDGET(password_entry);
-			INIT_WIDGET(key_button);
-			INIT_WIDGET(key_dialog);
-			INIT_WIDGET(key_file_label);
-			INIT_WIDGET(key_file_image);
-			INIT_WIDGET(encrypt_button);
-			INIT_WIDGET(status_bar);
-			INIT_WIDGET(progress_dialog);
-			INIT_WIDGET(progress_bar_total);
-			INIT_WIDGET(progress_bar_current);
-			INIT_WIDGET(progress_label);
-			INIT_WIDGET(progress_cancel_button);
-			INIT_WIDGET(about_dialog);
-			INIT_WIDGET(about_version_build_info);
-			INIT_WIDGET(build_info_text_buffer);
-			INIT_WIDGET(about_new_version_label);
-			INIT_WIDGET(raw_encrypt_button);
-			INIT_WIDGET(raw_decrypt_button);
-			INIT_WIDGET(abort_dialog);
-			INIT_WIDGET(abort_button);
-			INIT_WIDGET(abort_message);
-
-			gui_setup_menus(application, builder, widgets, compress, follow, raw, key_source, version);
-			gtk_application_add_window(application, GTK_WINDOW(widgets->main_window));
-			gtk_builder_connect_signals(builder, widgets);
-			g_object_unref(G_OBJECT(builder));
-			gtk_widget_show(widgets->main_window);
-
-			gtk_window_set_transient_for((GtkWindow *)widgets->abort_dialog, (GtkWindow *)widgets->main_window);
-			error_gui_init(widgets->abort_dialog, widgets->abort_message);
-
-			if (source)
-			{
-	#if !defined _WIN32
-				if (source[0] != '/')
+				cli_eprintf("Using %s for UI\n", glade_ui_file);
+				if (!gtk_builder_add_from_file(builder, glade_ui_file, &error))
 				{
-					char *cwd = getcwd(NULL, 0);
-					m_asprintf(&gui_file_hack_source, "%s/%s", cwd, source);
-					free(cwd);
+					cli_eprintf("%s", error->message);
+					g_error_free(error);
+					error = NULL;
+					if (!gtk_builder_add_from_file(builder, GLADE_UI_FILE_BACKUP, &error))
+						die(_("%s"), error->message);
 				}
-				else
-	#endif
-					gui_file_hack_source = strdup(source);
-				gtk_file_chooser_set_filename((GtkFileChooser *)widgets->open_dialog, gui_file_hack_source);
-			}
-			if (output)
-			{
-	#if !defined _WIN32
-				if (output[0] != '/')
+				/*
+				 * allocate widgets structure
+				 */
+				widgets = g_slice_new(gtk_widgets_s);
+				/*
+				 * get widgets from UI
+				 */
+				INIT_WIDGET(main_window);
+				INIT_WIDGET(open_button);
+				INIT_WIDGET(open_dialog);
+				INIT_WIDGET(open_file_label);
+				INIT_WIDGET(open_file_image);
+				INIT_WIDGET(save_button);
+				INIT_WIDGET(save_dialog);
+				INIT_WIDGET(save_file_label);
+				INIT_WIDGET(save_file_image);
+				INIT_WIDGET(crypto_combo);
+				INIT_WIDGET(hash_combo);
+				INIT_WIDGET(mode_combo);
+				INIT_WIDGET(mac_combo);
+				INIT_WIDGET(kdf_spinner);
+				INIT_WIDGET(password_entry);
+				INIT_WIDGET(key_button);
+				INIT_WIDGET(key_dialog);
+				INIT_WIDGET(key_file_label);
+				INIT_WIDGET(key_file_image);
+				INIT_WIDGET(encrypt_button);
+				INIT_WIDGET(status_bar);
+				INIT_WIDGET(progress_dialog);
+				INIT_WIDGET(progress_bar_total);
+				INIT_WIDGET(progress_bar_current);
+				INIT_WIDGET(progress_label);
+				INIT_WIDGET(progress_cancel_button);
+				INIT_WIDGET(about_dialog);
+				INIT_WIDGET(about_version_build_info);
+				INIT_WIDGET(build_info_text_buffer);
+				INIT_WIDGET(about_new_version_label);
+				INIT_WIDGET(raw_encrypt_button);
+				INIT_WIDGET(raw_decrypt_button);
+				INIT_WIDGET(abort_dialog);
+				INIT_WIDGET(abort_button);
+				INIT_WIDGET(abort_message);
+
+				gui_setup_menus(application, builder, widgets, compress, follow, raw, key_source, version);
+				gtk_application_add_window(application, GTK_WINDOW(widgets->main_window));
+				gtk_builder_connect_signals(builder, widgets);
+				g_object_unref(G_OBJECT(builder));
+				gtk_widget_show(widgets->main_window);
+
+				gtk_window_set_transient_for((GtkWindow *)widgets->abort_dialog, (GtkWindow *)widgets->main_window);
+				error_gui_init(widgets->abort_dialog, widgets->abort_message);
+
+				if (source)
 				{
-					char *cwd = getcwd(NULL, 0);
-					m_asprintf(&gui_file_hack_output, "%s/%s", cwd, output);
-					free(cwd);
-				}
-				else
+	#if !defined _WIN32
+					if (source[0] != '/')
+					{
+						char *cwd = getcwd(NULL, 0);
+						m_asprintf(&gui_file_hack_source, "%s/%s", cwd, source);
+						free(cwd);
+					}
+					else
 	#endif
-					gui_file_hack_output = strdup(output);
-				gtk_file_chooser_set_filename((GtkFileChooser *)widgets->save_dialog, gui_file_hack_output);
+						gui_file_hack_source = strdup(source);
+					gtk_file_chooser_set_filename((GtkFileChooser *)widgets->open_dialog, gui_file_hack_source);
+				}
+				if (output)
+				{
+	#if !defined _WIN32
+					if (output[0] != '/')
+					{
+						char *cwd = getcwd(NULL, 0);
+						m_asprintf(&gui_file_hack_output, "%s/%s", cwd, output);
+						free(cwd);
+					}
+					else
+	#endif
+						gui_file_hack_output = strdup(output);
+					gtk_file_chooser_set_filename((GtkFileChooser *)widgets->save_dialog, gui_file_hack_output);
+				}
+				file_dialog_okay(NULL, widgets);
+
+				auto_select_algorithms(widgets, cipher, hash, mode, mac, kdf);
+
+				set_raw_buttons(widgets, raw);
+				set_status_bar((GtkStatusbar *)widgets->status_bar, STATUS_BAR_READY);
+
+				gtk_main();
+
+				g_slice_free(gtk_widgets_s, widgets);
+				g_object_unref(application);
+
+				goto clean_up;
 			}
-			file_dialog_okay(NULL, widgets);
-
-			auto_select_algorithms(widgets, cipher, hash, mode, mac, kdf);
-
-			set_raw_buttons(widgets, raw);
-			set_status_bar((GtkStatusbar *)widgets->status_bar, STATUS_BAR_READY);
-
-			gtk_main();
-
-			g_slice_free(gtk_widgets_s, widgets);
-			g_object_unref(application);
-
-			goto clean_up;
-
 		}
 		else
 			cli_eprintf(_("Could not create GUI - falling back to command line\n"));

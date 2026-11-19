@@ -349,17 +349,6 @@ processes your file</property>
 	</object>
 	<menu id="menubar">
 		<submenu>
-			<attribute name="label" translatable="yes">_File</attribute>
-			<section>
-				<item>
-					<attribute name="label" translatable="yes">_Quit</attribute>
-					<attribute name="action">app.quit</attribute>
-					<attribute name="hidden-when">macos-menubar</attribute>
-					
-				</item>
-			</section>
-		</submenu>
-		<submenu>
 			<attribute name="label" translatable="yes">_Options</attribute>
 			<section>
 				<item>
@@ -377,12 +366,12 @@ processes your file</property>
 					<item>
 						<attribute name="label" translatable="yes">_Key File</attribute>
 						<attribute name="action">app.key-source</attribute>
-						<attribute name="target" type="s">file</attribute>
+						<attribute name="target" type="s">'file'</attribute>
 					</item>
 					<item>
 						<attribute name="label" translatable="yes">_Password</attribute>
 						<attribute name="action">app.key-source</attribute>
-						<attribute name="target" type="s">password</attribute>
+						<attribute name="target" type="s">'password'</attribute>
 					</item>
 				</section>
 			</submenu>
@@ -394,14 +383,12 @@ processes your file</property>
 					<attribute name="label" translatable="yes">_Raw</attribute>
 					<attribute name="action">app.raw</attribute>
 				</item>
-				<item>
+				<submenu id="compatibility_menu">
 					<attribute name="label" translatable="yes">_Compatibility</attribute>
-					<link name="submenu" id="compatibility_menu"/>
-				</item>
+				</submenu>
 			</section>
 		</submenu>
 	</menu>
-	<menu id="compatibility_menu"/>
 	<menu id="app-menu">
 		<section>
 			<item>
