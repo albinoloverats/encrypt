@@ -156,7 +156,7 @@ extern void configure_pixbuf_loaders(void)
 
 	char *contents = malloc((size_t)length + 1);
 	if (!contents)
-		die(_("Out of memory"));
+		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, capacity);
 
 	if (fread(contents, 1, (size_t)length, input) != (size_t)length)
 		die(_("Unable to read GdkPixbuf loader cache"));
@@ -176,7 +176,7 @@ extern void configure_pixbuf_loaders(void)
 	size_t output_length = prefix_length + framework_length + suffix_length;
 	char *output = malloc(output_length + 1);
 	if (!output)
-		die(_("Out of memory"));
+		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, capacity);
 
 	memcpy(output, contents, prefix_length);
 	memcpy(output + prefix_length, framework_path, framework_length);
