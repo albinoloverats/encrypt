@@ -12,7 +12,8 @@ configure-stamp
 *.crt
 *.key
 *.spc
-build
+build/
+stage/
 coverage/
 test-reports/
 *.gcda

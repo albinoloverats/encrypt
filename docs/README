@@ -6,10 +6,9 @@ About
 -----
 
 encrypt is a simple, cross platform, file encryption application.  It is
-suitable  for any modern  desktop or mobile  operating system.  The GUI,
-either GTK or native,  has been designed to be common across systems and
-intuitive to use,  while still providing  command-line capabilities  for
-power-users.
+suitable  for any modern  desktop or mobile  operating system.   The GUI
+has been designed to be common across systems and intuitive to use while
+still providing  command-line capabilities for power-users.
 
 It is  currently available  as a  binary package  for several  GNU/Linux
 distributions:  Arch,  Debian,  Fedora,  Slackware;  as well as FreeBSD,
@@ -29,13 +28,22 @@ https://albinoloverats.net/projects/encrypt
 Compiling
 ---------
 
-Compiling from source is as simple as running one make
+    cmake -S . -B build
+    cmake --build build
 
-    make
+For macOS to bundle necessary dependencies:
 
-Followed by:
+    cmake --install build --prefix "$PWD/stage"
 
-    make install
+Optional build types:  debug and debug-with-encryption can be configured
+with the following:
+
+    cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+    cmake -S . -B build -DCMAKE_BUILD_TYPE=DebugWithEncryption
+
+The GUI can also be disabled if desired:
+
+    cmake -S . -B build -DBUILD_GUI=OFF
 
 
 Changelog
@@ -46,6 +54,8 @@ Changelog
 * Update debugging information and improve error handling (all desktop)
 * Compile against latest version of dependencies (particularly libgcrypt
   and gnu-crypto)
+* Unify build configuration
+* Switch to GTK-Quartz on macOS (removes separate XCode project)
 
 
 Status
@@ -59,8 +69,6 @@ Status
 
 TODO
 ----
-
-### Add
 
 * Find a way to merge file/magic info into main magic.mgc file
 * File context menu for

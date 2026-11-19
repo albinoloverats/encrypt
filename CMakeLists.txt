@@ -16,10 +16,27 @@ include(CTest)
 
 option(BUILD_GUI "Build the graphical application" ON)
 option(BUILD_TESTS "Build and run unit tests before building the application" ${BUILD_TESTING})
+option(ENABLE_COVERAGE "Enable code coverage instrumentation and reporting" OFF)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
+
+if(ENABLE_COVERAGE)
+	if(NOT CMAKE_C_COMPILER_ID STREQUAL "GNU")
+		message(FATAL_ERROR "Coverage is currently supported with GCC only")
+	endif()
+
+	if(NOT BUILD_TESTS)
+		message(FATAL_ERROR "Coverage requires BUILD_TESTS=ON")
+	endif()
+
+	find_program(GCOV_EXECUTABLE NAMES "gcov-${CMAKE_C_COMPILER_VERSION_MAJOR}" gcov REQUIRED)
+	find_program(GCOVR_EXECUTABLE gcovr REQUIRED)
+
+	add_compile_options(--coverage)
+	add_link_options(--coverage)
+endif()
 
 # Build identity is supplied directly to targets; CMake writes its build
 # diagnostics header into the binary tree, never the source tree.
@@ -434,6 +451,26 @@ if(BUILD_TESTS)
 		USES_TERMINAL
 	)
 	add_dependencies(encrypt check)
+endif()
+
+if(ENABLE_COVERAGE)
+	set(COVERAGE_OUTPUT_DIR "${CMAKE_BINARY_DIR}/coverage")
+	add_custom_target(coverage COMMAND "${CMAKE_COMMAND}" -E make_directory "${COVERAGE_OUTPUT_DIR}"
+	COMMAND "${GCOVR_EXECUTABLE}"
+		--root "${PROJECT_SOURCE_DIR}"
+		--object-directory "${CMAKE_BINARY_DIR}"
+		--gcov-executable "${GCOV_EXECUTABLE}"
+		--filter "${PROJECT_SOURCE_DIR}/src/"
+		--filter "${PROJECT_SOURCE_DIR}/common/src/"
+		--xml-pretty
+		--xml "${COVERAGE_OUTPUT_DIR}/coverage.xml"
+		--html-details "${COVERAGE_OUTPUT_DIR}/index.html"
+		--print-summary
+		DEPENDS encrypt
+		WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+		USES_TERMINAL
+		VERBATIM
+	)
 endif()
 
 message(STATUS "Application variant: ${BUILD_GUI}")
