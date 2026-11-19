@@ -1,4 +1,4 @@
 post_install() {
-	update-desktop-database /usr/local/share/applications
+	update-desktop-database /usr/share/applications
 	#update-mime-database /usr/local/mime
 }
