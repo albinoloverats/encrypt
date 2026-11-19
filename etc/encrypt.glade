@@ -135,13 +135,13 @@
 		<property name="skip_taskbar_hint">True</property>
 		<property name="skip_pager_hint">True</property>
 		<property name="program_name">encrypt</property>
-		<property name="version">2025.05</property>
+		<property name="version">2027.XX</property>
 		<property name="copyright" translatable="yes">Copyright © 2004-2026, albinoloverats ~ Software Development</property>
 		<property name="website">https://albinoloverats.net/projects/encrypt</property>
 		<property name="website_label" translatable="yes">https://albinoloverats.net/projects/encrypt</property>
 		<property name="license" translatable="yes">encrypt ~ a cross platform, symetric key, file encryption application
 
-Copyright © 2004-2025, albinoloverats ~ Software Development
+Copyright © 2004-2026, albinoloverats ~ Software Development
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -170,7 +170,7 @@ https://curl.haxx.se/libcurl/</property>
 		<property name="artists">
 The logo is part of the Crystal Icon Theme originally by Everaldo Coelho
 https://commons.wikimedia.org/wiki/Category:SVG_Crystal_Clear_icons</property>
-		<property name="logo">/usr/share/pixmaps/encrypt.svg</property>
+		<property name="logo">/usr/local/share/pixmaps/encrypt.svg</property>
 		<property name="license_type">gpl-3-0</property>
 		<child internal-child="vbox">
 			<object class="GtkBox" id="about_dialog_vbox">
@@ -345,7 +345,7 @@ processes your file</property>
 	<object class="GtkImage" id="encrypt_button_image">
 		<property name="visible">True</property>
 		<property name="can_focus">False</property>
-		<property name="pixbuf">/usr/share/pixmaps/encrypt_button.svg</property>
+		<property name="pixbuf">/usr/local/share/pixmaps/encrypt_button.svg</property>
 	</object>
 	<menu id="menubar">
 		<submenu>
@@ -416,7 +416,7 @@ processes your file</property>
 		<property name="resizable">False</property>
 		<property name="default_width">320</property>
 		<property name="default_height">480</property>
-		<property name="icon">/usr/share/pixmaps/encrypt.svg</property>
+		<property name="icon">/usr/local/share/pixmaps/encrypt.svg</property>
 		<property name="gravity">center</property>
 		<signal name="destroy" handler="gtk_main_quit" swapped="no"/>
 		<child>
@@ -705,7 +705,7 @@ processes your file</property>
 								<property name="visibility">False</property>
 								<property name="invisible_char">•</property>
 								<property name="truncate_multiline">True</property>
-								<property name="primary_icon_pixbuf">/usr/share/pixmaps/encrypt_key.png</property>
+								<property name="primary_icon_pixbuf">/usr/local/share/pixmaps/encrypt_key.png</property>
 								<property name="placeholder_text" translatable="yes">Password</property>
 								<signal name="changed" handler="password_entry_callback" swapped="no"/>
 							</object>
@@ -736,7 +736,7 @@ processes your file</property>
 										<property name="can_focus">False</property>
 										<child>
 											<object class="GtkImage" id="key_file_image">
-												<property name="pixbuf">/usr/share/pixmaps/encrypt_key.png</property>
+												<property name="pixbuf">/usr/local/share/pixmaps/encrypt_key.png</property>
 												<property name="can_focus">False</property>
 												<property name="icon_size">1</property>
 											</object>

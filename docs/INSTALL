@@ -51,6 +51,7 @@ distributions (but not always).
 
     cmake -S . -B build
     cmake --build build
+    cmake --install build
 
 ### For non-GNU/Linux
 

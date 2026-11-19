@@ -65,15 +65,12 @@ extern char *gui_file_hack_output;
 // submodule include
 #include "src/config.h"
 
-#if !defined _WIN32 && !defined __FreeBSD__ && !defined __APPLE__
-	#define GLADE_UI_FILE_DEFAULT "/usr/share/encrypt/encrypt.glade"
+#if !defined _WIN32 && !defined __APPLE__
+	#define GLADE_UI_FILE_DEFAULT "/usr/local/share/encrypt/encrypt.glade"
 	#define GLADE_UI_FILE_BACKUP  "etc/encrypt.glade"
 #elif defined __APPLE__
 	#define GLADE_UI_FILE_DEFAULT "encrypt_mac.glade"
 	#define GLADE_UI_FILE_BACKUP  "etc/encrypt_mac.glade"
-#elif defined __FreeBSD__
-	#define GLADE_UI_FILE_DEFAULT "/usr/local/share/encrypt/encrypt.glade"
-	#define GLADE_UI_FILE_BACKUP  "etc/encrypt.glade"
 #else
 	#define GLADE_UI_FILE_DEFAULT "encrypt\\etc\\encrypt_win.glade"
 	#define GLADE_UI_FILE_BACKUP  "etc\\encrypt_win.glade"

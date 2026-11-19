@@ -1,4 +1,4 @@
-encrypt - 2025.05                                          23rd May 2025
+encrypt - 2027.XX                                         --- ----- 2027
 =================
 
 
@@ -31,7 +31,9 @@ Compiling
     cmake -S . -B build
     cmake --build build
 
-For macOS to bundle necessary dependencies:
+For macOS to bundle necessary dependencies you will also need to perform
+the install step,  though for systems this isn’t as important unless you
+actually want to install manually.
 
     cmake --install build --prefix "$PWD/stage"
 

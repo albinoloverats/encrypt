@@ -13,6 +13,17 @@ if(NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 include(CTest)
+include(GNUInstallDirs)
+
+find_program(GZIP_EXECUTABLE gzip REQUIRED)
+
+set(BASH_COMPLETION_DIR
+	"${CMAKE_INSTALL_DATADIR}/bash-completion/completions"
+	CACHE PATH "Bash completion installation directory")
+
+set(ZSH_COMPLETION_DIR
+	"${CMAKE_INSTALL_DATADIR}/zsh/site-functions"
+	CACHE PATH "Zsh completion installation directory")
 
 option(BUILD_GUI "Build the graphical application" ON)
 option(BUILD_TESTS "Build and run unit tests before building the application" ${BUILD_TESTING})
@@ -54,11 +65,9 @@ execute_process(
 if(NOT _git_result EQUAL 0)
 	set(GIT_COMMIT "unknown")
 else()
-	execute_process(
-		COMMAND git -C "${CMAKE_CURRENT_SOURCE_DIR}" status --porcelain
+	execute_process(COMMAND git -C "${CMAKE_CURRENT_SOURCE_DIR}" status --porcelain
 		OUTPUT_VARIABLE _git_status
-		OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
 	if(_git_status)
 		string(APPEND GIT_COMMIT "-dirty")
 	endif()
@@ -66,18 +75,16 @@ endif()
 # Identify the distribution as well as the kernel/platform.
 set(_os_pretty_name "")
 if(EXISTS "/etc/os-release")
-	execute_process(
-		COMMAND sh -c ". /etc/os-release && printf '%s' \"$PRETTY_NAME\""
+	execute_process(COMMAND sh -c ". /etc/os-release && printf '%s' \"$PRETTY_NAME\""
 		OUTPUT_VARIABLE _os_pretty_name
-		OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
-execute_process(
-	COMMAND uname -orm
+
+execute_process(COMMAND uname -orm
 	OUTPUT_VARIABLE _uname
 	OUTPUT_STRIP_TRAILING_WHITESPACE
-	RESULT_VARIABLE _uname_result
-)
+	RESULT_VARIABLE _uname_result)
+
 if(NOT _uname_result EQUAL 0 OR NOT _uname)
 	set(_uname "${CMAKE_SYSTEM_NAME}")
 endif()
@@ -92,8 +99,8 @@ set(INCLUDE_DIRECTORIES
 	"${CMAKE_CURRENT_SOURCE_DIR}"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src"
 	"${CMAKE_CURRENT_SOURCE_DIR}/common"
-	"${CMAKE_CURRENT_BINARY_DIR}/generated"
-)
+	"${CMAKE_CURRENT_BINARY_DIR}/generated")
+
 set(COMPILE_DEFINITIONS
 	_GNU_SOURCE
 	_FILE_OFFSET_BITS=64
@@ -101,8 +108,8 @@ set(COMPILE_DEFINITIONS
 	USE_GCRYPT
 	"ENCRYPT_VERSION=\"${ENCRYPT_VERSION}\""
 	"BUILD_OS=\"${BUILD_OS}\""
-	"GIT_COMMIT=\"${GIT_COMMIT}\""
-)
+	"GIT_COMMIT=\"${GIT_COMMIT}\"")
+
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	list(APPEND COMPILE_DEFINITIONS __DEBUG__)
 elseif(CMAKE_BUILD_TYPE STREQUAL "DebugWithEncryption")
@@ -157,11 +164,9 @@ escape_c_string("${CMAKE_BUILD_DEFINITIONS}" CMAKE_BUILD_DEFINITIONS_ESCAPED)
 escape_c_string("${CMAKE_BUILD_LINKER_FLAGS}" CMAKE_BUILD_LINKER_FLAGS_ESCAPED)
 
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/generated")
-configure_file(
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/cmake_build_flags.h.in"
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/cmake_build_flags.h.in"
 	"${CMAKE_CURRENT_BINARY_DIR}/generated/cmake_build_flags.h"
-	@ONLY
-)
+	@ONLY)
 
 # Solaris: prefer 64-bit pkg-config metadata for 64-bit builds.
 if(CMAKE_SYSTEM_NAME STREQUAL "SunOS" AND CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -204,16 +209,14 @@ set(COMMON_SOURCES
 	common/src/mem.c
 	common/src/non-gnu.c
 	common/src/tlv.c
-	common/src/version.c
-)
+	common/src/version.c)
 
 set(CORE_SOURCES
 	${COMMON_SOURCES}
 	src/crypt.c
 	src/encrypt.c
 	src/decrypt.c
-	src/crypt_io.c
-)
+	src/crypt_io.c)
 
 add_library(encrypt_core STATIC ${CORE_SOURCES})
 target_include_directories(encrypt_core PUBLIC ${INCLUDE_DIRECTORIES})
@@ -222,8 +225,7 @@ target_link_libraries(encrypt_core PUBLIC
 	PkgConfig::LIBGCRYPT
 	PkgConfig::LIBCURL
 	PkgConfig::LIBLZMA
-	Threads::Threads
-)
+	Threads::Threads)
 
 if(APPLE AND BUILD_GUI)
 	add_executable(encrypt MACOSX_BUNDLE src/main.c)
@@ -238,8 +240,7 @@ if(APPLE AND BUILD_GUI)
 	find_file(GDK_PIXBUF_SVG_LOADER
 		NAMES libpixbufloader-svg.so
 		PATHS /opt/local/lib/gdk-pixbuf-2.0/2.10.0/loaders
-		NO_DEFAULT_PATH
-	)
+		NO_DEFAULT_PATH)
 	if(NOT GDK_PIXBUF_SVG_LOADER)
 		message(FATAL_ERROR "Could not find the GdkPixbuf SVG loader")
 	endif()
@@ -247,8 +248,7 @@ if(APPLE AND BUILD_GUI)
 	set_target_properties(encrypt PROPERTIES
 		MACOSX_BUNDLE_BUNDLE_NAME "Encrypt"
 		MACOSX_BUNDLE_GUI_IDENTIFIER "org.albinoloverats.encrypt"
-		MACOSX_BUNDLE_ICON_FILE "encrypt.icns"
-	)
+		MACOSX_BUNDLE_ICON_FILE "encrypt.icns")
 endif()
 
 if(BUILD_GUI)
@@ -264,8 +264,7 @@ if(APPLE AND BUILD_GUI)
 		pixmaps/encrypt.png
 		pixmaps/encrypt.svg
 		pixmaps/encrypt_button.png
-		pixmaps/encrypt_key.png
-	)
+		pixmaps/encrypt_key.png)
 
 	set_source_files_properties(${MACOS_RESOURCES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
@@ -273,23 +272,39 @@ if(APPLE AND BUILD_GUI)
 endif()
 
 if(WIN32)
-	configure_file(
-		"${CMAKE_CURRENT_SOURCE_DIR}/src/encrypt.rc.in"
-		"${CMAKE_CURRENT_BINARY_DIR}/generated/encrypt.rc"
-		@ONLY
-	)
+	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/encrypt.rc.in" "${CMAKE_CURRENT_BINARY_DIR}/generated/encrypt.rc" @ONLY)
 
 	target_sources(encrypt PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/generated/encrypt.rc")
 	target_link_libraries(encrypt_core PUBLIC ws2_32)
 endif()
 
+if(NOT WIN32 AND NOT APPLE)
+	set(MANPAGE_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/docs/encrypt.1a")
+	set(MANPAGE_BUILD  "${CMAKE_CURRENT_BINARY_DIR}/encrypt.1")
+
+	add_custom_command( OUTPUT "${MANPAGE_BUILD}"
+		COMMAND "${CMAKE_COMMAND}" -E copy
+			"${MANPAGE_SOURCE}"
+			"${MANPAGE_BUILD}"
+		DEPENDS "${MANPAGE_SOURCE}"
+	COMMENT "Copying man page"
+	VERBATIM)
+
+	add_custom_command(OUTPUT "${MANPAGE_BUILD}.gz"
+		COMMAND "${GZIP_EXECUTABLE}" -9 --force "${MANPAGE_BUILD}"
+		DEPENDS "${MANPAGE_BUILD}"
+		COMMENT "Compressing man page"
+		VERBATIM)
+
+	add_custom_target(manpage ALL
+		DEPENDS "${MANPAGE_BUILD}.gz"
+	)
+endif()
+
 if(APPLE AND BUILD_GUI)
 	install(TARGETS encrypt BUNDLE DESTINATION .)
 
-	install(
-		FILES "${GDK_PIXBUF_SVG_LOADER}"
-		DESTINATION encrypt.app/Contents/Frameworks
-	)
+	install(FILES "${GDK_PIXBUF_SVG_LOADER}" DESTINATION encrypt.app/Contents/Frameworks)
 
 	install(CODE [[
 		set(_bundle "${CMAKE_INSTALL_PREFIX}/encrypt.app")
@@ -354,14 +369,38 @@ if(APPLE AND BUILD_GUI)
 			endif()
 		endforeach()
 	]])
-else()
+elseif(NOT WIN32)
 	# Retain the traditional decrypt invocation name on Unix-like systems.
-	add_custom_command(TARGET encrypt POST_BUILD
+	add_custom_command(TARGET
+		encrypt
+		POST_BUILD
 		COMMAND "${CMAKE_COMMAND}" -E create_symlink
 				"$<TARGET_FILE_NAME:encrypt>"
 				"$<TARGET_FILE_DIR:encrypt>/decrypt"
-		VERBATIM
-	)
+		VERBATIM)
+	install(TARGETS encrypt RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+	install(CODE "
+		execute_process(
+			COMMAND \"${CMAKE_COMMAND}\" -E create_symlink
+			encrypt
+			\"\$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/decrypt\"
+		)")
+	install(FILES etc/encrypt.glade etc/encryptrc etc/magic DESTINATION "${CMAKE_INSTALL_DATADIR}/encrypt")
+	install(FILES etc/encrypt.desktop DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")
+	install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/etc/autocomplete.bash"
+		DESTINATION "${BASH_COMPLETION_DIR}"
+		RENAME encrypt)
+	install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/etc/autocomplete.zsh"
+		DESTINATION "${ZSH_COMPLETION_DIR}"
+		RENAME _encrypt)
+	install(FILES
+		pixmaps/encrypt.svg
+		pixmaps/encrypt_button.svg
+		pixmaps/encrypt.png
+		pixmaps/encrypt_button.png
+		pixmaps/encrypt_key.png
+		DESTINATION "${CMAKE_INSTALL_DATADIR}/pixmaps")
+	install(FILES "${MANPAGE_BUILD}.gz" DESTINATION "${CMAKE_INSTALL_MANDIR}/man1")
 endif()
 
 if(BUILD_TESTS)
@@ -381,26 +420,18 @@ if(BUILD_TESTS)
 		common/test/test_map.c
 		common/test/test_mem.c
 		common/test/test_tlv.c
-		common/test/test_version.c
-	)
+		common/test/test_version.c)
 	if(COMMON_UNIT_TEST_SOURCES)
 		add_executable(common_unit_tests
 			${COMMON_UNIT_TEST_SOURCES}
-			${COMMON_SOURCES}
-		)
+			${COMMON_SOURCES})
 		target_include_directories(common_unit_tests PRIVATE
 			"${CMAKE_CURRENT_SOURCE_DIR}"
 			"${CMAKE_CURRENT_SOURCE_DIR}/common"
 			"${CMAKE_CURRENT_SOURCE_DIR}/common/src"
-			"${CMAKE_CURRENT_BINARY_DIR}/generated"
-		)
-		target_compile_definitions(common_unit_tests PRIVATE
-			_GNU_SOURCE _FILE_OFFSET_BITS=64 __DEBUG__ MALLOC_CHECK_=1
-		)
-		target_link_libraries(common_unit_tests PRIVATE
-			PkgConfig::CMOCKA PkgConfig::LIBGCRYPT PkgConfig::LIBCURL
-			Threads::Threads m
-		)
+			"${CMAKE_CURRENT_BINARY_DIR}/generated")
+		target_compile_definitions(common_unit_tests PRIVATE _GNU_SOURCE _FILE_OFFSET_BITS=64 __DEBUG__ MALLOC_CHECK_=1)
+		target_link_libraries(common_unit_tests PRIVATE PkgConfig::CMOCKA PkgConfig::LIBGCRYPT PkgConfig::LIBCURL Threads::Threads m)
 		if(UNIX AND NOT APPLE)
 			target_link_options(common_unit_tests PRIVATE
 				-Wl,--wrap=malloc
@@ -408,8 +439,7 @@ if(BUILD_TESTS)
 				-Wl,--wrap=realloc
 				-Wl,--wrap=strdup
 				-Wl,--wrap=strndup
-				-Wl,--wrap=vasprintf
-			)
+				-Wl,--wrap=vasprintf)
 		endif()
 		add_test(NAME common-unit COMMAND common_unit_tests)
 	endif()
@@ -419,8 +449,7 @@ if(BUILD_TESTS)
 	target_compile_definitions(test_crypt_io PRIVATE ${COMPILE_DEFINITIONS})
 	target_link_libraries(test_crypt_io PRIVATE
 		PkgConfig::CMOCKA PkgConfig::LIBGCRYPT PkgConfig::LIBCURL
-		PkgConfig::LIBLZMA Threads::Threads
-	)
+		PkgConfig::LIBLZMA Threads::Threads)
 	if(WIN32)
 		target_link_libraries(test_crypt_io PUBLIC ws2_32)
 	endif()
@@ -431,8 +460,7 @@ if(BUILD_TESTS)
 	target_compile_definitions(test_crypt_flow PRIVATE ${COMPILE_DEFINITIONS})
 	target_link_libraries(test_crypt_flow PRIVATE
 		PkgConfig::CMOCKA PkgConfig::LIBGCRYPT PkgConfig::LIBCURL
-		PkgConfig::LIBLZMA Threads::Threads
-	)
+		PkgConfig::LIBLZMA Threads::Threads)
 	if(WIN32)
 		target_link_libraries(test_crypt_flow PUBLIC ws2_32)
 	endif()
@@ -448,8 +476,7 @@ if(BUILD_TESTS)
 		COMMAND "${CMAKE_CTEST_COMMAND}" --output-on-failure
 		DEPENDS ${_encrypt_test_targets}
 		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-		USES_TERMINAL
-	)
+		USES_TERMINAL)
 	add_dependencies(encrypt check)
 endif()
 
@@ -469,8 +496,7 @@ if(ENABLE_COVERAGE)
 		DEPENDS encrypt
 		WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
 		USES_TERMINAL
-		VERBATIM
-	)
+		VERBATIM)
 endif()
 
 message(STATUS "Application variant: ${BUILD_GUI}")
