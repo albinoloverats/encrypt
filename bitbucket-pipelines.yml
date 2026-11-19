@@ -5,11 +5,12 @@ pipelines:
     - step:
         name: Build and Test
         script:
-          - apt-get update && apt-get install -y git gcovr=7.2+really-1.1 libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl4-gnutls-dev libcmocka-dev
+          - apt-get update && apt-get install -y build-essential cmake git gcovr=7.2+really-1.1 libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl4-gnutls-dev libcmocka-dev
           - git submodule update --init
-          - CC=gcc CMOCKA_XML_DIR=test-reports make test
+          - cmake -S . -B build -DBUILD_GUI=OFF -DBUILD_TESTS=ON -DENABLE_COVERAGE=ON
+          - cmake --build build --target coverage --parallel
+          - (cd build && sh ../test/test_cli_compressed_eof.sh)
           - cp etc/encryptrc ~/.encryptrc
-          - ./encrypt --self-test
+          - ./build/encrypt --self-test
         artifacts:
-          - coverage/**
-          - test-reports/**
+          - build/coverage/**

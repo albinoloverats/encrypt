@@ -347,7 +347,63 @@ processes your file</property>
 		<property name="can_focus">False</property>
 		<property name="pixbuf">encrypt_button.png</property>
 	</object>
-	<object class="GtkWindow" id="main_window">
+	<menu id="menubar">
+		<submenu>
+			<attribute name="label" translatable="yes">_Options</attribute>
+			<section>
+				<item>
+					<attribute name="label" translatable="yes">_Compress</attribute>
+					<attribute name="action">app.compress</attribute>
+				</item>
+				<item>
+					<attribute name="label" translatable="yes">_Follow Symlinks</attribute>
+					<attribute name="action">app.follow</attribute>
+				</item>
+			</section>
+			<submenu>
+				<attribute name="label" translatable="yes">_Key Source</attribute>
+				<section>
+					<item>
+						<attribute name="label" translatable="yes">_Key File</attribute>
+						<attribute name="action">app.key-source</attribute>
+						<attribute name="target" type="s">'file'</attribute>
+					</item>
+					<item>
+						<attribute name="label" translatable="yes">_Password</attribute>
+						<attribute name="action">app.key-source</attribute>
+						<attribute name="target" type="s">'password'</attribute>
+					</item>
+				</section>
+			</submenu>
+		</submenu>
+		<submenu>
+			<attribute name="label" translatable="yes">_Advanced</attribute>
+			<section>
+				<item>
+					<attribute name="label" translatable="yes">_Raw</attribute>
+					<attribute name="action">app.raw</attribute>
+				</item>
+				<submenu id="compatibility_menu">
+					<attribute name="label" translatable="yes">_Compatibility</attribute>
+				</submenu>
+			</section>
+		</submenu>
+	</menu>
+	<menu id="app-menu">
+		<section>
+			<item>
+				<attribute name="label" translatable="yes">_About</attribute>
+				<attribute name="action">app.about</attribute>
+			</item>
+		</section>
+		<section>
+			<item>
+				<attribute name="label" translatable="yes">_Quit</attribute>
+				<attribute name="action">app.quit</attribute>
+			</item>
+		</section>
+	</menu>
+	<object class="GtkApplicationWindow" id="main_window">
 		<property name="width_request">320</property>
 		<property name="height_request">480</property>
 		<property name="can_focus">False</property>
@@ -363,174 +419,6 @@ processes your file</property>
 				<property name="visible">True</property>
 				<property name="can_focus">False</property>
 				<property name="orientation">vertical</property>
-				<child>
-					<object class="GtkMenuBar" id="menu_bar">
-						<property name="visible">True</property>
-						<property name="can_focus">False</property>
-						<child>
-							<object class="GtkMenuItem" id="file_menu_item">
-								<property name="visible">True</property>
-								<property name="can_focus">False</property>
-								<property name="label" translatable="yes">_File</property>
-								<property name="use_underline">True</property>
-								<child type="submenu">
-									<object class="GtkMenu" id="file_menu">
-										<property name="visible">True</property>
-										<property name="can_focus">False</property>
-										<child>
-											<object class="GtkImageMenuItem" id="quit_menu_item">
-												<property name="label">gtk-quit</property>
-												<property name="visible">True</property>
-												<property name="can_focus">False</property>
-												<property name="use_underline">True</property>
-												<property name="use_stock">True</property>
-												<signal name="activate" handler="gtk_main_quit" swapped="no"/>
-												<accelerator key="q" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-											</object>
-										</child>
-									</object>
-								</child>
-							</object>
-						</child>
-						<child>
-							<object class="GtkMenuItem" id="options_menu_item">
-								<property name="visible">True</property>
-								<property name="can_focus">False</property>
-								<property name="label" translatable="yes">_Options</property>
-								<property name="use_underline">True</property>
-								<child type="submenu">
-									<object class="GtkMenu" id="option_menu">
-										<property name="visible">True</property>
-										<property name="can_focus">False</property>
-										<child>
-											<object class="GtkCheckMenuItem" id="compress_menu_item">
-												<property name="visible">True</property>
-												<property name="can_focus">False</property>
-												<property name="label">_Compress</property>
-												<property name="use_underline">True</property>
-												<property name="active">True</property>
-												<signal name="toggled" handler="on_compress_toggle" swapped="no"/>
-											</object>
-										</child>
-										<child>
-											<object class="GtkCheckMenuItem" id="follow_menu_item">
-												<property name="visible">True</property>
-												<property name="can_focus">False</property>
-												<property name="label">_Follow Symlinks</property>
-												<property name="use_underline">True</property>
-												<signal name="toggled" handler="on_follow_toggle" swapped="no"/>
-											</object>
-										</child>
-										<child>
-											<object class="GtkMenuItem" id="key_menu_item">
-												<property name="visible">True</property>
-												<property name="can_focus">False</property>
-												<property name="label" translatable="yes">_Key Source</property>
-												<property name="use_underline">True</property>
-												<child type="submenu">
-													<object class="GtkMenu" id="key_menu">
-														<property name="visible">True</property>
-														<property name="can_focus">False</property>
-														<child>
-															<object class="GtkRadioMenuItem" id="key_file_menu_item">
-																<property name="visible">True</property>
-																<property name="can_focus">False</property>
-																<property name="label">_Key File</property>
-																<property name="use_underline">True</property>
-																<property name="draw_as_radio">True</property>
-																<property name="group">key_password_menu_item</property>
-																<signal name="toggled" handler="on_key_source_change" swapped="no"/>
-															</object>
-														</child>
-														<child>
-															<object class="GtkRadioMenuItem" id="key_password_menu_item">
-																<property name="visible">True</property>
-																<property name="can_focus">False</property>
-																<property name="label">_Password</property>
-																<property name="use_underline">True</property>
-																<property name="draw_as_radio">True</property>
-																<property name="group">key_file_menu_item</property>
-																<signal name="toggled" handler="on_key_source_change" swapped="no"/>
-															</object>
-														</child>
-													</object>
-												</child>
-											</object>
-										</child>
-									</object>
-								</child>
-							</object>
-						</child>
-						<child>
-							<object class="GtkMenuItem" id="advanced_menu_item">
-								<property name="visible">True</property>
-								<property name="can_focus">False</property>
-								<property name="label" translatable="yes">_Advanced</property>
-								<property name="use_underline">True</property>
-								<child type="submenu">
-									<object class="GtkMenu" id="advanced_menu">
-										<property name="visible">True</property>
-										<property name="can_focus">False</property>
-										<child>
-											<object class="GtkCheckMenuItem" id="raw_menu_item">
-												<property name="visible">True</property>
-												<property name="can_focus">False</property>
-												<property name="label">_Raw</property>
-												<property name="use_underline">True</property>
-												<property name="active">True</property>
-												<signal name="toggled" handler="on_raw_toggle" swapped="no"/>
-											</object>
-										</child>
-										<child>
-											<object class="GtkMenuItem" id="compat_menu_item">
-												<property name="visible">True</property>
-												<property name="can_focus">False</property>
-												<property name="label" translatable="yes">_Compatibility</property>
-												<property name="use_underline">True</property>
-												<child type="submenu">
-													<object class="GtkMenu" id="compat_menu">
-														<property name="visible">True</property>
-														<property name="can_focus">False</property>
-													</object>
-												</child>
-											</object>
-										</child>
-									</object>
-								</child>
-							</object>
-						</child>
-						<child>
-							<object class="GtkMenuItem" id="help_menu_item">
-								<property name="visible">True</property>
-								<property name="can_focus">False</property>
-								<property name="label" translatable="yes">_Help</property>
-								<property name="use_underline">True</property>
-								<child type="submenu">
-									<object class="GtkMenu" id="help_menu">
-										<property name="visible">True</property>
-										<property name="can_focus">False</property>
-										<child>
-											<object class="GtkImageMenuItem" id="about_menu_item">
-												<property name="label">gtk-about</property>
-												<property name="visible">True</property>
-												<property name="can_focus">False</property>
-												<property name="use_underline">True</property>
-												<property name="use_stock">True</property>
-												<signal name="activate" handler="on_about_open" swapped="no"/>
-												<accelerator key="F1" signal="activate"/>
-											</object>
-										</child>
-									</object>
-								</child>
-							</object>
-						</child>
-					</object>
-					<packing>
-						<property name="expand">False</property>
-						<property name="fill">True</property>
-						<property name="position">0</property>
-					</packing>
-				</child>
 				<child>
 					<object class="GtkBox" id="inner_box">
 						<property name="visible">True</property>

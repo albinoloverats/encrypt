@@ -1,0 +1,59 @@
+#: src/gui.c:144
+#| Unable to determine application bundle paths
+msgid "Unable to determine application bundle paths"
+msgstr ""
+
+#: src/gui.c:148
+#| Unable to open GdkPixbuf loader cache: %s
+msgid "Unable to open GdkPixbuf loader cache: %s"
+msgstr ""
+
+#: src/gui.c:151
+#| Unable to seek GdkPixbuf loader cache
+msgid "Unable to seek GdkPixbuf loader cache"
+msgstr ""
+
+#: src/gui.c:155
+#| Unable to read GdkPixbuf loader cache
+msgid "Unable to read GdkPixbuf loader cache"
+msgstr ""
+
+#: src/gui.c:162
+#| Unable to read GdkPixbuf loader cache
+msgid "Unable to read GdkPixbuf loader cache"
+msgstr ""
+
+#: src/gui.c:169
+#| GdkPixbuf loader cache placeholder not found
+msgid "GdkPixbuf loader cache placeholder not found"
+msgstr ""
+
+#: src/gui.c:191
+#| Unable to create temporary GdkPixbuf loader cache
+msgid "Unable to create temporary GdkPixbuf loader cache"
+msgstr ""
+
+#: src/gui.c:195
+#| Unable to open temporary GdkPixbuf loader cache
+msgid "Unable to open temporary GdkPixbuf loader cache"
+msgstr ""
+
+#: src/gui.c:198
+#| Unable to write temporary GdkPixbuf loader cache
+msgid "Unable to write temporary GdkPixbuf loader cache"
+msgstr ""
+
+#: src/gui.c:203
+#| Unable to close temporary GdkPixbuf loader cache
+msgid "Unable to close temporary GdkPixbuf loader cache"
+msgstr ""
+
+#: src/gui.c:207
+#| Unable to configure GdkPixbuf loader paths
+msgid "Unable to configure GdkPixbuf loader paths"
+msgstr ""
+
+#: src/gui.c:847
+#| Failed: Read/Write error!
+msgid "Failed: Read/Write error!"
+msgstr ""

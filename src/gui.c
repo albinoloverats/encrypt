@@ -54,7 +54,6 @@
 /* project inculdes */
 
 #include "gui.h"
-#include "gui-gtk.h"
 
 #include "crypt.h"
 #include "encrypt.h"
@@ -157,7 +156,7 @@ extern void configure_pixbuf_loaders(void)
 
 	char *contents = malloc((size_t)length + 1);
 	if (!contents)
-		die(_("Out of memory"));
+		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, capacity);
 
 	if (fread(contents, 1, (size_t)length, input) != (size_t)length)
 		die(_("Unable to read GdkPixbuf loader cache"));
@@ -177,7 +176,7 @@ extern void configure_pixbuf_loaders(void)
 	size_t output_length = prefix_length + framework_length + suffix_length;
 	char *output = malloc(output_length + 1);
 	if (!output)
-		die(_("Out of memory"));
+		die(_("Out of memory @ %s:%d:%s [%zu]"), __FILE__, __LINE__, __func__, capacity);
 
 	memcpy(output, contents, prefix_length);
 	memcpy(output + prefix_length, framework_path, framework_length);
@@ -284,40 +283,117 @@ extern void auto_select_algorithms(gtk_widgets_s *data, char *cipher, char *hash
 	return;
 }
 
-extern void set_key_source_menu(gtk_widgets_s *data, key_source_e source)
+static void menu_action_quit(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
-	switch (source)
-	{
-		case KEY_SOURCE_FILE:
-			gtk_check_menu_item_set_active((GtkCheckMenuItem *)data->key_file_menu_item, TRUE);
-			gtk_check_menu_item_set_active((GtkCheckMenuItem *)data->key_password_menu_item, FALSE);
-			break;
-		case KEY_SOURCE_PASSWORD:
-			gtk_check_menu_item_set_active((GtkCheckMenuItem *)data->key_file_menu_item, FALSE);
-			gtk_check_menu_item_set_active((GtkCheckMenuItem *)data->key_password_menu_item, TRUE);
-			break;
-	}
-	return;
+	(void)action;
+	(void)parameter;
+	gtk_widgets_s *data = user_data;
+	gtk_widget_destroy(data->main_window);
 }
 
-extern void set_compatibility_menu(gtk_widgets_s *data, char *version)
+static void menu_action_about(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
-	GSList *g = NULL;
-	version_e v = parse_version(version);
+	(void)action;
+	(void)parameter;
+	on_about_open(NULL, user_data);
+}
+
+static void menu_action_boolean_change(GSimpleAction *action, GVariant *value, gpointer user_data)
+{
+	gtk_widgets_s *data = user_data;
+	const char *name = g_action_get_name(G_ACTION(action));
+	gboolean active = g_variant_get_boolean(value);
+
+	if (!strcmp(name, CONF_COMPRESS))
+	{
+		_compress = active;
+		update_config(CONF_COMPRESS, active ? CONF_TRUE : CONF_FALSE);
+	}
+	else if (!strcmp(name, CONF_FOLLOW))
+	{
+		_follow = active;
+		update_config(CONF_FOLLOW, active ? CONF_TRUE : CONF_FALSE);
+	}
+	else if (!strcmp(name, CONF_SKIP_HEADER))
+	{
+		_raw = active;
+		update_config(CONF_SKIP_HEADER, active ? CONF_TRUE : CONF_FALSE);
+		set_raw_buttons(data, active);
+	}
+
+	g_simple_action_set_state(action, value);
+}
+
+static void menu_action_key_source_change(GSimpleAction *action, GVariant *value, gpointer user_data)
+{
+	gtk_widgets_s *data = user_data;
+	const char *source = g_variant_get_string(value, NULL);
+
+	_key_source = !strcmp(source, "file") ? KEY_SOURCE_FILE : KEY_SOURCE_PASSWORD;
+	update_config(CONF_KEY_SOURCE, KEY_SOURCE[_key_source]);
+	gtk_widget_hide(_key_source == KEY_SOURCE_PASSWORD ? data->key_button : data->password_entry);
+	gtk_widget_show(_key_source == KEY_SOURCE_PASSWORD ? data->password_entry : data->key_button);
+	g_simple_action_set_state(action, value);
+}
+
+static void menu_action_compatibility_change(GSimpleAction *action, GVariant *value, gpointer user_data)
+{
+	(void)user_data;
+	_version = parse_version((char *)g_variant_get_string(value, NULL));
+	update_config(CONF_VERSION, get_version_string(_version));
+	g_simple_action_set_state(action, value);
+}
+
+static void menu_add_action(GtkApplication *app, const char *name, GVariant *state, GCallback callback, gpointer data)
+{
+	const GVariantType *type = g_variant_is_of_type(state, G_VARIANT_TYPE_STRING)
+		? G_VARIANT_TYPE_STRING
+		: NULL;
+	GSimpleAction *action = state
+		? g_simple_action_new_stateful(name, type, state)
+		: g_simple_action_new(name, NULL);
+	g_signal_connect(action, state ? "change-state" : "activate", callback, data);
+	g_action_map_add_action(G_ACTION_MAP(app), G_ACTION(action));
+	g_object_unref(action);
+}
+
+extern void gui_setup_menus(GtkApplication *app, GtkBuilder *builder, gtk_widgets_s *data, bool compress, bool follow, bool raw, const char *key_source, char *version)
+{
+	GMenuModel *menubar = G_MENU_MODEL(gtk_builder_get_object(builder, "menubar"));
+	version_e selected = parse_version(version);
+
+	data->compatibility_menu = G_MENU(gtk_builder_get_object(builder, "compatibility_menu"));
+	_compress = compress;
+	_follow = follow;
+	_raw = raw;
+	_key_source = !strcasecmp(key_source, "file") ? KEY_SOURCE_FILE : KEY_SOURCE_PASSWORD;
+	gtk_widget_hide(_key_source == KEY_SOURCE_PASSWORD ? data->key_button : data->password_entry);
+	gtk_widget_show(_key_source == KEY_SOURCE_PASSWORD ? data->password_entry : data->key_button);
+
+	menu_add_action(app, "quit", NULL, G_CALLBACK(menu_action_quit), data);
+	menu_add_action(app, "about", NULL, G_CALLBACK(menu_action_about), data);
+	menu_add_action(app, "compress", g_variant_new_boolean(compress), G_CALLBACK(menu_action_boolean_change), data);
+	menu_add_action(app, "follow", g_variant_new_boolean(follow), G_CALLBACK(menu_action_boolean_change), data);
+	menu_add_action(app, "raw", g_variant_new_boolean(raw), G_CALLBACK(menu_action_boolean_change), data);
+	menu_add_action(app, "key-source", g_variant_new_string(_key_source == KEY_SOURCE_FILE ? "file" : "password"), G_CALLBACK(menu_action_key_source_change), data);
+
+	if (selected == VERSION_UNKNOWN)
+		selected = VERSION_CURRENT;
+	_version = selected;
 	for (version_e i = VERSION_CURRENT; i > VERSION_UNKNOWN; i--)
 	{
-		const char *t = get_version_string(i);
-		GtkWidget *m = gtk_radio_menu_item_new_with_label(g, t);
-		g = gtk_radio_menu_item_get_group((GtkRadioMenuItem *)m);
-		gtk_menu_shell_append((GtkMenuShell *)data->compat_menu, m);
-		g_signal_connect(G_OBJECT(m), "toggled", G_CALLBACK(on_compatibility_change), data);
-		gtk_widget_show(m);
-		if (i == v || i == VERSION_CURRENT)
-		{
-			gtk_check_menu_item_set_active((GtkCheckMenuItem *)m, TRUE);
-			_version = i;
-		}
+		const char *label = get_version_string(i);
+		GMenuItem *item = g_menu_item_new(label, NULL);
+		g_menu_item_set_action_and_target(item, "app.compatibility", "s", label);
+		g_menu_append_item(data->compatibility_menu, item);
+		g_object_unref(item);
 	}
+	menu_add_action(app, "compatibility", g_variant_new_string(get_version_string(selected)), G_CALLBACK(menu_action_compatibility_change), data);
+
+	gtk_application_set_menubar(app, menubar);
+#ifdef __APPLE__
+	gtk_application_set_app_menu(app, G_MENU_MODEL(gtk_builder_get_object(builder, "app-menu")));
+#endif
 
 	return;
 }
@@ -554,20 +630,6 @@ G_MODULE_EXPORT gboolean algorithm_combo_callback(GtkComboBox *combo_box, gtk_wi
 	return (void)combo_box, TRUE;
 }
 
-G_MODULE_EXPORT gboolean on_key_source_change(GtkWidget *widget, gtk_widgets_s *data)
-{
-	if (widget == data->key_file_menu_item)
-		_key_source = KEY_SOURCE_FILE;
-	else if (widget == data->key_password_menu_item)
-		_key_source = KEY_SOURCE_PASSWORD;
-	update_config(CONF_KEY_SOURCE, KEY_SOURCE[_key_source]);
-
-	gtk_widget_hide(_key_source == KEY_SOURCE_PASSWORD ? data->key_button : data->password_entry);
-	gtk_widget_show(_key_source == KEY_SOURCE_PASSWORD ? data->password_entry : data->key_button);
-
-	return (void)data, TRUE;
-}
-
 G_MODULE_EXPORT gboolean password_entry_callback(GtkComboBox *password_entry, gtk_widgets_s *data)
 {
 	char *key_data = (char *)gtk_entry_get_text((GtkEntry *)password_entry);
@@ -660,7 +722,6 @@ G_MODULE_EXPORT gboolean on_progress_button_clicked(GtkButton *button, gtk_widge
 
 G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_s *data)
 {
-
 	char *build_info = version_build_info();
 	gtk_text_buffer_set_text((GtkTextBuffer *)data->build_info_text_buffer, build_info, -1);
 	free(build_info);
@@ -678,32 +739,6 @@ G_MODULE_EXPORT gboolean on_about_open(GtkWidget *widget, gtk_widgets_s *data)
 	return (void)widget, TRUE;
 }
 
-G_MODULE_EXPORT gboolean on_compress_toggle(GtkWidget *widget, gtk_widgets_s *data)
-{
-	_compress = gtk_check_menu_item_get_active((GtkCheckMenuItem *)widget);
-	update_config(CONF_COMPRESS, _compress ? CONF_TRUE : CONF_FALSE);
-
-	return (void)data, TRUE;
-}
-
-G_MODULE_EXPORT gboolean on_follow_toggle(GtkWidget *widget, gtk_widgets_s *data)
-{
-	_follow = gtk_check_menu_item_get_active((GtkCheckMenuItem *)widget);
-	update_config(CONF_FOLLOW, _follow ? CONF_TRUE : CONF_FALSE);
-
-	return (void)data, TRUE;
-}
-
-G_MODULE_EXPORT gboolean on_raw_toggle(GtkWidget *widget, gtk_widgets_s *data)
-{
-	_raw = gtk_check_menu_item_get_active((GtkCheckMenuItem *)widget);
-	update_config(CONF_SKIP_HEADER, _raw ? CONF_TRUE : CONF_FALSE);
-
-	set_raw_buttons(data, _raw);
-
-	return (void)data, TRUE;
-}
-
 inline extern void set_raw_buttons(gtk_widgets_s *data, bool raw)
 {
 	if (raw)
@@ -719,15 +754,6 @@ inline extern void set_raw_buttons(gtk_widgets_s *data, bool raw)
 		gtk_widget_hide(data->raw_decrypt_button);
 	}
 	return;
-}
-
-G_MODULE_EXPORT gboolean on_compatibility_change(GtkWidget *widget, gtk_widgets_s *data)
-{
-	_version = parse_version(gtk_menu_item_get_label((GtkMenuItem *)widget));
-	const char *v = get_version_string(_version);
-	update_config(CONF_VERSION, v);
-
-	return (void)data, TRUE;
 }
 
 extern void set_status_bar(GtkStatusbar *status_bar, const char *status)

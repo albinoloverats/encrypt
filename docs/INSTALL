@@ -30,42 +30,50 @@ system:
 Compiling from Source
 ---------------------
 
-### Prerequisites
+### Dependencies
 
 To compile from source you will need the following:
 
+* cmake
+* pkgconfig
 * GTK (version 3 or newer)
 * libgcrypt
 * liblzma
 * libcurl
 * pthreads
+* cmocka (for tests)
 
 
-### Linux / FreeBSD
+### Linux / FreeBSD / Solaris
 
 Most of the above are installed as part of the base (or core) OS on many
-distributions  (but not always).  On FreeBSD use Makefile.bsd instead of
-Makefile. Also note that there is no configure step, so just do the fol-
-lowing:
+distributions (but not always).
 
-* make
-* make install
+    cmake -S . -B build
+    cmake --build build
 
 ### For non-GNU/Linux
 
-* Microsoft Windows
-  - Install MSYS2 (following their instructions)
-  - Install (using MSYS2) all of the above dependencies
-  - Use Makefile.win to build encrypt.exe
-  - Use the same makefile to build the installer
+For Microsoft Windows and Apple's macOS there are a few prerequisites to
+get a suitable build environment together, but then the instructions are
+the same as above.
 
-* Mac OS X
-  - Install Homebrew (http://mxcl.github.com/homebrew/)
-  - Install (using Homebrew) libgcrypt, xz and curl
-  - Use Xcode to build a native OS X application: Encrypt.app
-  - Copy Encrypt.app to Applications
+#### Microsoft Windows
 
-* Android
-  - gnu-crypto.jar
-  - xz-1.0.jar
-  - Android File Dialog - http://code.google.com/p/android-file-dialog/
+* Install MSYS2 --- https://www.msys2.org/
+* Install all of the above dependencies using MSYS2
+
+#### Apple's macOS
+
+* Install MacPorts --- https://www.macports.org/
+* Install all of the above dependencies using MacPorts. GTK will need to
+  use the options: +Quartz -x11
+* Final step to bundle the dependencies into the application:
+
+    cmake --install build --prefix "$PWD/stage"
+
+#### Android
+
+* gnu-crypto.jar
+* xz-1.0.jar
+* Android File Dialog - http://code.google.com/p/android-file-dialog/

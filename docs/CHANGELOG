@@ -18,23 +18,23 @@ encrypt - 202X.XX                                       XXth XXXXXX 202X
 
 ### Desktop
 
-* Confine directory extraction to the selected destination and reject
-  input/output collisions
-* Propagate I/O failures through encryption and decryption, and harden
+* Reject input/output collisions
+* Propagate  I/O  failures through encryption and decryption, and harden
   handling of truncated or corrupted streams
 * Validate container headers and metadata before detection or parsing
 * Read key files only when seeking and complete reads succeed
 * Correct symlink handling, compressed EOF behavior, and CLI exit/status
   handling
-* Add a password-recovery utility
+* Unify build configuration
+* Switch to GTK-Quartz on macOS (removes separate XCode project)
 
 ### Android
 
-* Update Android 13+ storage-permission handling and restrict progress
+* Update  Android 13+  storage-permission handling and restrict progress
   broadcasts to the app
-* Centralise container header, metadata, compression, and verification
+* Centralise container header,  metadata,  compression, and verification
   handling for encryption and decryption
-* Handle short, partial, and truncated reads correctly in encrypted and
+* Handle short,  partial, and truncated reads correctly in encrypted and
   ECC streams; validate stream bounds and output-stream state
 * Read key files completely and reject empty or unreadable key data
 

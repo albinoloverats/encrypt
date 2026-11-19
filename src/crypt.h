@@ -50,7 +50,11 @@
 #endif
 #define UPDATE_URL "https://albinoloverats.net/encrypt.release" /*!< URI to check for updates */
 #define PROJECT_URL "https://albinoloverats.net/projects/encrypt"
-#define ENCRYPTRC ".encryptrc"
+#if !defined __DEBUG__
+	#define ENCRYPTRC ".encryptrc"
+#else
+	#define ENCRYPTRC "etc/encryptrc"
+#endif
 
 #if defined _WIN32
 	#define DOWNLOAD_URL_TEMPLATE "https://albinoloverats.net/downloads/encrypt/%s/encrypt-%s-install.exe"
