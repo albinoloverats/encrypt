@@ -17,14 +17,6 @@ include(GNUInstallDirs)
 
 find_program(GZIP_EXECUTABLE gzip REQUIRED)
 
-set(BASH_COMPLETION_DIR
-	"${CMAKE_INSTALL_DATADIR}/bash-completion/completions"
-	CACHE PATH "Bash completion installation directory")
-
-set(ZSH_COMPLETION_DIR
-	"${CMAKE_INSTALL_DATADIR}/zsh/site-functions"
-	CACHE PATH "Zsh completion installation directory")
-
 option(BUILD_GUI "Build the graphical application" ON)
 option(BUILD_TESTS "Build and run unit tests before building the application" ${BUILD_TESTING})
 option(ENABLE_COVERAGE "Enable code coverage instrumentation and reporting" OFF)
@@ -387,12 +379,8 @@ elseif(NOT WIN32)
 		)")
 	install(FILES etc/encrypt.glade etc/encryptrc etc/magic DESTINATION "${CMAKE_INSTALL_DATADIR}/encrypt")
 	install(FILES etc/encrypt.desktop DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")
-	install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/etc/autocomplete.bash"
-		DESTINATION "${BASH_COMPLETION_DIR}"
-		RENAME encrypt)
-	install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/etc/autocomplete.zsh"
-		DESTINATION "${ZSH_COMPLETION_DIR}"
-		RENAME _encrypt)
+	install(FILES etc/autocomplete.bash DESTINATION "${CMAKE_INSTALL_DATADIR}/bash-completion/completions" RENAME encrypt)
+	install(FILES etc/autocomplete.zsh DESTINATION "${CMAKE_INSTALL_DATADIR}/zsh/site-functions" RENAME _encrypt)
 	install(FILES
 		pixmaps/encrypt.svg
 		pixmaps/encrypt_button.svg
