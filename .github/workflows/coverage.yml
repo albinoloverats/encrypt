@@ -27,6 +27,8 @@ jobs:
         run: cmake -S . -B build -DBUILD_GUI=OFF -DBUILD_TESTS=ON -DENABLE_COVERAGE=ON
       - name: build-and-test
         run: cmake --build build --target coverage --parallel
+      - name: cli-tests
+        run: (cd build && sh ../test/test_cli_compressed_eof.sh)
       - name: coverage-report
         uses: actions/upload-artifact@v4
         with:
