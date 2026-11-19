@@ -17,7 +17,7 @@ build:
     - cmake -S . -B build -DBUILD_GUI=OFF -DBUILD_TESTS=ON -DENABLE_COVERAGE=ON
     - cmake --build build --target coverage --parallel
     - (cd build && sh ../test/test_cli_compressed_eof.sh)
-  coverage: '/lines: ([0-9]+\\.[0-9]+)%/'
+  coverage: '/lines: ([0-9]+\.[0-9]+)%/'
   artifacts:
     paths:
       - build/encrypt
@@ -33,7 +33,7 @@ test:
   dependencies:
     - build
   before_script:
-    - apt-get update && apt-get install -y libgcrypt20 liblzma5 libcurl4-gnutls3
+    - apt-get update && apt-get install -y libgcrypt20 libgcrypt20-dev liblzma5 liblzma-dev libcurl4-gnutls-dev libcmocka-dev
   script:
     - cp etc/encryptrc ~/.encryptrc
     - ./build/encrypt --self-test
